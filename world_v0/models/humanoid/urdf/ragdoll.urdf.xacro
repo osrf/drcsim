@@ -1,0 +1,502 @@
+<robot name="ragdoll" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- hip is the root link -->
+
+  <property name="M_PI" value="3.1415926535897931" />
+
+  <property name="head_mass"           value="10.0" />
+  <property name="neck_mass"           value="1.0" />
+  <property name="torso_mass"          value="30.0" />
+  <property name="hip_mass"            value="10.0" />
+  <property name="thigh_pan_mass"      value="1.0" />
+  <property name="thigh_lift_mass"     value="5.0" />
+  <property name="calf_mass"           value="2.0" />
+  <property name="ankle_mass"          value="1.0" />
+  <property name="foot_mass"           value="1.0" />
+  <property name="shoulder_mass"       value="1.0" />
+  <property name="upper_arm_mass"      value="2.0" />
+  <property name="forearm_mass"        value="1.0" />
+  <property name="wrist_mass"          value="1.0" />
+  <property name="hand_mass"           value="1.0" />
+
+  <property name="head_radius"          value="0.15" />
+  <property name="neck_radius"          value="0.075" />
+  <property name="neck_length"          value="0.2" />
+  <property name="torso_x"              value="0.10" />
+  <property name="torso_y"              value="0.6" />
+  <property name="torso_z"              value="0.7" />
+  <property name="hip_x"                value="0.10" />
+  <property name="hip_y"                value="0.5" />
+  <property name="hip_z"                value="0.25" />
+
+  <property name="thigh_pan_radius"     value="0.06" />
+  <property name="thigh_lift_radius"    value="0.06" />
+  <property name="thigh_lift_length"    value="0.70" />
+  <property name="calf_radius"          value="0.05" />
+  <property name="calf_length"          value="0.60" />
+  <property name="ankle_radius"         value="0.05" />
+  <property name="foot_x"               value="0.20" />
+  <property name="foot_y"               value="0.03" />
+  <property name="foot_z"               value="0.05" />
+
+  <property name="shoulder_radius"      value="0.055" />
+  <property name="upper_arm_radius"     value="0.055" />
+  <property name="upper_arm_length"     value="0.60" />
+  <property name="forearm_radius"       value="0.05" />
+  <property name="forearm_length"       value="0.45" />
+  <property name="wrist_radius"         value="0.03" />
+  <property name="hand_x"               value="0.03" />
+  <property name="hand_y"               value="0.10" />
+  <property name="hand_z"               value="0.20" />
+
+  <property name="upper_limit"          value="1.57" />
+  <property name="lower_limit"          value="-1.57" />
+  
+
+
+  <link name="head">
+    <inertial>
+      <mass value="${head_mass}" />
+      <origin xyz="0 0 0" />
+      <inertia  ixx="${head_mass/100}" ixy="0" ixz="0" iyy="${head_mass/100}" iyz="0" izz="${head_mass/100}" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <sphere radius="${head_radius}"/>
+      </geometry>
+      <material name="head_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <sphere radius="${head_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- remove -->
+  <joint name="head_joint" type="revolute">
+    <axis xyz="0 1 0"/>
+    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+    <origin xyz="0 0 ${neck_length+head_radius/2}" rpy="0 0 0"/>
+    <parent link="neck"/>
+    <child link="head"/>
+  </joint>
+
+  <link name="neck">
+    <inertial>
+      <mass value="${neck_mass}" />
+      <origin xyz="0 0 0" />
+      <inertia  ixx="${neck_mass/100}" ixy="0" ixz="0" iyy="${neck_mass/100}" iyz="0" izz="${neck_mass/100}" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${neck_length/2}" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="${neck_radius}" length="${neck_length}"/>
+      </geometry>
+      <material name="neck_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${neck_length/2}" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="${neck_radius}" length="${neck_length}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="neck_joint" type="revolute">
+    <axis xyz="0 0 1"/>
+    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+    <origin xyz="0 0 ${torso_z}" rpy="0 0 0"/>
+    <parent link="torso"/>
+    <child link="neck"/>
+  </joint>
+
+  <link name="torso">
+    <inertial>
+      <mass value="${torso_mass}" />
+      <origin xyz="0 0 0" />
+      <inertia  ixx="${torso_mass/100}" ixy="0" ixz="0" iyy="${torso_mass/100}" iyz="0" izz="${torso_mass/100}" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${torso_z/2}" rpy="0 0 0" />
+      <geometry>
+        <box size="${torso_x} ${torso_y} ${torso_z}"/>
+      </geometry>
+      <material name="torso_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${torso_z/2}" rpy="0 0 0" />
+      <geometry>
+        <box size="${torso_x} ${torso_y} ${torso_z}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_joint" type="revolute">
+    <axis xyz="0 1 0"/>
+    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+    <origin xyz="0 0 ${hip_z}" rpy="0 0 0"/>
+    <parent link="hip"/>
+    <child link="torso"/>
+  </joint>
+
+  <link name="hip">
+    <inertial>
+      <mass value="${hip_mass}" />
+      <origin xyz="0 0 0" />
+      <inertia  ixx="${hip_mass/100}" ixy="0" ixz="0" iyy="${hip_mass/100}" iyz="0" izz="${hip_mass/100}" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${hip_z/2}" rpy="0 0 0" />
+      <geometry>
+        <box size="${hip_x} ${hip_y} ${hip_z}"/>
+      </geometry>
+      <material name="hip_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${hip_z/2}" rpy="0 0 0" />
+      <geometry>
+        <box size="${hip_x} ${hip_y} ${hip_z}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!--
+  <link name="world"/>
+  <joint name="hip_joint" type="revolute">
+    <axis xyz="0 1 0"/>
+    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+    <origin xyz="0 0 ${-hip_z}" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="hip"/>
+  </joint>
+  -->
+
+  <xacro:macro name="leg" params="side *origin">
+    <link name="${side}_thigh_pan">
+      <inertial>
+        <mass value="${thigh_pan_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${thigh_pan_mass/100}" ixy="0" ixz="0" iyy="${thigh_pan_mass/100}" iyz="0" izz="${thigh_pan_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${-thigh_pan_radius/2}" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${thigh_pan_radius}"/>
+        </geometry>
+      <material name="${side}_thigh_pan_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-thigh_pan_radius/2}" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${thigh_pan_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_thigh_pan_joint" type="revolute">
+      <axis xyz="0 0 1"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <insert_block name="origin" />
+      <parent link="hip"/>
+      <child link="${side}_thigh_pan"/>
+    </joint>
+
+    <link name="${side}_thigh_lift">
+      <inertial>
+        <mass value="${thigh_lift_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${thigh_lift_mass/100}" ixy="0" ixz="0" iyy="${thigh_lift_mass/100}" iyz="0" izz="${thigh_lift_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${-thigh_lift_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${thigh_lift_radius}" length="${thigh_lift_length}"/>
+        </geometry>
+      <material name="${side}_thigh_lift_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-thigh_lift_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${thigh_lift_radius}" length="${thigh_lift_length}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_thigh_lift_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${side}_thigh_pan"/>
+      <child link="${side}_thigh_lift"/>
+    </joint>
+
+    <link name="${side}_calf">
+      <inertial>
+        <mass value="${calf_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${calf_mass/100}" ixy="0" ixz="0" iyy="${calf_mass/100}" iyz="0" izz="${calf_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${-calf_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${calf_radius}" length="${calf_length}"/>
+        </geometry>
+      <material name="${side}_calf_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-calf_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${calf_radius}" length="${calf_length}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_calf_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-thigh_lift_length}" rpy="0 0 0"/>
+      <parent link="${side}_thigh_lift"/>
+      <child link="${side}_calf"/>
+    </joint>
+
+    <link name="${side}_ankle">
+      <inertial>
+        <mass value="${ankle_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${ankle_mass/100}" ixy="0" ixz="0" iyy="${ankle_mass/100}" iyz="0" izz="${ankle_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${ankle_radius}"/>
+        </geometry>
+      <material name="${side}_ankle_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${ankle_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_ankle_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-calf_length-ankle_radius/2}" rpy="0 0 0"/>
+      <parent link="${side}_calf"/>
+      <child link="${side}_ankle"/>
+    </joint>
+
+    <link name="${side}_foot">
+      <inertial>
+        <mass value="${foot_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${foot_mass/100}" ixy="0" ixz="0" iyy="${foot_mass/100}" iyz="0" izz="${foot_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="${foot_x/2} 0 ${-foot_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${foot_x} ${foot_y} ${foot_z}"/>
+        </geometry>
+      <material name="${side}_foot_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="${foot_x/2} 0 ${-foot_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${foot_x} ${foot_y} ${foot_z}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_foot_joint" type="revolute">
+      <axis xyz="1 0 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-ankle_radius/2}" rpy="0 0 0"/>
+      <parent link="${side}_ankle"/>
+      <child link="${side}_foot"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="arm" params="side *origin">
+    <link name="${side}_shoulder">
+      <inertial>
+        <mass value="${shoulder_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${shoulder_mass/100}" ixy="0" ixz="0" iyy="${shoulder_mass/100}" iyz="0" izz="${shoulder_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${shoulder_radius}"/>
+        </geometry>
+      <material name="${side}_shoulder_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${shoulder_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_shoulder_joint" type="revolute">
+      <axis xyz="1 0 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <insert_block name="origin" />
+      <parent link="torso"/>
+      <child link="${side}_shoulder"/>
+    </joint>
+
+    <link name="${side}_upper_arm">
+      <inertial>
+        <mass value="${upper_arm_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${upper_arm_mass/100}" ixy="0" ixz="0" iyy="${upper_arm_mass/100}" iyz="0" izz="${upper_arm_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${-upper_arm_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${upper_arm_radius}" length="${upper_arm_length}"/>
+        </geometry>
+      <material name="${side}_upper_arm_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-upper_arm_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${upper_arm_radius}" length="${upper_arm_length}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_upper_arm_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${side}_shoulder"/>
+      <child link="${side}_upper_arm"/>
+    </joint>
+
+    <link name="${side}_forearm">
+      <inertial>
+        <mass value="${forearm_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${forearm_mass/100}" ixy="0" ixz="0" iyy="${forearm_mass/100}" iyz="0" izz="${forearm_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${-forearm_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${forearm_radius}" length="${forearm_length}"/>
+        </geometry>
+      <material name="${side}_forearm_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-forearm_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${forearm_radius}" length="${forearm_length}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_forearm_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-upper_arm_length}" rpy="0 0 0"/>
+      <parent link="${side}_upper_arm"/>
+      <child link="${side}_forearm"/>
+    </joint>
+
+    <link name="${side}_wrist">
+      <inertial>
+        <mass value="${wrist_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${wrist_mass/100}" ixy="0" ixz="0" iyy="${wrist_mass/100}" iyz="0" izz="${wrist_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${wrist_radius}"/>
+        </geometry>
+      <material name="${side}_wrist_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${wrist_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_wrist_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-forearm_length-wrist_radius/2}" rpy="0 0 0"/>
+      <parent link="${side}_forearm"/>
+      <child link="${side}_wrist"/>
+    </joint>
+
+    <link name="${side}_hand">
+      <inertial>
+        <mass value="${hand_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${hand_mass/100}" ixy="0" ixz="0" iyy="${hand_mass/100}" iyz="0" izz="${hand_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${-hand_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${hand_x} ${hand_y} ${hand_z}"/>
+        </geometry>
+      <material name="${side}_hand_color">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-hand_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${hand_x} ${hand_y} ${hand_z}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${side}_hand_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-wrist_radius/2}" rpy="0 0 0"/>
+      <parent link="${side}_wrist"/>
+      <child link="${side}_hand"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:leg side="l">
+      <origin xyz="0 ${hip_y/2-thigh_pan_radius/2} 0" rpy="0 0 0"/>
+  </xacro:leg>
+  <xacro:arm side="l">
+    <origin xyz="0 ${torso_y/2+shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
+  </xacro:arm>
+
+  <xacro:leg side="r">
+      <origin xyz="0 ${-hip_y/2+thigh_pan_radius/2} 0" rpy="0 0 0"/>
+  </xacro:leg>
+  <xacro:arm side="r">
+    <origin xyz="0 ${-torso_y/2-shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
+  </xacro:arm>
+
+
+
+</robot>

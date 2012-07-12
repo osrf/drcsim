@@ -1,0 +1,18 @@
+<package>
+  <description brief="humanoid">
+
+     humanoid
+
+  </description>
+  <author>John</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/humanoid</url>
+  <depend package="robot_state_publisher"/>
+  <depend package="joint_state_publisher"/>
+  <depend package="xacro"/>
+  <depend package="rviz"/>
+
+</package>
+
+

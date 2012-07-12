@@ -1,0 +1,2 @@
+#dependent_joints:
+#  torso_joint: {parent: torso_joint, factor: 0.5 }
