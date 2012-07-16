@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+<gazebo version="1.0">
+  <world name="default">
+    <!-- A ground plane -->
+    <include filename="ground_plane.model"/>
+
+    <!-- A global light source -->
+    <include filename="sun.light"/>
+
+    <plugin filename="libRubblePlugin.so" name="rubble">
+      <bottom_right>0.0 0.0 0.0</bottom_right>
+      <top_left>1.0 4.0 1.0</top_left>
+      <min_size>0.05 0.05 0.05</min_size>
+      <max_size>0.2 0.2 0.2</max_size>
+      <count>200</count>
+    </plugin>
+  </world>
+</gazebo>
