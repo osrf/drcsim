@@ -1,7 +1,7 @@
 <gazebo version='1.0'>
   <model name='ragdoll' static='0'>
     <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
-    <link name='hip' gravity='1' self_collide='0' kinematic='0'>
+    <link name='hip' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
       <inertial mass='10.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -29,7 +29,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_thigh_pan' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_thigh_pan' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.220000 0.000000 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -57,7 +57,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_thigh_lift' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_thigh_lift' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.220000 0.000000 0.000000 -0.000000 0.000000'/>
       <inertial mass='5.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -85,7 +85,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_calf' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_calf' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.220000 -0.700000 0.000000 -0.000000 0.000000'/>
       <inertial mass='2.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -113,7 +113,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_ankle' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_ankle' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.220000 -1.325000 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -169,7 +169,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_thigh_pan' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_thigh_pan' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.220000 0.000000 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -197,7 +197,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_thigh_lift' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_thigh_lift' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.220000 0.000000 0.000000 -0.000000 0.000000'/>
       <inertial mass='5.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -225,7 +225,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_calf' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_calf' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.220000 -0.700000 0.000000 -0.000000 0.000000'/>
       <inertial mass='2.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -253,7 +253,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_ankle' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_ankle' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.220000 -1.325000 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -309,7 +309,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='torso' gravity='1' self_collide='0' kinematic='0'>
+    <link name='torso' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.000000 0.250000 0.000000 -0.000000 0.000000'/>
       <inertial mass='30.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -337,7 +337,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_shoulder' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_shoulder' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.327500 0.922500 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -365,7 +365,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_upper_arm' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_upper_arm' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.327500 0.922500 0.000000 -0.000000 0.000000'/>
       <inertial mass='2.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -393,7 +393,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_forearm' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_forearm' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.327500 0.322500 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -421,7 +421,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='l_wrist' gravity='1' self_collide='0' kinematic='0'>
+    <link name='l_wrist' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.327500 -0.142500 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -477,7 +477,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='neck' gravity='1' self_collide='0' kinematic='0'>
+    <link name='neck' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.000000 0.950000 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -505,7 +505,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='head' gravity='1' self_collide='0' kinematic='0'>
+    <link name='head' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 0.000000 1.225000 0.000000 -0.000000 0.000000'/>
       <inertial mass='10.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -533,7 +533,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_shoulder' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_shoulder' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.327500 0.922500 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -561,7 +561,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_upper_arm' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_upper_arm' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.327500 0.922500 0.000000 -0.000000 0.000000'/>
       <inertial mass='2.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -589,7 +589,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_forearm' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_forearm' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.327500 0.322500 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
@@ -617,7 +617,7 @@
         </geometry>
       </visual>
     </link>
-    <link name='r_wrist' gravity='1' self_collide='0' kinematic='0'>
+    <link name='r_wrist' gravity='0' self_collide='0' kinematic='0'>
       <origin pose='0.000000 -0.327500 -0.142500 0.000000 -0.000000 0.000000'/>
       <inertial mass='1.000000' density='1.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
