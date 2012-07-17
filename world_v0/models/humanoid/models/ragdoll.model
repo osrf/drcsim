@@ -883,5 +883,6 @@
         <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
+    <plugin filename="libmove_ragdoll.so" name="move_ragdoll"/>
   </model>
 </gazebo>
