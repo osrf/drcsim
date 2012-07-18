@@ -15,15 +15,16 @@
  *
 */
 #include "physics/physics.h"
-#include "transport/Node.hh"
-#include "transport/Publisher.hh"
-#include "transport/TransportTypes.hh"
+#include "transport/transport.hh"
 #include "msgs/MessageTypes.hh"
 #include "common/Time.hh"
 #include "common/Events.hh"
 
 int main(int argc, char** argv)
 {
+  // std::list<std::string> worldNames;
+  // gazebo::transport::get_topic_namespaces(worldNames);
+
   gazebo::transport::NodePtr node;
   node = gazebo::transport::NodePtr(new gazebo::transport::Node());
   node->Init("pose_pub_node");
