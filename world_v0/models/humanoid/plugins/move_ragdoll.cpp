@@ -60,7 +60,7 @@ namespace gazebo
 
       this->node = transport::NodePtr(new transport::Node());
       this->node->Init(this->world->GetName());
-      this->modelPoseSub = this->node->Subscribe("~/model_pose", &MoveRagdoll::OnModelPose, this);
+      this->modelPoseSub = this->node->Subscribe("/model_poses", &MoveRagdoll::OnModelPose, this);
 
     }
 
@@ -69,16 +69,19 @@ namespace gazebo
     {
       boost::mutex::scoped_lock lock(this->trajectory_mutex);
       // play through the trajectory
+      bool update = false;
       math::Pose new_pose;
       // play through the poses in this trajectory
       common::Time curTime  = this->world->GetSimTime();
       for (; this->trajectory_index < this->trajectory_stamped.size(); ++this->trajectory_index ) {
 
+        printf("updating trajectory\n");
         const msgs::PoseStamped pose_stamped = this->trajectory_stamped.Get(this->trajectory_index);
 
         common::Time pose_time(pose_stamped.time().sec(), pose_stamped.time().nsec());
 
         if (curTime >= pose_time)
+        {
           new_pose = math::Pose( math::Vector3( pose_stamped.pose().position().x(),
                                                 pose_stamped.pose().position().y(),
                                                 pose_stamped.pose().position().z() ),
@@ -87,10 +90,16 @@ namespace gazebo
                                                    pose_stamped.pose().orientation().y(),
                                                    pose_stamped.pose().orientation().z() )
                                );
+          update = true;
+        }
         else
           break;
       }
-      this->model->SetWorldPose( new_pose );
+      if (update)
+      {
+        printf("updating pose\n");
+        this->model->SetWorldPose( new_pose );
+      }
     }
 
 
