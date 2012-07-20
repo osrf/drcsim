@@ -48,6 +48,6 @@ endif()
 
 
 add_executable(pub_poses pub_poses.cpp)
-target_link_libraries(pub_poses ${PROTOBUF_LIBRARY} ${GAZEBO_TRANSPORT_libraries} ${GAZEBO_libraries} ${Boost_LIBRARIES} pthread gazebo_transport gazebo_common gazebo_msgs)
+target_link_libraries(pub_poses ${PROTOBUF_LIBRARY} ${GAZEBO_TRANSPORT_libraries} ${GAZEBO_libraries} ${Boost_LIBRARIES} pthread gazebo gazebo_transport gazebo_common gazebo_msgs)
 INSTALL(TARGETS pub_poses DESTINATION bin)
 

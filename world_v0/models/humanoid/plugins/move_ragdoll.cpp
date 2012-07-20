@@ -60,7 +60,7 @@ namespace gazebo
 
       this->node = transport::NodePtr(new transport::Node());
       this->node->Init(this->world->GetName());
-      this->modelPoseSub = this->node->Subscribe("/model_poses", &MoveRagdoll::OnModelPose, this);
+      this->modelPoseSub = this->node->Subscribe("/gazebo/model_poses", &MoveRagdoll::OnModelPose, this);
 
     }
 
@@ -75,7 +75,6 @@ namespace gazebo
       common::Time curTime  = this->world->GetSimTime();
       for (; this->trajectory_index < this->trajectory_stamped.size(); ++this->trajectory_index ) {
 
-        printf("updating trajectory\n");
         const msgs::PoseStamped pose_stamped = this->trajectory_stamped.Get(this->trajectory_index);
 
         common::Time pose_time(pose_stamped.time().sec(), pose_stamped.time().nsec());
@@ -97,7 +96,7 @@ namespace gazebo
       }
       if (update)
       {
-        printf("updating pose\n");
+        gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
         this->model->SetWorldPose( new_pose );
       }
     }
