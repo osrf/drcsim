@@ -41,14 +41,16 @@ int main(int argc, char** argv)
   node->Init("default");
 
   gazebo::transport::SubscriberPtr sub = node->Subscribe("/gazebo/default/world_stats", &OnStats);
+
   gazebo::run();
   while(sim_time < 0)
   {
     gzwarn << sim_time << "\n";
   }
 
-  gazebo::transport::PublisherPtr pub;
-  pub = node->Advertise<gazebo::msgs::PoseTrajectory>("/gazebo/model_poses",10);
+  gazebo::transport::PublisherPtr pubPoses;
+  pubPoses = node->Advertise<gazebo::msgs::PoseTrajectory>("/gazebo/model_poses",10);
+  pubPoses->WaitForConnection();
 
   gazebo::msgs::PoseTrajectory pose_trajectory;
   pose_trajectory.set_name("test_trajecotry");
@@ -71,15 +73,82 @@ int main(int argc, char** argv)
 
     pose_trajectory.add_pose_stamped()->CopyFrom(pose_stamped);
   }
+  //pubPoses->Publish(pose_trajectory);
 
-  int count = 0;
-  while (count < 1)
-  {
-    pub->Publish(pose_trajectory);
-    count++;
-  }
 
-  gazebo::run();
+  gazebo::transport::PublisherPtr pubConfiguration;
+  pubConfiguration = node->Advertise<gazebo::msgs::ModelConfiguration>("/gazebo/model_configuration",10);
+  pubConfiguration->WaitForConnection();
+
+  gazebo::msgs::ModelConfiguration model_configuration;
+  model_configuration.mutable_time()->set_sec((sim_time.sec)); // delay 10 seconds
+  model_configuration.mutable_time()->set_nsec((sim_time.nsec));
+
+  model_configuration.add_joint_names("l_ankle_joint");
+  model_configuration.add_joint_names("r_ankle_joint");
+  model_configuration.add_joint_names("r_foot_joint");
+  model_configuration.add_joint_names("l_foot_joint");
+
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+
+  model_configuration.add_joint_names("l_thigh_pan_joint");
+  model_configuration.add_joint_names("l_thigh_lift_joint");
+  model_configuration.add_joint_names("l_calf_joint");
+
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+
+  model_configuration.add_joint_names("r_thigh_pan_joint");
+  model_configuration.add_joint_names("r_thigh_lift_joint");
+  model_configuration.add_joint_names("r_calf_joint");
+
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+
+  model_configuration.add_joint_names("torso_joint");
+
+  model_configuration.add_joint_positions(0.0);
+
+  model_configuration.add_joint_names("l_shoulder_joint");
+  model_configuration.add_joint_names("l_upper_arm_joint");
+  model_configuration.add_joint_names("l_forearm_joint");
+  model_configuration.add_joint_names("l_wrist_joint");
+  model_configuration.add_joint_names("l_hand_joint");
+
+  model_configuration.add_joint_positions(1.57);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+
+  model_configuration.add_joint_names("r_shoulder_joint");
+  model_configuration.add_joint_names("r_upper_arm_joint");
+  model_configuration.add_joint_names("r_forearm_joint");
+  model_configuration.add_joint_names("r_wrist_joint");
+  model_configuration.add_joint_names("r_hand_joint");
+
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+
+  model_configuration.add_joint_names("neck_joint");
+  model_configuration.add_joint_names("head_joint");
+
+  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(0.0);
+
+
+
+  pubConfiguration->Publish(model_configuration);
+
+
   gazebo::fini();
   return 0;
 }

@@ -56,7 +56,7 @@
       <visual name='l_thigh_pan_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 -0.030000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.030000'/>
+          <sphere radius='0.060000'/>
         </geometry>
       </visual>
     </link>
@@ -140,7 +140,7 @@
       <visual name='l_ankle_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.025000'/>
+          <sphere radius='0.050000'/>
         </geometry>
       </visual>
     </link>
@@ -196,7 +196,7 @@
       <visual name='r_thigh_pan_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 -0.030000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.030000'/>
+          <sphere radius='0.060000'/>
         </geometry>
       </visual>
     </link>
@@ -280,7 +280,7 @@
       <visual name='r_ankle_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.025000'/>
+          <sphere radius='0.050000'/>
         </geometry>
       </visual>
     </link>
@@ -364,7 +364,7 @@
       <visual name='l_shoulder_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.027500'/>
+          <sphere radius='0.055000'/>
         </geometry>
       </visual>
     </link>
@@ -448,7 +448,7 @@
       <visual name='l_wrist_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.015000'/>
+          <sphere radius='0.030000'/>
         </geometry>
       </visual>
     </link>
@@ -532,7 +532,7 @@
       <visual name='head_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.075000'/>
+          <sphere radius='0.150000'/>
         </geometry>
       </visual>
     </link>
@@ -560,7 +560,7 @@
       <visual name='r_shoulder_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.027500'/>
+          <sphere radius='0.055000'/>
         </geometry>
       </visual>
     </link>
@@ -644,7 +644,7 @@
       <visual name='r_wrist_geom_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
         <origin pose='0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000'/>
         <geometry>
-          <sphere radius='0.015000'/>
+          <sphere radius='0.030000'/>
         </geometry>
       </visual>
     </link>

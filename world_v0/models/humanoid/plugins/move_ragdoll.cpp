@@ -33,6 +33,7 @@ namespace gazebo
     public: MoveRagdoll()
     {
       this->trajectory_stamped.Clear();
+      this->joint_position_map.clear();
     }
 
     public: void Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
@@ -61,15 +62,15 @@ namespace gazebo
       this->node = transport::NodePtr(new transport::Node());
       this->node->Init(this->world->GetName());
       this->modelPoseSub = this->node->Subscribe("/gazebo/model_poses", &MoveRagdoll::OnModelPose, this);
-
+      this->modelConfigurationSub = this->node->Subscribe("/gazebo/model_configuration", &MoveRagdoll::OnModelConfiguration, this);
     }
 
     // Called by the world update start event
     public: void OnUpdate()
     {
-      boost::mutex::scoped_lock lock(this->trajectory_mutex);
+      boost::mutex::scoped_lock lock(this->update_mutex);
       // play through the trajectory
-      bool update = false;
+      bool update_model_poses = false;
       math::Pose new_pose;
       // play through the poses in this trajectory
       common::Time curTime  = this->world->GetSimTime();
@@ -89,15 +90,30 @@ namespace gazebo
                                                    pose_stamped.pose().orientation().y(),
                                                    pose_stamped.pose().orientation().z() )
                                );
-          update = true;
+          update_model_poses = true;
         }
         else
           break;
       }
-      if (update)
+      if (update_model_poses)
       {
         gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
         this->model->SetWorldPose( new_pose );
+      }
+
+
+      if (curTime >= this->configuration_time && !this->joint_position_map.empty())
+      {
+        gzdbg << "time [" << curTime << "] updating configuration [" << "..." << "]\n";
+        // make the service call to pause gazebo
+        bool is_paused = this->world->IsPaused();
+        if (!is_paused) this->world->SetPaused(true);
+
+        this->model->SetJointPositions(this->joint_position_map);
+
+        // resume paused state before this call
+        this->world->SetPaused(is_paused);
+        this->joint_position_map.clear();
       }
     }
 
@@ -105,7 +121,7 @@ namespace gazebo
 
     public: void OnModelPose( const boost::shared_ptr<msgs::PoseTrajectory const> &_msg)
     {
-      boost::mutex::scoped_lock lock(this->trajectory_mutex);
+      boost::mutex::scoped_lock lock(this->update_mutex);
       // get name and id
       this->trajectory_name = _msg->name();
       this->trajectory_id = _msg->id();
@@ -113,6 +129,19 @@ namespace gazebo
 
       // reset trajectory_index to beginning of new trajectory
       this->trajectory_index = 0;
+    }
+
+    public: void OnModelConfiguration( const boost::shared_ptr<msgs::ModelConfiguration const> &_msg)
+    {
+      boost::mutex::scoped_lock lock(this->update_mutex);
+
+      this->joint_position_map.clear();
+
+      // copy joint configuration into a map
+      for (unsigned int i = 0; i < _msg->joint_names().size(); i++)
+        this->joint_position_map[_msg->joint_names().Get(i)] = _msg->joint_positions().Get(i);
+
+      this->configuration_time = gazebo::common::Time(_msg->time().sec(), _msg->time().nsec());
     }
 
     // Pointer to the model
@@ -124,6 +153,7 @@ namespace gazebo
     // subscribe to world stats
     private: transport::NodePtr node;
     private: transport::SubscriberPtr modelPoseSub;
+    private: transport::SubscriberPtr modelConfigurationSub;
     private: physics::WorldPtr world;
 
     // trajectory
@@ -131,7 +161,9 @@ namespace gazebo
     private: unsigned int trajectory_id;
     private: unsigned int trajectory_index;
     ::google::protobuf::RepeatedPtrField< ::gazebo::msgs::PoseStamped > trajectory_stamped;
-    boost::mutex trajectory_mutex;
+    private: std::map<std::string, double> joint_position_map;
+    private: common::Time configuration_time;
+    boost::mutex update_mutex;
 
   };
 
