@@ -16,9 +16,7 @@
 */
 #include "gazebo/gazebo.hh"
 #include "physics/physics.h"
-#include "transport/Node.hh"
-#include "transport/Publisher.hh"
-#include "transport/TransportTypes.hh"
+#include "transport/transport.hh"
 #include "msgs/MessageTypes.hh"
 #include "common/Time.hh"
 #include "common/Events.hh"
@@ -33,11 +31,16 @@ void OnStats( const boost::shared_ptr<gazebo::msgs::WorldStatistics const> &_msg
 
 int main(int argc, char** argv)
 {
+  // std::list<std::string> worldNames;
+  // gazebo::transport::get_topic_namespaces(worldNames);
+  // gzdbg << "world name [" << *(worldNames.begin()) << "]\n";
+
   gazebo::load();
   gazebo::init();
 
   gazebo::transport::NodePtr node;
   node = gazebo::transport::NodePtr(new gazebo::transport::Node());
+  // node->Init(*(worldNames.begin()));
   node->Init("default");
 
   gazebo::transport::SubscriberPtr sub = node->Subscribe("/gazebo/default/world_stats", &OnStats);
