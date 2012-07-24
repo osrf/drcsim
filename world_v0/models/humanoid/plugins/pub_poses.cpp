@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 
     pose_trajectory.add_pose_stamped()->CopyFrom(pose_stamped);
   }
-  //pubPoses->Publish(pose_trajectory);
+  pubPoses->Publish(pose_trajectory);
 
 
   gazebo::transport::PublisherPtr pubConfiguration;
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
   model_configuration.add_joint_names("r_calf_joint");
 
   model_configuration.add_joint_positions(0.0);
-  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(-1.57);
   model_configuration.add_joint_positions(0.0);
 
   model_configuration.add_joint_names("torso_joint");
