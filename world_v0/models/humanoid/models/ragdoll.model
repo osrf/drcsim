@@ -682,7 +682,7 @@
       <child link='l_thigh_pan'/>
       <axis xyz='0.000000 0.000000 1.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_thigh_lift_joint' type='revolute'>
@@ -691,7 +691,7 @@
       <child link='l_thigh_lift'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_calf_joint' type='revolute'>
@@ -700,7 +700,7 @@
       <child link='l_calf'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_ankle_joint' type='revolute'>
@@ -709,7 +709,7 @@
       <child link='l_ankle'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_foot_joint' type='revolute'>
@@ -718,7 +718,7 @@
       <child link='l_foot'/>
       <axis xyz='1.000000 0.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_thigh_pan_joint' type='revolute'>
@@ -727,7 +727,7 @@
       <child link='r_thigh_pan'/>
       <axis xyz='0.000000 0.000000 1.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_thigh_lift_joint' type='revolute'>
@@ -736,7 +736,7 @@
       <child link='r_thigh_lift'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_calf_joint' type='revolute'>
@@ -745,7 +745,7 @@
       <child link='r_calf'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_ankle_joint' type='revolute'>
@@ -754,7 +754,7 @@
       <child link='r_ankle'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_foot_joint' type='revolute'>
@@ -763,7 +763,7 @@
       <child link='r_foot'/>
       <axis xyz='1.000000 0.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='torso_joint' type='revolute'>
@@ -772,7 +772,7 @@
       <child link='torso'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_shoulder_joint' type='revolute'>
@@ -781,7 +781,7 @@
       <child link='l_shoulder'/>
       <axis xyz='1.000000 0.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_upper_arm_joint' type='revolute'>
@@ -790,7 +790,7 @@
       <child link='l_upper_arm'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_forearm_joint' type='revolute'>
@@ -799,7 +799,7 @@
       <child link='l_forearm'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_wrist_joint' type='revolute'>
@@ -808,7 +808,7 @@
       <child link='l_wrist'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='l_hand_joint' type='revolute'>
@@ -817,7 +817,7 @@
       <child link='l_hand'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='neck_joint' type='revolute'>
@@ -826,7 +826,7 @@
       <child link='neck'/>
       <axis xyz='0.000000 0.000000 1.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='head_joint' type='revolute'>
@@ -835,7 +835,7 @@
       <child link='head'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_shoulder_joint' type='revolute'>
@@ -844,7 +844,7 @@
       <child link='r_shoulder'/>
       <axis xyz='1.000000 0.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_upper_arm_joint' type='revolute'>
@@ -853,7 +853,7 @@
       <child link='r_upper_arm'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_forearm_joint' type='revolute'>
@@ -862,7 +862,7 @@
       <child link='r_forearm'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_wrist_joint' type='revolute'>
@@ -871,7 +871,7 @@
       <child link='r_wrist'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <joint name='r_hand_joint' type='revolute'>
@@ -880,7 +880,7 @@
       <child link='r_hand'/>
       <axis xyz='0.000000 1.000000 0.000000'>
         <dynamics damping='0.000000' friction='0.000000'/>
-        <limit lower='-1.570000' upper='1.570000' effort='0.000000' velocity='0.000000'/>
+        <limit lower='-1.570800' upper='1.570800' effort='0.000000' velocity='0.000000'/>
       </axis>
     </joint>
     <plugin filename="libmove_ragdoll.so" name="move_ragdoll"/>

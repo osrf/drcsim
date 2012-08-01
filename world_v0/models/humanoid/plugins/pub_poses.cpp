@@ -66,9 +66,9 @@ int main(int argc, char** argv)
     pose_stamped.mutable_time()->set_sec((sim_time+t).sec);
     pose_stamped.mutable_time()->set_nsec((sim_time+t).nsec);
     pose_stamped.mutable_pose()->set_name("test_pose_stamped");
-    pose_stamped.mutable_pose()->mutable_position()->set_x(0.01*k);
+    pose_stamped.mutable_pose()->mutable_position()->set_x(0.001*k);
     pose_stamped.mutable_pose()->mutable_position()->set_y(0);
-    pose_stamped.mutable_pose()->mutable_position()->set_z(1.4);
+    pose_stamped.mutable_pose()->mutable_position()->set_z(0.051);
     pose_stamped.mutable_pose()->mutable_orientation()->set_w(1);
     pose_stamped.mutable_pose()->mutable_orientation()->set_x(0);
     pose_stamped.mutable_pose()->mutable_orientation()->set_y(0);
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
   model_configuration.add_joint_names("r_calf_joint");
 
   model_configuration.add_joint_positions(0.0);
-  model_configuration.add_joint_positions(-1.57);
+  model_configuration.add_joint_positions(-M_PI/2.0);
   model_configuration.add_joint_positions(0.0);
 
   model_configuration.add_joint_names("torso_joint");
@@ -123,8 +123,8 @@ int main(int argc, char** argv)
   model_configuration.add_joint_names("l_wrist_joint");
   model_configuration.add_joint_names("l_hand_joint");
 
-  model_configuration.add_joint_positions(1.57);
-  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(M_PI/2.0);
+  model_configuration.add_joint_positions(-M_PI/2.0);
   model_configuration.add_joint_positions(0.0);
   model_configuration.add_joint_positions(0.0);
   model_configuration.add_joint_positions(0.0);
@@ -135,10 +135,10 @@ int main(int argc, char** argv)
   model_configuration.add_joint_names("r_wrist_joint");
   model_configuration.add_joint_names("r_hand_joint");
 
-  model_configuration.add_joint_positions(0.0);
-  model_configuration.add_joint_positions(0.0);
-  model_configuration.add_joint_positions(0.0);
-  model_configuration.add_joint_positions(0.0);
+  model_configuration.add_joint_positions(-M_PI/2.0);
+  model_configuration.add_joint_positions(-M_PI/2.0);
+  model_configuration.add_joint_positions(-M_PI/2.0);
+  model_configuration.add_joint_positions(-M_PI/2.0);
   model_configuration.add_joint_positions(0.0);
 
   model_configuration.add_joint_names("neck_joint");

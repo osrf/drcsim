@@ -69,11 +69,34 @@ namespace gazebo
     public: void OnUpdate()
     {
       boost::mutex::scoped_lock lock(this->update_mutex);
+
+      common::Time curTime  = this->world->GetSimTime();
+
+      // hack to keep head up
+      // physics::LinkPtr head = this->model->GetLink("head");
+      // head->SetForce(math::Vector3(0,0,1));
+
+
+      // set model configuration
+      if (curTime >= this->configuration_time && !this->joint_position_map.empty())
+      {
+        gzdbg << "time [" << curTime << "] updating configuration [" << "..." << "]\n";
+        // make the service call to pause gazebo
+        bool is_paused = this->world->IsPaused();
+        if (!is_paused) this->world->SetPaused(true);
+
+        this->model->SetJointPositions(this->joint_position_map);
+
+        // resume paused state before this call
+        this->world->SetPaused(is_paused);
+        this->joint_position_map.clear();
+      }
+
+
       // play through the trajectory
       bool update_model_poses = false;
       math::Pose new_pose;
       // play through the poses in this trajectory
-      common::Time curTime  = this->world->GetSimTime();
       for (; this->trajectory_index < this->trajectory_stamped.size(); ++this->trajectory_index ) {
 
         const msgs::PoseStamped pose_stamped = this->trajectory_stamped.Get(this->trajectory_index);
@@ -95,26 +118,14 @@ namespace gazebo
         else
           break;
       }
+
       if (update_model_poses)
       {
         gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
-        this->model->SetWorldPose( new_pose );
+        this->model->SetLinkWorldPose( new_pose, "l_foot" );
       }
 
 
-      if (curTime >= this->configuration_time && !this->joint_position_map.empty())
-      {
-        gzdbg << "time [" << curTime << "] updating configuration [" << "..." << "]\n";
-        // make the service call to pause gazebo
-        bool is_paused = this->world->IsPaused();
-        if (!is_paused) this->world->SetPaused(true);
-
-        this->model->SetJointPositions(this->joint_position_map);
-
-        // resume paused state before this call
-        this->world->SetPaused(is_paused);
-        this->joint_position_map.clear();
-      }
     }
 
 
