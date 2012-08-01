@@ -38,7 +38,24 @@ if(USE_ROS)
 else(USE_ROS)
 
   # non-ros drc stuff
-  add_subdirectory(models)
-  add_subdirectory(plugins)
+  set (models
+       models/building.model
+      )
+  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc/models/)
+
+  cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+  include (FindPkgConfig)
+  if (PKG_CONFIG_FOUND)
+    pkg_check_modules(GAZEBO gazebo)
+    pkg_check_modules(GAZEBO_TRANSPORT gazebo_transport)
+  endif()
+  include_directories(${GAZEBO_INCLUDE_DIRS})
+  link_directories(${GAZEBO_LIBRARY_DIRS})
+
+  add_library(modify_building SHARED plugins/modify_building.cpp)
+  target_link_libraries(modify_building ${GAZEBO_libraries})
+
+  # install plugins
+  INSTALL(TARGETS modify_building DESTINATION lib/drc/plugins)
 
 endif(USE_ROS)
