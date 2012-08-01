@@ -16,7 +16,7 @@
 */
 
 #include "gazebo/math/Rand.hh"
-#include "plugins/RubblePlugin.hh"
+#include "RubblePlugin.hh"
 
 using namespace gazebo;
 
