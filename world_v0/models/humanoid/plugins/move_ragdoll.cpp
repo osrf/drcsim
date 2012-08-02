@@ -122,7 +122,7 @@ namespace gazebo
       if (update_model_poses)
       {
         gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
-        this->model->SetLinkWorldPose( new_pose, "l_foot" );
+        this->model->SetLinkWorldPose( new_pose, "r_foot" );
       }
 
 

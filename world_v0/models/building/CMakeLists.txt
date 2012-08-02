@@ -35,7 +35,13 @@ if(USE_ROS)
 
   #rosbuild_add_library(move_ragdoll plugins/move_ragdoll.cpp)
 
+  # build model from xacro
+  add_custom_command(OUTPUT models/building.model COMMAND rosrun ARGS xacro xacro.py models/building.model.xacro > models/building.model)
+  set(generate_model_files models/building.model)
+  add_custom_target(model_files ALL DEPENDS ${generate_model_files})
+
 else(USE_ROS)
+
 
   # non-ros drc stuff
   set (models
