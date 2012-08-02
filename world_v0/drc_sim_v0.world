@@ -1,11 +1,9 @@
 <?xml version="1.0"?> 
-<gazebo version="1.0">
+<gazebo version="1.2">
   <world name="default">
     <scene>
-      <grid enabled='false'/>
-      <background rgba="0 0 0 0">
-        <sky material="Gazebo/CloudySky"/>
-      </background>
+      <ambient>0.2 0.2 0.2 1.0</ambient>
+      <grid>false</grid>
     </scene>
 
     <!-- A global light source -->
@@ -35,6 +33,157 @@
       <point>125 0 0</point>
     </road>
 
+    <model name="warehouse" static='true'>
+      <origin>500 10 2.5 0 0 0</origin>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box size="100 100 20"/>
+          </geometry>
+        </collision>
+
+        <visual name="visual">
+          <geometry>
+            <box size="100 100 20"/>
+          </geometry>
+          <material script="Gazebo/Grey"/>
+        </visual>
+      </link>
+    </model>
+
+    <model name="building_1" static='true'>
+      <origin>15 10 2.5 0 0 0</origin>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box size="10 8 5"/>
+          </geometry>
+        </collision>
+
+        <visual name="visual">
+          <geometry>
+            <box size="10 8 5"/>
+          </geometry>
+          <material script="Gazebo/Grey"/>
+        </visual>
+      </link>
+    </model>
+
+    <model name="building_2" static='true'>
+      <origin>15 -10 2.5 0 0 0</origin>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box size="10 8 5"/>
+          </geometry>
+        </collision>
+
+        <visual name="visual">
+          <geometry>
+            <box size="10 8 5"/>
+          </geometry>
+          <material script="Gazebo/Grey"/>
+        </visual>
+      </link>
+    </model>
+
+    <model name="welcom_signe" static='true'>
+      <origin>2 4.5 0 0 0 0</origin>
+      <link name="link">
+
+        <collision name="left-post">
+          <origin>0.02 0.4  0.4 0 0 0</origin>
+          <geometry>
+            <cylinder radius=".02" length="0.8"/>
+          </geometry>
+        </collision>
+
+        <visual name="left-post">
+          <origin>0.02 0.4  0.4 0 0 0</origin>
+          <geometry>
+            <cylinder radius=".02" length="0.8"/>
+          </geometry>
+          <material script='Gazebo/Grey'/>
+        </visual>
+
+        <collision name="right-post">
+          <origin>0.02 -0.4 0.4 0 0 0</origin>
+          <geometry>
+            <cylinder radius=".02" length="0.8"/>
+          </geometry>
+        </collision>
+
+        <visual name="right-post">
+          <origin>0.02 -0.4 0.4 0 0 0</origin>
+          <geometry>
+            <cylinder radius=".02" length="0.8"/>
+          </geometry>
+          <material script='Gazebo/Grey'/>
+        </visual>
+
+
+        <collision name="collision">
+          <origin>0 0 .8 0 0 0</origin>
+          <geometry>
+            <box size=".01 1 .5"/>
+          </geometry>
+        </collision>
+
+        <visual name="visual">
+          <origin>0 0 .8 0 0 0</origin>
+          <geometry>
+            <box size=".01 1 .5"/>
+          </geometry>
+          <material script='drc/san_fauxcity_sign'/>
+        </visual>
+      </link>
+    </model>
+
+
+    <model name="terrain">
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <heightmap filename="drc_sim_v0_terrain.png"
+                       size="2000 2000 500" origin="300 -5 -0.01"/>
+          </geometry>
+        </collision>
+
+        <visual name="visual">
+          <geometry>
+            <heightmap filename="drc_sim_v0_terrain.png"
+                       size="2000 2000 500" origin="300 -5 -0.01">
+              <texture>
+                <diffuse>dirt_diffusespecular.png</diffuse>
+                <normal>dirt_normal.png</normal>
+                <size>5</size>
+              </texture>
+              <texture>
+                <diffuse>grass_diffusespecular.png</diffuse>
+                <normal>grass_normal.png</normal>
+                <size>10</size>
+              </texture>
+              <texture>
+                <diffuse>fungus_diffusespecular.png</diffuse>
+                <normal>fungus_normal.png</normal>
+                <size>80</size>
+              </texture>
+              <blend>
+                <min_height>10</min_height>
+                <fade_dist>5</fade_dist>
+              </blend>
+              <blend>
+                <min_height>15</min_height>
+                <fade_dist>5</fade_dist>
+              </blend>
+            </heightmap>
+          </geometry>
+
+        </visual>
+      </link>
+    </model>
+
+    <!--
     <plugin filename="libRubblePlugin.so" name="rubble">
       <bottom_right>110.0 -4 0.0</bottom_right>
       <top_left>115.0 4.0 1.0</top_left>
@@ -42,5 +191,6 @@
       <max_size>0.2 0.2 0.2</max_size>
       <count>200</count>
     </plugin>
+-->
   </world>
 </gazebo>
