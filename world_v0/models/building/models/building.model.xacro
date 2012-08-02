@@ -82,7 +82,7 @@
   <xacro:macro name="front_wall_with_door" params="name depth width height">
 
     <collision name='${name}_front_top_collision' laser_retro='0.000000'>
-      <origin pose='${(wall_thickness/2)} 0.0 ${(height-door_height)/2+door_height} 0.000000 -0.000000 0.000000'/>
+      <origin pose='-${(wall_thickness/2)} 0.0 ${(height-door_height)/2+door_height} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${wall_thickness} ${width} ${height-door_height}'/>
       </geometry>
@@ -97,14 +97,14 @@
       </surface>
     </collision>
     <visual name='${name}_front_top_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
-      <origin pose='${(wall_thickness/2)} 0.0 ${(height-door_height)/2+door_height} 0.000000 -0.000000 0.000000'/>
+      <origin pose='-${(wall_thickness/2)} 0.0 ${(height-door_height)/2+door_height} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${wall_thickness} ${width} ${height-door_height}'/>
       </geometry>
     </visual>
     
     <collision name='${name}_front_left_collision' laser_retro='0.000000'>
-      <origin pose='${(wall_thickness/2)} ${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
+      <origin pose='-${(wall_thickness/2)} ${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${wall_thickness} ${(width-door_width)/2} ${door_height}'/>
       </geometry>
@@ -119,14 +119,14 @@
       </surface>
     </collision>
     <visual name='${name}_front_left_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
-      <origin pose='${(wall_thickness/2)} ${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
+      <origin pose='-${(wall_thickness/2)} ${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${wall_thickness} ${(width-door_width)/2} ${door_height}'/>
       </geometry>
     </visual>
     
     <collision name='${name}_front_right_collision' laser_retro='0.000000'>
-      <origin pose='${(wall_thickness/2)} -${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
+      <origin pose='-${(wall_thickness/2)} -${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${wall_thickness} ${(width-door_width)/2} ${door_height}'/>
       </geometry>
@@ -141,7 +141,7 @@
       </surface>
     </collision>
     <visual name='${name}_front_right_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
-      <origin pose='${(wall_thickness/2)} -${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
+      <origin pose='-${(wall_thickness/2)} -${door_width/2 + (width-door_width)/4} ${door_height/2} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${wall_thickness} ${(width-door_width)/2} ${door_height}'/>
       </geometry>
@@ -220,7 +220,7 @@
         <box size='${wall_thickness} ${width} ${height}'/>
       </geometry>
     </visual>
-    
+<!--
     <collision name='${name}_top_collision' laser_retro='0.000000'>
       <origin pose='${(depth-wall_thickness)/2} 0.0 ${height-wall_thickness/2} 0.000000 -0.000000 0.000000'/>
       <geometry>
@@ -240,6 +240,29 @@
       <origin pose='${(depth-wall_thickness)/2} 0.0 ${height-wall_thickness/2} 0.000000 -0.000000 0.000000'/>
       <geometry>
         <box size='${depth} ${width} ${wall_thickness}'/>
+      </geometry>
+    </visual>
+-->
+
+    <collision name='${name}_mid_collision' laser_retro='0.000000'>
+      <origin pose='${(depth-wall_thickness)/2} ${width/4} ${height/2} 0.000000 -0.000000 0.000000'/>
+      <geometry>
+        <box size='${depth} ${width/2} ${wall_thickness}'/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode mu='-1.000000' mu2='-1.000000' fdir1='0.000000 0.000000 0.000000' slip1='0.000000' slip2='0.000000'/>
+        </friction>
+        <bounce restitution_coefficient='0.000000' threshold='100000.000000'/>
+        <contact>
+          <ode soft_cfm='0.000000' soft_erp='0.200000' kp='1000000000000.000000' kd='1.000000' max_vel='0.000000' min_depth='0.001000'/>
+        </contact>
+      </surface>
+    </collision>
+    <visual name='${name}_mid_visual' cast_shadows='1' laser_retro='0.000000' transparency='0.000000'>
+      <origin pose='${(depth-wall_thickness)/2} ${width/4} ${height/2} 0.000000 -0.000000 0.000000'/>
+      <geometry>
+        <box size='${depth} ${width/2} ${wall_thickness}'/>
       </geometry>
     </visual>
     

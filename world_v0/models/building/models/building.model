@@ -78,10 +78,10 @@
           <box size="0.2 10.0 8.0"/>
         </geometry>
       </visual>
-      <collision laser_retro="0.000000" name="outer_walls_no_front_top_collision">
-        <origin pose="9.9 0.0 7.9 0.000000 -0.000000 0.000000"/>
+      <collision laser_retro="0.000000" name="outer_walls_no_front_mid_collision">
+        <origin pose="9.9 2.5 4.0 0.000000 -0.000000 0.000000"/>
         <geometry>
-          <box size="20.0 10.0 0.2"/>
+          <box size="20.0 5.0 0.2"/>
         </geometry>
         <surface>
           <friction>
@@ -93,10 +93,10 @@
           </contact>
         </surface>
       </collision>
-      <visual cast_shadows="1" laser_retro="0.000000" name="outer_walls_no_front_top_visual" transparency="0.000000">
-        <origin pose="9.9 0.0 7.9 0.000000 -0.000000 0.000000"/>
+      <visual cast_shadows="1" laser_retro="0.000000" name="outer_walls_no_front_mid_visual" transparency="0.000000">
+        <origin pose="9.9 2.5 4.0 0.000000 -0.000000 0.000000"/>
         <geometry>
-          <box size="20.0 10.0 0.2"/>
+          <box size="20.0 5.0 0.2"/>
         </geometry>
       </visual>
       <collision laser_retro="0.000000" name="front_wall_with_door_front_top_collision">
