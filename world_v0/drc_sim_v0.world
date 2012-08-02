@@ -134,7 +134,7 @@
           <geometry>
             <box size=".01 1 .5"/>
           </geometry>
-          <material script='drc/san_fauxcity_sign'/>
+          <material script='drc_sim/san_fauxcity_sign'/>
         </visual>
       </link>
     </model>
