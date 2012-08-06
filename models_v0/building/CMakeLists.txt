@@ -47,7 +47,7 @@ else(USE_ROS)
   set (models
        models/building.model
       )
-  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc/models/)
+  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/)
 
   cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
   include (FindPkgConfig)
@@ -62,6 +62,6 @@ else(USE_ROS)
   target_link_libraries(modify_building ${GAZEBO_libraries})
 
   # install plugins
-  INSTALL(TARGETS modify_building DESTINATION lib/drc/plugins)
+  INSTALL(TARGETS modify_building DESTINATION lib/drc-${DRC_SIM_VERSION}/plugins)
 
 endif(USE_ROS)
