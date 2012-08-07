@@ -26,28 +26,28 @@ if(USE_ROS)
   #rosbuild_gensrv()
 
   #common commands for building c++ executables and libraries
-  #rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
+  #rosbuild_add_library(${PROJECT_NAME} src/example.cc)
   #target_link_libraries(${PROJECT_NAME} another_library)
   #rosbuild_add_boost_directories()
   #rosbuild_link_boost(${PROJECT_NAME} thread)
-  #rosbuild_add_executable(example examples/example.cpp)
+  #rosbuild_add_executable(example examples/example.cc)
   #target_link_libraries(example ${PROJECT_NAME})
 
-  rosbuild_add_library(move_model_test src/move_model_test.cpp)
-  rosbuild_add_library(pr2_pose_test src/pr2_pose_test.cpp)
+  rosbuild_add_library(move_model_test src/move_model_test.cc)
+  rosbuild_add_library(pr2_pose_test src/pr2_pose_test.cc)
 
 else(USE_ROS)
 
   # non-ros drc stuff
   # install model file
   set (models
-       ragdoll.model
+       models/ragdoll.model
       )
   install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/)
 
 
   # install plugin for ragdoll
-  add_library(move_ragdoll SHARED move_ragdoll.cpp)
+  add_library(move_ragdoll SHARED plugins/move_ragdoll.cc)
   target_link_libraries(move_ragdoll ${GAZEBO_libraries})
   INSTALL(TARGETS move_ragdoll DESTINATION lib/drc-${DRC_SIM_VERSION}/plugins)
 
@@ -78,7 +78,7 @@ else(USE_ROS)
   if (NOT PROTOBUF_PROTOC_LIBRARY)
     BUILD_ERROR ("Missing: Google Protobuf Compiler Library (libprotoc-dev)")
   endif()
-  add_executable(pub_poses pub_poses.cpp)
+  add_executable(pub_poses plugins/pub_poses.cc)
   target_link_libraries(pub_poses ${PROTOBUF_LIBRARY} ${GAZEBO_TRANSPORT_libraries} ${GAZEBO_libraries} ${Boost_LIBRARIES} pthread gazebo gazebo_transport gazebo_common gazebo_msgs)
   INSTALL(TARGETS pub_poses DESTINATION bin)
 

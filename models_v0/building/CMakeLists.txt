@@ -58,7 +58,7 @@ else(USE_ROS)
   include_directories(${GAZEBO_INCLUDE_DIRS})
   link_directories(${GAZEBO_LIBRARY_DIRS})
 
-  add_library(modify_building SHARED plugins/modify_building.cpp)
+  add_library(modify_building SHARED plugins/modify_building.cc)
   target_link_libraries(modify_building ${GAZEBO_libraries})
 
   # install plugins
