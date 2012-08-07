@@ -1,0 +1,16 @@
+Code for using Amazon Web Services (AWS: EC2, S3, etc.) to run simulations in
+the cloud.  We use the boto Python library to interact with AWS.
+
+https://github.com/boto/boto
+
+= Setup =
+On first use, copy the OSRF-specific boto configuration file to your home
+directory:
+
+$ cp config/boto ~/.boto
+
+Test that the configuration is working by listing all EC2 instances:
+
+$ python test/list_all_instances.py 
+Instance i-9df750ae at IP address 54.245.19.34 is in state 'running'.
+
