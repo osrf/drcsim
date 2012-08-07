@@ -32,8 +32,6 @@ namespace gazebo
 
     public: ModifyBuilding()
     {
-      this->trajectory_stamped.Clear();
-      this->joint_position_map.clear();
     }
 
     public: void Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
@@ -61,110 +59,31 @@ namespace gazebo
 
       this->node = transport::NodePtr(new transport::Node());
       this->node->Init(this->world->GetName());
-      this->modelPoseSub = this->node->Subscribe("/gazebo/model_poses", &ModifyBuilding::OnModelPose, this);
-      this->modelConfigurationSub = this->node->Subscribe("/gazebo/model_configuration", &ModifyBuilding::OnModelConfiguration, this);
+      this->sub = this->node->Subscribe("/gazebo/modify_building", &ModifyBuilding::OnModifyBuilding, this);
     }
 
     // Called by the world update start event
     public: void OnUpdate()
     {
-      boost::mutex::scoped_lock lock(this->update_mutex);
-      // play through the trajectory
-      bool update_model_poses = false;
-      math::Pose new_pose;
-      // play through the poses in this trajectory
       common::Time curTime  = this->world->GetSimTime();
-      for (; this->trajectory_index < this->trajectory_stamped.size(); ++this->trajectory_index ) {
-
-        const msgs::PoseStamped pose_stamped = this->trajectory_stamped.Get(this->trajectory_index);
-
-        common::Time pose_time(pose_stamped.time().sec(), pose_stamped.time().nsec());
-
-        if (curTime >= pose_time)
-        {
-          new_pose = math::Pose( math::Vector3( pose_stamped.pose().position().x(),
-                                                pose_stamped.pose().position().y(),
-                                                pose_stamped.pose().position().z() ),
-                                 math::Quaternion( pose_stamped.pose().orientation().w(),
-                                                   pose_stamped.pose().orientation().x(),
-                                                   pose_stamped.pose().orientation().y(),
-                                                   pose_stamped.pose().orientation().z() )
-                               );
-          update_model_poses = true;
-        }
-        else
-          break;
-      }
-      if (update_model_poses)
-      {
-        gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
-        this->model->SetWorldPose( new_pose );
-      }
-
-
-      if (curTime >= this->configuration_time && !this->joint_position_map.empty())
-      {
-        gzdbg << "time [" << curTime << "] updating configuration [" << "..." << "]\n";
-        // make the service call to pause gazebo
-        bool is_paused = this->world->IsPaused();
-        if (!is_paused) this->world->SetPaused(true);
-
-        this->model->SetJointPositions(this->joint_position_map);
-
-        // resume paused state before this call
-        this->world->SetPaused(is_paused);
-        this->joint_position_map.clear();
-      }
     }
 
 
 
-    public: void OnModelPose( const boost::shared_ptr<msgs::PoseTrajectory const> &_msg)
+    public: void OnModifyBuilding( const boost::shared_ptr<msgs::Test const> &_msg)
     {
-      boost::mutex::scoped_lock lock(this->update_mutex);
-      // get name and id
-      this->trajectory_name = _msg->name();
-      this->trajectory_id = _msg->id();
-      this->trajectory_stamped = _msg->pose_stamped();
-
-      // reset trajectory_index to beginning of new trajectory
-      this->trajectory_index = 0;
-    }
-
-    public: void OnModelConfiguration( const boost::shared_ptr<msgs::ModelConfiguration const> &_msg)
-    {
-      boost::mutex::scoped_lock lock(this->update_mutex);
-
-      this->joint_position_map.clear();
-
-      // copy joint configuration into a map
-      for (unsigned int i = 0; i < _msg->joint_names().size(); i++)
-        this->joint_position_map[_msg->joint_names().Get(i)] = _msg->joint_positions().Get(i);
-
-      this->configuration_time = gazebo::common::Time(_msg->time().sec(), _msg->time().nsec());
     }
 
     // Pointer to the model
     private: physics::ModelPtr model;
+    private: physics::WorldPtr world;
 
     // Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
 
     // subscribe to world stats
     private: transport::NodePtr node;
-    private: transport::SubscriberPtr modelPoseSub;
-    private: transport::SubscriberPtr modelConfigurationSub;
-    private: physics::WorldPtr world;
-
-    // trajectory
-    private: std::string trajectory_name;
-    private: unsigned int trajectory_id;
-    private: unsigned int trajectory_index;
-    ::google::protobuf::RepeatedPtrField< ::gazebo::msgs::PoseStamped > trajectory_stamped;
-    private: std::map<std::string, double> joint_position_map;
-    private: common::Time configuration_time;
-    boost::mutex update_mutex;
-
+    private: transport::SubscriberPtr sub;
   };
 
   // Register this plugin with the simulator
