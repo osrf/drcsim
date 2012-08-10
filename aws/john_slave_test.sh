@@ -1,3 +1,5 @@
+
+# enough to start an x session and run gazebo pr2 simulator
 # install X
 sudo apt-get update
 apt-get dist-upgrade
@@ -24,7 +26,7 @@ su - osrfsim
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get update
-apt-get install ros-fuerte-desktop-full 
+apt-get install ros-fuerte-desktop-full ros-fuerte-pr2-simulator
 
 
 
