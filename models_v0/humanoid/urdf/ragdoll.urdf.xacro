@@ -76,6 +76,9 @@
       </geometry>
     </collision>
   </link>
+  <gazebo reference="head">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
   <!-- remove -->
   <joint name="head_joint" type="revolute">
     <axis xyz="0 1 0"/>
@@ -107,6 +110,9 @@
       </geometry>
     </collision>
   </link>
+  <gazebo reference="neck">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
   <joint name="neck_joint" type="revolute">
     <axis xyz="0 0 1"/>
     <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -137,6 +143,9 @@
       </geometry>
     </collision>
   </link>
+  <gazebo reference="torso">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
   <joint name="torso_joint" type="revolute">
     <axis xyz="0 1 0"/>
     <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -167,6 +176,9 @@
       </geometry>
     </collision>
   </link>
+  <gazebo reference="hip">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
 
   <!--
   <link name="world"/>
@@ -202,6 +214,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_thigh_pan">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_thigh_pan_joint" type="revolute">
       <axis xyz="0 0 1"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -232,6 +247,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_thigh_lift">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_thigh_lift_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -262,6 +280,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_calf">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_calf_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -292,6 +313,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_ankle">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_ankle_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -322,6 +346,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_foot">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_foot_joint" type="revolute">
       <axis xyz="1 0 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -354,6 +381,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_shoulder">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_shoulder_joint" type="revolute">
       <axis xyz="1 0 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -384,6 +414,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_upper_arm">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_upper_arm_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -414,6 +447,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_forearm">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_forearm_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -444,6 +480,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_wrist">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_wrist_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
@@ -474,6 +513,9 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${side}_hand">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
     <joint name="${side}_hand_joint" type="revolute">
       <axis xyz="0 1 0"/>
       <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
