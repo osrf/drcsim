@@ -54,142 +54,144 @@
   
 
 
-  <link name="head">
-    <inertial>
-      <mass value="${head_mass}" />
-      <origin xyz="0 0 0" />
-      <inertia  ixx="${head_mass/100}" ixy="0" ixz="0" iyy="${head_mass/100}" iyz="0" izz="${head_mass/100}" />
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <sphere radius="${head_radius}"/>
-      </geometry>
-      <material name="head_color">
-        <color rgba="0.5 0.5 0.5 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <sphere radius="${head_radius}"/>
-      </geometry>
-    </collision>
-  </link>
-  <gazebo reference="head">
-    <turnGravityOff>true</turnGravityOff>
-  </gazebo>
-  <!-- remove -->
-  <joint name="head_joint" type="revolute">
-    <axis xyz="0 1 0"/>
-    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
-    <origin xyz="0 0 ${neck_length+head_radius/2}" rpy="0 0 0"/>
-    <parent link="neck"/>
-    <child link="head"/>
-  </joint>
+  <xacro:macro name="upper_torso">
+    <link name="head">
+      <inertial>
+        <mass value="${head_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${head_mass/100}" ixy="0" ixz="0" iyy="${head_mass/100}" iyz="0" izz="${head_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${head_radius}"/>
+        </geometry>
+        <material name="head_color">
+          <color rgba="0.5 0.5 0.5 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="${head_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+    <gazebo reference="head">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
+    <!-- remove -->
+    <joint name="head_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${neck_length+head_radius/2}" rpy="0 0 0"/>
+      <parent link="neck"/>
+      <child link="head"/>
+    </joint>
 
-  <link name="neck">
-    <inertial>
-      <mass value="${neck_mass}" />
-      <origin xyz="0 0 0" />
-      <inertia  ixx="${neck_mass/100}" ixy="0" ixz="0" iyy="${neck_mass/100}" iyz="0" izz="${neck_mass/100}" />
-    </inertial>
-    <visual>
-      <origin xyz="0 0 ${neck_length/2}" rpy="0 0 0" />
-      <geometry>
-        <cylinder radius="${neck_radius}" length="${neck_length}"/>
-      </geometry>
-      <material name="neck_color">
-        <color rgba="0.5 0.5 0.5 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${neck_length/2}" rpy="0 0 0" />
-      <geometry>
-        <cylinder radius="${neck_radius}" length="${neck_length}"/>
-      </geometry>
-    </collision>
-  </link>
-  <gazebo reference="neck">
-    <turnGravityOff>true</turnGravityOff>
-  </gazebo>
-  <joint name="neck_joint" type="revolute">
-    <axis xyz="0 0 1"/>
-    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
-    <origin xyz="0 0 ${torso_z}" rpy="0 0 0"/>
-    <parent link="torso"/>
-    <child link="neck"/>
-  </joint>
+    <link name="neck">
+      <inertial>
+        <mass value="${neck_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${neck_mass/100}" ixy="0" ixz="0" iyy="${neck_mass/100}" iyz="0" izz="${neck_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${neck_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${neck_radius}" length="${neck_length}"/>
+        </geometry>
+        <material name="neck_color">
+          <color rgba="0.5 0.5 0.5 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${neck_length/2}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="${neck_radius}" length="${neck_length}"/>
+        </geometry>
+      </collision>
+    </link>
+    <gazebo reference="neck">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
+    <joint name="neck_joint" type="revolute">
+      <axis xyz="0 0 1"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${torso_z}" rpy="0 0 0"/>
+      <parent link="torso"/>
+      <child link="neck"/>
+    </joint>
 
-  <link name="torso">
-    <inertial>
-      <mass value="${torso_mass}" />
-      <origin xyz="0 0 0" />
-      <inertia  ixx="${torso_mass/100}" ixy="0" ixz="0" iyy="${torso_mass/100}" iyz="0" izz="${torso_mass/100}" />
-    </inertial>
-    <visual>
-      <origin xyz="0 0 ${torso_z/2}" rpy="0 0 0" />
-      <geometry>
-        <box size="${torso_x} ${torso_y} ${torso_z}"/>
-      </geometry>
-      <material name="torso_color">
-        <color rgba="0.5 0.5 0.5 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${torso_z/2}" rpy="0 0 0" />
-      <geometry>
-        <box size="${torso_x} ${torso_y} ${torso_z}"/>
-      </geometry>
-    </collision>
-  </link>
-  <gazebo reference="torso">
-    <turnGravityOff>true</turnGravityOff>
-  </gazebo>
-  <joint name="torso_joint" type="revolute">
-    <axis xyz="0 1 0"/>
-    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
-    <origin xyz="0 0 ${hip_z}" rpy="0 0 0"/>
-    <parent link="hip"/>
-    <child link="torso"/>
-  </joint>
+    <link name="torso">
+      <inertial>
+        <mass value="${torso_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${torso_mass/100}" ixy="0" ixz="0" iyy="${torso_mass/100}" iyz="0" izz="${torso_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${torso_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${torso_x} ${torso_y} ${torso_z}"/>
+        </geometry>
+        <material name="torso_color">
+          <color rgba="0.5 0.5 0.5 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${torso_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${torso_x} ${torso_y} ${torso_z}"/>
+        </geometry>
+      </collision>
+    </link>
+    <gazebo reference="torso">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
+    <joint name="torso_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${hip_z}" rpy="0 0 0"/>
+      <parent link="hip"/>
+      <child link="torso"/>
+    </joint>
 
-  <link name="hip">
-    <inertial>
-      <mass value="${hip_mass}" />
-      <origin xyz="0 0 0" />
-      <inertia  ixx="${hip_mass/100}" ixy="0" ixz="0" iyy="${hip_mass/100}" iyz="0" izz="${hip_mass/100}" />
-    </inertial>
-    <visual>
-      <origin xyz="0 0 ${hip_z/2}" rpy="0 0 0" />
-      <geometry>
-        <box size="${hip_x} ${hip_y} ${hip_z}"/>
-      </geometry>
-      <material name="hip_color">
-        <color rgba="0.5 0.5 0.5 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${hip_z/2}" rpy="0 0 0" />
-      <geometry>
-        <box size="${hip_x} ${hip_y} ${hip_z}"/>
-      </geometry>
-    </collision>
-  </link>
-  <gazebo reference="hip">
-    <turnGravityOff>true</turnGravityOff>
-  </gazebo>
+    <link name="hip">
+      <inertial>
+        <mass value="${hip_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="${hip_mass/100}" ixy="0" ixz="0" iyy="${hip_mass/100}" iyz="0" izz="${hip_mass/100}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 ${hip_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${hip_x} ${hip_y} ${hip_z}"/>
+        </geometry>
+        <material name="hip_color">
+          <color rgba="0.5 0.5 0.5 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${hip_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="${hip_x} ${hip_y} ${hip_z}"/>
+        </geometry>
+      </collision>
+    </link>
+    <gazebo reference="hip">
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
 
-  <!--
-  <link name="world"/>
-  <joint name="hip_joint" type="revolute">
-    <axis xyz="0 1 0"/>
-    <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
-    <origin xyz="0 0 ${-hip_z}" rpy="0 0 0"/>
-    <parent link="world"/>
-    <child link="hip"/>
-  </joint>
-  -->
+    <!--
+    <link name="world"/>
+    <joint name="hip_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+      <limit lower="${lower_limit}" upper="${upper_limit}" effort="100" velocity="100"/>
+      <origin xyz="0 0 ${-hip_z}" rpy="0 0 0"/>
+      <parent link="world"/>
+      <child link="hip"/>
+    </joint>
+    -->
+  </xacro:macro>
 
   <xacro:macro name="leg" params="side *origin">
     <link name="${side}_thigh_pan">
@@ -491,6 +493,7 @@
       <child link="${side}_wrist"/>
     </joint>
 
+    <!--
     <link name="${side}_hand">
       <inertial>
         <mass value="${hand_mass}" />
@@ -523,22 +526,24 @@
       <parent link="${side}_wrist"/>
       <child link="${side}_hand"/>
     </joint>
+    -->
   </xacro:macro>
 
-  <xacro:leg side="l">
-      <origin xyz="0 ${hip_y/2-thigh_pan_radius/2} 0" rpy="0 0 0"/>
-  </xacro:leg>
-  <xacro:arm side="l">
-    <origin xyz="0 ${torso_y/2+shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
-  </xacro:arm>
+  <xacro:macro name="ragdoll">
+    <xacro:upper_torso/>
+    <xacro:leg side="l">
+        <origin xyz="0 ${hip_y/2-thigh_pan_radius/2} 0" rpy="0 0 0"/>
+    </xacro:leg>
+    <xacro:arm side="l">
+      <origin xyz="0 ${torso_y/2+shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
+    </xacro:arm>
 
-  <xacro:leg side="r">
-      <origin xyz="0 ${-hip_y/2+thigh_pan_radius/2} 0" rpy="0 0 0"/>
-  </xacro:leg>
-  <xacro:arm side="r">
-    <origin xyz="0 ${-torso_y/2-shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
-  </xacro:arm>
-
-
+    <xacro:leg side="r">
+        <origin xyz="0 ${-hip_y/2+thigh_pan_radius/2} 0" rpy="0 0 0"/>
+    </xacro:leg>
+    <xacro:arm side="r">
+      <origin xyz="0 ${-torso_y/2-shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
+    </xacro:arm>
+  </xacro:macro>
 
 </robot>

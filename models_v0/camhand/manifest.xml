@@ -1,0 +1,16 @@
+<package>
+  <description brief="camhand">
+
+     camhand
+
+  </description>
+  <author>hsu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/camhand</url>
+  <depend package="urdf"/>
+  <depend package="xacro"/>
+
+</package>
+
+
