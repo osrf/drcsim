@@ -9,15 +9,9 @@
 
   <xacro:ragdoll/>
   <xacro:camhand side="r" parent="r_wrist">
-<!--
-    <origin xyz="0 0 0.0" rpy="0 0 0"/>
--->
     <origin xyz="0 0 -0.03" rpy="0 1.57079 3.14159"/>
   </xacro:camhand>
   <xacro:camhand side="l" parent="l_wrist">
-<!--
-    <origin xyz="0 0 0.0" rpy="0 0 0"/>
--->
-    <origin xyz="0 0 -0.03" rpy="0 1.57079 3.14159"/>
+    <origin xyz="0 0 -0.3" rpy="0 1.57079 3.14159"/>
   </xacro:camhand>
 </robot>
