@@ -182,9 +182,6 @@
       <insert_block name="origin" />
     </joint>
 
-<!--
-    <xacro:finger side="${side}" idx="0" x="0.0" y="0.00000" z="0" r="0" p="0" yaw="0.0"/>
--->
     <xacro:finger side="${side}" idx="0" x="0.140" y="0.00000" z="0" r="0" p="0" yaw="0.3"/>
     <xacro:finger side="${side}" idx="1" x="0.115" y="0.03122" z="0" r="0" p="0" yaw="0.3"/>
     <xacro:finger side="${side}" idx="2" x="0.090" y="0.06245" z="0" r="0" p="0" yaw="0.3"/>

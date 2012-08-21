@@ -8,10 +8,10 @@
 
   <link name="world"/>
   <xacro:camhand side="right" parent="world">
-    <origin xyz="0 0 1" rpy="0 1.57079 3.14159"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:camhand>
 
   <xacro:camhand side="left" parent="world">
-    <origin xyz="0 1 1" rpy="0 1.57079 3.14159"/>
+    <origin xyz="0 1 0" rpy="0 0 0"/>
   </xacro:camhand>
 </robot>
