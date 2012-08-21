@@ -1,0 +1,14 @@
+<launch>
+  
+  <!-- send urdf to param server -->
+  <include file="$(find camhand)/launch/upload.launch" />
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_camhand_model" pkg="gazebo" type="spawn_model" args="-z 1.4  -unpause -urdf -param robot_description -model camhand -ros_namespace /gazebo" respawn="false" output="screen" />
+
+  <!-- default bringup script
+  <include file="$(find humanoid)/launch/humanoid_bringup.launch" />
+  -->
+
+</launch>
+
