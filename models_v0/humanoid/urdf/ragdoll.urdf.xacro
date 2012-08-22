@@ -636,6 +636,11 @@
         <alwaysOn>true</alwaysOn>
         <updateRate>1000.0</updateRate>
       </controller:gazebo_ros_controller_manager>
+      <!-- tbd
+      <controller:humanoid_joint_trajectory name="humanoid_joint_trajectory" plugin="libgazebo_ros_joint_trajectory.so">
+        <updateRate>1000</updateRate>
+      </controller:humanoid_joint_trajectory>
+      -->
     </gazebo>
   </xacro:macro>
 

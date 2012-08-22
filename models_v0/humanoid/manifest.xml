@@ -13,6 +13,7 @@
   <depend package="xacro"/>
   <depend package="rviz"/>
   <depend package="robot_mechanism_controllers"/>
+  <depend package="humanoid_ros_plugins"/>
 
 </package>
 

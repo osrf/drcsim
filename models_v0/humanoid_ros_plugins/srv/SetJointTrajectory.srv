@@ -1,0 +1,4 @@
+trajectory_msgs/JointTrajectory joint_trajectory
+---
+bool success                # return true if set wrench successful
+string status_message       # comments if available
