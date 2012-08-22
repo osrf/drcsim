@@ -191,89 +191,89 @@ void RosJointTrajectory::UpdateStates()
   if (this->update_rate_ > 0 && (cur_time-this->last_time_).Double() < (1.0/this->update_rate_))
     return;
 
-  this->lock.lock();
-
-  if (this->has_trajectory_)
   {
+    boost::mutex::scoped_lock lock(this->update_mutex);
+
+    if (this->has_trajectory_)
+    {
 
 
 
 
 
-      // set model configuration
-      if (curTime >= this->configuration_time && !this->joint_position_map.empty())
-      {
-        gzdbg << "time [" << curTime << "] updating configuration [" << "..." << "]\n";
-        // make the service call to pause gazebo
-        bool is_paused = this->world->IsPaused();
-        if (!is_paused) this->world->SetPaused(true);
-
-        this->model->SetJointPositions(this->joint_position_map);
-
-        // resume paused state before this call
-        this->world->SetPaused(is_paused);
-        this->joint_position_map.clear();
-      }
-
-
-      // play through the trajectory
-      bool update_model_poses = false;
-      math::Pose new_pose;
-
-      // play through the poses in this trajectory
-      for (; this->trajectory_index < this->trajectory_stamped.size(); ++this->trajectory_index )
-      {
-
-        const msgs::PoseStamped pose_stamped = this->trajectory_stamped.Get(this->trajectory_index);
-
-        common::Time pose_time(pose_stamped.time().sec(), pose_stamped.time().nsec());
-
-        if (curTime >= pose_time)
+        // set model configuration
+        if (curTime >= this->configuration_time && !this->joint_position_map.empty())
         {
-          new_pose = math::Pose( math::Vector3( pose_stamped.pose().position().x(),
-                                                pose_stamped.pose().position().y(),
-                                                pose_stamped.pose().position().z() ),
-                                 math::Quaternion( pose_stamped.pose().orientation().w(),
-                                                   pose_stamped.pose().orientation().x(),
-                                                   pose_stamped.pose().orientation().y(),
-                                                   pose_stamped.pose().orientation().z() )
-                               );
-          update_model_poses = true;
+          gzdbg << "time [" << curTime << "] updating configuration [" << "..." << "]\n";
+          // make the service call to pause gazebo
+          bool is_paused = this->world->IsPaused();
+          if (!is_paused) this->world->SetPaused(true);
+
+          this->model->SetJointPositions(this->joint_position_map);
+
+          // resume paused state before this call
+          this->world->SetPaused(is_paused);
+          this->joint_position_map.clear();
         }
-        else
-          break;
-      }
 
-      if (update_model_poses)
+
+        // play through the trajectory
+        bool update_model_poses = false;
+        math::Pose new_pose;
+
+        // play through the poses in this trajectory
+        for (; this->trajectory_index < this->trajectory_stamped.size(); ++this->trajectory_index )
+        {
+
+          const msgs::PoseStamped pose_stamped = this->trajectory_stamped.Get(this->trajectory_index);
+
+          common::Time pose_time(pose_stamped.time().sec(), pose_stamped.time().nsec());
+
+          if (curTime >= pose_time)
+          {
+            new_pose = math::Pose( math::Vector3( pose_stamped.pose().position().x(),
+                                                  pose_stamped.pose().position().y(),
+                                                  pose_stamped.pose().position().z() ),
+                                   math::Quaternion( pose_stamped.pose().orientation().w(),
+                                                     pose_stamped.pose().orientation().x(),
+                                                     pose_stamped.pose().orientation().y(),
+                                                     pose_stamped.pose().orientation().z() )
+                                 );
+            update_model_poses = true;
+          }
+          else
+            break;
+        }
+
+        if (update_model_poses)
+        {
+          gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
+          this->model->SetLinkWorldPose( new_pose, "r_foot" );
+        }
+
+      // this->model->SetJointPositions(this->joint_position_map);
+
+      // set model pose
+      if (this->reference_link_)
       {
-        gzdbg << "time [" << curTime << "] updating pose [" << new_pose << "]\n";
-        this->model->SetLinkWorldPose( new_pose, "r_foot" );
+        // math::Pose    reference_pose = this->reference_link_->GetWorldPose();
+        // math::Vector3 reference_vpos = this->reference_link_->GetWorldLinearVel();
+        // math::Vector3 reference_veul = this->reference_link_->GetWorldAngularVel();
+        // this->model->SetLinkWorldPose( new_pose, this->reference_link );
+      }
+      else
+      {
+        // this->model->SetWorldPose( new_pose );
       }
 
-    // this->model->SetJointPositions(this->joint_position_map);
-
-    // set model pose
-    if (this->reference_link_)
-    {
-      // math::Pose    reference_pose = this->reference_link_->GetWorldPose();
-      // math::Vector3 reference_vpos = this->reference_link_->GetWorldLinearVel();
-      // math::Vector3 reference_veul = this->reference_link_->GetWorldAngularVel();
-      // this->model->SetLinkWorldPose( new_pose, this->reference_link );
+      bool trajectory_done = false;
+      if (trajectory_done)
+      {
+        this->reference_link_.reset();
+        this->has_trajectory_ = false;
+      }
     }
-    else
-    {
-      // this->model->SetWorldPose( new_pose );
-    }
-
-    bool trajectory_done = false;
-    if (trajectory_done)
-    {
-      this->reference_link_.reset();
-      this->has_trajectory_ = false;
-    }
-  }
-
-  this->lock.unlock();
+  } // mutex lock
 
   // save last time stamp
   this->last_time_ = cur_time;

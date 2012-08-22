@@ -87,7 +87,7 @@ namespace gazebo
       private: std::string service_name_;
 
       /// \brief A mutex to lock access to fields that are used in message callbacks
-      private: boost::mutex lock;
+      private: boost::mutex update_mutex;
 
       /// \brief save last_time
       private: common::Time last_time_;
