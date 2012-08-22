@@ -1,0 +1,195 @@
+head_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: head_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+neck_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: neck_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+torso_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: torso_joint
+  pid:
+    p: 20.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+# hip_controller:
+#   type: robot_mechanism_controllers/JointPositionController
+#   joint: hip_joint
+#   pid:
+#     p: 20.0
+#     i: 0.0
+#     d: 0.0
+#     i_clamp: 1
+
+l_thigh_pan_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_thigh_pan_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_thigh_lift_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_thigh_lift_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_calf_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_calf_joint
+  pid:
+    p: 50.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_ankle_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_ankle_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_foot_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_foot_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_shoulder_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_shoulder_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_upper_arm_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_upper_arm_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_forearm_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_forearm_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+l_wrist_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_wrist_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+# l_hand_controller:
+#   type: robot_mechanism_controllers/JointPositionController
+#   joint: r_hand_joint
+#   pid:
+#     p: 1.0
+#     i: 0.0
+#     d: 0.0
+#     i_clamp: 1
+
+r_thigh_pan_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_thigh_pan_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_thigh_lift_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_thigh_lift_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_calf_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_calf_joint
+  pid:
+    p: 50.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_ankle_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_ankle_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_foot_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_foot_joint
+  pid:
+    p: 10.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_shoulder_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_shoulder_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_upper_arm_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_upper_arm_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_forearm_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_forearm_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+r_wrist_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_wrist_joint
+  pid:
+    p: 1.0
+    i: 0.0
+    d: 0.0
+    i_clamp: 1
+# r_hand_controller:
+#   type: robot_mechanism_controllers/JointPositionController
+#   joint: r_hand_joint
+#   pid:
+#     p: 1.0
+#     i: 0.0
+#     d: 0.0
+#     i_clamp: 1
+

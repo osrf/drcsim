@@ -1,5 +1,5 @@
-<robot name="ragdoll" xmlns:xacro="http://ros.org/wiki/xacro">
-
+<robot name="ragdoll" xmlns:xacro="http://ros.org/wiki/xacro"
+                      xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller">
   <!-- hip is the root link -->
 
   <property name="M_PI" value="3.1415926535897931" />
@@ -89,6 +89,12 @@
       <child link="head"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="head_trans">
+      <actuator name="head_motor" />
+      <joint name="head_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="neck">
       <inertial>
         <mass value="${neck_mass}" />
@@ -122,6 +128,12 @@
       <child link="neck"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="neck_trans">
+      <actuator name="neck_motor" />
+      <joint name="neck_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="torso">
       <inertial>
         <mass value="${torso_mass}" />
@@ -154,6 +166,12 @@
       <parent link="hip"/>
       <child link="torso"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="torso_trans">
+      <actuator name="torso_motor" />
+      <joint name="torso_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
 
     <link name="hip">
       <inertial>
@@ -190,6 +208,13 @@
       <parent link="world"/>
       <child link="hip"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="hip_trans">
+      <actuator name="hip_motor" />
+      <joint name="hip_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     -->
   </xacro:macro>
 
@@ -227,6 +252,12 @@
       <child link="${side}_thigh_pan"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_thigh_pan_trans">
+      <actuator name="${side}_thigh_pan_motor" />
+      <joint name="${side}_thigh_pan_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="${side}_thigh_lift">
       <inertial>
         <mass value="${thigh_lift_mass}" />
@@ -259,6 +290,12 @@
       <parent link="${side}_thigh_pan"/>
       <child link="${side}_thigh_lift"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_thigh_lift_trans">
+      <actuator name="${side}_thigh_lift_motor" />
+      <joint name="${side}_thigh_lift_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
 
     <link name="${side}_calf">
       <inertial>
@@ -293,6 +330,12 @@
       <child link="${side}_calf"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_calf_trans">
+      <actuator name="${side}_calf_motor" />
+      <joint name="${side}_calf_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="${side}_ankle">
       <inertial>
         <mass value="${ankle_mass}" />
@@ -326,6 +369,12 @@
       <child link="${side}_ankle"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_ankle_trans">
+      <actuator name="${side}_ankle_motor" />
+      <joint name="${side}_ankle_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="${side}_foot">
       <inertial>
         <mass value="${foot_mass}" />
@@ -358,6 +407,12 @@
       <parent link="${side}_ankle"/>
       <child link="${side}_foot"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_foot_trans">
+      <actuator name="${side}_foot_motor" />
+      <joint name="${side}_foot_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
   </xacro:macro>
 
   <xacro:macro name="arm" params="side *origin">
@@ -394,6 +449,12 @@
       <child link="${side}_shoulder"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_shoulder_trans">
+      <actuator name="${side}_shoulder_motor" />
+      <joint name="${side}_shoulder_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="${side}_upper_arm">
       <inertial>
         <mass value="${upper_arm_mass}" />
@@ -426,6 +487,12 @@
       <parent link="${side}_shoulder"/>
       <child link="${side}_upper_arm"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_upper_arm_trans">
+      <actuator name="${side}_upper_arm_motor" />
+      <joint name="${side}_upper_arm_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
 
     <link name="${side}_forearm">
       <inertial>
@@ -460,6 +527,12 @@
       <child link="${side}_forearm"/>
     </joint>
 
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_forearm_trans">
+      <actuator name="${side}_forearm_motor" />
+      <joint name="${side}_forearm_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
     <link name="${side}_wrist">
       <inertial>
         <mass value="${wrist_mass}" />
@@ -492,6 +565,12 @@
       <parent link="${side}_forearm"/>
       <child link="${side}_wrist"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_wrist_trans">
+      <actuator name="${side}_wrist_motor" />
+      <joint name="${side}_wrist_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
 
     <!--
     <link name="${side}_hand">
@@ -526,8 +605,15 @@
       <parent link="${side}_wrist"/>
       <child link="${side}_hand"/>
     </joint>
+
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${side}_hand_trans">
+      <actuator name="${side}_hand_motor" />
+      <joint name="${side}_hand_joint" />
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
     -->
   </xacro:macro>
+
 
   <xacro:macro name="ragdoll">
     <xacro:upper_torso/>
@@ -544,6 +630,13 @@
     <xacro:arm side="r">
       <origin xyz="0 ${-torso_y/2-shoulder_radius/2} ${torso_z-shoulder_radius/2}" rpy="0 0 0"/>
     </xacro:arm>
+
+    <gazebo>
+      <controller:gazebo_ros_controller_manager name="gazebo_ros_controller_manager" plugin="libgazebo_ros_controller_manager.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>1000.0</updateRate>
+      </controller:gazebo_ros_controller_manager>
+    </gazebo>
   </xacro:macro>
 
 </robot>

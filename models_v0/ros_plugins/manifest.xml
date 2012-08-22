@@ -1,0 +1,16 @@
+<package>
+  <description brief="ros_plugins">
+
+     ros_plugins
+
+  </description>
+  <author>hsu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ros_plugins</url>
+  <depend package="gazebo"/>
+  <depend package="trajectory_msgs"/>
+
+</package>
+
+

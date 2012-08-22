@@ -12,6 +12,11 @@
   <depend package="joint_state_publisher"/>
   <depend package="xacro"/>
   <depend package="rviz"/>
+  <depend package="robot_mechanism_controllers"/>
+
+</package>
+
+
 
 </package>
 
