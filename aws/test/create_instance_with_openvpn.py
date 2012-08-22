@@ -9,10 +9,12 @@ import time
 import shutil
 import subprocess
 
-# The image to use; 'ami-443b474' is 64-bit Ubuntu 12.04.
-IMAGE_ID = 'ami-4438b474'
-# Instance type.  't1.micro' is the freebie.
-INSTANCE_TYPE = 't1.micro'
+IMAGE_ID = 'ami-4438b474' # Vanilla 64-bit Ubuntu 12.04
+#IMAGE_ID = 'ami-44028d74' # a custom AMI used in testing
+#IMAGE_ID = 'ami-98fa58f1' # Ubuntu Server 12.04 LTS for Cluster Instances
+INSTANCE_TYPE = 't1.micro' # freebie
+#INSTANCE_TYPE = 'm1.small' # $0.08/hour
+#INSTANCE_TYPE = 'cg1.4xlarge' # $2.10/hour; only available in us-east
 # Security groups.  'openvpn' is configured to allow ssh and openvpn
 SECURITY_GROUPS = ['openvpn']
 # User name.  Default is 'ubuntu'
@@ -53,6 +55,7 @@ def go():
     os.makedirs(cfg_dir)
     kp_name = 'key-%s'%(uid)
     kp = ec2.create_key_pair(kp_name)
+    kp_fname = os.path.join(cfg_dir, kp_name + '.pem')
 
     try:
         # Start it up
@@ -76,7 +79,6 @@ def go():
 
         # save the ssh key
         kp.save(cfg_dir)
-        kp_fname = os.path.join(cfg_dir, kp_name + '.pem')
 
         print('Waiting for sshd to respond...')
         # Wait for sshd to respond.  We check for readability of the static
@@ -116,7 +118,8 @@ def go():
     except Exception as e:
         # Clean up
         kp.delete()
-        os.unlink(kp_fname)
+        if os.path.exists(kp_fname):
+            os.unlink(kp_fname)
         os.rmdir(cfg_dir)
         raise e
 
