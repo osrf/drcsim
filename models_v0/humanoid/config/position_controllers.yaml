@@ -33,7 +33,7 @@ torso_controller:
 
 l_thigh_pan_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_thigh_pan_joint
+  joint: l_thigh_pan_joint
   pid:
     p: 10.0
     i: 0.0
@@ -41,7 +41,7 @@ l_thigh_pan_controller:
     i_clamp: 1
 l_thigh_lift_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_thigh_lift_joint
+  joint: l_thigh_lift_joint
   pid:
     p: 10.0
     i: 0.0
@@ -49,7 +49,7 @@ l_thigh_lift_controller:
     i_clamp: 1
 l_calf_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_calf_joint
+  joint: l_calf_joint
   pid:
     p: 50.0
     i: 0.0
@@ -57,7 +57,7 @@ l_calf_controller:
     i_clamp: 1
 l_ankle_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_ankle_joint
+  joint: l_ankle_joint
   pid:
     p: 10.0
     i: 0.0
@@ -65,7 +65,7 @@ l_ankle_controller:
     i_clamp: 1
 l_foot_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_foot_joint
+  joint: l_foot_joint
   pid:
     p: 10.0
     i: 0.0
@@ -73,7 +73,7 @@ l_foot_controller:
     i_clamp: 1
 l_shoulder_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_shoulder_joint
+  joint: l_shoulder_joint
   pid:
     p: 100.0
     i: 0.0
@@ -81,7 +81,7 @@ l_shoulder_controller:
     i_clamp: 1
 l_upper_arm_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_upper_arm_joint
+  joint: l_upper_arm_joint
   pid:
     p: 10.0
     i: 0.0
@@ -89,7 +89,7 @@ l_upper_arm_controller:
     i_clamp: 1
 l_forearm_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_forearm_joint
+  joint: l_forearm_joint
   pid:
     p: 50.0
     i: 0.0
@@ -97,7 +97,7 @@ l_forearm_controller:
     i_clamp: 1
 l_wrist_controller:
   type: robot_mechanism_controllers/JointPositionController
-  joint: r_wrist_joint
+  joint: l_wrist_joint
   pid:
     p: 5.0
     i: 0.0
@@ -105,7 +105,7 @@ l_wrist_controller:
     i_clamp: 1
 # l_hand_controller:
 #   type: robot_mechanism_controllers/JointPositionController
-#   joint: r_hand_joint
+#   joint: l_hand_joint
 #   pid:
 #     p: 1.0
 #     i: 0.0
