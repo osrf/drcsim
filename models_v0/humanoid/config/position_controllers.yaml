@@ -4,7 +4,7 @@ head_controller:
   pid:
     p: 1.0
     i: 0.0
-    d: 0.0
+    d: 0.1
     i_clamp: 1
 neck_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -12,7 +12,7 @@ neck_controller:
   pid:
     p: 1.0
     i: 0.0
-    d: 0.0
+    d: 0.1
     i_clamp: 1
 torso_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -20,7 +20,7 @@ torso_controller:
   pid:
     p: 100.0
     i: 0.0
-    d: 0.0
+    d: 10.0
     i_clamp: 1
 # hip_controller:
 #   type: robot_mechanism_controllers/JointPositionController
@@ -37,7 +37,7 @@ l_thigh_pan_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 l_thigh_lift_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -45,7 +45,7 @@ l_thigh_lift_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 l_calf_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -53,7 +53,7 @@ l_calf_controller:
   pid:
     p: 50.0
     i: 0.0
-    d: 0.0
+    d: 5.0
     i_clamp: 1
 l_ankle_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -61,7 +61,7 @@ l_ankle_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 l_foot_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -69,39 +69,39 @@ l_foot_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 l_shoulder_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_shoulder_joint
   pid:
-    p: 1.0
+    p: 100.0
     i: 0.0
-    d: 0.0
+    d: 10.0
     i_clamp: 1
 l_upper_arm_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_upper_arm_joint
   pid:
-    p: 1.0
+    p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 l_forearm_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_forearm_joint
   pid:
-    p: 1.0
+    p: 50.0
     i: 0.0
-    d: 0.0
+    d: 5.0
     i_clamp: 1
 l_wrist_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_wrist_joint
   pid:
-    p: 1.0
+    p: 5.0
     i: 0.0
-    d: 0.0
+    d: 0.5
     i_clamp: 1
 # l_hand_controller:
 #   type: robot_mechanism_controllers/JointPositionController
@@ -109,7 +109,7 @@ l_wrist_controller:
 #   pid:
 #     p: 1.0
 #     i: 0.0
-#     d: 0.0
+#     d: 0.1
 #     i_clamp: 1
 
 r_thigh_pan_controller:
@@ -118,7 +118,7 @@ r_thigh_pan_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 r_thigh_lift_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -126,7 +126,7 @@ r_thigh_lift_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 r_calf_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -134,7 +134,7 @@ r_calf_controller:
   pid:
     p: 50.0
     i: 0.0
-    d: 0.0
+    d: 5.0
     i_clamp: 1
 r_ankle_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -142,7 +142,7 @@ r_ankle_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 r_foot_controller:
   type: robot_mechanism_controllers/JointPositionController
@@ -150,39 +150,39 @@ r_foot_controller:
   pid:
     p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 r_shoulder_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_shoulder_joint
   pid:
-    p: 1.0
+    p: 100.0
     i: 0.0
-    d: 0.0
+    d: 10.0
     i_clamp: 1
 r_upper_arm_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_upper_arm_joint
   pid:
-    p: 1.0
+    p: 10.0
     i: 0.0
-    d: 0.0
+    d: 1.0
     i_clamp: 1
 r_forearm_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_forearm_joint
   pid:
-    p: 1.0
+    p: 50.0
     i: 0.0
-    d: 0.0
+    d: 5.0
     i_clamp: 1
 r_wrist_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: r_wrist_joint
   pid:
-    p: 1.0
+    p: 5.0
     i: 0.0
-    d: 0.0
+    d: 0.5
     i_clamp: 1
 # r_hand_controller:
 #   type: robot_mechanism_controllers/JointPositionController
@@ -190,6 +190,6 @@ r_wrist_controller:
 #   pid:
 #     p: 1.0
 #     i: 0.0
-#     d: 0.0
+#     d: 0.1
 #     i_clamp: 1
 
