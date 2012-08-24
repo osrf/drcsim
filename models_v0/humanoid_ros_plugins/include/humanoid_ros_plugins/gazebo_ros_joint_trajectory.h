@@ -32,6 +32,7 @@
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
 #include <trajectory_msgs/JointTrajectory.h>
+#include <geometry_msgs/Pose.h>
 
 #include <humanoid_ros_plugins/SetJointTrajectory.h>
 
@@ -81,6 +82,7 @@ namespace gazebo
 
       /// \brief ros message
       private: trajectory_msgs::JointTrajectory trajectory_msg_;
+      private: geometry_msgs::Pose pose_;
 
       /// \brief topic name
       private: std::string topic_name_;
