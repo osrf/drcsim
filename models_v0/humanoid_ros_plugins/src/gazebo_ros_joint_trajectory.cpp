@@ -179,13 +179,42 @@ bool GazeboRosJointTrajectory::SetTrajectory(const humanoid_ros_plugins::SetJoin
                                                 req.joint_trajectory.header.stamp.nsec);
 
   // update the joint_trajectory to play
-  this->has_trajectory_ = true;
+  //this->has_trajectory_ = true;
   // reset trajectory_index to beginning of new trajectory
   this->trajectory_index = 0;
   this->model_->doPhysics = false;
 
+  // create a joint with the world
+  // if (this->reference_link_)
+  //   this->FixLink(this->reference_link_);
+
   return true;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// glue a link to the world by creating a fixed joint
+void GazeboRosJointTrajectory::FixLink(physics::LinkPtr link)
+{
+  this->joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute");
+  this->joint_->SetModel(this->model_);
+  math::Pose pose = link->GetWorldPose();
+  //math::Pose  pose(math::Vector3(0, 0, 0.2), math::Quaternion(1, 0, 0, 0));
+  this->joint_->Load(physics::LinkPtr(), link, pose);
+  this->joint_->SetAxis(0, math::Vector3(0, 0, 0));
+  this->joint_->SetHighStop(0, 0);
+  this->joint_->SetLowStop(0, 0);
+  this->joint_->SetAnchor(0, pose.pos);
+  this->joint_->Init();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// unglue a link to the world by destroying the fixed joint
+void GazeboRosJointTrajectory::UnfixLink()
+{
+  this->joint_.reset();
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
@@ -214,12 +243,12 @@ void GazeboRosJointTrajectory::UpdateStates()
           if (!is_paused) this->world_->SetPaused(true);
 
           // get pose of reference link, will adjust model pose to keep reference link stationary inertially
-          math::Pose    reference_pose(math::Vector3(this->pose_.position.x,this->pose_.position.y,
-                                                     this->pose_.position.z),
-                                       math::Quaternion(this->pose_.orientation.w,
-                                                        this->pose_.orientation.x,
-                                                        this->pose_.orientation.y,
-                                                        this->pose_.orientation.z));
+          math::Pose reference_pose(math::Vector3(this->pose_.position.x,this->pose_.position.y,
+                                                  this->pose_.position.z),
+                                 math::Quaternion(this->pose_.orientation.w,
+                                                  this->pose_.orientation.x,
+                                                  this->pose_.orientation.y,
+                                                  this->pose_.orientation.z));
           // if (this->reference_link_)
           // {
           //   reference_pose = this->reference_link_->GetWorldPose();

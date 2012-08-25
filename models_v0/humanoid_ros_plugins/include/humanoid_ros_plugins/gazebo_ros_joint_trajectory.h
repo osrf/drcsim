@@ -112,6 +112,10 @@ namespace gazebo
       private: event::ConnectionPtr update_connection_;
 
       private: trajectory_msgs::JointTrajectory joint_trajectory_;
+
+      void FixLink(physics::LinkPtr link);
+      void UnfixLink();
+      private: physics::JointPtr joint_;
    };
 
 /** \} */
