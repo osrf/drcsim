@@ -34,8 +34,9 @@
     </road>
 
     <model name="warehouse" static='true'>
-      <origin>500 10 2.5 0 0 0</origin>
+      <pose>500 10 2.5 0 0 0</pose>
       <link name="link">
+        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <box size="100 100 20"/>
@@ -52,8 +53,9 @@
     </model>
 
     <model name="building_1" static='true'>
-      <origin>15 10 2.5 0 0 0</origin>
+      <pose>15 10 2.5 0 0 0</pose>
       <link name="link">
+        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <box size="10 8 5"/>
@@ -70,8 +72,9 @@
     </model>
 
     <model name="building_2" static='true'>
-      <origin>15 -10 2.5 0 0 0</origin>
+      <pose>15 -10 2.5 0 0 0</pose>
       <link name="link">
+        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <box size="10 8 5"/>
@@ -88,18 +91,19 @@
     </model>
 
     <model name="welcom_signe" static='true'>
-      <origin>2 4.5 0 0 0 0</origin>
+      <pose>2 4.5 0 0 0 0</pose>
       <link name="link">
+        <pose>0 0 0 0 0 0</pose>
 
         <collision name="left-post">
-          <origin>0.02 0.4  0.4 0 0 0</origin>
+          <pose>0.02 0.4  0.4 0 0 0</pose>
           <geometry>
             <cylinder radius=".02" length="0.8"/>
           </geometry>
         </collision>
 
         <visual name="left-post">
-          <origin>0.02 0.4  0.4 0 0 0</origin>
+          <pose>0.02 0.4  0.4 0 0 0</pose>
           <geometry>
             <cylinder radius=".02" length="0.8"/>
           </geometry>
@@ -107,14 +111,14 @@
         </visual>
 
         <collision name="right-post">
-          <origin>0.02 -0.4 0.4 0 0 0</origin>
+          <pose>0.02 -0.4 0.4 0 0 0</pose>
           <geometry>
             <cylinder radius=".02" length="0.8"/>
           </geometry>
         </collision>
 
         <visual name="right-post">
-          <origin>0.02 -0.4 0.4 0 0 0</origin>
+          <pose>0.02 -0.4 0.4 0 0 0</pose>
           <geometry>
             <cylinder radius=".02" length="0.8"/>
           </geometry>
@@ -123,14 +127,14 @@
 
 
         <collision name="collision">
-          <origin>0 0 .8 0 0 0</origin>
+          <pose>0 0 .8 0 0 0</pose>
           <geometry>
             <box size=".01 1 .5"/>
           </geometry>
         </collision>
 
         <visual name="visual">
-          <origin>0 0 .8 0 0 0</origin>
+          <pose>0 0 .8 0 0 0</pose>
           <geometry>
             <box size=".01 1 .5"/>
           </geometry>
@@ -142,17 +146,24 @@
 
     <model name="terrain">
       <link name="link">
+        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
-            <heightmap filename="drc_sim_v0_terrain.png"
-                       size="2000 2000 500" origin="300 -5 -0.01"/>
+            <heightmap>
+              <filename>drc_sim_v0_terrain.png</filename>
+              <size>2000 2000 500</size>
+              <pos>300 -5 -0.01</pos>
+            </heightmap>
           </geometry>
         </collision>
 
         <visual name="visual">
           <geometry>
-            <heightmap filename="drc_sim_v0_terrain.png"
-                       size="2000 2000 500" origin="300 -5 -0.01">
+            <heightmap>
+              <filename>drc_sim_v0_terrain.png</filename>
+              <size>2000 2000 500</size>
+              <pos>300 -5 -0.01</pos>
+
               <texture>
                 <diffuse>dirt_diffusespecular.png</diffuse>
                 <normal>dirt_normal.png</normal>
