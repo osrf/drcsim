@@ -52,6 +52,36 @@ std::pair<std::string, std::vector<std::string> > findNextKeyValuesPair(std::ifs
   return std::pair<std::string, std::vector<std::string> >(std::string(), std::vector<std::string>());
 }
 
+urdf::Vector3 stringToVector3(std::string str, double scale = 1)
+{
+  if (str.empty())
+  {
+    std::vector<std::string> pieces;
+    std::vector<double> vals;
+
+    boost::split(pieces, str, boost::is_any_of(" "));
+    for (unsigned int i = 0; i < pieces.size(); ++i)
+    {
+      if (pieces[i] != "")
+      {
+        try
+        {
+          vals.push_back(scale * boost::lexical_cast<double>(pieces[i].c_str()));
+        }
+        catch(boost::bad_lexical_cast &e)
+        {
+          printf("xml key [%s][%d] value [%s] is not a valid double from a 3-tuple\n",str.c_str(),i,pieces[i].c_str());
+          return urdf::Vector3(0,0,0);
+        }
+      }
+    }
+    return urdf::Vector3(vals[0],vals[1],vals[3]);
+  }
+  else
+    return urdf::Vector3(0,0,0);
+}
+
+
 std::pair<std::string, std::string> findNextKeyValuePair(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model, std::string delim_tok)
 {
   std::string line;
@@ -184,7 +214,8 @@ int main(int argc, char** argv)
           if (struct_level == 1)
           {
             // potentially a link name, but it could be followed by another struct, then it is not a link
-            std::cout << "struct level [" << struct_level << "] "
+            std::cout << "------------------------------------\n"
+                      << "struct level [" << struct_level << "] "
                       << "name [" << struct_name[struct_level] << "]\n";
 
             entity_name = struct_name[struct_level];
@@ -225,6 +256,10 @@ int main(int argc, char** argv)
               link.reset(new urdf::Link);
               link->name = entity_name;
               model->links_.insert(std::make_pair(link->name, link));
+
+              link->inertial.reset(new urdf::Inertial());
+              link->visual.reset(new urdf::Visual());
+              link->collision.reset(new urdf::Collision());
             }
 
             // parse key value pair
@@ -234,8 +269,8 @@ int main(int argc, char** argv)
               boost::trim(line);
               size_t pos1 = line.find(delim_tok) + delim_tok.size();
               val = line.substr(pos1, line.size()-pos1);
-              boost::trim(val);
               removeComments(val);
+              boost::trim(val);
               key = line.substr(0, pos1-1);
               boost::trim(key);
             }
@@ -257,15 +292,56 @@ int main(int argc, char** argv)
 
               // create parent joint with name
               boost::shared_ptr<urdf::Joint> joint;
-              std::cout << "  JOINT: Creating [" << entity_name << "]\n";
+              std::cout << "  JOINT: Creating [" << val << "]\n";
               joint.reset(new urdf::Joint);
               joint->name = val;
+              joint->limits.reset(new urdf::JointLimits());
               model->joints_.insert(std::make_pair(joint->name, joint));
 
               // this is the parent joint for link
               link->parent_joint = joint;
               joint->child_link_name = link->name;
               joint->parent_link_name = link->getParent()->name;
+            }
+            else if (key == "mass")
+            {
+              link->inertial->mass = boost::lexical_cast<double>(val);
+            }
+            else if (key == "moi_xx")
+            {
+              link->inertial->ixx = boost::lexical_cast<double>(val);
+            }
+            else if (key == "moi_xy")
+            {
+              link->inertial->ixx = boost::lexical_cast<double>(val);
+            }
+            else if (key == "moi_xz")
+            {
+              link->inertial->ixx = boost::lexical_cast<double>(val);
+            }
+            else if (key == "moi_yy")
+            {
+              link->inertial->ixx = boost::lexical_cast<double>(val);
+            }
+            else if (key == "moi_yz")
+            {
+              link->inertial->ixx = boost::lexical_cast<double>(val);
+            }
+            else if (key == "moi_zz")
+            {
+              link->inertial->ixx = boost::lexical_cast<double>(val);
+            }
+            else if (key == "com_x")
+            {
+              link->inertial->origin.position.x = boost::lexical_cast<double>(val);
+            }
+            else if (key == "com_y")
+            {
+              link->inertial->origin.position.x = boost::lexical_cast<double>(val);
+            }
+            else if (key == "com_z")
+            {
+              link->inertial->origin.position.x = boost::lexical_cast<double>(val);
             }
           }
           else
@@ -277,8 +353,8 @@ int main(int argc, char** argv)
               boost::trim(line);
               size_t pos1 = line.find(delim_tok) + delim_tok.size();
               val = line.substr(pos1, line.size()-pos1);
-              boost::trim(val);
               removeComments(val);
+              boost::trim(val);
               key = line.substr(0, pos1-1);
               boost::trim(key);
             }
@@ -287,9 +363,84 @@ int main(int argc, char** argv)
 
             // add key value pair to join
             boost::shared_ptr<urdf::Joint> joint = model->joints_.find(entity_name)->second;
-            // std::cout << joint->name << " has "
-            //           << " parent " << joint->parent_link_name
-            //           << " child " << joint->child_link_name << "\n";
+            // std::cout << "    debug [" << joint->name << "] has "
+            //           << " parent [" << joint->parent_link_name
+            //           << "] child [" << joint->child_link_name << "]\n";
+
+            if (!joint)
+            {
+              // this joint is not referred by any link, therefore, not created yet here.
+              /* we can create this joint, but it has no parent / child
+              std::cout << "  JOINT: Creating [" << entity_name << "]\n";
+              joint.reset(new urdf::Joint);
+              joint->name = entity_name;
+              model->joints_.insert(std::make_pair(joint->name, joint));
+              */
+              std::cout << "  JOINT: [" << entity_name << "] is not referred to by any link\n";
+            }
+            else if (!val.empty())
+            {
+              if (key == "offset")
+              {
+                // add parent to child transform
+                joint->parent_to_joint_origin_transform.position = stringToVector3(val);
+              }
+              else if (key == "axis")
+              {
+                // add axis
+                joint->axis = stringToVector3(val);
+              }
+              else if (key == "type")
+              {
+                // assign type
+                if (val == "planar")
+                  joint->type = urdf::Joint::PLANAR;
+                else if (val == "floating")
+                  joint->type = urdf::Joint::FLOATING;
+                else if (val == "revolute")
+                  joint->type = urdf::Joint::REVOLUTE;
+                else if (val == "continuous")
+                  joint->type = urdf::Joint::CONTINUOUS;
+                else if (val == "prismatic")
+                  joint->type = urdf::Joint::PRISMATIC;
+                else if (val == "fixed")
+                  joint->type = urdf::Joint::FIXED;
+                else
+                {
+                  printf("Joint [%s] has no known type [%s]", joint->name.c_str(), val.c_str());
+                  return false;
+                }
+                std::cout << "    JOINT: is of type [" << val << "] "
+                          << "enum [" << joint->type << "]\n";
+              }
+              else if (key == "kin_min")
+              {
+                joint->limits->lower = boost::lexical_cast<double>(val);
+              }
+              else if (key == "kin_max")
+              {
+                joint->limits->upper = boost::lexical_cast<double>(val);
+              }
+              else if (key == "vel_min")
+              {
+                std::cout << "    URDF assumes symmetric velocity limits, vel_min ignored\n";
+              }
+              else if (key == "vel_max")
+              {
+                joint->limits->velocity = boost::lexical_cast<double>(val);
+              }
+              else if (key == "f_min")
+              {
+                std::cout << "    URDF assumes symmetric effort limits, f_min ignored\n";
+              }
+              else if (key == "f_max")
+              {
+                joint->limits->effort = boost::lexical_cast<double>(val);
+              }
+            }
+            else
+              std::cout << "    JOINT: key [" << key << "] has empty value\n";
+            
           }
         }
 
