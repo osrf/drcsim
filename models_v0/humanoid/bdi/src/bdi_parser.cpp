@@ -6,6 +6,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <urdf_model/model.h>
+#include <urdf_parser/urdf_parser.h>
+#include <tinyxml.h>
 
 
 enum StructType { LINK, JOINT };
@@ -450,6 +452,9 @@ int main(int argc, char** argv)
       model->initTree(parent_link_tree);
       model->initRoot(parent_link_tree);
       printTree(model->getRoot());
+
+      TiXmlDocument *model_xml = urdf::exportURDF(model);
+      model_xml->SaveFile(std::string("/tmp/a.xml"));
 
     }
   }
