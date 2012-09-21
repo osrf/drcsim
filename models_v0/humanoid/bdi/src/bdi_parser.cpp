@@ -77,7 +77,7 @@ urdf::Vector3 stringToVector3(std::string str, double scale = 1)
         }
       }
     }
-    return urdf::Vector3(vals[0],vals[1],vals[3]);
+    return urdf::Vector3(vals[0],vals[1],vals[2]);
   }
   else
   {
@@ -389,6 +389,11 @@ int main(int argc, char** argv)
               {
                 // add parent to child transform
                 joint->parent_to_joint_origin_transform.position = stringToVector3(val);
+                std::cout << "  JOINT: [" << entity_name << "] origin ["
+                          << joint->parent_to_joint_origin_transform.position.x << ", "
+                          << joint->parent_to_joint_origin_transform.position.y << ", "
+                          << joint->parent_to_joint_origin_transform.position.z
+                          << "]\n";
               }
               else if (key == "axis")
               {
