@@ -7,11 +7,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_clav">
@@ -22,11 +26,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_farm">
@@ -37,11 +45,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_foot">
@@ -52,11 +64,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_hand">
@@ -67,11 +83,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_larm">
@@ -82,11 +102,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_lglut">
@@ -97,11 +121,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_lleg">
@@ -112,11 +140,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_scap">
@@ -127,11 +159,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_talus">
@@ -142,11 +178,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_uarm">
@@ -157,11 +197,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_uglut">
@@ -172,11 +216,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="l_uleg">
@@ -187,11 +235,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="ltorso">
@@ -202,11 +254,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="mtorso">
@@ -217,11 +273,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="pelvis">
@@ -232,11 +292,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_clav">
@@ -247,11 +311,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_farm">
@@ -262,11 +330,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_foot">
@@ -277,11 +349,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_hand">
@@ -292,11 +368,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_larm">
@@ -307,11 +387,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_lglut">
@@ -322,11 +406,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_lleg">
@@ -337,11 +425,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_scap">
@@ -352,11 +444,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_talus">
@@ -367,11 +463,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_uarm">
@@ -382,11 +482,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_uglut">
@@ -397,11 +501,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="r_uleg">
@@ -412,11 +520,15 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
     <link name="utorso">
@@ -427,11 +539,211 @@
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry />
+            <geometry>
+                <sphere radius="0.03" />
+            </geometry>
         </collision>
     </link>
+    <limit effort="124.016" velocity="12" lower="-0.610865" upper="0.610865" />
+    <joint name="back.lbz" type="revolute">
+        <origin xyz="-0.0125 0 4.94066e-324" rpy="0 -0 0" />
+        <axis xyz="0 0 1.39804e-76" />
+        <parent link="pelvis" />
+        <child link="ltorso" />
+    </joint>
+    <limit effort="206.843" velocity="12" lower="-1.2" upper="1.28" />
+    <joint name="back.mby" type="revolute">
+        <origin xyz="0 0 1.39804e-76" rpy="0 -0 0" />
+        <axis xyz="0 1 1.39804e-76" />
+        <parent link="ltorso" />
+        <child link="mtorso" />
+    </joint>
+    <limit effort="94.91" velocity="12" lower="-0.790809" upper="0" />
+    <joint name="back.ubx" type="revolute">
+        <origin xyz="0 0 1.39804e-76" rpy="0 -0 0" />
+        <axis xyz="1 0 1.39804e-76" />
+        <parent link="mtorso" />
+        <child link="utorso" />
+    </joint>
+    <limit effort="114" velocity="12" lower="0" upper="2.35619" />
+    <joint name="l.arm.elx" type="revolute">
+        <origin xyz="0 0.121 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="1 0 1.38185e-76" />
+        <parent link="l_uarm" />
+        <child link="l_larm" />
+    </joint>
+    <limit effort="114" velocity="12" lower="0" upper="3.14159" />
+    <joint name="l.arm.ely" type="revolute">
+        <origin xyz="0 0.185 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.38186e-76" />
+        <parent link="l_scap" />
+        <child link="l_uarm" />
+    </joint>
+    <limit effort="60" velocity="12" lower="-0.436" upper="1.571" />
+    <joint name="l.arm.mwx" type="revolute">
+        <origin xyz="0 0.095 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="1 0 1.39804e-76" />
+        <parent link="l_farm" />
+        <child link="l_hand" />
+    </joint>
+    <limit effort="170" velocity="12" lower="-1.39626" upper="1.74533" />
+    <joint name="l.arm.shx" type="revolute">
+        <origin xyz="0 0.075 1.96839e+161" rpy="0 -0 0" />
+        <axis xyz="1 0 1.38186e-76" />
+        <parent link="l_clav" />
+        <child link="l_scap" />
+    </joint>
+    <limit effort="212" velocity="12" lower="-1.9635" upper="1.9635" />
+    <joint name="l.arm.usy" type="revolute">
+        <origin xyz="0.024 0.221 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="0 -0.5 1.38186e-76" />
+        <parent link="utorso" />
+        <child link="l_clav" />
+    </joint>
+    <limit effort="114" velocity="12" lower="-1.571" upper="1.571" />
+    <joint name="l.arm.uwy" type="revolute">
+        <origin xyz="0 0.183 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.74882e-77" />
+        <parent link="l_larm" />
+        <child link="l_farm" />
+    </joint>
+    <limit effort="220" velocity="12" lower="0" upper="2.45" />
+    <joint name="l.leg.kny" type="revolute">
+        <origin xyz="-0.05 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.3994e-76" />
+        <parent link="l_uleg" />
+        <child link="l_lleg" />
+    </joint>
+    <limit effort="90" velocity="12" lower="-0.436" upper="0.436" />
+    <joint name="l.leg.lax" type="revolute">
+        <origin xyz="0 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="1 0 1.39804e-76" />
+        <parent link="l_talus" />
+        <child link="l_foot" />
+    </joint>
+    <limit effort="260" velocity="12" lower="-1.75" upper="0.524" />
+    <joint name="l.leg.lhy" type="revolute">
+        <origin xyz="0.05 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.39805e-76" />
+        <parent link="l_lglut" />
+        <child link="l_uleg" />
+    </joint>
+    <limit effort="180" velocity="12" lower="-0.47" upper="0.495" />
+    <joint name="l.leg.mhx" type="revolute">
+        <origin xyz="0 0 7.60811e+271" rpy="0 -0 0" />
+        <axis xyz="1 0 1.39804e-76" />
+        <parent link="l_uglut" />
+        <child link="l_lglut" />
+    </joint>
+    <limit effort="220" velocity="12" lower="-0.698" upper="0.698" />
+    <joint name="l.leg.uay" type="revolute">
+        <origin xyz="0 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.39872e-76" />
+        <parent link="l_lleg" />
+        <child link="l_talus" />
+    </joint>
+    <limit effort="110" velocity="12" lower="-0.32" upper="1.14" />
+    <joint name="l.leg.uhz" type="revolute">
+        <origin xyz="0 0.089 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 0 1.39804e-76" />
+        <parent link="pelvis" />
+        <child link="l_uglut" />
+    </joint>
+    <limit effort="5" velocity="12" lower="0.785398" upper="0.785398" />
+    <joint name="neck.ay" type="revolute">
+        <origin xyz="0.011 0 1.39804e-76" rpy="0 -0 0" />
+        <axis xyz="0 1 1.20271e-153" />
+        <parent link="utorso" />
+        <child link="head" />
+    </joint>
+    <limit effort="114" velocity="12" lower="-2.35619" upper="0" />
+    <joint name="r.arm.elx" type="revolute">
+        <origin xyz="0 -0.121 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="1 0 1.72732e-77" />
+        <parent link="r_uarm" />
+        <child link="r_larm" />
+    </joint>
+    <limit effort="114" velocity="12" lower="0" upper="3.14159" />
+    <joint name="r.arm.ely" type="revolute">
+        <origin xyz="0 -0.185 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.74967e-77" />
+        <parent link="r_scap" />
+        <child link="r_uarm" />
+    </joint>
+    <limit effort="60" velocity="12" lower="-1.571" upper="0.436" />
+    <joint name="r.arm.mwx" type="revolute">
+        <origin xyz="0 -0.095 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="1 0 1.39804e-76" />
+        <parent link="r_farm" />
+        <child link="r_hand" />
+    </joint>
+    <limit effort="170" velocity="12" lower="-1.74533" upper="1.39626" />
+    <joint name="r.arm.shx" type="revolute">
+        <origin xyz="0 -0.075 1.96839e+161" rpy="0 -0 0" />
+        <axis xyz="1 0 1.72732e-77" />
+        <parent link="r_clav" />
+        <child link="r_scap" />
+    </joint>
+    <limit effort="212" velocity="12" lower="-1.9635" upper="1.9635" />
+    <joint name="r.arm.usy" type="revolute">
+        <origin xyz="0.024 -0.221 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="0 0.5 1.38186e-76" />
+        <parent link="utorso" />
+        <child link="r_clav" />
+    </joint>
+    <limit effort="114" velocity="12" lower="-1.571" upper="1.571" />
+    <joint name="r.arm.uwy" type="revolute">
+        <origin xyz="0 -0.183 3.87688e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.74882e-77" />
+        <parent link="r_larm" />
+        <child link="r_farm" />
+    </joint>
+    <limit effort="0" velocity="0" lower="0" upper="0" />
+    <joint name="r.leg.aky">
+        <origin xyz="0 0 0" rpy="0 -0 0" />
+        <axis xyz="0 0 0" />
+        <parent link="r_talus" />
+        <child link="r_foot" />
+    </joint>
+    <limit effort="220" velocity="12" lower="0" upper="2.45" />
+    <joint name="r.leg.kny" type="revolute">
+        <origin xyz="-0.05 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.3994e-76" />
+        <parent link="r_uleg" />
+        <child link="r_lleg" />
+    </joint>
+    <limit effort="260" velocity="12" lower="-1.745" upper="0.524" />
+    <joint name="r.leg.lhy" type="revolute">
+        <origin xyz="0.05 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.39805e-76" />
+        <parent link="r_lglut" />
+        <child link="r_uleg" />
+    </joint>
+    <limit effort="180" velocity="12" lower="-0.495" upper="0.47" />
+    <joint name="r.leg.mhx" type="revolute">
+        <origin xyz="0 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="1 0 1.39804e-76" />
+        <parent link="r_uglut" />
+        <child link="r_lglut" />
+    </joint>
+    <limit effort="220" velocity="12" lower="-0.698" upper="0.698" />
+    <joint name="r.leg.uay" type="revolute">
+        <origin xyz="0 0 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 1 1.39872e-76" />
+        <parent link="r_lleg" />
+        <child link="r_talus" />
+    </joint>
+    <limit effort="260" velocity="12" lower="-1.14" upper="0.32" />
+    <joint name="r.leg.uhz" type="revolute">
+        <origin xyz="0 -0.089 3.87687e-265" rpy="0 -0 0" />
+        <axis xyz="0 0 1.39804e-76" />
+        <parent link="pelvis" />
+        <child link="r_uglut" />
+    </joint>
 </robot>

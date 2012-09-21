@@ -56,7 +56,7 @@ std::pair<std::string, std::vector<std::string> > findNextKeyValuesPair(std::ifs
 
 urdf::Vector3 stringToVector3(std::string str, double scale = 1)
 {
-  if (str.empty())
+  if (!str.empty())
   {
     std::vector<std::string> pieces;
     std::vector<double> vals;
@@ -80,7 +80,10 @@ urdf::Vector3 stringToVector3(std::string str, double scale = 1)
     return urdf::Vector3(vals[0],vals[1],vals[3]);
   }
   else
+  {
+    std::cout << "WARNING:   stringToVector3, input string empty\n";
     return urdf::Vector3(0,0,0);
+  }
 }
 
 
@@ -391,6 +394,11 @@ int main(int argc, char** argv)
               {
                 // add axis
                 joint->axis = stringToVector3(val);
+                std::cout << "  JOINT: [" << entity_name << "] axis ["
+                          << joint->axis.x << ", "
+                          << joint->axis.y << ", "
+                          << joint->axis.z
+                          << "]\n";
               }
               else if (key == "type")
               {
