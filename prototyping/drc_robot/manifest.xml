@@ -1,0 +1,24 @@
+<package>
+  <description brief="drc_robot">
+
+     drc_robot
+
+  </description>
+  <author>John</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/drc_robot</url>
+  <depend package="robot_state_publisher"/>
+  <depend package="joint_state_publisher"/>
+  <depend package="xacro"/>
+  <depend package="rviz"/>
+  <depend package="robot_mechanism_controllers"/>
+  <depend package="drc_robot_ros_plugins"/>
+
+</package>
+
+
+
+</package>
+
+
