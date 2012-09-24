@@ -1,3 +1,5 @@
+/* this programs takes BDI's cfg file, and generates an URDF */
+
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -354,7 +356,7 @@ int main(int argc, char** argv)
             boost::shared_ptr<urdf::Mesh> mesh;
             mesh.reset(new urdf::Mesh);
 
-            mesh->filename = std::string("meshes/dae/") + entity_name + std::string(".dae");
+            mesh->filename = std::string("atlas/meshes/") + entity_name + std::string(".dae");
 
             link->visual->geometry = mesh;
             link->collision->geometry = mesh;
@@ -482,7 +484,7 @@ int main(int argc, char** argv)
       printTree(model->getRoot());
 
       TiXmlDocument *model_xml = urdf::exportURDF(model);
-      model_xml->SaveFile(std::string("atlas.urdf"));
+      model_xml->SaveFile(std::string("drc_robot.urdf"));
 
     }
   }

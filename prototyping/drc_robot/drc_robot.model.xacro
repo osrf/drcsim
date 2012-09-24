@@ -2,9 +2,9 @@
        xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
        xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
-       name="humanoid" >
+       name="drc_robot" >
   
-  <include filename="$(find humanoid)/bdi/atlas.urdf" />
+  <include filename="$(find drc_robot)/urdf/drc_robot.urdf" />
   <include filename="$(find camhand)/urdf/camhand.urdf.xacro" />
 
   <xacro:camhand side="r" parent="r_hand">
