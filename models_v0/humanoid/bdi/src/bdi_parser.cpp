@@ -348,6 +348,19 @@ int main(int argc, char** argv)
             {
               link->inertial->origin.position.x = boost::lexical_cast<double>(val);
             }
+
+            // insert collision and visual block for the robot manually, currently the files I get
+            // have names that corresponds to link name, so I can hack up a filename reference for each link
+            boost::shared_ptr<urdf::Mesh> mesh;
+            mesh.reset(new urdf::Mesh);
+
+            mesh->filename = std::string("meshes/dae/") + entity_name + std::string(".dae");
+
+            link->visual->geometry = mesh;
+            link->collision->geometry = mesh;
+
+
+
           }
           else
           {
@@ -431,10 +444,12 @@ int main(int argc, char** argv)
               else if (key == "kin_min")
               {
                 joint->limits->lower = boost::lexical_cast<double>(val);
+                std::cout << "    JOINT limit lower [" << val << "]\n";
               }
               else if (key == "kin_max")
               {
                 joint->limits->upper = boost::lexical_cast<double>(val);
+                std::cout << "    JOINT limit upper [" << val << "]\n";
               }
               else if (key == "vel_min")
               {
@@ -467,7 +482,7 @@ int main(int argc, char** argv)
       printTree(model->getRoot());
 
       TiXmlDocument *model_xml = urdf::exportURDF(model);
-      model_xml->SaveFile(std::string("/tmp/a.xml"));
+      model_xml->SaveFile(std::string("atlas.urdf"));
 
     }
   }
