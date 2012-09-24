@@ -1,86 +1,66 @@
-cmake_minimum_required(VERSION 2.4.6)
+cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
+project (bdi_parser CXX C)
 
-#set(USE_ROS "1")
+set (BDIP_MAJOR_VERSION 0)
+set (BDIP_MINOR_VERSION 2)
+set (BDIP_PATCH_VERSION 2)
 
-if(USE_ROS)
-  include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+set (BDIP_VERSION ${BDIP_MAJOR_VERSION}.${BDIP_MINOR_VERSION}.${BDIP_PATCH_VERSION})
 
-  # Set the build type.  Options are:
-  #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-  #  Debug          : w/ debug symbols, w/o optimization
-  #  Release        : w/o debug symbols, w/ optimization
-  #  RelWithDebInfo : w/ debug symbols, w/ optimization
-  #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-  #set(ROS_BUILD_TYPE RelWithDebInfo)
+message (STATUS "${PROJECT_NAME} version ${BDIP_VERSION}")
 
-  rosbuild_init()
+# set the default build type
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
 
-  #set the default path for built executables to the "bin" directory
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-  #set the default path for built libraries to the "lib" directory
-  set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+# This shouldn't be necessary, but there has been trouble
+# with MSVC being set off, but MSVCXX ON.
+if(MSVC OR MSVC90 OR MSVC10)
+  set(MSVC ON)
+endif (MSVC OR MSVC90 OR MSVC10)
 
-  #uncomment if you have defined messages
-  #rosbuild_genmsg()
-  #uncomment if you have defined services
-  #rosbuild_gensrv()
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-  #common commands for building c++ executables and libraries
-  #rosbuild_add_library(${PROJECT_NAME} src/example.cc)
-  #target_link_libraries(${PROJECT_NAME} another_library)
-  #rosbuild_add_boost_directories()
-  #rosbuild_link_boost(${PROJECT_NAME} thread)
-  #rosbuild_add_executable(example examples/example.cc)
-  #target_link_libraries(example ${PROJECT_NAME})
+include(SearchForTinyXML)
+include_directories(${tinyxml_include_dirs})
+link_directories(${tinyxml_library_dirs})
+add_definitions(${tinyxml_cflags})
 
-  rosbuild_add_library(move_model_test src/move_model_test.cc)
-  rosbuild_add_library(pr2_pose_test src/pr2_pose_test.cc)
+find_package(urdfdom REQUIRED)
+include_directories(SYSTEM ${urdfdom_INCLUDE_DIRS})
+link_directories(${urdfdom_LIBRARY_DIRS})
 
-else(USE_ROS)
+find_package(urdfdom_headers REQUIRED)
+include_directories(SYSTEM ${urdfdom_headers_INCLUDE_DIRS})
 
-  # non-ros drc stuff
-  # install model file
-  set (models
-       models/ragdoll.model
-      )
-  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/)
+find_package(console_bridge REQUIRED)
+include_directories(SYSTEM ${console_bridge_INCLUDE_DIRS})
+link_directories(${console_bridge_LIBRARY_DIRS})
 
+find_package(Boost REQUIRED thread)
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIRS})
 
-  # install plugin for ragdoll
-  add_library(move_ragdoll SHARED plugins/move_ragdoll.cc)
-  target_link_libraries(move_ragdoll ${GAZEBO_libraries})
-  INSTALL(TARGETS move_ragdoll DESTINATION lib/drc-${DRC_SIM_VERSION}/plugins)
+add_executable(bdi_parser src/bdi_parser.cpp)
+target_link_libraries(bdi_parser ${urdfdom_LIBRARIES} ${tinyxml_libraries} ${console_bridge_LIBRARIES} ${Boost_LIBRARIES})
+INSTALL(TARGETS bdi_parser DESTINATION bin/)
 
-  # compile a pose publisher for testing
-  # Find Boost et. al., if not specified manually
-  include(FindBoost)
-  set (MIN_BOOST_VERSION 1.40.0 CACHE INTERNAL "Boost min version requirement" FORCE)
-  find_package(Boost ${MIN_BOOST_VERSION} REQUIRED thread signals system filesystem program_options regex)
-  if (NOT Boost_FOUND)
-    BUILD_ERROR ("Boost not found. Please install thread signals system filesystem program_options regex boost version ${MIN_BOOST_VERSION} or higher.")
-  endif() 
-  execute_process(COMMAND pkg-config --modversion protobuf 
-    OUTPUT_VARIABLE PROTOBUF_VERSION
-    RESULT_VARIABLE protobuf_modversion_failed)
-  ########################################
-  if (PROTOBUF_VERSION LESS 2.3.0)
-    BUILD_ERROR("Incorrect version: Gazebo requires protobuf version 2.3.0 or greater")
-  endif()
-  ########################################
-  # The Google Protobuf library for message generation + serialization
-  find_package(Protobuf REQUIRED)
-  if (NOT PROTOBUF_FOUND)
-    BUILD_ERROR ("Missing: Google Protobuf (libprotobuf-dev)")
-  endif()
-  if (NOT PROTOBUF_PROTOC_EXECUTABLE)
-    BUILD_ERROR ("Missing: Google Protobuf Compiler (protobuf-compiler)")
-  endif()
-  if (NOT PROTOBUF_PROTOC_LIBRARY)
-    BUILD_ERROR ("Missing: Google Protobuf Compiler Library (libprotoc-dev)")
-  endif()
-  add_executable(pub_poses plugins/pub_poses.cc)
-  target_link_libraries(pub_poses ${PROTOBUF_LIBRARY} ${GAZEBO_TRANSPORT_libraries} ${GAZEBO_libraries} ${Boost_LIBRARIES} pthread gazebo gazebo_transport gazebo_common gazebo_msgs)
-  INSTALL(TARGETS pub_poses DESTINATION bin)
+set(PKG_NAME ${PROJECT_NAME})
+set(PKG_LIBRARIES bdi_parser)
+set(PKG_DEPENDS urdfdom urdfdom_headers console_bridge)
+set(cmake_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/cmake/bdip-config.cmake")
+configure_file("${cmake_conf_file}.in" "${cmake_conf_file}" @ONLY)
+install(FILES ${cmake_conf_file} DESTINATION share/${PROJECT_NAME}/cmake/ COMPONENT cmake)
+
+# Make the package config file
+if (NOT MSVC)
+  set(PKG_DESC "convert BDI format to URDF")
+  set(PKG_DEPENDS "urdfdom urdfdom_headers console_bridge") # make the list separated by spaces instead of ;
+  set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/cmake/pkgconfig/bdip.pc")
+  configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
+  install(FILES ${pkg_conf_file} DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
+endif()
 
 
-endif(USE_ROS)
+message(STATUS "Configuration successful. Type make to compile bdi_parser")

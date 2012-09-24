@@ -39,7 +39,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
 
 add_subdirectory(plugins)
 add_subdirectory(media)
-
-# install world and model files
-add_subdirectory(models_v0)
+add_subdirectory(models)
 add_subdirectory(world_v0)

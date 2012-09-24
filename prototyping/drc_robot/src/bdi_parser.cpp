@@ -356,7 +356,7 @@ int main(int argc, char** argv)
             boost::shared_ptr<urdf::Mesh> mesh;
             mesh.reset(new urdf::Mesh);
 
-            mesh->filename = std::string("atlas/meshes/") + entity_name + std::string(".dae");
+            mesh->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".dae");
 
             link->visual->geometry = mesh;
             link->collision->geometry = mesh;
