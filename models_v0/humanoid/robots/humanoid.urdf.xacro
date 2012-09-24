@@ -8,10 +8,12 @@
   <include filename="$(find camhand)/urdf/camhand.urdf.xacro" />
 
   <xacro:ragdoll/>
+<!--
   <xacro:camhand side="r" parent="r_wrist">
     <origin xyz="0 0 -0.03" rpy="0 1.57079 3.14159"/>
   </xacro:camhand>
   <xacro:camhand side="l" parent="l_wrist">
     <origin xyz="0 0 -0.03" rpy="0 1.57079 3.14159"/>
   </xacro:camhand>
+-->
 </robot>
