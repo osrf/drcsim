@@ -7,25 +7,35 @@
     </scene>
 
     <!-- A global light source -->
-    <include filename="sun.light"/>
+    <include>
+      <uri>model://sun</uri>
+    </include>
 
     <!-- A ground plane -->
-    <model name="ground" static="true">
+    <model name="ground">
+      <static>true</static>
       <link name="body">
         <collision name="geom">
           <geometry>
-            <plane normal="0 0 1"/>
+            <plane>
+              <normal>0 0 1</normal>
+            </plane>
           </geometry>
           <surface>
             <friction>
-              <ode mu="100" mu2="50"/>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
             </friction>
           </surface>
         </collision>
       </link>
     </model>
 
+    <!--
     <include filename="car.model" model_pose="5 -2 0 0 0 0"/>
+-->
 
     <road name="main_street">
       <width>7.34</width>
@@ -33,112 +43,117 @@
       <point>125 0 0</point>
     </road>
 
-    <model name="warehouse" static='true'>
+    <model name="warehouse">
+      <static>true</static>
       <pose>500 10 2.5 0 0 0</pose>
       <link name="link">
-        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
-            <box size="100 100 20"/>
+            <box>
+              <size>100 100 20</size>
+            </box>
           </geometry>
         </collision>
 
         <visual name="visual">
           <geometry>
-            <box size="100 100 20"/>
+            <box>
+              <size>100 100 20</size>
+            </box>
           </geometry>
-          <material script="Gazebo/Grey"/>
+          <material>
+            <script>Gazebo/Grey</script>
+          </material>
         </visual>
       </link>
     </model>
 
-    <model name="building_1" static='true'>
+    <model name="building_1">
+      <static>true</static>
       <pose>15 10 2.5 0 0 0</pose>
       <link name="link">
-        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
-            <box size="10 8 5"/>
+            <box><size>10 8 5</size></box>
           </geometry>
         </collision>
 
         <visual name="visual">
           <geometry>
-            <box size="10 8 5"/>
+            <box><size>10 8 5</size></box>
           </geometry>
-          <material script="Gazebo/Grey"/>
+          <material><script>Gazebo/Grey</script></material>
         </visual>
       </link>
     </model>
 
-    <model name="building_2" static='true'>
+    <model name="building_2">
+      <static>true</static>
       <pose>15 -10 2.5 0 0 0</pose>
       <link name="link">
-        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
-            <box size="10 8 5"/>
+            <box><size>10 8 5</size></box>
           </geometry>
         </collision>
 
         <visual name="visual">
           <geometry>
-            <box size="10 8 5"/>
+            <box><size>10 8 5</size></box>
           </geometry>
-          <material script="Gazebo/Grey"/>
+          <material><script>Gazebo/Grey</script></material>
         </visual>
       </link>
     </model>
 
-    <model name="welcom_signe" static='true'>
+    <model name="welcom_signe">
+      <static>true</static>
       <pose>2 4.5 0 0 0 0</pose>
       <link name="link">
-        <pose>0 0 0 0 0 0</pose>
-
         <collision name="left-post">
           <pose>0.02 0.4  0.4 0 0 0</pose>
           <geometry>
-            <cylinder radius=".02" length="0.8"/>
+            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
           </geometry>
         </collision>
 
         <visual name="left-post">
           <pose>0.02 0.4  0.4 0 0 0</pose>
           <geometry>
-            <cylinder radius=".02" length="0.8"/>
+            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
           </geometry>
-          <material script='Gazebo/Grey'/>
+          <material><script>Gazebo/Grey</script></material>
         </visual>
 
         <collision name="right-post">
           <pose>0.02 -0.4 0.4 0 0 0</pose>
           <geometry>
-            <cylinder radius=".02" length="0.8"/>
+            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
           </geometry>
         </collision>
 
         <visual name="right-post">
           <pose>0.02 -0.4 0.4 0 0 0</pose>
           <geometry>
-            <cylinder radius=".02" length="0.8"/>
+            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
           </geometry>
-          <material script='Gazebo/Grey'/>
+          <material><script>Gazebo/Grey</script></material>
         </visual>
 
 
         <collision name="collision">
           <pose>0 0 .8 0 0 0</pose>
           <geometry>
-            <box size=".01 1 .5"/>
+            <box><size>.01 1 .5</size></box>
           </geometry>
         </collision>
 
         <visual name="visual">
           <pose>0 0 .8 0 0 0</pose>
           <geometry>
-            <box size=".01 1 .5"/>
+            <box><size>.01 1 .5</size></box>
           </geometry>
-          <material script='drc_sim/san_fauxcity_sign'/>
+          <material><script>drc_sim/san_fauxcity_sign</script></material>
         </visual>
       </link>
     </model>
@@ -146,7 +161,6 @@
 
     <model name="terrain">
       <link name="link">
-        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <heightmap>
