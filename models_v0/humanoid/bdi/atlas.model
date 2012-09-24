@@ -777,7 +777,7 @@
   <joint name="r_camhand_joint" type="fixed">
     <parent link="r_hand"/>
     <child link="r_palm"/>
-    <origin rpy="0 3.1416  1.57079" xyz="0 -0.1 0"/>
+    <origin rpy="0 3.1416  1.57079" xyz="0 -0.1 -0.03"/>
   </joint>
   <link name="r_f0_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -1373,7 +1373,7 @@
   <joint name="l_camhand_joint" type="fixed">
     <parent link="l_hand"/>
     <child link="l_palm"/>
-    <origin rpy="0 3.1416 -1.57079" xyz="0  0.1 0"/>
+    <origin rpy="0 3.1416 -1.57079" xyz="0  0.1 -0.03"/>
   </joint>
   <link name="l_f0_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
