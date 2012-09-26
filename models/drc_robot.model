@@ -19,7 +19,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/head.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/head.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -38,7 +38,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_clav.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_clav.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -57,7 +57,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_farm.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_farm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -76,7 +76,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_foot.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_foot.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -95,7 +95,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_hand.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_hand.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -114,7 +114,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_larm.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_larm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -133,7 +133,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_lglut.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_lglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -152,7 +152,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_lleg.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_lleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -171,7 +171,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_scap.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_scap.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -190,7 +190,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_talus.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_talus.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -209,7 +209,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_uarm.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_uarm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -228,7 +228,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_uglut.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_uglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -247,7 +247,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/l_uleg.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/l_uleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -266,7 +266,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/ltorso.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/ltorso.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -285,7 +285,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/mtorso.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/mtorso.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -304,7 +304,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/pelvis.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/pelvis.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -323,7 +323,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_clav.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_clav.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -342,7 +342,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_farm.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_farm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -361,7 +361,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_foot.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_foot.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -380,7 +380,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_hand.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_hand.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -399,7 +399,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_larm.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_larm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -418,7 +418,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_lglut.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_lglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -437,7 +437,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_lleg.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_lleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -456,7 +456,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_scap.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_scap.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -475,7 +475,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_talus.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_talus.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -494,7 +494,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_uarm.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_uarm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -513,7 +513,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_uglut.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_uglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -532,7 +532,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/r_uleg.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/r_uleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -551,7 +551,7 @@
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="drc_robot/meshes/utorso.dae" scale="1 1 1"/>
+        <mesh filename="drc_robot/meshes/utorso.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>

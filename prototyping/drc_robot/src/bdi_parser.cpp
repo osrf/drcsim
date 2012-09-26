@@ -357,8 +357,9 @@ int main(int argc, char** argv)
             mesh.reset(new urdf::Mesh);
 
             mesh->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".dae");
-
             link->visual->geometry = mesh;
+
+            mesh->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".stl");
             link->collision->geometry = mesh;
 
 

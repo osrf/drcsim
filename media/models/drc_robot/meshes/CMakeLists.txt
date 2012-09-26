@@ -29,5 +29,35 @@ set (files
   r_uglut.dae
   r_uleg.dae
   utorso.dae
+  head.stl
+  l_clav.stl
+  l_farm.stl
+  l_foot.stl
+  l_hand.stl
+  l_larm.stl
+  l_lglut.stl
+  l_lleg.stl
+  l_scap.stl
+  l_talus.stl
+  ltorso.stl
+  l_uarm.stl
+  l_uglut.stl
+  l_uleg.stl
+  mtorso.stl
+  pelvis.stl
+  r_clav.stl
+  r_farm.stl
+  r_foot.stl
+  r_hand.stl
+  r_larm.stl
+  r_lglut.stl
+  r_lleg.stl
+  r_lug.stl
+  r_scap.stl
+  r_talus.stl
+  r_uarm.stl
+  r_uglut.stl
+  r_uleg.stl
+  utorso.stl
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/media/models/drc_robot/meshes)

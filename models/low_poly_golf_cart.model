@@ -4,8 +4,20 @@
       <!-- mesh width 51.1811 -->
       <!-- mesh height 99.8878 -->
       <!-- mesh origin at corner -->
-      <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
+      <inertial>
+        <mass>500</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>10</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>10</iyy>
+          <iyz>0</iyz>
+          <izz>10</izz>
+        </inertia>
+      </inertial>
       <collision name='chassis_collision'>
+        <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
             <filename>low_poly_golf_cart/models/no_wheels.dae</filename>
@@ -14,6 +26,7 @@
         </geometry>
       </collision>
       <visual name='chassis_visual'>
+        <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
             <filename>low_poly_golf_cart/models/no_wheels.dae</filename>
@@ -28,6 +41,18 @@
     </link>
     <link name='front_left_wheel'>
       <pose>1.250000 0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
       <collision name='front_left_wheel_collision'>
         <geometry>
           <cylinder>
@@ -51,6 +76,18 @@
     </link>
     <link name='front_right_wheel'>
       <pose>1.250000 -0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
       <collision name='front_right_wheel_collision'>
         <geometry>
           <cylinder>
@@ -74,6 +111,18 @@
     </link>
     <link name='back_right_wheel'>
       <pose>-0.800000 -0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
       <collision name='back_right_wheel_collision'>
         <geometry>
           <cylinder>
@@ -97,6 +146,18 @@
     </link>
     <link name='back_left_wheel'>
       <pose>-0.800000 0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
       <collision name='back_left_wheel_collision'>
         <geometry>
           <cylinder>
@@ -120,6 +181,18 @@
     </link>
     <link name='gas_pedal'>
       <pose>0.300000 0.100000 0.500000 0.000000 -0.000000 0.000000</pose>
+      <inertial>
+        <mass>1</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
       <collision name='gas_pedal_collision'>
         <geometry>
           <box>
@@ -141,6 +214,18 @@
     </link>
     <link name='brake_pedal'>
       <pose>0.300000 0.250000 0.500000 0.000000 -0.000000 0.000000</pose>
+      <inertial>
+        <mass>1</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
       <collision name='brake_pedal_collision'>
         <geometry>
           <box>
@@ -162,6 +247,18 @@
     </link>
     <link name='steering_wheel'>
       <pose>0.300000 0.200000 1.000000 0.000000 1.570700 0.000000</pose>
+      <inertial>
+        <mass>1</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
       <collision name='steering_wheel_collision'>
         <geometry>
           <cylinder>
@@ -216,7 +313,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name='front_left_joint' type='revolute2'>
+    <joint name='front_left_joint' type='revolute'>
       <parent>chassis</parent>
       <child>front_left_wheel</child>
       <axis>
@@ -226,9 +323,6 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
-      <axis2>
-        <xyz>0.000000 1.000000 0.000000</xyz>
-      </axis2>
       <physics>
         <ode>
           <limit>
@@ -238,7 +332,7 @@
         </ode>
       </physics>
     </joint>
-    <joint name='front_right_joint' type='revolute2'>
+    <joint name='front_right_joint' type='revolute'>
       <parent>chassis</parent>
       <child>front_right_wheel</child>
       <axis>
@@ -248,9 +342,6 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
-      <axis2>
-        <xyz>0.000000 1.000000 0.000000</xyz>
-      </axis2>
       <physics>
         <ode>
           <limit>
@@ -260,7 +351,7 @@
         </ode>
       </physics>
     </joint>
-    <joint name='back_right_joint' type='revolute2'>
+    <joint name='back_right_joint' type='revolute'>
       <parent>chassis</parent>
       <child>back_right_wheel</child>
       <axis>
@@ -270,9 +361,6 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
-      <axis2>
-        <xyz>0.000000 1.000000 0.000000</xyz>
-      </axis2>
       <physics>
         <ode>
           <limit>
@@ -282,7 +370,7 @@
         </ode>
       </physics>
     </joint>
-    <joint name='back_left_joint' type='revolute2'>
+    <joint name='back_left_joint' type='revolute'>
       <parent>chassis</parent>
       <child>back_left_wheel</child>
       <axis>
