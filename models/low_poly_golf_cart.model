@@ -1,7 +1,10 @@
 <gazebo version='1.2'>
   <model name='car'>
     <link name='chassis'>
-      <pose>-1.450000 -0.650000 0.300000 0.000000 -0.000000 -1.57079</pose>
+      <!-- mesh width 51.1811 -->
+      <!-- mesh height 99.8878 -->
+      <!-- mesh origin at corner -->
+      <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
       <collision name='chassis_collision'>
         <geometry>
           <mesh>
@@ -24,11 +27,11 @@
       <velocity_decay/>
     </link>
     <link name='front_left_wheel'>
-      <pose>0.800000 0.600000 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>1.250000 0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
       <collision name='front_left_wheel_collision'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -36,7 +39,7 @@
       <visual name='front_left_wheel_visual'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -47,11 +50,11 @@
       <velocity_decay/>
     </link>
     <link name='front_right_wheel'>
-      <pose>0.800000 -0.600000 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>1.250000 -0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
       <collision name='front_right_wheel_collision'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -59,7 +62,7 @@
       <visual name='front_right_wheel_visual'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -70,11 +73,11 @@
       <velocity_decay/>
     </link>
     <link name='back_right_wheel'>
-      <pose>-0.900000 -0.600000 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>-0.800000 -0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
       <collision name='back_right_wheel_collision'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -82,7 +85,7 @@
       <visual name='back_right_wheel_visual'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -93,11 +96,11 @@
       <velocity_decay/>
     </link>
     <link name='back_left_wheel'>
-      <pose>-0.900000 0.600000 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>-0.800000 0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
       <collision name='back_left_wheel_collision'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
@@ -105,7 +108,7 @@
       <visual name='back_left_wheel_visual'>
         <geometry>
           <cylinder>
-            <radius>0.300000</radius>
+            <radius>0.250000</radius>
             <length>0.100000</length>
           </cylinder>
         </geometry>
