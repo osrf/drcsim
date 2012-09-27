@@ -1,5 +1,7 @@
 set (plugins
   RubblePlugin
+  DRCRobotPlugin
+  DRCVehiclePlugin
 )
 
 foreach (src ${plugins})
