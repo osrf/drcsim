@@ -3,6 +3,7 @@ set (plugins
   DRCRobotPlugin
   DRCVehiclePlugin
   DRCBuildingPlugin
+  DRCFirehosePlugin
 )
 
 foreach (src ${plugins})
