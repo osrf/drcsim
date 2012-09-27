@@ -25,26 +25,26 @@
  * SVN info: $Id$
  */
 
-#include "DRCVehiclePlugin.hh"
+#include "DRCBuildingPlugin.hh"
 
 namespace gazebo
 {
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-DRCVehiclePlugin::DRCVehiclePlugin()
+DRCBuildingPlugin::DRCBuildingPlugin()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
-DRCVehiclePlugin::~DRCVehiclePlugin()
+DRCBuildingPlugin::~DRCBuildingPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->update_connection_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
+void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr /*_sdf*/)
 {
   // Get the world name.
@@ -58,24 +58,13 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateStart(
-      boost::bind(&DRCVehiclePlugin::UpdateStates, this));
-}
-
-// Set DRC Robot feet placement
-void DRCVehiclePlugin::SetSteeringWheelState(math::Angle _position)
-{
-  physics::LinkPtr steering_wheel = this->model_->GetLink("steering_wheel");
-  physics::LinkPtr fl_wheel = this->model_->GetLink("front_left_wheel");
-  physics::LinkPtr fr_wheel = this->model_->GetLink("front_right_wheel");
-  physics::LinkPtr bl_wheel = this->model_->GetLink("back_left_wheel");
-  physics::LinkPtr br_wheel = this->model_->GetLink("back_right_wheel");
-
+      boost::bind(&DRCBuildingPlugin::UpdateStates, this));
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
-void DRCVehiclePlugin::UpdateStates()
+void DRCBuildingPlugin::UpdateStates()
 {
   common::Time cur_time = this->world_->GetSimTime();
 
@@ -89,5 +78,5 @@ void DRCVehiclePlugin::UpdateStates()
   this->model_->SetJointPositions(joint_position_map);
 }
 
-GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
+GZ_REGISTER_MODEL_PLUGIN(DRCBuildingPlugin)
 }

@@ -24,8 +24,8 @@
  * Date: 10 June 2008
  * SVN: $Id$
  */
-#ifndef GAZEBO_DRC_ROBOT_PLUGIN_HH
-#define GAZEBO_DRC_ROBOT_PLUGIN_HH
+#ifndef GAZEBO_DRC_BUILDING_PLUGIN_HH
+#define GAZEBO_DRC_BUILDING_PLUGIN_HH
 
 #include <boost/thread.hpp>
 
@@ -39,13 +39,13 @@
 
 namespace gazebo
 {
-  class DRCRobotPlugin : public ModelPlugin
+  class DRCBuildingPlugin : public ModelPlugin
   {
     /// \brief Constructor
-    public: DRCRobotPlugin();
+    public: DRCBuildingPlugin();
 
     /// \brief Destructor
-    public: virtual ~DRCRobotPlugin();
+    public: virtual ~DRCBuildingPlugin();
 
     /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
@@ -61,22 +61,14 @@ namespace gazebo
     /// Pointer to the update event connection
     private: event::ConnectionPtr update_connection_;
 
-    /// Sets DRC Robot feet placement
-    /// No reachability checking here.
-    public: void SetFeetPose(math::Pose _l_pose, math::Pose _r_pose);
+    /// Sets DRC Building door position (rad)
+    ///   - zero angle means door is closed
+    ///   - door hinge axis points upwards, which means
+    ///     negative angle swings door counter-clockwise if view
+    ///     from above.
+    public: void SetDoorState(math::Angle _angle);
+    public: math::Angle  GetDoorState();
 
-    /// Sets DRC Robot planar navigational command velocity
-    /// _cmd is a Vector3, where:
-    ///   - x is the desired forward linear velocity, positive is robot-forward
-    ///     and negative is robot-back.
-    ///   - y is the desired lateral linear velocity, positive is robot-left
-    ///     and negative is robot-right.
-    ///   - z is the desired heading angular velocity, positive makes
-    ///     the robot turn left, and negative makes the robot turn right
-    public: void SetRobotCmdVel(math::Vector3 _cmd);
-
-    void FixLink(physics::LinkPtr link);
-    void UnfixLink();
     private: physics::JointPtr joint_;
   };
 /** \} */

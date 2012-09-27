@@ -2,6 +2,7 @@ set (plugins
   RubblePlugin
   DRCRobotPlugin
   DRCVehiclePlugin
+  DRCBuildingPlugin
 )
 
 foreach (src ${plugins})

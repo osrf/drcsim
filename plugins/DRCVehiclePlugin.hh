@@ -67,29 +67,30 @@ namespace gazebo
     ///   - specify brake pedal position in meters
     /// The vehicle internal model will decide the overall motion
     /// of the vehicle.
-    public: void SetVehicleState(double _steering_wheel_position,
+    public: void SetVehicleState(math::Angle _steering_wheel_position,
                                  double _gas_pedal_position,
                                  double _brake_pedal_position);
 
     /// Set the steering wheel angle (rad)
     /// Setting steering wheel angle will also update the front wheel
     /// steering angle
-    public: void SetSteeringWheelState(double _position);
+    public: void SetSteeringWheelState(math::Angle _position);
 
     /// Front wheel steer angle = ratio * steering wheel angle
     public: void SetSteeringWheelRatio(double _ratio);
 
-    /// Returns lower and upper limits of the steering wheel angle (rad)
-    public: void SetSteeringWheelLimits(double &_lower, double &_upper);
-
-    /// Returns the steering wheel angle (rad)
-    public: void GetSteeringWheelState(double _position);
-
-    /// Returns the front wheel angle / steering wheel angle ratio
-    public: void GetSteeringWheelRatio(double _ratio);
+    /// Sets the lower and upper limits of the steering wheel angle (rad)
+    public: void SetSteeringWheelLimits(math::Angle _min, math::Angle _max);
 
     /// Returns the lower and upper limits of the steering wheel angle (rad)
-    public: void GetSteeringWheelLimits(double _lower, double _upper);
+    public: void GetSteeringWheelLimits(math::Angle &_min, math::Angle &_max);
+
+    /// Returns the steering wheel angle (rad)
+    public: math::Angle GetSteeringWheelState();
+
+    /// Returns the front wheel angle / steering wheel angle ratio
+    public: double GetSteeringWheelRatio();
+
 
     /// Specify front wheel orientation in radians (Note:  this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
@@ -99,23 +100,41 @@ namespace gazebo
     /// Negative steering angle results in a right turn in forward motion.
     /// Setting front wheel steering angle will also update the
     /// steering wheel angle
-    public: void SetSteeringState(double _position);
+    public: void SetSteeringState(math::Angle _position);
 
-    /// Returns lower and upper limits of the steering angle (rad)
-    public: void SetSteeringLimits(double &_lower, double &_upper);
+    /// Sets the lower and upper limits of the steering angle (rad)
+    public: void SetSteeringLimits(math::Angle _min, math::Angle _max);
 
     /// Returns the steering angle (rad)
-    public: void GetSteeringState(double _position);
+    public: math::Angle GetSteeringState();
 
     /// Returns the lower and upper limits of the steering angle (rad)
-    public: void GetSteeringLimits(double _lower, double _upper);
+    public: void GetSteeringLimits(math::Angle &_min, math::Angle &_max);
 
 
     /// Specify gas pedal position in meters.
     public: void SetGasPedalState(double _position);
 
-    /// Specify brake pedal position in meters.
+    /// Sets gas pedal position limits in meters.
+    public: void SetGasPedalLimits(double _min, double _max);
+
+    /// Returns gas pedal position limits in meters.
+    public: void GetGasPedalLimits(double &_min, double &_max);
+
+    /// Returns the gas pedal position in meters.
+    public: double GetGasPedalState();
+
+    /// Specify gas pedal position in meters.
     public: void SetBrakePedalState(double _position);
+
+    /// Sets gas pedal position limits in meters.
+    public: void SetBrakePedalLimits(double _min, double _max);
+
+    /// Returns gas pedal position limits in meters.
+    public: void GetBrakePedalLimits(double &_min, double &_max);
+
+    /// Returns the gas pedal position in meters.
+    public: double GetBrakePedalState();
 
     private: physics::JointPtr joint_;
   };
