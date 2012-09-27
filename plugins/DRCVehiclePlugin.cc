@@ -25,26 +25,26 @@
  * SVN info: $Id$
  */
 
-#include "DRCRobotPlugin.hh"
+#include "DRCVehiclePlugin.hh"
 
 namespace gazebo
 {
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-DRCRobotPlugin::DRCRobotPlugin()
+DRCVehiclePlugin::DRCVehiclePlugin()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
-DRCRobotPlugin::~DRCRobotPlugin()
+DRCVehiclePlugin::~DRCVehiclePlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->update_connection_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void DRCRobotPlugin::Load(physics::ModelPtr _parent,
+void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr /*_sdf*/)
 {
   // Get the world name.
@@ -58,44 +58,24 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateStart(
-      boost::bind(&DRCRobotPlugin::UpdateStates, this));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// glue a link to the world by creating a fixed joint
-void DRCRobotPlugin::FixLink(physics::LinkPtr link)
-{
-  this->joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute");
-  this->joint_->SetModel(this->model_);
-  math::Pose pose = link->GetWorldPose();
-  // math::Pose  pose(math::Vector3(0, 0, 0.2), math::Quaternion(1, 0, 0, 0));
-  this->joint_->Load(physics::LinkPtr(), link, pose);
-  this->joint_->SetAxis(0, math::Vector3(0, 0, 0));
-  this->joint_->SetHighStop(0, 0);
-  this->joint_->SetLowStop(0, 0);
-  this->joint_->SetAnchor(0, pose.pos);
-  this->joint_->Init();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// unglue a link to the world by destroying the fixed joint
-void DRCRobotPlugin::UnfixLink()
-{
-  this->joint_.reset();
+      boost::bind(&DRCVehiclePlugin::UpdateStates, this));
 }
 
 // Set DRC Robot feet placement
-void DRCRobotPlugin::SetFeetPose(math::Pose _l_pose, math::Pose _r_pose)
+void DRCVehiclePlugin::SetSteeringWheelState(double _position)
 {
-  physics::LinkPtr l_foot = this->model_->GetLink("l_foot");
-  physics::LinkPtr r_foot = this->model_->GetLink("r_foot");
+  physics::LinkPtr steering_wheel = this->model_->GetLink("steering_wheel");
+  physics::LinkPtr fl_wheel = this->model_->GetLink("front_left_wheel");
+  physics::LinkPtr fr_wheel = this->model_->GetLink("front_right_wheel");
+  physics::LinkPtr bl_wheel = this->model_->GetLink("back_left_wheel");
+  physics::LinkPtr br_wheel = this->model_->GetLink("back_right_wheel");
 
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
-void DRCRobotPlugin::UpdateStates()
+void DRCVehiclePlugin::UpdateStates()
 {
   common::Time cur_time = this->world_->GetSimTime();
 
@@ -109,5 +89,5 @@ void DRCRobotPlugin::UpdateStates()
   this->model_->SetJointPositions(joint_position_map);
 }
 
-GZ_REGISTER_MODEL_PLUGIN(DRCRobotPlugin)
+GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
 }

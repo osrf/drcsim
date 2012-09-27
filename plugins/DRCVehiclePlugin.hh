@@ -72,6 +72,8 @@ namespace gazebo
                                  double _brake_pedal_position);
 
     /// Set the steering wheel angle (rad)
+    /// Setting steering wheel angle will also update the front wheel
+    /// steering angle
     public: void SetSteeringWheelState(double _position);
 
     /// Front wheel steer angle = ratio * steering wheel angle
@@ -89,13 +91,25 @@ namespace gazebo
     /// Returns the lower and upper limits of the steering wheel angle (rad)
     public: void GetSteeringWheelLimits(double _lower, double _upper);
 
-    /// Specify front wheel orientation in radians.
+    /// Specify front wheel orientation in radians (Note:  this sets
+    /// the vehicle wheels as oppsed to the steering wheel angle set by
+    /// SetSteeringWheelState).
     /// Zero setting results in vehicle traveling in a straight line.
     /// Positive steering angle results in a left turn in forward motion.
     /// Negative steering angle results in a right turn in forward motion.
+    /// Setting front wheel steering angle will also update the
+    /// steering wheel angle
     public: void SetSteeringState(double _position);
 
-    public: void GetSteeringLimits(double _position);
+    /// Returns lower and upper limits of the steering angle (rad)
+    public: void SetSteeringLimits(double &_lower, double &_upper);
+
+    /// Returns the steering angle (rad)
+    public: void GetSteeringState(double _position);
+
+    /// Returns the lower and upper limits of the steering angle (rad)
+    public: void GetSteeringLimits(double _lower, double _upper);
+
 
     /// Specify gas pedal position in meters.
     public: void SetGasPedalState(double _position);
@@ -103,8 +117,6 @@ namespace gazebo
     /// Specify brake pedal position in meters.
     public: void SetBrakePedalState(double _position);
 
-    void FixLink(physics::LinkPtr link);
-    void UnfixLink();
     private: physics::JointPtr joint_;
   };
 /** \} */
