@@ -22,7 +22,7 @@
     <include filename="ground_plane.model" />
     <!-- A global light source -->
     <include filename="sun.light" />
-    <include filename="low_poly_golf_cart.model" model_pose="5 -2 0 0 0 0"/>
-    <include filename="drc_robot.model" model_pose="5 2 1 0 0 0"/>
+    <include filename="low_poly_golf_cart.model" model_pose="0 -2 0 0 0 0"/>
+    <include filename="drc_robot.model" model_pose="0 2 1 0 0 0"/>
   </world>
 </gazebo>

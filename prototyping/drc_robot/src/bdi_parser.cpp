@@ -320,23 +320,23 @@ int main(int argc, char** argv)
             }
             else if (key == "moi_xy")
             {
-              link->inertial->ixx = boost::lexical_cast<double>(val);
+              link->inertial->ixy = boost::lexical_cast<double>(val);
             }
             else if (key == "moi_xz")
             {
-              link->inertial->ixx = boost::lexical_cast<double>(val);
+              link->inertial->ixz = boost::lexical_cast<double>(val);
             }
             else if (key == "moi_yy")
             {
-              link->inertial->ixx = boost::lexical_cast<double>(val);
+              link->inertial->iyy = boost::lexical_cast<double>(val);
             }
             else if (key == "moi_yz")
             {
-              link->inertial->ixx = boost::lexical_cast<double>(val);
+              link->inertial->iyz = boost::lexical_cast<double>(val);
             }
             else if (key == "moi_zz")
             {
-              link->inertial->ixx = boost::lexical_cast<double>(val);
+              link->inertial->izz = boost::lexical_cast<double>(val);
             }
             else if (key == "com_x")
             {
@@ -344,23 +344,24 @@ int main(int argc, char** argv)
             }
             else if (key == "com_y")
             {
-              link->inertial->origin.position.x = boost::lexical_cast<double>(val);
+              link->inertial->origin.position.y = boost::lexical_cast<double>(val);
             }
             else if (key == "com_z")
             {
-              link->inertial->origin.position.x = boost::lexical_cast<double>(val);
+              link->inertial->origin.position.z = boost::lexical_cast<double>(val);
             }
 
             // insert collision and visual block for the robot manually, currently the files I get
             // have names that corresponds to link name, so I can hack up a filename reference for each link
-            boost::shared_ptr<urdf::Mesh> mesh;
-            mesh.reset(new urdf::Mesh);
+            boost::shared_ptr<urdf::Mesh> mesh_dae;
+            mesh_dae.reset(new urdf::Mesh);
+            mesh_dae->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".dae");
+            link->visual->geometry = mesh_dae;
 
-            mesh->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".dae");
-            link->visual->geometry = mesh;
-
-            mesh->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".stl");
-            link->collision->geometry = mesh;
+            boost::shared_ptr<urdf::Mesh> mesh_stl;
+            mesh_stl.reset(new urdf::Mesh);
+            mesh_stl->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".stl");
+            link->collision->geometry = mesh_stl;
 
 
 
