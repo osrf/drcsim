@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<gazebo version="1.2">
+  <world name="default">
+    <physics type="ode">
+      <gravity>0 0 -9.8</gravity>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <dt>0.001</dt>
+          <iters>100</iters>
+          <sor>1.0</sor>
+        </solver>
+        <constraints>
+          <cfm>0.0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>0.0</contact_max_correcting_vel>
+          <contact_surface_layer>0.0</contact_surface_layer>
+        </constraints>
+      </ode>
+    </physics>
+    <!-- A ground plane -->
+    <include filename="ground_plane.model" />
+    <!-- A global light source -->
+    <include filename="sun.light" />
+    <include filename="low_poly_golf_cart.model" model_pose="5 -2 0 0 0 0"/>
+    <include filename="drc_robot.model" model_pose="5 2 1 0 0 0"/>
+  </world>
+</gazebo>
