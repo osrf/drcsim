@@ -24,6 +24,6 @@
     <include filename="sun.light" />
     <include filename="low_poly_golf_cart.model" model_pose="0 -2 0 0 0 0"/>
     <include filename="drc_robot.model" model_pose="0 2 1 0 0 0"/>
-    <include filename="hose.model" model_pose="0 0 1 0.5 0.1 0.2"/>
+    <include filename="firehose.model" model_pose="0 0 1 0.5 0.1 0.2"/>
   </world>
 </gazebo>
