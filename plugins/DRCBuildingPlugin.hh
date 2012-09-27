@@ -61,13 +61,16 @@ namespace gazebo
     /// Pointer to the update event connection
     private: event::ConnectionPtr update_connection_;
 
-    /// Sets DRC Building door position (rad)
+    /// Sets DRC Building door position (rad) given door Joint name.
     ///   - zero angle means door is closed
     ///   - door hinge axis points upwards, which means
     ///     negative angle swings door counter-clockwise if view
     ///     from above.
-    public: void SetDoorState(math::Angle _angle);
-    public: math::Angle  GetDoorState();
+    public: void SetDoorState(std::string _door_name, math::Angle _angle);
+
+    /// Returns DRC Building door position (rad) given door Joint name.
+    /// \sa To set door state, see SetDoorState.
+    public: math::Angle GetDoorState(std::string _door_name);
 
     private: physics::JointPtr joint_;
   };
