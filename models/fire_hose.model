@@ -1,21 +1,21 @@
 <?xml version="1.0" ?>
 <robot name="fire_hose">
-  <link name="link_00">
+  <link name="nozzle">
     <inertial>
       <mass value="0.1"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
     </inertial>
     <visual>
-      <origin rpy="0 1.57079 0" xyz="0.05 0 0"/>
+      <origin rpy="0 0 0" xyz="-0.0 0 0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.1" />
+        <mesh filename="fire_hose/nozzle.stl" scale="0.00254 0.00254 0.00254" />
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 1.57079 0" xyz="0.05 0 0"/>
+      <origin rpy="0 0 0" xyz="-0.0 0 0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.1" />
+        <mesh filename="fire_hose/nozzle.stl" scale="0.00254 0.00254 0.00254" />
       </geometry>
     </collision>
   </link>
@@ -61,7 +61,7 @@
   <joint name="joint_01_1" type="revolute">
     <origin rpy="0 0 0" xyz="0.1 0 0"/>
     <axis xyz="0 0 1"/>
-    <parent link="link_00"/>
+    <parent link="nozzle"/>
     <child link="sphere_01"/>
     <limit effort="100" lower="-0.7" upper="0.7" velocity="10"/>
   </joint>
@@ -1046,22 +1046,22 @@
       </geometry>
     </collision>
   </link>
-  <link name="link_20">
+  <link name="coupling">
     <inertial>
       <mass value="0.1"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
     </inertial>
     <visual>
-      <origin rpy="0 1.57079 0" xyz="0.05 0 0"/>
+      <origin rpy="0 0 0" xyz="0.0 0 0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.1" />
+        <mesh filename="fire_hose/coupling.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 1.57079 0" xyz="0.05 0 0"/>
+      <origin rpy="0 0 0" xyz="0.0 0 0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.1" />
+        <mesh filename="fire_hose/coupling.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>
@@ -1076,7 +1076,7 @@
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 1 0"/>
     <parent link="sphere_20"/>
-    <child link="link_20"/>
+    <child link="coupling"/>
     <limit effort="100" lower="-0.7" upper="0.7" velocity="10"/>
   </joint>
 

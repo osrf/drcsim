@@ -1,0 +1,51 @@
+<gazebo version='1.2'>
+  <model name='standpipe'>
+    <static>false</static>
+    <link name='standpipe'>
+      <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+      <inertial>
+        <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+        <mass>0.100000</mass>
+        <inertia>
+          <ixx>0.010000</ixx>
+          <ixy>0.000000</ixy>
+          <ixz>0.000000</ixz>
+          <iyy>0.010000</iyy>
+          <iyz>0.000000</iyz>
+          <izz>0.010000</izz>
+        </inertia>
+      </inertial>
+      <collision name='standpipe_collision'>
+        <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+        <geometry>
+          <mesh>
+            <scale>0.025400 0.025400 0.025400</scale>
+            <filename>fire_hose/standpipe.stl</filename>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='standpipe_vis'>
+        <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+        <geometry>
+          <mesh>
+            <scale>0.025400 0.025400 0.025400</scale>
+            <filename>fire_hose/standpipe.stl</filename>
+          </mesh>
+        </geometry>
+      </visual>
+      <velocity_decay/>
+    </link>
+    <joint name='joint_01_1' type='revolute'>
+      <child>standpipe</child>
+      <parent>world</parent>
+      <axis>
+        <xyz>0.000000 0.000000 1.000000</xyz>
+        <limit>
+          <lower>0.000000</lower>
+          <upper>0.000000</upper>
+        </limit>
+        <dynamics/>
+      </axis>
+    </joint>
+  </model>
+</gazebo>

@@ -60,4 +60,4 @@ set (files
   r_uleg.stl
   utorso.stl
 )
-install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/media/models/drc_robot/meshes)
+install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/media/models/drc_robot/meshes/)
