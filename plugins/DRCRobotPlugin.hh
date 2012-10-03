@@ -78,6 +78,7 @@ namespace gazebo
     void FixLink(physics::LinkPtr link);
     void UnfixLink();
     private: physics::JointPtr joint_;
+    private: double last_update_time_;
   };
 /** \} */
 /// @}

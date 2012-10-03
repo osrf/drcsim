@@ -1943,5 +1943,8 @@
     <child link="l_f3_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <gazebo>
+    <plugin name="drc_robot_plugin" filename="libDRCRobotPlugin.so"/>
+  </gazebo>
 </robot>
 
