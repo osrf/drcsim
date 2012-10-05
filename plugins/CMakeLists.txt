@@ -11,3 +11,5 @@ foreach (src ${plugins})
   target_link_libraries(${src} ${GAZEBO_LIBRARIES})
   install (TARGETS ${src} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
 endforeach (src ${plugins})
+
+add_subdirectory(ros)

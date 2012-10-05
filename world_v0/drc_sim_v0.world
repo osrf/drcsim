@@ -34,7 +34,9 @@
     </model>
 
     <!--
-    <include filename="car.model" model_pose="5 -2 0 0 0 0"/>
+    <include filename="car.model" >
+      <pose>5 -2 0 0 0 0</pose>
+    </include>
 -->
 
     <road name="main_street">
