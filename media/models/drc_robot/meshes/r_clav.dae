@@ -12,7 +12,7 @@
     <revision></revision>
     <subject></subject>
     <title></title>
-    <unit meter="0.010000" name="centimeter"></unit>
+    <unit meter="1.0" name="meter"></unit>
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_images>
