@@ -40,6 +40,11 @@ DRCRobotPlugin::DRCRobotPlugin()
 DRCRobotPlugin::~DRCRobotPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  this->rosnode_->shutdown();
+  this->queue_.clear();
+  this->queue_.disable();
+  this->callback_queue_thread_.join();
+  delete this->rosnode_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +52,9 @@ DRCRobotPlugin::~DRCRobotPlugin()
 void DRCRobotPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr /*_sdf*/)
 {
+  // ros stuff
+  this->rosnode_ = new ros::NodeHandle("~");
+
   // Get the world name.
   this->world_ = _parent->GetWorld();
   this->model_ = _parent;
@@ -54,13 +62,31 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
   // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
   this->last_update_time_ = this->world_->GetSimTime().Double();
+  this->last_cmd_vel_update_time_ = this->world_->GetSimTime().Double();
+  this->cmd_vel_ = geometry_msgs::Twist();
 
   this->FixLink(this->model_->GetLink("pelvis"));
-  // New Mechanism for Updating every World Cycle
+
+  // ros subscription
+  std::string topic_name = "/cmd_vel";
+  ros::SubscribeOptions trajectory_so = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+    topic_name, 100, boost::bind( &DRCRobotPlugin::SetRobotCmdVel,this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->ros_sub_ = this->rosnode_->subscribe(trajectory_so);
+
+  // ros callback queue for processing subscription
+  this->callback_queue_thread_ = boost::thread( boost::bind( &DRCRobotPlugin::QueueThread,this ) );
+
+  // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateStart(
      boost::bind(&DRCRobotPlugin::UpdateStates, this));
+}
+
+void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
+{
+  this->cmd_vel_ = *_cmd;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +146,25 @@ void DRCRobotPlugin::UpdateStates()
 {
   double cur_time = this->world_->GetSimTime().Double();
 
-  //if (cur_time - this->last_update_time_ >= 0.01) 
+  if (cur_time - this->last_cmd_vel_update_time_ >= 0.01)
+  {
+    double dt = cur_time - this->last_cmd_vel_update_time_;
+    if (dt > 0)
+    {
+      this->last_cmd_vel_update_time_ = cur_time;
+      math::Pose cur_pose = this->model_->GetWorldPose();
+      math::Pose new_pose;
+      new_pose.pos.x = cur_pose.pos.x + this->cmd_vel_.linear.x * dt;
+      new_pose.pos.y = cur_pose.pos.y + this->cmd_vel_.linear.y * dt;
+
+      math::Vector3 rpy = cur_pose.rot.GetAsEuler();
+      rpy.z = rpy.z + this->cmd_vel_.angular.z * dt;
+
+      new_pose.rot.SetFromEuler(rpy);
+    }
+  }
+
+  if (false && cur_time - this->last_update_time_ >= 0.01) 
   {
     this->last_update_time_ = cur_time;
     std::map<std::string, double> joint_position_map;
@@ -243,6 +287,16 @@ void DRCRobotPlugin::UpdateStates()
     this->model_->GetJoint("drc_robot::r.leg.lhy")->SetAngle(0, 0.0);
     this->model_->GetJoint("drc_robot::r.leg.mhx")->SetAngle(0, 0.0);
     this->model_->GetJoint("drc_robot::r.leg.uhz")->SetAngle(0, 0.0);
+  }
+}
+
+void DRCRobotPlugin::QueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosnode_->ok())
+  {
+    this->queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
 

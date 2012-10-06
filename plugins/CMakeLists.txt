@@ -1,6 +1,6 @@
 set (plugins
   RubblePlugin
-  DRCRobotPlugin
+  #DRCRobotPlugin
   DRCVehiclePlugin
   DRCBuildingPlugin
   DRCFirehosePlugin

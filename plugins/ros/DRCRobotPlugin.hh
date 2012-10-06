@@ -27,6 +27,12 @@
 #ifndef GAZEBO_DRC_ROBOT_PLUGIN_HH
 #define GAZEBO_DRC_ROBOT_PLUGIN_HH
 
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
+#include <ros/subscribe_options.h>
+#include <geometry_msgs/Twist.h>
+
 #include <boost/thread.hpp>
 
 #include "physics/physics.h"
@@ -73,12 +79,22 @@ namespace gazebo
     ///     and negative is robot-right.
     ///   - z is the desired heading angular velocity, positive makes
     ///     the robot turn left, and negative makes the robot turn right
-    public: void SetRobotCmdVel(math::Vector3 _cmd);
+    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
 
     void FixLink(physics::LinkPtr link);
     void UnfixLink();
     private: physics::JointPtr joint_;
     private: double last_update_time_;
+
+    private: double last_cmd_vel_update_time_;
+    private: geometry_msgs::Twist cmd_vel_;
+
+    // ros stuff
+    private: ros::NodeHandle* rosnode_;
+    private: ros::CallbackQueue queue_;
+    private: void QueueThread();
+    private: boost::thread callback_queue_thread_;
+    private: ros::Subscriber ros_sub_;
   };
 /** \} */
 /// @}
