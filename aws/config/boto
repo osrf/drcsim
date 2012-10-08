@@ -1,7 +1,0 @@
-[Credentials]
-aws_access_key_id = AKIAIHYO5SYFRFCVXROQ
-aws_secret_access_key = 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
-
-[Boto]
-ec2_region_name = us-west-2
-ec2_region_endpoint = us-west-2.ec2.amazonaws.com
