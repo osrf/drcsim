@@ -1,8 +1,8 @@
-set (files 
-  drc_robot.model
-  low_poly_golf_cart.model
-  low_poly_golf_cart_test.model
-  fire_hose.model
-  standpipe.model
-)
-install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/)
+#add_subdirectory(camhand)
+add_subdirectory(drc_robot)
+#add_subdirectory(fire_hose)
+#add_subdirectory(hose)
+#add_subdirectory(low_poly_golf_cart)
+#add_subdirectory(low_poly_golf_cart_test)
+#add_subdirectory(powerplant)
+#add_subdirectory(standpipe)
