@@ -24,7 +24,9 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
 
 include (FindPkgConfig)
 if (PKG_CONFIG_FOUND)
-  pkg_check_modules(GAZEBO gazebo)
+  pkg_check_modules(GAZEBO gazebo REQUIRED)
+else()
+  message(FATAL_ERROR "pkg-config is required; please install it")
 endif()
 
 include_directories(${GAZEBO_INCLUDE_DIRS})
@@ -38,6 +40,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 
 add_subdirectory(plugins)
-add_subdirectory(media)
 add_subdirectory(models)
-add_subdirectory(world)
+add_subdirectory(worlds)
