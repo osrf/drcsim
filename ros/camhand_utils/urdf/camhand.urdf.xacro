@@ -3,6 +3,9 @@
 <robot name="camhand"
        xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <include filename="$(find camhand_utils)/urdf/camhand.gazebo.xacro" />
+  <include filename="$(find camhand_utils)/urdf/camhand.transmission.xacro" />
+
   <xacro:macro name="finger" params="idx x y z r p yaw side">
     <link name="${side}_f${idx}_base">
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -116,6 +119,8 @@
       <parent link="${side}_f${idx}_base"/>
       <child link="${side}_f${idx}_0"/>
       <limit lower="-1.57079" upper="1.57079" effort="1" velocity="1"/>
+      <safety_controller soft_lower_limit="${-1.57079-10.0}" soft_upper_limit="${1.57079+10.0}" k_position="1000.0" k_velocity="1000.0"/>
+      <dynamics damping="0.1"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
     <joint name="${side}_f${idx}_j1" type="revolute">
@@ -123,6 +128,8 @@
       <parent link="${side}_f${idx}_0"/>
       <child link="${side}_f${idx}_1"/>
       <limit lower="-1.57079" upper="1.57079" effort="1" velocity="1"/>
+      <safety_controller soft_lower_limit="${-1.57079-10.0}" soft_upper_limit="${1.57079+10.0}" k_position="1000.0" k_velocity="1000.0"/>
+      <dynamics damping="0.1"/>
       <origin xyz="0.028 0 0" rpy="1.57079 0 0"/>
     </joint>
     <joint name="${side}_f${idx}_j2" type="revolute">
@@ -130,6 +137,8 @@
       <parent link="${side}_f${idx}_1"/>
       <child link="${side}_f${idx}_2"/>
       <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <safety_controller soft_lower_limit="${-1.57079-10.0}" soft_upper_limit="${1.57079+10.0}" k_position="1000.0" k_velocity="1000.0"/>
+      <dynamics damping="0.1"/>
       <limit lower="-1.57079" upper="1.57079" effort="1" velocity="1"/>
     </joint>
 
@@ -149,6 +158,7 @@
       <origin xyz="0.04 0 0" rpy="-1.5709 0 0"/>
     </joint>
 
+    <xacro:finger_transmission side="${side}" idx="${idx}" x="${x}" y="${y}" z="${z}" r="${r}" p="${p}" yaw="${yaw}"/>
   </xacro:macro>
 
   <xacro:macro name="camhand" params="side parent *origin">
@@ -186,6 +196,11 @@
     <xacro:finger side="${side}" idx="1" x="0.115" y="0.03122" z="0" r="0" p="0" yaw="0.3"/>
     <xacro:finger side="${side}" idx="2" x="0.090" y="0.06245" z="0" r="0" p="0" yaw="0.3"/>
     <xacro:finger side="${side}" idx="3" x="0.03995" y="-0.04383" z="0.014" r="0" p="-1.57079" yaw="-2.3562"/>
+
+    <!-- not needed unless simulating the hand by itself
+    <xacro:camhand_gazebo side="${side}" />
+    -->
+
   </xacro:macro>
 </robot>
 

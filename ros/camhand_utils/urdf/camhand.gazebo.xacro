@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<robot name="camhand"
+       xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="camhand_gazebo" params="side">
+    <gazebo>
+      <plugin filename="libgazebo_ros_controller_manager.so" name="gazebo_ros_controller_manager">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>1000.0</updateRate>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+</robot>
+
