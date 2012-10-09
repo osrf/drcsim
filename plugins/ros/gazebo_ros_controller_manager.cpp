@@ -173,7 +173,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
       std::string joint_name = this->cm_->state_->joint_states_[i].joint_->name;
 
       // fill in gazebo joints pointer
-      gazebo::physics::JointPtr joint = this->parent_model_->GetJoint(joint_name);
+      gazebo::physics::JointPtr joint = this->parent_model_->GetJoint(this->parent_model_->GetName()+"::"+joint_name);
       if (joint)
       {
         this->joints_.push_back(joint);
