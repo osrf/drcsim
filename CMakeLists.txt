@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-project (drc_sim)
+project (drcsim)
 
 set (DRC_SIM_MAJOR_VERSION 0)
 set (DRC_SIM_MINOR_VERSION 1)
