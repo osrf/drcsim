@@ -1,4 +1,4 @@
-set(MODEL_NAME drc_robot)
+set(MODEL_NAME fire_hose)
 add_subdirectory(meshes)
 set (files 
   model.sdf

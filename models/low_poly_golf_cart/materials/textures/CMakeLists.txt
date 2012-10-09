@@ -5,4 +5,4 @@ set (files
   texture3.jpg
   texture4.jpg
 )
-install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/media/models/low_poly_golf_cart/images/)
+install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/${MODEL_NAME}/materials/textures/)

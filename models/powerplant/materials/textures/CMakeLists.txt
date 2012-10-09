@@ -1,0 +1,32 @@
+set (files 
+     Brick_Rough_Dark_.jpg
+     Brick_Tumbled_.jpg
+     Cladding_Stucco_White_.jpg
+     CMakeLists.txt
+     Concrete_Form_4x8_.jpg
+     Seaholm10_1_0.jpg
+     Seaholm10_1_1.jpg
+     Seaholm10_1.jpg
+     Seaholm1_1.jpg
+     Seaholm11.jpg
+     Seaholm12_2.jpg
+     Seaholm12_3.jpg
+     Seaholm12.jpg
+     Seaholm13.jpg
+     Seaholm2.jpg
+     Seaholm3.jpg
+     Seaholm4.jpg
+     Seaholm5.jpg
+     Seaholm6.jpg
+     Seaholm7_1_4.jpg
+     Seaholm7_1_6.jpg
+     Seaholm7_1.jpg
+     Seaholm8.jpg
+     Seaholm9_5.jpg
+     Seaholm9_7.jpg
+     Seaholm9_8.jpg
+     Seaholm9.jpg
+     Seaholm.jpg
+     Seaholm_top.jpg
+)
+install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/${MODEL_NAME}/materials/textures/)
