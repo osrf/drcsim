@@ -306,6 +306,8 @@ int main(int argc, char** argv)
               joint.reset(new urdf::Joint);
               joint->name = val;
               joint->limits.reset(new urdf::JointLimits());
+              joint->safety.reset(new urdf::JointSafety());
+              joint->dynamics.reset(new urdf::JointDynamics());
               model->joints_.insert(std::make_pair(joint->name, joint));
 
               // this is the parent joint for link
@@ -477,7 +479,14 @@ int main(int argc, char** argv)
             }
             else
               std::cout << "    JOINT: key [" << key << "] has empty value\n";
-            
+
+            // add safety_controllers
+            joint->safety->soft_upper_limit = joint->limits->upper+1.0;
+            joint->safety->soft_lower_limit = joint->limits->lower-1.0;
+            joint->safety->k_position = 1.0;
+            joint->safety->k_velocity = 1.0;
+            // add dynamic damping
+            joint->dynamics->damping = 0.1;
           }
         }
 

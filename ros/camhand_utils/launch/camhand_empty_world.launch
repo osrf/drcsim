@@ -7,7 +7,7 @@
   </include>
 
   <!-- start hand -->
-  <include file="$(find camhand)/launch/camhand.launch"/>
+  <include file="$(find camhand_utils)/launch/camhand.launch"/>
 
 </launch>
 

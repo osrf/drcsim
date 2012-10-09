@@ -1,5 +1,6 @@
 set(MODEL_NAME drc_robot)
 add_subdirectory(meshes)
+add_subdirectory(ros)
 set (files 
   model.sdf
   manifest.xml

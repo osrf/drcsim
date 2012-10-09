@@ -4,7 +4,7 @@
        xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        name="humanoid" >
   
-  <include filename="$(find camhand)/urdf/camhand.urdf.xacro" />
+  <include filename="$(find camhand_utils)/urdf/camhand.urdf.xacro" />
 
   <link name="world"/>
   <xacro:camhand side="right" parent="world">
