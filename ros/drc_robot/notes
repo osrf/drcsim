@@ -1,8 +1,0 @@
-run
-
-bdi_parser drc_skeleton.cfg to generate drc_robot.urdf
-copy drc_robot.urdf into drc_robot/urdf/drc_robot.urdf
-
-then
-
-rosrun xacro xacro.py drc_robot.model.xacro > drc_robot.model

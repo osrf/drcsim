@@ -4,7 +4,7 @@
        xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        name="drc_robot" >
   
-  <include filename="$(find drc_robot)/urdf/drc_robot.urdf" />
+  <include filename="$(find drc_robot_utils)/urdf/drc_robot.urdf" />
   <include filename="$(find camhand)/urdf/camhand.urdf.xacro" />
 
   <xacro:camhand side="r" parent="r_hand">
@@ -14,6 +14,6 @@
     <origin xyz="0  0.1 -0.03" rpy="0 3.1416 -1.57079"/>
   </xacro:camhand>
 
-  <include filename="$(find drc_robot)/drc_robot.gazebo" />
-  <include filename="$(find drc_robot)/drc_robot.transmission" />
+  <include filename="$(find drc_robot_utils)/drc_robot.gazebo" />
+  <include filename="$(find drc_robot_utils)/drc_robot.transmission" />
 </robot>

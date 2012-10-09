@@ -11,6 +11,9 @@
 #include <urdf_parser/urdf_parser.h>
 #include <tinyxml.h>
 
+#if USE_ROS
+#include <ros/package.h>
+#endif
 
 enum StructType { LINK, JOINT };
 
@@ -485,8 +488,15 @@ int main(int argc, char** argv)
       model->initRoot(parent_link_tree);
       printTree(model->getRoot());
 
+#if USE_ROS
+      // install the urdf in my own package at the right place for the robot/*.xacro
+      std::string package_name("drc_robot_utils");
+      std::string package_path = ros::package::getPath(package_name);
+#else
+      std::string package_path(".");
+#endif
       TiXmlDocument *model_xml = urdf::exportURDF(model);
-      model_xml->SaveFile(std::string("drc_robot.urdf"));
+      model_xml->SaveFile(package_path + "/" + std::string("drc_robot.urdf"));
 
     }
   }

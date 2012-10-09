@@ -1,0 +1,12 @@
+first, make sure that both drc_robot_utils and camhand are under ROS_PACKAGE_PATHS, then
+
+run
+
+bdi_parser drc_robot_utils/drc_skeleton.cfg to generate drc_robot.urdf
+
+if not done automatically, one should install drc_robot.urdf as drc_robot_utils/urdf/drc_robot.urdf
+
+then
+
+rosrun xacro xacro.py drc_robot.model.xacro > drc_robot.model
+copy drc_robot.model into the gazebo model database as [somewhere]/model/drc_robot/model.sdf
