@@ -25,7 +25,7 @@ macro(invoke_rospack pkgname _prefix _varname)
     # Only look in PATH for rospack, #3831
     find_program(ROSPACK_EXE NAMES rospack DOC "rospack executable" NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
     if (NOT ROSPACK_EXE)
-      message(FATAL_ERROR "Couldn't find rospack. Please run 'make' in $ROS_ROOT")
+      message(FATAL_ERROR "Couldn't find rospack. Please source the appropriate ROS configuration file (e.g., /opt/ros/fuerte/setup.sh)")
     endif(NOT ROSPACK_EXE)
   endif(NOT EXISTS ${ROSPACK_EXE})
   set(_rospack_invoke_result)

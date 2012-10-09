@@ -47,7 +47,7 @@ else(USE_ROS)
   set (models
        models/building.model
       )
-  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/)
+  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/models/)
 
   cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
   include (FindPkgConfig)

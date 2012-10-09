@@ -43,7 +43,7 @@ else(USE_ROS)
   set (models
        models/ragdoll.model
       )
-  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drc_sim-${DRC_SIM_VERSION}/models/)
+  install(FILES ${models} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/models/)
 
 
   # install plugin for ragdoll

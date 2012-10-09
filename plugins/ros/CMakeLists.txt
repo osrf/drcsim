@@ -8,7 +8,7 @@ add_library(gazebo_ros_controller_manager SHARED gazebo_ros_controller_manager.c
 set_target_properties(gazebo_ros_controller_manager PROPERTIES COMPILE_FLAGS "${pr2_controller_manager_CFLAGS_OTHER}")
 set_target_properties(gazebo_ros_controller_manager PROPERTIES LINK_FLAGS "${pr2_controller_manager_LDFLAGS_OTHER}")
 target_link_libraries(gazebo_ros_controller_manager ${pr2_controller_manager_LIBRARIES})
-install (TARGETS gazebo_ros_controller_manager DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
+install (TARGETS gazebo_ros_controller_manager DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
 get_rospack_flags(std_msgs)
@@ -23,12 +23,12 @@ add_library(gazebo_ros_camera_utils SHARED gazebo_ros_camera_utils.cpp)
 set_target_properties(gazebo_ros_camera_utils PROPERTIES COMPILE_FLAGS "${std_msgs_CFLAGS_OTHER} ${sensor_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
 set_target_properties(gazebo_ros_camera_utils PROPERTIES LINK_FLAGS "${std_msgs_LDFLAGS_OTHER} ${sensor_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
 target_link_libraries(gazebo_ros_camera_utils ${std_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
-install (TARGETS gazebo_ros_camera_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
+install (TARGETS gazebo_ros_camera_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
 add_library(gazebo_ros_camera SHARED gazebo_ros_camera.cpp)
 target_link_libraries(gazebo_ros_camera gazebo_ros_camera_utils)
-install (TARGETS gazebo_ros_camera DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
+install (TARGETS gazebo_ros_camera DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
 
@@ -43,7 +43,7 @@ add_library(DRCRobotPlugin SHARED DRCRobotPlugin.cc)
 set_target_properties(DRCRobotPlugin PROPERTIES COMPILE_FLAGS "${trajectory_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
 set_target_properties(DRCRobotPlugin PROPERTIES LINK_FLAGS "${trajectory_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
 target_link_libraries(DRCRobotPlugin ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
-install (TARGETS DRCRobotPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
+install (TARGETS DRCRobotPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
 
@@ -58,7 +58,7 @@ add_library(gazebo_ros_joint_trajectory SHARED gazebo_ros_joint_trajectory.cpp)
 set_target_properties(gazebo_ros_joint_trajectory PROPERTIES COMPILE_FLAGS "${trajectory_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
 set_target_properties(gazebo_ros_joint_trajectory PROPERTIES LINK_FLAGS "${trajectory_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
 target_link_libraries(gazebo_ros_joint_trajectory ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
-install (TARGETS gazebo_ros_joint_trajectory DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
+install (TARGETS gazebo_ros_joint_trajectory DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 # #get_rospack_flags(trajectory_msgs)
 # #get_rospack_flags(geometry_msgs)
@@ -72,5 +72,5 @@ install (TARGETS gazebo_ros_joint_trajectory DESTINATION ${CMAKE_INSTALL_PREFIX}
 # set_target_properties(gazebo_ros_api_plugin PROPERTIES COMPILE_FLAGS "${gazebo_msgs_CFLAGS_OTHER} ${trajectory_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
 # set_target_properties(gazebo_ros_api_plugin PROPERTIES LINK_FLAGS "${gazebo_msgs_LDFLAGS_OTHER} ${trajectory_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
 # target_link_libraries(gazebo_ros_api_plugin ${gazebo_msgs_LIBRARIES} ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
-# install (TARGETS gazebo_ros_api_plugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/drc_sim-${DRC_SIM_VERSION}/plugins/)
+# install (TARGETS gazebo_ros_api_plugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
