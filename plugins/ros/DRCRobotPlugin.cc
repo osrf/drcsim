@@ -29,6 +29,7 @@
 
 namespace gazebo
 {
+
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 DRCRobotPlugin::DRCRobotPlugin()
@@ -109,6 +110,7 @@ void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
   {
     this->cmd_vel_ = *_cmd;
     this->warp_robot_ = true;
+    this->last_cmd_vel_update_time_ = this->world_->GetSimTime().Double();
   }
 }
 
@@ -118,8 +120,9 @@ void DRCRobotPlugin::FixLink(physics::LinkPtr link)
 {
   this->fixed_joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
   this->fixed_joint_->Attach(physics::LinkPtr(), link);
-
-  this->fixed_joint_->Load(physics::LinkPtr(), link, this->anchor_pose_);
+  // load adds the joint to a vector of shared pointers kept in parent and child links
+  // preventing this from being destroyed.  calling load is not necessary anyways.
+  // this->fixed_joint_->Load(physics::LinkPtr(), link, this->anchor_pose_);
   this->fixed_joint_->SetAxis(0, math::Vector3(0, 0, 1));
   this->fixed_joint_->SetHighStop(0, 0);
   this->fixed_joint_->SetLowStop(0, 0);
@@ -132,6 +135,7 @@ void DRCRobotPlugin::FixLink(physics::LinkPtr link)
 // unglue a link to the world by destroying the fixed joint
 void DRCRobotPlugin::UnfixLink()
 {
+  this->fixed_joint_->Detach();
   this->fixed_joint_.reset();
 }
 
@@ -149,17 +153,9 @@ void DRCRobotPlugin::WarpDRCRobot(math::Pose _pose)
   // try 2. here
   bool p = this->world_->IsPaused();
   this->world_->SetPaused(true);
-  sleep(1);
-  gzerr << "UnfixLink\n";
   this->UnfixLink();
-  sleep(1);
-  gzerr << "SetLinkWorldPose\n";
   this->model_->SetLinkWorldPose(_pose, this->fixed_link_);
-  sleep(1);
-  gzerr << "FixLink\n";
   this->FixLink(this->fixed_link_);
-  sleep(1);
-  gzerr << "unpaused\n";
   this->world_->SetPaused(p);
 }
 
@@ -177,7 +173,7 @@ void DRCRobotPlugin::UpdateStates()
 {
   double cur_time = this->world_->GetSimTime().Double();
 
-  if (this->warp_robot_ && cur_time - this->last_cmd_vel_update_time_ >= 1.0)
+  if (this->warp_robot_ && cur_time - this->last_cmd_vel_update_time_ >= 0)
   {
     double dt = cur_time - this->last_cmd_vel_update_time_;
     if (dt == 0)
@@ -189,16 +185,18 @@ void DRCRobotPlugin::UpdateStates()
       this->last_cmd_vel_update_time_ = cur_time;
       math::Pose cur_pose = this->fixed_link_->GetWorldPose();
       math::Pose new_pose = cur_pose;
-      new_pose.pos.x = cur_pose.pos.x + this->cmd_vel_.linear.x * dt;
-      new_pose.pos.y = cur_pose.pos.y + this->cmd_vel_.linear.y * dt;
+
+      // increment x,y in cur_pose frame
+      math::Vector3 cmd(this->cmd_vel_.linear.x, this->cmd_vel_.linear.y, 0);
+      cmd = cur_pose.rot.RotateVector(cmd);
+
+      new_pose.pos = cur_pose.pos + cmd * dt;
 
       math::Vector3 rpy = cur_pose.rot.GetAsEuler();
       rpy.z = rpy.z + this->cmd_vel_.angular.z * dt;
 
       new_pose.rot.SetFromEuler(rpy);
 
-      gzerr << "cur [" << cur_pose << "]\n";
-      gzerr << "new [" << new_pose << "]\n";
       // set this as the new anchor pose of the fixed joint
       this->WarpDRCRobot(new_pose);
     }
