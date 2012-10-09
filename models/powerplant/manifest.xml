@@ -1,0 +1,9 @@
+<version>0.1.0</version>
+<author>
+  <name>Nate Koenig</name>
+  <email>nate@osrfoundation.org</email>
+</author>
+<description>
+This model approximates a power plant.
+</description>
+
