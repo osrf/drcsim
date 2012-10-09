@@ -31,7 +31,7 @@
         <geometry>
           <mesh>
             <uri>model://low_poly_golf_cart/meshes/no_wheels.dae</uri>
-            <scale>0.030 0.030 0.030</scale>
+            <!--<scale>0.030 0.030 0.030</scale>-->
           </mesh>
         </geometry>
         <material>
