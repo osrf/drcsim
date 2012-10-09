@@ -18,11 +18,16 @@
         </constraints>
       </ode>
     </physics>
-    <!-- A ground plane -->
-    <include filename="ground_plane.model" />
     <!-- A global light source -->
-    <include filename="sun.light" />
-    <include filename="drc_robot.model" >
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://drc_robot</uri>
       <pose>0 0 1 0 0 0</pose>
     </include>
   </world>
