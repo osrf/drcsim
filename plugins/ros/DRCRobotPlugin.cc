@@ -33,6 +33,10 @@ namespace gazebo
 // Constructor
 DRCRobotPlugin::DRCRobotPlugin()
 {
+  /// initial anchor pose
+  this->anchor_pose_ = math::Pose(math::Vector3(0, 0, 0.2),
+                                  math::Quaternion(1, 0, 0, 0));
+  this->warp_robot_ = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +56,15 @@ DRCRobotPlugin::~DRCRobotPlugin()
 void DRCRobotPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr /*_sdf*/)
 {
+  // initialize ros
+  if (!ros::isInitialized())
+  {
+    int argc = 0;
+    char** argv = NULL;
+    ros::init(argc,argv,"drc_robot",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    gzerr << "gazebo will not function properly, please start simulation with ros system plugin, to avoid this error.\n";
+  }
+
   // ros stuff
   this->rosnode_ = new ros::NodeHandle("~");
 
@@ -65,7 +78,9 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   this->last_cmd_vel_update_time_ = this->world_->GetSimTime().Double();
   this->cmd_vel_ = geometry_msgs::Twist();
 
-  this->FixLink(this->model_->GetLink("pelvis"));
+  // Note: hardcoded link by name: @todo: make this a pugin param
+  this->fixed_link_ = this->model_->GetLink("pelvis");
+  this->FixLink(this->fixed_link_);
 
   // ros subscription
   std::string topic_name = "/cmd_vel";
@@ -86,49 +101,66 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
 void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
-  this->cmd_vel_ = *_cmd;
+  if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
+  {
+    this->warp_robot_ = false;
+  }
+  else
+  {
+    this->cmd_vel_ = *_cmd;
+    this->warp_robot_ = true;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // glue a link to the world by creating a fixed joint
 void DRCRobotPlugin::FixLink(physics::LinkPtr link)
 {
-/*
-  std::ostringstream newJointStr;
-  newJointStr
-    << "<joint name='fix_a_link_jont' type='revolute'>"
-    << "  <parent>world</parent>"
-    << "  <child>" << link->GetName() << "</child>"
-    << "  <axis>"
-    << "    <xyz>0 0 1</xyz>"
-    << "    <limits>"
-    << "      <lower>0</lower>"
-    << "      <upper>0</upper>"
-    << "    </limits>"
-    << "  </axis>"
-    << "</joint>";
+  this->fixed_joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
+  this->fixed_joint_->Attach(physics::LinkPtr(), link);
 
-*/
-
-
-  this->joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
-  this->joint_->Attach(physics::LinkPtr(), link);
-
-  math::Pose  anchor_pose(math::Vector3(0, 0, 0.2),
-                          math::Quaternion(1, 0, 0, 0));
-  this->joint_->Load(physics::LinkPtr(), link, anchor_pose);
-  this->joint_->SetAxis(0, math::Vector3(0, 0, 1));
-  this->joint_->SetHighStop(0, 0);
-  this->joint_->SetLowStop(0, 0);
-  this->joint_->SetAnchor(0, anchor_pose.pos);
-  this->joint_->Init();
+  this->fixed_joint_->Load(physics::LinkPtr(), link, this->anchor_pose_);
+  this->fixed_joint_->SetAxis(0, math::Vector3(0, 0, 1));
+  this->fixed_joint_->SetHighStop(0, 0);
+  this->fixed_joint_->SetLowStop(0, 0);
+  this->fixed_joint_->SetAnchor(0, this->anchor_pose_.pos);
+  this->fixed_joint_->SetName(link->GetName()+std::string("_world_fixed_joint"));
+  this->fixed_joint_->Init();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // unglue a link to the world by destroying the fixed joint
 void DRCRobotPlugin::UnfixLink()
 {
-  this->joint_.reset();
+  this->fixed_joint_.reset();
+}
+
+void DRCRobotPlugin::WarpDRCRobot(math::Pose _pose)
+{
+  // two ways, both requres to be done in a single step, is pause reliable? or do we
+  // need some mutex.
+  //   1. update poses, set the joint anchor offset properties,
+  //      this requires introducing a new SetAnchor call with the new joint agnle
+  //      will not do for now.
+  //      using: this->fixed_joint_->SetAnchor(0, _pose);
+  //   or,
+  //   2. less ideally, pause, break joint, update pose, create new joint, unpause
+
+  // try 2. here
+  bool p = this->world_->IsPaused();
+  this->world_->SetPaused(true);
+  sleep(1);
+  gzerr << "UnfixLink\n";
+  this->UnfixLink();
+  sleep(1);
+  gzerr << "SetLinkWorldPose\n";
+  this->model_->SetLinkWorldPose(_pose, this->fixed_link_);
+  sleep(1);
+  gzerr << "FixLink\n";
+  this->FixLink(this->fixed_link_);
+  sleep(1);
+  gzerr << "unpaused\n";
+  this->world_->SetPaused(p);
 }
 
 // Set DRC Robot feet placement
@@ -136,7 +168,6 @@ void DRCRobotPlugin::SetFeetPose(math::Pose _l_pose, math::Pose _r_pose)
 {
   physics::LinkPtr l_foot = this->model_->GetLink("l_foot");
   physics::LinkPtr r_foot = this->model_->GetLink("r_foot");
-
 }
 
 
@@ -146,14 +177,18 @@ void DRCRobotPlugin::UpdateStates()
 {
   double cur_time = this->world_->GetSimTime().Double();
 
-  if (cur_time - this->last_cmd_vel_update_time_ >= 0.01)
+  if (this->warp_robot_ && cur_time - this->last_cmd_vel_update_time_ >= 1.0)
   {
     double dt = cur_time - this->last_cmd_vel_update_time_;
-    if (dt > 0)
+    if (dt == 0)
+    {
+      gzerr << "dt is 0\n";
+    }
+    else
     {
       this->last_cmd_vel_update_time_ = cur_time;
-      math::Pose cur_pose = this->model_->GetWorldPose();
-      math::Pose new_pose;
+      math::Pose cur_pose = this->fixed_link_->GetWorldPose();
+      math::Pose new_pose = cur_pose;
       new_pose.pos.x = cur_pose.pos.x + this->cmd_vel_.linear.x * dt;
       new_pose.pos.y = cur_pose.pos.y + this->cmd_vel_.linear.y * dt;
 
@@ -161,6 +196,11 @@ void DRCRobotPlugin::UpdateStates()
       rpy.z = rpy.z + this->cmd_vel_.angular.z * dt;
 
       new_pose.rot.SetFromEuler(rpy);
+
+      gzerr << "cur [" << cur_pose << "]\n";
+      gzerr << "new [" << new_pose << "]\n";
+      // set this as the new anchor pose of the fixed joint
+      this->WarpDRCRobot(new_pose);
     }
   }
 

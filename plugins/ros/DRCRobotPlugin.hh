@@ -81,9 +81,15 @@ namespace gazebo
     ///     the robot turn left, and negative makes the robot turn right
     public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
 
+    /// Move the robot's pinned joint to a certain location in the world.
+    public: void WarpDRCRobot(math::Pose _pose);
+
     void FixLink(physics::LinkPtr link);
     void UnfixLink();
-    private: physics::JointPtr joint_;
+    private: physics::LinkPtr fixed_link_;
+    private: physics::JointPtr fixed_joint_;
+    private: math::Pose anchor_pose_;
+    private: bool warp_robot_;
     private: double last_update_time_;
 
     private: double last_cmd_vel_update_time_;
