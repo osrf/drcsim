@@ -180,7 +180,7 @@ back_lbz_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: back.lbz
   pid: &back_lbz_gains
-    p: 100.0
+    p: 200000.0
     d: 0.0
     i: 0.0
     i_clamp: 0.0
@@ -189,7 +189,7 @@ back_mby_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: back.mby
   pid: &back_mby_gains
-    p: 1.0
+    p: 2000000.0
     d: 0.0
     i: 0.0
     i_clamp: 0.0
@@ -198,7 +198,7 @@ back_ubx_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: back.ubx
   pid: &back_ubx_gains
-    p: 1.0
+    p: 2000000.0
     d: 0.0
     i: 0.0
     i_clamp: 0.0
