@@ -1,4 +1,4 @@
-first, make sure that both drc_robot_utils and camhand are under ROS_PACKAGE_PATHS, then
+first, make sure that both drc_robot_utils and camhand_utils are under ROS_PACKAGE_PATHS, then
 
 run
 

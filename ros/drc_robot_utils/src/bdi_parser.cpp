@@ -481,10 +481,10 @@ int main(int argc, char** argv)
               std::cout << "    JOINT: key [" << key << "] has empty value\n";
 
             // add safety_controllers
-            joint->safety->soft_upper_limit = joint->limits->upper+1.0;
-            joint->safety->soft_lower_limit = joint->limits->lower-1.0;
-            joint->safety->k_position = 1.0;
-            joint->safety->k_velocity = 1.0;
+            joint->safety->soft_upper_limit = joint->limits->upper+10.0;
+            joint->safety->soft_lower_limit = joint->limits->lower-10.0;
+            joint->safety->k_position = 100.0;
+            joint->safety->k_velocity = 100.0;
             // add dynamic damping
             joint->dynamics->damping = 0.1;
           }
