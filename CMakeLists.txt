@@ -34,20 +34,6 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 
 #####################################
 # Configure the setup script
-
-# We need the path to Gazebo's setup.sh file so that we can source it within our own setup.sh.
-# Not sure how to get it other than inferring from other vars.
-if(NOT GAZEBO_INCLUDE_DIRS)
-  # Gazebo didn't give us any include dirs, which means that it's in /usr
-  set(GAZEBO_INSTALL_PREFIX /usr)
-else()
-  # Look above the first include dir
-  list(GET GAZEBO_LIBRARY_DIRS 0 GAZEBO_LIBRARY_DIR0)
-  set(GAZEBO_INSTALL_PREFIX ${GAZEBO_LIBRARY_DIR0}/..)
-endif()
-set(GAZEBO_SHARE_DIR ${GAZEBO_INSTALL_PREFIX}/share/gazebo-${GAZEBO_VERSION})
-set(GAZEBO_SETUP_SH ${GAZEBO_SHARE_DIR}/setup.sh)
-
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION

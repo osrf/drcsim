@@ -21,7 +21,7 @@
         <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
-            <filename>low_poly_golf_cart/models/no_wheels.dae</filename>
+            <uri>model://low_poly_golf_cart/meshes/no_wheels.dae</uri>
             <scale>0.030 0.030 0.030</scale>
           </mesh>
         </geometry>
@@ -30,7 +30,7 @@
         <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
-            <filename>low_poly_golf_cart/models/no_wheels.dae</filename>
+            <uri>model://low_poly_golf_cart/meshes/no_wheels.dae</uri>
             <scale>0.030 0.030 0.030</scale>
           </mesh>
         </geometry>

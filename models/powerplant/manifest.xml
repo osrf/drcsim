@@ -1,4 +1,8 @@
 <version>0.1.0</version>
+<model>
+  <name>Power plant</name>
+  <version>1.2</version>
+</model>
 <author>
   <name>Nate Koenig</name>
   <email>nate@osrfoundation.org</email>
