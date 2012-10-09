@@ -355,12 +355,12 @@ int main(int argc, char** argv)
             // have names that corresponds to link name, so I can hack up a filename reference for each link
             boost::shared_ptr<urdf::Mesh> mesh_dae;
             mesh_dae.reset(new urdf::Mesh);
-            mesh_dae->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".dae");
+            mesh_dae->filename = std::string("model://drc_robot/meshes/") + entity_name + std::string(".dae");
             link->visual->geometry = mesh_dae;
 
             boost::shared_ptr<urdf::Mesh> mesh_stl;
             mesh_stl.reset(new urdf::Mesh);
-            mesh_stl->filename = std::string("drc_robot/meshes/") + entity_name + std::string(".stl");
+            mesh_stl->filename = std::string("model://drc_robot/meshes/") + entity_name + std::string(".stl");
             link->collision->geometry = mesh_stl;
 
 
