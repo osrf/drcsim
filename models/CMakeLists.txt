@@ -1,4 +1,4 @@
-#add_subdirectory(camhand)
+add_subdirectory(camhand)
 add_subdirectory(drc_robot)
 #add_subdirectory(fire_hose)
 #add_subdirectory(hose)

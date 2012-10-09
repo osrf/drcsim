@@ -1,6 +1,6 @@
 <version>0.1.0</version>
 <model>
-  <name>DRC Robot</name>
+  <name>Camhand</name>
   <version>1.2</version>
   <sdf>model.sdf</sdf>
 </model>
@@ -9,6 +9,5 @@
   <email>hsu@osrfoundation.org</email>
 </author>
 <description>
-This model approximates the DRC Robot, built by Boston Dynamics.
+Camhand model built by Morgan.
 </description>
-
