@@ -1,5 +1,4 @@
-set(MODEL_NAME drc_robot)
-add_subdirectory(meshes)
+set(MODEL_NAME low_poly_golf_cart_test)
 set (files 
   model.sdf
   manifest.xml

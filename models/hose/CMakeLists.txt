@@ -1,5 +1,5 @@
-set(MODEL_NAME drc_robot)
-add_subdirectory(meshes)
+set(MODEL_NAME hose)
+#add_subdirectory(meshes)
 set (files 
   model.sdf
   manifest.xml

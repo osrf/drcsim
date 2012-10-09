@@ -1,4 +1,3 @@
-<?xml version="1.0" ?>
 <gazebo version='1.2'>
   <model name='car'>
     <link name='chassis'>
@@ -314,7 +313,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name='front_left_joint' type='revolute'>
+    <joint name='front_left_joint' type='revolute2'>
       <parent>chassis</parent>
       <child>front_left_wheel</child>
       <axis>
@@ -324,6 +323,9 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
+      <axis2>
+        <xyz>0.000000 1.000000 0.000000</xyz>
+      </axis2>
       <physics>
         <ode>
           <limit>
@@ -333,7 +335,7 @@
         </ode>
       </physics>
     </joint>
-    <joint name='front_right_joint' type='revolute'>
+    <joint name='front_right_joint' type='revolute2'>
       <parent>chassis</parent>
       <child>front_right_wheel</child>
       <axis>
@@ -343,6 +345,9 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
+      <axis2>
+        <xyz>0.000000 1.000000 0.000000</xyz>
+      </axis2>
       <physics>
         <ode>
           <limit>
@@ -352,7 +357,7 @@
         </ode>
       </physics>
     </joint>
-    <joint name='back_right_joint' type='revolute'>
+    <joint name='back_right_joint' type='revolute2'>
       <parent>chassis</parent>
       <child>back_right_wheel</child>
       <axis>
@@ -362,6 +367,9 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
+      <axis2>
+        <xyz>0.000000 1.000000 0.000000</xyz>
+      </axis2>
       <physics>
         <ode>
           <limit>
@@ -371,7 +379,7 @@
         </ode>
       </physics>
     </joint>
-    <joint name='back_left_joint' type='revolute'>
+    <joint name='back_left_joint' type='revolute2'>
       <parent>chassis</parent>
       <child>back_left_wheel</child>
       <axis>
