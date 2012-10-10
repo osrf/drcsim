@@ -2,7 +2,6 @@ add_subdirectory(camhand)
 add_subdirectory(drc_robot)
 add_subdirectory(fire_hose)
 add_subdirectory(low_poly_golf_cart)
-add_subdirectory(powerplant)
 add_subdirectory(standpipe)
 set (files 
   manifest.xml
