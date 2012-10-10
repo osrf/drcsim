@@ -1,3 +1,16 @@
+# This file is the entry point for drcsim users.  It should establish all environment necessary to use the drcsim.
+
+# Step 1: get ROS configuration.
+if [ -f /opt/ros/@ROS_DISTRO@/setup.sh ]; then
+  . /opt/ros/@ROS_DISTRO@/setup.sh 
+fi
+
+# Step 2: modify ROS configuration.
+# Add each of our installed model directories to ROS_PACKAGE_PATH, so that ROS tools can locate resources stored within them.  
+# We don't just add the top 'models' directory because it contains a 'manifest.xml', which stops rospack in its tracks.
+for d in `find @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models -mindepth 1 -maxdepth 1 -type d`; do export ROS_PACKAGE_PATH=$d:$ROS_PACKAGE_PATH; done
+
+# Step 3: get Gazebo configuration.
 if [ -f @CMAKE_INSTALL_PREFIX@/share/gazebo-@GAZEBO_VERSION@/setup.sh ]; then
   . @CMAKE_INSTALL_PREFIX@/share/gazebo-@GAZEBO_VERSION@/setup.sh 
 elif [ -f /usr/share/gazebo-@GAZEBO_VERSION@/setup.sh ]; then
@@ -5,9 +18,8 @@ elif [ -f /usr/share/gazebo-@GAZEBO_VERSION@/setup.sh ]; then
 else
   echo "Warning: failed to find Gazebo's setup.sh.  You will need to source it manually."
 fi
+
+# Step 4: modify Gazebo configuration.
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models:$GAZEBO_MODEL_PATH
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@PROJECT_NAME@-@DRC_SIM_VERSION@/plugins:$GAZEBO_PLUGIN_PATH
 
-# Add each of our installed model directories to ROS_PACKAGE_PATH, so that ROS tools can locate resources stored within them.  
-# We don't just add the top 'models' directory because it contains a 'manifest.xml', which stops rospack in its tracks.
-for d in `find @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models -maxdepth 1 -type d`; do export ROS_PACKAGE_PATH=$d:$ROS_PACKAGE_PATH; done
