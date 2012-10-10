@@ -9,13 +9,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="-0.0 0 0"/>
       <geometry>
-        <mesh filename="fire_hose/nozzle.stl" scale="0.00254 0.00254 0.00254" />
+        <mesh filename="model://fire_hose/meshes/nozzle.stl" scale="0.00254 0.00254 0.00254" />
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="-0.0 0 0"/>
       <geometry>
-        <mesh filename="fire_hose/nozzle.stl" scale="0.00254 0.00254 0.00254" />
+        <mesh filename="model://fire_hose/meshes/nozzle.stl" scale="0.00254 0.00254 0.00254" />
       </geometry>
     </collision>
   </link>
@@ -1055,13 +1055,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0.0 0 0"/>
       <geometry>
-        <mesh filename="fire_hose/coupling.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="model://fire_hose/meshes/coupling.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0.0 0 0"/>
       <geometry>
-        <mesh filename="fire_hose/coupling.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="model://fire_hose/meshes/coupling.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>
