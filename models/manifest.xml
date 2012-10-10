@@ -19,10 +19,6 @@
     <uri>/low_poly_golf_cart</uri>
   </model>
   <model>
-    <name>Power plant</name>
-    <uri>/powerplant</uri>
-  </model>
-  <model>
     <name>Standpipe</name>
     <uri>/standpipe</uri>
   </model>
