@@ -144,6 +144,8 @@
     <parent link="right_f0_base"/>
     <child link="right_f0_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="right_f0_j1" type="revolute">
@@ -151,6 +153,8 @@
     <parent link="right_f0_0"/>
     <child link="right_f0_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="right_f0_j2" type="revolute">
@@ -158,6 +162,8 @@
     <parent link="right_f0_1"/>
     <child link="right_f0_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="right_f0_fixed_accel" type="fixed">
@@ -175,6 +181,21 @@
     <child link="right_f0_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="right_f0_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f0_j0"/>
+    <actuator name="right_f0_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f0_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f0_j1"/>
+    <actuator name="right_f0_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f0_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f0_j2"/>
+    <actuator name="right_f0_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="right_f1_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -286,6 +307,8 @@
     <parent link="right_f1_base"/>
     <child link="right_f1_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="right_f1_j1" type="revolute">
@@ -293,6 +316,8 @@
     <parent link="right_f1_0"/>
     <child link="right_f1_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="right_f1_j2" type="revolute">
@@ -300,6 +325,8 @@
     <parent link="right_f1_1"/>
     <child link="right_f1_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="right_f1_fixed_accel" type="fixed">
@@ -317,6 +344,21 @@
     <child link="right_f1_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="right_f1_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f1_j0"/>
+    <actuator name="right_f1_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f1_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f1_j1"/>
+    <actuator name="right_f1_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f1_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f1_j2"/>
+    <actuator name="right_f1_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="right_f2_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -428,6 +470,8 @@
     <parent link="right_f2_base"/>
     <child link="right_f2_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="right_f2_j1" type="revolute">
@@ -435,6 +479,8 @@
     <parent link="right_f2_0"/>
     <child link="right_f2_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="right_f2_j2" type="revolute">
@@ -442,6 +488,8 @@
     <parent link="right_f2_1"/>
     <child link="right_f2_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="right_f2_fixed_accel" type="fixed">
@@ -459,6 +507,21 @@
     <child link="right_f2_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="right_f2_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f2_j0"/>
+    <actuator name="right_f2_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f2_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f2_j1"/>
+    <actuator name="right_f2_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f2_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f2_j2"/>
+    <actuator name="right_f2_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="right_f3_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -570,6 +633,8 @@
     <parent link="right_f3_base"/>
     <child link="right_f3_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="right_f3_j1" type="revolute">
@@ -577,6 +642,8 @@
     <parent link="right_f3_0"/>
     <child link="right_f3_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="right_f3_j2" type="revolute">
@@ -584,6 +651,8 @@
     <parent link="right_f3_1"/>
     <child link="right_f3_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="right_f3_fixed_accel" type="fixed">
@@ -601,6 +670,21 @@
     <child link="right_f3_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="right_f3_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f3_j0"/>
+    <actuator name="right_f3_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f3_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f3_j1"/>
+    <actuator name="right_f3_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="right_f3_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="right_f3_j2"/>
+    <actuator name="right_f3_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="left_palm">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -740,6 +824,8 @@
     <parent link="left_f0_base"/>
     <child link="left_f0_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="left_f0_j1" type="revolute">
@@ -747,6 +833,8 @@
     <parent link="left_f0_0"/>
     <child link="left_f0_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="left_f0_j2" type="revolute">
@@ -754,6 +842,8 @@
     <parent link="left_f0_1"/>
     <child link="left_f0_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="left_f0_fixed_accel" type="fixed">
@@ -771,6 +861,21 @@
     <child link="left_f0_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="left_f0_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f0_j0"/>
+    <actuator name="left_f0_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f0_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f0_j1"/>
+    <actuator name="left_f0_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f0_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f0_j2"/>
+    <actuator name="left_f0_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="left_f1_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -882,6 +987,8 @@
     <parent link="left_f1_base"/>
     <child link="left_f1_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="left_f1_j1" type="revolute">
@@ -889,6 +996,8 @@
     <parent link="left_f1_0"/>
     <child link="left_f1_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="left_f1_j2" type="revolute">
@@ -896,6 +1005,8 @@
     <parent link="left_f1_1"/>
     <child link="left_f1_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="left_f1_fixed_accel" type="fixed">
@@ -913,6 +1024,21 @@
     <child link="left_f1_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="left_f1_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f1_j0"/>
+    <actuator name="left_f1_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f1_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f1_j1"/>
+    <actuator name="left_f1_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f1_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f1_j2"/>
+    <actuator name="left_f1_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="left_f2_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -1024,6 +1150,8 @@
     <parent link="left_f2_base"/>
     <child link="left_f2_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="left_f2_j1" type="revolute">
@@ -1031,6 +1159,8 @@
     <parent link="left_f2_0"/>
     <child link="left_f2_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="left_f2_j2" type="revolute">
@@ -1038,6 +1168,8 @@
     <parent link="left_f2_1"/>
     <child link="left_f2_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="left_f2_fixed_accel" type="fixed">
@@ -1055,6 +1187,21 @@
     <child link="left_f2_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="left_f2_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f2_j0"/>
+    <actuator name="left_f2_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f2_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f2_j1"/>
+    <actuator name="left_f2_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f2_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f2_j2"/>
+    <actuator name="left_f2_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <link name="left_f3_base">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <inertial>
@@ -1166,6 +1313,8 @@
     <parent link="left_f3_base"/>
     <child link="left_f3_0"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <joint name="left_f3_j1" type="revolute">
@@ -1173,6 +1322,8 @@
     <parent link="left_f3_0"/>
     <child link="left_f3_1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <origin rpy="1.57079 0 0" xyz="0.028 0 0"/>
   </joint>
   <joint name="left_f3_j2" type="revolute">
@@ -1180,6 +1331,8 @@
     <parent link="left_f3_1"/>
     <child link="left_f3_2"/>
     <origin rpy="0 0 0" xyz="0.05 0 0"/>
+    <safety_controller k_position="1000.0" k_velocity="1000.0" soft_lower_limit="-11.57079" soft_upper_limit="11.57079"/>
+    <dynamics damping="0.1"/>
     <limit effort="1" lower="-1.57079" upper="1.57079" velocity="1"/>
   </joint>
   <joint name="left_f3_fixed_accel" type="fixed">
@@ -1197,5 +1350,20 @@
     <child link="left_f3_2_accel"/>
     <origin rpy="-1.5709 0 0" xyz="0.04 0 0"/>
   </joint>
+  <transmission name="left_f3_j0" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f3_j0"/>
+    <actuator name="left_f3_j0_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f3_j1" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f3_j1"/>
+    <actuator name="left_f3_j1_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="left_f3_j2" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="left_f3_j2"/>
+    <actuator name="left_f3_j2_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
 </robot>
 
