@@ -18,21 +18,33 @@
         </constraints>
       </ode>
     </physics>
-    <!-- A ground plane -->
-    <include filename="ground_plane.model" />
+
     <!-- A global light source -->
-    <include filename="sun.light" />
-    <include filename="low_poly_golf_cart.model" >
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://low_poly_golf_cart</uri>
       <pose>0 -2 0 0 0 0</pose>
     </include>
-    <include filename="drc_robot.model" >
-      <pose>0 2 1 0 0 0</pose>
-    </include>
-    <include filename="fire_hose.model" >
+
+    <include>
+      <uri>model://fire_hose</uri>
       <pose>1 0 1 0.5 0.1 0.2</pose>
     </include>
-    <include filename="standpipe.model" >
+    <include>
+      <uri>model://standpipe</uri>
       <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://drc_robot</uri>
+      <pose>0 2 1 0 0 0</pose>
     </include>
   </world>
 </gazebo>
