@@ -35,7 +35,8 @@
 
 #include <boost/thread.hpp>
 
-#include "physics/physics.h"
+#include "math/Vector3.hh"
+#include "physics/physics.hh"
 #include "transport/TransportTypes.hh"
 #include "common/Time.hh"
 #include "common/Plugin.hh"
@@ -88,9 +89,10 @@ namespace gazebo
     void UnfixLink();
     private: physics::LinkPtr fixed_link_;
     private: physics::JointPtr fixed_joint_;
-    private: math::Pose anchor_pose_;
+    private: math::Vector3 anchor_pose_;
     private: bool warp_robot_;
     private: double last_update_time_;
+    private: math::Pose initial_pose_;
 
     private: double last_cmd_vel_update_time_;
     private: geometry_msgs::Twist cmd_vel_;
