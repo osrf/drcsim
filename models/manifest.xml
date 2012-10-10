@@ -1,25 +1,14 @@
 <?xml version="1.0" ?>
-<license>Creative Commons Attribution 3.0 Unported</license>
 
-<models>
-  <model>
-    <name>Camhand</name>
-    <uri>/camhand</uri>
-  </model>
-  <model>
-    <name>DRC Robot</name>
-    <uri>/drc_robot</uri>
-  </model>
-  <model>
-    <name>Fire hose</name>
-    <uri>/fire_hose</uri>
-  </model>
-  <model>
-    <name>Low-poly golf cart</name>
-    <uri>/low_poly_golf_cart</uri>
-  </model>
-  <model>
-    <name>Standpipe</name>
-    <uri>/standpipe</uri>
-  </model>
-</models>
+<database>
+  <name>DRC Sim</name>
+  <license>Creative Commons Attribution 3.0 Unported</license>
+
+  <models>
+    <uri>file://camhand</uri>
+    <uri>file://drc_robot</uri>
+    <uri>file://fire_hose</uri>
+    <uri>file://low_poly_golf_cart</uri>
+    <uri>file://standpipe</uri>
+  </models>
+</database>

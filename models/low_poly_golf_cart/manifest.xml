@@ -1,14 +1,13 @@
-<version>0.1.0</version>
+<?xml version='1.0'?>
 <model>
   <name>Low-poly golf cart</name>
-  <version>1.2</version>
+  <version>0.1.0</version>
   <sdf>model.sdf</sdf>
+  <author>
+    <name>John Hsu</name>
+    <email>hsu@osrfoundation.org</email>
+  </author>
+  <description>
+    This model approximates a golf cart.
+  </description>
 </model>
-<author>
-  <name>John Hsu</name>
-  <email>hsu@osrfoundation.org</email>
-</author>
-<description>
-This model approximates a golf cart.
-</description>
-
