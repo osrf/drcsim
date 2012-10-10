@@ -101,8 +101,8 @@ l_leg_lax_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: l.leg.lax
   pid: &l_leg_lax_gains
-    p: 100.0
-    d: 10.0
+    p: 10.0
+    d: 1.0
     i: 0.0
     i_clamp: 0.0
 
@@ -115,7 +115,7 @@ l_leg_lhy_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: l.leg.lhy
   pid: &l_leg_lhy_gains
-    p: 100.0
+    p: 200.0
     d: 10.0
     i: 0.0
     i_clamp: 0.0
@@ -143,7 +143,7 @@ l_leg_uay_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: l.leg.uay
   pid: &l_leg_uay_gains
-    p: 100.0
+    p: 200.0
     d: 10.0
     i: 0.0
     i_clamp: 0.0
