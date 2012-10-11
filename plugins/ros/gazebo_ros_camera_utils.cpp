@@ -110,7 +110,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
     this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
   this->image_topic_name_ = "image_raw";
-  if (_sdf->GetElement("imageTopicName"))
+  if (_sdf->HasElement("imageTopicName"))
     this->image_topic_name_ = _sdf->GetElement("imageTopicName")->GetValueString();
 
   this->camera_info_topic_name_ = "camera_info";
@@ -127,7 +127,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   else
     this->frame_name_ = _sdf->GetElement("frameName")->GetValueString();
 
-  if (!_sdf->GetElement("updateRate"))
+  if (!_sdf->HasElement("updateRate"))
   {
     ROS_INFO("Camera plugin missing <updateRate>, defaults to 0");
     this->update_rate_ = 0;
@@ -135,7 +135,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   else
     this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
 
-  if (!_sdf->GetElement("CxPrime"))
+  if (!_sdf->HasElement("CxPrime"))
   {
     ROS_INFO("Camera plugin missing <CxPrime>, defaults to 0");
     this->cx_prime_ = 0;
