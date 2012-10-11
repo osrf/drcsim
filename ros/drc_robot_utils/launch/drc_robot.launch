@@ -1,4 +1,8 @@
 <launch>
+
+  <!-- start gazebo with the DRC Robot -->
+  <node name="gazebo" pkg="drc_robot_utils" type="drc_robot" />
+
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
   
