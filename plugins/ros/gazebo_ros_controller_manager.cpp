@@ -34,15 +34,10 @@
 #include <unistd.h>
 #include <set>
 
-#include "physics/World.hh"
-#include "physics/HingeJoint.hh"
-#include "sensors/Sensor.hh"
-#include "sdf/interface/SDF.hh"
-#include "sdf/interface/Param.hh"
-#include "common/Exception.hh"
-#include "physics/PhysicsTypes.hh"
-#include "physics/Base.hh"
-
+#include <physics/physics.hh>
+#include <sensors/sensors.hh>
+#include <sdf/sdf.hh>
+#include <common/common.hh>
 
 #include <angles/angles.h>
 #include <urdf/model.h>
@@ -59,7 +54,7 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 {
   ROS_DEBUG("Calling FiniChild in GazeboRosControllerManager");
 
-  this->controller_manager_->~ControllerManager();
+  delete this->controller_manager_; 
   this->rosnode_->shutdown();
 #ifdef USE_CBQ
   this->controller_manager_queue_.clear();
@@ -68,7 +63,6 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 #endif
   this->ros_spinner_thread_.join();
 
-  delete this->controller_manager_; 
   delete this->rosnode_;
 
   if (this->virtual_mechanism_state_)
@@ -319,7 +313,7 @@ void GazeboRosControllerManager::UpdateControllerForces()
 }
 
 
-std::string GazeboRosControllerManager::GetURDF(std::string _param_name)
+std::string GazeboRosControllerManager::GetURDF(std::string _param_name) const
 {
   bool show_info_once = false;
 

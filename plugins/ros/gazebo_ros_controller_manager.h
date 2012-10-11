@@ -111,7 +111,7 @@ private:
   /// From URDF, fill out actuators in hardware interface,
   /// and initialize mechanism state within mechanism controller
   bool LoadControllerManagerFromURDF();
-  std::string GetURDF(std::string _param_name);
+  std::string GetURDF(std::string _param_name) const;
 
   ///  Pushes out gazebo simulation state into mechanism state
   ///    1.  Set measured efforts to commanded effort
