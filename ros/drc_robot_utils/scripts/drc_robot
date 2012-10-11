@@ -1,2 +1,3 @@
 #!/bin/sh
+# want to do:  gazebo -s libgazebo_ros_api_plugin.so `rospack find drc_robot_utils`/worlds/drc_robot.world
 gazebo `rospack find drc_robot_utils`/worlds/drc_robot.world

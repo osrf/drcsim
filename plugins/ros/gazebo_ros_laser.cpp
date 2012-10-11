@@ -141,11 +141,11 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->laser_connect_count_ = 0;
 
-
   if (!ros::isInitialized())
   {
-    ROS_FATAL("while loading gazebo_ros_laser plugin, ros is not initialized, please load a gazebo system plugin that initializes ros (e.g. libgazebo_ros_api_plugin.so from gazebo ros package)\n");
-    return;
+    int argc = 0;
+    char** argv = NULL;
+    ros::init(argc,argv,"gazebo",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
