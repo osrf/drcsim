@@ -16,4 +16,5 @@
 
   <include filename="$(find drc_robot_utils)/drc_robot.gazebo" />
   <include filename="$(find drc_robot_utils)/drc_robot.transmission" />
+  <include filename="$(find drc_robot_utils)/drc_robot.sensors" />
 </robot>

@@ -1,0 +1,68 @@
+<robot name="drc_skeleton">
+
+  <!-- Hokuyo Laser -->
+  <joint name="head_hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="head"/>
+    <child link="head_hokuyo"/>
+  </joint>
+  <link name="head_hokuyo" type="laser">
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+  </link>
+  <gazebo reference="head_hokuyo">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>20</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>640</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.57</min_angle>
+            <max_angle>1.57</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.08</min>
+          <max>10.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>20</updateRate>
+        <topicName>/scan</topicName>
+        <frameName>head_hokuyo</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Stereo Camera -->
+  <joint name="left_camera_frame_joint" type="fixed">
+    <insert_block name="origin" />
+    <parent link="head"/>
+    <child link="left_camera_frame"/>
+  </joint>
+  <link name="left_camera_frame">
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001"  ixy="0.0"  ixz="0.0" iyy="0.001"  iyz="0.0" izz="0.001" />
+    </inertial>
+  </link>
+  <joint name="left_camera_optical_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
+    <parent link="left_camera_frame" />
+    <child link="left_camera_optical_frame"/>
+  </joint>
+  <link name="left_camera_optical_frame"/>
+
+</robot>
+
