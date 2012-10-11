@@ -1,0 +1,2 @@
+#!/bin/sh
+gazebo `rospack find drc_robot_utils`/worlds/drc_robot.world

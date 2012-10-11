@@ -35,8 +35,7 @@ namespace gazebo
 DRCRobotPlugin::DRCRobotPlugin()
 {
   /// initial anchor pose
-  this->anchor_pose_ = math::Pose(math::Vector3(0, 0, 0.2),
-                                  math::Quaternion(1, 0, 0, 0));
+  this->anchor_pose_ = math::Vector3(0, 0, 0);
   this->warp_robot_ = false;
 }
 
@@ -81,6 +80,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
   // Note: hardcoded link by name: @todo: make this a pugin param
   this->fixed_link_ = this->model_->GetLink("pelvis");
+  this->initial_pose_ = this->fixed_link_->GetWorldPose();
   this->FixLink(this->fixed_link_);
 
   // ros subscription
@@ -122,11 +122,12 @@ void DRCRobotPlugin::FixLink(physics::LinkPtr link)
   this->fixed_joint_->Attach(physics::LinkPtr(), link);
   // load adds the joint to a vector of shared pointers kept in parent and child links
   // preventing this from being destroyed.  calling load is not necessary anyways.
-  // this->fixed_joint_->Load(physics::LinkPtr(), link, this->anchor_pose_);
+  this->fixed_joint_->Load(physics::LinkPtr(), link,
+    math::Pose(this->anchor_pose_, math::Quaternion()));
   this->fixed_joint_->SetAxis(0, math::Vector3(0, 0, 1));
   this->fixed_joint_->SetHighStop(0, 0);
   this->fixed_joint_->SetLowStop(0, 0);
-  this->fixed_joint_->SetAnchor(0, this->anchor_pose_.pos);
+  this->fixed_joint_->SetAnchor(0, this->anchor_pose_);
   this->fixed_joint_->SetName(link->GetName()+std::string("_world_fixed_joint"));
   this->fixed_joint_->Init();
 }
@@ -152,11 +153,14 @@ void DRCRobotPlugin::WarpDRCRobot(math::Pose _pose)
 
   // try 2. here
   bool p = this->world_->IsPaused();
+  bool e = this->world_->GetEnablePhysicsEngine();
+  this->world_->EnablePhysicsEngine(false);
   this->world_->SetPaused(true);
   this->UnfixLink();
   this->model_->SetLinkWorldPose(_pose, this->fixed_link_);
   this->FixLink(this->fixed_link_);
   this->world_->SetPaused(p);
+  this->world_->EnablePhysicsEngine(e);
 }
 
 // Set DRC Robot feet placement
@@ -191,8 +195,13 @@ void DRCRobotPlugin::UpdateStates()
       cmd = cur_pose.rot.RotateVector(cmd);
 
       new_pose.pos = cur_pose.pos + cmd * dt;
+      // prevent robot from drifting vertically
+      new_pose.pos.z = this->initial_pose_.pos.z;
 
       math::Vector3 rpy = cur_pose.rot.GetAsEuler();
+      // decay non-yaw tilts
+      rpy.x = 0;
+      rpy.y = 0;
       rpy.z = rpy.z + this->cmd_vel_.angular.z * dt;
 
       new_pose.rot.SetFromEuler(rpy);
