@@ -15,11 +15,11 @@
     <unit meter="1.0" name="meter"></unit>
     <up_axis>Z_UP</up_axis>
   </asset>
-  <library_images>
+  <!--library_images>
     <image id="Map #2-image" name="Map #2">
       <init_from>file://C:\bdi\geometry_src\png\atlas_DRC_1.png</init_from>
     </image>
-  </library_images>
+  </library_images-->
   <library_materials>
     <material id="atlas_DRC_1" name="atlas_DRC_1">
       <instance_effect url="#atlas_DRC_1-fx"/>

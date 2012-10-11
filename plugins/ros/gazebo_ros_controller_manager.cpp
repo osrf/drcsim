@@ -104,7 +104,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
   // should be equal or higher to guarantee the wrench applied is not "diluted"
   //if (this->updatePeriod > 0 &&
   //    (this->world->GetPhysicsEngine()->GetUpdateRate() > 1.0/this->updatePeriod))
-  //  ROS_ERROR("gazebo_ros_force controller update rate is less than physics update rate, wrench applied will be diluted (applied intermittently)");
+  //  ROS_ERROR("gazebo_ros_controller_manager update rate is less than physics update rate, wrench applied will be diluted (applied intermittently)");
 
 
   // get parameter name
