@@ -93,13 +93,9 @@ void GazeboRosJointTrajectory::Load( physics::WorldPtr _world, sdf::ElementPtr _
   else
     this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
 
-  if (!ros::isInitialized())
-  {
-    ROS_ERROR("ros should have been initialized gazebo_ros_api_plugins, please load the server plugin.");
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc,argv,"gazebo",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
-  }
+  // Wait for ROS
+  while (!ros::isInitialized())
+    sleep(0.1);
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 

@@ -222,15 +222,12 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
     ROS_WARN("gazebo_ros_camera_ simulation does not support non-zero distortion parameters right now, your simulation maybe wrong.");
   }
 
-
-  // Setup ROS
+  // Init ROS
   if (!ros::isInitialized())
   {
     int argc = 0;
     char** argv = NULL;
-    ros::init( argc, argv, "gazebo",
-               ros::init_options::NoSigintHandler |
-               ros::init_options::AnonymousName );
+    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_+"/"+this->camera_name_);

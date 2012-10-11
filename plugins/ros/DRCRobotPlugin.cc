@@ -61,8 +61,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   {
     int argc = 0;
     char** argv = NULL;
-    ros::init(argc,argv,"drc_robot",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
-    gzerr << "gazebo will not function properly, please start simulation with ros system plugin, to avoid this error.\n";
+    ros::init(argc,argv,"gazebo",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
   }
 
   // ros stuff
