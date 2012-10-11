@@ -1,0 +1,148 @@
+<robot name="drc_skeleton">
+  <!-- Hokuyo Laser -->
+  <joint name="head_hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.03 0 0.13" rpy="0 0 0"/>
+    <parent link="head"/>
+    <child link="head_hokuyo"/>
+  </joint>
+  <link name="head_hokuyo" type="laser">
+    <inertial>
+      <mass value="0.1" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+  </link>
+  <gazebo reference="head_hokuyo">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>20</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>640</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.57</min_angle>
+            <max_angle>1.57</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.08</min>
+          <max>10.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>20</updateRate>
+        <topicName>/scan</topicName>
+        <frameName>head_hokuyo</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Stereo Camera -->
+  <joint name="left_camera_frame_joint" type="fixed">
+    <origin xyz="0.03 0.1 0.1" />
+    <parent link="head"/>
+    <child link="left_camera_frame"/>
+  </joint>
+  <link name="left_camera_frame">
+    <inertial>
+      <mass value="0.1" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001"  ixy="0.0"  ixz="0.0" iyy="0.001"  iyz="0.0" izz="0.001" />
+    </inertial>
+  </link>
+  <joint name="left_camera_optical_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
+    <parent link="left_camera_frame" />
+    <child link="left_camera_optical_frame"/>
+  </joint>
+  <link name="left_camera_optical_frame"/>
+  <gazebo reference="left_camera_frame">
+    <sensor type="camera" name="left_camera_sensor">
+      <update_rate>25.0</update_rate>
+      <camera>
+        <horizontal_fov>1.5708</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="left_camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>25.0</updateRate>
+        <cameraName>left_eye</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>left_camera_optical_frame</frameName>
+        <hackBaseline>0.0</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <joint name="right_camera_frame_joint" type="fixed">
+    <origin xyz="0.03 -0.1 0.1" />
+    <parent link="head"/>
+    <child link="right_camera_frame"/>
+  </joint>
+  <link name="right_camera_frame">
+    <inertial>
+      <mass value="0.1" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001"  ixy="0.0"  ixz="0.0" iyy="0.001"  iyz="0.0" izz="0.001" />
+    </inertial>
+  </link>
+  <joint name="right_camera_optical_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
+    <parent link="right_camera_frame" />
+    <child link="right_camera_optical_frame"/>
+  </joint>
+  <link name="right_camera_optical_frame"/>
+  <gazebo reference="right_camera_frame">
+    <sensor type="camera" name="right_camera_sensor">
+      <update_rate>25.0</update_rate>
+      <camera>
+        <horizontal_fov>1.5708</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="right_camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>25.0</updateRate>
+        <cameraName>right_eye</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>right_camera_optical_frame</frameName>
+        <hackBaseline>-0.2</hackBaseline> <!-- check this -->
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>
+

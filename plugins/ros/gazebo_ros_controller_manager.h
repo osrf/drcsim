@@ -61,36 +61,72 @@ public:
   virtual ~GazeboRosControllerManager();
   void Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf );
 
-protected:
-  // Inherited from gazebo::Controller
-  virtual void UpdateChild();
-
 private:
 
+  /// Callback state / effort propagations, controller updates at every simulation update time step
+  /// There are 3 separate states at work here
+  ///   - Simulation States (SS) from gazebo
+  ///   - Virtual Mechanism State (VMS)
+  ///   - Controller Manager's "Real" Robot Mechanism States (RMS)
+  ///
+  /// We introduce Virtual Mechanism State so we can exercise the actuator transmission
+  /// used on the robot here in simulation.
+  ///
+  ///                                        +-----------------------------+
+  /// SS:JointStates --> VMS:JointStates --> | Inverse State Transmissions | --> VMS:ActuatorStates
+  ///                                        +-----------------------------+
+  ///
+  ///                                        +---------------------+
+  /// VMS:ActuatorStates (or real robot) --> | State Transmissions | --> RMS:JointStates
+  ///                                        +---------------------+
+  ///
+  ///                     +-------------+
+  /// RMS:JointStates --> | Controllers | --> RMS:JointEfforts (this step is identical on the real robot)
+  ///                     +-------------+
+  ///
+  ///                      +----------------------+
+  /// RMS:JointEfforts --> | Effort Transmissions |  --> RMS:ActuatorEfforts (or real robot)
+  ///                      +----------------------+
+  ///
+  ///                         +------------------------------+
+  /// RMS:ActuatorEfforts --> | Inverse Effort Transmissions | --> VMS:JointEfforts --> SS:JointEfforts
+  ///                         +------------------------------+
+  ///
+  void UpdateControllerForces();
+
   gazebo::physics::ModelPtr parent_model_;
-  pr2_hardware_interface::HardwareInterface hw_;
-  pr2_controller_manager::ControllerManager *cm_;
 
-  /// @todo The fake state helps Gazebo run the transmissions backwards, so
-  ///       that it can figure out what its joints should do based on the
-  ///       actuator values.
-  pr2_mechanism_model::RobotState *fake_state_;
-  std::vector<gazebo::physics::JointPtr>  joints_;
+  /// this interface holds actuator information as well as time
+  pr2_hardware_interface::HardwareInterface hardware_interface_;
 
-  /*
-   * \brief read pr2.xml for actuators, and pass tinyxml node to mechanism control node's initXml.
-   */
-  void ReadPr2Xml();
+  /// this interface contains controllers and mechanism state
+  pr2_controller_manager::ControllerManager *controller_manager_;
 
-  /*
-   *  \brief pointer to ros node
-   */
+  /// we create this virtual mechanism state to obtain simulated actuator states using transmission
+  pr2_mechanism_model::RobotState *virtual_mechanism_state_;
+
+  /// A list of joints in simulation, this should match the list of joints in mechanism state 1-to-1
+  std::vector<gazebo::physics::JointPtr>  gazebo_joints_;
+
+  /// From URDF, fill out actuators in hardware interface,
+  /// and initialize mechanism state within mechanism controller
+  bool LoadControllerManagerFromURDF();
+  std::string GetURDF(std::string _param_name) const;
+
+  ///  Pushes out gazebo simulation state into mechanism state
+  ///    1.  Set measured efforts to commanded effort
+  ///    2.  Simulation joint position --> mechanism joint states
+  ///    3.  Simulation joint velocity --> mechanism joint velocity
+  void propagateSimulationToMechanismState();
+
+  ///  Propagate joint state efforts to simulation
+  ///    with some tweaks in efforts
+  void propagateMechanismStateForcesToSimulation();
+
+  /// \brief pointer to ros node
   ros::NodeHandle* rosnode_;
 
-  ///\brief ros service callback
-  /*
-   *  \brief tmp vars for performance checking
-   */
+  /// \brief tmp vars for performance checking
   double wall_start_, sim_start_;
 
   /// \brief set topic name of robot description parameter
@@ -99,7 +135,7 @@ private:
   std::string robotParam;
   std::string robotNamespace;
 
-  bool fake_calibration_;
+  bool calibration_status_;
 
 #ifdef USE_CBQ
   private: ros::CallbackQueue controller_manager_queue_;
@@ -109,17 +145,9 @@ private:
   private: void ControllerManagerROSThread();
   private: boost::thread ros_spinner_thread_;
 
-  // Pointer to the model
   private: physics::WorldPtr world;
 
-  // Pointer to the update event connection
   private: event::ConnectionPtr updateConnection;
-
-  // subscribe to world stats
-  private: transport::NodePtr node;
-  private: transport::SubscriberPtr statsSub;
-  private: common::Time simTime;
-
 };
 
 }
