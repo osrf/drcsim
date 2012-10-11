@@ -33,10 +33,6 @@ namespace gazebo
 
     GazeboRosApiPlugin::GazeboRosApiPlugin()
     {
-      // FIXME
-      ROS_FATAL("GazeboRosApiPlugin must sleep, or else instantiating the plugin segfaults. Need to fix this.");
-      sleep(10);
-
       this->robot_namespace_.clear();
       this->world_created_ = false;
     }
