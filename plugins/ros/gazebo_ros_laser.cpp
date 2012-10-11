@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <assert.h>
 
-#include <gazebo_plugins/gazebo_ros_laser.h>
+#include "gazebo_ros_laser.h"
 
 #include "physics/World.hh"
 #include "physics/HingeJoint.hh"
@@ -242,9 +242,9 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
   this->laser_msg_.header.stamp.nsec = _updateTime.nsec;
 
 
-  double tmp_res_angle = (maxAngle.GetAsRadian() - minAngle.GetAsRadian())/((double)(rangeCount -1)); // for computing yaw
-  this->laser_msg_.angle_min = minAngle.GetAsRadian();
-  this->laser_msg_.angle_max = maxAngle.GetAsRadian();
+  double tmp_res_angle = (maxAngle.Radian() - minAngle.Radian())/((double)(rangeCount -1)); // for computing yaw
+  this->laser_msg_.angle_min = minAngle.Radian();
+  this->laser_msg_.angle_max = maxAngle.Radian();
   this->laser_msg_.angle_increment = tmp_res_angle;
   this->laser_msg_.time_increment  = 0; // instantaneous simulator scan
   this->laser_msg_.scan_time       = 0; // FIXME: what's this?

@@ -22,8 +22,18 @@ set(CMAKE_INSTALL_RPATH "${std_msgs_LIBRARY_DIRS} ${sensor_msgs_LIBRARY_DIRS} ${
 add_library(gazebo_ros_camera_utils SHARED gazebo_ros_camera_utils.cpp)
 set_target_properties(gazebo_ros_camera_utils PROPERTIES COMPILE_FLAGS "${std_msgs_CFLAGS_OTHER} ${sensor_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
 set_target_properties(gazebo_ros_camera_utils PROPERTIES LINK_FLAGS "${std_msgs_LDFLAGS_OTHER} ${sensor_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
-target_link_libraries(gazebo_ros_camera_utils ${std_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
+target_link_libraries(gazebo_ros_camera_utils ${std_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES} CameraPlugin)
 install (TARGETS gazebo_ros_camera_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
+
+include_directories(${sensor_msgs_INCLUDE_DIRS} ${tf_INCLUDE_DIRS})
+link_directories(${sensor_msgs_LIBRARY_DIRS} ${tf_LIBRARY_DIRS})
+set(CMAKE_INSTALL_RPATH "${sensor_msgs_LIBRARY_DIRS} ${tf_LIBRARY_DIRS}")
+add_library(gazebo_ros_laser SHARED gazebo_ros_laser.cpp)
+set_target_properties(gazebo_ros_laser PROPERTIES COMPILE_FLAGS "${sensor_msgs_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
+set_target_properties(gazebo_ros_laser PROPERTIES LINK_FLAGS "${sensor_msgs_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
+target_link_libraries(gazebo_ros_laser ${sensor_msgs_LIBRARIES} ${tf_LIBRARIES} RayPlugin)
+install (TARGETS gazebo_ros_laser DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
 add_library(gazebo_ros_camera SHARED gazebo_ros_camera.cpp)
