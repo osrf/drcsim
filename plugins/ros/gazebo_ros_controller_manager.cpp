@@ -34,8 +34,6 @@
 #include <unistd.h>
 #include <set>
 
-//#include <gazebo/XMLConfig.hh>
-//#include "physics/physics.h"
 #include "physics/World.hh"
 #include "physics/HingeJoint.hh"
 #include "sensors/Sensor.hh"
@@ -61,10 +59,7 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 {
   ROS_DEBUG("Calling FiniChild in GazeboRosControllerManager");
 
-  //pr2_hardware_interface::ActuatorMap::const_iterator it;
-  //for (it = hw_.actuators_.begin(); it != hw_.actuators_.end(); ++it)
-  //  delete it->second; // why is this causing double free corrpution?
-  this->cm_->~ControllerManager();
+  this->controller_manager_->~ControllerManager();
   this->rosnode_->shutdown();
 #ifdef USE_CBQ
   this->controller_manager_queue_.clear();
@@ -73,17 +68,12 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 #endif
   this->ros_spinner_thread_.join();
 
-
-
-
-  delete this->cm_; 
+  delete this->controller_manager_; 
   delete this->rosnode_;
 
-  if (this->fake_state_)
+  if (this->virtual_mechanism_state_)
   {
-    // why does this cause double free corrpution in destruction of RobotState?
-    //this->fake_state_->~RobotState();
-    delete this->fake_state_;
+    delete this->virtual_mechanism_state_;
   }
 }
 
@@ -100,14 +90,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
 
   // Error message if the model couldn't be found
   if (!this->parent_model_)
-    gzerr << "Unable to get parent model\n";
-
-  // Listen to the update event. This event is broadcast every
-  // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
-      boost::bind(&GazeboRosControllerManager::UpdateChild, this));
-  gzdbg << "plugin model name: " << modelName << "\n";
-
+    ROS_ERROR("parent model in NULL.");
 
 
 
@@ -122,9 +105,6 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
   //if (this->updatePeriod > 0 &&
   //    (this->world->GetPhysicsEngine()->GetUpdateRate() > 1.0/this->updatePeriod))
   //  ROS_ERROR("gazebo_ros_force controller update rate is less than physics update rate, wrench applied will be diluted (applied intermittently)");
-
-
-
 
 
   // get parameter name
@@ -150,54 +130,127 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
   // pr2_etherCAT calls ros::spin(), we'll thread out one spinner here to mimic that
   this->ros_spinner_thread_ = boost::thread( boost::bind( &GazeboRosControllerManager::ControllerManagerROSThread,this ) );
 
-
-  // load a controller manager
-  this->cm_ = new pr2_controller_manager::ControllerManager(&hw_,*this->rosnode_);
-  this->hw_.current_time_ = ros::Time(this->world->GetSimTime().Double());
-  if (this->hw_.current_time_ < ros::Time(0.001)) this->hw_.current_time_ == ros::Time(0.001); // hardcoded to minimum of 1ms on start up
+  // load a controller manager, initialize hardware_interface
+  this->controller_manager_ = new pr2_controller_manager::ControllerManager(&hardware_interface_,*this->rosnode_);
+  this->hardware_interface_.current_time_ = ros::Time(this->world->GetSimTime().Double());
+  // hardcoded to minimum of 1ms on start up
+  this->hardware_interface_.current_time_ = this->hardware_interface_.current_time_< ros::Time(0.001)?
+    ros::Time(0.001) : this->hardware_interface_.current_time_;
 
   this->rosnode_->param("gazebo/start_robot_calibrated",this->fake_calibration_,true);
 
   // read pr2 urdf
   // setup actuators, then setup mechanism control node
-  ReadPr2Xml();
+  if (!LoadControllerManagerFromURDF())
+  {
+    ROS_ERROR("Error parsing URDF in gazebo controller manager plugin, plugin not active.\n");
+    return;
+  }
 
   // Initializes the fake state (for running the transmissions backwards).
-  this->fake_state_ = new pr2_mechanism_model::RobotState(&this->cm_->model_);
+  this->virtual_mechanism_state_ = new pr2_mechanism_model::RobotState(&this->controller_manager_->model_);
 
   // The gazebo joints and mechanism joints should match up.
-  if (this->cm_->state_ != NULL) // could be NULL if ReadPr2Xml is unsuccessful
+  for (unsigned int i = 0; i < this->controller_manager_->state_->joint_states_.size(); ++i)
   {
-    for (unsigned int i = 0; i < this->cm_->state_->joint_states_.size(); ++i)
+    std::string joint_name = this->controller_manager_->state_->joint_states_[i].joint_->name;
+
+    // fill in gazebo joints pointer
+    gazebo::physics::JointPtr joint = this->parent_model_->GetJoint(this->parent_model_->GetName()+"::"+joint_name);
+    if (joint)
     {
-      std::string joint_name = this->cm_->state_->joint_states_[i].joint_->name;
-
-      // fill in gazebo joints pointer
-      gazebo::physics::JointPtr joint = this->parent_model_->GetJoint(this->parent_model_->GetName()+"::"+joint_name);
-      if (joint)
-      {
-        this->joints_.push_back(joint);
-      }
-      else
-      {
-        //ROS_WARN("A joint named \"%s\" is not part of Mechanism Controlled joints.\n", joint_name.c_str());
-        //this->joints_.push_back(NULL);  // FIXME: cannot be null, must be an empty boost shared pointer
-        this->joints_.push_back(gazebo::physics::JointPtr());  // FIXME: cannot be null, must be an empty boost shared pointer
-        ROS_ERROR("A joint named \"%s\" is not part of Mechanism Controlled joints.\n", joint_name.c_str());
-      }
-
+      this->gazebo_joints_.push_back(joint);
+    }
+    else
+    {
+      ROS_WARN("A Mechanism Controlled joint named [%s] is not found in gazebo model[%s].\n",
+        joint_name.c_str(), this->parent_model_->GetName().c_str());
+      this->gazebo_joints_.push_back(gazebo::physics::JointPtr());
     }
   }
+  assert(this->gazebo_joints_.size() == this->virtual_mechanism_state_->joint_states_.size());
 
 #ifdef USE_CBQ
   // start custom queue for controller manager
   this->controller_manager_callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosControllerManager::ControllerManagerQueueThread,this ) );
 #endif
 
+  // If all previous steps are successful, start the controller manager plugin updates
+  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+      boost::bind(&GazeboRosControllerManager::UpdateControllerForces, this));
 }
 
+void GazeboRosControllerManager::propagateSimulationToMechanismState()
+{
+  for (unsigned int i = 0; i < this->gazebo_joints_.size(); ++i)
+  {
+    if (!this->gazebo_joints_[i])
+      continue;
 
-void GazeboRosControllerManager::UpdateChild()
+    // assuming commanded effort is exactly the measured effort.
+    this->virtual_mechanism_state_->joint_states_[i].measured_effort_ = this->virtual_mechanism_state_->joint_states_[i].commanded_effort_;
+
+    // propagate gazebo joint states into virtual_mechanism_state_
+    if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT))
+    {
+      gazebo::physics::JointPtr hj = this->gazebo_joints_[i];
+      this->virtual_mechanism_state_->joint_states_[i].position_ = this->virtual_mechanism_state_->joint_states_[i].position_ +
+                    angles::shortest_angular_distance(this->virtual_mechanism_state_->joint_states_[i].position_,hj->GetAngle(0).Radian());
+      this->virtual_mechanism_state_->joint_states_[i].velocity_ = hj->GetVelocity(0);
+    }
+    else if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT))
+    {
+      gazebo::physics::JointPtr sj = this->gazebo_joints_[i];
+      {
+        this->virtual_mechanism_state_->joint_states_[i].position_ = sj->GetAngle(0).Radian();
+        this->virtual_mechanism_state_->joint_states_[i].velocity_ = sj->GetVelocity(0);
+      }
+    }
+    else
+    {
+      ROS_DEBUG("this plugin only supports revolute and prismatic joints.");
+    }
+  }
+}
+
+void GazeboRosControllerManager::propagateMechanismStateForcesToSimulation()
+{
+  for (unsigned int i = 0; i < this->gazebo_joints_.size(); ++i)
+  {
+    if (!this->gazebo_joints_[i])
+      continue;
+
+    double effort = this->virtual_mechanism_state_->joint_states_[i].commanded_effort_;
+
+    double damping_coef = 0;
+    if (this->controller_manager_->state_ == NULL)
+      ROS_WARN("Mechanism unable to parse robot_description URDF");
+    else
+    {
+      if (this->controller_manager_->state_->joint_states_[i].joint_->dynamics)
+        damping_coef = this->controller_manager_->state_->joint_states_[i].joint_->dynamics->damping;
+    }
+
+    if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT))
+    {
+      gazebo::physics::JointPtr hj = this->gazebo_joints_[i];
+      double current_velocity = hj->GetVelocity(0);
+      double damping_force = damping_coef * current_velocity;
+      double effort_command = effort - damping_force;
+      hj->SetForce(0,effort_command);
+    }
+    else if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT))
+    {
+      gazebo::physics::JointPtr sj = this->gazebo_joints_[i];
+      double current_velocity = sj->GetVelocity(0);
+      double damping_force = damping_coef * current_velocity;
+      double effort_command = effort-damping_force;
+      sj->SetForce(0,effort_command);
+    }
+  }
+}
+
+void GazeboRosControllerManager::UpdateControllerForces()
 {
   if (this->world->IsPaused()) return;
 
@@ -210,66 +263,37 @@ void GazeboRosControllerManager::UpdateChild()
               << "  speed up: " <<  sim_elapsed / wall_elapsed
               << std::endl;
   }
-  assert(this->joints_.size() == this->fake_state_->joint_states_.size());
 
   //--------------------------------------------------
-  //  Pushes out simulation state
+  //  Pushes out gazebo simulation state into mechanism state
+  //    1.  Set measured efforts to commanded effort
+  //    2.  Simulation joint position --> mechanism joint states
+  //    3.  Simulation joint velocity --> mechanism joint velocity
   //--------------------------------------------------
-
-  //ROS_ERROR("joints_.size()[%d]",(int)this->joints_.size());
-  // Copies the state from the gazebo joints into the mechanism joints.
-  for (unsigned int i = 0; i < this->joints_.size(); ++i)
-  {
-    if (!this->joints_[i])
-      continue;
-
-    this->fake_state_->joint_states_[i].measured_effort_ = this->fake_state_->joint_states_[i].commanded_effort_;
-
-    if (this->joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT))
-    {
-      gazebo::physics::JointPtr hj = this->joints_[i];
-      this->fake_state_->joint_states_[i].position_ = this->fake_state_->joint_states_[i].position_ +
-                    angles::shortest_angular_distance(this->fake_state_->joint_states_[i].position_,hj->GetAngle(0).Radian());
-      this->fake_state_->joint_states_[i].velocity_ = hj->GetVelocity(0);
-      //if (this->joints_[i]->GetName() == "torso_lift_motor_screw_joint")
-      //  ROS_WARN("joint[%s] [%f]",this->joints_[i]->GetName().c_str(), this->fake_state_->joint_states_[i].position_);
-    }
-    else if (this->joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT))
-    {
-      gazebo::physics::JointPtr sj = this->joints_[i];
-      {
-        this->fake_state_->joint_states_[i].position_ = sj->GetAngle(0).Radian();
-        this->fake_state_->joint_states_[i].velocity_ = sj->GetVelocity(0);
-      }
-      //ROS_ERROR("joint[%s] is a slider [%f]",this->joints_[i]->GetName().c_str(),sj->GetAngle(0).Radian());
-      //if (this->joints_[i]->GetName() == "torso_lift_joint")
-      //  ROS_WARN("joint[%s] [%f]",this->joints_[i]->GetName().c_str(), this->fake_state_->joint_states_[i].position_);
-    }
-    else
-    {
-      /*
-      ROS_WARN("joint[%s] is not hinge [%d] nor slider",this->joints_[i]->GetName().c_str(),
-        (unsigned int)gazebo::physics::Base::HINGE_JOINT
-        );
-      for (unsigned int j = 0; j < this->joints_[i]->GetTypeCount(); j++)
-      {
-        ROS_WARN("  types: %d hinge[%d] slider[%d]",(unsigned int)this->joints_[i]->GetType(j),(unsigned int)this->joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT),(unsigned int)this->joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT));
-      }
-      */
-    }
-  }
-
-  // Reverses the transmissions to propagate the joint position into the actuators.
-  this->fake_state_->propagateJointPositionToActuatorPosition();
+  this->propagateSimulationToMechanismState();
 
   //--------------------------------------------------
-  //  Runs Mechanism Control
+  //  Pushes mechanism states into actuator states
+  //  Fill out the actuator state by reverse transmissions,
   //--------------------------------------------------
-  this->hw_.current_time_ = ros::Time(this->world->GetSimTime().Double());
+  this->virtual_mechanism_state_->propagateJointPositionToActuatorPosition();
+
+  //--------------------------------------------------
+  //  Update hardware time with sim time
+  //--------------------------------------------------
+  this->hardware_interface_.current_time_ = ros::Time(this->world->GetSimTime().Double());
+
+  //--------------------------------------------------
+  //  Update Mechanism Control
+  //    with this update,
+  //    mechanism state internally forward propagation from
+  //    actuator state to its own copy of joint state
+  //    use controllers to update joint force commands,
+  //    then forward propagate from joint force to actuator forces
+  //--------------------------------------------------
   try
   {
-    if (this->cm_->state_ != NULL) // could be NULL if ReadPr2Xml is unsuccessful
-      this->cm_->update();
+      this->controller_manager_->update();
   }
   catch (const char* c)
   {
@@ -280,73 +304,59 @@ void GazeboRosControllerManager::UpdateChild()
   }
 
   //--------------------------------------------------
-  //  Takes in actuation commands
+  //  Propagate actuator efforts
+  //    Propagate actuator forces to joint forces
   //--------------------------------------------------
+  this->virtual_mechanism_state_->propagateActuatorEffortToJointEffort();
 
-  // Reverses the transmissions to propagate the actuator commands into the joints.
-  this->fake_state_->propagateActuatorEffortToJointEffort();
 
-  // Copies the commands from the mechanism joints into the gazebo joints.
-  for (unsigned int i = 0; i < this->joints_.size(); ++i)
-  {
-    if (!this->joints_[i])
-      continue;
-
-    double effort = this->fake_state_->joint_states_[i].commanded_effort_;
-
-    double damping_coef = 0;
-    if (this->cm_->state_ != NULL) // could be NULL if ReadPr2Xml is unsuccessful
-    {
-      if (this->cm_->state_->joint_states_[i].joint_->dynamics)
-        damping_coef = this->cm_->state_->joint_states_[i].joint_->dynamics->damping;
-    }
-
-    if (this->joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT))
-    {
-      gazebo::physics::JointPtr hj = this->joints_[i];
-      double current_velocity = hj->GetVelocity(0);
-      double damping_force = damping_coef * current_velocity;
-      double effort_command = effort - damping_force;
-      hj->SetForce(0,effort_command);
-      //if (this->joints_[i]->GetName() == "torso_lift_motor_screw_joint")
-      //  ROS_ERROR("gazebo [%s] command [%f] damping [%f]",this->joints_[i]->GetName().c_str(), effort, damping_force);
-    }
-    else if (this->joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT))
-    {
-      gazebo::physics::JointPtr sj = this->joints_[i];
-      double current_velocity = sj->GetVelocity(0);
-      double damping_force = damping_coef * current_velocity;
-      double effort_command = effort-damping_force;
-      sj->SetForce(0,effort_command);
-      //if (this->joints_[i]->GetName() == "torso_lift_joint")
-      //  ROS_ERROR("gazebo [%s] command [%f] damping [%f]",this->joints_[i]->GetName().c_str(), effort, damping_force);
-    }
-  }
+  //--------------------------------------------------
+  //  Propagate joint state efforts to simulation
+  //--------------------------------------------------
+  this->propagateMechanismStateForcesToSimulation();
 }
 
 
-void GazeboRosControllerManager::ReadPr2Xml()
+std::string GazeboRosControllerManager::GetURDF(std::string _param_name)
 {
+  bool show_info_once = false;
 
-  std::string urdf_param_name;
   std::string urdf_string;
+  urdf_string.clear(); // make sure it's empty
+
   // search and wait for robot_description on param server
   while(urdf_string.empty())
   {
-    ROS_INFO("gazebo controller manager plugin is waiting for urdf: %s on the param server.", this->robotParam.c_str());
-    if (this->rosnode_->searchParam(this->robotParam,urdf_param_name))
+    std::string search_param_name;
+    if (this->rosnode_->searchParam(_param_name, search_param_name))
     {
-      this->rosnode_->getParam(urdf_param_name,urdf_string);
-      ROS_DEBUG("found upstream\n%s\n------\n%s\n------\n%s",this->robotParam.c_str(),urdf_param_name.c_str(),urdf_string.c_str());
+      if (!show_info_once)
+      {
+        ROS_INFO("gazebo controller manager plugin is waiting for model URDF in parameter [%s] on the ROS param server.", search_param_name.c_str());
+        show_info_once = true;
+      }
+      this->rosnode_->getParam(search_param_name, urdf_string);
     }
     else
     {
-      this->rosnode_->getParam(this->robotParam,urdf_string);
-      ROS_DEBUG("found in node namespace\n%s\n------\n%s\n------\n%s",this->robotParam.c_str(),urdf_param_name.c_str(),urdf_string.c_str());
+      if (!show_info_once)
+      {
+        ROS_INFO("gazebo controller manager plugin is waiting for model URDF in parameter [%s] on the ROS param server.", this->robotParam.c_str());
+        show_info_once = true;
+      }
+      this->rosnode_->getParam(_param_name, urdf_string);
     }
     usleep(100000);
   }
   ROS_DEBUG("gazebo controller manager got pr2.xml from param server, parsing it...");
+
+  return urdf_string;
+}
+
+bool GazeboRosControllerManager::LoadControllerManagerFromURDF()
+{
+
+  std::string urdf_string = GetURDF(this->robotParam);
 
   // initialize TiXmlDocument doc with a string
   TiXmlDocument doc;
@@ -354,6 +364,7 @@ void GazeboRosControllerManager::ReadPr2Xml()
   {
     ROS_ERROR("Could not load the gazebo controller manager plugin's configuration file: %s\n",
             urdf_string.c_str());
+    return false;
   }
   else
   {
@@ -384,14 +395,23 @@ void GazeboRosControllerManager::ReadPr2Xml()
       //std::cout << " adding actuator " << (*it) << std::endl;
       pr2_hardware_interface::Actuator* pr2_actuator = new pr2_hardware_interface::Actuator(*it);
       pr2_actuator->state_.is_enabled_ = true;
-      this->hw_.addActuator(pr2_actuator);
+      this->hardware_interface_.addActuator(pr2_actuator);
     }
 
     // Setup mechanism control node
-    this->cm_->initXml(doc.RootElement());
+    this->controller_manager_->initXml(doc.RootElement());
 
-    for (unsigned int i = 0; i < this->cm_->state_->joint_states_.size(); ++i)
-      this->cm_->state_->joint_states_[i].calibrated_ = fake_calibration_;
+    if (this->controller_manager_->state_ == NULL)
+    {
+      ROS_ERROR("Mechanism unable to parse robot_description URDF to fill out robot state in controller_manager.");
+      return false;
+    }
+
+    // set fake calibration states for simulation
+    for (unsigned int i = 0; i < this->controller_manager_->state_->joint_states_.size(); ++i)
+      this->controller_manager_->state_->joint_states_[i].calibrated_ = fake_calibration_;
+
+    return true;
   }
 }
 
@@ -411,19 +431,20 @@ void GazeboRosControllerManager::ControllerManagerQueueThread()
 }
 #endif
 
+// simulate the ros thread on the controller manager
+// this ros thread will actually process any pending ros requests
 void GazeboRosControllerManager::ControllerManagerROSThread()
 {
   ROS_INFO_STREAM("Callback thread id=" << boost::this_thread::get_id());
 
-  //ros::Rate rate(1000);
-
   while (this->rosnode_->ok())
   {
-    //rate.sleep(); // using rosrate gets stuck on model delete
     usleep(1000);
     ros::spinOnce();
   }
 }
-  // Register this plugin with the simulator
-  GZ_REGISTER_MODEL_PLUGIN(GazeboRosControllerManager)
+
+// Register this plugin with the simulator
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosControllerManager)
+
 } // namespace gazebo
