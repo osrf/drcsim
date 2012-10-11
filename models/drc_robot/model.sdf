@@ -13,13 +13,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/head.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/head.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/head.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/head.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -32,13 +32,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_clav.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_clav.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_clav.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_clav.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -51,13 +51,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_farm.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_farm.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_farm.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_farm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -70,13 +70,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_foot.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_foot.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_foot.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_foot.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -89,13 +89,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_hand.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_hand.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_hand.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_hand.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -108,13 +108,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_larm.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_larm.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_larm.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_larm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -127,13 +127,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_lglut.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_lglut.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_lglut.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_lglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -146,13 +146,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_lleg.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_lleg.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_lleg.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_lleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -165,13 +165,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_scap.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_scap.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_scap.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_scap.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -184,13 +184,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_talus.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_talus.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_talus.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_talus.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -203,13 +203,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_uarm.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_uarm.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_uarm.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_uarm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -222,13 +222,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_uglut.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_uglut.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_uglut.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_uglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -241,13 +241,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_uleg.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_uleg.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/l_uleg.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/l_uleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -260,13 +260,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/ltorso.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/ltorso.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/ltorso.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/ltorso.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -279,13 +279,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/mtorso.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/mtorso.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/mtorso.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/mtorso.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -298,13 +298,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/pelvis.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/pelvis.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/pelvis.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/pelvis.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -317,13 +317,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_clav.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_clav.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_clav.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_clav.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -336,13 +336,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_farm.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_farm.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_farm.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_farm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -355,13 +355,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_foot.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_foot.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_foot.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_foot.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -374,13 +374,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_hand.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_hand.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_hand.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_hand.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -393,13 +393,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_larm.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_larm.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_larm.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_larm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -412,13 +412,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_lglut.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_lglut.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_lglut.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_lglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -431,13 +431,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_lleg.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_lleg.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_lleg.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_lleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -450,13 +450,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_scap.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_scap.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_scap.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_scap.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -469,13 +469,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_talus.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_talus.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_talus.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_talus.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -488,13 +488,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_uarm.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_uarm.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_uarm.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_uarm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -507,13 +507,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_uglut.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_uglut.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_uglut.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_uglut.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -526,13 +526,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_uleg.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_uleg.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/r_uleg.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/r_uleg.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -545,13 +545,13 @@
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/utorso.dae" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/utorso.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://drc_robot/meshes/utorso.stl" scale="1 1 1"/>
+        <mesh filename="package://drc_robot/meshes/utorso.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -817,13 +817,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/palm.stl"/>
+        <mesh filename="package://camhand/meshes/palm.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/palm.stl"/>
+        <mesh filename="package://camhand/meshes/palm.stl"/>
       </geometry>
       <material name="r_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -861,13 +861,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -884,13 +884,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="r_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -915,13 +915,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -1024,13 +1024,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -1047,13 +1047,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="r_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1078,13 +1078,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -1187,13 +1187,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -1210,13 +1210,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="r_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1241,13 +1241,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -1350,13 +1350,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -1373,13 +1373,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="r_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1404,13 +1404,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="r_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -1497,13 +1497,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/palm.stl"/>
+        <mesh filename="package://camhand/meshes/palm.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/palm.stl"/>
+        <mesh filename="package://camhand/meshes/palm.stl"/>
       </geometry>
       <material name="l_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1541,13 +1541,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -1564,13 +1564,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="l_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1595,13 +1595,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -1704,13 +1704,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -1727,13 +1727,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="l_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1758,13 +1758,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -1867,13 +1867,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -1890,13 +1890,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="l_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -1921,13 +1921,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -2030,13 +2030,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="package://camhand/meshes/f0.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -2053,13 +2053,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="package://camhand/meshes/f1.stl"/>
       </geometry>
       <material name="l_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -2084,13 +2084,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="package://camhand/meshes/f2.stl"/>
       </geometry>
       <material name="l_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -2314,5 +2314,151 @@
     <joint name="r.leg.uhz"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
+
+  <!-- Hokuyo Laser -->
+  <joint name="head_hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.03 0 0.13" rpy="0 0 0"/>
+    <parent link="head"/>
+    <child link="head_hokuyo"/>
+  </joint>
+  <link name="head_hokuyo" type="laser">
+    <inertial>
+      <mass value="0.1" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+  </link>
+  <gazebo reference="head_hokuyo">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>20</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>640</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.57</min_angle>
+            <max_angle>1.57</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.08</min>
+          <max>10.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>20</updateRate>
+        <topicName>/scan</topicName>
+        <frameName>head_hokuyo</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Stereo Camera -->
+  <joint name="left_camera_frame_joint" type="fixed">
+    <origin xyz="0.03 0.1 0.1" />
+    <parent link="head"/>
+    <child link="left_camera_frame"/>
+  </joint>
+  <link name="left_camera_frame">
+    <inertial>
+      <mass value="0.1" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001"  ixy="0.0"  ixz="0.0" iyy="0.001"  iyz="0.0" izz="0.001" />
+    </inertial>
+  </link>
+  <joint name="left_camera_optical_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
+    <parent link="left_camera_frame" />
+    <child link="left_camera_optical_frame"/>
+  </joint>
+  <link name="left_camera_optical_frame"/>
+  <gazebo reference="left_camera_frame">
+    <sensor type="camera" name="left_camera_sensor">
+      <update_rate>25.0</update_rate>
+      <camera>
+        <horizontal_fov>1.5708</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="left_camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>25.0</updateRate>
+        <cameraName>left_eye</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>left_camera_optical_frame</frameName>
+        <hackBaseline>0.0</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <joint name="right_camera_frame_joint" type="fixed">
+    <origin xyz="0.03 -0.1 0.1" />
+    <parent link="head"/>
+    <child link="right_camera_frame"/>
+  </joint>
+  <link name="right_camera_frame">
+    <inertial>
+      <mass value="0.1" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001"  ixy="0.0"  ixz="0.0" iyy="0.001"  iyz="0.0" izz="0.001" />
+    </inertial>
+  </link>
+  <joint name="right_camera_optical_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
+    <parent link="right_camera_frame" />
+    <child link="right_camera_optical_frame"/>
+  </joint>
+  <link name="right_camera_optical_frame"/>
+  <gazebo reference="right_camera_frame">
+    <sensor type="camera" name="right_camera_sensor">
+      <update_rate>25.0</update_rate>
+      <camera>
+        <horizontal_fov>1.5708</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="right_camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>25.0</updateRate>
+        <cameraName>right_eye</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>right_camera_optical_frame</frameName>
+        <hackBaseline>-0.2</hackBaseline> <!-- check this -->
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
 </robot>
 
