@@ -137,7 +137,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
   this->hardware_interface_.current_time_ = this->hardware_interface_.current_time_< ros::Time(0.001)?
     ros::Time(0.001) : this->hardware_interface_.current_time_;
 
-  this->rosnode_->param("gazebo/start_robot_calibrated",this->fake_calibration_,true);
+  this->rosnode_->param("gazebo/start_robot_calibrated", this->calibration_status_, true);
 
   // read pr2 urdf
   // setup actuators, then setup mechanism control node
@@ -409,7 +409,7 @@ bool GazeboRosControllerManager::LoadControllerManagerFromURDF()
 
     // set fake calibration states for simulation
     for (unsigned int i = 0; i < this->controller_manager_->state_->joint_states_.size(); ++i)
-      this->controller_manager_->state_->joint_states_[i].calibrated_ = fake_calibration_;
+      this->controller_manager_->state_->joint_states_[i].calibrated_ = calibration_status_;
 
     return true;
   }

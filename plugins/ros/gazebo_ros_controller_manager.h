@@ -63,30 +63,53 @@ public:
 
 private:
 
-  /// callback function at every simulation update time step
-  void UpdateControllerForces();
-
-  gazebo::physics::ModelPtr parent_model_;
-  pr2_hardware_interface::HardwareInterface hardware_interface_;
-  pr2_controller_manager::ControllerManager *controller_manager_;
-
+  /// Callback state / effort propagations, controller updates at every simulation update time step
   /// There are 3 separate states at work here
-  ///   - Simulation States from gazebo
-  ///   - Virtual Mechanism State
-  ///   - Controller Manager Mechanism States
+  ///   - Simulation States (SS) from gazebo
+  ///   - Virtual Mechanism State (VMS)
+  ///   - Controller Manager's "Real" Robot Mechanism States (RMS)
   ///
   /// We introduce Virtual Mechanism State so we can exercise the actuator transmission
   /// used on the robot here in simulation.
   ///
+  ///                                        +-----------------------------+
+  /// SS:JointStates --> VMS:JointStates --> | Inverse State Transmissions | --> VMS:ActuatorStates
+  ///                                        +-----------------------------+
   ///
+  ///                                        +---------------------+
+  /// VMS:ActuatorStates (or real robot) --> | State Transmissions | --> RMS:JointStates
+  ///                                        +---------------------+
   ///
+  ///                     +-------------+
+  /// RMS:JointStates --> | Controllers | --> RMS:JointEfforts (this step is identical on the real robot)
+  ///                     +-------------+
   ///
-  /// Look in UpdateControllerForces() for the entire process
+  ///                      +----------------------+
+  /// RMS:JointEfforts --> | Effort Transmissions |  --> RMS:ActuatorEfforts (or real robot)
+  ///                      +----------------------+
   ///
+  ///                         +------------------------------+
+  /// RMS:ActuatorEfforts --> | Inverse Effort Transmissions | --> VMS:JointEfforts --> SS:JointEfforts
+  ///                         +------------------------------+
+  ///
+  void UpdateControllerForces();
+
+  gazebo::physics::ModelPtr parent_model_;
+
+  /// this interface holds actuator information as well as time
+  pr2_hardware_interface::HardwareInterface hardware_interface_;
+
+  /// this interface contains controllers and mechanism state
+  pr2_controller_manager::ControllerManager *controller_manager_;
+
+  /// we create this virtual mechanism state to obtain simulated actuator states using transmission
   pr2_mechanism_model::RobotState *virtual_mechanism_state_;
+
+  /// A list of joints in simulation, this should match the list of joints in mechanism state 1-to-1
   std::vector<gazebo::physics::JointPtr>  gazebo_joints_;
 
-  /// \brief read pr2.xml for actuators, and pass tinyxml node to mechanism control node's initXml.
+  /// From URDF, fill out actuators in hardware interface,
+  /// and initialize mechanism state within mechanism controller
   bool LoadControllerManagerFromURDF();
   std::string GetURDF(std::string _param_name);
 
@@ -112,7 +135,7 @@ private:
   std::string robotParam;
   std::string robotNamespace;
 
-  bool fake_calibration_;
+  bool calibration_status_;
 
 #ifdef USE_CBQ
   private: ros::CallbackQueue controller_manager_queue_;
