@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 
   ros::init(argc, argv, "pub_joint_trajectory_test");
   ros::NodeHandle rosnode;
-  ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>("joint_trajectory",100);
+  ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>("joint_trajectory",1, true);
 
   trajectory_msgs::JointTrajectory jt;
 
@@ -87,11 +87,8 @@ int main(int argc, char** argv)
     ROS_INFO("test: angles[%d][%f, %f]",n,x1,x2);
   }
 
-  while(true)
-  {
-    pub_.publish(jt); // use publisher
-    sleep(10);
-  }
+  pub_.publish(jt); // use publisher
+  ros::spinOnce();
 
   return 0;
 }

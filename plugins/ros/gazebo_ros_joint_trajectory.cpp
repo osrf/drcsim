@@ -139,6 +139,7 @@ void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _
 // set joint trajectory
 void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
 {
+  ROS_INFO("got joint trajectory message");
   boost::mutex::scoped_lock lock(this->update_mutex);
 
   this->reference_link_name_ = trajectory->header.frame_id;
