@@ -117,13 +117,12 @@ namespace gazebo
       private: boost::thread callback_queue_thread_;
 
       private: std::vector<gazebo::physics::JointPtr> joints_;
+      private: std::vector<trajectory_msgs::JointTrajectoryPoint> points_;
       
       // Pointer to the update event connection
       private: event::ConnectionPtr update_connection_;
 
       private: trajectory_msgs::JointTrajectory joint_trajectory_;
-
-      private: physics::JointPtr joint_;
    };
 
 /** \} */

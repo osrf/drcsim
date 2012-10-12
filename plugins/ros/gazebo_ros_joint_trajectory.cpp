@@ -96,8 +96,13 @@ void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _
     this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
 
   // Wait for ROS
-  while (!ros::isInitialized())
-    sleep(0.1);
+  if (!ros::isInitialized())
+  {
+    int argc = 0;
+    char** argv = NULL;
+    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    gzwarn << "should start ros::init in simulation by using the system plugin\n";
+  }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
@@ -142,6 +147,9 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   ROS_INFO("got joint trajectory message");
   boost::mutex::scoped_lock lock(this->update_mutex);
 
+  // resume physics update
+  this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
+
   this->reference_link_name_ = trajectory->header.frame_id;
   // do this every time a new joint trajectory is supplied, use header.frame_id as the reference_link_name_
   if (this->reference_link_name_ != "world" && this->reference_link_name_ != "/map" && this->reference_link_name_ != "map")
@@ -163,13 +171,22 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   }
 
   // copy joint configuration into a map
-  this->joint_trajectory_ = *trajectory;
-
-  unsigned int chain_size = this->joint_trajectory_.joint_names.size();
+  unsigned int chain_size = trajectory->joint_names.size();
   this->joints_.resize(chain_size);
   for (unsigned int i = 0; i < chain_size; ++i)
   {
-    this->joints_[i] = this->model_->GetJoint(this->joint_trajectory_.joint_names[i]);
+    this->joints_[i] = this->model_->GetJoint(trajectory->joint_names[i]);
+  }
+
+  unsigned int points_size = trajectory->points.size();
+  this->points_.resize(points_size);
+  for (unsigned int i = 0; i < points_size; ++i)
+  {
+    this->points_[i].positions.resize(chain_size);
+    for (unsigned int j = 0; j < chain_size; ++j)
+    {
+      this->points_[i].positions[j] = trajectory->points[i].positions[j];
+    }
   }
 
   // trajectory start time
@@ -258,75 +275,70 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
 void GazeboRosJointTrajectory::UpdateStates()
 {
 
-  gazebo::common::Time start = this->world_->GetRealTime();
+  boost::mutex::scoped_lock lock(this->update_mutex);
+  if (this->has_trajectory_)
   {
-    boost::mutex::scoped_lock lock(this->update_mutex);
-    if (this->has_trajectory_)
+    common::Time cur_time = this->world_->GetSimTime();
+    // roll out trajectory via set model configuration
+    // gzerr << "i[" << trajectory_index  << "] time " << trajectory_start << " now: " << cur_time << " : "<< "\n";
+    if (cur_time >= this->trajectory_start)
     {
-      common::Time cur_time = this->world_->GetSimTime();
-      // roll out trajectory via set model configuration
-      //gzerr << "i[" << trajectory_index  << "] time " << trajectory_start << " now: " << cur_time << " : "<< "\n";
-      if (cur_time >= this->trajectory_start)
+      // @todo:  consider a while loop until the trajectory "catches up" to the current time?
+      // gzerr << trajectory_index << " : "  << this->points_.size() << "\n";
+      if (this->trajectory_index < this->points_.size())
       {
-        // @todo:  consider a while loop until the trajectory "catches up" to the current time?
-        // gzerr << trajectory_index << " : "  << this->joint_trajectory_.points.size() << "\n";
-        if (this->trajectory_index <= this->joint_trajectory_.points.size())
-        {
-          ROS_INFO("time [%f] updating configuration [%d/%lu]",cur_time.Double(),this->trajectory_index,this->joint_trajectory_.points.size());
+        ROS_INFO("time [%f] updating configuration [%d/%lu]",cur_time.Double(),this->trajectory_index,this->points_.size());
 
-          // get reference link pose before updates
-          math::Pose reference_pose = this->model_->GetWorldPose();
+        // get reference link pose before updates
+        math::Pose reference_pose = this->model_->GetWorldPose();
+        if (this->reference_link_)
+        {
+          reference_pose = this->reference_link_->GetWorldPose();
+        }
+
+        // trajectory roll-out based on time:  set model configuration from trajectory message
+        unsigned int chain_size = this->joints_.size();
+        if (chain_size == this->points_[this->trajectory_index].positions.size())
+        {
+          for (unsigned int i = 0; i < chain_size; ++i)
+          {
+            // this is not the most efficient way to set things
+            this->joints_[i]->SetAngle(0, this->points_[this->trajectory_index].positions[i]);
+          }
+
+          // set model pose
           if (this->reference_link_)
-          {
-            reference_pose = this->reference_link_->GetWorldPose();
-          }
-
-          // trajectory roll-out based on time:  set model configuration from trajectory message
-          unsigned int chain_size = this->joint_trajectory_.joint_names.size();
-          if (chain_size == this->joint_trajectory_.points[this->trajectory_index].positions.size())
-          {
-            for (unsigned int i = 0; i < chain_size; ++i)
-            {
-              // this is not the most efficient way to set things
-              this->joints_[i]->SetAngle(0, this->joint_trajectory_.points[this->trajectory_index].positions[i]);
-            }
-
-            // set model pose
-            if (this->reference_link_)
-              this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
-            else
-              this->model_->SetWorldPose(reference_pose);
-          }
+            this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
           else
-          {
-            ROS_ERROR("point[%u] in JointTrajectory has different number of joint names[%u] and positions[%lu].",
-                      this->trajectory_index, chain_size,
-                      this->joint_trajectory_.points[this->trajectory_index].positions.size());
-          }
-
-
-          //this->world_->SetPaused(is_paused); // resume original pause-state
-          gazebo::common::Time duration(this->joint_trajectory_.points[this->trajectory_index].time_from_start.sec,
-                                        this->joint_trajectory_.points[this->trajectory_index].time_from_start.nsec);
-          this->trajectory_start += duration; // reset start time for next trajectory point
-          this->trajectory_index++; // increment to next trajectory point
-
-          // save last update time stamp
-          this->last_time_ = cur_time;
+            this->model_->SetWorldPose(reference_pose);
         }
-        else // no more trajectory points
+        else
         {
-          // trajectory finished
-          this->reference_link_.reset();
-          this->has_trajectory_ = false;
-          if (this->disable_physics_updates_)
-            this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
+          ROS_ERROR("point[%u] in JointTrajectory has different number of joint names[%u] and positions[%lu].",
+                    this->trajectory_index, chain_size,
+                    this->points_[this->trajectory_index].positions.size());
         }
+
+
+        //this->world_->SetPaused(is_paused); // resume original pause-state
+        gazebo::common::Time duration(this->points_[this->trajectory_index].time_from_start.sec,
+                                      this->points_[this->trajectory_index].time_from_start.nsec);
+        this->trajectory_start += duration; // reset start time for next trajectory point
+        this->trajectory_index++; // increment to next trajectory point
+
+        // save last update time stamp
+        this->last_time_ = cur_time;
+      }
+      else // no more trajectory points
+      {
+        // trajectory finished
+        this->reference_link_.reset();
+        this->has_trajectory_ = false;
+        if (this->disable_physics_updates_)
+          this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
       }
     }
-  } // mutex lock
-  gazebo::common::Time end = this->world_->GetRealTime();
-  // gzerr << "dt: " << (end - start).Double() << "\n";
+  }
 
 }
 
@@ -335,7 +347,6 @@ void GazeboRosJointTrajectory::UpdateStates()
 void GazeboRosJointTrajectory::QueueThread()
 {
   static const double timeout = 0.01;
-
   while (this->rosnode_->ok())
   {
     this->queue_.callAvailable(ros::WallDuration(timeout));
