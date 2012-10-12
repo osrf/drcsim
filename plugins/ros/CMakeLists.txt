@@ -10,6 +10,17 @@ set_target_properties(gazebo_ros_controller_manager PROPERTIES LINK_FLAGS "${pr2
 target_link_libraries(gazebo_ros_controller_manager ${pr2_controller_manager_LIBRARIES})
 install (TARGETS gazebo_ros_controller_manager DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
+get_rospack_flags(trajectory_msgs)
+get_rospack_flags(roscpp)
+include_directories(${roscpp_INCLUDE_DIRS} ${trajectory_msgs_INCLUDE_DIRS})
+link_directories(${roscpp_LIBRARY_DIRS} ${trajectory_msgs_LIBRARY_DIRS})
+set(CMAKE_INSTALL_RPATH "${roscpp_LIBRARY_DIRS} ${trajectory_msgs_LIBRARY_DIRS}")
+add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
+set_target_properties(pub_joint_trajectory_test PROPERTIES COMPILE_FLAGS "${roscpp_CFLAGS_OTHER} ${trajectory_msgs_CFLAGS_OTHER}")
+set_target_properties(pub_joint_trajectory_test PROPERTIES LINK_FLAGS "${roscpp_LDFLAGS_OTHER} ${trajectory_msgs_LDFLAGS_OTHER}")
+target_link_libraries(pub_joint_trajectory_test ${roscpp_LIBRARIES} ${trajectory_msgs_LIBRARIES})
+install (TARGETS pub_joint_trajectory_test DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
 
 get_rospack_flags(std_msgs)
 get_rospack_flags(sensor_msgs)

@@ -51,7 +51,7 @@
 namespace gazebo
 {
 
-   class GazeboRosJointTrajectory : public WorldPlugin
+   class GazeboRosJointTrajectory : public ModelPlugin
    {
       /// \brief Constructor
       public: GazeboRosJointTrajectory();
@@ -60,7 +60,7 @@ namespace gazebo
       public: virtual ~GazeboRosJointTrajectory();
 
       /// \brief Load the controller
-      public: void Load( physics::WorldPtr _world, sdf::ElementPtr _sdf );
+      public: void Load( physics::ModelPtr _model, sdf::ElementPtr _sdf );
 
       /// \brief Update the controller
       private: void SetTrajectory(const trajectory_msgs::JointTrajectory::ConstPtr& trajectory);

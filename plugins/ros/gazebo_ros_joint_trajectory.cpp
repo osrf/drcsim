@@ -57,10 +57,12 @@ GazeboRosJointTrajectory::~GazeboRosJointTrajectory()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosJointTrajectory::Load( physics::WorldPtr _world, sdf::ElementPtr _sdf )
+void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _sdf )
 {
-  // Get the world name.
-  this->world_ = _world;
+  this->model_ = _model;
+
+  // Get the world
+  this->world_ = _model->GetWorld();
 
   //this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
 
@@ -175,8 +177,8 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   // this->disable_physics_updates_ = false;
   // if (this->disable_physics_updates_)
   // {
-  //   this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
-  //   this->world_->EnablePhysicsEngine(false);
+  this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
+  this->world_->EnablePhysicsEngine(false);
   // }
 
   // create a joint with the world
@@ -383,6 +385,6 @@ void GazeboRosJointTrajectory::QueueThread()
   }
 }
 
-GZ_REGISTER_WORLD_PLUGIN(GazeboRosJointTrajectory);
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosJointTrajectory);
 
 }
