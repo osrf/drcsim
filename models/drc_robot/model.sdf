@@ -2354,7 +2354,7 @@
         <alwaysOn>true</alwaysOn>
         <updateRate>40</updateRate>
         <topicName>/scan</topicName>
-        <frameName>/head_hokuyo</frameName>
+        <frameName>head_hokuyo</frameName>
       </plugin>
     </sensor>
   </gazebo>
