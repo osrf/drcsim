@@ -25,6 +25,9 @@
  * SVN: $Id: main.cc 8598 2010-03-22 21:59:24Z hsujohnhsu $
  */
 
+/// skip gazebo_msgs usage for sake of dependency
+#undef GAZEBO_MSGS
+
 #include "common/Events.hh"
 #include "gazebo_ros_api_plugin.h"
 
@@ -173,6 +176,7 @@ namespace gazebo
       // publish clock for simulated ros time
       pub_clock_ = this->rosnode_->advertise<rosgraph_msgs::Clock>("/clock",10);
 
+#ifdef GAZEBO_MSGS
       // Advertise spawn services on the custom queue
       std::string spawn_gazebo_model_service_name("spawn_gazebo_model");
       ros::AdvertiseServiceOptions spawn_gazebo_model_aso = ros::AdvertiseServiceOptions::create<gazebo_msgs::SpawnModel>(
@@ -298,6 +302,7 @@ namespace gazebo
           set_link_state_service_name,boost::bind(&GazeboRosApiPlugin::setLinkState,this,_1,_2),
           ros::VoidPtr(), &this->gazebo_queue_);
       set_link_state_service_ = this->rosnode_->advertiseService(set_link_state_aso);
+#endif
 
       // Advertise more services on the custom queue
       std::string reset_simulation_service_name("reset_simulation");
@@ -327,6 +332,7 @@ namespace gazebo
           ros::VoidPtr(), &this->gazebo_queue_);
       unpause_physics_service_ = this->rosnode_->advertiseService(unpause_physics_aso);
 
+#ifdef GAZEBO_MSGS
       // Advertise more services on the custom queue
       std::string clear_joint_forces_service_name("clear_joint_forces");
       ros::AdvertiseServiceOptions clear_joint_forces_aso = ros::AdvertiseServiceOptions::create<gazebo_msgs::JointRequest>(
@@ -367,6 +373,7 @@ namespace gazebo
         boost::bind(&GazeboRosApiPlugin::onModelStatesConnect,this),
         boost::bind(&GazeboRosApiPlugin::onModelStatesDisconnect,this), ros::VoidPtr(), &this->gazebo_queue_);
       pub_model_states_ = this->rosnode_->advertise(pub_model_states_ao);
+#endif
 
       // set param for use_sim_time if not set by user alread
       this->rosnode_->setParam("/use_sim_time", true);
@@ -375,6 +382,7 @@ namespace gazebo
 
     }
 
+#ifdef GAZEBO_MSGS
     void GazeboRosApiPlugin::onLinkStatesConnect()
     {
       this->pub_link_states_connection_count_++;
@@ -407,7 +415,9 @@ namespace gazebo
           ROS_ERROR("one too mandy disconnect from pub_model_states_ in gazebo_ros.cpp? something weird");
       }
     }
+#endif
 
+#ifdef GAZEBO_MSGS
     bool GazeboRosApiPlugin::spawnURDFModel(gazebo_msgs::SpawnModel::Request &req,gazebo_msgs::SpawnModel::Response &res)
     {
       // get name space for the corresponding model plugins
@@ -1162,6 +1172,7 @@ namespace gazebo
       res.status_message = "ApplyJointEffort: joint not found";
       return false;
     }
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
@@ -1195,6 +1206,7 @@ namespace gazebo
       return true;
     }
 
+#ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool GazeboRosApiPlugin::clearJointForces(gazebo_msgs::JointRequest::Request &req,gazebo_msgs::JointRequest::Response &res)
@@ -1254,8 +1266,6 @@ namespace gazebo
       return true;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool GazeboRosApiPlugin::setModelConfiguration(gazebo_msgs::SetModelConfiguration::Request &req,gazebo_msgs::SetModelConfiguration::Response &res)
@@ -1509,6 +1519,7 @@ namespace gazebo
       res.status_message = "";
       return true;
     }
+#endif
 
 
     void GazeboRosApiPlugin::spin()
@@ -1642,6 +1653,7 @@ namespace gazebo
     }
 
 
+#ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void GazeboRosApiPlugin::publishLinkStates()
@@ -1824,6 +1836,7 @@ namespace gazebo
         r.sleep();
       }
     }
+#endif
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -2051,9 +2064,10 @@ namespace gazebo
       }
     }
 
+#ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
-    bool GazeboRosApiPlugin::spawnAndConform(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res)
+    bool GazeboRosApiPlugin::spawnAndConfirm(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res)
     {
       // push to factory iface
       std::ostringstream stream;
@@ -2112,6 +2126,7 @@ namespace gazebo
       res.status_message = std::string("SpawnModel: successfully spawned model");
       return true;
     }
+#endif
 
 // Register this plugin with the simulator
 GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)

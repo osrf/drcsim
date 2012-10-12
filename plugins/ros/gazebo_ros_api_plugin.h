@@ -64,6 +64,7 @@
 // Services
 #include "std_srvs/Empty.h"
 
+#ifdef GAZEBO_MSGS
 #include "gazebo_msgs/JointRequest.h"
 #include "gazebo_msgs/BodyRequest.h"
 
@@ -96,6 +97,7 @@
 #include "gazebo_msgs/LinkState.h"
 #include "gazebo_msgs/ModelStates.h"
 #include "gazebo_msgs/LinkStates.h"
+#endif
 
 #include "geometry_msgs/Vector3.h"
 #include "geometry_msgs/Wrench.h"
@@ -106,7 +108,9 @@
 #include <ros/ros.h>
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
+#ifdef GAZEBO_MSGS
 #include <gazebo_msgs/SetModelConfiguration.h>
+#endif
 #include <boost/shared_ptr.hpp>
 
 #undef USE_DYNAMIC_RECONFIGURE
@@ -114,8 +118,10 @@
 // For physics dynamics reconfigure
 #include <dynamic_reconfigure/server.h>
 #include <gazebo/PhysicsConfig.h>
+#ifdef GAZEBO_MSGS
 #include "gazebo_msgs/SetPhysicsProperties.h"
 #include "gazebo_msgs/GetPhysicsProperties.h"
+#endif
 #endif
 
 #include <boost/algorithm/string.hpp>
@@ -144,6 +150,7 @@ class GazeboRosApiPlugin : public SystemPlugin
     void onLinkStatesDisconnect();
     void onModelStatesDisconnect();
 
+#ifdef GAZEBO_MSGS
     bool spawnURDFModel(gazebo_msgs::SpawnModel::Request &req,gazebo_msgs::SpawnModel::Response &res);
     bool spawnGazeboModel(gazebo_msgs::SpawnModel::Request &req,gazebo_msgs::SpawnModel::Response &res);
 
@@ -202,6 +209,7 @@ class GazeboRosApiPlugin : public SystemPlugin
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool applyJointEffort(gazebo_msgs::ApplyJointEffort::Request &req,gazebo_msgs::ApplyJointEffort::Response &res);
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
@@ -219,6 +227,7 @@ class GazeboRosApiPlugin : public SystemPlugin
     /// \brief 
     bool unpausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
+#ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool clearJointForces(gazebo_msgs::JointRequest::Request &req,gazebo_msgs::JointRequest::Response &res);
@@ -244,6 +253,7 @@ class GazeboRosApiPlugin : public SystemPlugin
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool applyBodyWrench(gazebo_msgs::ApplyBodyWrench::Request &req,gazebo_msgs::ApplyBodyWrench::Response &res);
+#endif
 
     void spin();
 
@@ -408,9 +418,11 @@ class GazeboRosApiPlugin : public SystemPlugin
 
     std::string robot_namespace_;
 
+#ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
-    bool spawnAndConform(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res);
+    bool spawnAndConfirm(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res);
+#endif
 };
 }
 #endif
