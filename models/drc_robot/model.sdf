@@ -2333,7 +2333,7 @@
     <sensor type="ray" name="head_hokuyo_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
-      <update_rate>20</update_rate>
+      <update_rate>40</update_rate>
       <ray>
         <scan>
           <horizontal>
@@ -2352,7 +2352,7 @@
       <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
         <gaussianNoise>0.005</gaussianNoise>
         <alwaysOn>true</alwaysOn>
-        <updateRate>20</updateRate>
+        <updateRate>40</updateRate>
         <topicName>/scan</topicName>
         <frameName>head_hokuyo</frameName>
       </plugin>
