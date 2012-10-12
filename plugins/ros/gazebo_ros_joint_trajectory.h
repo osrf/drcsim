@@ -19,8 +19,8 @@
  *
  */
 /*
- * Desc: 3D position interface.
- * Author: Sachin Chitta and John Hsu
+ * Desc: A model plugin that plays back joint trajectory messages
+ * Author: John Hsu
  * Date: 10 June 2008
  * SVN: $Id$
  */
@@ -121,8 +121,6 @@ namespace gazebo
 
       private: trajectory_msgs::JointTrajectory joint_trajectory_;
 
-      void FixLink(physics::LinkPtr link);
-      void UnfixLink();
       private: physics::JointPtr joint_;
    };
 

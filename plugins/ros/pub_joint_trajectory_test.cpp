@@ -13,7 +13,7 @@ int main(int argc, char** argv)
   trajectory_msgs::JointTrajectory jt;
 
   jt.header.stamp = ros::Time::now();
-  jt.header.frame_id = "drc_robot::pelvis";
+  jt.header.frame_id = "drc_robot::r_foot";
 
   jt.joint_names.push_back("drc_robot::back.lbz" );
   jt.joint_names.push_back("drc_robot::back.mby" );

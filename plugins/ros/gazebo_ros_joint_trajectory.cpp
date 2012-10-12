@@ -19,8 +19,8 @@
  *
  */
 /*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
+ * Desc: A model plugin that plays back joint trajectory messages
+ * Author: John Hsu
  * Date: 1 June 2008
  * SVN info: $Id$
  */
@@ -104,7 +104,6 @@ void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _
   // resolve tf prefix
   std::string prefix;
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
-  //this->tf_reference_link_name_ = tf::resolve(prefix, this->reference_link_name_);
 
   if (this->topic_name_ != "")
   {
@@ -151,7 +150,7 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
       this->reference_link_ = boost::shared_dynamic_cast<physics::Link>(ent);
     if (!this->reference_link_)
     {
-      ROS_ERROR("ros_joint_trajectory plugin specified a reference link [%s] as frame_id, aborting.\n",
+      ROS_ERROR("ros_joint_trajectory plugin needs a reference link [%s] as frame_id, aborting.\n",
                 this->reference_link_name_.c_str());
       return;
     }
@@ -174,16 +173,12 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   // reset trajectory_index to beginning of new trajectory
   this->trajectory_index = 0;
 
-  // this->disable_physics_updates_ = false;
-  // if (this->disable_physics_updates_)
-  // {
-  this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
-  this->world_->EnablePhysicsEngine(false);
-  // }
-
-  // create a joint with the world
-  // if (this->reference_link_)
-  //   this->FixLink(this->reference_link_);
+  this->disable_physics_updates_ = true;
+  if (this->disable_physics_updates_)
+  {
+    this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
+    this->world_->EnablePhysicsEngine(false);
+  }
 
 }
 
@@ -246,41 +241,9 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
     this->world_->EnablePhysicsEngine(false);
   }
 
-  // create a joint with the world
-  // if (this->reference_link_)
-  //   this->FixLink(this->reference_link_);
-
   return true;
 }
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-// glue a link to the world by creating a fixed joint
-void GazeboRosJointTrajectory::FixLink(physics::LinkPtr link)
-{
-  if (this->model_)
-  {
-    this->joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
-    this->joint_->SetModel(this->model_);
-    math::Pose pose = link->GetWorldPose();
-    //math::Pose  pose(math::Vector3(0, 0, 0.2), math::Quaternion(1, 0, 0, 0));
-    this->joint_->Load(physics::LinkPtr(), link, pose);
-    this->joint_->SetAxis(0, math::Vector3(0, 0, 0));
-    this->joint_->SetHighStop(0, 0);
-    this->joint_->SetLowStop(0, 0);
-    this->joint_->SetAnchor(0, pose.pos);
-    this->joint_->Init();
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// unglue a link to the world by destroying the fixed joint
-void GazeboRosJointTrajectory::UnfixLink()
-{
-  this->joint_.reset();
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
@@ -309,17 +272,11 @@ void GazeboRosJointTrajectory::UpdateStates()
           //if (!is_paused) this->world_->SetPaused(true);
 
           // get reference link pose before updates
-          math::Pose reference_pose(math::Vector3(this->model_pose_.position.x,
-                                                  this->model_pose_.position.y,
-                                                  this->model_pose_.position.z),
-                                 math::Quaternion(this->model_pose_.orientation.w,
-                                                  this->model_pose_.orientation.x,
-                                                  this->model_pose_.orientation.y,
-                                                  this->model_pose_.orientation.z));
-          // if (this->reference_link_)
-          // {
-          //   reference_pose = this->reference_link_->GetWorldPose();
-          // }
+          math::Pose reference_pose = this->model_->GetWorldPose();
+          if (this->reference_link_)
+          {
+            reference_pose = this->reference_link_->GetWorldPose();
+          }
 
           // trajectory roll-out based on time:  set model configuration from trajectory message
           std::map<std::string, double> joint_position_map;
@@ -334,13 +291,10 @@ void GazeboRosJointTrajectory::UpdateStates()
             this->model_->SetJointPositions(joint_position_map);
 
             // set model pose?
-            if (this->set_model_pose_)
-            {
+            if (this->reference_link_)
+              this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
+            else
               this->model_->SetWorldPose(reference_pose);
-            }
-            // test: fix reference link location
-            // if (this->reference_link_)
-            //   this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
           }
           else
           {
