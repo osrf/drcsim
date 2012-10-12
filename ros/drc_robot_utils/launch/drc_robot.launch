@@ -1,5 +1,7 @@
 <launch>
 
+  <param name="/use_sim_time" type="bool" value="true"/>
+
   <!-- start gazebo with the DRC Robot -->
   <node name="gazebo" pkg="drc_robot_utils" type="drc_robot" />
 
@@ -15,7 +17,7 @@
 
   <!-- TF Buffer Server -->
   <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" output="screen">
-    <param name="buffer_size" value="120.0"/>
+    <param name="buffer_size" value="1200.0"/>
   </node>
 
   <!-- Position Controllers -->

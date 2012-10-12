@@ -130,9 +130,8 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
   this->controller_manager_ = new pr2_controller_manager::ControllerManager(&hardware_interface_,*this->rosnode_);
   this->hardware_interface_.current_time_ = ros::Time(this->world->GetSimTime().Double());
   // hardcoded to minimum of 1ms on start up
-  this->hardware_interface_.current_time_ = this->hardware_interface_.current_time_< ros::Time(0.001)?
-    ros::Time(0.001) : this->hardware_interface_.current_time_;
-
+  if (this->hardware_interface_.current_time_ < ros::Time(0.001)) this->hardware_interface_.current_time_ == ros::Time(0.001);
+  
   this->rosnode_->param("gazebo/start_robot_calibrated", this->calibration_status_, true);
 
   // read pr2 urdf
@@ -278,6 +277,7 @@ void GazeboRosControllerManager::UpdateControllerForces()
   //  Update hardware time with sim time
   //--------------------------------------------------
   this->hardware_interface_.current_time_ = ros::Time(this->world->GetSimTime().Double());
+  //ROS_ERROR("time %d: %d", this->hardware_interface_.current_time_.sec, this->hardware_interface_.current_time_.nsec);
 
   //--------------------------------------------------
   //  Update Mechanism Control
