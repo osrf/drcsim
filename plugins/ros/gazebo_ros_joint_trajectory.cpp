@@ -165,6 +165,13 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   // copy joint configuration into a map
   this->joint_trajectory_ = *trajectory;
 
+  unsigned int chain_size = this->joint_trajectory_.joint_names.size();
+  this->joints_.resize(chain_size);
+  for (unsigned int i = 0; i < chain_size; ++i)
+  {
+    this->joints_[i] = this->model_->GetJoint(this->joint_trajectory_.joint_names[i]);
+  }
+
   // trajectory start time
   this->trajectory_start = gazebo::common::Time(trajectory->header.stamp.sec,
                                                 trajectory->header.stamp.nsec);
@@ -250,27 +257,22 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
 // Play the trajectory, update states
 void GazeboRosJointTrajectory::UpdateStates()
 {
-  common::Time cur_time = this->world_->GetSimTime();
 
-  // rate control
-  if (this->update_rate_ > 0 && (cur_time-this->last_time_).Double() < (1.0/this->update_rate_))
-    return;
-
+  gazebo::common::Time start = this->world_->GetRealTime();
   {
-
-    if (this->has_trajectory_ && this->model_)
+    boost::mutex::scoped_lock lock(this->update_mutex);
+    if (this->has_trajectory_)
     {
-      boost::mutex::scoped_lock lock(this->update_mutex);
+      common::Time cur_time = this->world_->GetSimTime();
       // roll out trajectory via set model configuration
+      //gzerr << "i[" << trajectory_index  << "] time " << trajectory_start << " now: " << cur_time << " : "<< "\n";
       if (cur_time >= this->trajectory_start)
       {
         // @todo:  consider a while loop until the trajectory "catches up" to the current time?
-        if (this->trajectory_index < this->joint_trajectory_.points.size())
+        // gzerr << trajectory_index << " : "  << this->joint_trajectory_.points.size() << "\n";
+        if (this->trajectory_index <= this->joint_trajectory_.points.size())
         {
           ROS_INFO("time [%f] updating configuration [%d/%lu]",cur_time.Double(),this->trajectory_index,this->joint_trajectory_.points.size());
-          // make the service call to pause gazebo
-          //bool is_paused = this->world_->IsPaused();
-          //if (!is_paused) this->world_->SetPaused(true);
 
           // get reference link pose before updates
           math::Pose reference_pose = this->model_->GetWorldPose();
@@ -280,18 +282,16 @@ void GazeboRosJointTrajectory::UpdateStates()
           }
 
           // trajectory roll-out based on time:  set model configuration from trajectory message
-          std::map<std::string, double> joint_position_map;
           unsigned int chain_size = this->joint_trajectory_.joint_names.size();
           if (chain_size == this->joint_trajectory_.points[this->trajectory_index].positions.size())
           {
             for (unsigned int i = 0; i < chain_size; ++i)
             {
-              joint_position_map[this->joint_trajectory_.joint_names[i]] = 
-                this->joint_trajectory_.points[this->trajectory_index].positions[i];
+              // this is not the most efficient way to set things
+              this->joints_[i]->SetAngle(0, this->joint_trajectory_.points[this->trajectory_index].positions[i]);
             }
-            this->model_->SetJointPositions(joint_position_map);
 
-            // set model pose?
+            // set model pose
             if (this->reference_link_)
               this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
             else
@@ -325,6 +325,8 @@ void GazeboRosJointTrajectory::UpdateStates()
       }
     }
   } // mutex lock
+  gazebo::common::Time end = this->world_->GetRealTime();
+  // gzerr << "dt: " << (end - start).Double() << "\n";
 
 }
 

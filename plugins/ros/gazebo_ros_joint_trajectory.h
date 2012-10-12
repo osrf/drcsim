@@ -115,6 +115,8 @@ namespace gazebo
       private: ros::CallbackQueue queue_;
       private: void QueueThread();
       private: boost::thread callback_queue_thread_;
+
+      private: std::vector<gazebo::physics::JointPtr> joints_;
       
       // Pointer to the update event connection
       private: event::ConnectionPtr update_connection_;

@@ -25,6 +25,7 @@ int main(int argc, char** argv)
   jt.joint_names.push_back("drc_robot::l.leg.kny");
   jt.joint_names.push_back("drc_robot::l.leg.uay");
   jt.joint_names.push_back("drc_robot::l.leg.lax");
+/*
   jt.joint_names.push_back("drc_robot::r.leg.lax");
   jt.joint_names.push_back("drc_robot::r.leg.uay");
   jt.joint_names.push_back("drc_robot::r.leg.kny");
@@ -43,9 +44,10 @@ int main(int argc, char** argv)
   jt.joint_names.push_back("drc_robot::r.arm.shx");
   jt.joint_names.push_back("drc_robot::r.arm.usy");
   jt.joint_names.push_back("drc_robot::r.arm.uwy");
+*/
 
   int n = 500;
-  double dt = 0.1;
+  double dt = 0.01;
   double rps = 0.05;
   jt.points.resize(n);
   for (int i = 0; i < n; i++)
@@ -53,6 +55,7 @@ int main(int argc, char** argv)
     double theta = rps*2.0*M_PI*i*dt;
     double x1 = -0.5*sin(2*theta);
     double x2 =  0.5*sin(1*theta);
+    jt.points[i].positions.clear();
     jt.points[i].positions.push_back(x1);
     jt.points[i].positions.push_back(x2);
     jt.points[i].positions.push_back(x2);
@@ -63,6 +66,7 @@ int main(int argc, char** argv)
     jt.points[i].positions.push_back(x2);
     jt.points[i].positions.push_back(x1);
     jt.points[i].positions.push_back(x1);
+/*
     jt.points[i].positions.push_back(x2);
     jt.points[i].positions.push_back(x1);
     jt.points[i].positions.push_back(x2);
@@ -81,7 +85,7 @@ int main(int argc, char** argv)
     jt.points[i].positions.push_back(x2);
     jt.points[i].positions.push_back(x1);
     jt.points[i].positions.push_back(x1);
-
+*/
     // set duration
     jt.points[i].time_from_start = ros::Duration(dt);
     ROS_INFO("test: angles[%d][%f, %f]",n,x1,x2);
