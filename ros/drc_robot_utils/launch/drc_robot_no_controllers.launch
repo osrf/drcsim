@@ -1,9 +1,10 @@
 <launch>
 
+  <arg name="gzname" default="gazebo"/>
   <param name="/use_sim_time" type="bool" value="true"/>
 
   <!-- start gazebo with the DRC Robot -->
-  <node name="gazebo" pkg="drc_robot_utils" type="drc_robot" args="$(find drc_robot_utils)/worlds/drc_robot.world"/>
+  <node name="gazebo" pkg="drc_robot_utils" type="run_$(arg gzname)" args="$(find drc_robot_utils)/worlds/drc_robot.world"/>
 
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
