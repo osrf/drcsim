@@ -1,214 +1,74 @@
-<?xml version="1.0"?> 
+<?xml version="1.0" ?>
 <gazebo version="1.2">
   <world name="default">
-    <scene>
-      <ambient>0.2 0.2 0.2 1.0</ambient>
-      <grid>false</grid>
-    </scene>
+    <gui>
+    <camera name="user_camera">
+      <pose>-20 0 10 0 0.2 0</pose>
+    </camera>
+    </gui>
+
+    <physics type="ode">
+      <gravity>0 0 -9.8</gravity>
+      <update_rate>1000</update_rate>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <dt>0.001</dt>
+          <iters>40</iters>
+          <sor>1.0</sor>
+        </solver>
+        <constraints>
+          <cfm>0.0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>100.0</contact_max_correcting_vel>
+          <contact_surface_layer>0.0</contact_surface_layer>
+        </constraints>
+      </ode>
+    </physics>
 
     <!-- A global light source -->
     <include>
       <uri>model://sun</uri>
     </include>
 
-    <!-- A ground plane -->
-    <model name="ground">
-      <static>true</static>
-      <link name="body">
-        <collision name="geom">
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-            </plane>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>100</mu>
-                <mu2>50</mu2>
-              </ode>
-            </friction>
-          </surface>
-        </collision>
-      </link>
-    </model>
-
-    <!--
-    <include filename="car.model" >
-      <pose>5 -2 0 0 0 0</pose>
+    <include>
+      <uri>model://low_poly_golf_cart</uri>
+      <pose>0 -2 0 0 0 0</pose>
     </include>
--->
 
+    <include>
+      <uri>model://powerplant</uri>
+      <pose>350 65 -0.2 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://drc_robot</uri>
+      <pose>0 2 1 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://drc_terrain</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+<!--
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://fire_hose</uri>
+      <pose>1 0 1 0.5 0.1 0.2</pose>
+    </include>
+    <include>
+      <uri>model://standpipe</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
     <road name="main_street">
       <width>7.34</width>
       <point>0 0 0</point>
       <point>125 0 0</point>
     </road>
-
-    <model name="warehouse">
-      <static>true</static>
-      <pose>500 10 2.5 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>100 100 20</size>
-            </box>
-          </geometry>
-        </collision>
-
-        <visual name="visual">
-          <geometry>
-            <box>
-              <size>100 100 20</size>
-            </box>
-          </geometry>
-          <material>
-            <script>Gazebo/Grey</script>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="building_1">
-      <static>true</static>
-      <pose>15 10 2.5 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>10 8 5</size></box>
-          </geometry>
-        </collision>
-
-        <visual name="visual">
-          <geometry>
-            <box><size>10 8 5</size></box>
-          </geometry>
-          <material><script>Gazebo/Grey</script></material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="building_2">
-      <static>true</static>
-      <pose>15 -10 2.5 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>10 8 5</size></box>
-          </geometry>
-        </collision>
-
-        <visual name="visual">
-          <geometry>
-            <box><size>10 8 5</size></box>
-          </geometry>
-          <material><script>Gazebo/Grey</script></material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="welcom_signe">
-      <static>true</static>
-      <pose>2 4.5 0 0 0 0</pose>
-      <link name="link">
-        <collision name="left-post">
-          <pose>0.02 0.4  0.4 0 0 0</pose>
-          <geometry>
-            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
-          </geometry>
-        </collision>
-
-        <visual name="left-post">
-          <pose>0.02 0.4  0.4 0 0 0</pose>
-          <geometry>
-            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
-          </geometry>
-          <material><script>Gazebo/Grey</script></material>
-        </visual>
-
-        <collision name="right-post">
-          <pose>0.02 -0.4 0.4 0 0 0</pose>
-          <geometry>
-            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
-          </geometry>
-        </collision>
-
-        <visual name="right-post">
-          <pose>0.02 -0.4 0.4 0 0 0</pose>
-          <geometry>
-            <cylinder><radius>.02</radius><length>0.8</length></cylinder>
-          </geometry>
-          <material><script>Gazebo/Grey</script></material>
-        </visual>
-
-
-        <collision name="collision">
-          <pose>0 0 .8 0 0 0</pose>
-          <geometry>
-            <box><size>.01 1 .5</size></box>
-          </geometry>
-        </collision>
-
-        <visual name="visual">
-          <pose>0 0 .8 0 0 0</pose>
-          <geometry>
-            <box><size>.01 1 .5</size></box>
-          </geometry>
-          <material><script>drc_sim/san_fauxcity_sign</script></material>
-        </visual>
-      </link>
-    </model>
-
-
-    <model name="terrain">
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <heightmap>
-              <filename>drc_sim_v0_terrain.png</filename>
-              <size>2000 2000 500</size>
-              <pos>300 -5 -0.01</pos>
-            </heightmap>
-          </geometry>
-        </collision>
-
-        <visual name="visual">
-          <geometry>
-            <heightmap>
-              <filename>drc_sim_v0_terrain.png</filename>
-              <size>2000 2000 500</size>
-              <pos>300 -5 -0.01</pos>
-
-              <texture>
-                <diffuse>dirt_diffusespecular.png</diffuse>
-                <normal>dirt_normal.png</normal>
-                <size>5</size>
-              </texture>
-              <texture>
-                <diffuse>grass_diffusespecular.png</diffuse>
-                <normal>grass_normal.png</normal>
-                <size>10</size>
-              </texture>
-              <texture>
-                <diffuse>fungus_diffusespecular.png</diffuse>
-                <normal>fungus_normal.png</normal>
-                <size>80</size>
-              </texture>
-              <blend>
-                <min_height>10</min_height>
-                <fade_dist>5</fade_dist>
-              </blend>
-              <blend>
-                <min_height>15</min_height>
-                <fade_dist>5</fade_dist>
-              </blend>
-            </heightmap>
-          </geometry>
-
-        </visual>
-      </link>
-    </model>
+-->
 
     <!--
     <plugin filename="libRubblePlugin.so" name="rubble">
@@ -218,6 +78,6 @@
       <max_size>0.2 0.2 0.2</max_size>
       <count>200</count>
     </plugin>
--->
+    -->
   </world>
 </gazebo>

@@ -1,7 +1,13 @@
 <launch>
 
   <!-- start gazebo with the DRC Robot -->
-  <include file="$(find drc_robot_utils)/launch/drc_robot_no_controllers.launch"/>
+  <param name="/use_sim_time" type="bool" value="true"/>
+
+  <!-- start gazebo with the DRC Robot -->
+  <node name="gazebo" pkg="drc_robot_utils" type="drc_robot" args="drc_sim_v0.world"/>
+
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
 
   <!-- Controller Manager -->
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />

@@ -3,6 +3,7 @@
   <world name="default">
     <physics type="ode">
       <gravity>0 0 0</gravity>
+      <update_rate>1000</update_rate>
       <ode>
         <solver>
           <type>quick</type>
