@@ -3,12 +3,12 @@
   <world name="default">
     <gui>
     <camera name="user_camera">
-      <pose>-20 0 130 0 0.2 0</pose>
+      <pose>-20 0 10 0 0.2 0</pose>
     </camera>
     </gui>
 
     <physics type="ode">
-      <gravity>0 0 0</gravity>
+      <gravity>0 0 -9.8</gravity>
       <update_rate>1000</update_rate>
       <ode>
         <solver>
@@ -33,17 +33,17 @@
 
     <include>
       <uri>model://low_poly_golf_cart</uri>
-      <pose>0 -2 125 0 0 0</pose>
+      <pose>0 -2 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://powerplant</uri>
-      <pose>350 65 124.8 0 0 0</pose>
+      <pose>350 65 -0.2 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://drc_robot</uri>
-      <pose>0 2 126 0 0 0</pose>
+      <pose>0 2 1 0 0 0</pose>
     </include>
 
     <include>
