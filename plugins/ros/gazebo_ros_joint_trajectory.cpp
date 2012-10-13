@@ -19,8 +19,8 @@
  *
  */
 /*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
+ * Desc: A model plugin that plays back joint trajectory messages
+ * Author: John Hsu
  * Date: 1 June 2008
  * SVN info: $Id$
  */
@@ -40,6 +40,8 @@ GazeboRosJointTrajectory::GazeboRosJointTrajectory()
   this->has_trajectory_ = false;
   this->trajectory_index = 0;
   this->joint_trajectory_.points.clear();
+  this->physics_engine_enabled_ = true;
+  this->disable_physics_updates_ = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,10 +59,12 @@ GazeboRosJointTrajectory::~GazeboRosJointTrajectory()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosJointTrajectory::Load( physics::WorldPtr _world, sdf::ElementPtr _sdf )
+void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _sdf )
 {
-  // Get the world name.
-  this->world_ = _world;
+  this->model_ = _model;
+
+  // Get the world
+  this->world_ = _model->GetWorld();
 
   //this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
 
@@ -94,15 +98,19 @@ void GazeboRosJointTrajectory::Load( physics::WorldPtr _world, sdf::ElementPtr _
     this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
 
   // Wait for ROS
-  while (!ros::isInitialized())
-    sleep(0.1);
+  if (!ros::isInitialized())
+  {
+    int argc = 0;
+    char** argv = NULL;
+    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    gzwarn << "should start ros::init in simulation by using the system plugin\n";
+  }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // resolve tf prefix
   std::string prefix;
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
-  //this->tf_reference_link_name_ = tf::resolve(prefix, this->reference_link_name_);
 
   if (this->topic_name_ != "")
   {
@@ -140,6 +148,9 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
 
+  // resume physics update
+  this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
+
   this->reference_link_name_ = trajectory->header.frame_id;
   // do this every time a new joint trajectory is supplied, use header.frame_id as the reference_link_name_
   if (this->reference_link_name_ != "world" && this->reference_link_name_ != "/map" && this->reference_link_name_ != "map")
@@ -149,7 +160,7 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
       this->reference_link_ = boost::shared_dynamic_cast<physics::Link>(ent);
     if (!this->reference_link_)
     {
-      ROS_ERROR("ros_joint_trajectory plugin specified a reference link [%s] as frame_id, aborting.\n",
+      ROS_ERROR("ros_joint_trajectory plugin needs a reference link [%s] as frame_id, aborting.\n",
                 this->reference_link_name_.c_str());
       return;
     }
@@ -161,27 +172,41 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   }
 
   // copy joint configuration into a map
-  this->joint_trajectory_ = *trajectory;
+  unsigned int chain_size = trajectory->joint_names.size();
+  this->joints_.resize(chain_size);
+  for (unsigned int i = 0; i < chain_size; ++i)
+  {
+    this->joints_[i] = this->model_->GetJoint(trajectory->joint_names[i]);
+  }
+
+  unsigned int points_size = trajectory->points.size();
+  this->points_.resize(points_size);
+  for (unsigned int i = 0; i < points_size; ++i)
+  {
+    this->points_[i].positions.resize(chain_size);
+    for (unsigned int j = 0; j < chain_size; ++j)
+    {
+      this->points_[i].positions[j] = trajectory->points[i].positions[j];
+    }
+  }
 
   // trajectory start time
   this->trajectory_start = gazebo::common::Time(trajectory->header.stamp.sec,
                                                 trajectory->header.stamp.nsec);
+  common::Time cur_time = this->world_->GetSimTime();
+  if (this->trajectory_start < cur_time)
+    this->trajectory_start = cur_time;
 
   // update the joint trajectory to play
   this->has_trajectory_ = true;
   // reset trajectory_index to beginning of new trajectory
   this->trajectory_index = 0;
 
-  // this->disable_physics_updates_ = false;
-  // if (this->disable_physics_updates_)
-  // {
-  //   this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
-  //   this->world_->EnablePhysicsEngine(false);
-  // }
-
-  // create a joint with the world
-  // if (this->reference_link_)
-  //   this->FixLink(this->reference_link_);
+  if (this->disable_physics_updates_)
+  {
+    this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
+    this->world_->EnablePhysicsEngine(false);
+  }
 
 }
 
@@ -244,130 +269,79 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
     this->world_->EnablePhysicsEngine(false);
   }
 
-  // create a joint with the world
-  // if (this->reference_link_)
-  //   this->FixLink(this->reference_link_);
-
   return true;
 }
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// glue a link to the world by creating a fixed joint
-void GazeboRosJointTrajectory::FixLink(physics::LinkPtr link)
-{
-  if (this->model_)
-  {
-    this->joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
-    this->joint_->SetModel(this->model_);
-    math::Pose pose = link->GetWorldPose();
-    //math::Pose  pose(math::Vector3(0, 0, 0.2), math::Quaternion(1, 0, 0, 0));
-    this->joint_->Load(physics::LinkPtr(), link, pose);
-    this->joint_->SetAxis(0, math::Vector3(0, 0, 0));
-    this->joint_->SetHighStop(0, 0);
-    this->joint_->SetLowStop(0, 0);
-    this->joint_->SetAnchor(0, pose.pos);
-    this->joint_->Init();
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// unglue a link to the world by destroying the fixed joint
-void GazeboRosJointTrajectory::UnfixLink()
-{
-  this->joint_.reset();
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
 void GazeboRosJointTrajectory::UpdateStates()
 {
-  common::Time cur_time = this->world_->GetSimTime();
 
-  // rate control
-  if (this->update_rate_ > 0 && (cur_time-this->last_time_).Double() < (1.0/this->update_rate_))
-    return;
-
+  boost::mutex::scoped_lock lock(this->update_mutex);
+  if (this->has_trajectory_)
   {
-
-    if (this->has_trajectory_ && this->model_)
+    common::Time cur_time = this->world_->GetSimTime();
+    // roll out trajectory via set model configuration
+    // gzerr << "i[" << trajectory_index  << "] time " << trajectory_start << " now: " << cur_time << " : "<< "\n";
+    if (cur_time >= this->trajectory_start)
     {
-      boost::mutex::scoped_lock lock(this->update_mutex);
-      // roll out trajectory via set model configuration
-      if (cur_time >= this->trajectory_start)
+      // @todo:  consider a while loop until the trajectory "catches up" to the current time?
+      // gzerr << trajectory_index << " : "  << this->points_.size() << "\n";
+      if (this->trajectory_index < this->points_.size())
       {
-        // @todo:  consider a while loop until the trajectory "catches up" to the current time?
-        if (this->trajectory_index < this->joint_trajectory_.points.size())
+        ROS_INFO("time [%f] updating configuration [%d/%lu]",cur_time.Double(),this->trajectory_index,this->points_.size());
+
+        // get reference link pose before updates
+        math::Pose reference_pose = this->model_->GetWorldPose();
+        if (this->reference_link_)
         {
-          ROS_INFO("time [%f] updating configuration [%d/%lu]",cur_time.Double(),this->trajectory_index,this->joint_trajectory_.points.size());
-          // make the service call to pause gazebo
-          //bool is_paused = this->world_->IsPaused();
-          //if (!is_paused) this->world_->SetPaused(true);
+          reference_pose = this->reference_link_->GetWorldPose();
+        }
 
-          // get reference link pose before updates
-          math::Pose reference_pose(math::Vector3(this->model_pose_.position.x,
-                                                  this->model_pose_.position.y,
-                                                  this->model_pose_.position.z),
-                                 math::Quaternion(this->model_pose_.orientation.w,
-                                                  this->model_pose_.orientation.x,
-                                                  this->model_pose_.orientation.y,
-                                                  this->model_pose_.orientation.z));
-          // if (this->reference_link_)
-          // {
-          //   reference_pose = this->reference_link_->GetWorldPose();
-          // }
-
-          // trajectory roll-out based on time:  set model configuration from trajectory message
-          std::map<std::string, double> joint_position_map;
-          unsigned int chain_size = this->joint_trajectory_.joint_names.size();
-          if (chain_size == this->joint_trajectory_.points[this->trajectory_index].positions.size())
+        // trajectory roll-out based on time:  set model configuration from trajectory message
+        unsigned int chain_size = this->joints_.size();
+        if (chain_size == this->points_[this->trajectory_index].positions.size())
+        {
+          for (unsigned int i = 0; i < chain_size; ++i)
           {
-            for (unsigned int i = 0; i < chain_size; ++i)
-            {
-              joint_position_map[this->joint_trajectory_.joint_names[i]] = 
-                this->joint_trajectory_.points[this->trajectory_index].positions[i];
-            }
-            this->model_->SetJointPositions(joint_position_map);
-
-            // set model pose?
-            if (this->set_model_pose_)
-            {
-              this->model_->SetWorldPose(reference_pose);
-            }
-            // test: fix reference link location
-            // if (this->reference_link_)
-            //   this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
+            // this is not the most efficient way to set things
+            this->joints_[i]->SetAngle(0, this->points_[this->trajectory_index].positions[i]);
           }
+
+          // set model pose
+          if (this->reference_link_)
+            this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
           else
-          {
-            ROS_ERROR("point[%u] in JointTrajectory has different number of joint names[%u] and positions[%lu].",
-                      this->trajectory_index, chain_size,
-                      this->joint_trajectory_.points[this->trajectory_index].positions.size());
-          }
-
-
-          //this->world_->SetPaused(is_paused); // resume original pause-state
-          gazebo::common::Time duration(this->joint_trajectory_.points[this->trajectory_index].time_from_start.sec,
-                                        this->joint_trajectory_.points[this->trajectory_index].time_from_start.nsec);
-          this->trajectory_start += duration; // reset start time for next trajectory point
-          this->trajectory_index++; // increment to next trajectory point
-
-          // save last update time stamp
-          this->last_time_ = cur_time;
+            this->model_->SetWorldPose(reference_pose);
         }
-        else // no more trajectory points
+        else
         {
-          // trajectory finished
-          this->reference_link_.reset();
-          this->has_trajectory_ = false;
-          if (this->disable_physics_updates_)
-            this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
+          ROS_ERROR("point[%u] in JointTrajectory has different number of joint names[%u] and positions[%lu].",
+                    this->trajectory_index, chain_size,
+                    this->points_[this->trajectory_index].positions.size());
         }
+
+
+        //this->world_->SetPaused(is_paused); // resume original pause-state
+        gazebo::common::Time duration(this->points_[this->trajectory_index].time_from_start.sec,
+                                      this->points_[this->trajectory_index].time_from_start.nsec);
+        this->trajectory_start += duration; // reset start time for next trajectory point
+        this->trajectory_index++; // increment to next trajectory point
+
+        // save last update time stamp
+        this->last_time_ = cur_time;
+      }
+      else // no more trajectory points
+      {
+        // trajectory finished
+        this->reference_link_.reset();
+        this->has_trajectory_ = false;
+        if (this->disable_physics_updates_)
+          this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
       }
     }
-  } // mutex lock
+  }
 
 }
 
@@ -376,13 +350,12 @@ void GazeboRosJointTrajectory::UpdateStates()
 void GazeboRosJointTrajectory::QueueThread()
 {
   static const double timeout = 0.01;
-
   while (this->rosnode_->ok())
   {
     this->queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
 
-GZ_REGISTER_WORLD_PLUGIN(GazeboRosJointTrajectory);
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosJointTrajectory);
 
 }

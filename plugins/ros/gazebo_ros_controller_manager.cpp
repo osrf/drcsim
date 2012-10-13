@@ -118,6 +118,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
     int argc = 0;
     char** argv = NULL;
     ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    gzwarn << "should start ros::init in simulation by using the system plugin\n";
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robotNamespace);
@@ -344,7 +345,7 @@ std::string GazeboRosControllerManager::GetURDF(std::string _param_name) const
     }
     usleep(100000);
   }
-  ROS_DEBUG("gazebo controller manager got pr2.xml from param server, parsing it...");
+  ROS_INFO("gazebo controller manager got urdf from param server, parsing it...");
 
   return urdf_string;
 }
