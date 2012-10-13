@@ -15,7 +15,7 @@
       <visual name="visual">
         <geometry>
           <heightmap>
-            <filename>drc_sim_v0_terrain.png</filename>
+            <uri>model://drc_terrain/materials/textures/drc_sim_v0_terrain.png</uri>
             <size>2000 2000 500</size>
             <pos>300 -5 -0.01</pos>
 
