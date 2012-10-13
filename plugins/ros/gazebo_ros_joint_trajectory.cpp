@@ -40,6 +40,8 @@ GazeboRosJointTrajectory::GazeboRosJointTrajectory()
   this->has_trajectory_ = false;
   this->trajectory_index = 0;
   this->joint_trajectory_.points.clear();
+  this->physics_engine_enabled_ = true;
+  this->disable_physics_updates_ = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +146,6 @@ void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _
 // set joint trajectory
 void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
 {
-  ROS_INFO("got joint trajectory message");
   boost::mutex::scoped_lock lock(this->update_mutex);
 
   // resume physics update
@@ -192,13 +193,15 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   // trajectory start time
   this->trajectory_start = gazebo::common::Time(trajectory->header.stamp.sec,
                                                 trajectory->header.stamp.nsec);
+  common::Time cur_time = this->world_->GetSimTime();
+  if (this->trajectory_start < cur_time)
+    this->trajectory_start = cur_time;
 
   // update the joint trajectory to play
   this->has_trajectory_ = true;
   // reset trajectory_index to beginning of new trajectory
   this->trajectory_index = 0;
 
-  this->disable_physics_updates_ = true;
   if (this->disable_physics_updates_)
   {
     this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
