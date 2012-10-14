@@ -9,6 +9,7 @@ add_subdirectory(robots)
 add_subdirectory(scripts)
 add_subdirectory(urdf)
 add_subdirectory(worlds)
+add_subdirectory(test)
 
 # Build of bdiparser disabled for now, pending updated version of urdfdom library
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
