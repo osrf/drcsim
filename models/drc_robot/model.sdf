@@ -2168,6 +2168,10 @@
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <gazebo>
+    <!-- robot model offset -->
+    <pose>0 0 0.93 0 0 0</pose>
+  </gazebo>
+  <gazebo>
     <plugin filename="libDRCRobotPlugin.so" name="drc_robot_plugin"/>
     <plugin filename="libgazebo_ros_joint_trajectory.so" name="joint_trajectory_plugin">
       <topicName>joint_trajectory</topicName>
