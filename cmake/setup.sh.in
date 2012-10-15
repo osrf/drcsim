@@ -31,3 +31,8 @@ fi
 export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/worlds:$GAZEBO_RESOURCE_PATH
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models:$GAZEBO_MODEL_PATH
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@PROJECT_NAME@-@DRC_SIM_VERSION@/plugins:$GAZEBO_PLUGIN_PATH
+echo "Warning: unsetting GAZEBO_MODEL_DATABASE_URI to avoid unnecessary network access on startup."
+echo "If you want to be able to download models from the online database, then you should:"
+echo "  export GAZEBO_MODEL_DATABASE_URI=http://gazebosim.org/models"
+echo "prior to starting the simulator."
+unset GAZEBO_MODEL_DATABASE_URI
