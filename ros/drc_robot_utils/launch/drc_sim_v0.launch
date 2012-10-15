@@ -4,7 +4,7 @@
   <param name="/use_sim_time" type="bool" value="true"/>
 
   <!-- start gazebo with the DRC Robot -->
-  <node name="gazebo" pkg="drc_robot_utils" type="drc_robot" args="drc_sim_v0.world"/>
+  <node name="gazebo" pkg="drc_robot_utils" type="run_gazebo" args="drc_sim_v0.world"/>
 
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
