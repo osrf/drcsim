@@ -33,13 +33,13 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/f0.stl"/>
+          <mesh filename="package://camhand/meshes/f0.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/f0.stl"/>
+          <mesh filename="package://camhand/meshes/f0.stl"/>
         </geometry>
         <material name="${side}_camhand_skin_suntan">
           <color rgba="0.7 0.4 0.2 1.0"/>
@@ -56,13 +56,13 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/f1.stl"/>
+          <mesh filename="package://camhand/meshes/f1.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/f1.stl"/>
+          <mesh filename="package://camhand/meshes/f1.stl"/>
         </geometry>
         <material name="${side}_camhand_skin">
           <color rgba="0.835 0.655 0.345 1.0"/>
@@ -87,13 +87,13 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/f2.stl"/>
+          <mesh filename="package://camhand/meshes/f2.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/f2.stl"/>
+          <mesh filename="package://camhand/meshes/f2.stl"/>
         </geometry>
         <material name="${side}_camhand_skin_suntan">
           <color rgba="0.8 0.6 0.3 1.0"/>
@@ -172,13 +172,13 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/palm.stl"/>
+          <mesh filename="package://camhand/meshes/palm.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="model://camhand/meshes/palm.stl"/>
+          <mesh filename="package://camhand/meshes/palm.stl"/>
         </geometry>
         <material name="${side}_camhand_skin">
           <color rgba="0.835 0.655 0.345 1.0"/>

@@ -1,78 +1,78 @@
 l_arm_controller:
   type: "robot_mechanism_controllers/JointTrajectoryActionController"
   joints:
-    - l.arm.usy
-    - l.arm.shx
-    - l.arm.ely
-    - l.arm.elx
-    - l.arm.uwy
-    - l.arm.mwx
+    - l_arm_usy
+    - l_arm_shx
+    - l_arm_ely
+    - l_arm_elx
+    - l_arm_uwy
+    - l_arm_mwx
   gains:
-    l_arm.usy: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
-    l.arm.usy: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
-    l.arm.shx: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
-    l.arm.ely: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
-    l.arm.elx: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
-    l.arm.uwy: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
-    l.arm.mwx: {p: 100.0, d:  2.0, i: 0.0, i_clamp: 0.0}
+    l_arm_usy: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    l_arm_usy: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    l_arm_shx: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    l_arm_ely: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
+    l_arm_elx: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
+    l_arm_uwy: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
+    l_arm_mwx: {p: 100.0, d:  2.0, i: 0.0, i_clamp: 0.0}
   joint_trajectory_action_node:
     joints:
-      - l.arm.usy
-      - l.arm.shx
-      - l.arm.ely
-      - l.arm.elx
-      - l.arm.uwy
-      - l.arm.mwx
+      - l_arm_usy
+      - l_arm_shx
+      - l_arm_ely
+      - l_arm_elx
+      - l_arm_uwy
+      - l_arm_mwx
     constraints:
       goal_time: 0.02
-      l.arm.usy:
+      l_arm_usy:
         goal: 0.02
-      l.arm.shx:
+      l_arm_shx:
         goal: 0.02
-      l.arm.ely:
+      l_arm_ely:
         goal: 0.02
-      l.arm.elx:
+      l_arm_elx:
         goal: 0.02
-      l.arm.uwy:
+      l_arm_uwy:
         goal: 0.02
-      l.arm.mwx:
+      l_arm_mwx:
         goal: 0.02
 
 r_arm_controller:
   type: "robot_mechanism_controllers/JointTrajectoryActionController"
   joints:
-    - r.arm.usy
-    - r.arm.shx
-    - r.arm.ely
-    - r.arm.elx
-    - r.arm.uwy
-    - r.arm.mwx
+    - r_arm_usy
+    - r_arm_shx
+    - r_arm_ely
+    - r_arm_elx
+    - r_arm_uwy
+    - r_arm_mwx
   gains:
-    r.arm.usy: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
-    r.arm.shx: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
-    r.arm.ely: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
-    r.arm.elx: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
-    r.arm.uwy: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
-    r.arm.mwx: {p: 100.0, d:  2.0, i: 0.0, i_clamp: 0.0}
+    r_arm_usy: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    r_arm_shx: {p: 200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    r_arm_ely: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
+    r_arm_elx: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
+    r_arm_uwy: {p: 100.0, d:  5.0, i: 0.0, i_clamp: 0.0}
+    r_arm_mwx: {p: 100.0, d:  2.0, i: 0.0, i_clamp: 0.0}
   joint_trajectory_action_node:
     joints:
-      - r.arm.usy
-      - r.arm.shx
-      - r.arm.ely
-      - r.arm.elx
-      - r.arm.uwy
-      - r.arm.mwx
+      - r_arm_usy
+      - r_arm_shx
+      - r_arm_ely
+      - r_arm_elx
+      - r_arm_uwy
+      - r_arm_mwx
     constraints:
       goal_time: 0.02
-      r.arm.usy:
+      r_arm_usy:
         goal: 0.02
-      r.arm.shx:
+      r_arm_shx:
         goal: 0.02
-      r.arm.ely:
+      r_arm_ely:
         goal: 0.02
-      r.arm.elx:
+      r_arm_elx:
         goal: 0.02
-      r.arm.uwy:
+      r_arm_uwy:
         goal: 0.02
-      r.arm.mwx:
+      r_arm_mwx:
         goal: 0.02
