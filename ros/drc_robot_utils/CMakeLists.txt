@@ -8,7 +8,6 @@ add_subdirectory(launch)
 add_subdirectory(robots)
 add_subdirectory(scripts)
 add_subdirectory(urdf)
-add_subdirectory(worlds)
 add_subdirectory(test)
 
 # Build of bdiparser disabled for now, pending updated version of urdfdom library
