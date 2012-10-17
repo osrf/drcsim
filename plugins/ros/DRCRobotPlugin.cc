@@ -73,7 +73,6 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   this->world_->EnablePhysicsEngine(true);
 
   // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
-  this->last_update_time_ = this->world_->GetSimTime().Double();
   this->last_cmd_vel_update_time_ = this->world_->GetSimTime().Double();
   this->cmd_vel_ = geometry_msgs::Twist();
 
@@ -83,11 +82,17 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   this->FixLink(this->fixed_link_);
 
   // ros subscription
-  std::string topic_name = "/cmd_vel";
+  std::string trajectory_topic_name = "/cmd_vel";
   ros::SubscribeOptions trajectory_so = ros::SubscribeOptions::create<geometry_msgs::Twist>(
-    topic_name, 100, boost::bind( &DRCRobotPlugin::SetRobotCmdVel,this,_1),
+    trajectory_topic_name, 100, boost::bind( &DRCRobotPlugin::SetRobotCmdVel,this,_1),
     ros::VoidPtr(), &this->queue_);
-  this->ros_sub_ = this->rosnode_->subscribe(trajectory_so);
+  this->trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
+
+  std::string mode_topic_name = "/mode";
+  ros::SubscribeOptions mode_so = ros::SubscribeOptions::create<std_msgs::String>(
+    mode_topic_name, 100, boost::bind( &DRCRobotPlugin::SetPluginMode,this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->mode_sub_ = this->rosnode_->subscribe(mode_so);
 
   // ros callback queue for processing subscription
   this->callback_queue_thread_ = boost::thread( boost::bind( &DRCRobotPlugin::QueueThread,this ) );
@@ -97,6 +102,11 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateStart(
      boost::bind(&DRCRobotPlugin::UpdateStates, this));
+}
+
+void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
+{
+
 }
 
 void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
@@ -208,131 +218,6 @@ void DRCRobotPlugin::UpdateStates()
       // set this as the new anchor pose of the fixed joint
       this->WarpDRCRobot(new_pose);
     }
-  }
-
-  if (false && cur_time - this->last_update_time_ >= 0.01) 
-  {
-    this->last_update_time_ = cur_time;
-    std::map<std::string, double> joint_position_map;
-
-/*
-    joint_position_map["drc_robot::back.lbz"] = 0.0;
-    joint_position_map["drc_robot::back.mby"] = 0.0;
-    joint_position_map["drc_robot::back.ubx"] = 0.0;
-    joint_position_map["drc_robot::neck.ay"] = 0.0;
-*/
-
-    joint_position_map["drc_robot::l.leg.uhz"] = 0.0;
-    joint_position_map["drc_robot::l.leg.mhx"] = 0.0;
-    joint_position_map["drc_robot::l.leg.lhy"] = 0.0;
-    joint_position_map["drc_robot::l.leg.kny"] = 0.0;
-    joint_position_map["drc_robot::l.leg.uay"] = 0.0;
-    joint_position_map["drc_robot::l.leg.lax"] = 0.0;
-
-    joint_position_map["drc_robot::r.leg.lax"] = 0.0;
-    joint_position_map["drc_robot::r.leg.uay"] = 0.0;
-    joint_position_map["drc_robot::r.leg.kny"] = 0.0;
-    joint_position_map["drc_robot::r.leg.lhy"] = 0.0;
-    joint_position_map["drc_robot::r.leg.mhx"] = 0.0;
-    joint_position_map["drc_robot::r.leg.uhz"] = 0.0;
-
-  /*
-    joint_position_map["drc_robot::l.arm.elx"] = 0.0;
-    joint_position_map["drc_robot::l.arm.ely"] = 0.0;
-    joint_position_map["drc_robot::l.arm.mwx"] = 0.0;
-    joint_position_map["drc_robot::l.arm.shx"] = 0.0;
-    joint_position_map["drc_robot::l.arm.usy"] = 0.0;
-    joint_position_map["drc_robot::l.arm.uwy"] = 0.0;
-    joint_position_map["drc_robot::r.arm.elx"] = 0.0;
-    joint_position_map["drc_robot::r.arm.ely"] = 0.0;
-    joint_position_map["drc_robot::r.arm.mwx"] = 0.0;
-    joint_position_map["drc_robot::r.arm.shx"] = 0.0;
-    joint_position_map["drc_robot::r.arm.usy"] = 0.0;
-    joint_position_map["drc_robot::r.arm.uwy"] = 0.0;
-  */
-
-  /*
-    joint_position_map["drc_robot::r_camhand_joint"] = 0.0;
-    joint_position_map["drc_robot::r_f0_base"] = 0.0;
-    joint_position_map["drc_robot::r_f0_j0"] = 0.0;
-    joint_position_map["drc_robot::r_f0_j1"] = 0.0;
-    joint_position_map["drc_robot::r_f0_j2"] = 0.0;
-    joint_position_map["drc_robot::r_f0_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f0_1_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f0_2_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f1_base"] = 0.0;
-    joint_position_map["drc_robot::r_f1_j0"] = 0.0;
-    joint_position_map["drc_robot::r_f1_j1"] = 0.0;
-    joint_position_map["drc_robot::r_f1_j2"] = 0.0;
-    joint_position_map["drc_robot::r_f1_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f1_1_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f1_2_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f2_base"] = 0.0;
-    joint_position_map["drc_robot::r_f2_j0"] = 0.0;
-    joint_position_map["drc_robot::r_f2_j1"] = 0.0;
-    joint_position_map["drc_robot::r_f2_j2"] = 0.0;
-    joint_position_map["drc_robot::r_f2_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f2_1_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f2_2_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f3_base"] = 0.0;
-    joint_position_map["drc_robot::r_f3_j0"] = 0.0;
-    joint_position_map["drc_robot::r_f3_j1"] = 0.0;
-    joint_position_map["drc_robot::r_f3_j2"] = 0.0;
-    joint_position_map["drc_robot::r_f3_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f3_1_accel"] = 0.0;
-    joint_position_map["drc_robot::r_f3_2_accel"] = 0.0;
-
-    joint_position_map["drc_robot::l_camhand_joint"] = 0.0;
-    joint_position_map["drc_robot::l_f0_base"] = 0.0;
-    joint_position_map["drc_robot::l_f0_j0"] = 0.0;
-    joint_position_map["drc_robot::l_f0_j1"] = 0.0;
-    joint_position_map["drc_robot::l_f0_j2"] = 0.0;
-    joint_position_map["drc_robot::l_f0_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f0_1_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f0_2_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f1_base"] = 0.0;
-    joint_position_map["drc_robot::l_f1_j0"] = 0.0;
-    joint_position_map["drc_robot::l_f1_j1"] = 0.0;
-    joint_position_map["drc_robot::l_f1_j2"] = 0.0;
-    joint_position_map["drc_robot::l_f1_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f1_1_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f1_2_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f2_base"] = 0.0;
-    joint_position_map["drc_robot::l_f2_j0"] = 0.0;
-    joint_position_map["drc_robot::l_f2_j1"] = 0.0;
-    joint_position_map["drc_robot::l_f2_j2"] = 0.0;
-    joint_position_map["drc_robot::l_f2_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f2_1_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f2_2_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f3_base"] = 0.0;
-    joint_position_map["drc_robot::l_f3_j0"] = 0.0;
-    joint_position_map["drc_robot::l_f3_j1"] = 0.0;
-    joint_position_map["drc_robot::l_f3_j2"] = 0.0;
-    joint_position_map["drc_robot::l_f3_fixed_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f3_1_accel"] = 0.0;
-    joint_position_map["drc_robot::l_f3_2_accel"] = 0.0;
-  */
-
-    // this->model_->SetJointPositions(joint_position_map);
-
-    // math::Pose pose(2, 1, 1.5, 0, 0, 0);
-    // this->model_->SetLinkWorldPose(pose, "pelvis");
-
-    this->world_->EnablePhysicsEngine(false);
-
-    this->model_->GetJoint("drc_robot::l.leg.uhz")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::l.leg.mhx")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::l.leg.lhy")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::l.leg.kny")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::l.leg.uay")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::l.leg.lax")->SetAngle(0, 0.0);
-
-    this->model_->GetJoint("drc_robot::r.leg.lax")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::r.leg.uay")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::r.leg.kny")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::r.leg.lhy")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::r.leg.mhx")->SetAngle(0, 0.0);
-    this->model_->GetJoint("drc_robot::r.leg.uhz")->SetAngle(0, 0.0);
   }
 }
 
