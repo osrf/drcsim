@@ -106,6 +106,44 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
 void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
 {
+  if (_str->data == "gravity")
+  {
+    // stop warping robot
+    this->warp_robot_ = false;
+    physics::Link_V links = this->model_->GetAllLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
+    this->UnfixLink();
+  }
+  else if (_str->data == "feet")
+  {
+    // stop warping robot
+    this->warp_robot_ = false;
+    physics::Link_V links = this->model_->GetAllLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
+        links[i]->SetGravityMode(true);
+      else
+        links[i]->SetGravityMode(false);
+    }
+    this->UnfixLink();
+  }
+  else if (_str->data == "pinned")
+  {
+    // reinitialize pinning
+    this->initial_pose_ = this->fixed_link_->GetWorldPose();
+
+    this->FixLink(this->fixed_link_);
+
+    physics::Link_V links = this->model_->GetAllLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(true);
+    }
+  }
 
 }
 
@@ -127,26 +165,32 @@ void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 // glue a link to the world by creating a fixed joint
 void DRCRobotPlugin::FixLink(physics::LinkPtr link)
 {
-  this->fixed_joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
-  this->fixed_joint_->Attach(physics::LinkPtr(), link);
-  // load adds the joint to a vector of shared pointers kept in parent and child links
-  // preventing this from being destroyed.  calling load is not necessary anyways.
-  this->fixed_joint_->Load(physics::LinkPtr(), link,
-    math::Pose(this->anchor_pose_, math::Quaternion()));
-  this->fixed_joint_->SetAxis(0, math::Vector3(0, 0, 1));
-  this->fixed_joint_->SetHighStop(0, 0);
-  this->fixed_joint_->SetLowStop(0, 0);
-  this->fixed_joint_->SetAnchor(0, this->anchor_pose_);
-  this->fixed_joint_->SetName(link->GetName()+std::string("_world_fixed_joint"));
-  this->fixed_joint_->Init();
+  if (!this->fixed_joint_)
+  {
+    this->fixed_joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
+    this->fixed_joint_->Attach(physics::LinkPtr(), link);
+    // load adds the joint to a vector of shared pointers kept in parent and child links
+    // preventing this from being destroyed.  calling load is not necessary anyways.
+    this->fixed_joint_->Load(physics::LinkPtr(), link,
+      math::Pose(this->anchor_pose_, math::Quaternion()));
+    this->fixed_joint_->SetAxis(0, math::Vector3(0, 0, 1));
+    this->fixed_joint_->SetHighStop(0, 0);
+    this->fixed_joint_->SetLowStop(0, 0);
+    this->fixed_joint_->SetAnchor(0, this->anchor_pose_);
+    this->fixed_joint_->SetName(link->GetName()+std::string("_world_fixed_joint"));
+    this->fixed_joint_->Init();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // unglue a link to the world by destroying the fixed joint
 void DRCRobotPlugin::UnfixLink()
 {
-  this->fixed_joint_->Detach();
-  this->fixed_joint_.reset();
+  if (this->fixed_joint_)
+  {
+    this->fixed_joint_->Detach();
+    this->fixed_joint_.reset();
+  }
 }
 
 void DRCRobotPlugin::WarpDRCRobot(math::Pose _pose)
@@ -179,7 +223,6 @@ void DRCRobotPlugin::SetFeetPose(math::Pose _l_pose, math::Pose _r_pose)
   physics::LinkPtr r_foot = this->model_->GetLink("r_foot");
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
 void DRCRobotPlugin::UpdateStates()
@@ -189,11 +232,7 @@ void DRCRobotPlugin::UpdateStates()
   if (this->warp_robot_ && cur_time - this->last_cmd_vel_update_time_ >= 0)
   {
     double dt = cur_time - this->last_cmd_vel_update_time_;
-    if (dt == 0)
-    {
-      gzerr << "dt is 0\n";
-    }
-    else
+    if (dt > 0)
     {
       this->last_cmd_vel_update_time_ = cur_time;
       math::Pose cur_pose = this->fixed_link_->GetWorldPose();
