@@ -47,6 +47,16 @@ target_link_libraries(gazebo_ros_laser ${sensor_msgs_LIBRARIES} ${tf_LIBRARIES} 
 install (TARGETS gazebo_ros_laser DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
+include_directories(${sensor_msgs_INCLUDE_DIRS} ${std_srvs_INCLUDE_DIRS})
+link_directories(${sensor_msgs_LIBRARY_DIRS} ${std_srvs_LIBRARY_DIRS})
+set(CMAKE_INSTALL_RPATH "${sensor_msgs_LIBRARY_DIRS} ${std_srvs_LIBRARY_DIRS}")
+add_library(gazebo_ros_imu SHARED gazebo_ros_imu.cpp)
+set_target_properties(gazebo_ros_imu PROPERTIES COMPILE_FLAGS "${sensor_msgs_CFLAGS_OTHER} ${std_srvs_CFLAGS_OTHER}")
+set_target_properties(gazebo_ros_imu PROPERTIES LINK_FLAGS "${sensor_msgs_LDFLAGS_OTHER} ${std_srvs_LDFLAGS_OTHER}")
+target_link_libraries(gazebo_ros_imu ${sensor_msgs_LIBRARIES} ${std_srvs_LIBRARIES} RayPlugin)
+install (TARGETS gazebo_ros_imu DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
+
 add_library(gazebo_ros_camera SHARED gazebo_ros_camera.cpp)
 target_link_libraries(gazebo_ros_camera gazebo_ros_camera_utils)
 install (TARGETS gazebo_ros_camera DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
