@@ -144,6 +144,20 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
       links[i]->SetGravityMode(true);
     }
   }
+  else if (_str->data == "unpinned")
+  {
+    // reinitialize pinning
+    physics::Link_V links = this->model_->GetAllLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(true);
+    }
+    this->UnfixLink();
+  }
+  else
+  {
+    ROS_INFO("available modes:gravity, feet, pinned, unpinned");
+  }
 
 }
 
