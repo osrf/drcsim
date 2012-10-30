@@ -52,7 +52,8 @@ GazeboRosControllerManager::GazeboRosControllerManager()
 
 GazeboRosControllerManager::~GazeboRosControllerManager()
 {
-  ROS_DEBUG("Calling FiniChild in GazeboRosControllerManager");
+  // If all previous steps are successful, start the controller manager plugin updates
+  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
 
   delete this->controller_manager_; 
   this->rosnode_->shutdown();
