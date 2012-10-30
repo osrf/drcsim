@@ -1,0 +1,10 @@
+<!-- All nodes required for HANDLE control and visualization. -->
+<launch>
+  
+  <node pkg="handle_sensors" type="HandleDisplay.py" name="HandleDisplay" output="screen" />
+
+  <node pkg="handle_collisions" type="collisions_visualization_publisher" name="collisions_visualization_publisher" output="screen" />
+
+  <node pkg="rviz" type="rviz" name="rviz" output="screen" />
+
+</launch>
