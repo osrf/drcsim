@@ -5,8 +5,7 @@ add_subdirectory(drc_terrain)
 add_subdirectory(fire_hose)
 add_subdirectory(low_poly_golf_cart)
 add_subdirectory(standpipe)
-add_subdirectory(irobothand_left)
-add_subdirectory(irobothand_right)
+add_subdirectory(irobothand)
 set (files 
   manifest.xml
 )
