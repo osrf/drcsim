@@ -14,13 +14,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/palm.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/palm.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/palm.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/palm.stl"/>
       </geometry>
       <material name="right_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -53,13 +53,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -76,13 +76,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
       <material name="right_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -107,13 +107,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -195,13 +195,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -218,13 +218,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
       <material name="right_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -249,13 +249,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -337,13 +337,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -360,13 +360,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
       <material name="right_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -391,13 +391,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>
@@ -479,13 +479,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f0.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f0.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.7 0.4 0.2 1.0"/>
@@ -502,13 +502,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f1.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f1.stl"/>
       </geometry>
       <material name="right_camhand_skin">
         <color rgba="0.835 0.655 0.345 1.0"/>
@@ -533,13 +533,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="model://camhand/meshes/f2.stl"/>
+        <mesh filename="model://sandiahand_right/meshes/f2.stl"/>
       </geometry>
       <material name="right_camhand_skin_suntan">
         <color rgba="0.8 0.6 0.3 1.0"/>

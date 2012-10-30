@@ -1,4 +1,4 @@
-set(MODEL_NAME camhand)
+set(MODEL_NAME sandiahand_left)
 add_subdirectory(meshes)
 add_subdirectory(ros)
 set (files 
