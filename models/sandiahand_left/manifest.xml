@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <model>
-  <name>Camhand</name>
+  <name>Sandiahand Left</name>
   <version>0.1.0</version>
   <sdf>model.sdf</sdf>
   <author>
@@ -8,6 +8,6 @@
     <email>hsu@osrfoundation.org</email>
   </author>
   <description>
-    Camhand model built by Morgan.
+    Sandia's Gripper (Left)
   </description>
 </model>

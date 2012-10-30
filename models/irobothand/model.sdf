@@ -1257,7 +1257,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/palm.stl"/>
+        <mesh filename="package://irobothand/meshes/palm.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 -0.038 -0.023"/>
       <material name="darkgray">
@@ -1273,7 +1273,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_base.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_base.stl"/>
       </geometry>
       <material name="darkgray">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -1289,7 +1289,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_proximal.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_proximal.stl"/>
       </geometry>
       <material name="green">
         <color rgba="0.1 0.6 0.1 1"/>
@@ -1305,7 +1305,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_distal.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_distal.stl"/>
       </geometry>
       <material name="green">
         <color rgba="0.1 0.6 0.1 1"/>
@@ -1321,7 +1321,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_base.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_base.stl"/>
       </geometry>
       <material name="darkgray">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -1337,7 +1337,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_proximal.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_proximal.stl"/>
       </geometry>
       <material name="green">
         <color rgba="0.1 0.6 0.1 1"/>
@@ -1353,7 +1353,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_distal.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_distal.stl"/>
       </geometry>
       <material name="green">
         <color rgba="0.1 0.6 0.1 1"/>
@@ -1369,7 +1369,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_proximal.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_proximal.stl"/>
       </geometry>
       <material name="green">
         <color rgba="0.1 0.6 0.1 1"/>
@@ -1385,7 +1385,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://handle_description/meshes/finger_distal.stl"/>
+        <mesh filename="package://irobothand/meshes/finger_distal.stl"/>
       </geometry>
       <material name="green">
         <color rgba="0.1 0.6 0.1 1"/>

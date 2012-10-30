@@ -1,4 +1,4 @@
-set(MODEL_NAME handle_description)
+set(MODEL_NAME irobothand)
 add_subdirectory(meshes)
 set (files 
   model.sdf

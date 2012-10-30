@@ -1,10 +1,12 @@
-add_subdirectory(camhand)
+add_subdirectory(sandiahand_left)
+add_subdirectory(sandiahand_right)
 add_subdirectory(drc_robot)
 add_subdirectory(drc_terrain)
 add_subdirectory(fire_hose)
 add_subdirectory(low_poly_golf_cart)
 add_subdirectory(standpipe)
-add_subdirectory(handle_description)
+add_subdirectory(irobothand_left)
+add_subdirectory(irobothand_right)
 set (files 
   manifest.xml
 )
