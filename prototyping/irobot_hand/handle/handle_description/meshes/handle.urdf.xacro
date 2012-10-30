@@ -14,15 +14,9 @@
 <xacro:macro name="flex_link" params="finger_id link_id">
   <link name="finger[${finger_id}]/flexible_link_${link_id}">
     <inertial>
-      <mass>0.1</mass>
-      <inertia>
-        <ixx>0.1</ixx>
-        <ixy>0.0</ixy>
-        <ixz>0.0</ixz>
-        <iyy>0.1</iyy>
-        <iyz>0.0</iyz>
-        <izz>0.1</izz>
-      </inertia>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
     <visual>
       <geometry>
@@ -47,15 +41,9 @@
   </joint>
   <link name="finger[${finger_id}]/flexible_link_hidden_between_${link_from}_and_${link_to}">
     <inertial>
-      <mass>0.1</mass>
-      <inertia>
-        <ixx>0.1</ixx>
-        <ixy>0.0</ixy>
-        <ixz>0.0</ixz>
-        <iyy>0.1</iyy>
-        <iyz>0.0</iyz>
-        <izz>0.1</izz>
-      </inertia>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
     <visual>
       <geometry>
@@ -85,15 +73,9 @@
   </joint>
   <link name="finger[${finger_id}]/flexible_link_hidden_between_proximal_link_and_1">
     <inertial>
-      <mass>0.1</mass>
-      <inertia>
-        <ixx>0.1</ixx>
-        <ixy>0.0</ixy>
-        <ixz>0.0</ixz>
-        <iyy>0.1</iyy>
-        <iyz>0.0</iyz>
-        <izz>0.1</izz>
-      </inertia>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
     <visual>
       <geometry>
@@ -121,15 +103,9 @@
   </joint>
   <link name="finger[${finger_id}]/flexible_link_hidden_between_9_and_distal_link">
     <inertial>
-      <mass>0.1</mass>
-      <inertia>
-        <ixx>0.1</ixx>
-        <ixy>0.0</ixy>
-        <ixz>0.0</ixz>
-        <iyy>0.1</iyy>
-        <iyz>0.0</iyz>
-        <izz>0.1</izz>
-      </inertia>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
     <visual>
       <geometry>
@@ -205,17 +181,11 @@
 <xacro:flex_joint_connector finger_id="2"/>
 
 <link name="base_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/palm.stl"/>
@@ -228,17 +198,11 @@
 </link>
 
 <link name="finger[0]/base_rotation_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_base.stl"/>
@@ -251,17 +215,11 @@
 </link>
 
 <link name="finger[0]/proximal_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_proximal.stl"/>
@@ -274,17 +232,11 @@
 </link>
 
 <link name="finger[0]/distal_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_distal.stl"/>
@@ -297,17 +249,11 @@
 </link>
 
 <link name="finger[1]/base_rotation_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_base.stl"/>
@@ -320,17 +266,11 @@
 </link>
 
 <link name="finger[1]/proximal_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_proximal.stl"/>
@@ -343,17 +283,11 @@
 </link>
 
 <link name="finger[1]/distal_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_distal.stl"/>
@@ -366,17 +300,11 @@
 </link>
 
 <link name="finger[2]/proximal_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_proximal.stl"/>
@@ -389,17 +317,11 @@
 </link>
 
 <link name="finger[2]/distal_link">
-  <inertial>
-    <mass>0.1</mass>
-    <inertia>
-      <ixx>0.1</ixx>
-      <ixy>0.0</ixy>
-      <ixz>0.0</ixz>
-      <iyy>0.1</iyy>
-      <iyz>0.0</iyz>
-      <izz>0.1</izz>
-    </inertia>
-  </inertial>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
   <visual>
     <geometry>
       <mesh filename="package://handle_description/meshes/finger_distal.stl"/>

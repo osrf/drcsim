@@ -4,6 +4,7 @@ add_subdirectory(drc_terrain)
 add_subdirectory(fire_hose)
 add_subdirectory(low_poly_golf_cart)
 add_subdirectory(standpipe)
+add_subdirectory(handle_description)
 set (files 
   manifest.xml
 )
