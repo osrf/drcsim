@@ -1,4 +1,5 @@
 set(MODEL_NAME standpipe)
+add_subdirectory(meshes)
 set (files 
   model.sdf
   manifest.xml
