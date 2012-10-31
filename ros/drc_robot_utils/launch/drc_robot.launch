@@ -21,7 +21,8 @@
 
   <!-- Position Controllers -->
   <rosparam file="$(find drc_robot)/ros/position_controllers.yaml" command="load" />
-  <rosparam file="$(find sandia_hand)/ros/position_controllers.yaml" command="load" />
+  <rosparam file="$(find sandia_hand_left)/ros/position_controllers.yaml" command="load" />
+  <rosparam file="$(find sandia_hand_right)/ros/position_controllers.yaml" command="load" />
 
   <!-- Controllers that come up started -->
   <node name="drc_robot_controllers_spawner"
