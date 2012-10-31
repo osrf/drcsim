@@ -1,5 +1,6 @@
-add_subdirectory(sandiahand_left)
-add_subdirectory(sandiahand_right)
+add_subdirectory(sandia_hand_left)
+add_subdirectory(sandia_hand_right)
+add_subdirectory(sandia_hand)
 add_subdirectory(drc_robot)
 add_subdirectory(drc_terrain)
 add_subdirectory(fire_hose)

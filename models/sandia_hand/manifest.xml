@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <model>
-  <name>Sandiahand Right</name>
+  <name>Sandiahand Both Hands with Mesh Resources</name>
   <version>0.1.0</version>
   <sdf>model.sdf</sdf>
   <author>
@@ -8,6 +8,6 @@
     <email>hsu@osrfoundation.org</email>
   </author>
   <description>
-    Sandia's Gripper (Right)
+    Sandia's Gripper (Both hands and meshes)
   </description>
 </model>

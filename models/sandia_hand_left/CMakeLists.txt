@@ -1,5 +1,4 @@
-set(MODEL_NAME sandiahand_left)
-add_subdirectory(meshes)
+set(MODEL_NAME sandia_hand_left)
 add_subdirectory(ros)
 set (files 
   model.sdf
