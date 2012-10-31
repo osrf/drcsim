@@ -1603,6 +1603,15 @@
       </geometry>
       <origin rpy="0 0 0" xyz="0 -0.038 -0.023"/>
     </collision>
+    <visual>
+      <geometry>
+        <mesh filename="package://irobot_hand/meshes/palm.stl"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba="0.2 0.2 0.2 1"/>
+      </material>
+      <origin rpy="0 0 0" xyz="0 -0.038 -0.023"/>
+    </visual>
   </link>
   <link name="finger[0]/base_rotation_link">
     <inertial>
