@@ -1,4 +1,4 @@
-set (ROS_PACKAGE_NAME camhand_utils)
+set (ROS_PACKAGE_NAME sandia_hand_utils)
 
 set (files
   manifest.xml

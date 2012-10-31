@@ -7,7 +7,7 @@
   </include>
 
   <!-- start hand -->
-  <include file="$(find camhand_utils)/launch/camhand.launch"/>
+  <include file="$(find sandia_hand_utils)/launch/sandia_hand.launch"/>
 
 </launch>
 

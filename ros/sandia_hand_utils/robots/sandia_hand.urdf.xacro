@@ -4,14 +4,14 @@
        xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        name="humanoid" >
   
-  <include filename="$(find camhand_utils)/urdf/camhand.urdf.xacro" />
+  <include filename="$(find sandia_hand_utils)/urdf/sandia_hand.urdf.xacro" />
 
   <link name="world"/>
-  <xacro:camhand side="right" parent="world">
+  <xacro:sandia_hand side="right" parent="world">
     <origin xyz="0 0 0" rpy="0 0 0"/>
-  </xacro:camhand>
+  </xacro:sandia_hand>
 
-  <xacro:camhand side="left" parent="world">
+  <xacro:sandia_hand side="left" parent="world">
     <origin xyz="0 1 0" rpy="0 0 0"/>
-  </xacro:camhand>
+  </xacro:sandia_hand>
 </robot>

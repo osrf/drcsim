@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
-<robot name="camhand"
+<robot name="sandia_hand"
        xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <include filename="$(find camhand_utils)/urdf/camhand.gazebo.xacro" />
-  <include filename="$(find camhand_utils)/urdf/camhand.transmission.xacro" />
+  <include filename="$(find sandia_hand_utils)/urdf/sandia_hand.gazebo.xacro" />
+  <include filename="$(find sandia_hand_utils)/urdf/sandia_hand.transmission.xacro" />
 
   <xacro:macro name="finger" params="idx x y z r p yaw side">
     <link name="${side}_f${idx}_base">
@@ -33,15 +33,15 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/f0.stl"/>
+          <mesh filename="package://sandia_hand/meshes/f0.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/f0.stl"/>
+          <mesh filename="package://sandia_hand/meshes/f0.stl"/>
         </geometry>
-        <material name="${side}_camhand_skin_suntan">
+        <material name="${side}_sandia_hand_skin_suntan">
           <color rgba="0.7 0.4 0.2 1.0"/>
         </material>
       </visual>
@@ -56,15 +56,15 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/f1.stl"/>
+          <mesh filename="package://sandia_hand/meshes/f1.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/f1.stl"/>
+          <mesh filename="package://sandia_hand/meshes/f1.stl"/>
         </geometry>
-        <material name="${side}_camhand_skin">
+        <material name="${side}_sandia_hand_skin">
           <color rgba="0.835 0.655 0.345 1.0"/>
         </material>
       </visual>
@@ -87,15 +87,15 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/f2.stl"/>
+          <mesh filename="package://sandia_hand/meshes/f2.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/f2.stl"/>
+          <mesh filename="package://sandia_hand/meshes/f2.stl"/>
         </geometry>
-        <material name="${side}_camhand_skin_suntan">
+        <material name="${side}_sandia_hand_skin_suntan">
           <color rgba="0.8 0.6 0.3 1.0"/>
         </material>
       </visual>
@@ -161,7 +161,7 @@
     <xacro:finger_transmission side="${side}" idx="${idx}" x="${x}" y="${y}" z="${z}" r="${r}" p="${p}" yaw="${yaw}"/>
   </xacro:macro>
 
-  <xacro:macro name="camhand" params="side parent *origin">
+  <xacro:macro name="sandia_hand" params="side parent *origin">
     <link name="${side}_palm">
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertial>
@@ -172,21 +172,21 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/palm.stl"/>
+          <mesh filename="package://sandia_hand/meshes/palm.stl"/>
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://camhand/meshes/palm.stl"/>
+          <mesh filename="package://sandia_hand/meshes/palm.stl"/>
         </geometry>
-        <material name="${side}_camhand_skin">
+        <material name="${side}_sandia_hand_skin">
           <color rgba="0.835 0.655 0.345 1.0"/>
         </material>
       </visual>
     </link>
 
-    <joint name="${side}_camhand_joint" type="fixed">
+    <joint name="${side}_sandia_hand_joint" type="fixed">
       <parent link="${parent}"/>
       <child link="${side}_palm"/>
       <insert_block name="origin" />
@@ -198,7 +198,7 @@
     <xacro:finger side="${side}" idx="3" x="0.03995" y="-0.04383" z="0.014" r="0" p="-1.57079" yaw="-2.3562"/>
 
     <!-- not needed unless simulating the hand by itself
-    <xacro:camhand_gazebo side="${side}" />
+    <xacro:sandia_hand_gazebo side="${side}" />
     -->
 
   </xacro:macro>

@@ -1,13 +1,13 @@
 <package>
-  <description brief="camhand_utils">
+  <description brief="sandia_hand_utils">
 
-     camhand_utils
+     sandia_hand_utils
 
   </description>
   <author>hsu</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/camhand_utils</url>
+  <url>http://ros.org/wiki/sandia_hand_utils</url>
   <depend package="urdf"/>
   <depend package="xacro"/>
 

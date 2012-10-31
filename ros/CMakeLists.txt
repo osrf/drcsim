@@ -1,2 +1,2 @@
 add_subdirectory(drc_robot_utils)
-add_subdirectory(camhand_utils)
+add_subdirectory(sandia_hand_utils)

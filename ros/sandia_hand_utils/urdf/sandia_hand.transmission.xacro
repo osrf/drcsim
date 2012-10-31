@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="camhand"
+<robot name="sandia_hand"
        xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:macro name="finger_transmission" params="idx x y z r p yaw side">

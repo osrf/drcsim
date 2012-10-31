@@ -35,4 +35,4 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 add_executable(bdi_parser src/bdi_parser.cpp)
 target_link_libraries(bdi_parser ${urdfdom_LIBRARIES} ${tinyxml_libraries} ${console_bridge_LIBRARIES} ${Boost_LIBRARIES})
-INSTALL(TARGETS bdi_parser DESTINATION bin/)
+INSTALL(TARGETS bdi_parser DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/bin/)
