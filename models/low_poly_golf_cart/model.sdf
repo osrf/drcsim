@@ -57,6 +57,7 @@
         </geometry>
       </collision>
 
+      <!-- box seat
       <visual name='chassis_seat_vis'>
         <pose>0.4 0.0 0.50000 0.000000 0 0</pose>
         <geometry>
@@ -65,7 +66,17 @@
           </box>
         </geometry>
       </visual>
+      -->
+      <collision name='chassis_seat_col'>
+        <pose>0.4 0.0 0.50000 0.000000 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.25 1.7 0.15</size>
+          </box>
+        </geometry>
+      </collision>
 
+      <!-- box seat back
       <visual name='chassis_seat_back_vis'>
         <pose>0.25 0.0 0.70000 0.000000 0 0</pose>
         <geometry>
@@ -74,6 +85,15 @@
           </box>
         </geometry>
       </visual>
+      -->
+      <collision name='chassis_seat_back_col'>
+        <pose>0.25 0.0 0.70000 0.000000 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 1.7 0.5</size>
+          </box>
+        </geometry>
+      </collision>
 
       <velocity_decay/>
     </link>
@@ -384,8 +404,56 @@
         </limit>
       </axis>
     </joint>
-    <joint name='front_left_joint' type='revolute'>
+
+    <joint name='front_right_steering_joint' type='revolute'>
       <parent>chassis</parent>
+      <child>front_right_wheel_steering_block</child>
+      <axis>
+        <xyz>0.000000 1.000000 0.000000</xyz>
+        <limit>
+          <lower>0.000000</lower>
+          <upper>0.000000</upper>
+        </limit>
+      </axis>
+      <axis>
+        <xyz>0.000000 0.000000 1.000000</xyz>
+        <limit>
+          <lower>0.000000</lower>
+          <upper>0.000000</upper>
+        </limit>
+      </axis>
+      <physics>
+        <ode>
+          <limit>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+          </limit>
+        </ode>
+      </physics>
+    </joint>
+
+    <joint name='front_left_steering_joint' type='revolute'>
+      <parent>chassis</parent>
+      <child>front_left_wheel_steering_block</child>
+      <axis>
+        <xyz>0.000000 0.000000 1.000000</xyz>
+        <limit>
+          <lower>0.000000</lower>
+          <upper>0.000000</upper>
+        </limit>
+      </axis>
+      <physics>
+        <ode>
+          <limit>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+          </limit>
+        </ode>
+      </physics>
+    </joint>
+
+    <joint name='front_left_joint' type='revolute'>
+      <parent>front_left_wheel_steering_block</parent>
       <child>front_left_wheel</child>
       <axis>
         <xyz>0.000000 0.000000 1.000000</xyz>
@@ -403,15 +471,12 @@
         </ode>
       </physics>
     </joint>
+
     <joint name='front_right_joint' type='revolute'>
-      <parent>chassis</parent>
+      <parent>front_right_wheel_steering_block</parent>
       <child>front_right_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
@@ -451,9 +516,6 @@
           <upper>0.000000</upper>
         </limit>
       </axis>
-      <axis2>
-        <xyz>0.000000 1.000000 0.000000</xyz>
-      </axis2>
       <physics>
         <ode>
           <limit>
@@ -463,14 +525,14 @@
         </ode>
       </physics>
     </joint>
-    <plugin name='vehicle' filename='libVehiclePlugin.so'>
+    <plugin name='vehicle' filename='libDRCVehiclePlugin.so'>
       <front_left>front_left_joint</front_left>
       <front_right>front_right_joint</front_right>
       <back_left>back_left_joint</back_left>
       <back_right>back_right_joint</back_right>
-      <gas>gas_joint</gas>
-      <brake>brake_joint</brake>
-      <steering>steering_joint</steering>
+      <gas_pedal>gas_joint</gas_pedal>
+      <brake_pedal>brake_joint</brake_pedal>
+      <steering_wheel>steering_joint</steering_wheel>
       <front_power>10</front_power>
       <rear_power>10</rear_power>
       <tire_angle_range>0.5</tire_angle_range>
