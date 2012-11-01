@@ -1,5 +1,6 @@
 set (files
   drc_robot.launch
+  drc_robot_arm_controllers.launch
   drc_robot_no_controllers.launch
   drc_sim_v0.launch
 )

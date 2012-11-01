@@ -7,7 +7,7 @@
         <solver>
           <type>quick</type>
           <dt>0.001</dt>
-          <iters>40</iters>
+          <iters>10</iters>
           <sor>1.0</sor>
         </solver>
         <constraints>
@@ -23,6 +23,7 @@
     <include>
       <uri>model://sun</uri>
     </include>
+
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
@@ -37,6 +38,7 @@
       <uri>model://fire_hose</uri>
       <pose>1 0 1 0.5 0.1 0.2</pose>
     </include>
+
     <include>
       <uri>model://standpipe</uri>
       <pose>0 0 0 0 0 0</pose>
@@ -46,5 +48,6 @@
       <uri>model://drc_robot</uri>
       <pose>0 2 1 0 0 0</pose>
     </include>
+
   </world>
 </gazebo>
