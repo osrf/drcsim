@@ -17,6 +17,7 @@
           <izz>10</izz>
         </inertia>
       </inertial>
+      <!-- decompose into simple geom
       <collision name='chassis_collision'>
         <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
@@ -26,6 +27,8 @@
           </mesh>
         </geometry>
       </collision>
+      -->
+
       <visual name='chassis_visual'>
         <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
@@ -34,10 +37,17 @@
             <scale>0.030 0.030 0.030</scale>
           </mesh>
         </geometry>
-        <material>
-          <script>Gazebo/Green</script>
-        </material>
       </visual>
+
+      <collision name='chassis_base_col'>
+        <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
+        <geometry>
+          <box>
+            <size>0.030 0.030 0.030</size>
+          </box>
+        </geometry>
+      </collision>
+
       <velocity_decay/>
     </link>
     <link name='front_left_wheel'>
@@ -70,7 +80,10 @@
           </cylinder>
         </geometry>
         <material>
-          <script>Gazebo/Black</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
         </material>
       </visual>
       <velocity_decay/>
@@ -105,7 +118,10 @@
           </cylinder>
         </geometry>
         <material>
-          <script>Gazebo/Black</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
         </material>
       </visual>
       <velocity_decay/>
@@ -140,7 +156,10 @@
           </cylinder>
         </geometry>
         <material>
-          <script>Gazebo/Black</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
         </material>
       </visual>
       <velocity_decay/>
@@ -175,13 +194,16 @@
           </cylinder>
         </geometry>
         <material>
-          <script>Gazebo/Black</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
         </material>
       </visual>
       <velocity_decay/>
     </link>
     <link name='gas_pedal'>
-      <pose>0.300000 0.100000 0.500000 0.000000 -0.000000 0.000000</pose>
+      <pose>0.800000 0.240000 0.550000 0.000000 -0.5 0.000000</pose>
       <inertial>
         <mass>1</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -197,24 +219,31 @@
       <collision name='gas_pedal_collision'>
         <geometry>
           <box>
-            <size>0.100000 0.100000 0.100000</size>
+            <size>0.160000 0.070000 0.020000</size>
           </box>
         </geometry>
       </collision>
       <visual name='gas_pedal_visual'>
         <geometry>
           <box>
-            <size>0.100000 0.100000 0.100000</size>
+            <size>0.160000 0.070000 0.020000</size>
           </box>
         </geometry>
         <material>
-          <script>Gazebo/Red</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Red</name>
+          </script>
+          <ambient>0.2 0.2 0.2 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <emissive>0.5 0.0 0.0 1</emissive>
         </material>
       </visual>
       <velocity_decay/>
     </link>
     <link name='brake_pedal'>
-      <pose>0.300000 0.250000 0.500000 0.000000 -0.000000 0.000000</pose>
+      <pose>0.850000 0.395000 0.570000 0.000000 0.300000 0.000000</pose>
       <inertial>
         <mass>1</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -230,24 +259,31 @@
       <collision name='brake_pedal_collision'>
         <geometry>
           <box>
-            <size>0.100000 0.100000 0.100000</size>
+            <size>0.020000 0.100000 0.030000</size>
           </box>
         </geometry>
       </collision>
       <visual name='brake_pedal_visual'>
         <geometry>
           <box>
-            <size>0.100000 0.100000 0.100000</size>
+            <size>0.020000 0.100000 0.030000</size>
           </box>
         </geometry>
         <material>
-          <script>Gazebo/Blue</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Blue</name>
+          </script>
+          <ambient>0.2 0.2 0.2 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <emissive>0.0 0.0 0.5 1</emissive>
         </material>
       </visual>
       <velocity_decay/>
     </link>
     <link name='steering_wheel'>
-      <pose>0.300000 0.200000 1.000000 0.000000 1.570700 0.000000</pose>
+      <pose>0.780000 0.3500000 0.928000 0.000000 1.8 0.000000</pose>
       <inertial>
         <mass>1</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -263,20 +299,27 @@
       <collision name='steering_wheel_collision'>
         <geometry>
           <cylinder>
-            <radius>0.100000</radius>
-            <length>0.010000</length>
+            <radius>0.150000</radius>
+            <length>0.020000</length>
           </cylinder>
         </geometry>
       </collision>
       <visual name='steering_wheel_visual'>
         <geometry>
           <cylinder>
-            <radius>0.100000</radius>
-            <length>0.010000</length>
+            <radius>0.150000</radius>
+            <length>0.020000</length>
           </cylinder>
         </geometry>
         <material>
-          <script>Gazebo/Blue</script>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Blue</name>
+          </script>
+          <ambient>0.2 0.2 0.2 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <emissive>0.0 0.5 0.0 1</emissive>
         </material>
       </visual>
       <velocity_decay/>
@@ -285,10 +328,10 @@
       <parent>chassis</parent>
       <child>gas_pedal</child>
       <axis>
-        <xyz>1.000000 0.000000 0.000000</xyz>
+        <xyz>1.000000 0.000000 -1.000000</xyz>
         <limit>
           <lower>0.000000</lower>
-          <upper>0.200000</upper>
+          <upper>0.090000</upper>
         </limit>
       </axis>
     </joint>
@@ -296,10 +339,10 @@
       <parent>chassis</parent>
       <child>brake_pedal</child>
       <axis>
-        <xyz>1.000000 0.000000 0.000000</xyz>
+        <xyz>1.000000 0.000000 -0.600000</xyz>
         <limit>
           <lower>0.000000</lower>
-          <upper>0.200000</upper>
+          <upper>0.100000</upper>
         </limit>
       </axis>
     </joint>
