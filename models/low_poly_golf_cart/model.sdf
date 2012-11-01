@@ -39,6 +39,7 @@
         </geometry>
       </visual>
 
+      <!-- chassis base visual
       <visual name='chassis_base_vis'>
         <pose>0.0 0.0 0.350000 0.000000 0 0</pose>
         <geometry>
@@ -47,12 +48,13 @@
           </box>
         </geometry>
       </visual>
+      -->
 
       <collision name='chassis_base_col'>
-        <pose>0 0 0.5 0 0 0</pose>
+        <pose>0.0 0.0 0.350000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 0.1</size>
+            <size>3.0 1.7 0.09</size>
           </box>
         </geometry>
       </collision>
@@ -95,6 +97,82 @@
         </geometry>
       </collision>
 
+      <velocity_decay/>
+    </link>
+    <link name='front_left_wheel_steering_block'>
+      <pose>1.250000 0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='front_left_wheel_collision'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='front_left_wheel_visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay/>
+    </link>
+    <link name='front_right_wheel_steering_block'>
+      <pose>1.250000 -0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='front_right_wheel_collision'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='front_right_wheel_visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
       <velocity_decay/>
     </link>
     <link name='front_left_wheel'>
@@ -397,7 +475,7 @@
       <parent>chassis</parent>
       <child>steering_wheel</child>
       <axis>
-        <xyz>1.000000 0.000000 0.000000</xyz>
+        <xyz>4.286262 0.000000 -1.000000</xyz>
         <limit>
           <lower>-7.853000</lower>
           <upper>7.853000</upper>
@@ -409,17 +487,10 @@
       <parent>chassis</parent>
       <child>front_right_wheel_steering_block</child>
       <axis>
-        <xyz>0.000000 1.000000 0.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
-      </axis>
-      <axis>
         <xyz>0.000000 0.000000 1.000000</xyz>
         <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
+          <lower>-1.000000</lower>
+          <upper>1.000000</upper>
         </limit>
       </axis>
       <physics>
@@ -438,8 +509,8 @@
       <axis>
         <xyz>0.000000 0.000000 1.000000</xyz>
         <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
+          <lower>-1.000000</lower>
+          <upper>1.000000</upper>
         </limit>
       </axis>
       <physics>
@@ -456,11 +527,7 @@
       <parent>front_left_wheel_steering_block</parent>
       <child>front_left_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
@@ -491,11 +558,7 @@
       <parent>chassis</parent>
       <child>back_right_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
@@ -510,11 +573,7 @@
       <parent>chassis</parent>
       <child>back_left_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
