@@ -5,14 +5,14 @@
        name="drc_robot" >
   
   <include filename="$(find drc_robot_utils)/urdf/drc_robot.urdf" />
-  <include filename="$(find camhand_utils)/urdf/camhand.urdf.xacro" />
+  <include filename="$(find sandia_hand_utils)/urdf/sandia_hand.urdf.xacro" />
 
-  <xacro:camhand side="r" parent="r_hand">
+  <xacro:sandia_hand side="r" parent="r_hand">
     <origin xyz="0 -0.1 -0.03" rpy="0 3.1416  1.57079"/>
-  </xacro:camhand>
-  <xacro:camhand side="l" parent="l_hand">
+  </xacro:sandia_hand>
+  <xacro:sandia_hand side="l" parent="l_hand">
     <origin xyz="0  0.1 -0.03" rpy="0 3.1416 -1.57079"/>
-  </xacro:camhand>
+  </xacro:sandia_hand>
 
   <include filename="$(find drc_robot_utils)/urdf/drc_robot.gazebo" />
   <include filename="$(find drc_robot_utils)/urdf/drc_robot.transmission" />

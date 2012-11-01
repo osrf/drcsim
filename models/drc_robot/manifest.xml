@@ -10,4 +10,10 @@
   <description>
     This model approximates the DRC Robot, built by Boston Dynamics.
   </description>
+  <depend>
+    <model>
+      <uri>model://sandia_hand</uri>
+      <version>0.1.0</version>
+    </model>
+  </depend>
 </model>

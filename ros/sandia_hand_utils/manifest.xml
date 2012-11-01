@@ -1,0 +1,16 @@
+<package>
+  <description brief="sandia_hand_utils">
+
+     sandia_hand_utils
+
+  </description>
+  <author>hsu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/sandia_hand_utils</url>
+  <depend package="urdf"/>
+  <depend package="xacro"/>
+
+</package>
+
+

@@ -53,8 +53,8 @@ namespace gazebo
     /// \brief Update the controller
     private: void UpdateStates();
 
-    private: physics::WorldPtr world_;
-    private: physics::ModelPtr model_;
+    private: physics::WorldPtr world;
+    private: physics::ModelPtr model;
 
     private: boost::mutex update_mutex;
 
@@ -136,7 +136,9 @@ namespace gazebo
     /// Returns the gas pedal position in meters.
     public: double GetBrakePedalState();
 
-    private: physics::JointPtr joint_;
+    private: physics::JointPtr gasPedalJoint;
+    private: physics::JointPtr brakePedalJoint;
+    private: physics::JointPtr steeringWheelJoint;
   };
 /** \} */
 /// @}

@@ -1,0 +1,16 @@
+<package>
+  <description brief="irobot_hand_utils">
+
+     irobot_hand_utils
+
+  </description>
+  <author>hsu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/irobot_hand_utils</url>
+  <depend package="urdf"/>
+  <depend package="xacro"/>
+
+</package>
+
+

@@ -45,14 +45,24 @@ DRCVehiclePlugin::~DRCVehiclePlugin()
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
-                                 sdf::ElementPtr /*_sdf*/)
+                                 sdf::ElementPtr _sdf)
 {
   // Get the world name.
-  this->world_ = _parent->GetWorld();
-  this->model_ = _parent;
-  this->world_->EnablePhysicsEngine(true);
+  this->world = _parent->GetWorld();
+  this->model = _parent;
 
-  // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+  // Get joints
+  std::string gasPedalJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("gas_pedal")->GetValueString();
+  this->gasPedalJoint = this->model->GetJoint(gasPedalJointName);
+
+  std::string brakePedalJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("brake_pedal")->GetValueString();
+  this->brakePedalJoint = this->model->GetJoint(brakePedalJointName);
+
+  std::string steeringWheelJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("steering_wheel")->GetValueString();
+  this->steeringWheelJoint = this->model->GetJoint(steeringWheelJointName);
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
@@ -64,11 +74,11 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 // Set DRC Robot feet placement
 void DRCVehiclePlugin::SetSteeringWheelState(math::Angle _position)
 {
-  physics::LinkPtr steering_wheel = this->model_->GetLink("steering_wheel");
-  physics::LinkPtr fl_wheel = this->model_->GetLink("front_left_wheel");
-  physics::LinkPtr fr_wheel = this->model_->GetLink("front_right_wheel");
-  physics::LinkPtr bl_wheel = this->model_->GetLink("back_left_wheel");
-  physics::LinkPtr br_wheel = this->model_->GetLink("back_right_wheel");
+  physics::LinkPtr steering_wheel = this->model->GetLink("steering_wheel");
+  physics::LinkPtr fl_wheel = this->model->GetLink("front_left_wheel");
+  physics::LinkPtr fr_wheel = this->model->GetLink("front_right_wheel");
+  physics::LinkPtr bl_wheel = this->model->GetLink("back_left_wheel");
+  physics::LinkPtr br_wheel = this->model->GetLink("back_right_wheel");
 
 }
 
@@ -77,16 +87,8 @@ void DRCVehiclePlugin::SetSteeringWheelState(math::Angle _position)
 // Play the trajectory, update states
 void DRCVehiclePlugin::UpdateStates()
 {
-  common::Time cur_time = this->world_->GetSimTime();
+  common::Time cur_time = this->world->GetSimTime();
 
-  std::map<std::string, double> joint_position_map;
-  joint_position_map["arm_shoulder_pan_joint"] = cos(cur_time.Double());
-  joint_position_map["arm_elbow_pan_joint"] = -cos(cur_time.Double());
-  joint_position_map["arm_wrist_lift_joint"] = -0.35
-    + 0.45*cos(0.5*cur_time.Double());
-  joint_position_map["arm_wrist_roll_joint"] = -2.9*cos(3.0*cur_time.Double());
-
-  this->model_->SetJointPositions(joint_position_map);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
