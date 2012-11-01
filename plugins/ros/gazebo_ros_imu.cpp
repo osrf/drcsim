@@ -273,11 +273,12 @@ void GazeboRosIMU::UpdateChild()
     this->imu_msg_.linear_acceleration_covariance[4] = gn2;
     this->imu_msg_.linear_acceleration_covariance[8] = gn2;
 
-    this->lock_.lock();
-    // publish to ros
-    if (this->imu_connect_count_ > 0 && this->topic_name_ != "")
-        this->pub_.publish(this->imu_msg_);
-    this->lock_.unlock();
+    {
+      boost::mutex::scoped_lock lock(this->lock_);
+      // publish to ros
+      if (this->imu_connect_count_ > 0 && this->topic_name_ != "")
+          this->pub_.publish(this->imu_msg_);
+    }
 
     // save last time stamp
     this->last_time_ = cur_time;
