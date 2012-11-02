@@ -34,6 +34,7 @@
 #include "common/Time.hh"
 #include "common/Plugin.hh"
 #include "common/Events.hh"
+#include "common/PID.hh"
 
 #include "boost/thread/mutex.hpp"
 
@@ -133,18 +134,49 @@ namespace gazebo
     /// Returns gas pedal position limits in meters.
     public: void GetBrakePedalLimits(double &_min, double &_max);
 
+    public: void Init();
+
     /// Returns the gas pedal position in meters.
     public: double GetBrakePedalState();
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
     private: physics::JointPtr steeringWheelJoint;
-    private: physics::JointPtr frontLeftWheelJoint;
-    private: physics::JointPtr frontRightWheelJoint;
-    private: physics::JointPtr backLeftWheelJoint;
-    private: physics::JointPtr backRightWheelJoint;
-    private: physics::JointPtr frontLeftWheelSteeringJoint;
-    private: physics::JointPtr frontRightWheelSteeringJoint;
+    private: physics::JointPtr flWheelJoint;
+    private: physics::JointPtr frWheelJoint;
+    private: physics::JointPtr blWheelJoint;
+    private: physics::JointPtr brWheelJoint;
+    private: physics::JointPtr flWheelSteeringJoint;
+    private: physics::JointPtr frWheelSteeringJoint;
+
+    private: double frontTorque;
+    private: double rearTorque;
+    private: double tireAngleRange;
+    private: double maxSpeed;
+    private: double aeroLoad;
+    private: double steeringRatio;
+
+    private: double gasPedalCmd;
+    private: double brakePedalCmd;
+    private: double steeringWheelCmd;
+    private: double flWheelCmd;
+    private: double frWheelCmd;
+    private: double blWheelCmd;
+    private: double brWheelCmd;
+    private: double flWheelSteeringCmd;
+    private: double frWheelSteeringCmd;
+
+    private: common::PID gasPedalPID;
+    private: common::PID brakePedalPID;
+    private: common::PID steeringWheelPID;
+    private: common::PID flWheelPID;
+    private: common::PID frWheelPID;
+    private: common::PID blWheelPID;
+    private: common::PID brWheelPID;
+    private: common::PID flWheelSteeringPID;
+    private: common::PID frWheelSteeringPID;
+
+    private: common::Time lastTime;
   };
 /** \} */
 /// @}

@@ -594,8 +594,8 @@
       <gas_pedal>gas_joint</gas_pedal>
       <brake_pedal>brake_joint</brake_pedal>
       <steering_wheel>steering_joint</steering_wheel>
-      <front_power>10</front_power>
-      <rear_power>10</rear_power>
+      <front_torque>0</front_torque>
+      <rear_torque>10</rear_torque>
       <tire_angle_range>0.5</tire_angle_range>
       <max_speed>10</max_speed>
       <aero_load>0.1</aero_load>
