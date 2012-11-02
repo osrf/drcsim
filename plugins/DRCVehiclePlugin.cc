@@ -25,7 +25,9 @@
  * SVN info: $Id$
  */
 
+#include <math.h>
 #include "DRCVehiclePlugin.hh"
+#include "gazebo/common/common.hh"
 
 namespace gazebo
 {
@@ -34,7 +36,7 @@ namespace gazebo
 DRCVehiclePlugin::DRCVehiclePlugin()
 {
   this->gasPedalCmd = 0;
-  this->brakePedalCmd = 0;
+  this->brakePedalCmd = 0.8;
   this->steeringWheelCmd = 0;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
@@ -42,6 +44,12 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->brWheelCmd = 0;
   this->flWheelSteeringCmd = 0;
   this->frWheelSteeringCmd = 0;
+
+  /// \TODO: get this from model
+  this->wheelRadius = 0.1;
+  this->pedalForce = 10;
+  this->steeringWheelForce = 1;
+  this->steeringForce = 200;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +64,159 @@ DRCVehiclePlugin::~DRCVehiclePlugin()
 void DRCVehiclePlugin::Init()
 {
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetVehicleState(double _steeringWheelPosition,
+                                       double _gasPedalPosition,
+                                       double _brakePedalPosition)
+{
+  this->steeringWheelCmd = _steeringWheelPosition;
+  this->gasPedalCmd = _gasPedalPosition;
+  this->brakePedalCmd = _brakePedalPosition;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetSteeringWheelState(double _position)
+{
+  this->steeringWheelCmd = _position;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetSteeringWheelLimits(math::Angle _min,
+                                              math::Angle _max)
+{
+  this->steeringWheelJoint->SetHighStop(0, _max);
+  this->steeringWheelJoint->SetLowStop(0, _min);
+  this->UpdateSteeringWheelRatio();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::GetSteeringWheelLimits(math::Angle &_min,
+                                              math::Angle &_max)
+{
+  _max = this->steeringWheelJoint->GetHighStop(0);
+  _min = this->steeringWheelJoint->GetLowStop(0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetSteeringWheelState()
+{
+  return this->steeringWheelState;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::UpdateSteeringWheelRatio()
+{
+  // The total range the steering wheel can rotate
+  this->steeringWheelHigh  = this->steeringWheelJoint->GetHighStop(0).Radian();
+  this->steeringWheelLow   = this->steeringWheelJoint->GetLowStop(0).Radian();
+  this->steeringWheelRange = this->steeringWheelHigh - this->steeringWheelLow;
+  double high = std::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
+                         this->frWheelSteeringJoint->GetHighStop(0).Radian());
+  double low = std::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
+                        this->frWheelSteeringJoint->GetLowStop(0).Radian());
+  this->tireAngleRange = std::min( abs(high), abs(low) );
+
+  // Compute the angle ratio between the steering wheel and the tires
+  this->steeringRatio = this->tireAngleRange / this->steeringWheelRange;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetSteeringWheelRatio()
+{
+  return this->steeringRatio;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetSteeringState(double _position)
+{
+  this->SetSteeringWheelState(_position / this->steeringRatio);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetSteeringLimits(math::Angle _min, math::Angle _max)
+{
+  this->flWheelSteeringJoint->SetHighStop(0, _max);
+  this->flWheelSteeringJoint->SetLowStop(0, _min);
+  this->frWheelSteeringJoint->SetHighStop(0, _max);
+  this->frWheelSteeringJoint->SetLowStop(0, _min);
+  this->UpdateSteeringWheelRatio();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetSteeringState()
+{
+    return 0.5*(flSteeringState + frSteeringState);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::GetSteeringLimits(math::Angle &_min, math::Angle &_max)
+{
+  _max = 0.5 * (this->flWheelSteeringJoint->GetHighStop(0).Radian() +
+                this->frWheelSteeringJoint->GetHighStop(0).Radian());
+  _max = 0.5 * (this->flWheelSteeringJoint->GetLowStop(0).Radian() +
+                this->frWheelSteeringJoint->GetLowStop(0).Radian());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetGasPedalState(double _position)
+{
+  this->gasPedalCmd = _position;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetGasPedalLimits(double _min, double _max)
+{
+  this->gasPedalJoint->SetHighStop(0, _max);
+  this->gasPedalJoint->SetLowStop(0, _min);
+  this->gasPedalHigh  = this->gasPedalJoint->GetHighStop(0).Radian();
+  this->gasPedalLow   = this->gasPedalJoint->GetLowStop(0).Radian();
+  this->gasPedalRange   = this->gasPedalHigh - this->gasPedalLow;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::GetGasPedalLimits(double &_min, double &_max)
+{
+  _max = this->gasPedalJoint->GetHighStop(0).Radian();
+  _min = this->gasPedalJoint->GetLowStop(0).Radian();
+}
+
+/// Returns the gas pedal position in meters.
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetGasPedalState()
+{
+  return this->gasPedalState;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetBrakePedalState(double _position)
+{
+  this->brakePedalCmd = _position;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetBrakePedalLimits(double _min, double _max)
+{
+  this->brakePedalJoint->SetHighStop(0, _max);
+  this->brakePedalJoint->SetLowStop(0, _min);
+  this->brakePedalHigh  = this->brakePedalJoint->GetHighStop(0).Radian();
+  this->brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
+  this->brakePedalRange   = this->brakePedalHigh - this->brakePedalLow;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::GetBrakePedalLimits(double &_min, double &_max)
+{
+  _max = this->brakePedalJoint->GetHighStop(0).Radian();
+  _min = this->brakePedalJoint->GetLowStop(0).Radian();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetBrakePedalState()
+{
+  return this->brakePedalState;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
@@ -105,51 +266,39 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->frWheelSteeringJoint = this->model->GetJoint(
     frWheelSteeringJointName);
 
-  double flwSteeringHigh = this->flWheelSteeringJoint->GetHighStop(0).Radian();
-  double flwSteeringLow = this->flWheelSteeringJoint->GetLowStop(0).Radian();
-  double frwSteeringHigh = this->frWheelSteeringJoint->GetHighStop(0).Radian();
-  double frwSteeringLow = this->frWheelSteeringJoint->GetLowStop(0).Radian();
+  this->gasPedalHigh  = this->gasPedalJoint->GetHighStop(0).Radian();
+  this->gasPedalLow   = this->gasPedalJoint->GetLowStop(0).Radian();
+  this->gasPedalRange   = this->gasPedalHigh - this->gasPedalLow;
+  this->brakePedalHigh  = this->brakePedalJoint->GetHighStop(0).Radian();
+  this->brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
+  this->brakePedalRange   = this->brakePedalHigh - this->brakePedalLow;
 
-  double gasPedalHigh  = this->gasPedalJoint->GetHighStop(0).Radian();
-  double gasPedalLow   = this->gasPedalJoint->GetLowStop(0).Radian();
-  double brakePedalHigh  = this->brakePedalJoint->GetHighStop(0).Radian();
-  double brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
-  // The total range the steering wheel can rotate
-  double steeringHigh  = this->steeringWheelJoint->GetHighStop(0).Radian();
-  double steeringLow   = this->steeringWheelJoint->GetLowStop(0).Radian();
-  double steeringRange = steeringHigh - steeringLow;
 
-  this->tireAngleRange = this->frWheelSteeringJoint->GetHighStop(0).Radian() -
-                         this->frWheelSteeringJoint->GetLowStop(0).Radian();
 
   // get some vehicle parameters
   this->frontTorque = _sdf->GetElement("front_torque")->GetValueDouble();
-  this->rearTorque = _sdf->GetElement("rear_torque")->GetValueDouble();
+  this->backTorque = _sdf->GetElement("back_torque")->GetValueDouble();
+  this->frontBrakeTorque =
+    _sdf->GetElement("front_brake_torque")->GetValueDouble();
+  this->backBrakeTorque =
+    _sdf->GetElement("back_brake_torque")->GetValueDouble();
   this->maxSpeed = _sdf->GetElement("max_speed")->GetValueDouble();
   this->aeroLoad = _sdf->GetElement("aero_load")->GetValueDouble();
 
-  // Compute the angle ratio between the steering wheel and the tires
-  this->steeringRatio = steeringRange / this->tireAngleRange;
+  this->UpdateSteeringWheelRatio();
 
   // initialize controllers for car
   /// \TODO: move PID parameters into SDF
-  this->gasPedalPID.Init(50, 1, 3, 10, -10, gasPedalHigh, gasPedalLow);
-  this->brakePedalPID.Init(50, 1, 3, 10, -10, brakePedalHigh, brakePedalLow);
-  this->steeringWheelPID.Init(20, 1, 1, 5, -5, steeringHigh, steeringLow);
-  this->flWheelSteeringPID.Init(80, 1, 8, 10, -10,
-                                flwSteeringHigh, flwSteeringHigh);
-  this->frWheelSteeringPID.Init(80, 1, 8, 10, -10,
-                                frwSteeringHigh, frwSteeringHigh);
-
-  this->flWheelPID.Init(100, 1, 5, 10, -10,
-                        this->frontTorque, -this->frontTorque);
-  this->frWheelPID.Init(100, 1, 5, 10, -10,
-                        this->frontTorque, -this->frontTorque);
-  this->blWheelPID.Init(100, 1, 5, 10, -10,
-                        this->rearTorque, -this->rearTorque);
-  this->brWheelPID.Init(100, 1, 5, 10, -10,
-                        this->rearTorque, -this->rearTorque);
-
+  this->gasPedalPID.Init(200, 1, 3, 10, -10,
+                         this->pedalForce, -this->pedalForce);
+  this->brakePedalPID.Init(200, 1, 3, 10, -10,
+                           this->pedalForce, -this->pedalForce);
+  this->steeringWheelPID.Init(30, 0.1, 3.0, 5.0, -5.0,
+                           this->steeringWheelForce, -this->steeringWheelForce);
+  this->flWheelSteeringPID.Init(500, 1, 10, 50, -50,
+                                this->steeringForce, -this->steeringForce);
+  this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
+                                this->steeringForce, -this->steeringForce);
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
@@ -160,73 +309,95 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->lastTime = this->world->GetSimTime();
 }
 
-// Set DRC Robot feet placement
-void DRCVehiclePlugin::SetSteeringWheelState(math::Angle _position)
-{
-  physics::LinkPtr steering_wheel = this->model->GetLink("steering_wheel");
-  physics::LinkPtr fl_wheel = this->model->GetLink("front_left_wheel");
-  physics::LinkPtr fr_wheel = this->model->GetLink("front_right_wheel");
-  physics::LinkPtr bl_wheel = this->model->GetLink("back_left_wheel");
-  physics::LinkPtr br_wheel = this->model->GetLink("back_right_wheel");
-
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
 void DRCVehiclePlugin::UpdateStates()
 {
+  this->steeringWheelState = this->steeringWheelJoint->GetAngle(0).Radian();
+  this->brakePedalState = this->brakePedalJoint->GetAngle(0).Radian();
+  this->gasPedalState = this->gasPedalJoint->GetAngle(0).Radian();
+  this->flSteeringState = this->flWheelSteeringJoint->GetAngle(0).Radian();
+  this->frSteeringState = this->frWheelSteeringJoint->GetAngle(0).Radian();
+
+  this->flWheelState = this->flWheelJoint->GetVelocity(0);
+  this->frWheelState = this->frWheelJoint->GetVelocity(0);
+  this->blWheelState = this->blWheelJoint->GetVelocity(0);
+  this->brWheelState = this->brWheelJoint->GetVelocity(0);
+
+  math::Vector3 linVel = this->model->GetRelativeLinearVel();
+  math::Vector3 angVel = this->model->GetRelativeAngularVel();
+
   common::Time curTime = this->world->GetSimTime();
   double dt = (curTime - this->lastTime).Double();
   if (dt > 0)
   {
-    double error;
-    double cmd;
-
     // PID (position) steering
-    error = this->steeringWheelJoint->GetAngle(0).Radian() -
-            this->steeringWheelCmd;
-    cmd = this->steeringWheelPID.Update(error, dt);
-    this->steeringWheelJoint->SetForce(0, cmd);
+    double steerError = this->steeringWheelState - this->steeringWheelCmd;
+    double steerCmd = this->steeringWheelPID.Update(steerError, dt);
+    this->steeringWheelJoint->SetForce(0, steerCmd);
 
     // PID (position) gas pedal
-    error = this->gasPedalJoint->GetAngle(0).Radian() -
-            this->gasPedalCmd;
-    cmd = this->gasPedalPID.Update(error, dt);
-    this->gasPedalJoint->SetForce(0, cmd);
+    double gasError = this->gasPedalState - this->gasPedalCmd;
+    double gasCmd = this->gasPedalPID.Update(gasError, dt);
+    this->gasPedalJoint->SetForce(0, gasCmd);
 
     // PID (position) brake pedal
-    error = this->brakePedalJoint->GetAngle(0).Radian() -
-            this->brakePedalCmd;
-    cmd = this->brakePedalPID.Update(error, dt);
-    this->brakePedalJoint->SetForce(0, cmd);
+    double brakeError = this->brakePedalState - this->brakePedalCmd;
+    double brakeCmd = this->brakePedalPID.Update(brakeError, dt);
+    this->brakePedalJoint->SetForce(0, brakeCmd);
 
     // PID (position) steering joints based on steering position
-    this->flWheelSteeringCmd = this->steeringWheelCmd * this->steeringRatio;
-    this->frWheelSteeringCmd = this->steeringWheelCmd * this->steeringRatio;
+    this->flWheelSteeringCmd = this->steeringWheelState * this->steeringRatio;
+    this->frWheelSteeringCmd = this->steeringWheelState * this->steeringRatio;
 
-    error = this->flWheelSteeringJoint->GetAngle(0).Radian() -
-            this->flWheelSteeringCmd;
-    cmd = this->flWheelSteeringPID.Update(error, dt);
-    this->flWheelSteeringJoint->SetForce(0, cmd);
+    double flwsError =  this->flSteeringState - this->flWheelSteeringCmd;
+    double flwsCmd = this->flWheelSteeringPID.Update(flwsError, dt);
+    this->flWheelSteeringJoint->SetForce(0, flwsCmd);
 
-    error = this->frWheelSteeringJoint->GetAngle(0).Radian() -
-            this->frWheelSteeringCmd;
-    cmd = this->frWheelSteeringPID.Update(error, dt);
-    this->frWheelSteeringJoint->SetForce(0, cmd);
+    double frwsError = this->frSteeringState - this->frWheelSteeringCmd;
+    double frwsCmd = this->frWheelSteeringPID.Update(frwsError, dt);
+    this->frWheelSteeringJoint->SetForce(0, frwsCmd);
 
-    // PID (wheel torque) rear wheels based on gas position and velocity
-    error = this->steeringWheelJoint->GetAngle(0).Radian() -
-            this->steeringWheelCmd;
-    cmd = this->steeringWheelPID.Update(error, dt);
-    this->steeringWheelJoint->SetForce(0, cmd);
+    // PID (wheel torque) front wheels based on gas position and velocity
+    double frontTorqueCmd;
+    if (abs(this->blWheelState * this->wheelRadius * 2.0) > this->maxSpeed)
+      frontTorqueCmd = 0;
+    else
+      frontTorqueCmd = this->frontTorque *
+                       (this->gasPedalState / this->gasPedalRange);
 
-    // PID (wheel torque) rear wheels based on brake position and velocity
-    error = this->steeringWheelJoint->GetAngle(0).Radian() -
-            this->steeringWheelCmd;
-    cmd = this->steeringWheelPID.Update(error, dt);
-    this->steeringWheelJoint->SetForce(0, cmd);
+    this->flWheelJoint->SetForce(0, frontTorqueCmd);
+    this->frWheelJoint->SetForce(0, frontTorqueCmd);
 
+    // PID (wheel torque) back wheels based on brake position and velocity
+    double backTorqueCmd;
+    double vel = this->blWheelState * this->wheelRadius * 2.0;
+    if (abs(vel) > this->maxSpeed)
+    {
+      backTorqueCmd = 0;
+    }
+    else
+    {
+      backTorqueCmd = this->backTorque *
+                       (this->gasPedalState / this->gasPedalRange);
+    }
+    /// apply brake
+    backTorqueCmd -= copysign(this->backBrakeTorque *
+              (this->brakePedalState / this->brakePedalRange), vel);
+
+    this->blWheelJoint->SetForce(0, backTorqueCmd);
+    this->brWheelJoint->SetForce(0, backTorqueCmd);
+
+    // gzerr << "steer [" << this->steeringWheelState
+    //       << "] range [" << this->steeringWheelRange
+    //       << "] l [" << linVel
+    //       << "] a [" << angVel
+    //       << "] gas [" << this->gasPedalState
+    //       << "] gas [" << gasCmd
+    //       << "] brake [" << this->brakePedalState
+    //       << "] brake [" << brakeCmd
+    //       << "] torque [" << backTorqueCmd << "]\n";
+    this->lastTime = curTime;
   }
 }
 

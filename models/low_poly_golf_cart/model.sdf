@@ -97,7 +97,7 @@
         </geometry>
       </collision>
 
-      <velocity_decay/>
+      <velocity_decay>0.01</velocity_decay>
     </link>
     <link name='front_left_wheel_steering_block'>
       <pose>1.250000 0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
@@ -329,8 +329,9 @@
     </link>
     <link name='gas_pedal'>
       <pose>0.800000 0.240000 0.550000 0.000000 -0.5 0.000000</pose>
+      <gravity>false</gravity>
       <inertial>
-        <mass>1</mass>
+        <mass>1.0</mass>
         <pose>0 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
@@ -368,6 +369,7 @@
       <velocity_decay/>
     </link>
     <link name='brake_pedal'>
+      <gravity>false</gravity>
       <pose>0.850000 0.395000 0.570000 0.000000 0.300000 0.000000</pose>
       <inertial>
         <mass>1</mass>
@@ -410,15 +412,15 @@
     <link name='steering_wheel'>
       <pose>0.780000 0.3500000 0.928000 0.000000 1.8 0.000000</pose>
       <inertial>
-        <mass>1</mass>
+        <mass>1.0</mass>
         <pose>0 0 0 0 0 0</pose>
         <inertia>
-          <ixx>0.01</ixx>
+          <ixx>0.1</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.01</iyy>
+          <iyy>0.1</iyy>
           <iyz>0</iyz>
-          <izz>0.01</izz>
+          <izz>1.0</izz>
         </inertia>
       </inertial>
       <collision name='steering_wheel_collision'>
@@ -447,7 +449,7 @@
           <emissive>0.0 0.5 0.0 1</emissive>
         </material>
       </visual>
-      <velocity_decay/>
+      <velocity_decay>0.1</velocity_decay>
     </link>
     <joint name='gas_joint' type='prismatic'>
       <parent>chassis</parent>
@@ -595,7 +597,9 @@
       <brake_pedal>brake_joint</brake_pedal>
       <steering_wheel>steering_joint</steering_wheel>
       <front_torque>0</front_torque>
-      <rear_torque>10</rear_torque>
+      <back_torque>1000</back_torque>
+      <front_brake_torque>1000</front_brake_torque>
+      <back_brake_torque>1000</back_brake_torque>
       <tire_angle_range>0.5</tire_angle_range>
       <max_speed>10</max_speed>
       <aero_load>0.1</aero_load>
