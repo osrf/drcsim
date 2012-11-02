@@ -36,7 +36,7 @@ namespace gazebo
 DRCVehiclePlugin::DRCVehiclePlugin()
 {
   this->gasPedalCmd = 0;
-  this->brakePedalCmd = 0.8;
+  this->brakePedalCmd = 0.5;
   this->steeringWheelCmd = 0;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
@@ -397,6 +397,11 @@ void DRCVehiclePlugin::UpdateStates()
     //       << "] brake [" << this->brakePedalState
     //       << "] brake [" << brakeCmd
     //       << "] torque [" << backTorqueCmd << "]\n";
+    this->lastTime = curTime;
+  }
+  else if (dt < 0)
+  {
+    // has time been reset?
     this->lastTime = curTime;
   }
 }
