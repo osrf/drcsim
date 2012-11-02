@@ -53,6 +53,12 @@ namespace gazebo
     /// \brief Update the controller
     private: void UpdateStates();
 
+    /// Continuously checks DRC firehose coupling pose against spigot pose.
+    /// If sufficient alignment between the two exists, 
+    /// and the relative motion of the two allows for thread initiation,
+    /// dynamically create a screw joint constraint between the objects.
+    private: bool CheckThreadStart();
+
     private: physics::WorldPtr world_;
     private: physics::ModelPtr model_;
 
@@ -60,12 +66,6 @@ namespace gazebo
 
     /// Pointer to the update event connection
     private: event::ConnectionPtr update_connection_;
-
-    /// Continuously checks DRC firehose coupling pose against spigot pose.
-    /// If sufficient alignment between the two exists, 
-    /// and the relative motion of the two allows for thread initiation,
-    /// dynamically create a screw joint constraint between the objects.
-    private: bool CheckThreadStart();
 
     private: physics::JointPtr joint_;
   };

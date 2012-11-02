@@ -78,7 +78,8 @@ namespace gazebo
     public: void SetSteeringWheelState(double _position);
 
     /// Sets the lower and upper limits of the steering wheel angle (rad)
-    public: void SetSteeringWheelLimits(math::Angle _min, math::Angle _max);
+    public: void SetSteeringWheelLimits(const math::Angle &_min,
+                                        const  math::Angle &_max);
 
     /// Returns the lower and upper limits of the steering wheel angle (rad)
     public: void GetSteeringWheelLimits(math::Angle &_min, math::Angle &_max);
@@ -104,7 +105,8 @@ namespace gazebo
     public: void SetSteeringState(double _position);
 
     /// Sets the lower and upper limits of the steering angle (rad)
-    public: void SetSteeringLimits(math::Angle _min, math::Angle _max);
+    public: void SetSteeringLimits(const math::Angle &_min,
+                                   const math::Angle &_max);
 
     /// Returns the steering angle (rad)
     public: double GetSteeringState();

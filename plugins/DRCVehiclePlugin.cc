@@ -82,8 +82,8 @@ void DRCVehiclePlugin::SetSteeringWheelState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetSteeringWheelLimits(math::Angle _min,
-                                              math::Angle _max)
+void DRCVehiclePlugin::SetSteeringWheelLimits(const math::Angle &_min,
+                                              const math::Angle &_max)
 {
   this->steeringWheelJoint->SetHighStop(0, _max);
   this->steeringWheelJoint->SetLowStop(0, _min);
@@ -134,7 +134,8 @@ void DRCVehiclePlugin::SetSteeringState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetSteeringLimits(math::Angle _min, math::Angle _max)
+void DRCVehiclePlugin::SetSteeringLimits(const math::Angle &_min,
+                                         const math::Angle &_max)
 {
   this->flWheelSteeringJoint->SetHighStop(0, _max);
   this->flWheelSteeringJoint->SetLowStop(0, _min);
