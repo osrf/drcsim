@@ -139,6 +139,12 @@ namespace gazebo
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
     private: physics::JointPtr steeringWheelJoint;
+    private: physics::JointPtr frontLeftWheelJoint;
+    private: physics::JointPtr frontRightWheelJoint;
+    private: physics::JointPtr backLeftWheelJoint;
+    private: physics::JointPtr backRightWheelJoint;
+    private: physics::JointPtr frontLeftWheelSteeringJoint;
+    private: physics::JointPtr frontRightWheelSteeringJoint;
   };
 /** \} */
 /// @}

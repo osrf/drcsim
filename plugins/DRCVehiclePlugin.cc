@@ -64,6 +64,40 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     + _sdf->GetElement("steering_wheel")->GetValueString();
   this->steeringWheelJoint = this->model->GetJoint(steeringWheelJointName);
 
+  std::string frontLeftWheelJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("front_left_wheel")->GetValueString();
+  this->frontLeftWheelJoint = this->model->GetJoint(frontLeftWheelJointName);
+
+  std::string frontRightWheelJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("front_right_wheel")->GetValueString();
+  this->frontRightWheelJoint = this->model->GetJoint(frontRightWheelJointName);
+
+  std::string backLeftWheelJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("back_left_wheel")->GetValueString();
+  this->backLeftWheelJoint = this->model->GetJoint(backLeftWheelJointName);
+
+  std::string backRightWheelJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("back_right_wheel")->GetValueString();
+  this->backRightWheelJoint = this->model->GetJoint(backRightWheelJointName);
+
+  std::string frontLeftWheelSteeringJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("front_left_wheel_steering")->GetValueString();
+  this->frontLeftWheelSteeringJoint = this->model->GetJoint(
+    frontLeftWheelSteeringJointName);
+
+  std::string frontRightWheelSteeringJointName = this->model->GetName() + "::"
+    + _sdf->GetElement("front_right_wheel_steering")->GetValueString();
+  this->frontRightWheelSteeringJoint = this->model->GetJoint(
+    frontRightWheelSteeringJointName);
+
+
+  // initialize controllers for car
+
+
+
+
+
+
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -88,6 +122,18 @@ void DRCVehiclePlugin::SetSteeringWheelState(math::Angle _position)
 void DRCVehiclePlugin::UpdateStates()
 {
   common::Time cur_time = this->world->GetSimTime();
+
+  // PID (position) steering
+
+  // PID (position) gas pedal
+
+  // PID (position) brake pedal
+
+  // PID (position) steering joints based on steering position
+
+  // PID (wheel torque) rear wheels based on gas position and velocity
+
+  // PID (wheel torque) rear wheels based on brake position and velocity
 
 }
 
