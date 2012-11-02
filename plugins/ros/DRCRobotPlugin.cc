@@ -35,15 +35,15 @@ namespace gazebo
 DRCRobotPlugin::DRCRobotPlugin()
 {
   /// initial anchor pose
-  this->anchor_pose_ = math::Vector3(0, 0, 0);
-  this->warp_robot_ = false;
+  this->anchorPose = math::Vector3(0, 0, 0);
+  this->warpRobot = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
 DRCRobotPlugin::~DRCRobotPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
   this->rosnode_->shutdown();
   this->queue_.clear();
   this->queue_.disable();
@@ -61,46 +61,51 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   {
     int argc = 0;
     char** argv = NULL;
-    ros::init(argc,argv,"gazebo",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    ros::init(argc,argv,"gazebo",
+      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
   }
 
   // ros stuff
   this->rosnode_ = new ros::NodeHandle("~");
 
   // Get the world name.
-  this->world_ = _parent->GetWorld();
-  this->model_ = _parent;
-  this->world_->EnablePhysicsEngine(true);
+  this->world = _parent->GetWorld();
+  this->model = _parent;
+  this->world->EnablePhysicsEngine(true);
 
-  // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
-  this->last_cmd_vel_update_time_ = this->world_->GetSimTime().Double();
-  this->cmd_vel_ = geometry_msgs::Twist();
+  // this->world->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+  this->lastUpdateTime = this->world->GetSimTime().Double();
+  this->cmdVel = geometry_msgs::Twist();
 
   // Note: hardcoded link by name: @todo: make this a pugin param
-  this->fixed_link_ = this->model_->GetLink("pelvis");
-  this->initial_pose_ = this->fixed_link_->GetWorldPose();
-  this->FixLink(this->fixed_link_);
+  this->fixedLink = this->model->GetLink("pelvis");
+  this->initialPose = this->fixedLink->GetWorldPose();
+  this->FixLink(this->fixedLink);
 
   // ros subscription
   std::string trajectory_topic_name = "/cmd_vel";
-  ros::SubscribeOptions trajectory_so = ros::SubscribeOptions::create<geometry_msgs::Twist>(
-    trajectory_topic_name, 100, boost::bind( &DRCRobotPlugin::SetRobotCmdVel,this,_1),
+  ros::SubscribeOptions trajectory_so =
+    ros::SubscribeOptions::create<geometry_msgs::Twist>(
+    trajectory_topic_name, 100,
+    boost::bind( &DRCRobotPlugin::SetRobotCmdVel,this,_1),
     ros::VoidPtr(), &this->queue_);
   this->trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
 
   std::string mode_topic_name = "/mode";
-  ros::SubscribeOptions mode_so = ros::SubscribeOptions::create<std_msgs::String>(
+  ros::SubscribeOptions mode_so =
+    ros::SubscribeOptions::create<std_msgs::String>(
     mode_topic_name, 100, boost::bind( &DRCRobotPlugin::SetPluginMode,this,_1),
     ros::VoidPtr(), &this->queue_);
   this->mode_sub_ = this->rosnode_->subscribe(mode_so);
 
   // ros callback queue for processing subscription
-  this->callback_queue_thread_ = boost::thread( boost::bind( &DRCRobotPlugin::QueueThread,this ) );
+  this->callback_queue_thread_ = boost::thread(
+    boost::bind( &DRCRobotPlugin::QueueThread,this ) );
 
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&DRCRobotPlugin::UpdateStates, this));
 }
 
@@ -109,8 +114,8 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
   if (_str->data == "gravity")
   {
     // stop warping robot
-    this->warp_robot_ = false;
-    physics::Link_V links = this->model_->GetAllLinks();
+    this->warpRobot = false;
+    physics::Link_V links = this->model->GetAllLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
@@ -120,8 +125,8 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
   else if (_str->data == "feet")
   {
     // stop warping robot
-    this->warp_robot_ = false;
-    physics::Link_V links = this->model_->GetAllLinks();
+    this->warpRobot = false;
+    physics::Link_V links = this->model->GetAllLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
@@ -134,11 +139,11 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
   else if (_str->data == "pinned")
   {
     // reinitialize pinning
-    this->initial_pose_ = this->fixed_link_->GetWorldPose();
+    this->initialPose = this->fixedLink->GetWorldPose();
 
-    this->FixLink(this->fixed_link_);
+    this->FixLink(this->fixedLink);
 
-    physics::Link_V links = this->model_->GetAllLinks();
+    physics::Link_V links = this->model->GetAllLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -147,7 +152,7 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
   else if (_str->data == "unpinned")
   {
     // reinitialize pinning
-    physics::Link_V links = this->model_->GetAllLinks();
+    physics::Link_V links = this->model->GetAllLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -165,13 +170,13 @@ void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
   if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
   {
-    this->warp_robot_ = false;
+    this->warpRobot = false;
   }
   else
   {
-    this->cmd_vel_ = *_cmd;
-    this->warp_robot_ = true;
-    this->last_cmd_vel_update_time_ = this->world_->GetSimTime().Double();
+    this->cmdVel = *_cmd;
+    this->warpRobot = true;
+    this->lastUpdateTime = this->world->GetSimTime().Double();
   }
 }
 
@@ -179,20 +184,21 @@ void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 // glue a link to the world by creating a fixed joint
 void DRCRobotPlugin::FixLink(physics::LinkPtr link)
 {
-  if (!this->fixed_joint_)
+  if (!this->fixedJoint)
   {
-    this->fixed_joint_ = this->world_->GetPhysicsEngine()->CreateJoint("revolute",this->model_);
-    this->fixed_joint_->Attach(physics::LinkPtr(), link);
-    // load adds the joint to a vector of shared pointers kept in parent and child links
-    // preventing this from being destroyed.  calling load is not necessary anyways.
-    this->fixed_joint_->Load(physics::LinkPtr(), link,
-      math::Pose(this->anchor_pose_, math::Quaternion()));
-    this->fixed_joint_->SetAxis(0, math::Vector3(0, 0, 1));
-    this->fixed_joint_->SetHighStop(0, 0);
-    this->fixed_joint_->SetLowStop(0, 0);
-    this->fixed_joint_->SetAnchor(0, this->anchor_pose_);
-    this->fixed_joint_->SetName(link->GetName()+std::string("_world_fixed_joint"));
-    this->fixed_joint_->Init();
+    this->fixedJoint = this->world->GetPhysicsEngine()->CreateJoint(
+      "revolute",this->model);
+    this->fixedJoint->Attach(physics::LinkPtr(), link);
+    // load adds the joint to a vector of shared pointers kept
+    // in parent and child links, preventing this from being destroyed.
+    this->fixedJoint->Load(physics::LinkPtr(), link,
+      math::Pose(this->anchorPose, math::Quaternion()));
+    this->fixedJoint->SetAxis(0, math::Vector3(0, 0, 1));
+    this->fixedJoint->SetHighStop(0, 0);
+    this->fixedJoint->SetLowStop(0, 0);
+    this->fixedJoint->SetAnchor(0, this->anchorPose);
+    this->fixedJoint->SetName(link->GetName()+std::string("_world_joint"));
+    this->fixedJoint->Init();
   }
 }
 
@@ -200,10 +206,10 @@ void DRCRobotPlugin::FixLink(physics::LinkPtr link)
 // unglue a link to the world by destroying the fixed joint
 void DRCRobotPlugin::UnfixLink()
 {
-  if (this->fixed_joint_)
+  if (this->fixedJoint)
   {
-    this->fixed_joint_->Detach();
-    this->fixed_joint_.reset();
+    this->fixedJoint->Detach();
+    this->fixedJoint.reset();
   }
 }
 
@@ -212,59 +218,61 @@ void DRCRobotPlugin::WarpDRCRobot(math::Pose _pose)
   // two ways, both requres to be done in a single step, is pause reliable? or do we
   // need some mutex.
   //   1. update poses, set the joint anchor offset properties,
-  //      this requires introducing a new SetAnchor call with the new joint agnle
+  //      this requires introducing a new SetAnchor call with the
+  //      new joint agnle
   //      will not do for now.
-  //      using: this->fixed_joint_->SetAnchor(0, _pose);
+  //      using: this->fixedJoint->SetAnchor(0, _pose);
   //   or,
-  //   2. less ideally, pause, break joint, update pose, create new joint, unpause
+  //   2. less ideally, pause, break joint, update pose,
+  //       create new joint, unpause
 
   // try 2. here
-  bool p = this->world_->IsPaused();
-  bool e = this->world_->GetEnablePhysicsEngine();
-  this->world_->EnablePhysicsEngine(false);
-  this->world_->SetPaused(true);
+  bool p = this->world->IsPaused();
+  bool e = this->world->GetEnablePhysicsEngine();
+  this->world->EnablePhysicsEngine(false);
+  this->world->SetPaused(true);
   this->UnfixLink();
-  this->model_->SetLinkWorldPose(_pose, this->fixed_link_);
-  this->FixLink(this->fixed_link_);
-  this->world_->SetPaused(p);
-  this->world_->EnablePhysicsEngine(e);
+  this->model->SetLinkWorldPose(_pose, this->fixedLink);
+  this->FixLink(this->fixedLink);
+  this->world->SetPaused(p);
+  this->world->EnablePhysicsEngine(e);
 }
 
 // Set DRC Robot feet placement
-void DRCRobotPlugin::SetFeetPose(math::Pose _l_pose, math::Pose _r_pose)
+void DRCRobotPlugin::SetFeetPose(math::Pose _lPose, math::Pose _rPose)
 {
-  physics::LinkPtr l_foot = this->model_->GetLink("l_foot");
-  physics::LinkPtr r_foot = this->model_->GetLink("r_foot");
+  physics::LinkPtr l_foot = this->model->GetLink("l_foot");
+  physics::LinkPtr r_foot = this->model->GetLink("r_foot");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Play the trajectory, update states
 void DRCRobotPlugin::UpdateStates()
 {
-  double cur_time = this->world_->GetSimTime().Double();
+  double cur_time = this->world->GetSimTime().Double();
 
-  if (this->warp_robot_ && cur_time - this->last_cmd_vel_update_time_ >= 0)
+  if (this->warpRobot && cur_time - this->lastUpdateTime >= 0)
   {
-    double dt = cur_time - this->last_cmd_vel_update_time_;
+    double dt = cur_time - this->lastUpdateTime;
     if (dt > 0)
     {
-      this->last_cmd_vel_update_time_ = cur_time;
-      math::Pose cur_pose = this->fixed_link_->GetWorldPose();
+      this->lastUpdateTime = cur_time;
+      math::Pose cur_pose = this->fixedLink->GetWorldPose();
       math::Pose new_pose = cur_pose;
 
       // increment x,y in cur_pose frame
-      math::Vector3 cmd(this->cmd_vel_.linear.x, this->cmd_vel_.linear.y, 0);
+      math::Vector3 cmd(this->cmdVel.linear.x, this->cmdVel.linear.y, 0);
       cmd = cur_pose.rot.RotateVector(cmd);
 
       new_pose.pos = cur_pose.pos + cmd * dt;
       // prevent robot from drifting vertically
-      new_pose.pos.z = this->initial_pose_.pos.z;
+      new_pose.pos.z = this->initialPose.pos.z;
 
       math::Vector3 rpy = cur_pose.rot.GetAsEuler();
       // decay non-yaw tilts
       rpy.x = 0;
       rpy.y = 0;
-      rpy.z = rpy.z + this->cmd_vel_.angular.z * dt;
+      rpy.z = rpy.z + this->cmdVel.angular.z * dt;
 
       new_pose.rot.SetFromEuler(rpy);
 

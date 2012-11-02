@@ -61,17 +61,17 @@ namespace gazebo
     /// \brief Update the controller
     private: void UpdateStates();
 
-    private: physics::WorldPtr world_;
-    private: physics::ModelPtr model_;
+    private: physics::WorldPtr world;
+    private: physics::ModelPtr model;
 
     private: boost::mutex update_mutex;
 
     /// Pointer to the update event connection
-    private: event::ConnectionPtr update_connection_;
+    private: event::ConnectionPtr updateConnection;
 
     /// Sets DRC Robot feet placement
     /// No reachability checking here.
-    public: void SetFeetPose(math::Pose _l_pose, math::Pose _r_pose);
+    public: void SetFeetPose(math::Pose _lPose, math::Pose _rPose);
 
     /// Sets DRC Robot planar navigational command velocity
     /// _cmd is a Vector3, where:
@@ -89,14 +89,17 @@ namespace gazebo
 
     void FixLink(physics::LinkPtr link);
     void UnfixLink();
-    private: physics::LinkPtr fixed_link_;
-    private: physics::JointPtr fixed_joint_;
-    private: math::Vector3 anchor_pose_;
-    private: bool warp_robot_;
-    private: math::Pose initial_pose_;
+    private: physics::LinkPtr fixedLink;
+    private: physics::JointPtr fixedJoint;
+    private: math::Vector3 anchorPose;
+    private: bool warpRobot;
 
-    private: double last_cmd_vel_update_time_;
-    private: geometry_msgs::Twist cmd_vel_;
+    /// \brief keep initial pose of robot to prevent z-drifting when
+    /// teleporting the robot.
+    private: math::Pose initialPose;
+
+    private: double lastUpdateTime;
+    private: geometry_msgs::Twist cmdVel;
 
     // ros stuff
     private: ros::NodeHandle* rosnode_;
