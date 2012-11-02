@@ -230,42 +230,40 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   // Get joints
   std::string gasPedalJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("gas_pedal")->GetValueString();
+    + _sdf->GetValueString("gas_pedal");
   this->gasPedalJoint = this->model->GetJoint(gasPedalJointName);
 
   std::string brakePedalJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("brake_pedal")->GetValueString();
+    + _sdf->GetValueString("brake_pedal");
   this->brakePedalJoint = this->model->GetJoint(brakePedalJointName);
 
   std::string steeringWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("steering_wheel")->GetValueString();
+    + _sdf->GetValueString("steering_wheel");
   this->steeringWheelJoint = this->model->GetJoint(steeringWheelJointName);
 
   std::string flWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("front_left_wheel")->GetValueString();
+    + _sdf->GetValueString("front_left_wheel");
   this->flWheelJoint = this->model->GetJoint(flWheelJointName);
 
   std::string frWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("front_right_wheel")->GetValueString();
+    + _sdf->GetValueString("front_right_wheel");
   this->frWheelJoint = this->model->GetJoint(frWheelJointName);
 
   std::string blWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("back_left_wheel")->GetValueString();
+    + _sdf->GetValueString("back_left_wheel");
   this->blWheelJoint = this->model->GetJoint(blWheelJointName);
 
   std::string brWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("back_right_wheel")->GetValueString();
+    + _sdf->GetValueString("back_right_wheel");
   this->brWheelJoint = this->model->GetJoint(brWheelJointName);
 
   std::string flWheelSteeringJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("front_left_wheel_steering")->GetValueString();
-  this->flWheelSteeringJoint = this->model->GetJoint(
-    flWheelSteeringJointName);
+    + _sdf->GetValueString("front_left_wheel_steering");
+  this->flWheelSteeringJoint = this->model->GetJoint(flWheelSteeringJointName);
 
   std::string frWheelSteeringJointName = this->model->GetName() + "::"
-    + _sdf->GetElement("front_right_wheel_steering")->GetValueString();
-  this->frWheelSteeringJoint = this->model->GetJoint(
-    frWheelSteeringJointName);
+    + _sdf->GetValueString("front_right_wheel_steering");
+  this->frWheelSteeringJoint = this->model->GetJoint(frWheelSteeringJointName);
 
   this->gasPedalHigh  = this->gasPedalJoint->GetHighStop(0).Radian();
   this->gasPedalLow   = this->gasPedalJoint->GetLowStop(0).Radian();
@@ -277,14 +275,12 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
 
   // get some vehicle parameters
-  this->frontTorque = _sdf->GetElement("front_torque")->GetValueDouble();
-  this->backTorque = _sdf->GetElement("back_torque")->GetValueDouble();
-  this->frontBrakeTorque =
-    _sdf->GetElement("front_brake_torque")->GetValueDouble();
-  this->backBrakeTorque =
-    _sdf->GetElement("back_brake_torque")->GetValueDouble();
-  this->maxSpeed = _sdf->GetElement("max_speed")->GetValueDouble();
-  this->aeroLoad = _sdf->GetElement("aero_load")->GetValueDouble();
+  this->frontTorque = _sdf->GetValueDouble("front_torque");
+  this->backTorque = _sdf->GetValueDouble("back_torque");
+  this->frontBrakeTorque = _sdf->GetValueDouble("front_brake_torque");
+  this->backBrakeTorque = _sdf->GetValueDouble("back_brake_torque");
+  this->maxSpeed = _sdf->GetValueDouble("max_speed");
+  this->aeroLoad = _sdf->GetValueDouble("aero_load");
 
   this->UpdateSteeringWheelRatio();
 
