@@ -39,6 +39,7 @@
         </geometry>
       </visual>
 
+      <!-- chassis base visual
       <visual name='chassis_base_vis'>
         <pose>0.0 0.0 0.350000 0.000000 0 0</pose>
         <geometry>
@@ -47,12 +48,13 @@
           </box>
         </geometry>
       </visual>
+      -->
 
       <collision name='chassis_base_col'>
-        <pose>0 0 0.5 0 0 0</pose>
+        <pose>0.0 0.0 0.350000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 0.1</size>
+            <size>3.0 1.7 0.09</size>
           </box>
         </geometry>
       </collision>
@@ -95,6 +97,82 @@
         </geometry>
       </collision>
 
+      <velocity_decay>0.01</velocity_decay>
+    </link>
+    <link name='front_left_wheel_steering_block'>
+      <pose>1.250000 0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='front_left_wheel_collision'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='front_left_wheel_visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay/>
+    </link>
+    <link name='front_right_wheel_steering_block'>
+      <pose>1.250000 -0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='front_right_wheel_collision'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='front_right_wheel_visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
       <velocity_decay/>
     </link>
     <link name='front_left_wheel'>
@@ -129,7 +207,7 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Black</name>
+            <name>Gazebo/PaintedWall</name>
           </script>
         </material>
       </visual>
@@ -167,7 +245,7 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Black</name>
+            <name>Gazebo/PaintedWall</name>
           </script>
         </material>
       </visual>
@@ -205,7 +283,7 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Black</name>
+            <name>Gazebo/PaintedWall</name>
           </script>
         </material>
       </visual>
@@ -243,7 +321,7 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Black</name>
+            <name>Gazebo/PaintedWall</name>
           </script>
         </material>
       </visual>
@@ -251,8 +329,9 @@
     </link>
     <link name='gas_pedal'>
       <pose>0.800000 0.240000 0.550000 0.000000 -0.5 0.000000</pose>
+      <gravity>false</gravity>
       <inertial>
-        <mass>1</mass>
+        <mass>1.0</mass>
         <pose>0 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
@@ -279,17 +358,18 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Red</name>
+            <name>Gazebo/Wood</name>
           </script>
           <ambient>0.2 0.2 0.2 1</ambient>
           <diffuse>0.2 0.2 0.2 1</diffuse>
           <specular>0.2 0.2 0.2 1</specular>
-          <emissive>0.5 0.0 0.0 1</emissive>
+          <emissive>0.5 0.5 0.5 1</emissive>
         </material>
       </visual>
       <velocity_decay/>
     </link>
     <link name='brake_pedal'>
+      <gravity>false</gravity>
       <pose>0.850000 0.395000 0.570000 0.000000 0.300000 0.000000</pose>
       <inertial>
         <mass>1</mass>
@@ -319,12 +399,12 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Blue</name>
+            <name>Gazebo/Wood</name>
           </script>
           <ambient>0.2 0.2 0.2 1</ambient>
           <diffuse>0.2 0.2 0.2 1</diffuse>
           <specular>0.2 0.2 0.2 1</specular>
-          <emissive>0.0 0.0 0.5 1</emissive>
+          <emissive>0.5 0.5 0.5 1</emissive>
         </material>
       </visual>
       <velocity_decay/>
@@ -332,15 +412,15 @@
     <link name='steering_wheel'>
       <pose>0.780000 0.3500000 0.928000 0.000000 1.8 0.000000</pose>
       <inertial>
-        <mass>1</mass>
+        <mass>1.0</mass>
         <pose>0 0 0 0 0 0</pose>
         <inertia>
-          <ixx>0.01</ixx>
+          <ixx>0.1</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.01</iyy>
+          <iyy>0.1</iyy>
           <iyz>0</iyz>
-          <izz>0.01</izz>
+          <izz>1.0</izz>
         </inertia>
       </inertial>
       <collision name='steering_wheel_collision'>
@@ -361,15 +441,15 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Blue</name>
+            <name>Gazebo/Wood</name>
           </script>
           <ambient>0.2 0.2 0.2 1</ambient>
           <diffuse>0.2 0.2 0.2 1</diffuse>
           <specular>0.2 0.2 0.2 1</specular>
-          <emissive>0.0 0.5 0.0 1</emissive>
+          <emissive>0.5 0.5 0.5 1</emissive>
         </material>
       </visual>
-      <velocity_decay/>
+      <velocity_decay>0.1</velocity_decay>
     </link>
     <joint name='gas_joint' type='prismatic'>
       <parent>chassis</parent>
@@ -397,7 +477,7 @@
       <parent>chassis</parent>
       <child>steering_wheel</child>
       <axis>
-        <xyz>1.000000 0.000000 0.000000</xyz>
+        <xyz>4.286262 0.000000 -1.000000</xyz>
         <limit>
           <lower>-7.853000</lower>
           <upper>7.853000</upper>
@@ -409,17 +489,10 @@
       <parent>chassis</parent>
       <child>front_right_wheel_steering_block</child>
       <axis>
-        <xyz>0.000000 1.000000 0.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
-      </axis>
-      <axis>
         <xyz>0.000000 0.000000 1.000000</xyz>
         <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
+          <lower>-1.000000</lower>
+          <upper>1.000000</upper>
         </limit>
       </axis>
       <physics>
@@ -438,8 +511,8 @@
       <axis>
         <xyz>0.000000 0.000000 1.000000</xyz>
         <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
+          <lower>-1.000000</lower>
+          <upper>1.000000</upper>
         </limit>
       </axis>
       <physics>
@@ -456,11 +529,7 @@
       <parent>front_left_wheel_steering_block</parent>
       <child>front_left_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
@@ -491,11 +560,7 @@
       <parent>chassis</parent>
       <child>back_right_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
@@ -510,11 +575,7 @@
       <parent>chassis</parent>
       <child>back_left_wheel</child>
       <axis>
-        <xyz>0.000000 0.000000 1.000000</xyz>
-        <limit>
-          <lower>0.000000</lower>
-          <upper>0.000000</upper>
-        </limit>
+        <xyz>0.000000 1.000000 0.000000</xyz>
       </axis>
       <physics>
         <ode>
@@ -526,15 +587,19 @@
       </physics>
     </joint>
     <plugin name='vehicle' filename='libDRCVehiclePlugin.so'>
-      <front_left>front_left_joint</front_left>
-      <front_right>front_right_joint</front_right>
-      <back_left>back_left_joint</back_left>
-      <back_right>back_right_joint</back_right>
+      <front_left_wheel>front_left_joint</front_left_wheel>
+      <front_right_wheel>front_right_joint</front_right_wheel>
+      <front_left_wheel_steering>front_left_steering_joint</front_left_wheel_steering>
+      <front_right_wheel_steering>front_right_steering_joint</front_right_wheel_steering>
+      <back_left_wheel>back_left_joint</back_left_wheel>
+      <back_right_wheel>back_right_joint</back_right_wheel>
       <gas_pedal>gas_joint</gas_pedal>
       <brake_pedal>brake_joint</brake_pedal>
       <steering_wheel>steering_joint</steering_wheel>
-      <front_power>10</front_power>
-      <rear_power>10</rear_power>
+      <front_torque>0</front_torque>
+      <back_torque>1000</back_torque>
+      <front_brake_torque>1000</front_brake_torque>
+      <back_brake_torque>1000</back_brake_torque>
       <tire_angle_range>0.5</tire_angle_range>
       <max_speed>10</max_speed>
       <aero_load>0.1</aero_load>
