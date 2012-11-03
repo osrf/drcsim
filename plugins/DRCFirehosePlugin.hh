@@ -53,21 +53,50 @@ namespace gazebo
     /// \brief Update the controller
     private: void UpdateStates();
 
+    /// \brief pin a link to the world
+    private: void FixLink(physics::LinkPtr _link);
+
+    /// \brief add a screw constraint between 2 joints
+    private: void Screw(physics::LinkPtr _link1, physics::LinkPtr _link2);
+
+    /// \brief unpin a link to the world
+    private: void UnfixLink();
+
+    /// \brief Set configuration of the hose
+    private: void SetInitialConfiguration();
+
     /// Continuously checks DRC firehose coupling pose against spigot pose.
     /// If sufficient alignment between the two exists, 
     /// and the relative motion of the two allows for thread initiation,
     /// dynamically create a screw joint constraint between the objects.
     private: bool CheckThreadStart();
 
-    private: physics::WorldPtr world_;
-    private: physics::ModelPtr model_;
+    private: physics::WorldPtr world;
+    private: physics::ModelPtr model;
 
-    private: boost::mutex update_mutex;
+    /// joint for pinning a link to the world
+    private: physics::JointPtr fixedJoint;
+
+    /// screw joint
+    private: physics::JointPtr screwJoint;
+    private: double threadPitch;
+
+    /// anchor pose for joint pinning a link to the world
+    private: math::Vector3 anchorPose;
 
     /// Pointer to the update event connection
-    private: event::ConnectionPtr update_connection_;
+    private: event::ConnectionPtr updateConnection;
 
-    private: physics::JointPtr joint_;
+    private: physics::Joint_V joints;
+    private: physics::Link_V links;
+    private: common::Time lastTime;
+
+    private: physics::LinkPtr couplingLink;
+    private: physics::ModelPtr spoutModel;
+    private: physics::LinkPtr spoutLink;
+    private: math::Pose couplingRelativePose;
+    private: math::Pose spoutRelativePose;
+
   };
 /** \} */
 /// @}
