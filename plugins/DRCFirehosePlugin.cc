@@ -138,10 +138,10 @@ bool DRCFirehosePlugin::CheckThreadStart()
   double rotErr = (relativePose.rot.GetZAxis() -
                    connectPose.rot.GetZAxis()).GetLength();
 
-  gzdbg << "connect offset [" << connectOffset
-        << "] xyz [" << posErr
-        << "] rpy [" << rotErr
-        << "]\n";
+  // gzdbg << "connect offset [" << connectOffset
+  //       << "] xyz [" << posErr
+  //       << "] rpy [" << rotErr
+  //       << "]\n";
 
   if (!this->screwJoint && (posErr < 0.01 && rotErr < 0.01))
   {
@@ -150,7 +150,15 @@ bool DRCFirehosePlugin::CheckThreadStart()
                                       "screw",
                                       math::Vector3(0, 0, 0),
                                       math::Vector3(0, 0, 1),
-                                      20.0, -0.1);
+                                      20.0, -0.5);
+  }
+  else
+  {
+    // check joint position to disconnect
+    double position = this->screwJoint->GetAngle(0).Radian();
+    // gzerr << "position " << position << "\n";
+    if (position < -0.0003)
+      this->RemoveJoint(this->screwJoint);
   }
   return true;
 }
@@ -187,6 +195,8 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
                             _link2->GetName() + std::string("_joint"));
   joint->Init();
 
+  _link1->SetCollideMode("fixed");
+  _link2->SetCollideMode("fixed");
   return joint;
 }
 
@@ -199,6 +209,8 @@ void DRCFirehosePlugin::RemoveJoint(physics::JointPtr _joint)
     // reenable collision between the link pair
     physics::LinkPtr parent = _joint->GetParent();
     physics::LinkPtr child = _joint->GetChild();
+    parent->SetCollideMode("all");
+    child->SetCollideMode("all");
 
     _joint->Detach();
     _joint.reset();

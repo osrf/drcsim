@@ -1029,8 +1029,8 @@
       </collision>
 
       <velocity_decay>
-        <linear>0.5</linear>
-        <angular>0.5</angular>
+        <linear>0.005</linear>
+        <angular>0.005</angular>
       </velocity_decay>
     </link>
 
