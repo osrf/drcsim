@@ -33,7 +33,6 @@ namespace gazebo
 // Constructor
 DRCFirehosePlugin::DRCFirehosePlugin()
 {
-  this->anchorPose = math::Vector3(0, 0, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,8 +79,8 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
 
   this->threadPitch = _sdf->GetValueDouble("thread_pitch");
 
-  // this->couplingRelativePose = _sdf->GetValuePose("coupling_relative_pose");
-  // this->spoutRelativePose = _sdf->GetValuePose("spout_relative_pose");
+  this->couplingRelativePose = _sdf->GetValuePose("coupling_relative_pose");
+  this->spoutRelativePose = _sdf->GetValuePose("spout_relative_pose");
 
   // Reset Time
   this->lastTime = this->world->GetSimTime();
@@ -100,16 +99,14 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
 ////////////////////////////////////////////////////////////////////////////////
 void DRCFirehosePlugin::SetInitialConfiguration()
 {
-  for (unsigned int i = 0; i < this->joints.size(); ++i)
-    gzerr << "joint [" << this->joints[i]->GetName() << "]\n";
+  // for (unsigned int i = 0; i < this->joints.size(); ++i)
+  //   gzerr << "joint [" << this->joints[i]->GetName() << "]\n";
 
-  for (unsigned int i = 0; i < this->links.size(); ++i)
-    gzerr << "link [" << this->links[i]->GetName() << "]\n";
+  // for (unsigned int i = 0; i < this->links.size(); ++i)
+  //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
 
   this->joints[17]->SetAngle(0, -M_PI/4.0);
   this->joints[19]->SetAngle(0, -M_PI/4.0);
-
-  this->Screw(this->couplingLink, this->spoutLink);
 }
 
 
@@ -121,57 +118,90 @@ void DRCFirehosePlugin::UpdateStates()
 
   if (curTime > this->lastTime)
   {
-
-
+    this->CheckThreadStart();
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// glue a link to the world by creating a fixed joint
-void DRCFirehosePlugin::FixLink(physics::LinkPtr _link)
+bool DRCFirehosePlugin::CheckThreadStart()
 {
-  if (!this->fixedJoint)
+  // 
+  // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
+  // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
+  math::Pose connectPose(1.17038e-05, -0.125623, 0.35,
+                         -0.0412152, -1.57078, 1.61199);
+  math::Pose relativePose = this->couplingLink->GetWorldPose() -
+                            this->spoutLink->GetWorldPose();
+
+  math::Pose connectOffset = relativePose - connectPose;
+
+  double posErr = (relativePose.pos - connectPose.pos).GetLength();
+  double rotErr = (relativePose.rot.GetZAxis() -
+                   connectPose.rot.GetZAxis()).GetLength();
+
+  gzdbg << "connect offset [" << connectOffset
+        << "] xyz [" << posErr
+        << "] rpy [" << rotErr
+        << "]\n";
+
+  if (!this->screwJoint && (posErr < 0.01 && rotErr < 0.01))
   {
-    this->fixedJoint = this->world->GetPhysicsEngine()->CreateJoint(
-      "revolute",this->model);
-    this->fixedJoint->Attach(physics::LinkPtr(), _link);
-    // load adds the joint to a vector of shared pointers kept
-    // in parent and child links, preventing this from being destroyed.
-    this->fixedJoint->Load(physics::LinkPtr(), _link,
-      math::Pose(this->anchorPose, math::Quaternion()));
-    this->fixedJoint->SetAxis(0, math::Vector3(0, 0, 1));
-    this->fixedJoint->SetHighStop(0, 0);
-    this->fixedJoint->SetLowStop(0, 0);
-    this->fixedJoint->SetAnchor(0, this->anchorPose);
-    this->fixedJoint->SetName(_link->GetName()+std::string("_world_joint"));
-    this->fixedJoint->Init();
+    this->screwJoint = this->AddJoint(this->world, this->model,
+                                      this->spoutLink, this->couplingLink,
+                                      "screw",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      20.0, -0.1);
   }
+  return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// dynamically add joint between 2 links
+physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
+                                              physics::ModelPtr _model,
+                                              physics::LinkPtr _link1,
+                                              physics::LinkPtr _link2,
+                                              std::string _type,
+                                              math::Vector3 _anchor,
+                                              math::Vector3 _axis,
+                                              double _upper, double _lower)
+{
+  physics::JointPtr joint = _world->GetPhysicsEngine()->CreateJoint(
+    _type, _model);
+  joint->Attach(_link1, _link2);
+  // load adds the joint to a vector of shared pointers kept
+  // in parent and child links, preventing joint from being destroyed.
+  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+  // joint->SetAnchor(0, _anchor);
+  joint->SetAxis(0, _axis);
+  joint->SetHighStop(0, _upper);
+  joint->SetLowStop(0, _lower);
+
+  // disable collision between the link pair
+
+  /// \TODO: make threadPitch a function parameter too
+  joint->SetThreadPitch(0, this->threadPitch);
+
+  joint->SetName(_link1->GetName() + std::string("_") +
+                            _link2->GetName() + std::string("_joint"));
+  joint->Init();
+
+  return joint;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// glue a link to the world by creating a fixed joint
-void DRCFirehosePlugin::Screw(physics::LinkPtr _link1, physics::LinkPtr _link2)
+// remove a joint
+void DRCFirehosePlugin::RemoveJoint(physics::JointPtr _joint)
 {
-  if (!this->screwJoint)
+  if (_joint)
   {
-    this->screwJoint = this->world->GetPhysicsEngine()->CreateJoint(
-      "screw",this->model);
-    this->screwJoint->Attach(_link1, _link2);
-    // load adds the joint to a vector of shared pointers kept
-    // in parent and child links, preventing this from being destroyed.
-    this->screwJoint->Load(_link1, _link2,
-      math::Pose(this->anchorPose, math::Quaternion()));
-    this->screwJoint->SetAxis(0, math::Vector3(0, 0, 1));
-    this->screwJoint->SetHighStop(0, 0.03);
-    this->screwJoint->SetLowStop(0, -0.03);
-    this->screwJoint->SetAnchor(0, this->anchorPose);
-    // boost::shared_ptr<physics::ScrewJoint< > > sj =
-    //   boost::dynamic_pointer_cast<physics::ScrewJoint>(this->screwJoint);
-    // sj->SetThreadPitch(0, this->threadPitch);
-    // this->screwJoint->SetThreadPitch(0, this->threadPitch);
-    this->screwJoint->SetName(_link1->GetName() + std::string("_") +
-                              _link2->GetName() + std::string("_joint"));
-    this->screwJoint->Init();
+    // reenable collision between the link pair
+    physics::LinkPtr parent = _joint->GetParent();
+    physics::LinkPtr child = _joint->GetChild();
+
+    _joint->Detach();
+    _joint.reset();
   }
 }
 

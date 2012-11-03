@@ -56,11 +56,18 @@ namespace gazebo
     /// \brief pin a link to the world
     private: void FixLink(physics::LinkPtr _link);
 
-    /// \brief add a screw constraint between 2 joints
-    private: void Screw(physics::LinkPtr _link1, physics::LinkPtr _link2);
+    /// \brief add a constraint between 2 links
+    private: physics::JointPtr AddJoint(physics::WorldPtr _world,
+                                        physics::ModelPtr _model,
+                                        physics::LinkPtr _link1,
+                                        physics::LinkPtr _link2,
+                                        std::string _type,
+                                        math::Vector3 _anchor,
+                                        math::Vector3 _axis,
+                                        double _upper, double _lower);
 
-    /// \brief unpin a link to the world
-    private: void UnfixLink();
+    /// \brief Remove a joint
+    private: void RemoveJoint(physics::JointPtr _joint);
 
     /// \brief Set configuration of the hose
     private: void SetInitialConfiguration();
@@ -80,9 +87,6 @@ namespace gazebo
     /// screw joint
     private: physics::JointPtr screwJoint;
     private: double threadPitch;
-
-    /// anchor pose for joint pinning a link to the world
-    private: math::Vector3 anchorPose;
 
     /// Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
