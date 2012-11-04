@@ -46,7 +46,7 @@
 
     <include>
       <uri>model://drc_robot</uri>
-      <pose>-1 0 0.93 0 0 0</pose>
+      <pose>-2 1.0 0.93 0 0 0</pose>
     </include>
 
   </world>

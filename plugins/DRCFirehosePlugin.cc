@@ -201,7 +201,7 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
 
 ////////////////////////////////////////////////////////////////////////////////
 // remove a joint
-void DRCFirehosePlugin::RemoveJoint(physics::JointPtr _joint)
+void DRCFirehosePlugin::RemoveJoint(physics::JointPtr &_joint)
 {
   if (_joint)
   {

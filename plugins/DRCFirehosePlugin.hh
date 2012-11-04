@@ -67,7 +67,7 @@ namespace gazebo
                                         double _upper, double _lower);
 
     /// \brief Remove a joint
-    private: void RemoveJoint(physics::JointPtr _joint);
+    private: void RemoveJoint(physics::JointPtr &_joint);
 
     /// \brief Set configuration of the hose
     private: void SetInitialConfiguration();
