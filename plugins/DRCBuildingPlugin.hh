@@ -53,26 +53,26 @@ namespace gazebo
     /// \brief Update the controller
     private: void UpdateStates();
 
-    private: physics::WorldPtr world_;
-    private: physics::ModelPtr model_;
-
-    private: boost::mutex update_mutex;
+    private: physics::WorldPtr world;
+    private: physics::ModelPtr model;
 
     /// Pointer to the update event connection
-    private: event::ConnectionPtr update_connection_;
+    private: event::ConnectionPtr updateConnection;
 
     /// Sets DRC Building door position (rad) given door Joint name.
     ///   - zero angle means door is closed
     ///   - door hinge axis points upwards, which means
     ///     negative angle swings door counter-clockwise if view
     ///     from above.
-    public: void SetDoorState(std::string _door_name, math::Angle _angle);
+    public: void SetDoorState(std::string _doorName, math::Angle _angle);
 
     /// Returns DRC Building door position (rad) given door Joint name.
     /// \sa To set door state, see SetDoorState.
-    public: math::Angle GetDoorState(std::string _door_name);
+    public: math::Angle GetDoorState(std::string _doorName);
 
-    private: physics::JointPtr joint_;
+    private: physics::LinkPtr doorLink;
+    private: physics::JointPtr doorJoint;
+    private: physics::JointPtr handleJoint;
   };
 /** \} */
 /// @}

@@ -39,25 +39,28 @@ DRCBuildingPlugin::DRCBuildingPlugin()
 // Destructor
 DRCBuildingPlugin::~DRCBuildingPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
-                                 sdf::ElementPtr /*_sdf*/)
+                                 sdf::ElementPtr _sdf)
 {
   // Get the world name.
-  this->world_ = _parent->GetWorld();
-  this->model_ = _parent;
-  this->world_->EnablePhysicsEngine(true);
+  this->world = _parent->GetWorld();
+  this->model = _parent;
+  this->world->EnablePhysicsEngine(true);
 
-  // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+  this->doorLink = this->model->GetLink(_sdf->GetValueString("door_link"));
+  this->doorJoint = this->model->GetJoint(_sdf->GetValueString("door_joint"));
+  this->handleJoint = this->model->GetJoint(
+    _sdf->GetValueString("handle_joint"));
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateStart(
       boost::bind(&DRCBuildingPlugin::UpdateStates, this));
 }
 
@@ -66,7 +69,7 @@ void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
 // Play the trajectory, update states
 void DRCBuildingPlugin::UpdateStates()
 {
-  common::Time cur_time = this->world_->GetSimTime();
+  common::Time cur_time = this->world->GetSimTime();
 
   std::map<std::string, double> joint_position_map;
   joint_position_map["arm_shoulder_pan_joint"] = cos(cur_time.Double());
@@ -75,7 +78,7 @@ void DRCBuildingPlugin::UpdateStates()
     + 0.45*cos(0.5*cur_time.Double());
   joint_position_map["arm_wrist_roll_joint"] = -2.9*cos(3.0*cur_time.Double());
 
-  this->model_->SetJointPositions(joint_position_map);
+  this->model->SetJointPositions(joint_position_map);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(DRCBuildingPlugin)

@@ -192,6 +192,25 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
     if (this->fixedJoint)
       this->RemoveJoint(this->fixedJoint);
   }
+  else if (_str->data == "disable_physics")
+  {
+    this->world->EnablePhysicsEngine(false);
+  }
+  else if (_str->data == "enable_physics")
+  {
+    this->world->EnablePhysicsEngine(true);
+  }
+  else if (_str->data == "grab_fire_hose")
+  {
+    this->GrabLink("fire_hose", "coupling", "r_hand",
+      math::Pose(math::Vector3(0, -0.3, -0.1),
+                 math::Quaternion(0, 0, 0)));
+  }
+  else if (_str->data == "release_fire_hose")
+  {
+    this->RemoveJoint(this->grabJoint);
+    // this->grabJoint.reset();
+  }
   else
   {
     ROS_INFO("available modes:gravity, feet, pinned, unpinned");
@@ -263,8 +282,36 @@ physics::JointPtr DRCRobotPlugin::AddJoint(physics::WorldPtr _world,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// attach a model to gripper
+void DRCRobotPlugin::GrabLink(std::string _modelName, std::string _linkName,
+                              std::string _gripperName, math::Pose _pose)
+{
+  physics::ModelPtr grabModel = this->world->GetModel(_modelName);
+  if (grabModel)
+  {
+    physics::LinkPtr grabLink = grabModel->GetLink(_linkName);
+    if (grabLink)
+    {
+      physics::LinkPtr gripperLink = this->model->GetLink(_gripperName);
+      if (gripperLink)
+      {
+        math::Pose pose = _pose + gripperLink->GetWorldPose();
+        grabModel->SetLinkWorldPose(pose, grabLink);
+        if (!this->grabJoint)
+          this->grabJoint = this->AddJoint(this->world, this->model,
+                                           gripperLink, grabLink,
+                                           "revolute",
+                                           math::Vector3(0, 0, 0),
+                                           math::Vector3(0, 0, 1),
+                                           0.0, 0.0);
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // remove a joint
-void DRCRobotPlugin::RemoveJoint(physics::JointPtr _joint)
+void DRCRobotPlugin::RemoveJoint(physics::JointPtr &_joint)
 {
   if (_joint)
   {

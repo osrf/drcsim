@@ -7,6 +7,7 @@ add_subdirectory(fire_hose)
 add_subdirectory(low_poly_golf_cart)
 add_subdirectory(standpipe)
 add_subdirectory(irobot_hand)
+add_subdirectory(powerplant)
 set (files 
   manifest.xml
 )

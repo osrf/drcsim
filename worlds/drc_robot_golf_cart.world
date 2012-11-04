@@ -31,12 +31,12 @@
 
     <include>
       <uri>model://low_poly_golf_cart</uri>
-      <pose>0 -2 0 0 0 0</pose>
+      <pose>2 -2 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://fire_hose</uri>
-      <pose>1 0 1 0.5 0.1 0.2</pose>
+      <pose>0 -1.967 0.208562 0 0 1.57079</pose>
     </include>
 
     <include>
@@ -46,7 +46,7 @@
 
     <include>
       <uri>model://drc_robot</uri>
-      <pose>0 2 1 0 0 0</pose>
+      <pose>-1 0 0.93 0 0 0</pose>
     </include>
 
   </world>

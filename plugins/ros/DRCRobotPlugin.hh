@@ -100,10 +100,15 @@ namespace gazebo
                                         double _upper, double _lower);
 
     /// \brief Remove a joint
-    private: void RemoveJoint(physics::JointPtr _joint);
+    private: void RemoveJoint(physics::JointPtr &_joint);
+
+    // \brief attach a model's link to the gripper with relative pose
+    private: void GrabLink(std::string _modelName, std::string _linkName,
+                           std::string _gripperName, math::Pose _pose);
 
     private: physics::LinkPtr fixedLink;
     private: physics::JointPtr fixedJoint;
+    private: physics::JointPtr grabJoint;
     private: math::Vector3 anchorPose;
     private: bool warpRobot;
 
