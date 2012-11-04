@@ -186,8 +186,6 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
   joint->SetHighStop(0, _upper);
   joint->SetLowStop(0, _lower);
 
-  // disable collision between the link pair
-
   /// \TODO: make threadPitch a function parameter too
   joint->SetThreadPitch(0, this->threadPitch);
 
@@ -195,6 +193,7 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
                             _link2->GetName() + std::string("_joint"));
   joint->Init();
 
+  // disable collision between the link pair
   _link1->SetCollideMode("fixed");
   _link2->SetCollideMode("fixed");
   return joint;

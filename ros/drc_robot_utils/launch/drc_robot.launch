@@ -10,6 +10,10 @@
   <!-- Controller Manager -->
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />
 
+  <!-- set joint positions to 0
+  <node pkg="drc_robot_utils" type="reset_pose.py" name="reset_pose" />
+  -->
+
   <!-- Fake Calibration -->
   <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
         args="pub /calibrated std_msgs/Bool true" />

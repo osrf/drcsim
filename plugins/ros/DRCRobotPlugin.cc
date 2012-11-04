@@ -79,8 +79,25 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
   // Note: hardcoded link by name: @todo: make this a pugin param
   this->fixedLink = this->model->GetLink("pelvis");
+  // if (!this->fixedJoint)
+  //   this->fixedJoint = this->AddJoint(this->world, this->model,
+  //                                     physics::LinkPtr(), this->fixedLink,
+  //                                     "revolute",
+  //                                     math::Vector3(0, 0, 0),
+  //                                     math::Vector3(0, 0, 1),
+  //                                     0.0, 0.0);
+
+  // turn gravity off to start
+  physics::Link_V links = this->model->GetAllLinks();
+  for (unsigned int i = 0; i < links.size(); ++i)
+  {
+    links[i]->SetGravityMode(false);
+  }
+  ROS_WARN("Start robot with gravity turned off for all links.");
+  ROS_WARN("  rostopic pub /mode std_msgs/String '{data: \"unpinned\"}'");
+  ROS_WARN("To re-engage.");
+
   this->initialPose = this->fixedLink->GetWorldPose();
-  this->FixLink(this->fixedLink);
 
   // ros subscription
   std::string trajectory_topic_name = "/cmd_vel";
@@ -90,6 +107,14 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
     boost::bind( &DRCRobotPlugin::SetRobotCmdVel,this,_1),
     ros::VoidPtr(), &this->queue_);
   this->trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
+
+  std::string pose_topic_name = "/pose";
+  ros::SubscribeOptions pose_so =
+    ros::SubscribeOptions::create<geometry_msgs::Pose>(
+    pose_topic_name, 100,
+    boost::bind( &DRCRobotPlugin::SetRobotPose,this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->pose_sub_ = this->rosnode_->subscribe(pose_so);
 
   std::string mode_topic_name = "/mode";
   ros::SubscribeOptions mode_so =
@@ -120,7 +145,8 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
     {
       links[i]->SetGravityMode(false);
     }
-    this->UnfixLink();
+    if (this->fixedJoint)
+      this->RemoveJoint(this->fixedJoint);
   }
   else if (_str->data == "feet")
   {
@@ -134,14 +160,20 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
       else
         links[i]->SetGravityMode(false);
     }
-    this->UnfixLink();
+    if (this->fixedJoint)
+      this->RemoveJoint(this->fixedJoint);
   }
   else if (_str->data == "pinned")
   {
     // reinitialize pinning
+    if (!this->fixedJoint)
+      this->fixedJoint = this->AddJoint(this->world, this->model,
+                                        physics::LinkPtr(), this->fixedLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
     this->initialPose = this->fixedLink->GetWorldPose();
-
-    this->FixLink(this->fixedLink);
 
     physics::Link_V links = this->model->GetAllLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
@@ -157,7 +189,8 @@ void DRCRobotPlugin::SetPluginMode(const std_msgs::String::ConstPtr &_str)
     {
       links[i]->SetGravityMode(true);
     }
-    this->UnfixLink();
+    if (this->fixedJoint)
+      this->RemoveJoint(this->fixedJoint);
   }
   else
   {
@@ -180,36 +213,69 @@ void DRCRobotPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// glue a link to the world by creating a fixed joint
-void DRCRobotPlugin::FixLink(physics::LinkPtr link)
+void DRCRobotPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 {
-  if (!this->fixedJoint)
-  {
-    this->fixedJoint = this->world->GetPhysicsEngine()->CreateJoint(
-      "revolute",this->model);
-    this->fixedJoint->Attach(physics::LinkPtr(), link);
-    // load adds the joint to a vector of shared pointers kept
-    // in parent and child links, preventing this from being destroyed.
-    this->fixedJoint->Load(physics::LinkPtr(), link,
-      math::Pose(this->anchorPose, math::Quaternion()));
-    this->fixedJoint->SetAxis(0, math::Vector3(0, 0, 1));
-    this->fixedJoint->SetHighStop(0, 0);
-    this->fixedJoint->SetLowStop(0, 0);
-    this->fixedJoint->SetAnchor(0, this->anchorPose);
-    this->fixedJoint->SetName(link->GetName()+std::string("_world_joint"));
-    this->fixedJoint->Init();
-  }
+  math::Pose pose(math::Vector3(_pose->position.x,
+                                _pose->position.y,
+                                _pose->position.z),
+                  math::Quaternion(_pose->orientation.w,
+                                   _pose->orientation.x,
+                                   _pose->orientation.y,
+                                   _pose->orientation.z));
+  this->model->SetWorldPose(pose);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// unglue a link to the world by destroying the fixed joint
-void DRCRobotPlugin::UnfixLink()
+// dynamically add joint between 2 links
+physics::JointPtr DRCRobotPlugin::AddJoint(physics::WorldPtr _world,
+                                           physics::ModelPtr _model,
+                                           physics::LinkPtr _link1,
+                                           physics::LinkPtr _link2,
+                                           std::string _type,
+                                           math::Vector3 _anchor,
+                                           math::Vector3 _axis,
+                                           double _upper, double _lower)
 {
-  if (this->fixedJoint)
+  physics::JointPtr joint = _world->GetPhysicsEngine()->CreateJoint(
+    _type, _model);
+  joint->Attach(_link1, _link2);
+  // load adds the joint to a vector of shared pointers kept
+  // in parent and child links, preventing joint from being destroyed.
+  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+  // joint->SetAnchor(0, _anchor);
+  joint->SetAxis(0, _axis);
+  joint->SetHighStop(0, _upper);
+  joint->SetLowStop(0, _lower);
+
+  if (_link1)
+    joint->SetName(_link1->GetName() + std::string("_") +
+                              _link2->GetName() + std::string("_joint"));
+  else
+    joint->SetName(std::string("world_") +
+                              _link2->GetName() + std::string("_joint"));
+  joint->Init();
+
+  // disable collision between the link pair
+  if (_link1)
+    _link1->SetCollideMode("fixed");
+  _link2->SetCollideMode("fixed");
+  return joint;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// remove a joint
+void DRCRobotPlugin::RemoveJoint(physics::JointPtr _joint)
+{
+  if (_joint)
   {
-    this->fixedJoint->Detach();
-    this->fixedJoint.reset();
+    // reenable collision between the link pair
+    physics::LinkPtr parent = _joint->GetParent();
+    physics::LinkPtr child = _joint->GetChild();
+    parent->SetCollideMode("all");
+    child->SetCollideMode("all");
+
+    _joint->Detach();
+    _joint.reset();
   }
 }
 
@@ -231,9 +297,16 @@ void DRCRobotPlugin::WarpDRCRobot(math::Pose _pose)
   bool e = this->world->GetEnablePhysicsEngine();
   this->world->EnablePhysicsEngine(false);
   this->world->SetPaused(true);
-  this->UnfixLink();
+  if (this->fixedJoint)
+    this->RemoveJoint(this->fixedJoint);
   this->model->SetLinkWorldPose(_pose, this->fixedLink);
-  this->FixLink(this->fixedLink);
+  if (!this->fixedJoint)
+    this->fixedJoint = this->AddJoint(this->world, this->model,
+                                      physics::LinkPtr(), this->fixedLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
   this->world->SetPaused(p);
   this->world->EnablePhysicsEngine(e);
 }
