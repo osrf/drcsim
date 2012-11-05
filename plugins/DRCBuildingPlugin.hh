@@ -73,6 +73,14 @@ namespace gazebo
     private: physics::LinkPtr doorLink;
     private: physics::JointPtr doorJoint;
     private: physics::JointPtr handleJoint;
+
+    private: common::PID doorPID;
+    private: double doorState;
+    private: double doorCmd;
+    private: common::PID handlePID;
+    private: double handleState;
+    private: double handleCmd;
+    private: common::Time lastTime;
   };
 /** \} */
 /// @}
