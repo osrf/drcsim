@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+
+#################################################3
+#
+#
+#
+#  This file is depricated!
+#
+#  see src/collisions_visualization_publisher.cpp for new version
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+###################################################
+
+import roslib; roslib.load_manifest('handle_collisions')
+import rospy
+
+from sensor_msgs.msg import JointState
+from handle_msgs.msg import HandleSensors
+from handle_msgs.msg import HandleSensorsCalibrated
+from handle_msgs.msg import Finger
+from handle_msgs.msg import HandleCollisions
+from handle_msgs.msg import Collision
+
+from visualization_msgs.msg import *
+
+import math
+import numpy
+import string
+
+#import tf
+
+marker_array_msg = None
+publisher = None
+
+DEBUG = True
+
+#tf_listener = None
+
+def callback(data):
+	global marker_array_msg
+	global publisher
+	#global tf_listener
+
+	for collision in data.collisions:
+		marker = Marker()
+                marker.ns = "tactile_display"
+                marker.id = collision.sensor_id
+		marker.header.frame_id = '/'+collision.frame_id
+		marker.type = marker.CUBE #SPHERE
+		marker.action = marker.ADD
+                marker.lifetime = rospy.Duration(0.01)
+		marker.scale.x = 0.0051
+		marker.scale.y = 0.0051
+		marker.scale.z = 0.0051
+		marker.color.a = 1.0
+		marker.color.r = 1.0
+		marker.color.g = 1.0
+		marker.color.b = 0.0
+		marker.pose.orientation.w = 1.0
+		marker.pose.position.x = collision.x
+		marker.pose.position.y = collision.y
+		marker.pose.position.z = collision.z
+
+		marker_array_msg.markers.append(marker)
+
+		# # tf transforms example ...
+		# try:
+		# 	(trans,rot) = tf_listener.lookupTransform(marker.header.frame_id, '/base_link', rospy.Time(0))
+		# 	print trans, rot
+		# except Exception as e:
+		# 	print "seems like tf exception", marker.header.frame_id
+		# 	print e
+		# 	pass
+
+	# Renumber the marker IDs
+	#for i in range(len(marker_array_msg.markers)):
+	#	marker_array_msg.markers[i].id = i
+
+	publisher.publish(marker_array_msg)
+	#print "published markers"
+
+
+if __name__ == '__main__':
+    
+	""" Create a HandleCollisions object which we use to publish the current state of the collisions. """
+
+	marker_array_msg = MarkerArray()
+	
+	rospy.init_node('collisions_visualization_publisher')
+
+	publisher = rospy.Publisher('/visualization_marker_array', MarkerArray)
+
+	rospy.Subscriber("/handle/events/collisions", HandleCollisions, callback)
+
+	rospy.loginfo(rospy.get_name() + " node initialized, awaiting orders ...")
+
+	#tf_listener = tf.TransformListener()
+
+	rospy.spin()

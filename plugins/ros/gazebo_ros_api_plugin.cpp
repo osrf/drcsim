@@ -30,6 +30,7 @@
 
 #include "common/Events.hh"
 #include "gazebo_ros_api_plugin.h"
+#include <boost/thread/mutex.hpp>
 
 namespace gazebo
 {
@@ -69,18 +70,19 @@ namespace gazebo
       delete this->ros_spin_thread_;
 
       /* Delete Force and Wrench Jobs */
-      this->lock_.lock();
-      for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator iter=this->force_joint_jobs.begin();iter!=this->force_joint_jobs.end();)
       {
-        delete (*iter);
-        this->force_joint_jobs.erase(iter);
+        boost::mutex::scoped_lock lock(this->lock_);
+        for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator iter=this->force_joint_jobs.begin();iter!=this->force_joint_jobs.end();)
+        {
+          delete (*iter);
+          this->force_joint_jobs.erase(iter);
+        }
+        for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator iter=this->wrench_body_jobs.begin();iter!=this->wrench_body_jobs.end();)
+        {
+          delete (*iter);
+          this->wrench_body_jobs.erase(iter);
+        }
       }
-      for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator iter=this->wrench_body_jobs.begin();iter!=this->wrench_body_jobs.end();)
-      {
-        delete (*iter);
-        this->wrench_body_jobs.erase(iter);
-      }
-      this->lock_.unlock();
     }
 
     void GazeboRosApiPlugin::Load(int argc, char** argv)
@@ -110,16 +112,16 @@ namespace gazebo
     {
       // make sure things are only called once
       gazebo::event::Events::DisconnectWorldCreated(this->load_gazebo_ros_api_plugin_event_);
-      this->lock_.lock();
-      if (this->world_created_)
       {
-        this->lock_.unlock();
-        return;
-      }
+        boost::mutex::scoped_lock lock(this->lock_);
+        if (this->world_created_)
+        {
+          return;
+        }
 
-      // set flag to true and load this plugin
-      this->world_created_ = true;
-      this->lock_.unlock();
+        // set flag to true and load this plugin
+        this->world_created_ = true;
+      }
 
 
       this->world = gazebo::physics::get_world(_worldName);
@@ -1158,9 +1160,10 @@ namespace gazebo
           if (fjj->start_time < ros::Time(this->world->GetSimTime().Double()))
             fjj->start_time = ros::Time(this->world->GetSimTime().Double());
           fjj->duration = req.duration;
-          this->lock_.lock();
-          this->force_joint_jobs.push_back(fjj);
-          this->lock_.unlock();
+          {
+            boost::mutex::scoped_lock lock(this->lock_);
+            this->force_joint_jobs.push_back(fjj);
+          }
 
           res.success = true;
           res.status_message = "ApplyJointEffort: effort set";
@@ -1216,7 +1219,7 @@ namespace gazebo
     bool GazeboRosApiPlugin::clearJointForces(std::string joint_name)
     {
       bool search = true;
-      this->lock_.lock();
+      boost::mutex::scoped_lock lock(this->lock_);
       while(search)
       {
         search = false;
@@ -1232,7 +1235,6 @@ namespace gazebo
           }
         }
       }
-      this->lock_.unlock();
       return true;
     }
 
@@ -1245,7 +1247,7 @@ namespace gazebo
     bool GazeboRosApiPlugin::clearBodyWrenches(std::string body_name)
     {
       bool search = true;
-      this->lock_.lock();
+      boost::mutex::scoped_lock lock(this->lock_);
       while(search)
       {
         search = false;
@@ -1262,7 +1264,6 @@ namespace gazebo
           }
         }
       }
-      this->lock_.unlock();
       return true;
     }
 
@@ -1511,9 +1512,10 @@ namespace gazebo
       if (wej->start_time < ros::Time(this->world->GetSimTime().Double()))
         wej->start_time = ros::Time(this->world->GetSimTime().Double());
       wej->duration = req.duration;
-      this->lock_.lock();
-      this->wrench_body_jobs.push_back(wej);
-      this->lock_.unlock();
+      {
+        boost::mutex::scoped_lock lock(this->lock_);
+        this->wrench_body_jobs.push_back(wej);
+      }
 
       res.success = true;
       res.status_message = "";
@@ -1570,7 +1572,7 @@ namespace gazebo
     {
       // MDMutex locks in case model is getting deleted, don't have to do this if we delete jobs first
       // boost::recursive_mutex::scoped_lock lock(*this->world->GetMDMutex());
-      this->lock_.lock();
+      boost::mutex::scoped_lock lock(this->lock_);
       for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator iter=this->wrench_body_jobs.begin();iter!=this->wrench_body_jobs.end();)
       {
         // check times and apply wrench if necessary
@@ -1597,7 +1599,6 @@ namespace gazebo
         else
           iter++;
       }
-      this->lock_.unlock();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -1606,7 +1607,7 @@ namespace gazebo
     {
       // MDMutex locks in case model is getting deleted, don't have to do this if we delete jobs first
       // boost::recursive_mutex::scoped_lock lock(*this->world->GetMDMutex());
-      this->lock_.lock();
+      boost::mutex::scoped_lock lock(this->lock_);
       for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator iter=this->force_joint_jobs.begin();iter!=this->force_joint_jobs.end();)
       {
         // check times and apply force if necessary
@@ -1629,7 +1630,6 @@ namespace gazebo
         else
           iter++;
       }
-      this->lock_.unlock();
     }
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -32,6 +32,7 @@
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/String.h>
 
 #include <boost/thread.hpp>
 
@@ -81,6 +82,7 @@ namespace gazebo
     ///   - z is the desired heading angular velocity, positive makes
     ///     the robot turn left, and negative makes the robot turn right
     public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
+    public: void SetPluginMode(const std_msgs::String::ConstPtr &_str);
 
     /// Move the robot's pinned joint to a certain location in the world.
     public: void WarpDRCRobot(math::Pose _pose);
@@ -91,7 +93,6 @@ namespace gazebo
     private: physics::JointPtr fixed_joint_;
     private: math::Vector3 anchor_pose_;
     private: bool warp_robot_;
-    private: double last_update_time_;
     private: math::Pose initial_pose_;
 
     private: double last_cmd_vel_update_time_;
@@ -102,7 +103,8 @@ namespace gazebo
     private: ros::CallbackQueue queue_;
     private: void QueueThread();
     private: boost::thread callback_queue_thread_;
-    private: ros::Subscriber ros_sub_;
+    private: ros::Subscriber trajectory_sub_;
+    private: ros::Subscriber mode_sub_;
   };
 /** \} */
 /// @}

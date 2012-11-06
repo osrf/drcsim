@@ -20,7 +20,7 @@
         <geometry>
           <mesh>
             <scale>0.025400 0.025400 0.025400</scale>
-            <uri>model://fire_hose/meshes/standpipe.stl</uri>
+            <uri>model://standpipe/meshes/standpipe.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -29,7 +29,7 @@
         <geometry>
           <mesh>
             <scale>0.025400 0.025400 0.025400</scale>
-            <uri>model://fire_hose/meshes/standpipe.stl</uri>
+            <uri>model://standpipe/meshes/standpipe.stl</uri>
           </mesh>
         </geometry>
       </visual>
