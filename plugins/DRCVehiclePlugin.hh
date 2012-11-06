@@ -192,6 +192,10 @@ namespace gazebo
     private: double handwheelLow;
     private: double handwheelRange;
     private: double wheelRadius;
+    private: double flWheelRadius;
+    private: double frWheelRadius;
+    private: double blWheelRadius;
+    private: double brWheelRadius;
 
     /// state of cart
     private: double handwheelState;

@@ -28,6 +28,11 @@
 #include <math.h>
 #include "DRCVehiclePlugin.hh"
 #include "gazebo/common/common.hh"
+#include "gazebo/physics/Base.hh"
+#include "gazebo/physics/CylinderShape.hh"
+#include "gazebo/physics/SphereShape.hh"
+
+double get_collision_radius(gazebo::physics::CollisionPtr _collision);
 
 namespace gazebo
 {
@@ -47,6 +52,10 @@ DRCVehiclePlugin::DRCVehiclePlugin()
 
   /// \TODO: get this from model
   this->wheelRadius = 0.1;
+  this->flWheelRadius = 0.1;
+  this->frWheelRadius = 0.1;
+  this->blWheelRadius = 0.1;
+  this->brWheelRadius = 0.1;
   this->pedalForce = 10;
   this->handwheelForce = 1;
   this->steeredWheelForce = 200;
@@ -284,6 +293,17 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   this->UpdateHandwheelRatio();
 
+  // update wheel radius for each wheel from SDF collision objects
+  //  assumes that wheel link is child of joint (and not parent of joint)
+  //  assumes that wheel link has only one collision
+  unsigned int id=0;
+  this->flWheelRadius = get_collision_radius(this->flWheelJoint->GetChild()->GetCollision(id));
+  this->frWheelRadius = get_collision_radius(this->frWheelJoint->GetChild()->GetCollision(id));
+  this->blWheelRadius = get_collision_radius(this->blWheelJoint->GetChild()->GetCollision(id));
+  this->brWheelRadius = get_collision_radius(this->brWheelJoint->GetChild()->GetCollision(id));
+  //gzerr << this->flWheelRadius << " " << this->frWheelRadius << " "
+  //      << this->blWheelRadius << " " << this->brWheelRadius;
+
   // initialize controllers for car
   /// \TODO: move PID parameters into SDF
   this->gasPedalPID.Init(200, 1, 3, 10, -10,
@@ -405,3 +425,21 @@ void DRCVehiclePlugin::UpdateStates()
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
 }
+
+// function that extracts the radius of a cylinder or sphere collision shape
+// the function returns zero otherwise
+double get_collision_radius(gazebo::physics::CollisionPtr _collision)
+{
+  if (_collision->GetShape()->HasType(gazebo::physics::Base::CYLINDER_SHAPE))
+  {
+    gazebo::physics::CylinderShape *cyl = static_cast<gazebo::physics::CylinderShape*>(_collision->GetShape().get());
+    return cyl->GetRadius();
+  }
+  else if (_collision->GetShape()->HasType(gazebo::physics::Base::SPHERE_SHAPE))
+  {
+    gazebo::physics::SphereShape *sph = static_cast<gazebo::physics::SphereShape*>(_collision->GetShape().get());
+    return sph->GetRadius();
+  }
+  return 0;
+}
+
