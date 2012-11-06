@@ -68,51 +68,51 @@ namespace gazebo
     ///   - specify brake pedal position in meters
     /// The vehicle internal model will decide the overall motion
     /// of the vehicle.
-    public: void SetVehicleState(double _steeringWheelPosition,
+    public: void SetVehicleState(double _handwheelPosition,
                                  double _gasPedalPosition,
                                  double _brakePedalPosition);
 
     /// Set the steering wheel angle (rad)
     /// Setting steering wheel angle will also update the front wheel
     /// steering angle
-    public: void SetSteeringWheelState(double _position);
+    public: void SetHandwheelState(double _position);
 
     /// Sets the lower and upper limits of the steering wheel angle (rad)
-    public: void SetSteeringWheelLimits(const math::Angle &_min,
+    public: void SetHandwheelLimits(const math::Angle &_min,
                                         const  math::Angle &_max);
 
     /// Returns the lower and upper limits of the steering wheel angle (rad)
-    public: void GetSteeringWheelLimits(math::Angle &_min, math::Angle &_max);
+    public: void GetHandwheelLimits(math::Angle &_min, math::Angle &_max);
 
     /// Returns the steering wheel angle (rad)
-    public: double GetSteeringWheelState();
+    public: double GetHandwheelState();
 
     /// computes the front wheel angle / steering wheel angle ratio
-    public: void UpdateSteeringWheelRatio();
+    public: void UpdateHandwheelRatio();
 
     /// Returns the front wheel angle / steering wheel angle ratio
-    public: double GetSteeringWheelRatio();
+    public: double GetHandwheelRatio();
 
 
     /// Specify front wheel orientation in radians (Note:  this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
-    /// SetSteeringWheelState).
+    /// SetHandwheelState).
     /// Zero setting results in vehicle traveling in a straight line.
     /// Positive steering angle results in a left turn in forward motion.
     /// Negative steering angle results in a right turn in forward motion.
     /// Setting front wheel steering angle will also update the
-    /// steering wheel angle
-    public: void SetSteeringState(double _position);
+    /// handwheel steering angle
+    public: void SetSteeredWheelState(double _position);
 
     /// Sets the lower and upper limits of the steering angle (rad)
-    public: void SetSteeringLimits(const math::Angle &_min,
+    public: void SetSteeredWheelLimits(const math::Angle &_min,
                                    const math::Angle &_max);
 
     /// Returns the steering angle (rad)
-    public: double GetSteeringState();
+    public: double GetSteeredWheelState();
 
     /// Returns the lower and upper limits of the steering angle (rad)
-    public: void GetSteeringLimits(math::Angle &_min, math::Angle &_max);
+    public: void GetSteeredWheelLimits(math::Angle &_min, math::Angle &_max);
 
     /// Specify gas pedal position in meters.
     public: void SetGasPedalState(double _position);
@@ -143,7 +143,7 @@ namespace gazebo
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
-    private: physics::JointPtr steeringWheelJoint;
+    private: physics::JointPtr handwheelJoint;
     private: physics::JointPtr flWheelJoint;
     private: physics::JointPtr frWheelJoint;
     private: physics::JointPtr blWheelJoint;
@@ -160,12 +160,12 @@ namespace gazebo
     private: double aeroLoad;
     private: double steeringRatio;
     private: double pedalForce;
-    private: double steeringWheelForce;
-    private: double steeringForce;
+    private: double handwheelForce;
+    private: double steeredWheelForce;
 
     private: double gasPedalCmd;
     private: double brakePedalCmd;
-    private: double steeringWheelCmd;
+    private: double handwheelCmd;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
@@ -175,7 +175,7 @@ namespace gazebo
 
     private: common::PID gasPedalPID;
     private: common::PID brakePedalPID;
-    private: common::PID steeringWheelPID;
+    private: common::PID handwheelPID;
     private: common::PID flWheelSteeringPID;
     private: common::PID frWheelSteeringPID;
 
@@ -188,13 +188,13 @@ namespace gazebo
     private: double brakePedalHigh;
     private: double brakePedalLow;
     private: double brakePedalRange;
-    private: double steeringWheelHigh;
-    private: double steeringWheelLow;
-    private: double steeringWheelRange;
+    private: double handwheelHigh;
+    private: double handwheelLow;
+    private: double handwheelRange;
     private: double wheelRadius;
 
     /// state of cart
-    private: double steeringWheelState;
+    private: double handwheelState;
     private: double flSteeringState;
     private: double frSteeringState;
     private: double gasPedalState;
