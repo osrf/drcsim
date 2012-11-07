@@ -33,6 +33,7 @@
 #include "gazebo/physics/SphereShape.hh"
 
 double get_collision_radius(gazebo::physics::CollisionPtr _collision);
+gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link, unsigned int id);
 
 namespace gazebo
 {
@@ -293,7 +294,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   this->UpdateHandwheelRatio();
 
-  // update wheel radius for each wheel from SDF collision objects
+  // Update wheel radius for each wheel from SDF collision objects
   //  assumes that wheel link is child of joint (and not parent of joint)
   //  assumes that wheel link has only one collision
   unsigned int id=0;
@@ -302,7 +303,27 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->blWheelRadius = get_collision_radius(this->blWheelJoint->GetChild()->GetCollision(id));
   this->brWheelRadius = get_collision_radius(this->brWheelJoint->GetChild()->GetCollision(id));
   //gzerr << this->flWheelRadius << " " << this->frWheelRadius << " "
-  //      << this->blWheelRadius << " " << this->brWheelRadius;
+  //      << this->blWheelRadius << " " << this->brWheelRadius << "\n";
+
+  // Compute wheelbase, frontTrackWidth, and rearTrackWidth
+  //  first compute the positions of the 4 wheel centers
+  //  again assumes wheel link is child of joint and has only one collision
+  math::Vector3 flCenterPos = get_collision_position(this->flWheelJoint->GetChild(), id);
+  math::Vector3 frCenterPos = get_collision_position(this->frWheelJoint->GetChild(), id);
+  math::Vector3 blCenterPos = get_collision_position(this->blWheelJoint->GetChild(), id);
+  math::Vector3 brCenterPos = get_collision_position(this->brWheelJoint->GetChild(), id);
+  // track widths are computed first
+  math::Vector3 vec3 = flCenterPos - frCenterPos;
+  frontTrackWidth = vec3.GetLength();
+  vec3 = flCenterPos - frCenterPos;
+  backTrackWidth = vec3.GetLength();
+  // to compute wheelbase, first position of axle centers are computed
+  math::Vector3 frontAxlePos = (flCenterPos + frCenterPos) / 2;
+  math::Vector3 backAxlePos = (blCenterPos + brCenterPos) / 2;
+  // then the wheelbase is the distance between the axle centers
+  vec3 = frontAxlePos - backAxlePos;
+  wheelbaseLength = vec3.GetLength();
+  //gzerr << wheelbaseLength << " " << frontTrackWidth << " " << backTrackWidth << "\n";
 
   // initialize controllers for car
   /// \TODO: move PID parameters into SDF
@@ -364,8 +385,13 @@ void DRCVehiclePlugin::UpdateStates()
     this->brakePedalJoint->SetForce(0, brakeCmd);
 
     // PID (position) steering joints based on steering position
-    this->flWheelSteeringCmd = this->handwheelState * this->steeringRatio;
-    this->frWheelSteeringCmd = this->handwheelState * this->steeringRatio;
+    // Ackermann steering geometry here
+    //  \TODO provide documentation for these equations
+    double tanSteeredWheelState = tan(this->handwheelState * this->steeringRatio);
+    this->flWheelSteeringCmd = atan2(tanSteeredWheelState, 1 - frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
+    this->frWheelSteeringCmd = atan2(tanSteeredWheelState, 1 + frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
+    //this->flWheelSteeringCmd = this->handwheelState * this->steeringRatio;
+    //this->frWheelSteeringCmd = this->handwheelState * this->steeringRatio;
 
     double flwsError =  this->flSteeringState - this->flWheelSteeringCmd;
     double flwsCmd = this->flWheelSteeringPID.Update(flwsError, dt);
@@ -443,3 +469,8 @@ double get_collision_radius(gazebo::physics::CollisionPtr _collision)
   return 0;
 }
 
+gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link, unsigned int id)
+{
+  gazebo::math::Pose pose = _link->GetRelativePose() + _link->GetCollision(id)->GetRelativePose();
+  return pose.pos;
+}
