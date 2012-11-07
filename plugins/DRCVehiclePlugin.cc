@@ -471,6 +471,7 @@ double get_collision_radius(gazebo::physics::CollisionPtr _collision)
 
 gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link, unsigned int id)
 {
-  gazebo::math::Pose pose = _link->GetRelativePose() + _link->GetCollision(id)->GetRelativePose();
+  gazebo::math::Pose pose = _link->GetRelativePose();
+  pose.CoordPositionAdd(_link->GetCollision(id)->GetRelativePose());
   return pose.pos;
 }
