@@ -304,7 +304,12 @@ int main(int argc, char** argv)
               boost::shared_ptr<urdf::Joint> joint;
               std::cout << "  JOINT: Creating [" << val << "]\n";
               joint.reset(new urdf::Joint);
+
+              // as ROS Graph Resource Names do not allow "." characters, replace with _
+              std::replace( val.begin(), val.end(), '.', '_');
               joint->name = val;
+              std::cout << "\n\n" << joint->name << "\n\n";
+
               joint->limits.reset(new urdf::JointLimits());
               joint->safety.reset(new urdf::JointSafety());
               joint->dynamics.reset(new urdf::JointDynamics());
@@ -373,6 +378,12 @@ int main(int argc, char** argv)
           }
           else
           {
+
+            // this is a joint name
+            // as ROS Graph Resource Names do not allow "." characters, replace with _
+            std::replace( entity_name.begin(), entity_name.end(), '.', '_');
+              std::cout << "\n\n" << entity_name << "\n\n";
+
             // parse key value pair
             std::string key, val;
             if (!line.empty())

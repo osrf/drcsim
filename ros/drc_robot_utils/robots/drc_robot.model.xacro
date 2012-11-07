@@ -14,7 +14,7 @@
     <origin xyz="0  0.1 -0.03" rpy="0 3.1416 -1.57079"/>
   </xacro:camhand>
 
-  <include filename="$(find drc_robot_utils)/drc_robot.gazebo" />
-  <include filename="$(find drc_robot_utils)/drc_robot.transmission" />
-  <include filename="$(find drc_robot_utils)/drc_robot.sensors" />
+  <include filename="$(find drc_robot_utils)/urdf/drc_robot.gazebo" />
+  <include filename="$(find drc_robot_utils)/urdf/drc_robot.transmission" />
+  <include filename="$(find drc_robot_utils)/urdf/drc_robot.sensors" />
 </robot>

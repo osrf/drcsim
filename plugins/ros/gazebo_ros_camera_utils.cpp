@@ -439,7 +439,7 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src, common::Time
 
 void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
 {
-  this->lock_.lock();
+  boost::mutex::scoped_lock lock(this->lock_);
 
   // copy data into image
   this->image_msg_.header.frame_id = this->frame_name_;
@@ -460,8 +460,6 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
     // publish to ros
     this->image_pub_.publish(this->image_msg_);
   }
-
-  this->lock_.unlock();
 }
 
 

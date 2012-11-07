@@ -236,64 +236,65 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
   /*  point scan from laser                                      */
   /*                                                             */
   /***************************************************************/
-  this->lock_.lock();
-  // Add Frame Name
-  this->laser_msg_.header.frame_id = this->frame_name_;
-  this->laser_msg_.header.stamp.sec = _updateTime.sec;
-  this->laser_msg_.header.stamp.nsec = _updateTime.nsec;
-
-
-  double tmp_res_angle = (maxAngle.Radian() - minAngle.Radian())/((double)(rangeCount -1)); // for computing yaw
-  this->laser_msg_.angle_min = minAngle.Radian();
-  this->laser_msg_.angle_max = maxAngle.Radian();
-  this->laser_msg_.angle_increment = tmp_res_angle;
-  this->laser_msg_.time_increment  = 0; // instantaneous simulator scan
-  this->laser_msg_.scan_time       = 0; // FIXME: what's this?
-  this->laser_msg_.range_min = minRange;
-  this->laser_msg_.range_max = maxRange;
-  this->laser_msg_.ranges.clear();
-  this->laser_msg_.intensities.clear();
-
-  // Interpolate the range readings from the rays
-  for (i = 0; i<rangeCount; i++)
   {
-    b = (double) i * (rayCount - 1) / (rangeCount - 1);
-    ja = (int) floor(b);
-    jb = std::min(ja + 1, rayCount - 1);
-    b = b - floor(b);
+    boost::mutex::scoped_lock lock(this->lock_);
+    // Add Frame Name
+    this->laser_msg_.header.frame_id = this->frame_name_;
+    this->laser_msg_.header.stamp.sec = _updateTime.sec;
+    this->laser_msg_.header.stamp.nsec = _updateTime.nsec;
 
-    assert(ja >= 0 && ja < rayCount);
-    assert(jb >= 0 && jb < rayCount);
 
-    ra = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(ja) , maxRange-minRange); // length of ray
-    rb = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(jb) , maxRange-minRange); // length of ray
+    double tmp_res_angle = (maxAngle.Radian() - minAngle.Radian())/((double)(rangeCount -1)); // for computing yaw
+    this->laser_msg_.angle_min = minAngle.Radian();
+    this->laser_msg_.angle_max = maxAngle.Radian();
+    this->laser_msg_.angle_increment = tmp_res_angle;
+    this->laser_msg_.time_increment  = 0; // instantaneous simulator scan
+    this->laser_msg_.scan_time       = 0; // FIXME: what's this?
+    this->laser_msg_.range_min = minRange;
+    this->laser_msg_.range_max = maxRange;
+    this->laser_msg_.ranges.clear();
+    this->laser_msg_.intensities.clear();
 
-    // Range is linear interpolation if values are close,
-    // and min if they are very different
-    //if (fabs(ra - rb) < 0.10)
-      r = (1 - b) * ra + b * rb;
-    //else r = std::min(ra, rb);
+    // Interpolate the range readings from the rays
+    for (i = 0; i<rangeCount; i++)
+    {
+      b = (double) i * (rayCount - 1) / (rangeCount - 1);
+      ja = (int) floor(b);
+      jb = std::min(ja + 1, rayCount - 1);
+      b = b - floor(b);
 
-    // Intensity is averaged
-    intensity = 0.5*( this->parent_ray_sensor_->GetLaserShape()->GetRetro(ja)
-                    + this->parent_ray_sensor_->GetLaserShape()->GetRetro(jb));
+      assert(ja >= 0 && ja < rayCount);
+      assert(jb >= 0 && jb < rayCount);
 
-    /***************************************************************/
-    /*                                                             */
-    /*  point scan from laser                                      */
-    /*                                                             */
-    /***************************************************************/
-    this->laser_msg_.ranges.push_back(std::min(r + minRange + this->GaussianKernel(0,this->gaussian_noise_), maxRange));
-    this->laser_msg_.intensities.push_back(std::max(this->hokuyo_min_intensity_,intensity + this->GaussianKernel(0,this->gaussian_noise_)));
+      ra = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(ja) , maxRange-minRange); // length of ray
+      rb = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(jb) , maxRange-minRange); // length of ray
+
+      // Range is linear interpolation if values are close,
+      // and min if they are very different
+      //if (fabs(ra - rb) < 0.10)
+        r = (1 - b) * ra + b * rb;
+      //else r = std::min(ra, rb);
+
+      // Intensity is averaged
+      intensity = 0.5*( this->parent_ray_sensor_->GetLaserShape()->GetRetro(ja)
+                      + this->parent_ray_sensor_->GetLaserShape()->GetRetro(jb));
+
+      /***************************************************************/
+      /*                                                             */
+      /*  point scan from laser                                      */
+      /*                                                             */
+      /***************************************************************/
+      this->laser_msg_.ranges.push_back(std::min(r + minRange + this->GaussianKernel(0,this->gaussian_noise_), maxRange));
+      this->laser_msg_.intensities.push_back(std::max(this->hokuyo_min_intensity_,intensity + this->GaussianKernel(0,this->gaussian_noise_)));
+    }
+
+    this->parent_ray_sensor_->SetActive(true);
+
+    // send data out via ros message
+    if (this->laser_connect_count_ > 0 && this->topic_name_ != "")
+        this->pub_.publish(this->laser_msg_);
+
   }
-
-  this->parent_ray_sensor_->SetActive(true);
-
-  // send data out via ros message
-  if (this->laser_connect_count_ > 0 && this->topic_name_ != "")
-      this->pub_.publish(this->laser_msg_);
-
-  this->lock_.unlock();
 
 }
 
