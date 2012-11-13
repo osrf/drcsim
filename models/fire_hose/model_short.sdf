@@ -1042,7 +1042,7 @@
       </axis>
     </joint>
 
-    <plugin name='vehicle' filename='libDRCFirehosePlugin.so'>
+    <plugin name='fire_hose_plugin' filename='libDRCFirehosePlugin.so'>
       <coupling_link>coupling</coupling_link>
       <spout_model>standpipe</spout_model>
       <spout_link>standpipe</spout_link>
