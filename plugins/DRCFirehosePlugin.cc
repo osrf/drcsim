@@ -143,14 +143,17 @@ bool DRCFirehosePlugin::CheckThreadStart()
   //       << "] rpy [" << rotErr
   //       << "]\n";
 
-  if (!this->screwJoint && (posErr < 0.01 && rotErr < 0.01))
+  if (!this->screwJoint)
   {
-    this->screwJoint = this->AddJoint(this->world, this->model,
-                                      this->spoutLink, this->couplingLink,
-                                      "screw",
-                                      math::Vector3(0, 0, 0),
-                                      math::Vector3(0, 0, 1),
-                                      20.0, -0.5);
+    if (posErr < 0.01 && rotErr < 0.01)
+    {
+      this->screwJoint = this->AddJoint(this->world, this->model,
+                                        this->spoutLink, this->couplingLink,
+                                        "screw",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        20.0, -0.5);
+    }
   }
   else
   {
