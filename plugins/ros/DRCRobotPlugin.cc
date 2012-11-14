@@ -87,6 +87,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   //                                     math::Vector3(0, 0, 1),
   //                                     0.0, 0.0);
 
+  /*
   // turn gravity off to start
   physics::Link_V links = this->model->GetAllLinks();
   for (unsigned int i = 0; i < links.size(); ++i)
@@ -96,6 +97,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   ROS_WARN("Start robot with gravity turned off for all links.");
   ROS_WARN("  rostopic pub /mode std_msgs/String '{data: \"unpinned\"}'");
   ROS_WARN("To re-engage.");
+  */
 
   this->initialPose = this->fixedLink->GetWorldPose();
 
