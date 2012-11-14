@@ -1,5 +1,4 @@
 set (plugins
-  RubblePlugin
   #DRCRobotPlugin
   DRCVehiclePlugin
   DRCBuildingPlugin
