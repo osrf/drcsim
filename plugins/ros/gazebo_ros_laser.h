@@ -33,7 +33,7 @@
 #include <ros/advertise_options.h>
 
 #include "sdf/interface/Param.hh"
-#include "physics/physics.h"
+#include "physics/physics.hh"
 #include "transport/TransportTypes.hh"
 #include "msgs/MessageTypes.hh"
 #include "common/Time.hh"
