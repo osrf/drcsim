@@ -16,21 +16,10 @@
   </node>
 
   <!-- Arms -->
-  <rosparam command="load" file="$(find drc_robot)/ros/arm_controllers.yaml" />
-  <rosparam command="load" file="$(find drc_robot)/ros/leg_controllers.yaml" />
-  <rosparam command="load" file="$(find drc_robot)/ros/torso_position_controllers.yaml" />
+  <rosparam command="load" file="$(find drc_robot)/ros/whole_body_trajectory_controller.yaml" />
 
   <!-- Controllers that come up started -->
-  <node name="drc_robot_arm_controllers_spawner"
+  <node name="drc_robot_controller_spawner"
         pkg="pr2_controller_manager" type="spawner" output="screen"
-        args="--wait-for=/calibrated r_arm_controller l_arm_controller" />
-
-  <node name="drc_robot_leg_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
-        args="--wait-for=/calibrated r_leg_controller l_leg_controller" />
-
-  <node name="drc_robot_torso_position_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
-        args="--wait-for=/calibrated neck_ay_position_controller back_lbz_position_controller back_mby_position_controller back_ubx_position_controller" />
-
+        args="--wait-for=/calibrated drc_controller" />
 </launch>

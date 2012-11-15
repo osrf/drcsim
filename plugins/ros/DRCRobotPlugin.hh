@@ -84,7 +84,8 @@ namespace gazebo
     ///     the robot turn left, and negative makes the robot turn right
     public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
     public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetPluginMode(const std_msgs::String::ConstPtr &_str);
+    public: void SetPluginModeTopic(const std_msgs::String::ConstPtr &_str);
+    public: void SetPluginMode(const std::string &_str);
 
     /// Move the robot's pinned joint to a certain location in the world.
     public: void WarpDRCRobot(math::Pose _pose);
@@ -115,6 +116,8 @@ namespace gazebo
     /// \brief keep initial pose of robot to prevent z-drifting when
     /// teleporting the robot.
     private: math::Pose initialPose;
+
+    private: bool harnessed;
 
     private: double lastUpdateTime;
     private: geometry_msgs::Twist cmdVel;
