@@ -39,7 +39,7 @@
 #include <gazebo_msgs/SetJointTrajectory.h>
 #endif
 
-#include "physics/physics.h"
+#include "physics/physics.hh"
 #include "transport/TransportTypes.hh"
 #include "common/Time.hh"
 #include "common/Plugin.hh"

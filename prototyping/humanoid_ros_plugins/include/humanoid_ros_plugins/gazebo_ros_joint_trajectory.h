@@ -36,7 +36,7 @@
 
 #include <humanoid_ros_plugins/SetJointTrajectory.h>
 
-#include "physics/physics.h"
+#include "physics/physics.hh"
 #include "transport/TransportTypes.hh"
 #include "common/Time.hh"
 #include "common/Plugin.hh"

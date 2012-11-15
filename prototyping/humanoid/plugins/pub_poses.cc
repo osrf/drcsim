@@ -15,7 +15,7 @@
  *
 */
 #include "gazebo/gazebo.hh"
-#include "physics/physics.h"
+#include "physics/physics.hh"
 #include "transport/transport.hh"
 #include "msgs/MessageTypes.hh"
 #include "common/Time.hh"
