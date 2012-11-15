@@ -26,6 +26,7 @@
  */
 
 #include "DRCFirehosePlugin.hh"
+#include "gazebo/physics/ScrewJoint.hh"
 
 namespace gazebo
 {
@@ -189,8 +190,27 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
   joint->SetHighStop(0, _upper);
   joint->SetLowStop(0, _lower);
 
-  /// \TODO: make threadPitch a function parameter too
+  /// threadPitch a function parameter, but only works with default branch
+  joint->SetAttribute("thread_pitch", 0, this->threadPitch);
+
+  /* SetThreadPitch should not be exposed in generic Joint
   joint->SetThreadPitch(0, this->threadPitch);
+  */
+
+  /* ODEJoint class is not exposed
+  physics::ScrewJoint<physics::ODEJoint>* screwJoint =
+    dynamic_cast<physics::ScrewJoint<physics::ODEJoint>* >(this);
+  if (screwJoint != NULL)
+    screwJoint->SetThreadPitch(0, this->threadPitch);
+  */
+
+  /* trying through sdf, but sdf is empty
+  sdf::ElementPtr sdf = joint->GetSDF();
+  sdf->PrintValues("");
+  sdf->GetElement("thread_pitch")->Set(this->threadPitch);
+  joint->UpdateParameters(sdf);
+  joint->Load(sdf);
+  */
 
   joint->SetName(_link1->GetName() + std::string("_") +
                             _link2->GetName() + std::string("_joint"));
