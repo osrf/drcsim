@@ -11,6 +11,7 @@
   <depend package="actionlib"/>
   <depend package="roscpp"/>
   <depend package="pr2_controllers_msgs"/>
+  <depend package="control_msgs"/>
 
 </package>
 
