@@ -574,7 +574,7 @@
         <parent link="mtorso" />
         <child link="utorso" />
         <dynamics damping="0.1" friction="0" />
-        <limit effort="94.91" velocity="12" lower="-0.790809" upper="0" />
+        <limit effort="94.91" velocity="12" lower="-0.790809" upper="0.790809" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.7908" soft_upper_limit="10" />
     </joint>
     <joint name="l_arm_elx" type="revolute">
@@ -596,7 +596,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="13.1416" />
     </joint>
     <joint name="l_arm_mwx" type="revolute">
-        <origin xyz="0 0.095 0" rpy="0 -0 0" />
+        <origin xyz="0 0.058 0" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
         <parent link="l_farm" />
         <child link="l_hand" />
@@ -623,7 +623,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.9635" soft_upper_limit="11.9635" />
     </joint>
     <joint name="l_arm_uwy" type="revolute">
-        <origin xyz="0 0.183 -0.013" rpy="0 -0 0" />
+        <origin xyz="0 0.188 -0.013" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="l_larm" />
         <child link="l_farm" />
@@ -713,7 +713,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="13.1416" />
     </joint>
     <joint name="r_arm_mwx" type="revolute">
-        <origin xyz="0 -0.095 0" rpy="0 -0 0" />
+        <origin xyz="0 -0.058 0" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
         <parent link="r_farm" />
         <child link="r_hand" />
@@ -740,7 +740,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.9635" soft_upper_limit="11.9635" />
     </joint>
     <joint name="r_arm_uwy" type="revolute">
-        <origin xyz="0 -0.183 -0.013" rpy="0 -0 0" />
+        <origin xyz="0 -0.188 -0.013" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="r_larm" />
         <child link="r_farm" />
