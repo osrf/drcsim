@@ -99,8 +99,6 @@ namespace gazebo
     private: physics::ModelPtr spoutModel;
     private: physics::LinkPtr spoutLink;
     private: math::Pose couplingRelativePose;
-    private: math::Pose spoutRelativePose;
-
   };
 /** \} */
 /// @}

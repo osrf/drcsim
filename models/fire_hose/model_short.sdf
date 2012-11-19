@@ -1048,11 +1048,8 @@
       <spout_link>standpipe</spout_link>
       <thread_pitch>-1000</thread_pitch>
       <coupling_relative_pose>
-        0.030000 0.000000 0.000000 0.000000 1.570790 0.000000
+        1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199
       </coupling_relative_pose>
-      <spout_relative_pose>
-        0.000000 -0.124500 0.390000 0.000000 0 0.000000
-      </spout_relative_pose>
     </plugin>
   </model>
 </gazebo>

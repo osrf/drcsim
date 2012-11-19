@@ -55,9 +55,30 @@ void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
   this->world->EnablePhysicsEngine(true);
 
   this->doorLink = this->model->GetLink(_sdf->GetValueString("door_link"));
+  if (!this->doorLink)
+  {
+    gzerr << "<door_link>" << _sdf->GetValueString("door_link")
+          << "<door_link> does not exist\n";
+    return;
+  }
+
   this->doorJoint = this->model->GetJoint(_sdf->GetValueString("door_joint"));
+  if (!this->doorJoint)
+  {
+    gzerr << "<door_joint>" << _sdf->GetValueString("door_joint")
+          << "<door_joint> does not exist\n";
+    return;
+  }
+
   this->handleJoint = this->model->GetJoint(
     _sdf->GetValueString("handle_joint"));
+  if (!this->handleJoint)
+  {
+    gzerr << "<handle_joint>" << _sdf->GetValueString("handle_joint")
+          << "<handle_joint> does not exist\n";
+    return;
+  }
+
   this->doorJoint->SetHighStop(0, 0);
   this->doorJoint->SetLowStop(0, 0);
 

@@ -81,7 +81,6 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   this->threadPitch = _sdf->GetValueDouble("thread_pitch");
 
   this->couplingRelativePose = _sdf->GetValuePose("coupling_relative_pose");
-  this->spoutRelativePose = _sdf->GetValuePose("spout_relative_pose");
 
   // Reset Time
   this->lastTime = this->world->GetSimTime();
@@ -128,8 +127,7 @@ bool DRCFirehosePlugin::CheckThreadStart()
   // 
   // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
   // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
-  math::Pose connectPose(1.17038e-05, -0.125623, 0.35,
-                         -0.0412152, -1.57078, 1.61199);
+  math::Pose connectPose(this->couplingRelativePose);
   math::Pose relativePose = this->couplingLink->GetWorldPose() -
                             this->spoutLink->GetWorldPose();
 
@@ -153,7 +151,8 @@ bool DRCFirehosePlugin::CheckThreadStart()
                                         "screw",
                                         math::Vector3(0, 0, 0),
                                         math::Vector3(0, 0, 1),
-                                        20.0, -0.5);
+                                        20.0/1000, -0.5/1000);
+                                        // 20.0, -0.5); // recover threadPitch
     }
   }
   else
