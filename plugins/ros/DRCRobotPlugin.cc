@@ -92,7 +92,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   this->SetPluginMode("feet");
   this->harnessed = true;
   ROS_WARN("Start robot with gravity turned off for all links.");
-  ROS_WARN("  rostopic pub /mode std_msgs/String '{data: \"unpinned\"}'");
+  ROS_WARN("  rostopic pub /mode std_msgs/String '{data: \"nominal\"}'");
   ROS_WARN("To re-engage.");
 
   this->initialPose = this->fixedLink->GetWorldPose();
@@ -140,7 +140,7 @@ void DRCRobotPlugin::SetPluginModeTopic(const std_msgs::String::ConstPtr &_str)
 
 void DRCRobotPlugin::SetPluginMode(const std::string &_str)
 {
-  if (_str == "gravity")
+  if (_str == "no_gravity")
   {
     // stop warping robot
     this->warpRobot = false;
@@ -185,7 +185,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
       links[i]->SetGravityMode(true);
     }
   }
-  else if (_str == "unpinned")
+  else if (_str == "nominal")
   {
     // reinitialize pinning
     physics::Link_V links = this->model->GetAllLinks();
@@ -195,14 +195,6 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
     }
     if (this->fixedJoint)
       this->RemoveJoint(this->fixedJoint);
-  }
-  else if (_str == "disable_physics")
-  {
-    this->world->EnablePhysicsEngine(false);
-  }
-  else if (_str == "enable_physics")
-  {
-    this->world->EnablePhysicsEngine(true);
   }
   else if (_str == "grab_fire_hose")
   {
@@ -217,7 +209,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   }
   else
   {
-    ROS_INFO("available modes:gravity, feet, pinned, unpinned");
+    ROS_INFO("available modes:no_gravity, feet, pinned, nominal");
   }
 
 }
@@ -377,7 +369,7 @@ void DRCRobotPlugin::UpdateStates()
 
   if (this->harnessed && cur_time > 10)
   {
-    this->SetPluginMode("unpinned");
+    this->SetPluginMode("nominal");
     this->harnessed = false;
   }
 

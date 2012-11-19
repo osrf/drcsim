@@ -191,7 +191,9 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
   joint->SetLowStop(0, _lower);
 
   /// threadPitch a function parameter, but only works with default branch
+  /* awaiting gazebo 1.3 in the future
   joint->SetAttribute("thread_pitch", 0, this->threadPitch);
+  */
 
   /* SetThreadPitch should not be exposed in generic Joint
   joint->SetThreadPitch(0, this->threadPitch);
