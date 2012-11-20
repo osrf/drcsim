@@ -3,7 +3,7 @@
 # Macro to turn a list into a string (why doesn't CMake have this
 # built-in?)
 macro(_list_to_string _string _list)
-    set(${_string})
+    set(${_string} "")
     foreach(_item ${_list})
         string(LENGTH "${${_string}}" _len)
         if(${_len} GREATER 0)
