@@ -5,12 +5,53 @@
             <author>VCGLab</author>
             <authoring_tool>VCGLib | MeshLab</authoring_tool>
         </contributor>
-        <up_axis>Y_UP</up_axis>
+        <up_axis>Z_UP</up_axis>
         <created>Sun Oct 28 00:02:21 2012</created>
         <modified>Sun Oct 28 00:02:21 2012</modified>
     </asset>
     <library_images/>
-    <library_materials/>
+    <library_materials>
+      <material id="atlas_DRC_1" name="atlas_DRC_1">
+        <instance_effect url="#atlas_DRC_1-fx"/>
+      </material>
+    </library_materials>
+    <library_effects>
+      <effect id="atlas_DRC_1-fx" name="atlas_DRC_1">
+        <profile_COMMON>
+          <technique sid="standard">
+            <phong>
+              <emission>
+                <color sid="emission">0.000000  0.000000 0.000000 1.000000</color>
+              </emission>
+              <ambient>
+                <color sid="ambient">0.809804  0.809804 0.809804 1.000000</color>
+              </ambient>
+              <diffuse>
+                <color sid="diffuse">0.809804  0.809804 0.809804 1.000000</color>
+              </diffuse>
+              <specular>
+                <color sid="specular">0.350000  0.350000 0.350000 1.000000</color>
+              </specular>
+              <shininess>
+                <float sid="shininess">96.743563</float>
+              </shininess>
+              <reflective>
+                <color sid="reflective">0.000000  0.000000 0.000000 1.000000</color>
+              </reflective>
+              <reflectivity>
+                <float sid="reflectivity">1.000000</float>
+              </reflectivity>
+              <transparent opaque="RGB_ZERO">
+                <color sid="transparent">1.000000  1.000000 1.000000 1.000000</color>
+              </transparent>
+              <transparency>
+                <float sid="transparency">0.000000</float>
+              </transparency>
+            </phong>
+          </technique>
+        </profile_COMMON>
+      </effect>
+    </library_effects>
     <library_effects/>
     <library_geometries>
         <geometry id="shape0-lib" name="shape0">
@@ -47,7 +88,7 @@
                 <vertices id="shape0-lib-vertices">
                     <input semantic="POSITION" source="#shape0-lib-positions"/>
                 </vertices>
-                <triangles count="176">
+                <triangles count="176" material="atlas_DRC_1">
                     <input offset="0" semantic="VERTEX" source="#shape0-lib-vertices"/>
                     <input offset="1" semantic="NORMAL" source="#shape0-lib-normals"/>
                     <input offset="2" semantic="TEXCOORD" source="#shape0-lib-map"/>
@@ -61,7 +102,9 @@
             <node id="node" name="node">
                 <instance_geometry url="#shape0-lib">
                     <bind_material>
-                        <technique_common/>
+                        <technique_common>
+                          <instance_material symbol="atlas_DRC_1" target="#atlas_DRC_1"/>
+                        </technique_common>
                     </bind_material>
                 </instance_geometry>
             </node>
