@@ -3,7 +3,7 @@
 # Macro to turn a list into a string (why doesn't CMake have this
 # built-in?)
 macro(_list_to_string _string _list)
-    set(${_string})
+    set(${_string} "")
     foreach(_item ${_list})
         string(LENGTH "${${_string}}" _len)
         if(${_len} GREATER 0)
@@ -61,22 +61,18 @@ macro(get_rospack_flags pkgname)
   # Get the include dirs
   set(_prefix ${pkgname})
   invoke_rospack(${pkgname} ${_prefix} "INCLUDE_DIRS" cflags-only-I)
-  #message("${pkgname} include dirs: ${${_prefix}_INCLUDE_DIRS}")
-  #set(${_prefix}_INCLUDE_DIRS ${${_prefix}_INCLUDE_DIRS} CACHE INTERNAL "")
 
   # Get the other cflags
   invoke_rospack(${pkgname} ${_prefix} temp cflags-only-other)
   _list_to_string(${_prefix}_CFLAGS_OTHER "${${_prefix}_temp}")
-  #message("${pkgname} other cflags: ${${_prefix}_CFLAGS_OTHER}")
   set(${_prefix}_CFLAGS_OTHER ${${_prefix}_CFLAGS_OTHER} CACHE INTERNAL "")
 
   # Get the lib dirs
-  invoke_rospack(${pkgname} ${_prefix} LIBRARY_DIRS libs-only-L)
-  #message("${pkgname} library dirs: ${${_prefix}_LIBRARY_DIRS}")
+  invoke_rospack(${pkgname} ${_prefix} "LIBRARY_DIRS" libs-only-L)
   set(${_prefix}_LIBRARY_DIRS ${${_prefix}_LIBRARY_DIRS} CACHE INTERNAL "")
 
   # Get the libs
-  invoke_rospack(${pkgname} ${_prefix} LIBRARIES libs-only-l)
+  invoke_rospack(${pkgname} ${_prefix} "LIBRARIES" libs-only-l)
   #
   # The following code removes duplicate libraries from the link line,
   # saving only the last one.
@@ -88,6 +84,5 @@ macro(get_rospack_flags pkgname)
   # Get the other lflags
   invoke_rospack(${pkgname} ${_prefix} temp libs-only-other)
   _list_to_string(${_prefix}_LDFLAGS_OTHER "${${_prefix}_temp}")
-  #message("${pkgname} other ldflags: ${${_prefix}_LDFLAGS_OTHER}")
   set(${_prefix}_LDFLAGS_OTHER ${${_prefix}_LDFLAGS_OTHER} CACHE INTERNAL "")
 endmacro()
