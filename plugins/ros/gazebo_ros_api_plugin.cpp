@@ -314,7 +314,7 @@ namespace gazebo
       reset_simulation_service_ = this->rosnode_->advertiseService(reset_simulation_aso);
 
       // Advertise more services on the custom queue
-      std::string reset_world_service_name("reset_world");
+      std::string reset_world_service_name("reset_models");
       ros::AdvertiseServiceOptions reset_world_aso = ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
           reset_world_service_name,boost::bind(&GazeboRosApiPlugin::resetWorld,this,_1,_2),
           ros::VoidPtr(), &this->gazebo_queue_);
