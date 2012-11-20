@@ -86,7 +86,7 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   this->lastTime = this->world->GetSimTime();
 
   // Set initial configuration
-  this->SetInitialConfiguration();
+  // this->SetInitialConfiguration();
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every

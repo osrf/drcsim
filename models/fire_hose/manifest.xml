@@ -2,7 +2,7 @@
 <model>
   <name>Fire hose</name>
   <version>0.1.0</version>
-  <sdf>model_short.sdf</sdf>
+  <sdf>model_1link.sdf</sdf>
   <author>
     <name>John Hsu</name>
     <email>hsu@osrfoundation.org</email>

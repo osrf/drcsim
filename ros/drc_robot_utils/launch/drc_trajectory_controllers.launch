@@ -15,12 +15,11 @@
     <param name="buffer_size" value="1200.0"/>
   </node>
 
-  <!-- Arms -->
+  <!-- Controllers that come up started -->
   <rosparam command="load" file="$(find drc_robot)/ros/arm_controllers.yaml" />
   <rosparam command="load" file="$(find drc_robot)/ros/leg_controllers.yaml" />
   <rosparam command="load" file="$(find drc_robot)/ros/torso_position_controllers.yaml" />
 
-  <!-- Controllers that come up started -->
   <node name="drc_robot_arm_controllers_spawner"
         pkg="pr2_controller_manager" type="spawner" output="screen"
         args="--wait-for=/calibrated r_arm_controller l_arm_controller" />

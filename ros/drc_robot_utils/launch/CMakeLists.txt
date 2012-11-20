@@ -4,6 +4,8 @@ set (files
   drc_robot_arm_controllers.launch
   drc_robot_position_controllers.launch
   drc_robot_no_controllers.launch
+  drc_robot_sandia_hand_no_controllers.launch
+  drc_robot_irobot_hand_no_controllers.launch
   drc_sim_v0.launch
   drc_trajectory_controllers.launch
 )
