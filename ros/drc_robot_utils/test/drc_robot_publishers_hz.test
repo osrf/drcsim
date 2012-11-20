@@ -5,25 +5,25 @@
   </include>
 
   <!-- Test for nominal publication rates -->
-  <test pkg="rostest" type="hztest" test-name="laser_hztest">
+  <test pkg="rostest" type="hztest" test-name="drc_robot_laser_hztest">
     <param name="hz" value="40.0"/>
     <param name="hzerror" value="20.0"/>
     <param name="topic" value="scan"/>
     <param name="test_duration" value="10.0"/>
   </test>
-  <test pkg="rostest" type="hztest" test-name="joint_states_hztest">
+  <test pkg="rostest" type="hztest" test-name="drc_robot_joint_states_hztest">
     <param name="hz" value="100.0"/>
     <param name="hzerror" value="20.0"/>
     <param name="topic" value="joint_states"/>
     <param name="test_duration" value="10.0"/>
   </test>
-  <test pkg="rostest" type="hztest" test-name="clock_hztest">
+  <test pkg="rostest" type="hztest" test-name="drc_robot_clock_hztest">
     <param name="hz" value="1000.0"/>
     <param name="hzerror" value="200.0"/>
     <param name="topic" value="clock"/>
     <param name="test_duration" value="10.0"/>
   </test>
-  <test pkg="rostest" type="hztest" test-name="tf_hztest">
+  <test pkg="rostest" type="hztest" test-name="drc_robot_tf_hztest">
     <param name="hz" value="100.0"/>
     <param name="hzerror" value="25.0"/>
     <param name="topic" value="tf"/>
