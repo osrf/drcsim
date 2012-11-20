@@ -33,6 +33,29 @@
           </mesh>
         </geometry>
       </visual>
+
+      <collision name='coupling_collision_simple'>
+        <pose>0.000000 -0.124500 0.410000 0.000000 0 0.000000</pose>
+        <geometry>
+          <cylinder>
+            <length>0.03</length>
+            <radius>0.03</radius>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <!--
+      <visual name='coupling_visual_simple'>
+        <pose>0.000000 -0.124500 0.410000 0.000000 0 0.000000</pose>
+        <geometry>
+          <cylinder>
+            <length>0.03</length>
+            <radius>0.03</radius>
+          </cylinder>
+        </geometry>
+      </visual>
+      -->
+
       <velocity_decay/>
     </link>
     <joint name='joint_01_1' type='revolute'>

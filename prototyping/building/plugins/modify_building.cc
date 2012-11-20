@@ -17,7 +17,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include "physics/physics.h"
+#include "physics/physics.hh"
 #include "transport/Node.hh"
 #include "transport/TransportTypes.hh"
 #include "msgs/MessageTypes.hh"

@@ -33,31 +33,63 @@ namespace gazebo
 // Constructor
 DRCBuildingPlugin::DRCBuildingPlugin()
 {
+  this->doorCmd = 0;
+  this->handleCmd = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
 DRCBuildingPlugin::~DRCBuildingPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
-                                 sdf::ElementPtr /*_sdf*/)
+                                 sdf::ElementPtr _sdf)
 {
   // Get the world name.
-  this->world_ = _parent->GetWorld();
-  this->model_ = _parent;
-  this->world_->EnablePhysicsEngine(true);
+  this->world = _parent->GetWorld();
+  this->model = _parent;
+  this->world->EnablePhysicsEngine(true);
 
-  // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+  this->doorLink = this->model->GetLink(_sdf->GetValueString("door_link"));
+  if (!this->doorLink)
+  {
+    gzerr << "<door_link>" << _sdf->GetValueString("door_link")
+          << "<door_link> does not exist\n";
+    return;
+  }
+
+  this->doorJoint = this->model->GetJoint(_sdf->GetValueString("door_joint"));
+  if (!this->doorJoint)
+  {
+    gzerr << "<door_joint>" << _sdf->GetValueString("door_joint")
+          << "<door_joint> does not exist\n";
+    return;
+  }
+
+  this->handleJoint = this->model->GetJoint(
+    _sdf->GetValueString("handle_joint"));
+  if (!this->handleJoint)
+  {
+    gzerr << "<handle_joint>" << _sdf->GetValueString("handle_joint")
+          << "<handle_joint> does not exist\n";
+    return;
+  }
+
+  this->doorJoint->SetHighStop(0, 0);
+  this->doorJoint->SetLowStop(0, 0);
+
+  this->doorPID.Init(200, 1, 3, 10, -10, 50, -50);
+  this->handlePID.Init(10, 0.3, 1, 1, -1, 5, -5);
+  this->lastTime = this->world->GetSimTime();
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateStart(
       boost::bind(&DRCBuildingPlugin::UpdateStates, this));
 }
 
@@ -66,16 +98,43 @@ void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
 // Play the trajectory, update states
 void DRCBuildingPlugin::UpdateStates()
 {
-  common::Time cur_time = this->world_->GetSimTime();
+  common::Time curTime = this->world->GetSimTime();
+  this->doorState = this->doorJoint->GetAngle(0).Radian();
+  this->handleState = this->handleJoint->GetAngle(0).Radian();
 
-  std::map<std::string, double> joint_position_map;
-  joint_position_map["arm_shoulder_pan_joint"] = cos(cur_time.Double());
-  joint_position_map["arm_elbow_pan_joint"] = -cos(cur_time.Double());
-  joint_position_map["arm_wrist_lift_joint"] = -0.35
-    + 0.45*cos(0.5*cur_time.Double());
-  joint_position_map["arm_wrist_roll_joint"] = -2.9*cos(3.0*cur_time.Double());
+  double dt = (curTime - this->lastTime).Double();
+  if (dt > 0)
+  {
+    // PID (position) door
+    double doorError = this->doorState - this->doorCmd;
+    double doorCmd = this->doorPID.Update(doorError, dt);
+    this->doorJoint->SetForce(0, doorCmd);
 
-  this->model_->SetJointPositions(joint_position_map);
+    // PID (position) handle
+    double handleError = this->handleState - this->handleCmd;
+    double handleCmd = this->handlePID.Update(handleError, dt);
+    this->handleJoint->SetForce(0, handleCmd);
+
+    // simulate door lock
+    if (math::equal(this->handleState, 0.0) &&
+        math::equal(this->doorState, 0.0))
+    {
+      this->doorJoint->SetHighStop(0, 0);
+      this->doorJoint->SetLowStop(0, 0);
+    }
+    else
+    {
+      this->doorJoint->SetHighStop(0, 1.5708);
+      this->doorJoint->SetLowStop(0, -1.5708);
+    }
+
+    this->lastTime = curTime;
+  }
+  else if (dt < 0)
+  {
+    // has time been reset?
+    this->lastTime = curTime;
+  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(DRCBuildingPlugin)

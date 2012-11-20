@@ -10,4 +10,10 @@
   <description>
     This model approximates a standpipe.
   </description>
+  <depend>
+    <model>
+      <uri>model://fire_hose</uri>
+      <version>0.1.0</version>
+    </model>
+  </depend>
 </model>
