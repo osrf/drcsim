@@ -21,6 +21,11 @@ set_target_properties(pub_joint_trajectory_test PROPERTIES LINK_FLAGS "${roscpp_
 target_link_libraries(pub_joint_trajectory_test ${roscpp_LIBRARIES} ${trajectory_msgs_LIBRARIES})
 install (TARGETS pub_joint_trajectory_test DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
+add_executable(pub_trajectory_controller_test pub_trajectory_controller_test.cpp)
+set_target_properties(pub_trajectory_controller_test PROPERTIES COMPILE_FLAGS "${roscpp_CFLAGS_OTHER} ${trajectory_msgs_CFLAGS_OTHER}")
+set_target_properties(pub_trajectory_controller_test PROPERTIES LINK_FLAGS "${roscpp_LDFLAGS_OTHER} ${trajectory_msgs_LDFLAGS_OTHER}")
+target_link_libraries(pub_trajectory_controller_test ${roscpp_LIBRARIES} ${trajectory_msgs_LIBRARIES})
+install (TARGETS pub_trajectory_controller_test DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 get_rospack_flags(std_msgs)
 get_rospack_flags(sensor_msgs)
