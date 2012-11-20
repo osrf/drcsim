@@ -43,7 +43,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
 {
   this->gasPedalCmd = 0;
   this->brakePedalCmd = 0.5;
-  this->handwheelCmd = 0;
+  this->handWheelCmd = 0;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
   this->blWheelCmd = 0;
@@ -58,7 +58,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->blWheelRadius = 0.1;
   this->brWheelRadius = 0.1;
   this->pedalForce = 10;
-  this->handwheelForce = 1;
+  this->handWheelForce = 1;
   this->steeredWheelForce = 200;
 }
 
@@ -76,11 +76,11 @@ void DRCVehiclePlugin::Init()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetVehicleState(double _handwheelPosition,
+void DRCVehiclePlugin::SetVehicleState(double _handWheelPosition,
                                        double _gasPedalPosition,
                                        double _brakePedalPosition)
 {
-  this->handwheelCmd = _handwheelPosition;
+  this->handWheelCmd = _handWheelPosition;
   this->gasPedalCmd = _gasPedalPosition;
   this->brakePedalCmd = _brakePedalPosition;
 }
@@ -88,15 +88,15 @@ void DRCVehiclePlugin::SetVehicleState(double _handwheelPosition,
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetHandwheelState(double _position)
 {
-  this->handwheelCmd = _position;
+  this->handWheelCmd = _position;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetHandwheelLimits(const math::Angle &_min,
                                               const math::Angle &_max)
 {
-  this->handwheelJoint->SetHighStop(0, _max);
-  this->handwheelJoint->SetLowStop(0, _min);
+  this->handWheelJoint->SetHighStop(0, _max);
+  this->handWheelJoint->SetLowStop(0, _min);
   this->UpdateHandwheelRatio();
 }
 
@@ -104,23 +104,23 @@ void DRCVehiclePlugin::SetHandwheelLimits(const math::Angle &_min,
 void DRCVehiclePlugin::GetHandwheelLimits(math::Angle &_min,
                                               math::Angle &_max)
 {
-  _max = this->handwheelJoint->GetHighStop(0);
-  _min = this->handwheelJoint->GetLowStop(0);
+  _max = this->handWheelJoint->GetHighStop(0);
+  _min = this->handWheelJoint->GetLowStop(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 double DRCVehiclePlugin::GetHandwheelState()
 {
-  return this->handwheelState;
+  return this->handWheelState;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::UpdateHandwheelRatio()
 {
   // The total range the steering wheel can rotate
-  this->handwheelHigh  = this->handwheelJoint->GetHighStop(0).Radian();
-  this->handwheelLow   = this->handwheelJoint->GetLowStop(0).Radian();
-  this->handwheelRange = this->handwheelHigh - this->handwheelLow;
+  this->handWheelHigh  = this->handWheelJoint->GetHighStop(0).Radian();
+  this->handWheelLow   = this->handWheelJoint->GetLowStop(0).Radian();
+  this->handWheelRange = this->handWheelHigh - this->handWheelLow;
   double high = std::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
                          this->frWheelSteeringJoint->GetHighStop(0).Radian());
   double low = std::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
@@ -128,7 +128,7 @@ void DRCVehiclePlugin::UpdateHandwheelRatio()
   this->tireAngleRange = std::min( abs(high), abs(low) );
 
   // Compute the angle ratio between the steering wheel and the tires
-  this->steeringRatio = this->tireAngleRange / this->handwheelRange;
+  this->steeringRatio = this->tireAngleRange / this->handWheelRange;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,9 +247,9 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     + _sdf->GetValueString("brake_pedal");
   this->brakePedalJoint = this->model->GetJoint(brakePedalJointName);
 
-  std::string handwheelJointName = this->model->GetName() + "::"
+  std::string handWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("steering_wheel");
-  this->handwheelJoint = this->model->GetJoint(handwheelJointName);
+  this->handWheelJoint = this->model->GetJoint(handWheelJointName);
 
   std::string flWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("front_left_wheel");
@@ -331,8 +331,8 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->pedalForce, -this->pedalForce);
   this->brakePedalPID.Init(200, 1, 3, 10, -10,
                            this->pedalForce, -this->pedalForce);
-  this->handwheelPID.Init(30, 0.1, 3.0, 5.0, -5.0,
-                           this->handwheelForce, -this->handwheelForce);
+  this->handWheelPID.Init(30, 0.1, 3.0, 5.0, -5.0,
+                           this->handWheelForce, -this->handWheelForce);
   this->flWheelSteeringPID.Init(500, 1, 10, 50, -50,
                                 this->steeredWheelForce, -this->steeredWheelForce);
   this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
@@ -351,7 +351,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 // Play the trajectory, update states
 void DRCVehiclePlugin::UpdateStates()
 {
-  this->handwheelState = this->handwheelJoint->GetAngle(0).Radian();
+  this->handWheelState = this->handWheelJoint->GetAngle(0).Radian();
   this->brakePedalState = this->brakePedalJoint->GetAngle(0).Radian();
   this->gasPedalState = this->gasPedalJoint->GetAngle(0).Radian();
   this->flSteeringState = this->flWheelSteeringJoint->GetAngle(0).Radian();
@@ -370,9 +370,9 @@ void DRCVehiclePlugin::UpdateStates()
   if (dt > 0)
   {
     // PID (position) steering
-    double steerError = this->handwheelState - this->handwheelCmd;
-    double steerCmd = this->handwheelPID.Update(steerError, dt);
-    this->handwheelJoint->SetForce(0, steerCmd);
+    double steerError = this->handWheelState - this->handWheelCmd;
+    double steerCmd = this->handWheelPID.Update(steerError, dt);
+    this->handWheelJoint->SetForce(0, steerCmd);
 
     // PID (position) gas pedal
     double gasError = this->gasPedalState - this->gasPedalCmd;
@@ -387,11 +387,13 @@ void DRCVehiclePlugin::UpdateStates()
     // PID (position) steering joints based on steering position
     // Ackermann steering geometry here
     //  \TODO provide documentation for these equations
-    double tanSteeredWheelState = tan(this->handwheelState * this->steeringRatio);
-    this->flWheelSteeringCmd = atan2(tanSteeredWheelState, 1 - frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
-    this->frWheelSteeringCmd = atan2(tanSteeredWheelState, 1 + frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
-    //this->flWheelSteeringCmd = this->handwheelState * this->steeringRatio;
-    //this->frWheelSteeringCmd = this->handwheelState * this->steeringRatio;
+    double tanSteeredWheelState = tan(this->handWheelState * this->steeringRatio);
+    this->flWheelSteeringCmd = atan2(tanSteeredWheelState,
+        1 - frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
+    this->frWheelSteeringCmd = atan2(tanSteeredWheelState,
+        1 + frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
+    //this->flWheelSteeringCmd = this->handWheelState * this->steeringRatio;
+    //this->frWheelSteeringCmd = this->handWheelState * this->steeringRatio;
 
     double flwsError =  this->flSteeringState - this->flWheelSteeringCmd;
     double flwsCmd = this->flWheelSteeringPID.Update(flwsError, dt);
@@ -431,8 +433,8 @@ void DRCVehiclePlugin::UpdateStates()
     this->blWheelJoint->SetForce(0, backTorqueCmd);
     this->brWheelJoint->SetForce(0, backTorqueCmd);
 
-    // gzerr << "steer [" << this->handwheelState
-    //       << "] range [" << this->handwheelRange
+    // gzerr << "steer [" << this->handWheelState
+    //       << "] range [" << this->handWheelRange
     //       << "] l [" << linVel
     //       << "] a [" << angVel
     //       << "] gas [" << this->gasPedalState
@@ -458,18 +460,21 @@ double get_collision_radius(gazebo::physics::CollisionPtr _collision)
 {
   if (_collision->GetShape()->HasType(gazebo::physics::Base::CYLINDER_SHAPE))
   {
-    gazebo::physics::CylinderShape *cyl = static_cast<gazebo::physics::CylinderShape*>(_collision->GetShape().get());
+    gazebo::physics::CylinderShape *cyl =
+    static_cast<gazebo::physics::CylinderShape*>(_collision->GetShape().get());
     return cyl->GetRadius();
   }
   else if (_collision->GetShape()->HasType(gazebo::physics::Base::SPHERE_SHAPE))
   {
-    gazebo::physics::SphereShape *sph = static_cast<gazebo::physics::SphereShape*>(_collision->GetShape().get());
+    gazebo::physics::SphereShape *sph =
+      static_cast<gazebo::physics::SphereShape*>(_collision->GetShape().get());
     return sph->GetRadius();
   }
   return 0;
 }
 
-gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link, unsigned int id)
+gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link,
+                                             unsigned int id)
 {
   gazebo::math::Pose pose = _link->GetCollision(id)->GetWorldPose();
   return pose.pos;

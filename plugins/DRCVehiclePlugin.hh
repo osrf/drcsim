@@ -68,7 +68,7 @@ namespace gazebo
     ///   - specify brake pedal position in meters
     /// The vehicle internal model will decide the overall motion
     /// of the vehicle.
-    public: void SetVehicleState(double _handwheelPosition,
+    public: void SetVehicleState(double _handWheelPosition,
                                  double _gasPedalPosition,
                                  double _brakePedalPosition);
 
@@ -101,7 +101,7 @@ namespace gazebo
     /// Positive steering angle results in a left turn in forward motion.
     /// Negative steering angle results in a right turn in forward motion.
     /// Setting front wheel steering angle will also update the
-    /// handwheel steering angle
+    /// handWheel steering angle
     public: void SetSteeredWheelState(double _position);
 
     /// Sets the lower and upper limits of the steering angle (rad)
@@ -143,7 +143,7 @@ namespace gazebo
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
-    private: physics::JointPtr handwheelJoint;
+    private: physics::JointPtr handWheelJoint;
     private: physics::JointPtr flWheelJoint;
     private: physics::JointPtr frWheelJoint;
     private: physics::JointPtr blWheelJoint;
@@ -160,12 +160,12 @@ namespace gazebo
     private: double aeroLoad;
     private: double steeringRatio;
     private: double pedalForce;
-    private: double handwheelForce;
+    private: double handWheelForce;
     private: double steeredWheelForce;
 
     private: double gasPedalCmd;
     private: double brakePedalCmd;
-    private: double handwheelCmd;
+    private: double handWheelCmd;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
@@ -175,7 +175,7 @@ namespace gazebo
 
     private: common::PID gasPedalPID;
     private: common::PID brakePedalPID;
-    private: common::PID handwheelPID;
+    private: common::PID handWheelPID;
     private: common::PID flWheelSteeringPID;
     private: common::PID frWheelSteeringPID;
 
@@ -188,9 +188,9 @@ namespace gazebo
     private: double brakePedalHigh;
     private: double brakePedalLow;
     private: double brakePedalRange;
-    private: double handwheelHigh;
-    private: double handwheelLow;
-    private: double handwheelRange;
+    private: double handWheelHigh;
+    private: double handWheelLow;
+    private: double handWheelRange;
     private: double wheelRadius;
     private: double flWheelRadius;
     private: double frWheelRadius;
@@ -201,7 +201,7 @@ namespace gazebo
     private: double backTrackWidth;
 
     /// state of cart
-    private: double handwheelState;
+    private: double handWheelState;
     private: double flSteeringState;
     private: double frSteeringState;
     private: double gasPedalState;
