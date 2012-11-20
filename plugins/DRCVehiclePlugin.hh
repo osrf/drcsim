@@ -74,32 +74,32 @@ namespace gazebo
     /// \brief Set the steering wheel angle; this will also update the front
     ///        wheel steering angle.
     /// \param[in] _position Steering wheel angle in radians.
-    public: void SetHandwheelState(double _position);
+    public: void SetHandWheelState(double _position);
 
     /// \brief Sets the lower and upper limits of the steering wheel angle.
     /// \param[in] _min Lower limit of steering wheel angle (radians).
     /// \param[in] _max Upper limit of steering wheel angle (radians).
-    public: void SetHandwheelLimits(const math::Angle &_min,
+    public: void SetHandWheelLimits(const math::Angle &_min,
                                     const math::Angle &_max);
 
     /// \brief Returns the lower and upper limits of the steering wheel angle.
     /// \param[out] _min Lower steering wheel limit (radians).
     /// \param[out] _max Upper steering wheel limit (radians).
-    public: void GetHandwheelLimits(math::Angle &_min, math::Angle &_max);
+    public: void GetHandWheelLimits(math::Angle &_min, math::Angle &_max);
 
     /// \brief Returns the steering wheel angle (rad).
-    public: double GetHandwheelState();
+    public: double GetHandWheelState();
 
     /// \brief Computes the front wheel angle / steering wheel angle ratio.
-    public: void UpdateHandwheelRatio();
+    public: void UpdateHandWheelRatio();
 
     /// \brief Returns the front wheel angle / steering wheel angle ratio.
-    public: double GetHandwheelRatio();
+    public: double GetHandWheelRatio();
 
 
     /// \brief Specify front wheel orientation in radians (Note: this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
-    /// SetHandwheelState).
+    /// SetHandWheelState).
     /// Zero setting results in vehicle traveling in a straight line.
     /// Positive steering angle results in a left turn in forward motion.
     /// Negative steering angle results in a right turn in forward motion.

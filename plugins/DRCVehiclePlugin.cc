@@ -83,22 +83,22 @@ void DRCVehiclePlugin::SetVehicleState(double _handWheelPosition,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetHandwheelState(double _position)
+void DRCVehiclePlugin::SetHandWheelState(double _position)
 {
   this->handWheelCmd = _position;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetHandwheelLimits(const math::Angle &_min,
+void DRCVehiclePlugin::SetHandWheelLimits(const math::Angle &_min,
                                               const math::Angle &_max)
 {
   this->handWheelJoint->SetHighStop(0, _max);
   this->handWheelJoint->SetLowStop(0, _min);
-  this->UpdateHandwheelRatio();
+  this->UpdateHandWheelRatio();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::GetHandwheelLimits(math::Angle &_min,
+void DRCVehiclePlugin::GetHandWheelLimits(math::Angle &_min,
                                               math::Angle &_max)
 {
   _max = this->handWheelJoint->GetHighStop(0);
@@ -106,13 +106,13 @@ void DRCVehiclePlugin::GetHandwheelLimits(math::Angle &_min,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double DRCVehiclePlugin::GetHandwheelState()
+double DRCVehiclePlugin::GetHandWheelState()
 {
   return this->handWheelState;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::UpdateHandwheelRatio()
+void DRCVehiclePlugin::UpdateHandWheelRatio()
 {
   // The total range the steering wheel can rotate
   this->handWheelHigh  = this->handWheelJoint->GetHighStop(0).Radian();
@@ -129,7 +129,7 @@ void DRCVehiclePlugin::UpdateHandwheelRatio()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double DRCVehiclePlugin::GetHandwheelRatio()
+double DRCVehiclePlugin::GetHandWheelRatio()
 {
   return this->steeringRatio;
 }
@@ -137,7 +137,7 @@ double DRCVehiclePlugin::GetHandwheelRatio()
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetSteeredWheelState(double _position)
 {
-  this->SetHandwheelState(_position / this->steeringRatio);
+  this->SetHandWheelState(_position / this->steeringRatio);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +148,7 @@ void DRCVehiclePlugin::SetSteeredWheelLimits(const math::Angle &_min,
   this->flWheelSteeringJoint->SetLowStop(0, _min);
   this->frWheelSteeringJoint->SetHighStop(0, _max);
   this->frWheelSteeringJoint->SetLowStop(0, _min);
-  this->UpdateHandwheelRatio();
+  this->UpdateHandWheelRatio();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +289,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->maxSpeed = _sdf->GetValueDouble("max_speed");
   this->aeroLoad = _sdf->GetValueDouble("aero_load");
 
-  this->UpdateHandwheelRatio();
+  this->UpdateHandWheelRatio();
 
   // Update wheel radius for each wheel from SDF collision objects
   //  assumes that wheel link is child of joint (and not parent of joint)
