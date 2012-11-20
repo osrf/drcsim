@@ -32,9 +32,6 @@
 #include "gazebo/physics/CylinderShape.hh"
 #include "gazebo/physics/SphereShape.hh"
 
-double get_collision_radius(gazebo::physics::CollisionPtr _collision);
-gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link, unsigned int id);
-
 namespace gazebo
 {
 ////////////////////////////////////////////////////////////////////////////////
@@ -298,20 +295,28 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   //  assumes that wheel link is child of joint (and not parent of joint)
   //  assumes that wheel link has only one collision
   unsigned int id=0;
-  this->flWheelRadius = get_collision_radius(this->flWheelJoint->GetChild()->GetCollision(id));
-  this->frWheelRadius = get_collision_radius(this->frWheelJoint->GetChild()->GetCollision(id));
-  this->blWheelRadius = get_collision_radius(this->blWheelJoint->GetChild()->GetCollision(id));
-  this->brWheelRadius = get_collision_radius(this->brWheelJoint->GetChild()->GetCollision(id));
+  this->flWheelRadius = DRCVehiclePlugin::get_collision_radius(
+                          this->flWheelJoint->GetChild()->GetCollision(id));
+  this->frWheelRadius = DRCVehiclePlugin::get_collision_radius(
+                          this->frWheelJoint->GetChild()->GetCollision(id));
+  this->blWheelRadius = DRCVehiclePlugin::get_collision_radius(
+                          this->blWheelJoint->GetChild()->GetCollision(id));
+  this->brWheelRadius = DRCVehiclePlugin::get_collision_radius(
+                          this->brWheelJoint->GetChild()->GetCollision(id));
   //gzerr << this->flWheelRadius << " " << this->frWheelRadius << " "
   //      << this->blWheelRadius << " " << this->brWheelRadius << "\n";
 
   // Compute wheelbase, frontTrackWidth, and rearTrackWidth
   //  first compute the positions of the 4 wheel centers
   //  again assumes wheel link is child of joint and has only one collision
-  math::Vector3 flCenterPos = get_collision_position(this->flWheelJoint->GetChild(), id);
-  math::Vector3 frCenterPos = get_collision_position(this->frWheelJoint->GetChild(), id);
-  math::Vector3 blCenterPos = get_collision_position(this->blWheelJoint->GetChild(), id);
-  math::Vector3 brCenterPos = get_collision_position(this->brWheelJoint->GetChild(), id);
+  math::Vector3 flCenterPos = DRCVehiclePlugin::get_collision_position(
+                                this->flWheelJoint->GetChild(), id);
+  math::Vector3 frCenterPos = DRCVehiclePlugin::get_collision_position(
+                                this->frWheelJoint->GetChild(), id);
+  math::Vector3 blCenterPos = DRCVehiclePlugin::get_collision_position(
+                                this->blWheelJoint->GetChild(), id);
+  math::Vector3 brCenterPos = DRCVehiclePlugin::get_collision_position(
+                                this->brWheelJoint->GetChild(), id);
   // track widths are computed first
   math::Vector3 vec3 = flCenterPos - frCenterPos;
   frontTrackWidth = vec3.GetLength();
@@ -330,13 +335,13 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->gasPedalPID.Init(200, 1, 3, 10, -10,
                          this->pedalForce, -this->pedalForce);
   this->brakePedalPID.Init(200, 1, 3, 10, -10,
-                           this->pedalForce, -this->pedalForce);
+                         this->pedalForce, -this->pedalForce);
   this->handWheelPID.Init(30, 0.1, 3.0, 5.0, -5.0,
-                           this->handWheelForce, -this->handWheelForce);
+                         this->handWheelForce, -this->handWheelForce);
   this->flWheelSteeringPID.Init(500, 1, 10, 50, -50,
-                                this->steeredWheelForce, -this->steeredWheelForce);
+                         this->steeredWheelForce, -this->steeredWheelForce);
   this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
-                                this->steeredWheelForce, -this->steeredWheelForce);
+                         this->steeredWheelForce, -this->steeredWheelForce);
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
@@ -387,11 +392,11 @@ void DRCVehiclePlugin::UpdateStates()
     // PID (position) steering joints based on steering position
     // Ackermann steering geometry here
     //  \TODO provide documentation for these equations
-    double tanSteeredWheelState = tan(this->handWheelState * this->steeringRatio);
-    this->flWheelSteeringCmd = atan2(tanSteeredWheelState,
-        1 - frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
-    this->frWheelSteeringCmd = atan2(tanSteeredWheelState,
-        1 + frontTrackWidth/2/wheelbaseLength * tanSteeredWheelState);
+    double tanSteer = tan(this->handWheelState * this->steeringRatio);
+    this->flWheelSteeringCmd = atan2(tanSteer,
+        1 - frontTrackWidth/2/wheelbaseLength * tanSteer);
+    this->frWheelSteeringCmd = atan2(tanSteer,
+        1 + frontTrackWidth/2/wheelbaseLength * tanSteer);
     //this->flWheelSteeringCmd = this->handWheelState * this->steeringRatio;
     //this->frWheelSteeringCmd = this->handWheelState * this->steeringRatio;
 
@@ -451,31 +456,32 @@ void DRCVehiclePlugin::UpdateStates()
   }
 }
 
-GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
-}
-
 // function that extracts the radius of a cylinder or sphere collision shape
 // the function returns zero otherwise
-double get_collision_radius(gazebo::physics::CollisionPtr _collision)
+double DRCVehiclePlugin::get_collision_radius(physics::CollisionPtr _coll)
 {
-  if (_collision->GetShape()->HasType(gazebo::physics::Base::CYLINDER_SHAPE))
+  if (_coll->GetShape()->HasType(gazebo::physics::Base::CYLINDER_SHAPE))
   {
-    gazebo::physics::CylinderShape *cyl =
-    static_cast<gazebo::physics::CylinderShape*>(_collision->GetShape().get());
+    physics::CylinderShape *cyl =
+        static_cast<physics::CylinderShape*>(_coll->GetShape().get());
     return cyl->GetRadius();
   }
-  else if (_collision->GetShape()->HasType(gazebo::physics::Base::SPHERE_SHAPE))
+  else if (_coll->GetShape()->HasType(physics::Base::SPHERE_SHAPE))
   {
-    gazebo::physics::SphereShape *sph =
-      static_cast<gazebo::physics::SphereShape*>(_collision->GetShape().get());
+    physics::SphereShape *sph =
+        static_cast<physics::SphereShape*>(_coll->GetShape().get());
     return sph->GetRadius();
   }
   return 0;
 }
 
-gazebo::math::Vector3 get_collision_position(gazebo::physics::LinkPtr _link,
-                                             unsigned int id)
+math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
+                                                       unsigned int id)
 {
-  gazebo::math::Pose pose = _link->GetCollision(id)->GetWorldPose();
+  math::Pose pose = _link->GetCollision(id)->GetWorldPose();
   return pose.pos;
 }
+
+GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
+}
+

@@ -42,16 +42,16 @@ namespace gazebo
 {
   class DRCVehiclePlugin : public ModelPlugin
   {
-    /// \brief Constructor
+    /// \brief Constructor.
     public: DRCVehiclePlugin();
 
-    /// \brief Destructor
+    /// \brief Destructor.
     public: virtual ~DRCVehiclePlugin();
 
-    /// \brief Load the controller
+    /// \brief Load the controller.
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \brief Update the controller
+    /// \brief Update the controller.
     private: void UpdateStates();
 
     private: physics::WorldPtr world;
@@ -59,62 +59,72 @@ namespace gazebo
 
     private: boost::mutex update_mutex;
 
-    /// Pointer to the update event connection
+    /// Pointer to the update event connection.
     private: event::ConnectionPtr update_connection_;
 
-    /// Sets DRC Vehicle control
-    ///   - specify steering wheel position in radians
-    ///   - specify gas pedal position in meters
-    ///   - specify brake pedal position in meters
-    /// The vehicle internal model will decide the overall motion
-    /// of the vehicle.
+    /// \brief Sets DRC Vehicle control inputs, the vehicle internal model 
+    ///        will decide the overall motion of the vehicle.
+    /// \param[in] _handWheelPosition steering wheel position in radians.
+    /// \param[in] _gasPedalPosition gas pedal position in meters.
+    /// \param[in] _brakePedalPosition brake pedal position in meters.
     public: void SetVehicleState(double _handWheelPosition,
                                  double _gasPedalPosition,
                                  double _brakePedalPosition);
 
-    /// Set the steering wheel angle (rad)
-    /// Setting steering wheel angle will also update the front wheel
-    /// steering angle
+    /// \brief Set the steering wheel angle; this will also update the front
+    ///        wheel steering angle.
+    /// \param[in] _position Steering wheel angle in radians.
     public: void SetHandwheelState(double _position);
 
-    /// Sets the lower and upper limits of the steering wheel angle (rad)
+    /// \brief Sets the lower and upper limits of the steering wheel angle.
+    /// \param[in] _min Lower limit of steering wheel angle (radians).
+    /// \param[in] _max Upper limit of steering wheel angle (radians).
     public: void SetHandwheelLimits(const math::Angle &_min,
-                                        const  math::Angle &_max);
+                                    const math::Angle &_max);
 
-    /// Returns the lower and upper limits of the steering wheel angle (rad)
+    /// \brief Returns the lower and upper limits of the steering wheel angle.
+    /// \param[out] _min Lower steering wheel limit (radians).
+    /// \param[out] _max Upper steering wheel limit (radians).
     public: void GetHandwheelLimits(math::Angle &_min, math::Angle &_max);
 
-    /// Returns the steering wheel angle (rad)
+    /// \brief Returns the steering wheel angle (rad).
     public: double GetHandwheelState();
 
-    /// computes the front wheel angle / steering wheel angle ratio
+    /// \brief Computes the front wheel angle / steering wheel angle ratio.
     public: void UpdateHandwheelRatio();
 
-    /// Returns the front wheel angle / steering wheel angle ratio
+    /// \brief Returns the front wheel angle / steering wheel angle ratio.
     public: double GetHandwheelRatio();
 
 
-    /// Specify front wheel orientation in radians (Note:  this sets
+    /// \brief Specify front wheel orientation in radians (Note: this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
     /// SetHandwheelState).
     /// Zero setting results in vehicle traveling in a straight line.
     /// Positive steering angle results in a left turn in forward motion.
     /// Negative steering angle results in a right turn in forward motion.
     /// Setting front wheel steering angle will also update the
-    /// handWheel steering angle
+    /// handWheel steering angle.
+    /// \param[in] _position Desired angle of front steered wheels in radians.
     public: void SetSteeredWheelState(double _position);
 
-    /// Sets the lower and upper limits of the steering angle (rad)
+    /// \brief Sets the lower and upper limits of the steering angle (rad).
+    /// \param[in] _min Lower limit of steered wheel angle (radians).
+    /// \param[in] _max Upper limit of steered wheel angle (radians).
     public: void SetSteeredWheelLimits(const math::Angle &_min,
-                                   const math::Angle &_max);
+                                       const math::Angle &_max);
 
-    /// Returns the steering angle (rad)
+    /// \brief Returns the steering angle of the steered wheels (rad).
     public: double GetSteeredWheelState();
 
-    /// Returns the lower and upper limits of the steering angle (rad)
+    /// \brief Returns the lower and upper limits of the steering angle
+    ///        of the steered wheels (rad).
+    /// \param[out] _min Lower limit of steered wheel angle (radians).
+    /// \param[out] _max Upper limit of steered wheel angle (radians).
     public: void GetSteeredWheelLimits(math::Angle &_min, math::Angle &_max);
 
-    /// Specify gas pedal position in meters.
+    /// \brief Specify gas pedal position in meters.
+    /// \param[in] _position Desired gas pedal position in meters.
     public: void SetGasPedalState(double _position);
 
     /// Sets gas pedal position limits in meters.
@@ -138,8 +148,13 @@ namespace gazebo
     /// Returns the gas pedal position in meters.
     public: double GetBrakePedalState();
 
-    /// Default plugin init call
+    /// Default plugin init call.
     public: void Init();
+
+    public: static double get_collision_radius(
+                            physics::CollisionPtr _collision);
+    public: static math::Vector3 get_collision_position(
+                            physics::LinkPtr _link, unsigned int id);
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
