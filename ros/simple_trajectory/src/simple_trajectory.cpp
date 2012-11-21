@@ -270,21 +270,20 @@ public:
     goal.trajectory.points[ind].time_from_start = ros::Duration(4.0);
 
     // tolerances
-    for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-    {
-      control_msgs::JointTolerance jt;
-      jt.name = goal.trajectory.joint_names[j];
-      jt.position = 1000;
-      jt.velocity = 1000;
-      jt.acceleration = 1000;
-      goal.goal_tolerance.push_back(jt);
-    }
+    //for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
+    //{
+      //control_msgs::JointTolerance jt;
+      //jt.name = goal.trajectory.joint_names[j];
+      //jt.position = 1000;
+      //jt.velocity = 1000;
+      //jt.acceleration = 1000;
+      //goal.goal_tolerance.push_back(jt);
+    //}
 
-    goal.goal_time_tolerance.sec = 10;
-    goal.goal_time_tolerance.nsec = 0;
+    //goal.goal_time_tolerance.sec = 10;
+    //goal.goal_time_tolerance.nsec = 0;
 
     // we are done; return the goal
-    ROS_INFO("done executing trajectory");
     return goal;
   }
 
@@ -293,7 +292,7 @@ public:
   {
     return traj_client_->getState();
   }
- 
+
 };
 
 int main(int argc, char** argv)
