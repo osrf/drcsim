@@ -151,10 +151,9 @@ namespace gazebo
     /// Default plugin init call.
     public: void Init();
 
-    public: static double get_collision_radius(
-                            physics::CollisionPtr _collision);
-    public: static math::Vector3 get_collision_position(
-                            physics::LinkPtr _link, unsigned int id);
+    private: double get_collision_radius(physics::CollisionPtr _collision);
+    private: math::Vector3 get_collision_position(physics::LinkPtr _link,
+                                                  unsigned int id);
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
