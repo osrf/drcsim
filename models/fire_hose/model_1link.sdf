@@ -1,7 +1,7 @@
 <gazebo version='1.2'>
   <model name='fire_hose'>
     <link name='sphere_09'>
-      <gravity>true</gravity>
+      <gravity>false</gravity>
       <pose>1.700000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
       <inertial>
         <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
@@ -34,7 +34,7 @@
       <velocity_decay/>
     </link>
     <link name='link_09'>
-      <gravity>true</gravity>
+      <gravity>false</gravity>
       <pose>1.700000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
       <inertial>
         <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
@@ -81,7 +81,7 @@
       </axis>
     </joint>
     <link name='sphere_10'>
-      <gravity>true</gravity>
+      <gravity>false</gravity>
       <pose>1.900000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
       <inertial>
         <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>

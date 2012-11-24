@@ -53,7 +53,7 @@
 
     <include>
       <uri>model://fire_hose</uri>
-      <pose>0 0.5 1 0.5 0.1 0.2</pose>
+      <pose>0 -1.967 0.208562 0 0 1.57079</pose>
     </include>
 
     <include>
