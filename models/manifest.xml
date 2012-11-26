@@ -8,7 +8,7 @@
     <uri>file://camhand</uri>
     <uri>file://drc_robot</uri>
     <uri>file://fire_hose</uri>
-    <uri>file://low_poly_golf_cart</uri>
+    <uri>file://golf_cart</uri>
     <uri>file://standpipe</uri>
   </models>
 </database>
