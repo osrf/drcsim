@@ -191,10 +191,7 @@
     <inertial>
       <mass value="0.1"/>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
-      <!-- talus actual mass
       <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05"/>
-      -->
-      <inertia ixx="1e-03" ixy="0" ixz="0" iyy="1e-03" iyz="0" izz="1e-03"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -289,10 +286,7 @@
     <inertial>
       <mass value="0.55"/>
       <origin rpy="0 -0 0" xyz="-0.00816266 -0.0131245 0.0305974"/>
-      <!-- mtorso actual mass
       <inertia ixx="0.000454181" ixy="-6.10764e-05" ixz="3.94009e-05" iyy="0.000483282" iyz="5.27463e-05" izz="0.000444215"/>
-      -->
-      <inertia ixx="1e-01" ixy="0" ixz="0" iyy="1e-02" iyz="0" izz="1e-02"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -494,10 +488,7 @@
     <inertial>
       <mass value="0.1"/>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
-      <!-- talus actual mass
       <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05"/>
-      -->
-      <inertia ixx="1e-03" ixy="0" ixz="0" iyy="1e-03" iyz="0" izz="1e-03"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
