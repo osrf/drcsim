@@ -261,7 +261,7 @@ public:
 
     goal.trajectory.points[ind].positions[24] =   0.00;
     goal.trajectory.points[ind].positions[25] =   0.00;
-    goal.trajectory.points[ind].positions[26] =   0.00;
+    goal.trajectory.points[ind].positions[26] =   0.10;
     goal.trajectory.points[ind].positions[27] =   0.00;
     // Velocities
     goal.trajectory.points[ind].velocities.resize(28);
