@@ -1,4 +1,4 @@
-set(MODEL_NAME low_poly_golf_cart)
+set(MODEL_NAME golf_cart)
 add_subdirectory(meshes)
 add_subdirectory(materials)
 set (files 
