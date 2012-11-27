@@ -27,6 +27,9 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_executable(simple_trajectory src/simple_trajectory.cpp)
 rosbuild_add_boost_directories()
+rosbuild_add_executable(simple_trajectory src/simple_trajectory.cpp)
 rosbuild_link_boost(simple_trajectory thread)
+
+rosbuild_add_executable(set_pose src/set_pose.cpp)
+rosbuild_link_boost(set_pose thread)
