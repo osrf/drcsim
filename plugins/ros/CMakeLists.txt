@@ -82,6 +82,12 @@ target_link_libraries(DRCRobotPlugin ${trajectory_msgs_LIBRARIES} ${geometry_msg
 install (TARGETS DRCRobotPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
+add_library(VRCPlugin SHARED VRCPlugin.cc)
+set_target_properties(VRCPlugin PROPERTIES COMPILE_FLAGS "${trajectory_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
+set_target_properties(VRCPlugin PROPERTIES LINK_FLAGS "${trajectory_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
+target_link_libraries(VRCPlugin ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
+install (TARGETS VRCPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
 
 #get_rospack_flags(trajectory_msgs)
 #get_rospack_flags(geometry_msgs)
