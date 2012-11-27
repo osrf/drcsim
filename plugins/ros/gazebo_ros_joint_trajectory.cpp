@@ -306,7 +306,8 @@ void GazeboRosJointTrajectory::UpdateStates()
           for (unsigned int i = 0; i < chain_size; ++i)
           {
             // this is not the most efficient way to set things
-            this->joints_[i]->SetAngle(0, this->points_[this->trajectory_index].positions[i]);
+            if (this->joints_[i])
+              this->joints_[i]->SetAngle(0, this->points_[this->trajectory_index].positions[i]);
           }
 
           // set model pose

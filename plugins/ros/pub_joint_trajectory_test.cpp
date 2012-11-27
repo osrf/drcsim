@@ -7,6 +7,18 @@ int main(int argc, char** argv)
 {
 
   ros::init(argc, argv, "pub_joint_trajectory_test");
+
+  ros::NodeHandle rh;
+
+  bool wait = true;
+  while (wait)
+  {
+    ros::Time t = ros::Time::now();
+    ROS_INFO("t %f", t.toSec());
+    if (t.toSec() > 0)
+      wait = false;
+  }
+
   ros::NodeHandle rosnode;
   ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>("joint_trajectory",1, true);
 
@@ -15,35 +27,35 @@ int main(int argc, char** argv)
   jt.header.stamp = ros::Time::now();
   jt.header.frame_id = "drc_robot::pelvis";
 
-  jt.joint_names.push_back("drc_robot::back.lbz" );
-  jt.joint_names.push_back("drc_robot::back.mby" );
-  jt.joint_names.push_back("drc_robot::back.ubx" );
-  jt.joint_names.push_back("drc_robot::neck.ay"  );
-  jt.joint_names.push_back("drc_robot::l.leg.uhz");
-  jt.joint_names.push_back("drc_robot::l.leg.mhx");
-  jt.joint_names.push_back("drc_robot::l.leg.lhy");
-  jt.joint_names.push_back("drc_robot::l.leg.kny");
-  jt.joint_names.push_back("drc_robot::l.leg.uay");
-  jt.joint_names.push_back("drc_robot::l.leg.lax");
+  jt.joint_names.push_back("drc_robot::back_lbz" );
+  jt.joint_names.push_back("drc_robot::back_mby" );
+  jt.joint_names.push_back("drc_robot::back_ubx" );
+  jt.joint_names.push_back("drc_robot::neck_ay"  );
+  jt.joint_names.push_back("drc_robot::l_leg_uhz");
+  jt.joint_names.push_back("drc_robot::l_leg_mhx");
+  jt.joint_names.push_back("drc_robot::l_leg_lhy");
+  jt.joint_names.push_back("drc_robot::l_leg_kny");
+  jt.joint_names.push_back("drc_robot::l_leg_uay");
+  jt.joint_names.push_back("drc_robot::l_leg_lax");
 /*
-  jt.joint_names.push_back("drc_robot::r.leg.lax");
-  jt.joint_names.push_back("drc_robot::r.leg.uay");
-  jt.joint_names.push_back("drc_robot::r.leg.kny");
-  jt.joint_names.push_back("drc_robot::r.leg.lhy");
-  jt.joint_names.push_back("drc_robot::r.leg.mhx");
-  jt.joint_names.push_back("drc_robot::r.leg.uhz");
-  jt.joint_names.push_back("drc_robot::l.arm.elx");
-  jt.joint_names.push_back("drc_robot::l.arm.ely");
-  jt.joint_names.push_back("drc_robot::l.arm.mwx");
-  jt.joint_names.push_back("drc_robot::l.arm.shx");
-  jt.joint_names.push_back("drc_robot::l.arm.usy");
-  jt.joint_names.push_back("drc_robot::l.arm.uwy");
-  jt.joint_names.push_back("drc_robot::r.arm.elx");
-  jt.joint_names.push_back("drc_robot::r.arm.ely");
-  jt.joint_names.push_back("drc_robot::r.arm.mwx");
-  jt.joint_names.push_back("drc_robot::r.arm.shx");
-  jt.joint_names.push_back("drc_robot::r.arm.usy");
-  jt.joint_names.push_back("drc_robot::r.arm.uwy");
+  jt.joint_names.push_back("drc_robot::r_leg_lax");
+  jt.joint_names.push_back("drc_robot::r_leg_uay");
+  jt.joint_names.push_back("drc_robot::r_leg_kny");
+  jt.joint_names.push_back("drc_robot::r_leg_lhy");
+  jt.joint_names.push_back("drc_robot::r_leg_mhx");
+  jt.joint_names.push_back("drc_robot::r_leg_uhz");
+  jt.joint_names.push_back("drc_robot::l_arm_elx");
+  jt.joint_names.push_back("drc_robot::l_arm_ely");
+  jt.joint_names.push_back("drc_robot::l_arm_mwx");
+  jt.joint_names.push_back("drc_robot::l_arm_shx");
+  jt.joint_names.push_back("drc_robot::l_arm_usy");
+  jt.joint_names.push_back("drc_robot::l_arm_uwy");
+  jt.joint_names.push_back("drc_robot::r_arm_elx");
+  jt.joint_names.push_back("drc_robot::r_arm_ely");
+  jt.joint_names.push_back("drc_robot::r_arm_mwx");
+  jt.joint_names.push_back("drc_robot::r_arm_shx");
+  jt.joint_names.push_back("drc_robot::r_arm_usy");
+  jt.joint_names.push_back("drc_robot::r_arm_uwy");
 */
 
   int n = 500;
