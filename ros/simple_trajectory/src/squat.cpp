@@ -95,38 +95,38 @@ public:
     // Positions
     int ind = 0;
     goal.trajectory.points[ind].positions.resize(28);
-    goal.trajectory.points[ind].positions[0]  = 0.0;
-    goal.trajectory.points[ind].positions[1]  = -0.1;
-    goal.trajectory.points[ind].positions[2]  = 0.0;
-    goal.trajectory.points[ind].positions[3]  = 0.0;
-    goal.trajectory.points[ind].positions[4]  = 0.1;
-    goal.trajectory.points[ind].positions[5]  = 0.3;
+    goal.trajectory.points[ind].positions[0]  =   0.00;
+    goal.trajectory.points[ind].positions[1]  =   0.00;
+    goal.trajectory.points[ind].positions[2]  =   0.00;
+    goal.trajectory.points[ind].positions[3]  =   0.00;
+    goal.trajectory.points[ind].positions[4]  =   0.00;
+    goal.trajectory.points[ind].positions[5]  =   0.00;
 
-    goal.trajectory.points[ind].positions[6]  = 0.0;
-    goal.trajectory.points[ind].positions[7]  = -0.7;
-    goal.trajectory.points[ind].positions[8]  = -1.2;
-    goal.trajectory.points[ind].positions[9]  = 1.4;
-    goal.trajectory.points[ind].positions[10] = -1.4;
-    goal.trajectory.points[ind].positions[11] = 0.0;
+    goal.trajectory.points[ind].positions[6]  =   0.00;
+    goal.trajectory.points[ind].positions[7]  =   0.00;
+    goal.trajectory.points[ind].positions[8]  =   0.00;
+    goal.trajectory.points[ind].positions[9]  =   0.00;
+    goal.trajectory.points[ind].positions[10] =   0.00;
+    goal.trajectory.points[ind].positions[11] =   0.00;
 
-    goal.trajectory.points[ind].positions[12] = 0.0;
-    goal.trajectory.points[ind].positions[13] = 0.0;
-    goal.trajectory.points[ind].positions[14] = 0.0;
-    goal.trajectory.points[ind].positions[15] = 0.0;
-    goal.trajectory.points[ind].positions[16] = 0.0;
-    goal.trajectory.points[ind].positions[17] = 0.0;
+    goal.trajectory.points[ind].positions[12] =   0.00;
+    goal.trajectory.points[ind].positions[13] =   0.00;
+    goal.trajectory.points[ind].positions[14] =   0.00;
+    goal.trajectory.points[ind].positions[15] =   0.00;
+    goal.trajectory.points[ind].positions[16] =   0.00;
+    goal.trajectory.points[ind].positions[17] =   0.00;
 
-    goal.trajectory.points[ind].positions[18] = 0.0;
-    goal.trajectory.points[ind].positions[19] = 0.0;
-    goal.trajectory.points[ind].positions[20] = 0.0;
-    goal.trajectory.points[ind].positions[21] = 0.0;
-    goal.trajectory.points[ind].positions[22] = 0.0;
-    goal.trajectory.points[ind].positions[23] = 0.0;
+    goal.trajectory.points[ind].positions[18] =   0.00;
+    goal.trajectory.points[ind].positions[19] =   0.00;
+    goal.trajectory.points[ind].positions[20] =   0.00;
+    goal.trajectory.points[ind].positions[21] =   0.00;
+    goal.trajectory.points[ind].positions[22] =   0.00;
+    goal.trajectory.points[ind].positions[23] =   0.00;
 
-    goal.trajectory.points[ind].positions[24] = 0.0;
-    goal.trajectory.points[ind].positions[25] = 0.0;
-    goal.trajectory.points[ind].positions[26] = 0.0;
-    goal.trajectory.points[ind].positions[27] = 0.2;
+    goal.trajectory.points[ind].positions[24] =   0.00;
+    goal.trajectory.points[ind].positions[25] =   0.00;
+    goal.trajectory.points[ind].positions[26] =   0.00;
+    goal.trajectory.points[ind].positions[27] =   0.00;
     // Velocities
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
@@ -140,83 +140,38 @@ public:
     // Positions
     ind += 1;
     goal.trajectory.points[ind].positions.resize(28);
-    goal.trajectory.points[ind].positions[0]  = 0.0;
-    goal.trajectory.points[ind].positions[1]  = 0.4;
-    goal.trajectory.points[ind].positions[2]  =  1.2;
-    goal.trajectory.points[ind].positions[3]  =  0.8;
-    goal.trajectory.points[ind].positions[4]  = -1.4;
-    goal.trajectory.points[ind].positions[5]  = 0.2;
+    goal.trajectory.points[ind].positions[0]  =   0.00;
+    goal.trajectory.points[ind].positions[1]  =   0.00;
+    goal.trajectory.points[ind].positions[2]  =  -1.20;
+    goal.trajectory.points[ind].positions[3]  =   1.20;
+    goal.trajectory.points[ind].positions[4]  =  -0.40;
+    goal.trajectory.points[ind].positions[5]  =   0.00;
 
-    goal.trajectory.points[ind].positions[6]  = 0.0;
-    goal.trajectory.points[ind].positions[7]  = -0.7;
-    goal.trajectory.points[ind].positions[8]  = -1.2;
-    goal.trajectory.points[ind].positions[9]  = 1.4;
-    goal.trajectory.points[ind].positions[10] = -1.4;
-    goal.trajectory.points[ind].positions[11] = 0.0;
+    goal.trajectory.points[ind].positions[6]  =   0.00;
+    goal.trajectory.points[ind].positions[7]  =   0.00;
+    goal.trajectory.points[ind].positions[8]  =  -1.20;
+    goal.trajectory.points[ind].positions[9]  =   1.20;
+    goal.trajectory.points[ind].positions[10] =  -0.40;
+    goal.trajectory.points[ind].positions[11] =   0.00;
 
-    goal.trajectory.points[ind].positions[12] = 0.0;
-    goal.trajectory.points[ind].positions[13] = 0.0;
-    goal.trajectory.points[ind].positions[14] = 0.0;
-    goal.trajectory.points[ind].positions[15] = 0.0;
-    goal.trajectory.points[ind].positions[16] = 0.0;
-    goal.trajectory.points[ind].positions[17] = 0.0;
+    goal.trajectory.points[ind].positions[12] =   0.00;
+    goal.trajectory.points[ind].positions[13] =   0.00;
+    goal.trajectory.points[ind].positions[14] =   0.00;
+    goal.trajectory.points[ind].positions[15] =   0.00;
+    goal.trajectory.points[ind].positions[16] =   0.00;
+    goal.trajectory.points[ind].positions[17] =   0.00;
 
-    goal.trajectory.points[ind].positions[18] = 0.0;
-    goal.trajectory.points[ind].positions[19] = 0.0;
-    goal.trajectory.points[ind].positions[20] = 0.0;
-    goal.trajectory.points[ind].positions[21] = 0.0;
-    goal.trajectory.points[ind].positions[22] = 0.0;
-    goal.trajectory.points[ind].positions[23] = 0.0;
+    goal.trajectory.points[ind].positions[18] =   0.00;
+    goal.trajectory.points[ind].positions[19] =   0.00;
+    goal.trajectory.points[ind].positions[20] =   0.00;
+    goal.trajectory.points[ind].positions[21] =   0.00;
+    goal.trajectory.points[ind].positions[22] =   0.00;
+    goal.trajectory.points[ind].positions[23] =   0.00;
 
-    goal.trajectory.points[ind].positions[24] = 0.0;
-    goal.trajectory.points[ind].positions[25] = 0.0;
-    goal.trajectory.points[ind].positions[26] = 0.0;
-    goal.trajectory.points[ind].positions[27] = 0.0;
-    // Velocities
-    goal.trajectory.points[ind].velocities.resize(28);
-    for (size_t j = 0; j < 28; ++j)
-    {
-      goal.trajectory.points[ind].velocities[j] = 0.0;
-    }
-    // To be reached 2 seconds after starting along the trajectory
-    goal.trajectory.points[ind].time_from_start = ros::Duration(1.5);
-
-    // Second trajectory point
-    // Positions
-    ind += 1;
-    goal.trajectory.points[ind].positions.resize(28);
-    goal.trajectory.points[ind].positions[0]  = 0;
-    goal.trajectory.points[ind].positions[1]  = 0;
-    goal.trajectory.points[ind].positions[2]  = 0;
-    goal.trajectory.points[ind].positions[3]  = 0;
-    goal.trajectory.points[ind].positions[4]  = 0.1;
-    goal.trajectory.points[ind].positions[5]  = 0;
-
-    goal.trajectory.points[ind].positions[6]  = 0.0;
-    goal.trajectory.points[ind].positions[7]  = 0.0;
-    goal.trajectory.points[ind].positions[8]  = -0.2;
-    goal.trajectory.points[ind].positions[9]  =  0.4;
-    goal.trajectory.points[ind].positions[10] = -0.4;
-    goal.trajectory.points[ind].positions[11] = 0.0;
-
-    goal.trajectory.points[ind].positions[12] = 0.0;
-    goal.trajectory.points[ind].positions[13] = 0.0;
-    goal.trajectory.points[ind].positions[14] = 0.0;
-    goal.trajectory.points[ind].positions[15] = 0.0;
-    goal.trajectory.points[ind].positions[16] = 0.0;
-    goal.trajectory.points[ind].positions[17] = 0.0;
-
-    goal.trajectory.points[ind].positions[18] = 0.0;
-    goal.trajectory.points[ind].positions[19] = 0.0;
-    goal.trajectory.points[ind].positions[20] = 0.0;
-    goal.trajectory.points[ind].positions[21] = 0.0;
-    goal.trajectory.points[ind].positions[22] = 0.0;
-    goal.trajectory.points[ind].positions[23] = 0.0;
-
-    goal.trajectory.points[ind].positions[24] = 0.0;
-    goal.trajectory.points[ind].positions[25] = 0.0;
-    goal.trajectory.points[ind].positions[26] = 1.0;
-    goal.trajectory.points[ind].positions[27] = 1.0;
+    goal.trajectory.points[ind].positions[24] =   0.00;
+    goal.trajectory.points[ind].positions[25] =   0.00;
+    goal.trajectory.points[ind].positions[26] =   0.00;
+    goal.trajectory.points[ind].positions[27] =   0.00;
     // Velocities
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
@@ -226,42 +181,43 @@ public:
     // To be reached 2 seconds after starting along the trajectory
     goal.trajectory.points[ind].time_from_start = ros::Duration(3.0);
 
-    // Third trajectory point
+    // Second trajectory point
     // Positions
     ind += 1;
     goal.trajectory.points[ind].positions.resize(28);
-    goal.trajectory.points[ind].positions[0]  = 0.0;
-    goal.trajectory.points[ind].positions[1]  = 0.0;
-    goal.trajectory.points[ind].positions[2]  = 0.0;
-    goal.trajectory.points[ind].positions[3]  = 0.0;
-    goal.trajectory.points[ind].positions[4]  = 0.0;
-    goal.trajectory.points[ind].positions[5]  = 0.0;
+    goal.trajectory.points[ind].positions[0]  =   0.00;
+    goal.trajectory.points[ind].positions[1]  =   0.00;
+    goal.trajectory.points[ind].positions[2]  =  -1.70;
+    goal.trajectory.points[ind].positions[3]  =   1.70;
+    goal.trajectory.points[ind].positions[4]  =  -0.55;
+    goal.trajectory.points[ind].positions[5]  =   0.00;
 
-    goal.trajectory.points[ind].positions[6]  = 0.0;
-    goal.trajectory.points[ind].positions[7]  = 0.0;
-    goal.trajectory.points[ind].positions[8]  = 0.0;
-    goal.trajectory.points[ind].positions[9]  = 0.0;
-    goal.trajectory.points[ind].positions[10] = 0.0;
-    goal.trajectory.points[ind].positions[11] = 0.0;
+    goal.trajectory.points[ind].positions[6]  =   0.00;
+    goal.trajectory.points[ind].positions[7]  =   0.00;
+    goal.trajectory.points[ind].positions[8]  =  -1.70;
+    goal.trajectory.points[ind].positions[9]  =   1.70;
+    goal.trajectory.points[ind].positions[10] =  -0.55;
+    goal.trajectory.points[ind].positions[11] =   0.00;
 
-    goal.trajectory.points[ind].positions[12] = 0.0;
-    goal.trajectory.points[ind].positions[13] = 0.0;
-    goal.trajectory.points[ind].positions[14] = 0.0;
-    goal.trajectory.points[ind].positions[15] = 0.0;
-    goal.trajectory.points[ind].positions[16] = 0.0;
-    goal.trajectory.points[ind].positions[17] = 0.0;
+    goal.trajectory.points[ind].positions[12] =   0.00;
+    goal.trajectory.points[ind].positions[13] =   0.00;
+    goal.trajectory.points[ind].positions[14] =   0.00;
+    goal.trajectory.points[ind].positions[15] =   0.00;
+    goal.trajectory.points[ind].positions[16] =   0.00;
+    goal.trajectory.points[ind].positions[17] =   0.00;
 
-    goal.trajectory.points[ind].positions[18] = 0.0;
-    goal.trajectory.points[ind].positions[19] = 0.0;
-    goal.trajectory.points[ind].positions[20] = 0.0;
-    goal.trajectory.points[ind].positions[21] = 0.0;
-    goal.trajectory.points[ind].positions[22] = 0.0;
-    goal.trajectory.points[ind].positions[23] = 0.0;
+    goal.trajectory.points[ind].positions[18] =   0.00;
+    goal.trajectory.points[ind].positions[19] =   0.00;
+    goal.trajectory.points[ind].positions[20] =   0.00;
+    goal.trajectory.points[ind].positions[21] =   0.00;
+    goal.trajectory.points[ind].positions[22] =   0.00;
+    goal.trajectory.points[ind].positions[23] =   0.00;
 
-    goal.trajectory.points[ind].positions[24] = 0.0;
-    goal.trajectory.points[ind].positions[25] = 0.0;
-    goal.trajectory.points[ind].positions[26] = 0.0;
-    goal.trajectory.points[ind].positions[27] = 0.0;
+    goal.trajectory.points[ind].positions[24] =   0.00;
+    goal.trajectory.points[ind].positions[25] =   0.00;
+    goal.trajectory.points[ind].positions[26] =   0.00;
+    goal.trajectory.points[ind].positions[27] =   0.00;
+
     // Velocities
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
@@ -269,7 +225,52 @@ public:
       goal.trajectory.points[ind].velocities[j] = 0.0;
     }
     // To be reached 2 seconds after starting along the trajectory
-    goal.trajectory.points[ind].time_from_start = ros::Duration(4.0);
+    goal.trajectory.points[ind].time_from_start = ros::Duration(5.0);
+
+    // Third trajectory point
+    // Positions
+    ind += 1;
+    goal.trajectory.points[ind].positions.resize(28);
+    goal.trajectory.points[ind].positions[0]  =   0.0;
+    goal.trajectory.points[ind].positions[1]  =   0.0;
+    goal.trajectory.points[ind].positions[2]  =  -1.90;
+    goal.trajectory.points[ind].positions[3]  =   1.90;
+    goal.trajectory.points[ind].positions[4]  =  -0.60;
+    goal.trajectory.points[ind].positions[5]  =   0.00;
+
+    goal.trajectory.points[ind].positions[6]  =   0.00;
+    goal.trajectory.points[ind].positions[7]  =   0.00;
+    goal.trajectory.points[ind].positions[8]  =  -1.90;
+    goal.trajectory.points[ind].positions[9]  =   1.90;
+    goal.trajectory.points[ind].positions[10] =  -0.60;
+    goal.trajectory.points[ind].positions[11] =   0.0;
+
+    goal.trajectory.points[ind].positions[12] =   0.00;
+    goal.trajectory.points[ind].positions[13] =   0.00;
+    goal.trajectory.points[ind].positions[14] =   0.00;
+    goal.trajectory.points[ind].positions[15] =   0.00;
+    goal.trajectory.points[ind].positions[16] =   0.00;
+    goal.trajectory.points[ind].positions[17] =   0.00;
+
+    goal.trajectory.points[ind].positions[18] =   0.00;
+    goal.trajectory.points[ind].positions[19] =   0.00;
+    goal.trajectory.points[ind].positions[20] =   0.00;
+    goal.trajectory.points[ind].positions[21] =   0.00;
+    goal.trajectory.points[ind].positions[22] =   0.00;
+    goal.trajectory.points[ind].positions[23] =   0.00;
+
+    goal.trajectory.points[ind].positions[24] =   0.00;
+    goal.trajectory.points[ind].positions[25] =   0.00;
+    goal.trajectory.points[ind].positions[26] =   0.10;
+    goal.trajectory.points[ind].positions[27] =   0.00;
+    // Velocities
+    goal.trajectory.points[ind].velocities.resize(28);
+    for (size_t j = 0; j < 28; ++j)
+    {
+      goal.trajectory.points[ind].velocities[j] = 0.0;
+    }
+    // To be reached 2 seconds after starting along the trajectory
+    goal.trajectory.points[ind].time_from_start = ros::Duration(7.0);
 
     // tolerances
     /*
