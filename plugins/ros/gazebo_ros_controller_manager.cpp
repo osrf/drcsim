@@ -240,7 +240,7 @@ void GazeboRosControllerManager::propagateMechanismStateForcesToSimulation()
     {
       gazebo::physics::JointPtr hj = this->gazebo_joints_[i];
       double current_velocity = hj->GetVelocity(0);
-      double damping_force = damping_coef * current_velocity;
+      double damping_force = 0.0 * damping_coef * current_velocity;
       double effort_command = effort - damping_force;
       hj->SetForce(0,effort_command);
     }
@@ -248,7 +248,7 @@ void GazeboRosControllerManager::propagateMechanismStateForcesToSimulation()
     {
       gazebo::physics::JointPtr sj = this->gazebo_joints_[i];
       double current_velocity = sj->GetVelocity(0);
-      double damping_force = damping_coef * current_velocity;
+      double damping_force = 0.0 * damping_coef * current_velocity;
       double effort_command = effort-damping_force;
       sj->SetForce(0,effort_command);
     }
