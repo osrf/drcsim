@@ -33,3 +33,6 @@ rosbuild_link_boost(simple_trajectory thread)
 
 rosbuild_add_executable(squat src/squat.cpp)
 rosbuild_link_boost(squat thread)
+
+rosbuild_add_executable(stand src/stand.cpp)
+rosbuild_link_boost(stand thread)
