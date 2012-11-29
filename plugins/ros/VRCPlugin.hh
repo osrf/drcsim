@@ -48,16 +48,16 @@
 
 namespace gazebo
 {
-  class DRCRobotPlugin : public ModelPlugin
+  class VRCPlugin : public WorldPlugin
   {
     /// \brief Constructor
-    public: DRCRobotPlugin();
+    public: VRCPlugin();
 
     /// \brief Destructor
-    public: virtual ~DRCRobotPlugin();
+    public: virtual ~VRCPlugin();
 
     /// \brief Load the controller
-    public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
+    public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
     /// \brief Update the controller
     private: void UpdateStates();
@@ -72,7 +72,7 @@ namespace gazebo
 
     /// Sets DRC Robot feet placement
     /// No reachability checking here.
-    public: void SetFeetPose(math::Pose _lPose, math::Pose _rPose);
+    public: void SetRobotFeetPose(math::Pose _lPose, math::Pose _rPose);
 
     /// Sets DRC Robot planar navigational command velocity
     /// _cmd is a Vector3, where:
@@ -84,8 +84,12 @@ namespace gazebo
     ///     the robot turn left, and negative makes the robot turn right
     public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
     public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetPluginModeTopic(const std_msgs::String::ConstPtr &_str);
-    public: void SetPluginMode(const std::string &_str);
+    public: void SetRobotModeTopic(const std_msgs::String::ConstPtr &_str);
+    public: void SetRobotMode(const std::string &_str);
+
+    /// Sets DRC Robot feet placement
+    /// No reachability checking here.
+    public: void SetFeetPose(math::Pose _lPose, math::Pose _rPose);
 
     /// Move the robot's pinned joint to a certain location in the world.
     public: void WarpDRCRobot(math::Pose _pose);
@@ -106,6 +110,22 @@ namespace gazebo
     // \brief attach a model's link to the gripper with relative pose
     private: void GrabLink(std::string _modelName, std::string _linkName,
                            std::string _gripperName, math::Pose _pose);
+
+
+
+    // \brief 
+    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+    // \brief 
+    public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotReleaseFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+    // \brief 
+    public: void SetCarHandWeelPose(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void SetCarSteeredWeelPose(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+
 
     private: physics::LinkPtr fixedLink;
     private: physics::JointPtr fixedJoint;
