@@ -54,7 +54,19 @@ DRCRobotPlugin::~DRCRobotPlugin()
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void DRCRobotPlugin::Load(physics::ModelPtr _parent,
-                                 sdf::ElementPtr /*_sdf*/)
+                                 sdf::ElementPtr _sdf)
+{
+  this->model = _parent;
+  this->sdf = _sdf;
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &DRCRobotPlugin::LoadThread,this ) );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void DRCRobotPlugin::LoadThread()
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -69,8 +81,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   this->rosnode_ = new ros::NodeHandle("~");
 
   // Get the world name.
-  this->world = _parent->GetWorld();
-  this->model = _parent;
+  this->world = this->model->GetWorld();
   this->world->EnablePhysicsEngine(true);
 
   // this->world->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));

@@ -63,7 +63,10 @@ namespace gazebo
     private: void UpdateStates();
 
     private: physics::WorldPtr world;
-    private: physics::ModelPtr model;
+
+    private: physics::ModelPtr drc_robot;
+    private: physics::ModelPtr car;
+    private: physics::ModelPtr fire_hose;
 
     private: boost::mutex update_mutex;
 

@@ -123,6 +123,13 @@ namespace gazebo
     private: geometry_msgs::Twist cmdVel;
 
     // ros stuff
+
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: void LoadThread();
+    private: boost::thread deferred_load_thread_;
+
+    // reset of ros stuff
     private: ros::NodeHandle* rosnode_;
     private: ros::CallbackQueue queue_;
     private: void QueueThread();

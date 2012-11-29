@@ -122,6 +122,11 @@ namespace gazebo
 
       // Pointer to the update event connection
       private: event::ConnectionPtr update_connection_;
+
+      // deferred load in case ros is blocking
+      private: sdf::ElementPtr sdf;
+      private: void LoadThread();
+      private: boost::thread deferred_load_thread_;
    };
 
 /** \} */

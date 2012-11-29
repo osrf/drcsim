@@ -73,7 +73,7 @@ void VRCPlugin::Load(physics::WorldPtr _parent,
 
 
 
-  this->model = this->world->GetModel("drc_robot");
+  this->drc_robot = this->world->GetModel("drc_robot");
   this->world->EnablePhysicsEngine(true);
 
   // this->world->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
@@ -81,9 +81,9 @@ void VRCPlugin::Load(physics::WorldPtr _parent,
   this->cmdVel = geometry_msgs::Twist();
 
   // Note: hardcoded link by name: @todo: make this a pugin param
-  this->fixedLink = this->model->GetLink("pelvis");
+  this->fixedLink = this->drc_robot->GetLink("pelvis");
   // if (!this->fixedJoint)
-  //   this->fixedJoint = this->AddJoint(this->world, this->model,
+  //   this->fixedJoint = this->AddJoint(this->world, this->drc_robot,
   //                                     physics::LinkPtr(), this->fixedLink,
   //                                     "revolute",
   //                                     math::Vector3(0, 0, 0),
@@ -147,7 +147,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobot = false;
-    physics::Link_V links = this->model->GetLinks();
+    physics::Link_V links = this->drc_robot->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
@@ -159,7 +159,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobot = false;
-    physics::Link_V links = this->model->GetLinks();
+    physics::Link_V links = this->drc_robot->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
@@ -174,7 +174,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // reinitialize pinning
     if (!this->fixedJoint)
-      this->fixedJoint = this->AddJoint(this->world, this->model,
+      this->fixedJoint = this->AddJoint(this->world, this->drc_robot,
                                         physics::LinkPtr(), this->fixedLink,
                                         "revolute",
                                         math::Vector3(0, 0, 0),
@@ -182,7 +182,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                         0.0, 0.0);
     this->initialPose = this->fixedLink->GetWorldPose();
 
-    physics::Link_V links = this->model->GetLinks();
+    physics::Link_V links = this->drc_robot->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -191,7 +191,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "nominal")
   {
     // reinitialize pinning
-    physics::Link_V links = this->model->GetLinks();
+    physics::Link_V links = this->drc_robot->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -240,7 +240,7 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
                                    _pose->orientation.x,
                                    _pose->orientation.y,
                                    _pose->orientation.z));
-  this->model->SetWorldPose(pose);
+  this->drc_robot->SetWorldPose(pose);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -291,13 +291,13 @@ void VRCPlugin::GrabLink(std::string _modelName, std::string _linkName,
     physics::LinkPtr grabLink = grabModel->GetLink(_linkName);
     if (grabLink)
     {
-      physics::LinkPtr gripperLink = this->model->GetLink(_gripperName);
+      physics::LinkPtr gripperLink = this->drc_robot->GetLink(_gripperName);
       if (gripperLink)
       {
         math::Pose pose = _pose + gripperLink->GetWorldPose();
         grabModel->SetLinkWorldPose(pose, grabLink);
         if (!this->grabJoint)
-          this->grabJoint = this->AddJoint(this->world, this->model,
+          this->grabJoint = this->AddJoint(this->world, this->drc_robot,
                                            gripperLink, grabLink,
                                            "revolute",
                                            math::Vector3(0, 0, 0),
@@ -345,9 +345,9 @@ void VRCPlugin::WarpDRCRobot(math::Pose _pose)
   this->world->SetPaused(true);
   if (this->fixedJoint)
     this->RemoveJoint(this->fixedJoint);
-  this->model->SetLinkWorldPose(_pose, this->fixedLink);
+  this->drc_robot->SetLinkWorldPose(_pose, this->fixedLink);
   if (!this->fixedJoint)
-    this->fixedJoint = this->AddJoint(this->world, this->model,
+    this->fixedJoint = this->AddJoint(this->world, this->drc_robot,
                                       physics::LinkPtr(), this->fixedLink,
                                       "revolute",
                                       math::Vector3(0, 0, 0),
@@ -360,8 +360,8 @@ void VRCPlugin::WarpDRCRobot(math::Pose _pose)
 // Set DRC Robot feet placement
 void VRCPlugin::SetFeetPose(math::Pose _lPose, math::Pose _rPose)
 {
-  physics::LinkPtr l_foot = this->model->GetLink("l_foot");
-  physics::LinkPtr r_foot = this->model->GetLink("r_foot");
+  physics::LinkPtr l_foot = this->drc_robot->GetLink("l_foot");
+  physics::LinkPtr r_foot = this->drc_robot->GetLink("r_foot");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

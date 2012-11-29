@@ -59,43 +59,54 @@ GazeboRosJointTrajectory::~GazeboRosJointTrajectory()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosJointTrajectory::Load( physics::ModelPtr _model, sdf::ElementPtr _sdf )
+void GazeboRosJointTrajectory::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
+  // save pointers
   this->model_ = _model;
+  this->sdf = _sdf;
 
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosJointTrajectory::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosJointTrajectory::LoadThread()
+{
   // Get the world
-  this->world_ = _model->GetWorld();
+  this->world_ = this->model_->GetWorld();
 
   //this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
 
   // load parameters
   this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
-  if (!_sdf->HasElement("serviceName"))
+  if (!this->sdf->HasElement("serviceName"))
   {
     // default
     this->service_name_ = "set_joint_trajectory";
   }
   else
-    this->service_name_ = _sdf->GetElement("serviceName")->GetValueString();
+    this->service_name_ = this->sdf->GetElement("serviceName")->GetValueString();
 
-  if (!_sdf->HasElement("topicName"))
+  if (!this->sdf->HasElement("topicName"))
   {
     // default
     this->topic_name_ = "set_joint_trajectory";
   }
   else
-    this->topic_name_ = _sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
 
-  if (!_sdf->HasElement("updateRate"))
+  if (!this->sdf->HasElement("updateRate"))
   {
     ROS_INFO("joint trajectory plugin missing <updateRate>, defaults to 0.0 (as fast as possible)");
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetElement("updateRate")->GetValueDouble();
 
   // Wait for ROS
   if (!ros::isInitialized())
