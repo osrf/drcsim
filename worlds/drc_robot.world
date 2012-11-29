@@ -30,5 +30,8 @@
     <include>
       <uri>model://drc_robot</uri>
     </include>
+    <plugin filename="libVRCPlugin.so" name="vrc_plugin">
+      <drc_robot>drc_robot</drc_robot>
+    </plugin>
   </world>
 </gazebo>
