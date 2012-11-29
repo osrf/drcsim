@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <gazebo version='1.2'>
-  <model name='car'>
+  <model name='Golf Cart'>
     <link name='chassis'>
       <!-- mesh width 51.1811 -->
       <!-- mesh height 99.8878 -->
@@ -22,7 +22,7 @@
         <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
-            <uri>model://low_poly_golf_cart/meshes/no_wheels.dae</uri>
+            <uri>model://golf_cart/meshes/no_wheels.dae</uri>
             <scale>0.030 0.030 0.030</scale>
           </mesh>
         </geometry>
@@ -33,7 +33,7 @@
         <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
-            <uri>model://low_poly_golf_cart/meshes/no_wheels.dae</uri>
+            <uri>model://golf_cart/meshes/no_wheels.dae</uri>
             <scale>0.030 0.030 0.030</scale>
           </mesh>
         </geometry>
