@@ -91,7 +91,7 @@ namespace gazebo
     /// \brief Set the steering wheel angle; this will also update the front
     ///        wheel steering angle.
     /// \param[in] _msg ROS std_msgs::Float64 message.
-    public: void SetHandWheelState(std_msgs::Float64 _msg);
+    public: void SetHandWheelState(const std_msgs::Float64 &_msg);
 
     /// \brief Sets the lower and upper limits of the steering wheel angle.
     /// \param[in] _min Lower limit of steering wheel angle (radians).
@@ -146,7 +146,7 @@ namespace gazebo
 
     /// \brief Specify gas pedal position in meters.
     /// \param[in] _msg ROS std_msgs::Float64 message.
-    public: void SetGasPedalState(std_msgs::Float64 _msg);
+    public: void SetGasPedalState(const std_msgs::Float64 &_msg);
 
     /// \brief Specify gas pedal position limits in meters.
     /// \param[in] _min Lower limit of gas pedal position (meters).
@@ -167,7 +167,7 @@ namespace gazebo
 
     /// \brief Specify brake pedal position in meters.
     /// \param[in] _msg ROS std_msgs::Float64 message.
-    public: void SetBrakePedalState(std_msgs::Float64 _msg);
+    public: void SetBrakePedalState(const std_msgs::Float64 &_msg);
 
     /// \brief Sets brake pedal position limits in meters.
     /// \param[in] _min Lower limit of brake pedal position (meters).

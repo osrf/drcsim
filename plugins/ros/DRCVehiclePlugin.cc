@@ -97,9 +97,9 @@ void DRCVehiclePlugin::SetHandWheelState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetHandWheelState(std_msgs::Float64 _msg)
+void DRCVehiclePlugin::SetHandWheelState(const std_msgs::Float64 &_msg)
 {
-  this->handWheelCmd = _msg.data;
+  this->handWheelCmd = _msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,9 +187,9 @@ void DRCVehiclePlugin::SetGasPedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetGasPedalState(std_msgs::Float64 _msg)
+void DRCVehiclePlugin::SetGasPedalState(const std_msgs::Float64 &_msg)
 {
-  this->gasPedalCmd = _msg.data;
+  this->gasPedalCmd = _msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,9 +223,9 @@ void DRCVehiclePlugin::SetBrakePedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetBrakePedalState(std_msgs::Float64 _msg)
+void DRCVehiclePlugin::SetBrakePedalState(const std_msgs::Float64 &_msg)
 {
-  this->brakePedalCmd = _msg.data;
+  this->brakePedalCmd = _msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
