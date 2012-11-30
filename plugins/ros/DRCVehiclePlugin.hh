@@ -27,6 +27,12 @@
 #ifndef GAZEBO_DRC_VEHICLE_PLUGIN_HH
 #define GAZEBO_DRC_VEHICLE_PLUGIN_HH
 
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
+#include <ros/subscribe_options.h>
+#include <std_msgs/Float64.h>
+
 #include <boost/thread.hpp>
 
 #include "physics/physics.hh"
@@ -224,6 +230,18 @@ namespace gazebo
     private: double frWheelState;
     private: double blWheelState;
     private: double brWheelState;
+
+    // ros stuff
+    private: ros::NodeHandle* rosnode_;
+    private: ros::CallbackQueue queue_;
+    private: void QueueThread();
+    private: boost::thread callback_queue_thread_;
+    private: ros::Publisher brake_pedal_state_pub_;
+    private: ros::Publisher gas_pedal_state_pub_;
+    private: ros::Publisher hand_wheel_state_pub_;
+    private: ros::Subscriber brake_pedal_cmd_sub_;
+    private: ros::Subscriber gas_pedal_cmd_sub_;
+    private: ros::Subscriber hand_wheel_cmd_sub_;
   };
 /** \} */
 /// @}
