@@ -97,9 +97,10 @@ void DRCVehiclePlugin::SetHandWheelState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetHandWheelState(const std_msgs::Float64 &_msg)
+void DRCVehiclePlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
+    &_msg)
 {
-  this->handWheelCmd = _msg->data;
+  this->handWheelCmd = (double)_msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,9 +188,9 @@ void DRCVehiclePlugin::SetGasPedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetGasPedalState(const std_msgs::Float64 &_msg)
+void DRCVehiclePlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg)
 {
-  this->gasPedalCmd = _msg->data;
+  this->gasPedalCmd = (double)_msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,9 +224,10 @@ void DRCVehiclePlugin::SetBrakePedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::SetBrakePedalState(const std_msgs::Float64 &_msg)
+void DRCVehiclePlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
+    &_msg)
 {
-  this->brakePedalCmd = _msg->data;
+  this->brakePedalCmd = (double)_msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -384,21 +386,27 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   ros::SubscribeOptions hand_wheel_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "/hand_wheel/cmd", 100,
-    boost::bind( &DRCVehiclePlugin::SetHandWheelState,this,_1),
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetHandWheelState),this,_1),
     ros::VoidPtr(), &this->queue_);
   this->hand_wheel_cmd_sub_ = this->rosnode_->subscribe(hand_wheel_cmd_so);
 
   ros::SubscribeOptions gas_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "/gas_pedal/cmd", 100,
-    boost::bind( &DRCVehiclePlugin::SetGasPedalState,this,_1),
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetGasPedalState),this,_1),
     ros::VoidPtr(), &this->queue_);
   this->gas_pedal_cmd_sub_ = this->rosnode_->subscribe(gas_pedal_cmd_so);
 
   ros::SubscribeOptions brake_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "/brake_pedal/cmd", 100,
-    boost::bind( &DRCVehiclePlugin::SetBrakePedalState,this,_1),
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetBrakePedalState),this,_1),
     ros::VoidPtr(), &this->queue_);
   this->brake_pedal_cmd_sub_ = this->rosnode_->subscribe(brake_pedal_cmd_so);
 
@@ -589,6 +597,16 @@ math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
 {
   math::Pose pose = _link->GetCollision(id)->GetWorldPose();
   return pose.pos;
+}
+
+void DRCVehiclePlugin::QueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosnode_->ok())
+  {
+    this->queue_.callAvailable(ros::WallDuration(timeout));
+  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
