@@ -97,6 +97,12 @@ void DRCVehiclePlugin::SetHandWheelState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetHandWheelState(std_msgs::Float64 _msg)
+{
+  this->handWheelCmd = _msg.data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetHandWheelLimits(const math::Angle &_min,
                                               const math::Angle &_max)
 {
@@ -181,6 +187,12 @@ void DRCVehiclePlugin::SetGasPedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetGasPedalState(std_msgs::Float64 _msg)
+{
+  this->gasPedalCmd = _msg.data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetGasPedalLimits(double _min, double _max)
 {
   this->gasPedalJoint->SetHighStop(0, _max);
@@ -211,13 +223,19 @@ void DRCVehiclePlugin::SetBrakePedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetBrakePedalState(std_msgs::Float64 _msg)
+{
+  this->brakePedalCmd = _msg.data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetBrakePedalLimits(double _min, double _max)
 {
   this->brakePedalJoint->SetHighStop(0, _max);
   this->brakePedalJoint->SetLowStop(0, _min);
   this->brakePedalHigh  = this->brakePedalJoint->GetHighStop(0).Radian();
   this->brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
-  this->brakePedalRange   = this->brakePedalHigh - this->brakePedalLow;
+  this->brakePedalRange = this->brakePedalHigh - this->brakePedalLow;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +419,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->update_connection_ = event::Events::ConnectWorldUpdateStart(
       boost::bind(&DRCVehiclePlugin::UpdateStates, this));
   this->ros_publish_connection_ = event::Events::ConnectWorldUpdateStart(
-      boost::bind(&DRCVehiclePlugin::PublishStates, this));
+      boost::bind(&DRCVehiclePlugin::RosPublishStates, this));
 
   this->lastTime = this->world->GetSimTime();
 }

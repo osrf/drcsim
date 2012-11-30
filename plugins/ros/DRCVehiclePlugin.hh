@@ -88,6 +88,11 @@ namespace gazebo
     /// \param[in] _position Steering wheel angle in radians.
     public: void SetHandWheelState(double _position);
 
+    /// \brief Set the steering wheel angle; this will also update the front
+    ///        wheel steering angle.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetHandWheelState(std_msgs::Float64 _msg);
+
     /// \brief Sets the lower and upper limits of the steering wheel angle.
     /// \param[in] _min Lower limit of steering wheel angle (radians).
     /// \param[in] _max Upper limit of steering wheel angle (radians).
@@ -139,25 +144,42 @@ namespace gazebo
     /// \param[in] _position Desired gas pedal position in meters.
     public: void SetGasPedalState(double _position);
 
-    /// Sets gas pedal position limits in meters.
+    /// \brief Specify gas pedal position in meters.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetGasPedalState(std_msgs::Float64 _msg);
+
+    /// \brief Specify gas pedal position limits in meters.
+    /// \param[in] _min Lower limit of gas pedal position (meters).
+    /// \param[in] _max Upper limit of gas pedal position (meters).
     public: void SetGasPedalLimits(double _min, double _max);
 
-    /// Returns gas pedal position limits in meters.
+    /// \brief Returns gas pedal position limits in meters.
+    /// \param[out] _min Lower limit of gas pedal position (meters).
+    /// \param[out] _max Upper limit of gas pedal position (meters).
     public: void GetGasPedalLimits(double &_min, double &_max);
 
-    /// Returns the gas pedal position in meters.
+    /// \brief Returns the gas pedal position in meters.
     public: double GetGasPedalState();
 
-    /// Specify gas pedal position in meters.
+    /// \brief Specify brake pedal position in meters.
+    /// \param[in] _position Desired brake pedal position in meters.
     public: void SetBrakePedalState(double _position);
 
-    /// Sets gas pedal position limits in meters.
+    /// \brief Specify brake pedal position in meters.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetBrakePedalState(std_msgs::Float64 _msg);
+
+    /// \brief Sets brake pedal position limits in meters.
+    /// \param[in] _min Lower limit of brake pedal position (meters).
+    /// \param[in] _max Upper limit of brake pedal position (meters).
     public: void SetBrakePedalLimits(double _min, double _max);
 
-    /// Returns gas pedal position limits in meters.
+    /// \brief Returns brake pedal position limits in meters.
+    /// \param[out] _min Lower limit of brake pedal position (meters).
+    /// \param[out] _max Upper limit of brake pedal position (meters).
     public: void GetBrakePedalLimits(double &_min, double &_max);
 
-    /// Returns the gas pedal position in meters.
+    /// \brief Returns the brake pedal position in meters.
     public: double GetBrakePedalState();
 
     /// Returns the ROS publish period (seconds).
