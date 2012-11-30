@@ -68,6 +68,7 @@ install (TARGETS gazebo_ros_camera DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PRO
 
 
 
+get_rospack_flags(sensor_msgs)
 get_rospack_flags(trajectory_msgs)
 #get_rospack_flags(geometry_msgs)
 #get_rospack_flags(image_transport)
@@ -83,9 +84,9 @@ install (TARGETS DRCRobotPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJEC
 
 
 add_library(VRCPlugin SHARED VRCPlugin.cc)
-set_target_properties(VRCPlugin PROPERTIES COMPILE_FLAGS "${trajectory_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
-set_target_properties(VRCPlugin PROPERTIES LINK_FLAGS "${trajectory_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
-target_link_libraries(VRCPlugin ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
+set_target_properties(VRCPlugin PROPERTIES COMPILE_FLAGS "${trajectory_msgs_CFLAGS_OTHER} ${sensor_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
+set_target_properties(VRCPlugin PROPERTIES LINK_FLAGS "${trajectory_msgs_LDFLAGS_OTHER} ${sensor_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
+target_link_libraries(VRCPlugin ${trajectory_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
 install (TARGETS VRCPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 

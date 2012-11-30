@@ -81,12 +81,6 @@
     </plugin>
 -->
 
-    <plugin filename="libVRCPlugin.so" name="vrc_plugin">
-      <drc_robot>drc_robot</drc_robot>
-      <cart>golf_cart</cart>
-      <fire_hose>fire_hose</fire_hose>
-      <standpipe>standpipe</standpipe>
-    </plugin>
 
   </world>
 </gazebo>

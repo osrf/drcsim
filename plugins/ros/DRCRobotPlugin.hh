@@ -65,62 +65,15 @@ namespace gazebo
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
-    private: boost::mutex update_mutex;
-
     /// Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
+    private: int connectionCount;
+    private: void OnStatusConnect();
+    private: void OnStatusDisconnect();
 
-    /// Sets DRC Robot feet placement
-    /// No reachability checking here.
-    public: void SetFeetPose(math::Pose _lPose, math::Pose _rPose);
-
-    /// Sets DRC Robot planar navigational command velocity
-    /// _cmd is a Vector3, where:
-    ///   - x is the desired forward linear velocity, positive is robot-forward
-    ///     and negative is robot-back.
-    ///   - y is the desired lateral linear velocity, positive is robot-left
-    ///     and negative is robot-right.
-    ///   - z is the desired heading angular velocity, positive makes
-    ///     the robot turn left, and negative makes the robot turn right
-    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
-    public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetPluginModeTopic(const std_msgs::String::ConstPtr &_str);
-    public: void SetPluginMode(const std::string &_str);
-
-    /// Move the robot's pinned joint to a certain location in the world.
-    public: void WarpDRCRobot(math::Pose _pose);
-
-    /// \brief add a constraint between 2 links
-    private: physics::JointPtr AddJoint(physics::WorldPtr _world,
-                                        physics::ModelPtr _model,
-                                        physics::LinkPtr _link1,
-                                        physics::LinkPtr _link2,
-                                        std::string _type,
-                                        math::Vector3 _anchor,
-                                        math::Vector3 _axis,
-                                        double _upper, double _lower);
-
-    /// \brief Remove a joint
-    private: void RemoveJoint(physics::JointPtr &_joint);
-
-    // \brief attach a model's link to the gripper with relative pose
-    private: void GrabLink(std::string _modelName, std::string _linkName,
-                           std::string _gripperName, math::Pose _pose);
-
-    private: physics::LinkPtr fixedLink;
-    private: physics::JointPtr fixedJoint;
-    private: physics::JointPtr grabJoint;
-    private: math::Vector3 anchorPose;
-    private: bool warpRobot;
-
-    /// \brief keep initial pose of robot to prevent z-drifting when
-    /// teleporting the robot.
-    private: math::Pose initialPose;
-
-    private: bool harnessed;
-
+    /// Throttle update rate
     private: double lastUpdateTime;
-    private: geometry_msgs::Twist cmdVel;
+    private: double updateRate;
 
     // ros stuff
 
@@ -134,9 +87,7 @@ namespace gazebo
     private: ros::CallbackQueue queue_;
     private: void QueueThread();
     private: boost::thread callback_queue_thread_;
-    private: ros::Subscriber trajectory_sub_;
-    private: ros::Subscriber pose_sub_;
-    private: ros::Subscriber mode_sub_;
+    private: ros::Publisher pub_status_;
   };
 /** \} */
 /// @}
