@@ -1,6 +1,6 @@
 set (plugins
   #DRCRobotPlugin
-  DRCVehiclePlugin
+  #DRCVehiclePlugin
   DRCBuildingPlugin
   DRCFirehosePlugin
 )

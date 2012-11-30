@@ -83,6 +83,10 @@ install (TARGETS DRCRobotPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJEC
 
 
 
+install (TARGETS DRCVehiclePlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
+
+
 #get_rospack_flags(trajectory_msgs)
 #get_rospack_flags(geometry_msgs)
 #get_rospack_flags(image_transport)
