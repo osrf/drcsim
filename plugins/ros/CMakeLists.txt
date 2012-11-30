@@ -83,6 +83,7 @@ install (TARGETS DRCRobotPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJEC
 
 
 
+add_library(DRCVehiclePlugin SHARED DRCVehiclePlugin.cc)
 install (TARGETS DRCVehiclePlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
