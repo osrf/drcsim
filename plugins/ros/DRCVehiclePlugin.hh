@@ -60,6 +60,9 @@ namespace gazebo
     /// \brief Update the controller.
     private: void UpdateStates();
 
+    /// \brief Publish the steering and pedal states on ROS topics.
+    private: void RosPublishStates();
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
@@ -67,6 +70,9 @@ namespace gazebo
 
     /// Pointer to the update event connection.
     private: event::ConnectionPtr update_connection_;
+
+    /// Pointer to the publish event connection.
+    private: event::ConnectionPtr ros_publish_connection_;
 
     /// \brief Sets DRC Vehicle control inputs, the vehicle internal model 
     ///        will decide the overall motion of the vehicle.
@@ -153,6 +159,12 @@ namespace gazebo
 
     /// Returns the gas pedal position in meters.
     public: double GetBrakePedalState();
+
+    /// Returns the ROS publish period (seconds).
+    public: common::Time GetRosPublishPeriod();
+
+    /// Set the ROS publish frequency (Hz).
+    public: void SetRosPublishRate(double _hz);
 
     /// Default plugin init call.
     public: void Init();
@@ -242,6 +254,8 @@ namespace gazebo
     private: ros::Subscriber brake_pedal_cmd_sub_;
     private: ros::Subscriber gas_pedal_cmd_sub_;
     private: ros::Subscriber hand_wheel_cmd_sub_;
+    private: common::Time rosPublishPeriod;
+    private: common::Time lastRosPublishTime;
   };
 /** \} */
 /// @}
