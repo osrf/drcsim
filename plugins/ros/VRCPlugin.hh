@@ -86,13 +86,11 @@ namespace gazebo
       /// teleporting the robot.
       public: math::Pose initialPose;
 
-      /// \brief sitting pose
-      public: math::Pose vehiclePose;
-      public: std::map<std::string, double> vehicleConfiguration;
+      /// \brief Pose of robot relative to vehicle
+      public: math::Pose vehicleRelPose;
 
-      /// \brief fix robot butt to vehicle for efficiency
-      public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
-      public: physics::JointPtr vehicleSeatJoint;
+      /// \brief robot configuration when inside of vehicle
+      public: std::map<std::string, double> inVehicleConfiguration;
 
       /// flag to keep track of start-up 'harness' on the robot
       public: bool startupHarness;
@@ -116,6 +114,11 @@ namespace gazebo
       public: physics::ModelPtr model;
       public: math::Pose initialPose;
     } drc_vehicle;
+
+
+    /// \brief fix robot butt to vehicle for efficiency
+    // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
+    public: physics::JointPtr vehicleRobotJoint;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //

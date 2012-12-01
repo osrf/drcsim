@@ -289,7 +289,7 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
 
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
-
+  this->drc_robot.vehicleRelPose = math::Pose();
 }
 
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
