@@ -21,17 +21,17 @@
 
             <texture>
               <diffuse>file://media/materials/textures/dirt_diffusespecular.png</diffuse>
-              <normal>file://media/materials/textures/dirt_normal.png</normal>
+              <normal>file://media/materials/textures/flat_normal.png</normal>
               <size>5</size>
             </texture>
             <texture>
               <diffuse>file://media/materials/textures/grass_diffusespecular.png</diffuse>
-              <normal>file://media/materials/textures/grass_normal.png</normal>
+              <normal>file://media/materials/textures/flat_normal.png</normal>
               <size>10</size>
             </texture>
             <texture>
               <diffuse>file://media/materials/textures/fungus_diffusespecular.png</diffuse>
-              <normal>file://media/materials/textures/fungus_normal.png</normal>
+              <normal>file://media/materials/textures/flat_normal.png</normal>
               <size>80</size>
             </texture>
             <blend>
