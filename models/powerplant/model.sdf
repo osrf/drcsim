@@ -1,9 +1,25 @@
 <?xml version="1.0"?>
 <gazebo version='1.2'>
   <model name="powerplant">
+    <pose>350 65 10.2 0 0 0</pose>
+
     <static>false</static>
+
     <link name="link">
-      <pose>0 0 0.01 0 0 0</pose>
+      <pose>0 0 0.2 0 0 0</pose>
+
+      <inertial>
+        <mass>100</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>10</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>10</iyy>
+          <iyz>0</iyz>
+          <izz>10</izz>
+        </inertia>
+      </inertial>
 
       <collision name="wall1">
         <geometry>
@@ -20,7 +36,13 @@
           </mesh>
         </geometry>
       </visual>
+      <velocity_decay>
+        <linear>0.09</linear>
+        <angular>0.09</angular>
+      </velocity_decay>
+
     </link>
+
     <joint name="building_world_joint" type="revolute">
       <parent>world</parent>
       <child>link</child>
@@ -32,9 +54,10 @@
         </limit>
       </axis>
     </joint>
+
     <!-- door -->
     <link name="door_left">
-      <pose>22.10 -29.1 0.975 0 0 0</pose>
+      <pose>22.10 -29.1 1.175 0 0 0</pose>
       <gravity>false</gravity>
       <inertial>
         <mass>10</mass>
@@ -49,24 +72,24 @@
         </inertia>
       </inertial>
       <visual name="door_visual">
-        <pose>0.4575 0 0 0 0 0</pose>
+        <pose>0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.915 .07 1.95</size>
+            <size>0.915 .07 1.9</size>
           </box>
         </geometry>
       </visual>
       <collision name="door_collision">
-        <pose>0.4575 0 0 0 0 0</pose>
+        <pose>0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.915 .07 1.95</size>
+            <size>0.915 .07 1.9</size>
           </box>
         </geometry>
       </collision>
     </link>
     <joint name="door_left_joint" type="revolute">
-      <parent>link</parent>
+      <parent>world</parent>
       <child>door_left</child>
       <axis>
         <xyz>0 0 1.000000</xyz>
@@ -95,7 +118,7 @@
         <pose>-0.05 0 0 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.1 .03 0.03</size>
+            <size>0.1 .03 0.03</size>
           </box>
         </geometry>
       </visual>
@@ -103,7 +126,7 @@
         <pose>-0.05 0 0 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.1 .03 0.03</size>
+            <size>0.1 .03 0.03</size>
           </box>
         </geometry>
       </collision>
@@ -120,7 +143,7 @@
       </axis>
     </joint>
     <link name="door_right">
-      <pose>23.94 -29.1 0.975 0 0 0</pose>
+      <pose>23.94 -29.1 1.175 0 0 0</pose>
       <gravity>false</gravity>
       <inertial>
         <mass>10</mass>
@@ -135,16 +158,24 @@
         </inertia>
       </inertial>
       <visual name="door_visual">
-        <pose>-0.4575 0 0 0 0 0</pose>
+        <pose>-0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.915 .07 1.95</size>
+            <size>0.915 .07 1.9</size>
           </box>
         </geometry>
       </visual>
+      <collision name="door_collision">
+        <pose>0.4575 0 0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.915 .07 1.9</size>
+          </box>
+        </geometry>
+      </collision>
     </link>
     <joint name="door_right_joint" type="revolute">
-      <parent>link</parent>
+      <parent>world</parent>
       <child>door_right</child>
       <axis>
         <xyz>0 0 1.000000</xyz>
@@ -173,7 +204,7 @@
         <pose>0.05 0 0 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.1 .03 0.03</size>
+            <size>0.1 .03 0.03</size>
           </box>
         </geometry>
       </visual>
@@ -181,7 +212,7 @@
         <pose>0.05 0 0 0 0 0</pose>
         <geometry>
           <box>
-          <size>0.1 .03 0.03</size>
+            <size>0.1 .03 0.03</size>
           </box>
         </geometry>
       </collision>

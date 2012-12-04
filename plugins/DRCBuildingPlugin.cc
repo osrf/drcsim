@@ -82,8 +82,8 @@ void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
   this->doorJoint->SetHighStop(0, 0);
   this->doorJoint->SetLowStop(0, 0);
 
-  this->doorPID.Init(200, 1, 3, 10, -10, 50, -50);
-  this->handlePID.Init(10, 0.3, 1, 1, -1, 5, -5);
+  this->doorPID.Init(200, 1, 20, 10, -10, 50, -50);
+  this->handlePID.Init(80, 1, 1, 3, -3, 5, -5);
   this->lastTime = this->world->GetSimTime();
 
   // New Mechanism for Updating every World Cycle
@@ -115,12 +115,12 @@ void DRCBuildingPlugin::UpdateStates()
     double handleCmd = this->handlePID.Update(handleError, dt);
     this->handleJoint->SetForce(0, handleCmd);
 
-    // simulate door lock
-    if (math::equal(this->handleState, 0.0) &&
-        math::equal(this->doorState, 0.0))
+    // simulate door latch/lock
+    if ((fabs(this->handleState) < 0.02) && (fabs(this->doorState)   < 0.02))
     {
       this->doorJoint->SetHighStop(0, 0);
       this->doorJoint->SetLowStop(0, 0);
+      this->doorJoint->SetAngle(0, 0);
     }
     else
     {

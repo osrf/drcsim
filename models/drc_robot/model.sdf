@@ -72,12 +72,24 @@
       <geometry>
         <mesh filename="package://drc_robot/meshes/l_foot.dae" scale="1 1 1"/>
       </geometry>
+      <!--
+      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.124887 0.01"/>
+      </geometry>
+      -->
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://drc_robot/meshes/l_foot.stl" scale="1 1 1"/>
       </geometry>
+      <!--
+      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.124887 0.01"/>
+      </geometry>
+      -->
     </collision>
   </link>
   <link name="l_hand">
@@ -122,7 +134,7 @@
     <inertial>
       <mass value="0.69"/>
       <origin rpy="0 -0 0" xyz="0.0133341 0.0170484 -0.0312052"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.000691326" ixy="-2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="0.000137862" izz="0.00106487"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -179,7 +191,7 @@
     <inertial>
       <mass value="0.1"/>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -217,7 +229,7 @@
     <inertial>
       <mass value="0.5166"/>
       <origin rpy="0 -0 0" xyz="0.00529262 -0.00344732 0.00313046"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.00074276" ixy="-3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="-3.2735e-08" izz="0.00041242"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -274,7 +286,7 @@
     <inertial>
       <mass value="0.55"/>
       <origin rpy="0 -0 0" xyz="-0.00816266 -0.0131245 0.0305974"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.000454181" ixy="-6.10764e-05" ixz="3.94009e-05" iyy="0.000483282" iyz="5.27463e-05" izz="0.000444215"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -357,12 +369,24 @@
       <geometry>
         <mesh filename="package://drc_robot/meshes/r_foot.dae" scale="1 1 1"/>
       </geometry>
+      <!--
+      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.124887 0.01"/>
+      </geometry>
+      -->
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://drc_robot/meshes/r_foot.stl" scale="1 1 1"/>
       </geometry>
+      <!--
+      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.26 0.124887 0.01"/>
+      </geometry>
+      -->
     </collision>
   </link>
   <link name="r_hand">
@@ -407,7 +431,7 @@
     <inertial>
       <mass value="0.69"/>
       <origin rpy="0 -0 0" xyz="0.0133341 -0.0170484 -0.0312052"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.000691326" ixy="2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="-0.000137862" izz="0.00106487"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -464,7 +488,7 @@
     <inertial>
       <mass value="0.1"/>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -502,7 +526,7 @@
     <inertial>
       <mass value="0.5166"/>
       <origin rpy="0 -0 0" xyz="0.00529262 0.00344732 0.00313046"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242"/>
     </inertial>
     <visual>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
@@ -580,7 +604,7 @@
     <child link="utorso"/>
     <dynamics damping="0.1" friction="0"/>
     <limit effort="94.91" lower="-0.790809" upper="0.790809" velocity="12"/>
-    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.7908" soft_upper_limit="10"/>
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.7908" soft_upper_limit="10.7908"/>
   </joint>
   <joint name="l_arm_elx" type="revolute">
     <origin rpy="0 -0 0" xyz="0 0.121 0.013"/>
@@ -826,7 +850,7 @@
     <inertial>
       <mass value="0.1"/>
       <origin xyz="0 0 0"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -860,10 +884,16 @@
   <gazebo reference="r_foot">
     <mu1>10.0</mu1>
     <mu2>10.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <maxVel>0.0</maxVel>
+    <minDepth>0.001</minDepth>
   </gazebo>
   <gazebo reference="l_foot">
     <mu1>10.0</mu1>
     <mu2>10.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <maxVel>0.0</maxVel>
+    <minDepth>0.001</minDepth>
   </gazebo>
   <transmission name="back_lbz_trans" type="pr2_mechanism_model/SimpleTransmission">
     <joint name="back_lbz"/>
@@ -1135,8 +1165,8 @@
         <cameraName>right_eye</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>left_camera_optical_frame</frameName>
-        <hackBaseline>0.2</hackBaseline>
+        <frameName>right_camera_optical_frame</frameName>
+        <hackBaseline>-0.2</hackBaseline>
         <!-- check this -->
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
