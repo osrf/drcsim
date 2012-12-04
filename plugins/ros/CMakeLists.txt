@@ -119,3 +119,13 @@ set_target_properties(gazebo_ros_api_plugin PROPERTIES LINK_FLAGS "${trajectory_
 target_link_libraries(gazebo_ros_api_plugin ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES})
 install (TARGETS gazebo_ros_api_plugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
+
+get_rospack_flags(nav_msgs)
+include_directories(${trajectory_msgs_INCLUDE_DIRS} ${geometry_msgs_INCLUDE_DIRS} ${image_transport_INCLUDE_DIRS} ${tf_INCLUDE_DIRS} ${nav_msgs_INCLUDE_DIRS})
+link_directories(${trajectory_msgs_LIBRARY_DIRS} ${geometry_msgs_LIBRARY_DIRS} ${image_transport_LIBRARY_DIRS} ${tf_LIBRARY_DIRS} ${nav_msgs_LIBRARY_DIRS})
+set(CMAKE_INSTALL_RPATH "${trajectory_msgs_LIBRARY_DIRS} ${geometry_msgs_LIBRARY_DIRS} ${image_transport_LIBRARY_DIRS} ${tf_LIBRARY_DIRS} ${nav_msgs_LIBRARY_DIRS}")
+add_library(gazebo_ros_p3d SHARED gazebo_ros_p3d.cpp)
+set_target_properties(gazebo_ros_p3d PROPERTIES COMPILE_FLAGS "${trajectory_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER} ${nav_msgs_CFLAGS_OTHER}")
+set_target_properties(gazebo_ros_p3d PROPERTIES LINK_FLAGS "${trajectory_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER} ${nav_msgs_LDFLAGS_OTHER}")
+target_link_libraries(gazebo_ros_p3d ${trajectory_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES} ${nav_msgs_LIBRARIES})
+install (TARGETS gazebo_ros_p3d DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)

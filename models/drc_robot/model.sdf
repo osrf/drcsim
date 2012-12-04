@@ -308,6 +308,14 @@
       </geometry>
     </collision>
   </link>
+  <gazebo>
+    <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
+      <bodyName>pelvis</bodyName>
+      <topicName>/ground_truth_odom</topicName>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>100.0</updateRate>
+    </plugin>
+  </gazebo>
   <link name="r_clav">
     <inertial>
       <mass value="2.369"/>
