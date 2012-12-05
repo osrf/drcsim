@@ -295,6 +295,9 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
 
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
+  if (this->drc_robot.pinJoint)
+    this->RemoveJoint(this->drc_robot.pinJoint);
+
   this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
                                               math::Quaternion());
 
@@ -354,7 +357,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
   }
 
   this->joint_trajectory_controller.startTrajectory(
-    this->joint_trajectory_controller.armExtensionTrajectory());
+    this->joint_trajectory_controller.seatingConfiguration());
 
   // Wait for trajectory completion
   while(!joint_trajectory_controller.getState().isDone() && ros::ok())
@@ -386,6 +389,46 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
+  if (this->drc_robot.pinJoint)
+    this->RemoveJoint(this->drc_robot.pinJoint);
+
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.5, 1.20),
+                                              math::Quaternion());
+
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+
+  this->drc_robot.model->SetLinkWorldPose(
+    this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
+    this->drc_robot.pinLink);
+
+  if (!this->vehicleRobotJoint)
+    this->vehicleRobotJoint = this->AddJoint(this->world,
+                                       this->drc_vehicle.model,
+                                       this->drc_vehicle.seatLink,
+                                       this->drc_robot.pinLink,
+                                       "revolute",
+                                       math::Vector3(0, 0, 0),
+                                       math::Vector3(0, 0, 1),
+                                       0.0, 0.0);
+
+  // wait for action server to come up
+  while(!this->joint_trajectory_controller.traj_client_->waitForServer(
+    ros::Duration(1.0))){
+    ROS_INFO("Waiting for the joint_trajectory_action server");
+  }
+
+  this->joint_trajectory_controller.startTrajectory(
+    this->joint_trajectory_controller.standingConfiguration());
+
+  // Wait for trajectory completion
+  while(!joint_trajectory_controller.getState().isDone() && ros::ok())
+  {
+    ros::spinOnce();
+    usleep(50000);
+  }
+  ROS_INFO("set configuration done");
+
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 }

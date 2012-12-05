@@ -191,7 +191,7 @@ namespace gazebo
           be in its own trajectory - a trajectory can have one or more waypoints
           depending on the desired application.
       */
-      control_msgs::FollowJointTrajectoryGoal armExtensionTrajectory()
+      control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
       {
         //our goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
@@ -284,8 +284,131 @@ namespace gazebo
         {
           goal.trajectory.points[ind].velocities[j] = 0.0;
         }
-        // To be reached 2 seconds after starting along the trajectory
-        goal.trajectory.points[ind].time_from_start = ros::Duration(7.0);
+
+        // tolerances
+        /*
+        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
+        {
+          control_msgs::JointTolerance jt;
+          jt.name = goal.trajectory.joint_names[j];
+          jt.position = 0.1;
+          jt.velocity = 0.1;
+          jt.acceleration = 0.1;
+          goal.path_tolerance.push_back(jt);
+        }
+        */
+
+        // tolerances
+        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
+        {
+          control_msgs::JointTolerance jt;
+          jt.name = goal.trajectory.joint_names[j];
+          jt.position = 1000;
+          jt.velocity = 1000;
+          jt.acceleration = 1000;
+          goal.goal_tolerance.push_back(jt);
+        }
+
+        goal.goal_time_tolerance.sec = 10;
+        goal.goal_time_tolerance.nsec = 0;
+
+        //we are done; return the goal
+        return goal;
+      }
+
+      control_msgs::FollowJointTrajectoryGoal standingConfiguration()
+      {
+        //our goal variable
+        control_msgs::FollowJointTrajectoryGoal goal;
+
+        // First, the joint names, which apply to all waypoints
+        goal.trajectory.joint_names.push_back("l_leg_uhz");
+        goal.trajectory.joint_names.push_back("l_leg_mhx");
+        goal.trajectory.joint_names.push_back("l_leg_lhy");
+        goal.trajectory.joint_names.push_back("l_leg_kny");
+        goal.trajectory.joint_names.push_back("l_leg_uay");
+        goal.trajectory.joint_names.push_back("l_leg_lax");
+
+        goal.trajectory.joint_names.push_back("r_leg_uhz");
+        goal.trajectory.joint_names.push_back("r_leg_mhx");
+        goal.trajectory.joint_names.push_back("r_leg_lhy");
+        goal.trajectory.joint_names.push_back("r_leg_kny");
+        goal.trajectory.joint_names.push_back("r_leg_uay");
+        goal.trajectory.joint_names.push_back("r_leg_lax");
+
+        goal.trajectory.joint_names.push_back("l_arm_usy");
+        goal.trajectory.joint_names.push_back("l_arm_shx");
+        goal.trajectory.joint_names.push_back("l_arm_ely");
+        goal.trajectory.joint_names.push_back("l_arm_elx");
+        goal.trajectory.joint_names.push_back("l_arm_uwy");
+        goal.trajectory.joint_names.push_back("l_arm_mwx");
+
+        goal.trajectory.joint_names.push_back("r_arm_usy");
+        goal.trajectory.joint_names.push_back("r_arm_shx");
+        goal.trajectory.joint_names.push_back("r_arm_ely");
+        goal.trajectory.joint_names.push_back("r_arm_elx");
+        goal.trajectory.joint_names.push_back("r_arm_uwy");
+        goal.trajectory.joint_names.push_back("r_arm_mwx");
+
+        goal.trajectory.joint_names.push_back("neck_ay"  );
+        goal.trajectory.joint_names.push_back("back_lbz" );
+        goal.trajectory.joint_names.push_back("back_mby" );
+        goal.trajectory.joint_names.push_back("back_ubx" );
+
+        // We will have two waypoints in this goal trajectory
+        goal.trajectory.points.resize(1);
+
+        // First trajectory point
+        // Positions
+        int ind = 0;
+        goal.trajectory.points[ind].positions.resize(28);
+        goal.trajectory.points[ind].positions[0]  =   0.00;
+        goal.trajectory.points[ind].positions[1]  =   0.00;
+        goal.trajectory.points[ind].positions[2]  =   0.00;
+        goal.trajectory.points[ind].positions[3]  =   0.00;
+        goal.trajectory.points[ind].positions[4]  =   0.00;
+        goal.trajectory.points[ind].positions[5]  =   0.00;
+
+        goal.trajectory.points[ind].positions[6]  =   0.00;
+        goal.trajectory.points[ind].positions[7]  =   0.00;
+        goal.trajectory.points[ind].positions[8]  =   0.00;
+        goal.trajectory.points[ind].positions[9]  =   0.00;
+        goal.trajectory.points[ind].positions[10] =   0.00;
+        goal.trajectory.points[ind].positions[11] =   0.00;
+
+        goal.trajectory.points[ind].positions[12] =   0.00;
+        goal.trajectory.points[ind].positions[13] =  -1.60;
+        goal.trajectory.points[ind].positions[14] =   0.00;
+        goal.trajectory.points[ind].positions[15] =   0.00;
+        goal.trajectory.points[ind].positions[16] =   0.00;
+        goal.trajectory.points[ind].positions[17] =   0.00;
+
+        goal.trajectory.points[ind].positions[18] =   0.00;
+        goal.trajectory.points[ind].positions[19] =   1.60;
+        goal.trajectory.points[ind].positions[20] =   0.00;
+        goal.trajectory.points[ind].positions[21] =   0.00;
+        goal.trajectory.points[ind].positions[22] =   0.00;
+        goal.trajectory.points[ind].positions[23] =   0.00;
+
+        goal.trajectory.points[ind].positions[24] =   0.00;
+        goal.trajectory.points[ind].positions[25] =   0.00;
+        goal.trajectory.points[ind].positions[26] =   0.00;
+        goal.trajectory.points[ind].positions[27] =   0.00;
+        // Velocities
+        goal.trajectory.points[ind].velocities.resize(28);
+        for (size_t j = 0; j < 28; ++j)
+        {
+          goal.trajectory.points[ind].velocities[j] = 0.0;
+        }
+        // To be reached 1 second after starting along the trajectory
+        goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
+
+        // Velocities
+        goal.trajectory.points[ind].velocities.resize(28);
+        for (size_t j = 0; j < 28; ++j)
+        {
+          goal.trajectory.points[ind].velocities[j] = 0.0;
+        }
 
         // tolerances
         /*
