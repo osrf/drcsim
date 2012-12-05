@@ -71,16 +71,24 @@
       <point>0 0 0</point>
       <point>125 0 0</point>
     </road>
-
-    <plugin filename="libRubblePlugin.so" name="rubble">
-      <bottom_right>110.0 -4 0.0</bottom_right>
-      <top_left>115.0 4.0 1.0</top_left>
-      <min_size>0.05 0.05 0.05</min_size>
-      <max_size>0.2 0.2 0.2</max_size>
-      <count>200</count>
-    </plugin>
 -->
 
+    <plugin filename="libVRCPlugin.so" name="vrc_plugin">
+      <drc_robot>
+         <model_name>drc_robot</model_name>
+         <pin_link>utorso</pin_link>
+      </drc_robot>
+      <drc_vehicle>
+        <model_name>Golf Cart</model_name>
+        <seat_link>chassis</seat_link>
+      </drc_vehicle>
+      <drc_fire_hose>
+        <model_name>fire_hose</model_name>
+      </drc_fire_hose>
+      <drc_standpipe>
+        <model_name>standpipe</model_name>
+      </drc_standpipe>
+    </plugin>
 
   </world>
 </gazebo>
