@@ -385,7 +385,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   ros::SubscribeOptions hand_wheel_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/hand_wheel/cmd", 100,
+    "/" + this->model->GetName() + "/hand_wheel/cmd", 100,
     boost::bind( static_cast<void (DRCVehiclePlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &DRCVehiclePlugin::SetHandWheelState),this,_1),
@@ -394,7 +394,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   ros::SubscribeOptions gas_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/gas_pedal/cmd", 100,
+    "/" + this->model->GetName() + "/gas_pedal/cmd", 100,
     boost::bind( static_cast<void (DRCVehiclePlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &DRCVehiclePlugin::SetGasPedalState),this,_1),
@@ -403,7 +403,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   ros::SubscribeOptions brake_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/brake_pedal/cmd", 100,
+    "/" + this->model->GetName() + "/brake_pedal/cmd", 100,
     boost::bind( static_cast<void (DRCVehiclePlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &DRCVehiclePlugin::SetBrakePedalState),this,_1),
@@ -411,11 +411,11 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->brake_pedal_cmd_sub_ = this->rosnode_->subscribe(brake_pedal_cmd_so);
 
   this->hand_wheel_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
-    "/hand_wheel/state",10);
+    "/" + this->model->GetName() + "/hand_wheel/state",10);
   this->gas_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
-    "/gas_pedal/state",10);
+    "/" + this->model->GetName() + "/gas_pedal/state",10);
   this->brake_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
-    "/brake_pedal/state",10);
+    "/" + this->model->GetName() + "/brake_pedal/state",10);
 
   // ros callback queue for processing subscription
   this->callback_queue_thread_ = boost::thread(
