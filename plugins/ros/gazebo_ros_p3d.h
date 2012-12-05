@@ -30,7 +30,7 @@
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 
-#include "physics/physics.h"
+#include "physics/physics.hh"
 #include "transport/TransportTypes.hh"
 #include "common/Time.hh"
 #include "common/Plugin.hh"
