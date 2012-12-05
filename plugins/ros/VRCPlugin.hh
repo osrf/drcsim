@@ -177,11 +177,9 @@ namespace gazebo
       //! Sends the command to start a given trajectory
       void startTrajectory(control_msgs::FollowJointTrajectoryGoal goal)
       {
-        ROS_ERROR("starting trajectory");
         // When to start the trajectory: 1s from now
         goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-        ROS_ERROR("sending trajectory");
         traj_client_->sendGoal(goal);
       }
 
