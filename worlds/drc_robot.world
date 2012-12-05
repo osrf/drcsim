@@ -32,19 +32,20 @@
     </include>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
-      <vrc_robot>
+      <drc_robot>
          <model_name>drc_robot</model_name>
          <pin_link>utorso</pin_link>
-      </vrc_robot>
-      <vrc_vehicle>
-        <model_name>golf_cart<model_name>
-      </vrc_vehicle>
-      <vrc_fire_hose>
-        <model_name>fire_hose<model_name>
-      </vrc_fire_hose>
-      <vrc_standpipe>
-        <model_name>standpipe<model_name>
-      </vrc_standpipe>
+      </drc_robot>
+      <drc_vehicle>
+        <model_name>Golf Cart</model_name>
+        <seat_link>chassis</seat_link>
+      </drc_vehicle>
+      <drc_fire_hose>
+        <model_name>fire_hose</model_name>
+      </drc_fire_hose>
+      <drc_standpipe>
+        <model_name>standpipe</model_name>
+      </drc_standpipe>
     </plugin>
 
   </world>

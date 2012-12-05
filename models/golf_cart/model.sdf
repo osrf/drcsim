@@ -30,77 +30,124 @@
       -->
 
       <visual name='chassis_visual'>
-        <pose>-1.498 -0.7677165 0.200000 0.000000 -0.000000 -1.57079</pose>
+        <pose>-2.28 -1.18 0.200000 0.000000 -0.000000 -1.57079</pose>
         <geometry>
           <mesh>
             <uri>model://golf_cart/meshes/no_wheels.dae</uri>
-            <scale>0.030 0.030 0.030</scale>
+            <scale>0.045 0.045 0.045</scale>
           </mesh>
         </geometry>
       </visual>
 
       <!-- chassis base visual
       <visual name='chassis_base_vis'>
-        <pose>0.0 0.0 0.350000 0.000000 0 0</pose>
+        <pose>0.0 0.0 0.425000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>3.0 1.7 0.09</size>
+            <size>4.3 2.4 0.135</size>
           </box>
         </geometry>
       </visual>
       -->
 
       <collision name='chassis_base_col'>
-        <pose>0.0 0.0 0.350000 0.000000 0 0</pose>
+        <pose>0.0 0.0 0.425000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>3.0 1.7 0.09</size>
+            <size>4.3 2.4 0.135</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <max_vel>1</max_vel>
+              <min_depth>0.01</min_depth>
+            </ode>
+          </contact>
+        </surface>
       </collision>
 
       <!-- box seat
       <visual name='chassis_seat_vis'>
-        <pose>0.4 0.0 0.50000 0.000000 0 0</pose>
+        <pose>0.55 0.0 0.60000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>0.25 1.7 0.15</size>
+            <size>0.45 2.4 0.4</size>
           </box>
         </geometry>
       </visual>
       -->
       <collision name='chassis_seat_col'>
-        <pose>0.4 0.0 0.50000 0.000000 0 0</pose>
+        <pose>0.55 0.0 0.60000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>0.25 1.7 0.15</size>
+            <size>0.45 2.4 0.4</size>
           </box>
         </geometry>
       </collision>
 
       <!-- box seat back
       <visual name='chassis_seat_back_vis'>
-        <pose>0.25 0.0 0.70000 0.000000 0 0</pose>
+        <pose>0.35 0.0 1.05000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>0.05 1.7 0.5</size>
+            <size>0.05 2.4 0.6</size>
           </box>
         </geometry>
       </visual>
       -->
       <collision name='chassis_seat_back_col'>
-        <pose>0.25 0.0 0.70000 0.000000 0 0</pose>
+        <pose>0.35 0.0 1.05000 0.000000 0 0</pose>
         <geometry>
           <box>
-            <size>0.05 1.7 0.5</size>
+            <size>0.05 2.4 0.6</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- box back seat
+      <visual name='chassis_back_seat_vis'>
+        <pose>-0.88 0.0 0.60000 0.000000 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.45 2.4 0.4</size>
+          </box>
+        </geometry>
+      </visual>
+      -->
+      <collision name='chassis_back_seat_col'>
+        <pose>-0.88 0.0 0.60000 0.000000 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.45 2.4 0.4</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- box back seat back
+      <visual name='chassis_back_seat_back_vis'>
+        <pose>-1.08 0.0 1.05000 0.000000 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 2.4 0.6</size>
+          </box>
+        </geometry>
+      </visual>
+      -->
+      <collision name='chassis_back_seat_back_col'>
+        <pose>-1.08 0.0 1.05000 0.000000 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 2.4 0.6</size>
           </box>
         </geometry>
       </collision>
 
       <velocity_decay>0.01</velocity_decay>
     </link>
+
     <link name='front_left_wheel_steering_block'>
-      <pose>1.250000 0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>1.800000 1.017700 0.300000 -0.000000 1.570700 1.570700</pose>
       <inertial>
         <mass>10</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -122,44 +169,6 @@
         </geometry>
       </collision>
       <visual name='front_left_wheel_visual'>
-        <geometry>
-          <cylinder>
-            <radius>0.050000</radius>
-            <length>0.010000</length>
-          </cylinder>
-        </geometry>
-        <material>
-          <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Black</name>
-          </script>
-        </material>
-      </visual>
-      <velocity_decay/>
-    </link>
-    <link name='front_right_wheel_steering_block'>
-      <pose>1.250000 -0.717700 0.300000 -0.000000 1.570700 1.570700</pose>
-      <inertial>
-        <mass>10</mass>
-        <pose>0 0 0 0 0 0</pose>
-        <inertia>
-          <ixx>1</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1</iyy>
-          <iyz>0</iyz>
-          <izz>1</izz>
-        </inertia>
-      </inertial>
-      <collision name='front_right_wheel_collision'>
-        <geometry>
-          <cylinder>
-            <radius>0.050000</radius>
-            <length>0.010000</length>
-          </cylinder>
-        </geometry>
-      </collision>
-      <visual name='front_right_wheel_visual'>
         <geometry>
           <cylinder>
             <radius>0.050000</radius>
@@ -176,7 +185,7 @@
       <velocity_decay/>
     </link>
     <link name='front_left_wheel'>
-      <pose>1.250000 0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>1.800000 1.117700 0.300000 -0.000000 1.570700 1.570700</pose>
       <inertial>
         <mass>10</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -213,8 +222,47 @@
       </visual>
       <velocity_decay/>
     </link>
+
+    <link name='front_right_wheel_steering_block'>
+      <pose>1.800000 -1.017700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <inertial>
+        <mass>10</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='front_right_wheel_collision'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='front_right_wheel_visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.050000</radius>
+            <length>0.010000</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay/>
+    </link>
     <link name='front_right_wheel'>
-      <pose>1.250000 -0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>1.800000 -1.117700 0.300000 -0.000000 1.570700 1.570700</pose>
       <inertial>
         <mass>10</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -251,8 +299,9 @@
       </visual>
       <velocity_decay/>
     </link>
+
     <link name='back_right_wheel'>
-      <pose>-0.800000 -0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>-1.250000 -1.117700 0.300000 -0.000000 1.570700 1.570700</pose>
       <inertial>
         <mass>10</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -290,7 +339,7 @@
       <velocity_decay/>
     </link>
     <link name='back_left_wheel'>
-      <pose>-0.800000 0.817700 0.300000 -0.000000 1.570700 1.570700</pose>
+      <pose>-1.250000 1.117700 0.300000 -0.000000 1.570700 1.570700</pose>
       <inertial>
         <mass>10</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -327,8 +376,9 @@
       </visual>
       <velocity_decay/>
     </link>
+
     <link name='gas_pedal'>
-      <pose>0.800000 0.240000 0.550000 0.000000 -0.5 0.000000</pose>
+      <pose>1.150000 0.300000 0.660000 0.000000 -0.5 0.000000</pose>
       <gravity>false</gravity>
       <inertial>
         <mass>1.0</mass>
@@ -345,14 +395,14 @@
       <collision name='gas_pedal_collision'>
         <geometry>
           <box>
-            <size>0.160000 0.070000 0.020000</size>
+            <size>0.280000 0.070000 0.030000</size>
           </box>
         </geometry>
       </collision>
       <visual name='gas_pedal_visual'>
         <geometry>
           <box>
-            <size>0.160000 0.070000 0.020000</size>
+            <size>0.280000 0.070000 0.030000</size>
           </box>
         </geometry>
         <material>
@@ -368,9 +418,10 @@
       </visual>
       <velocity_decay/>
     </link>
+
     <link name='brake_pedal'>
       <gravity>false</gravity>
-      <pose>0.850000 0.395000 0.570000 0.000000 0.300000 0.000000</pose>
+      <pose>1.280000 0.550000 0.730000 0.000000 0.300000 0.000000</pose>
       <inertial>
         <mass>1</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -386,14 +437,14 @@
       <collision name='brake_pedal_collision'>
         <geometry>
           <box>
-            <size>0.020000 0.100000 0.030000</size>
+            <size>0.020000 0.140000 0.050000</size>
           </box>
         </geometry>
       </collision>
       <visual name='brake_pedal_visual'>
         <geometry>
           <box>
-            <size>0.020000 0.100000 0.030000</size>
+            <size>0.020000 0.140000 0.050000</size>
           </box>
         </geometry>
         <material>
@@ -409,8 +460,9 @@
       </visual>
       <velocity_decay/>
     </link>
+
     <link name='steering_wheel'>
-      <pose>0.780000 0.3500000 0.928000 0.000000 1.8 0.000000</pose>
+      <pose>1.130000 0.4950000 1.300000 0.000000 1.8 0.000000</pose>
       <inertial>
         <mass>1.0</mass>
         <pose>0 0 0 0 0 0</pose>
@@ -426,7 +478,7 @@
       <collision name='steering_wheel_collision'>
         <geometry>
           <cylinder>
-            <radius>0.150000</radius>
+            <radius>0.220000</radius>
             <length>0.020000</length>
           </cylinder>
         </geometry>
@@ -434,7 +486,7 @@
       <visual name='steering_wheel_visual'>
         <geometry>
           <cylinder>
-            <radius>0.150000</radius>
+            <radius>0.220000</radius>
             <length>0.020000</length>
           </cylinder>
         </geometry>

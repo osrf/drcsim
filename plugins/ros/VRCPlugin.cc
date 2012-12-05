@@ -90,6 +90,9 @@ void VRCPlugin::LoadThread()
   // Load Robot
   this->drc_robot.Load(this->world, this->sdf);
 
+  // Load Vehicle
+  this->drc_vehicle.Load(this->world, this->sdf);
+
   // Setup ROS interfaces for robot
   this->LoadRobotROSAPI();
 
@@ -280,21 +283,111 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                               _link2->GetName() + std::string("_joint"));
   joint->Init();
 
+/*
   // disable collision between the link pair
   if (_link1)
     _link1->SetCollideMode("fixed");
-  _link2->SetCollideMode("fixed");
+  if (_link2)
+    _link2->SetCollideMode("fixed");
+*/
   return joint;
 }
 
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
-  this->drc_robot.vehicleRelPose = math::Pose();
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+                                              math::Quaternion());
+
+  this->drc_robot.model->SetLinkWorldPose(
+    this->drc_vehicle.model->GetWorldPose() + this->drc_robot.vehicleRelPose,
+    this->drc_robot.pinLink);
+
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+
+  if (!this->vehicleRobotJoint)
+    this->vehicleRobotJoint = this->AddJoint(this->world,
+                                       this->drc_vehicle.model,
+                                       this->drc_vehicle.seatLink,
+                                       this->drc_robot.pinLink,
+                                       "revolute",
+                                       math::Vector3(0, 0, 0),
+                                       math::Vector3(0, 0, 1),
+                                       0.0, 0.0);
+/*
+  std::map<std::string, double> jointPositions;
+  jointPositions["drc_robot::back_lbz" ] =  0.00;
+  jointPositions["drc_robot::back_mby" ] =  0.00;
+  jointPositions["drc_robot::back_ubx" ] =  0.00;
+  jointPositions["drc_robot::neck_ay"  ] =  0.00;
+  jointPositions["drc_robot::l_leg_uhz"] =  0.00;
+  jointPositions["drc_robot::l_leg_mhx"] =  0.00;
+  jointPositions["drc_robot::l_leg_lhy"] = -1.80;
+  jointPositions["drc_robot::l_leg_kny"] =  1.80;
+  jointPositions["drc_robot::l_leg_uay"] =  0.00;
+  jointPositions["drc_robot::l_leg_lax"] =  0.00;
+  jointPositions["drc_robot::r_leg_uhz"] =  0.00;
+  jointPositions["drc_robot::r_leg_mhx"] =  0.00;
+  jointPositions["drc_robot::r_leg_lhy"] = -1.80;
+  jointPositions["drc_robot::r_leg_kny"] =  1.80;
+  jointPositions["drc_robot::r_leg_uay"] =  0.00;
+  jointPositions["drc_robot::r_leg_lax"] =  0.00;
+  jointPositions["drc_robot::l_arm_elx"] =  0.00;
+  jointPositions["drc_robot::l_arm_ely"] =  0.00;
+  jointPositions["drc_robot::l_arm_mwx"] =  0.00;
+  jointPositions["drc_robot::l_arm_shx"] =  0.00;
+  jointPositions["drc_robot::l_arm_usy"] = -1.60;
+  jointPositions["drc_robot::l_arm_uwy"] =  0.00;
+  jointPositions["drc_robot::r_arm_elx"] =  0.00;
+  jointPositions["drc_robot::r_arm_ely"] =  0.00;
+  jointPositions["drc_robot::r_arm_mwx"] =  0.00;
+  jointPositions["drc_robot::r_arm_shx"] =  0.00;
+  jointPositions["drc_robot::r_arm_usy"] =  1.60;
+  jointPositions["drc_robot::r_arm_uwy"] =  0.00;
+  this->drc_robot.model->SetJointPositions(jointPositions);
+*/
+
+  // wait for action server to come up
+  while(!this->joint_trajectory_controller.traj_client_->waitForServer(
+    ros::Duration(1.0))){
+    ROS_INFO("Waiting for the joint_trajectory_action server");
+  }
+
+  this->joint_trajectory_controller.startTrajectory(
+    this->joint_trajectory_controller.armExtensionTrajectory());
+
+  // Wait for trajectory completion
+  while(!joint_trajectory_controller.getState().isDone() && ros::ok())
+  {
+    ros::spinOnce();
+    usleep(50000);
+  }
+  ROS_INFO("set configuration done");
+
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.17),
+                                              math::Quaternion());
+
+  this->RemoveJoint(this->vehicleRobotJoint);
+
+  this->drc_robot.model->SetLinkWorldPose(
+    this->drc_vehicle.model->GetWorldPose() + this->drc_robot.vehicleRelPose,
+    this->drc_robot.pinLink);
+
+  if (!this->vehicleRobotJoint)
+    this->vehicleRobotJoint = this->AddJoint(this->world,
+                                       this->drc_vehicle.model,
+                                       this->drc_vehicle.seatLink,
+                                       this->drc_robot.pinLink,
+                                       "revolute",
+                                       math::Vector3(0, 0, 0),
+                                       math::Vector3(0, 0, 1),
+                                       0.0, 0.0);
 }
 
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
-
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
 }
 
 void VRCPlugin::SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd)
@@ -409,41 +502,86 @@ void VRCPlugin::ROSQueueThread()
   }
 }
 
-void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
-  if (_sdf->HasElement("vrc_robot") &&
-      _sdf->GetElement("vrc_robot")->HasElement("model_name"))
+  if (_sdf->HasElement("drc_vehicle") &&
+      _sdf->GetElement("drc_vehicle")->HasElement("model_name"))
   {
-    this->model = _world->GetModel(_sdf->GetElement("vrc_robot")
+    this->model = _world->GetModel(_sdf->GetElement("drc_vehicle")
                         ->GetValueString("model_name"));
   }
   else
   {
-    ROS_INFO("Can't find <vrc_robot><model_name> blocks. using default.");
-    this->model = _world->GetModel("vrc_robot");
-    if (!this->model)
-    {
-      ROS_ERROR("vrc robot named [drc_robot] not found.");
-      return;
-    }
+    ROS_INFO("Can't find <drc_vehicle><model_name> blocks. using default.");
+    this->model = _world->GetModel("drc_vehicle");
   }
 
-  if (_sdf->HasElement("vrc_robot") &&
-      _sdf->GetElement("vrc_robot")->HasElement("pin_link"))
+  if (!this->model)
   {
-    this->pinLink = this->model->GetLink(_sdf->GetElement("vrc_robot")
+    ROS_ERROR("drc vehicle not found.");
+    return;
+  }
+
+  if (_sdf->HasElement("drc_vehicle") &&
+      _sdf->GetElement("drc_vehicle")->HasElement("seat_link"))
+  {
+    this->seatLink = this->model->GetLink(_sdf->GetElement("drc_vehicle")
+                        ->GetValueString("seat_link"));
+  }
+  else
+  {
+    ROS_INFO("Can't find <drc_vehicle><seat_link> blocks, using default.");
+    this->seatLink = this->model->GetLink("chassis");
+  }
+
+  if (!this->seatLink)
+  {
+    ROS_ERROR("drc vehicle seat link not found.");
+    return;
+  }
+
+  // Note: hardcoded link by name: @todo: make this a pugin param
+  this->initialPose = this->seatLink->GetWorldPose();
+}
+
+void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+{
+  // load parameters
+  if (_sdf->HasElement("drc_robot") &&
+      _sdf->GetElement("drc_robot")->HasElement("model_name"))
+  {
+    this->model = _world->GetModel(_sdf->GetElement("drc_robot")
+                        ->GetValueString("model_name"));
+  }
+  else
+  {
+    ROS_INFO("Can't find <drc_robot><model_name> blocks. using default.");
+    this->model = _world->GetModel("drc_robot");
+  }
+
+  if (!this->model)
+  {
+    ROS_ERROR("drc robot not found.");
+    return;
+  }
+
+  if (_sdf->HasElement("drc_robot") &&
+      _sdf->GetElement("drc_robot")->HasElement("pin_link"))
+  {
+    this->pinLink = this->model->GetLink(_sdf->GetElement("drc_robot")
                         ->GetValueString("pin_link"));
   }
   else
   {
-    ROS_INFO("Can't find <vrc_robot><pin_link> blocks, using default.");
+    ROS_INFO("Can't find <drc_robot><pin_link> blocks, using default.");
     this->pinLink = this->model->GetLink("utorso");
-    if (!this->pinLink)
-    {
-      ROS_ERROR("drc robot pin link [utorso] not found.");
-      return;
-    }
+  }
+
+  if (!this->pinLink)
+  {
+    ROS_ERROR("drc robot pin link not found.");
+    return;
   }
 
   // Note: hardcoded link by name: @todo: make this a pugin param
@@ -489,7 +627,7 @@ void VRCPlugin::LoadVRCROSAPI()
 void VRCPlugin::LoadRobotROSAPI()
 {
   // ros subscription
-  std::string trajectory_topic_name = "/drc_robot/cmd_vel";
+  std::string trajectory_topic_name = "/cmd_vel";
   ros::SubscribeOptions trajectory_so =
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
