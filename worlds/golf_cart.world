@@ -30,7 +30,7 @@
     </include>
 
     <include>
-      <uri>model://low_poly_golf_cart</uri>
+      <uri>model://golf_cart</uri>
       <pose>0 -2 0 0 0 0</pose>
     </include>
 
