@@ -314,10 +314,8 @@ void DRCRobotPlugin::RemoveJoint(physics::JointPtr &_joint)
     // reenable collision between the link pair
     physics::LinkPtr parent = _joint->GetParent();
     physics::LinkPtr child = _joint->GetChild();
-    if (parent)
-      parent->SetCollideMode("all");
-    if (child)
-      child->SetCollideMode("all");
+    parent->SetCollideMode("all");
+    child->SetCollideMode("all");
 
     _joint->Detach();
     _joint.reset();
