@@ -11,7 +11,7 @@
     </asset>
     <library_images>
       <image id="Map #2-image" name="Map #2">
-        <init_from>atlas_DRC_1.png</init_from>
+        <init_from>../materials/textures/atlas_DRC_1.png</init_from>
       </image>
     </library_images>
     <library_materials>
