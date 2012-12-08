@@ -273,7 +273,8 @@ physics::JointPtr DRCRobotPlugin::AddJoint(physics::WorldPtr _world,
   // disable collision between the link pair
   if (_link1)
     _link1->SetCollideMode("fixed");
-  _link2->SetCollideMode("fixed");
+  if (_link2)
+    _link2->SetCollideMode("fixed");
   return joint;
 }
 
@@ -314,8 +315,10 @@ void DRCRobotPlugin::RemoveJoint(physics::JointPtr &_joint)
     // reenable collision between the link pair
     physics::LinkPtr parent = _joint->GetParent();
     physics::LinkPtr child = _joint->GetChild();
-    parent->SetCollideMode("all");
-    child->SetCollideMode("all");
+    if (parent)
+      parent->SetCollideMode("all");
+    if (child)
+      child->SetCollideMode("all");
 
     _joint->Detach();
     _joint.reset();
