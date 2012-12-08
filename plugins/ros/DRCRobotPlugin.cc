@@ -144,7 +144,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobot = false;
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
@@ -156,7 +156,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobot = false;
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
@@ -179,7 +179,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
                                         0.0, 0.0);
     this->initialPose = this->fixedLink->GetWorldPose();
 
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -188,7 +188,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   else if (_str == "nominal")
   {
     // reinitialize pinning
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
