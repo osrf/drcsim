@@ -148,6 +148,12 @@ private:
   private: physics::WorldPtr world;
 
   private: event::ConnectionPtr updateConnection;
+
+  // deferred load in case ros is blocking
+  private: sdf::ElementPtr sdf;
+  private: void LoadThread();
+  private: boost::thread deferred_load_thread_;
+
 };
 
 }

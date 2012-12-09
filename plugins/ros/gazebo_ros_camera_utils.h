@@ -182,6 +182,11 @@ namespace gazebo
     protected: int imageConnectCount;
     protected: int infoConnectCount;
     protected: physics::WorldPtr world;
+
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: void LoadThread();
+    private: boost::thread deferred_load_thread_;
   };
 
 }

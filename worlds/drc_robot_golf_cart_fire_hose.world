@@ -7,7 +7,7 @@
         <solver>
           <type>quick</type>
           <dt>0.001</dt>
-          <iters>10</iters>
+          <iters>40</iters>
           <sor>1.0</sor>
         </solver>
         <constraints>
@@ -48,6 +48,23 @@
       <uri>model://drc_robot</uri>
       <pose>-2 1.0 0.93 0 0 0</pose>
     </include>
+
+    <plugin filename="libVRCPlugin.so" name="vrc_plugin">
+      <drc_robot>
+         <model_name>drc_robot</model_name>
+         <pin_link>utorso</pin_link>
+      </drc_robot>
+      <drc_vehicle>
+        <model_name>Golf Cart</model_name>
+        <seat_link>chassis</seat_link>
+      </drc_vehicle>
+      <drc_fire_hose>
+        <model_name>fire_hose</model_name>
+      </drc_fire_hose>
+      <drc_standpipe>
+        <model_name>standpipe</model_name>
+      </drc_standpipe>
+    </plugin>
 
   </world>
 </gazebo>

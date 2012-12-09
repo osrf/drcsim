@@ -74,14 +74,22 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 
 void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
+  // save pointers
+  this->parent_model_ = _parent;
+  this->sdf = _sdf;
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosControllerManager::LoadThread,this ) );
+}
+
+void GazeboRosControllerManager::LoadThread()
+{
   // Get then name of the parent model
-  std::string modelName = _sdf->GetParent()->GetValueString("name");
+  std::string modelName = this->sdf->GetParent()->GetValueString("name");
 
   // Get the world name.
-  this->world = _parent->GetWorld();
-
-  // Get a pointer to the model
-  this->parent_model_ = _parent;
+  this->world = this->parent_model_->GetWorld();
 
   // Error message if the model couldn't be found
   if (!this->parent_model_)
@@ -104,12 +112,12 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
 
   // get parameter name
   this->robotNamespace = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robotNamespace = _sdf->GetElement("robotNamespace")->GetValueString();
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robotNamespace = this->sdf->GetElement("robotNamespace")->GetValueString();
 
   this->robotParam = "robot_description";
-  if (_sdf->HasElement("robotParam"))
-    this->robotParam = _sdf->GetElement("robotParam")->GetValueString();
+  if (this->sdf->HasElement("robotParam"))
+    this->robotParam = this->sdf->GetElement("robotParam")->GetValueString();
 
   this->robotParam = this->robotNamespace+"/" + this->robotParam;
 
