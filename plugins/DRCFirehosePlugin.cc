@@ -54,15 +54,12 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   this->world->EnablePhysicsEngine(true);
 
   // this->world->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+
   // Get joints
-  for (unsigned int i = 0; i < this->model->GetJointCount(); ++i)
-  {
-    physics::JointPtr joint = this->model->GetJoint(i);
-    this->joints.push_back(joint);
-  }
+  this->joints = this->model->GetJoints();
 
   // Get links
-  this->links = this->model->GetAllLinks();
+  this->links = this->model->GetLinks();
 
   // Get special coupling links (on the firehose size)
   std::string couplingLinkName = _sdf->GetValueString("coupling_link");
