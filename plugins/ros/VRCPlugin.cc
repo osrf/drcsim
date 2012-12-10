@@ -283,18 +283,20 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                               _link2->GetName() + std::string("_joint"));
   joint->Init();
 
-/*
   // disable collision between the link pair
   if (_link1)
     _link1->SetCollideMode("fixed");
   if (_link2)
     _link2->SetCollideMode("fixed");
-*/
+
   return joint;
 }
 
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
+  if (!this->drc_vehicle.model)
+    return;
+
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
@@ -389,6 +391,9 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
+  if (!this->drc_vehicle.model)
+    return;
+
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
@@ -562,7 +567,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->model)
   {
-    ROS_ERROR("drc vehicle not found.");
+    ROS_WARN("drc vehicle not found.");
     return;
   }
 
