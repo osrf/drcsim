@@ -537,7 +537,7 @@
       <parent>chassis</parent>
       <child>steering_wheel</child>
       <axis>
-        <xyz>4.286262 0.000000 -1.000000</xyz>
+        <xyz>-4.286262 0.000000 1.000000</xyz>
         <limit>
           <lower>-7.853000</lower>
           <upper>7.853000</upper>
