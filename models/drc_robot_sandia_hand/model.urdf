@@ -866,9 +866,9 @@
     </visual>
   </link>
   <joint name="imu_joint" type="fixed">
-    <parent link="ltorso"/>
+    <parent link="pelvis"/>
     <child link="imu_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <origin rpy="0.05991527603 0 -0.01415" xyz="0 0 0"/>
   </joint>
   <gazebo>
     <plugin filename="libgazebo_ros_imu.so" name="drc_robot_imu">
@@ -1176,6 +1176,8 @@
       </plugin>
     </sensor>
   </gazebo>
+
+
 
   <link name="r_palm">
     <origin rpy="0 0 0" xyz="0 0 0"/>
