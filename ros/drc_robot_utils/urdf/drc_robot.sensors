@@ -134,8 +134,8 @@
         <cameraName>right_eye</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>right_camera_optical_frame</frameName>
-        <hackBaseline>-0.2</hackBaseline> <!-- check this -->
+        <frameName>left_camera_optical_frame</frameName>
+        <hackBaseline>0.2</hackBaseline> <!-- check this -->
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
         <distortionK3>0.0</distortionK3>
