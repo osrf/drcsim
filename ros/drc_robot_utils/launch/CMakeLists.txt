@@ -1,6 +1,8 @@
 set (files
   upload_drc_robot.launch
+  drc_robot_bringup.launch
   drc_robot.launch
+  drc_robot_golf_cart_fire_hose.launch
   drc_robot_arm_controllers.launch
   drc_robot_position_controllers.launch
   drc_robot_no_controllers.launch

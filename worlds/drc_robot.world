@@ -30,5 +30,23 @@
     <include>
       <uri>model://drc_robot</uri>
     </include>
+
+    <plugin filename="libVRCPlugin.so" name="vrc_plugin">
+      <drc_robot>
+         <model_name>drc_robot</model_name>
+         <pin_link>utorso</pin_link>
+      </drc_robot>
+      <drc_vehicle>
+        <model_name>Golf Cart</model_name>
+        <seat_link>chassis</seat_link>
+      </drc_vehicle>
+      <drc_fire_hose>
+        <model_name>fire_hose</model_name>
+      </drc_fire_hose>
+      <drc_standpipe>
+        <model_name>standpipe</model_name>
+      </drc_standpipe>
+    </plugin>
+
   </world>
 </gazebo>

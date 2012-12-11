@@ -3,7 +3,7 @@ set (worlds
      drc_robot.world
      drc_robot_irobot_hand.world
      drc_robot_sandia_hand.world
-     drc_robot_golf_cart.world
+     drc_robot_golf_cart_fire_hose.world
      golf_cart.world
      fire_hose.world
      powerplant.world

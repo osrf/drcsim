@@ -39,7 +39,7 @@ namespace gazebo
 DRCVehiclePlugin::DRCVehiclePlugin()
 {
   this->gasPedalCmd = 0;
-  this->brakePedalCmd = 0.5;
+  this->brakePedalCmd = 0;
   this->handWheelCmd = 0;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
