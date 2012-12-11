@@ -885,6 +885,7 @@
     <pose>0 0 0.93 0 0 0</pose>
   </gazebo>
   <gazebo>
+    <plugin filename="libMultiSenseSLPlugin.so" name="multisense_sl_plugin" />
     <plugin filename="libDRCRobotPlugin.so" name="drc_robot_plugin"/>
     <plugin filename="libgazebo_ros_joint_trajectory.so" name="joint_trajectory_plugin">
       <topicName>joint_trajectory</topicName>
@@ -1095,7 +1096,6 @@
     <parent link="hokuyo_link"/>
     <child link="head_hokuyo"/>
   </joint>
-  <plugin naem="multisense_plugin" filename="libMultiSenseSLPlugin.so" />
   <link name="head_hokuyo" type="laser">
     <inertial>
       <mass value="0.01"/>

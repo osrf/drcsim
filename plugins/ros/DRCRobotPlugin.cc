@@ -90,7 +90,7 @@ void DRCRobotPlugin::LoadThread()
     boost::bind(&DRCRobotPlugin::OnStatusConnect,this),
     boost::bind(&DRCRobotPlugin::OnStatusDisconnect,this),
     ros::VoidPtr(), &this->queue_);
-  pub_status_ = this->rosnode_->advertise(pub_status_ao);
+  this->pub_status_ = this->rosnode_->advertise(pub_status_ao);
 
   this->lastUpdateTime = this->world->GetSimTime().Double();
   this->updateRate = 1.0; // Hz
