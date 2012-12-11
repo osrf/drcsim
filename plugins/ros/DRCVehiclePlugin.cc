@@ -57,6 +57,8 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->pedalForce = 10;
   this->handWheelForce = 1;
   this->steeredWheelForce = 200;
+
+  this->rosPublishPeriod = common::Time(1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +66,12 @@ DRCVehiclePlugin::DRCVehiclePlugin()
 DRCVehiclePlugin::~DRCVehiclePlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateStart(this->ros_publish_connection_);
+  this->rosnode_->shutdown();
+  this->queue_.clear();
+  this->queue_.disable();
+  this->callback_queue_thread_.join();
+  delete this->rosnode_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +94,13 @@ void DRCVehiclePlugin::SetVehicleState(double _handWheelPosition,
 void DRCVehiclePlugin::SetHandWheelState(double _position)
 {
   this->handWheelCmd = _position;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
+    &_msg)
+{
+  this->handWheelCmd = (double)_msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,6 +188,12 @@ void DRCVehiclePlugin::SetGasPedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg)
+{
+  this->gasPedalCmd = (double)_msg->data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetGasPedalLimits(double _min, double _max)
 {
   this->gasPedalJoint->SetHighStop(0, _max);
@@ -203,13 +224,20 @@ void DRCVehiclePlugin::SetBrakePedalState(double _position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
+    &_msg)
+{
+  this->brakePedalCmd = (double)_msg->data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetBrakePedalLimits(double _min, double _max)
 {
   this->brakePedalJoint->SetHighStop(0, _max);
   this->brakePedalJoint->SetLowStop(0, _min);
   this->brakePedalHigh  = this->brakePedalJoint->GetHighStop(0).Radian();
   this->brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
-  this->brakePedalRange   = this->brakePedalHigh - this->brakePedalLow;
+  this->brakePedalRange = this->brakePedalHigh - this->brakePedalLow;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +259,18 @@ double DRCVehiclePlugin::GetBrakePedalState()
 void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
+  // initialize ros
+  if (!ros::isInitialized())
+  {
+    int argc = 0;
+    char** argv = NULL;
+    ros::init(argc,argv,"gazebo",
+      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+  }
+
+  // ros stuff
+  this->rosnode_ = new ros::NodeHandle("~");
+
   // Get the world name.
   this->world = _parent->GetWorld();
   this->model = _parent;
@@ -343,11 +383,51 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
                          this->steeredWheelForce, -this->steeredWheelForce);
 
+  ros::SubscribeOptions hand_wheel_cmd_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "/" + this->model->GetName() + "/hand_wheel/cmd", 100,
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetHandWheelState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->hand_wheel_cmd_sub_ = this->rosnode_->subscribe(hand_wheel_cmd_so);
+
+  ros::SubscribeOptions gas_pedal_cmd_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "/" + this->model->GetName() + "/gas_pedal/cmd", 100,
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetGasPedalState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->gas_pedal_cmd_sub_ = this->rosnode_->subscribe(gas_pedal_cmd_so);
+
+  ros::SubscribeOptions brake_pedal_cmd_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "/" + this->model->GetName() + "/brake_pedal/cmd", 100,
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetBrakePedalState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->brake_pedal_cmd_sub_ = this->rosnode_->subscribe(brake_pedal_cmd_so);
+
+  this->hand_wheel_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
+    "/" + this->model->GetName() + "/hand_wheel/state",10);
+  this->gas_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
+    "/" + this->model->GetName() + "/gas_pedal/state",10);
+  this->brake_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
+    "/" + this->model->GetName() + "/brake_pedal/state",10);
+
+  // ros callback queue for processing subscription
+  this->callback_queue_thread_ = boost::thread(
+    boost::bind( &DRCVehiclePlugin::QueueThread,this ) );
+
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateStart(
       boost::bind(&DRCVehiclePlugin::UpdateStates, this));
+  this->ros_publish_connection_ = event::Events::ConnectWorldUpdateStart(
+      boost::bind(&DRCVehiclePlugin::RosPublishStates, this));
 
   this->lastTime = this->world->GetSimTime();
 }
@@ -456,6 +536,43 @@ void DRCVehiclePlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Returns the ROS publish period (seconds).
+common::Time DRCVehiclePlugin::GetRosPublishPeriod()
+{
+  return this->rosPublishPeriod;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Set the ROS publish frequency (Hz).
+void DRCVehiclePlugin::SetRosPublishRate(double _hz)
+{
+  if (_hz > 0.0)
+    this->rosPublishPeriod = 1.0/_hz;
+  else
+    this->rosPublishPeriod = 0.0;  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Publish hand wheel, gas pedal, and brake pedal on ROS
+void DRCVehiclePlugin::RosPublishStates()
+{
+  if (this->world->GetSimTime() - this->lastRosPublishTime >=
+      this->rosPublishPeriod)
+  {
+    // Update time
+    this->lastRosPublishTime = this->world->GetSimTime();
+    // Publish messages
+    std_msgs::Float64 msg_steer, msg_brake, msg_gas;
+    msg_steer.data = GetHandWheelState();
+    this->hand_wheel_state_pub_.publish(msg_steer);
+    msg_brake.data = GetBrakePedalState();
+    this->brake_pedal_state_pub_.publish(msg_brake);
+    msg_gas.data = GetGasPedalState();
+    this->gas_pedal_state_pub_.publish(msg_gas);
+  }
+}
+
 // function that extracts the radius of a cylinder or sphere collision shape
 // the function returns zero otherwise
 double DRCVehiclePlugin::get_collision_radius(physics::CollisionPtr _coll)
@@ -480,6 +597,16 @@ math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
 {
   math::Pose pose = _link->GetCollision(id)->GetWorldPose();
   return pose.pos;
+}
+
+void DRCVehiclePlugin::QueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosnode_->ok())
+  {
+    this->queue_.callAvailable(ros::WallDuration(timeout));
+  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
