@@ -759,8 +759,11 @@
     <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.32" soft_upper_limit="11.14"/>
   </joint>
   <joint name="neck_ay" type="revolute">
-    <!--origin rpy="0 0 0" xyz="0.011 0 0.44"/-->
+    <!--
+    <origin rpy="0 0 0" xyz="0.011 0 0.44"/>
     <origin rpy="0 0 0" xyz="0.0226 0.0 0.5275"/>
+    -->
+    <origin rpy="0 0 0" xyz="-0.006 0.0 0.5575"/>
     <axis xyz="0 1 0"/>
     <parent link="utorso"/>
     <child link="head"/>
@@ -1087,7 +1090,7 @@
   </transmission>
   <joint name="head_hokuyo_joint" type="fixed">
     <axis xyz="0 1 0"/>
-    <origin rpy="0 0 0" xyz="0.0 0 0.015"/>
+    <origin rpy="0 0 0" xyz="0.03 0 0.015"/>
     <parent link="hokuyo_link"/>
     <child link="head_hokuyo"/>
   </joint>
@@ -1129,7 +1132,7 @@
     </sensor>
   </gazebo>
   <joint name="left_camera_frame_joint" type="fixed">
-    <origin xyz="0.03 0.1 0.1"/>
+    <origin xyz="0.05585 0.035 -0.09"/>
     <parent link="head"/>
     <child link="left_camera_frame"/>
   </joint>
@@ -1152,8 +1155,8 @@
       <camera>
         <horizontal_fov>1.5708</horizontal_fov>
         <image>
-          <width>320</width>
-          <height>240</height>
+          <width>2048</width>
+          <height>1088</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -1178,7 +1181,7 @@
     </sensor>
   </gazebo>
   <joint name="right_camera_frame_joint" type="fixed">
-    <origin xyz="0.03 -0.1 0.1"/>
+    <origin xyz="0.05585 -0.035 -0.09"/>
     <parent link="head"/>
     <child link="right_camera_frame"/>
   </joint>
@@ -1201,8 +1204,8 @@
       <camera>
         <horizontal_fov>1.5708</horizontal_fov>
         <image>
-          <width>320</width>
-          <height>240</height>
+          <width>2048</width>
+          <height>1088</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -1227,5 +1230,55 @@
       </plugin>
     </sensor>
   </gazebo>
+
+  <!-- leds -->
+  <joint name="center_top_led_frame_joint" type="fixed">
+    <origin xyz="0.05585 0.0 -0.0725"/>
+    <parent link="head"/>
+    <child link="center_top_led_frame"/>
+  </joint>
+  <link name="center_top_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="center_bottom_led_frame_joint" type="fixed">
+    <origin xyz="0.05585 0.0 -0.1035"/>
+    <parent link="head"/>
+    <child link="center_bottom_led_frame"/>
+  </joint>
+  <link name="center_bottom_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="left_led_frame_joint" type="fixed">
+    <origin xyz="0.03017 0.07452 -0.037654" rpy="0 -0.15 0.53"/>
+    <parent link="head"/>
+    <child link="left_led_frame"/>
+  </joint>
+  <link name="left_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="right_led_frame_joint" type="fixed">
+    <origin xyz="0.03017 -0.07452 -0.037654" rpy="0 -0.15 -0.53"/>
+    <parent link="head"/>
+    <child link="right_led_frame"/>
+  </joint>
+  <link name="right_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
 </robot>
 
