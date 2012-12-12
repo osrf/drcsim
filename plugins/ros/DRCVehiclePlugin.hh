@@ -48,6 +48,28 @@ namespace gazebo
 {
   class DRCVehiclePlugin : public ModelPlugin
   {
+    /// \enum DirectionType
+    /// \brief Direction selector switch type.
+    public: enum KeyType {
+              /// \brief Reverse
+              REVERSE = -1,
+              /// \brief Neutral
+              NEUTRAL = 0,
+              /// \brief Forward
+              FORWARD = 1
+            };
+
+    /// \enum KeyType
+    /// \brief Key switch type.
+    public: enum KeyType {
+              /// \brief On, but hasn't seen Neutral yet
+              ON_FR = -1,
+              /// \brief Off
+              OFF   = 0,
+              /// \brief On
+              ON    = 1
+            };
+
     /// \brief Constructor.
     public: DRCVehiclePlugin();
 
@@ -112,6 +134,39 @@ namespace gazebo
 
     /// \brief Returns the front wheel angle / steering wheel angle ratio.
     public: double GetHandWheelRatio();
+
+
+    // TODO: fix handbrake documentation
+    /// \brief Set the steering wheel angle; this will also update the front
+    ///        wheel steering angle.
+    /// \param[in] _position Steering wheel angle in radians.
+    public: void SetHandBrakeState(double _position);
+
+    /// \brief Set the steering wheel angle; this will also update the front
+    ///        wheel steering angle.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetHandBrakeState(const std_msgs::Float64::ConstPtr &_msg);
+
+    /// \brief Sets the lower and upper limits of the steering wheel angle.
+    /// \param[in] _min Lower limit of steering wheel angle (radians).
+    /// \param[in] _max Upper limit of steering wheel angle (radians).
+    public: void SetHandBrakeLimits(const math::Angle &_min,
+                                    const math::Angle &_max);
+
+    /// \brief Returns the lower and upper limits of the steering wheel angle.
+    /// \param[out] _min Lower steering wheel limit (radians).
+    /// \param[out] _max Upper steering wheel limit (radians).
+    public: void GetHandBrakeLimits(math::Angle &_min, math::Angle &_max);
+
+    /// \brief Returns the steering wheel angle (rad).
+    public: double GetHandBrakeState();
+
+    /// \brief Computes the front wheel angle / steering wheel angle ratio.
+    public: void UpdateHandBrakeRatio();
+
+    /// \brief Returns the front wheel angle / steering wheel angle ratio.
+    public: double GetHandBrakeRatio();
+
 
 
     /// \brief Specify front wheel orientation in radians (Note: this sets
@@ -198,6 +253,7 @@ namespace gazebo
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
     private: physics::JointPtr handWheelJoint;
+    private: physics::JointPtr handBrakeJoint;
     private: physics::JointPtr flWheelJoint;
     private: physics::JointPtr frWheelJoint;
     private: physics::JointPtr blWheelJoint;
@@ -215,11 +271,13 @@ namespace gazebo
     private: double steeringRatio;
     private: double pedalForce;
     private: double handWheelForce;
+    private: double handBrakeForce;
     private: double steeredWheelForce;
 
     private: double gasPedalCmd;
     private: double brakePedalCmd;
     private: double handWheelCmd;
+    private: double handBrakeCmd;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
@@ -230,6 +288,7 @@ namespace gazebo
     private: common::PID gasPedalPID;
     private: common::PID brakePedalPID;
     private: common::PID handWheelPID;
+    private: common::PID handBrakePID;
     private: common::PID flWheelSteeringPID;
     private: common::PID frWheelSteeringPID;
 
@@ -245,6 +304,9 @@ namespace gazebo
     private: double handWheelHigh;
     private: double handWheelLow;
     private: double handWheelRange;
+    private: double handBrakeHigh;
+    private: double handBrakeLow;
+    private: double handBrakeRange;
     private: double wheelRadius;
     private: double flWheelRadius;
     private: double frWheelRadius;
@@ -254,8 +316,9 @@ namespace gazebo
     private: double frontTrackWidth;
     private: double backTrackWidth;
 
-    /// state of cart
+    /// state of vehicle
     private: double handWheelState;
+    private: double handBrakeState;
     private: double flSteeringState;
     private: double frSteeringState;
     private: double gasPedalState;
