@@ -94,6 +94,11 @@ target_link_libraries(VRCPlugin ${actionlib_LIBRARIES} ${control_msgs_LIBRARIES}
 install (TARGETS VRCPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
+add_library(DRCVehiclePlugin SHARED DRCVehiclePlugin.cc)
+install (TARGETS DRCVehiclePlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
+
+
 #get_rospack_flags(trajectory_msgs)
 #get_rospack_flags(geometry_msgs)
 #get_rospack_flags(image_transport)
