@@ -30,9 +30,7 @@
 
 #include "MultiSenseSLPlugin.h"
 
-#include "sensors/Sensor.hh"
-#include "sensors/CameraSensor.hh"
-#include "sensors/SensorTypes.hh"
+#include "gazebo/physics/PhysicsTypes.hh"
 
 namespace gazebo
 {
@@ -41,56 +39,147 @@ namespace gazebo
 // Constructor
 MultiSenseSL::MultiSenseSL()
 {
+  this->connectionCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
 MultiSenseSL::~MultiSenseSL()
 {
+  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  this->rosnode_->shutdown();
+  this->queue_.clear();
+  this->queue_.disable();
+  this->callback_queue_thread_.join();
+  delete this->rosnode_;
 }
 
-void MultiSenseSL::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
-  CameraPlugin::Load(_parent, _sdf);
-  // copying from CameraPlugin into GazeboRosCameraUtils
-  this->parentSensor_ = this->parentSensor;
-  this->width_ = this->width;
-  this->height_ = this->height;
-  this->depth_ = this->depth;
-  this->format_ = this->format;
-  this->camera_ = this->camera;
-  GazeboRosCameraUtils::Load(_parent, _sdf);
+  this->drcRobotModel = _parent;
+  this->world = _parent->GetWorld();
+  this->sdf = _sdf;
+
+  ROS_ERROR("Loading MultiSense ROS node.");
+
+  this->spindleLink = this->drcRobotModel->GetLink("drc_robot::hokuyo_link");
+  if (!this->spindleLink)
+    gzerr << "spindle link not found\n";
+  this->spindleJoint = this->drcRobotModel->GetJoint("drc_robot::hokuyo_joint");
+  if (!this->spindleJoint)
+    gzerr << "spindle joint not found\n";
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &MultiSenseSL::LoadThread,this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-void MultiSenseSL::OnNewFrame(const unsigned char *_image, 
-    unsigned int _width, unsigned int _height, unsigned int _depth, 
-    const std::string &_format)
+void MultiSenseSL::UpdateStates()
 {
-  this->sensor_update_time_ = this->parentSensor_->GetLastUpdateTime();
+  if (this->connectionCount > 0)
+  {
+    double cur_time = this->world->GetSimTime().Double();
 
-  if (!this->parentSensor->IsActive())
-  {
-    if (this->image_connect_count_ > 0)
-      // do this first so there's chance for sensor to run 1 frame after activate
-      this->parentSensor->SetActive(true);
-  }
-  else
-  {
-    if (this->image_connect_count_ > 0)
+    if (cur_time - this->lastUpdateTime >= 1.0/this->updateRate)
     {
-      common::Time cur_time = this->world_->GetSimTime();
-      if (cur_time - this->last_update_time_ >= this->update_period_)
-      {
-        this->PutCameraData(_image);
-        this->last_update_time_ = cur_time;
-      }
+      this->lastUpdateTime = cur_time;
+      std_msgs::String msg;
+      msg.data = "ok";
+      this->pub_status_.publish(msg);
     }
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void MultiSenseSL::LoadThread()
+{
+  // initialize ros
+  if (!ros::isInitialized())
+  {
+    int argc = 0;
+    char** argv = NULL;
+    ros::init(argc,argv,"gazebo",
+      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+  }
+
+  // ros stuff
+  this->rosnode_ = new ros::NodeHandle("~");
+
+  // ros publication / subscription
+  ros::AdvertiseOptions pub_status_ao =
+    ros::AdvertiseOptions::create<std_msgs::String>(
+    "/drc_robot/multisense_sl_status", 10,
+    boost::bind(&MultiSenseSL::OnStatusConnect,this),
+    boost::bind(&MultiSenseSL::OnStatusDisconnect,this),
+    ros::VoidPtr(), &this->queue_);
+  this->pub_status_ = this->rosnode_->advertise(pub_status_ao);
+
+
+  // Advertise services on the custom queue
+  std::string set_spindle_speed_service_name("set_spindle_speed");
+  ros::AdvertiseServiceOptions set_spindle_speed_aso =
+    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+      set_spindle_speed_service_name,
+      boost::bind(&MultiSenseSL::SetSpindleSpeed,this,_1,_2),
+      ros::VoidPtr(), &this->queue_);
+  this->set_spindle_speed_service_ =
+    this->rosnode_->advertiseService(set_spindle_speed_aso);
+
+  std::string set_spindle_state_service_name("set_spindle_state");
+  ros::AdvertiseServiceOptions set_spindle_state_aso =
+    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+      set_spindle_state_service_name,
+      boost::bind(&MultiSenseSL::SetSpindleState,this,_1,_2),
+      ros::VoidPtr(), &this->queue_);
+  this->set_spindle_state_service_ =
+    this->rosnode_->advertiseService(set_spindle_state_aso);
+
+
+  this->lastUpdateTime = this->world->GetSimTime().Double();
+  this->updateRate = 1.0; // Hz
+
+  // ros callback queue for processing subscription
+  this->callback_queue_thread_ = boost::thread(
+    boost::bind( &MultiSenseSL::QueueThread,this ) );
+
+  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+     boost::bind(&MultiSenseSL::UpdateStates, this));
+}
+
+void MultiSenseSL::QueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosnode_->ok())
+  {
+    this->queue_.callAvailable(ros::WallDuration(timeout));
+  }
+}
+
+void MultiSenseSL::OnStatusConnect()
+{
+  this->connectionCount++;
+}
+
+void MultiSenseSL::OnStatusDisconnect()
+{
+  this->connectionCount--;
+}
+
+bool MultiSenseSL::SetSpindleSpeed(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res)
+{
+  return true;
+}
+
+bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res)
+{
+  return true;
+}
+
 // Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(MultiSenseSL)
+GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
 
 }
