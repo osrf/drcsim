@@ -102,118 +102,131 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   // Get the world_
   this->world_ = physics::get_world(world_name);
 
+  // save pointers
+  this->sdf = _sdf;
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosCameraUtils::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosCameraUtils::LoadThread()
+{
+
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
   this->world = this->world_;
 
   this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
   this->image_topic_name_ = "image_raw";
-  if (_sdf->HasElement("imageTopicName"))
-    this->image_topic_name_ = _sdf->GetElement("imageTopicName")->GetValueString();
+  if (this->sdf->HasElement("imageTopicName"))
+    this->image_topic_name_ = this->sdf->GetElement("imageTopicName")->GetValueString();
 
   this->camera_info_topic_name_ = "camera_info";
-  if (_sdf->HasElement("cameraInfoTopicName"))
-    this->camera_info_topic_name_ = _sdf->GetElement("cameraInfoTopicName")->GetValueString();
+  if (this->sdf->HasElement("cameraInfoTopicName"))
+    this->camera_info_topic_name_ = this->sdf->GetElement("cameraInfoTopicName")->GetValueString();
 
-  if (!_sdf->HasElement("cameraName"))
+  if (!this->sdf->HasElement("cameraName"))
     ROS_INFO("Camera plugin missing <cameraName>, default to empty");
   else
-    this->camera_name_ = _sdf->GetElement("cameraName")->GetValueString();
+    this->camera_name_ = this->sdf->GetElement("cameraName")->GetValueString();
 
-  if (!_sdf->HasElement("frameName"))
+  if (!this->sdf->HasElement("frameName"))
     ROS_INFO("Camera plugin missing <frameName>, defaults to /world");
   else
-    this->frame_name_ = _sdf->GetElement("frameName")->GetValueString();
+    this->frame_name_ = this->sdf->GetElement("frameName")->GetValueString();
 
-  if (!_sdf->HasElement("updateRate"))
+  if (!this->sdf->HasElement("updateRate"))
   {
     ROS_INFO("Camera plugin missing <updateRate>, defaults to 0");
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetElement("updateRate")->GetValueDouble();
 
-  if (!_sdf->HasElement("CxPrime"))
+  if (!this->sdf->HasElement("CxPrime"))
   {
     ROS_INFO("Camera plugin missing <CxPrime>, defaults to 0");
     this->cx_prime_ = 0;
   }
   else
-    this->cx_prime_ = _sdf->GetElement("CxPrime")->GetValueDouble();
+    this->cx_prime_ = this->sdf->GetElement("CxPrime")->GetValueDouble();
 
-  if (!_sdf->HasElement("Cx"))
+  if (!this->sdf->HasElement("Cx"))
   {
     ROS_INFO("Camera plugin missing <Cx>, defaults to 0");
     this->cx_= 0;
   }
   else
-    this->cx_ = _sdf->GetElement("Cx")->GetValueDouble();
+    this->cx_ = this->sdf->GetElement("Cx")->GetValueDouble();
 
-  if (!_sdf->HasElement("Cy"))
+  if (!this->sdf->HasElement("Cy"))
   {
     ROS_INFO("Camera plugin missing <Cy>, defaults to 0");
     this->cy_= 0;
   }
   else
-    this->cy_ = _sdf->GetElement("Cy")->GetValueDouble();
+    this->cy_ = this->sdf->GetElement("Cy")->GetValueDouble();
 
-  if (!_sdf->HasElement("focalLength"))
+  if (!this->sdf->HasElement("focalLength"))
   {
     ROS_INFO("Camera plugin missing <focalLength>, defaults to 0");
     this->focal_length_= 0;
   }
   else
-    this->focal_length_ = _sdf->GetElement("focalLength")->GetValueDouble();
+    this->focal_length_ = this->sdf->GetElement("focalLength")->GetValueDouble();
 
-  if (!_sdf->HasElement("hackBaseline"))
+  if (!this->sdf->HasElement("hackBaseline"))
   {
     ROS_INFO("Camera plugin missing <hackBaseline>, defaults to 0");
     this->hack_baseline_= 0;
   }
   else
-    this->hack_baseline_ = _sdf->GetElement("hackBaseline")->GetValueDouble();
+    this->hack_baseline_ = this->sdf->GetElement("hackBaseline")->GetValueDouble();
 
-  if (!_sdf->HasElement("distortionK1"))
+  if (!this->sdf->HasElement("distortionK1"))
   {
     ROS_INFO("Camera plugin missing <distortionK1>, defaults to 0");
     this->distortion_k1_= 0;
   }
   else
-    this->distortion_k1_ = _sdf->GetElement("distortionK1")->GetValueDouble();
+    this->distortion_k1_ = this->sdf->GetElement("distortionK1")->GetValueDouble();
 
-  if (!_sdf->HasElement("distortionK2"))
+  if (!this->sdf->HasElement("distortionK2"))
   {
     ROS_INFO("Camera plugin missing <distortionK2>, defaults to 0");
     this->distortion_k2_= 0;
   }
   else
-    this->distortion_k2_ = _sdf->GetElement("distortionK2")->GetValueDouble();
+    this->distortion_k2_ = this->sdf->GetElement("distortionK2")->GetValueDouble();
 
-  if (!_sdf->HasElement("distortionK3"))
+  if (!this->sdf->HasElement("distortionK3"))
   {
     ROS_INFO("Camera plugin missing <distortionK3>, defaults to 0");
     this->distortion_k3_= 0;
   }
   else
-    this->distortion_k3_ = _sdf->GetElement("distortionK3")->GetValueDouble();
+    this->distortion_k3_ = this->sdf->GetElement("distortionK3")->GetValueDouble();
 
-  if (!_sdf->HasElement("distortionT1"))
+  if (!this->sdf->HasElement("distortionT1"))
   {
     ROS_INFO("Camera plugin missing <distortionT1>, defaults to 0");
     this->distortion_t1_= 0;
   }
   else
-    this->distortion_t1_ = _sdf->GetElement("distortionT1")->GetValueDouble();
+    this->distortion_t1_ = this->sdf->GetElement("distortionT1")->GetValueDouble();
 
-  if (!_sdf->HasElement("distortionT2"))
+  if (!this->sdf->HasElement("distortionT2"))
   {
     ROS_INFO("Camera plugin missing <distortionT2>, defaults to 0");
     this->distortion_t2_= 0;
   }
   else
-    this->distortion_t2_ = _sdf->GetElement("distortionT2")->GetValueDouble();
+    this->distortion_t2_ = this->sdf->GetElement("distortionT2")->GetValueDouble();
 
   if ((this->distortion_k1_ != 0.0) || (this->distortion_k2_ != 0.0) ||
       (this->distortion_k3_ != 0.0) || (this->distortion_t1_ != 0.0) ||

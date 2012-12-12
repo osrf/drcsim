@@ -66,15 +66,24 @@ GazeboRosLaser::~GazeboRosLaser()
 void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 {
   // load plugin
-  RayPlugin::Load(_parent, _sdf);
-
+  RayPlugin::Load(_parent, this->sdf);
   // Get then name of the parent sensor
   this->parent_sensor_ = _parent;
-
   // Get the world name.
   std::string worldName = _parent->GetWorldName();
   this->world_ = physics::get_world(worldName);
+  // save pointers
+  this->sdf = _sdf;
 
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosLaser::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosLaser::LoadThread()
+{
   this->last_update_time_ = common::Time(0);
 
   this->parent_ray_sensor_ = boost::shared_dynamic_cast<sensors::RaySensor>(this->parent_sensor_);
@@ -83,50 +92,50 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     gzthrow("GazeboRosLaser controller requires a Ray Sensor as its parent");
 
   this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
-  if (!_sdf->HasElement("frameName"))
+  if (!this->sdf->HasElement("frameName"))
   {
     ROS_INFO("Laser plugin missing <frameName>, defaults to /world");
     this->frame_name_ = "/world";
   }
   else
-    this->frame_name_ = _sdf->GetElement("frameName")->GetValueString();
+    this->frame_name_ = this->sdf->GetElement("frameName")->GetValueString();
 
-  if (!_sdf->HasElement("topicName"))
+  if (!this->sdf->HasElement("topicName"))
   {
     ROS_INFO("Laser plugin missing <topicName>, defaults to /world");
     this->topic_name_ = "/world";
   }
   else
-    this->topic_name_ = _sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
 
-  if (!_sdf->HasElement("gaussianNoise"))
+  if (!this->sdf->HasElement("gaussianNoise"))
   {
     ROS_INFO("Laser plugin missing <gaussianNoise>, defaults to 0.0");
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = _sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussian_noise_ = this->sdf->GetElement("gaussianNoise")->GetValueDouble();
 
-  if (!_sdf->HasElement("hokuyoMinIntensity"))
+  if (!this->sdf->HasElement("hokuyoMinIntensity"))
   {
     ROS_INFO("Laser plugin missing <hokuyoMinIntensity>, defaults to 101");
     this->hokuyo_min_intensity_ = 101;
   }
   else
-    this->hokuyo_min_intensity_ = _sdf->GetElement("hokuyoMinIntensity")->GetValueDouble();
+    this->hokuyo_min_intensity_ = this->sdf->GetElement("hokuyoMinIntensity")->GetValueDouble();
 
   ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyo_min_intensity_);
 
-  if (!_sdf->GetElement("updateRate"))
+  if (!this->sdf->GetElement("updateRate"))
   {
     ROS_INFO("Laser plugin missing <updateRate>, defaults to 0");
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetElement("updateRate")->GetValueDouble();
 
   // set parent sensor update rate
   this->parent_sensor_->SetUpdateRate(this->update_rate_);

@@ -118,6 +118,11 @@ namespace gazebo
     private: ros::CallbackQueue laser_queue_;
     private: void LaserQueueThread();
     private: boost::thread callback_queue_thread_;
+
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: void LoadThread();
+    private: boost::thread deferred_load_thread_;
   };
 
 }

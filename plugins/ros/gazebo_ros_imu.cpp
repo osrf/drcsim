@@ -50,63 +50,74 @@ GazeboRosIMU::~GazeboRosIMU()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosIMU::Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
+void GazeboRosIMU::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
-  // Get the world name.
+  // save pointers
   this->world_ = _parent->GetWorld();
+  this->sdf = _sdf;
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosIMU::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosIMU::LoadThread()
+{
 
   // load parameters
   this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
-  if (!_sdf->HasElement("serviceName"))
+  if (!this->sdf->HasElement("serviceName"))
   {
     ROS_INFO("imu plugin missing <serviceName>, defaults to /default_imu");
     this->service_name_ = "/default_imu";
   }
   else
-    this->service_name_ = _sdf->GetElement("serviceName")->GetValueString();
+    this->service_name_ = this->sdf->GetElement("serviceName")->GetValueString();
 
-  if (!_sdf->HasElement("topicName"))
+  if (!this->sdf->HasElement("topicName"))
   {
     ROS_INFO("imu plugin missing <topicName>, defaults to /default_imu");
     this->topic_name_ = "/default_imu";
   }
   else
-    this->topic_name_ = _sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
 
-  if (!_sdf->HasElement("gaussianNoise"))
+  if (!this->sdf->HasElement("gaussianNoise"))
   {
     ROS_INFO("imu plugin missing <gaussianNoise>, defaults to 0.0");
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = _sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussian_noise_ = this->sdf->GetElement("gaussianNoise")->GetValueDouble();
 
-  if (!_sdf->HasElement("bodyName"))
+  if (!this->sdf->HasElement("bodyName"))
   {
     ROS_FATAL("imu plugin missing <bodyName>, cannot proceed");
     return;
   }
   else
-    this->link_name_ = _sdf->GetElement("bodyName")->GetValueString();
+    this->link_name_ = this->sdf->GetElement("bodyName")->GetValueString();
 
-  if (!_sdf->HasElement("xyzOffset"))
+  if (!this->sdf->HasElement("xyzOffset"))
   {
     ROS_INFO("imu plugin missing <xyzOffset>, defaults to 0s");
     this->offset_.pos = math::Vector3(0,0,0);
   }
   else
-    this->offset_.pos = _sdf->GetElement("xyzOffset")->GetValueVector3();
+    this->offset_.pos = this->sdf->GetElement("xyzOffset")->GetValueVector3();
 
-  if (!_sdf->HasElement("rpyOffset"))
+  if (!this->sdf->HasElement("rpyOffset"))
   {
     ROS_INFO("imu plugin missing <rpyOffset>, defaults to 0s");
     this->offset_.rot = math::Vector3(0,0,0);
   }
   else
-    this->offset_.rot = _sdf->GetElement("rpyOffset")->GetValueVector3();
+    this->offset_.rot = this->sdf->GetElement("rpyOffset")->GetValueVector3();
 
 
   // start ros node
