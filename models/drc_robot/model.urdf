@@ -895,6 +895,14 @@
     <maxVel>0.0</maxVel>
     <minDepth>0.001</minDepth>
   </gazebo>
+  <gazebo>
+    <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
+      <bodyName>pelvis</bodyName>
+      <topicName>/ground_truth_odom</topicName>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>100.0</updateRate>
+    </plugin>
+  </gazebo>
   <transmission name="back_lbz_trans" type="pr2_mechanism_model/SimpleTransmission">
     <joint name="back_lbz"/>
     <actuator name="back_lbz_motor"/>
