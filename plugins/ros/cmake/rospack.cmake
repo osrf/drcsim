@@ -86,3 +86,101 @@ macro(get_rospack_flags pkgname)
   _list_to_string(${_prefix}_LDFLAGS_OTHER "${${_prefix}_temp}")
   set(${_prefix}_LDFLAGS_OTHER ${${_prefix}_LDFLAGS_OTHER} CACHE INTERNAL "")
 endmacro()
+
+# gensrv processes srv/*.srv files into language-specific source files
+macro(rosbuild_gensrv)
+  # roslang_PACKAGE_PATH was set in rosbuild_init(), if roslang was found
+  if(NOT roslang_PACKAGE_PATH)
+    _rosbuild_warn("rosbuild_gensrv() was called, but the roslang package cannot be found. Service generation will NOT occur")
+  endif(NOT roslang_PACKAGE_PATH)
+  # Check whether there are any .srv files
+  rosbuild_get_srvs(_srvlist)
+  if(NOT _srvlist)
+    _rosbuild_warn("rosbuild_gensrv() was called, but no .srv files were found")
+  else(NOT _srvlist)
+    file(WRITE ${PROJECT_SOURCE_DIR}/srv_gen/generated "yes")
+    # Now set the mtime to something consistent.  We only want whether or not this file exists to matter
+    # But we set it to the current time, because setting it to zero causes
+    # annoying warning, #3396.
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.utime('${PROJECT_SOURCE_DIR}/srv_gen/generated', (1, 1))"
+      ERROR_VARIABLE _set_mtime_error
+      RESULT_VARIABLE _set_mtime_failed
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(_set_mtime_failed)
+      message("[rosbuild] Error from calling to Python to set the mtime on ${PROJECT_SOURCE_DIR}/srv_gen/generated:")
+      message("${_mtime_error}")
+      message(FATAL_ERROR "[rosbuild] Failed to set mtime; aborting")
+    endif(_set_mtime_failed)
+  endif(NOT _srvlist)
+  # Create target to trigger service generation in the case where no libs
+  # or executables are made.
+  add_custom_target(rospack_gensrv_all ALL)
+  add_dependencies(rospack_gensrv_all rospack_gensrv)
+  # Make the precompile target, on which libraries and executables depend,
+  # depend on the message generation.
+  add_dependencies(rosbuild_precompile rospack_gensrv)
+  # add in the directory that will contain the auto-generated .h files
+  include_directories(${PROJECT_SOURCE_DIR}/srv_gen/cpp/include)
+endmacro(rosbuild_gensrv)
+
+# genmsg processes msg/*.msg files into language-specific source files
+macro(rosbuild_genmsg)
+  # roslang_PACKAGE_PATH was set in rosbuild_init(), if roslang was found
+  if(NOT roslang_PACKAGE_PATH)
+    _rosbuild_warn("rosbuild_genmsg() was called, but the roslang package cannot be found.  Message generation will NOT occur")
+  endif(NOT roslang_PACKAGE_PATH)
+  # Check whether there are any .srv files
+  rosbuild_get_msgs(_msglist)
+  if(NOT _msglist)
+    _rosbuild_warn("rosbuild_genmsg() was called, but no .msg files were found")
+  else(NOT _msglist)
+    file(WRITE ${PROJECT_SOURCE_DIR}/msg_gen/generated "yes")
+    # Now set the mtime to something consistent.  We only want whether or not this file exists to matter
+    # But we set it to the current time, because setting it to zero causes
+    # annoying warning, #3396.
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.utime('${PROJECT_SOURCE_DIR}/msg_gen/generated', (1, 1))"
+      ERROR_VARIABLE _set_mtime_error
+      RESULT_VARIABLE _set_mtime_failed
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(_set_mtime_failed)
+      message("[rosbuild] Error from calling to Python to set the mtime on ${PROJECT_SOURCE_DIR}/msg_gen/generated:")
+      message("${_mtime_error}")
+      message(FATAL_ERROR "[rosbuild] Failed to set mtime; aborting")
+    endif(_set_mtime_failed)
+  endif(NOT _msglist)
+  # Create target to trigger message generation in the case where no libs
+  # or executables are made.
+  add_custom_target(rospack_genmsg_all ALL)
+  add_dependencies(rospack_genmsg_all rospack_genmsg)
+  # Make the precompile target, on which libraries and executables depend,
+  # depend on the message generation.
+  add_dependencies(rosbuild_precompile rospack_genmsg)
+  # add in the directory that will contain the auto-generated .h files
+  include_directories(${PROJECT_SOURCE_DIR}/msg_gen/cpp/include)
+endmacro(rosbuild_genmsg)
+
+
+macro(rosbuild_get_srvs srvvar)
+  file(GLOB _srv_files RELATIVE "${PROJECT_SOURCE_DIR}/srv" "${PROJECT_SOURCE_DIR}/srv/*.srv")
+  set(${srvvar} ${_ROSBUILD_GENERATED_SRV_FILES})
+  # Loop over each .srv file, establishing a rule to compile it
+  foreach(_srv ${_srv_files})
+    # Make sure we didn't get a bogus match (e.g., .#Foo.srv, which Emacs
+    # might create as a temporary file).  the file()
+    # command doesn't take a regular expression, unfortunately.
+    if(${_srv} MATCHES "^[^\\.].*\\.srv$")
+      list(APPEND ${srvvar} ${_srv})
+    endif(${_srv} MATCHES "^[^\\.].*\\.srv$")
+  endforeach(_srv)
+endmacro(rosbuild_get_srvs)
+
+
+
+
+macro(_rosbuild_warn)
+  message("[rosbuild] WARNING: " ${ARGV})
+endmacro(_rosbuild_warn)
+
+
