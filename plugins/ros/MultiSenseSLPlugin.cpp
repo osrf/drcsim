@@ -43,8 +43,6 @@ MultiSenseSL::MultiSenseSL()
   this->spindlePID.Init(0.03, 0.30, 0.00001, 1., -1., 10.0, -10.0);
   this->spindleOn = true;
   this->spindleSpeed = 0;
-  this->leftCameraFrameRate = 25.0;
-  this->rightCameraFrameRate = 25.0;
   this->leftCameraExposureTime = 0.001;
   this->rightCameraExposureTime = 0.001;
   this->leftCameraGain = 1.0;
@@ -97,6 +95,20 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     sensors::SensorManager::Instance()->GetSensor("right_camera_sensor"));
   if (!this->rightCameraSensor)
     gzerr << "right camera sensor not found\n";
+
+  // this->leftCameraFrameRate = this->leftCameraSensor->GetUpdateRate();
+  this->leftCameraFrameRate = 25.0;
+  rendering::CameraPtr leftCamera = this->leftCameraSensor->GetCamera();
+  this->leftCameraWidth = leftCamera->GetImageWidth();
+  this->leftCameraHeight = leftCamera->GetImageHeight();
+  this->leftCameraHFOV = leftCamera->GetHFOV().Radian();
+
+  // this->rightCameraFrameRate = this->rightCameraSensor->GetUpdateRate();
+  this->rightCameraFrameRate = 25.0;
+  rendering::CameraPtr rightCamera = this->rightCameraSensor->GetCamera();
+  this->rightCameraWidth = rightCamera->GetImageWidth();
+  this->rightCameraHeight = rightCamera->GetImageHeight();
+  this->rightCameraHFOV = rightCamera->GetHFOV().Radian();
 
   this->laserSensor =
     boost::shared_dynamic_cast<sensors::RaySensor>(
@@ -233,6 +245,26 @@ void MultiSenseSL::LoadThread()
   this->set_right_camera_exposure_time_sub_ =
     this->rosnode_->subscribe(set_right_camera_exposure_time_so);
 
+  ros::SubscribeOptions set_left_camera_hfov_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "set_left_camera_hfov", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetLeftCameraHFOV),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_left_camera_hfov_sub_ =
+    this->rosnode_->subscribe(set_left_camera_hfov_so);
+
+  ros::SubscribeOptions set_right_camera_hfov_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "set_right_camera_hfov", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetRightCameraHFOV),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_right_camera_hfov_sub_ =
+    this->rosnode_->subscribe(set_right_camera_hfov_so);
+
   ros::SubscribeOptions set_left_camera_gain_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "set_left_camera_gain", 100,
@@ -252,6 +284,26 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_right_camera_gain_sub_ =
     this->rosnode_->subscribe(set_right_camera_gain_so);
+
+  ros::SubscribeOptions set_left_camera_size_so =
+    ros::SubscribeOptions::create<geometry_msgs::Vector3>(
+    "set_left_camera_size", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const geometry_msgs::Vector3::ConstPtr&)>(
+        &MultiSenseSL::SetLeftCameraSize),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_left_camera_size_sub_ =
+    this->rosnode_->subscribe(set_left_camera_size_so);
+
+  ros::SubscribeOptions set_right_camera_size_so =
+    ros::SubscribeOptions::create<geometry_msgs::Vector3>(
+    "set_right_camera_size", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const geometry_msgs::Vector3::ConstPtr&)>(
+        &MultiSenseSL::SetRightCameraSize),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_right_camera_size_sub_ =
+    this->rosnode_->subscribe(set_right_camera_size_so);
 
   // Advertise services on the custom queue
   std::string set_spindle_speed_service_name("set_spindle_speed");
@@ -354,6 +406,24 @@ void MultiSenseSL::SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
+void MultiSenseSL::SetLeftCameraHFOV(const std_msgs::Float64::ConstPtr
+                                          &_msg)
+{
+  this->leftCameraHFOV = (double)_msg->data;
+  rendering::CameraPtr leftCamera = this->leftCameraSensor->GetCamera();
+  leftCamera->SetHFOV(this->leftCameraHFOV);
+  gzwarn << "changing fov not supported and may break stereo_proc node\n";
+}
+
+void MultiSenseSL::SetRightCameraHFOV(const std_msgs::Float64::ConstPtr
+                                           &_msg)
+{
+  this->rightCameraHFOV = (double)_msg->data;
+  rendering::CameraPtr rightCamera = this->rightCameraSensor->GetCamera();
+  rightCamera->SetHFOV(this->rightCameraHFOV);
+  gzwarn << "changing fov not supported and may break stereo_proc node\n";
+}
+
 void MultiSenseSL::SetLeftCameraGain(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -366,6 +436,30 @@ void MultiSenseSL::SetRightCameraGain(const std_msgs::Float64::ConstPtr
 {
   this->rightCameraGain = (double)_msg->data;
   gzwarn << "setting camera gain in sim not implemented\n";
+}
+
+void MultiSenseSL::SetLeftCameraSize(const geometry_msgs::Vector3::ConstPtr
+                                          &_msg)
+{
+  // todo: use a better type than Vector3, for now, discard z
+  this->leftCameraWidth = (unsigned int)_msg->x;
+  this->leftCameraHeight = (unsigned int)_msg->y;
+  rendering::CameraPtr leftCamera = this->leftCameraSensor->GetCamera();
+  leftCamera->SetImageWidth(this->leftCameraWidth);
+  leftCamera->SetImageHeight(this->leftCameraHeight);
+  gzwarn << "image size update not supported and may break stereo_proc node\n";
+}
+
+void MultiSenseSL::SetRightCameraSize(const geometry_msgs::Vector3::ConstPtr
+                                           &_msg)
+{
+  // todo: use a better type than Vector3, for now, discard z
+  this->rightCameraWidth = (unsigned int)_msg->x;
+  this->rightCameraHeight = (unsigned int)_msg->y;
+  rendering::CameraPtr rightCamera = this->rightCameraSensor->GetCamera();
+  rightCamera->SetImageWidth(this->rightCameraWidth);
+  rightCamera->SetImageHeight(this->rightCameraHeight);
+  gzwarn << "image size update not supported and may break stereo_proc node\n";
 }
 
 // Register this plugin with the simulator

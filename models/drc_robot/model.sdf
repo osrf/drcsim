@@ -932,17 +932,20 @@
     </plugin>
   </gazebo>
   <gazebo reference="r_foot">
-    <mu1>10.0</mu1>
+    <!--
+    <kp>10.0</kp>
+    <kd>10.0</kd>
+    -->
     <mu2>10.0</mu2>
     <fdir1>1 0 0</fdir1>
-    <maxVel>0.0</maxVel>
+    <maxVel>100.0</maxVel>
     <minDepth>0.001</minDepth>
   </gazebo>
   <gazebo reference="l_foot">
     <mu1>10.0</mu1>
     <mu2>10.0</mu2>
     <fdir1>1 0 0</fdir1>
-    <maxVel>0.0</maxVel>
+    <maxVel>100.0</maxVel>
     <minDepth>0.001</minDepth>
   </gazebo>
   <transmission name="head_hokuyo_trans" type="pr2_mechanism_model/SimpleTransmission">

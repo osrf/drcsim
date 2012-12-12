@@ -35,6 +35,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Bool.h>
+#include <geometry_msgs/Vector3.h>
 
 #include "std_srvs/Empty.h"
 
@@ -50,6 +51,8 @@
 #include "gazebo/sensors/RaySensor.hh"
 #include "gazebo/sensors/SensorTypes.hh"
 #include "gazebo/sensors/Sensor.hh"
+
+#include "gazebo/rendering/Camera.hh"
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -117,12 +120,28 @@ namespace gazebo
     private: void SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
                                              &_msg);
 
+    private: ros::Subscriber set_left_camera_hfov_sub_;
+    private: void SetLeftCameraHFOV(const std_msgs::Float64::ConstPtr
+                                    &_msg);
+
+    private: ros::Subscriber set_right_camera_hfov_sub_;
+    private: void SetRightCameraHFOV(const std_msgs::Float64::ConstPtr
+                                     &_msg);
+
     private: ros::Subscriber set_left_camera_gain_sub_;
     private: void SetLeftCameraGain(const std_msgs::Float64::ConstPtr
                                     &_msg);
 
     private: ros::Subscriber set_right_camera_gain_sub_;
     private: void SetRightCameraGain(const std_msgs::Float64::ConstPtr
+                                     &_msg);
+
+    private: ros::Subscriber set_left_camera_size_sub_;
+    private: void SetLeftCameraSize(const geometry_msgs::Vector3::ConstPtr
+                                    &_msg);
+
+    private: ros::Subscriber set_right_camera_size_sub_;
+    private: void SetRightCameraSize(const geometry_msgs::Vector3::ConstPtr
                                      &_msg);
 
     // ros services
@@ -143,12 +162,18 @@ namespace gazebo
     // camera control
     private: sensors::CameraSensorPtr leftCameraSensor;
     private: sensors::CameraSensorPtr rightCameraSensor;
+    private: unsigned int leftCameraWidth;
+    private: unsigned int rightCameraWidth;
+    private: unsigned int leftCameraHeight;
+    private: unsigned int rightCameraHeight;
     private: double leftCameraFrameRate;
     private: double rightCameraFrameRate;
     private: double leftCameraExposureTime;
     private: double rightCameraExposureTime;
     private: double leftCameraGain;
     private: double rightCameraGain;
+    private: double leftCameraHFOV;
+    private: double rightCameraHFOV;
 
     // laser sensor control
     private: sensors::RaySensorPtr laserSensor;
