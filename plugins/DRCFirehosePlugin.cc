@@ -54,6 +54,7 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   this->world->EnablePhysicsEngine(true);
 
   // this->world->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+
   // Get joints
   this->joints = this->model->GetJoints();
 
