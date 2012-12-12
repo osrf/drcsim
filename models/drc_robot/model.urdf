@@ -759,11 +759,6 @@
     <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.32" soft_upper_limit="11.14"/>
   </joint>
   <joint name="neck_ay" type="revolute">
-    <!-- x added 0.0116, z added 0.0875
-    <origin rpy="0 0 0" xyz="0.0226 0.0 0.5275"/>
-    <origin rpy="0 0 0" xyz="-0.006 0.0 0.5575"/>
-    <origin rpy="0 0 0" xyz="0.011 0 0.44"/>
-    -->
     <origin rpy="0 0 0" xyz="0.011 0 0.48"/>
     <axis xyz="0 1 0"/>
     <parent link="utorso"/>
@@ -916,9 +911,9 @@
     </visual>
   </link>
   <joint name="imu_joint" type="fixed">
-    <parent link="ltorso"/>
+    <parent link="pelvis"/>
     <child link="imu_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <origin rpy="0.05991527603 0 -0.01415" xyz="0 0 0"/>
   </joint>
   <gazebo>
     <plugin filename="libgazebo_ros_imu.so" name="drc_robot_imu">
