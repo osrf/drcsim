@@ -1221,7 +1221,7 @@
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>left_camera_optical_frame</frameName>
-        <hackBaseline>0.2</hackBaseline>
+        <hackBaseline>0.07</hackBaseline>
         <!-- check this -->
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
