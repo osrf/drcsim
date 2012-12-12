@@ -1,7 +1,7 @@
 set(MODEL_NAME sandia_hand)
 add_subdirectory(meshes)
 set (files 
-  model.sdf
+  model.urdf
   manifest.xml
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/models/${MODEL_NAME}/)

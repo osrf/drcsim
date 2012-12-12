@@ -144,7 +144,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobot = false;
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
@@ -156,7 +156,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobot = false;
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
@@ -179,7 +179,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
                                         0.0, 0.0);
     this->initialPose = this->fixedLink->GetWorldPose();
 
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -188,7 +188,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   else if (_str == "nominal")
   {
     // reinitialize pinning
-    physics::Link_V links = this->model->GetAllLinks();
+    physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
@@ -273,7 +273,8 @@ physics::JointPtr DRCRobotPlugin::AddJoint(physics::WorldPtr _world,
   // disable collision between the link pair
   if (_link1)
     _link1->SetCollideMode("fixed");
-  _link2->SetCollideMode("fixed");
+  if (_link2)
+    _link2->SetCollideMode("fixed");
   return joint;
 }
 
@@ -314,8 +315,10 @@ void DRCRobotPlugin::RemoveJoint(physics::JointPtr &_joint)
     // reenable collision between the link pair
     physics::LinkPtr parent = _joint->GetParent();
     physics::LinkPtr child = _joint->GetChild();
-    parent->SetCollideMode("all");
-    child->SetCollideMode("all");
+    if (parent)
+      parent->SetCollideMode("all");
+    if (child)
+      child->SetCollideMode("all");
 
     _joint->Detach();
     _joint.reset();

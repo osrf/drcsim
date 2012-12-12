@@ -9,7 +9,7 @@
   <node name="gazebo" pkg="drc_robot_utils" type="run_$(arg gzname)" args="drc_sim_v0.world"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
+  <param name="robot_description" textfile="$(find drc_robot)/model.urdf"/>
 
   <!-- Controller Manager -->
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />
