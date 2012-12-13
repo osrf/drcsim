@@ -19,10 +19,10 @@ export ROS_PACKAGE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VER
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@PROJECT_NAME@-@DRC_SIM_VERSION@/plugins:$LD_LIBRARY_PATH
 
 # Step 3: get Gazebo configuration.
-if [ -f @CMAKE_INSTALL_PREFIX@/share/gazebo-@GAZEBO_VERSION@/setup.sh ]; then
-  . @CMAKE_INSTALL_PREFIX@/share/gazebo-@GAZEBO_VERSION@/setup.sh 
-elif [ -f /usr/share/gazebo-@GAZEBO_VERSION@/setup.sh ]; then
-  . /usr/share/gazebo-@GAZEBO_VERSION@/setup.sh  
+if [ -f @GAZEBO_PREFIX@/share/gazebo/setup.sh ]; then
+  . @GAZEBO_PREFIX@/share/gazebo/setup.sh 
+elif [ -f /usr/share/gazebo/setup.sh ]; then
+  . /usr/share/gazebo/setup.sh  
 else
   echo "Warning: failed to find Gazebo's setup.sh.  You will need to source it manually."
 fi
