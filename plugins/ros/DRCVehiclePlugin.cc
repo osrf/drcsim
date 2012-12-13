@@ -38,9 +38,12 @@ namespace gazebo
 // Constructor
 DRCVehiclePlugin::DRCVehiclePlugin()
 {
+  this->keyState = OFF;
+  this->directionState = NEUTRAL;
   this->gasPedalCmd = 0;
   this->brakePedalCmd = 0;
   this->handWheelCmd = 0;
+  this->handBrakeCmd = 0;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
   this->blWheelCmd = 0;
@@ -83,11 +86,53 @@ void DRCVehiclePlugin::Init()
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetVehicleState(double _handWheelPosition,
                                        double _gasPedalPosition,
-                                       double _brakePedalPosition)
+                                       double _brakePedalPosition,
+                                       double _handBrakePosition,
+                                   DRCVehiclePlugin::KeyType _key,
+                                   DRCVehiclePlugin::DirectionType _direction)
 {
   this->handWheelCmd = _handWheelPosition;
+  this->handBrakeCmd = _handBrakePosition;
   this->gasPedalCmd = _gasPedalPosition;
   this->brakePedalCmd = _brakePedalPosition;
+  this->directionState = _direction;
+  this->keyState = _key;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+DRCVehiclePlugin::DirectionType DRCVehiclePlugin::GetDirectionState()
+{
+  return this->directionState;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+DRCVehiclePlugin::KeyType DRCVehiclePlugin::GetKeyState()
+{
+  return this->keyState;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetDirectionState(
+        DRCVehiclePlugin::DirectionType _direction)
+{
+  this->directionState = _direction;
+  if (_direction == NEUTRAL && this->keyState == ON_FR)
+    this->keyState = ON;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetKeyOff()
+{
+  this->keyState = OFF;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetKeyOn()
+{
+  if (this->directionState == NEUTRAL)
+    this->keyState = ON;
+  else
+    this->keyState = ON_FR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -385,7 +430,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   ros::SubscribeOptions hand_wheel_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/" + this->model->GetName() + "/hand_wheel/cmd", 100,
+    this->model->GetName() + "/hand_wheel/cmd", 100,
     boost::bind( static_cast<void (DRCVehiclePlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &DRCVehiclePlugin::SetHandWheelState),this,_1),
@@ -394,7 +439,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   ros::SubscribeOptions gas_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/" + this->model->GetName() + "/gas_pedal/cmd", 100,
+    this->model->GetName() + "/gas_pedal/cmd", 100,
     boost::bind( static_cast<void (DRCVehiclePlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &DRCVehiclePlugin::SetGasPedalState),this,_1),
@@ -403,7 +448,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   ros::SubscribeOptions brake_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/" + this->model->GetName() + "/brake_pedal/cmd", 100,
+    this->model->GetName() + "/brake_pedal/cmd", 100,
     boost::bind( static_cast<void (DRCVehiclePlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &DRCVehiclePlugin::SetBrakePedalState),this,_1),
@@ -411,11 +456,11 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->brake_pedal_cmd_sub_ = this->rosnode_->subscribe(brake_pedal_cmd_so);
 
   this->hand_wheel_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
-    "/" + this->model->GetName() + "/hand_wheel/state",10);
+    this->model->GetName() + "/hand_wheel/state",10);
   this->gas_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
-    "/" + this->model->GetName() + "/gas_pedal/state",10);
+    this->model->GetName() + "/gas_pedal/state",10);
   this->brake_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
-    "/" + this->model->GetName() + "/brake_pedal/state",10);
+    this->model->GetName() + "/brake_pedal/state",10);
 
   // ros callback queue for processing subscription
   this->callback_queue_thread_ = boost::thread(
@@ -437,6 +482,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 void DRCVehiclePlugin::UpdateStates()
 {
   this->handWheelState = this->handWheelJoint->GetAngle(0).Radian();
+  this->handBrakeState = this->handBrakeJoint->GetAngle(0).Radian();
   this->brakePedalState = this->brakePedalJoint->GetAngle(0).Radian();
   this->gasPedalState = this->gasPedalJoint->GetAngle(0).Radian();
   this->flSteeringState = this->flWheelSteeringJoint->GetAngle(0).Radian();

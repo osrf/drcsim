@@ -50,7 +50,7 @@ namespace gazebo
   {
     /// \enum DirectionType
     /// \brief Direction selector switch type.
-    public: enum KeyType {
+    public: enum DirectionType {
               /// \brief Reverse
               REVERSE = -1,
               /// \brief Neutral
@@ -101,9 +101,33 @@ namespace gazebo
     /// \param[in] _handWheelPosition steering wheel position in radians.
     /// \param[in] _gasPedalPosition gas pedal position in meters.
     /// \param[in] _brakePedalPosition brake pedal position in meters.
+    /// \param[in] _handBrakePosition handbrake position in radians.
+    /// \param[in] _key key state.
+    /// \param[in] _direction direction state.
     public: void SetVehicleState(double _handWheelPosition,
                                  double _gasPedalPosition,
-                                 double _brakePedalPosition);
+                                 double _brakePedalPosition,
+                                 double _handBrakePosition,
+                                 KeyType _key,
+                                 DirectionType _direction);
+
+    /// \brief Returns the state of the key switch.
+    /// \return Current key state.
+    public: KeyType GetKeyState();
+
+    /// \brief Sets the key switch to ON, may become ON_FR if not in NEUTRAL.
+    public: void SetKeyOn();
+
+    /// \brief Sets the key switch to OFF.
+    public: void SetKeyOff();
+
+    /// \brief Returns the state of the direction switch.
+    /// \return Current direction state.
+    public: DirectionType GetDirectionState();
+
+    /// \brief Sets the state of the direction switch.
+    /// \param[in] _direction Desired direction state.
+    public: void SetDirectionState(DirectionType _direction);
 
     /// \brief Set the steering wheel angle; this will also update the front
     ///        wheel steering angle.
@@ -160,13 +184,6 @@ namespace gazebo
 
     /// \brief Returns the steering wheel angle (rad).
     public: double GetHandBrakeState();
-
-    /// \brief Computes the front wheel angle / steering wheel angle ratio.
-    public: void UpdateHandBrakeRatio();
-
-    /// \brief Returns the front wheel angle / steering wheel angle ratio.
-    public: double GetHandBrakeRatio();
-
 
 
     /// \brief Specify front wheel orientation in radians (Note: this sets
@@ -317,6 +334,8 @@ namespace gazebo
     private: double backTrackWidth;
 
     /// state of vehicle
+    private: KeyType keyState;
+    private: DirectionType directionState;
     private: double handWheelState;
     private: double handBrakeState;
     private: double flSteeringState;
