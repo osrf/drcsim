@@ -166,7 +166,7 @@ void MultiSenseSL::LoadThread()
   // ros publication
   ros::AdvertiseOptions pub_status_ao =
     ros::AdvertiseOptions::create<std_msgs::String>(
-    "multisense_sl_status", 10,
+    "/multisense_sl/status", 10,
     boost::bind(&MultiSenseSL::OnStatusConnect,this),
     boost::bind(&MultiSenseSL::OnStatusDisconnect,this),
     ros::VoidPtr(), &this->queue_);
@@ -175,7 +175,7 @@ void MultiSenseSL::LoadThread()
   // ros subscription
   ros::SubscribeOptions set_spindle_speed_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_spindle_speed", 100,
+    "/multisense_sl/set_spindle_speed", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetSpindleSpeed),this,_1),
@@ -185,7 +185,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
-    "set_spindle_state", 100,
+    "/multisense_sl/set_spindle_state", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Bool::ConstPtr&)>(
         &MultiSenseSL::SetSpindleState),this,_1),
@@ -195,7 +195,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_left_camera_frame_rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_left_camera_frame_rate", 100,
+    "/multisense_sl/left/set_camera_frame_rate", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetLeftCameraFrameRate),this,_1),
@@ -205,7 +205,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_right_camera_frame_rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_right_camera_frame_rate", 100,
+    "/multisense_sl/right/set_camera_frame_rate", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetRightCameraFrameRate),this,_1),
@@ -215,7 +215,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_left_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_left_camera_exposure_time", 100,
+    "/multisense_sl/left/set_camera_exposure_time", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetLeftCameraExposureTime),this,_1),
@@ -225,7 +225,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_right_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_right_camera_exposure_time", 100,
+    "/multisense_sl/right/set_camera_exposure_time", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetRightCameraExposureTime),this,_1),
@@ -235,7 +235,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_left_camera_gain_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_left_camera_gain", 100,
+    "/multisense_sl/left/set_camera_gain", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetLeftCameraGain),this,_1),
@@ -245,7 +245,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_right_camera_gain_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "set_right_camera_gain", 100,
+    "/multisense_sl/right/set_camera_gain", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetRightCameraGain),this,_1),
@@ -254,7 +254,8 @@ void MultiSenseSL::LoadThread()
     this->rosnode_->subscribe(set_right_camera_gain_so);
 
   // Advertise services on the custom queue
-  std::string set_spindle_speed_service_name("set_spindle_speed");
+  std::string set_spindle_speed_service_name(
+    "/multisense_sl/set_spindle_speed");
   ros::AdvertiseServiceOptions set_spindle_speed_aso =
     ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
       set_spindle_speed_service_name,
@@ -263,7 +264,8 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_service_ =
     this->rosnode_->advertiseService(set_spindle_speed_aso);
 
-  std::string set_spindle_state_service_name("set_spindle_state");
+  std::string set_spindle_state_service_name(
+    "/multisense_sl/set_spindle_state");
   ros::AdvertiseServiceOptions set_spindle_state_aso =
     ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
       set_spindle_state_service_name,

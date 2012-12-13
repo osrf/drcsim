@@ -26,11 +26,7 @@
         args="--wait-for=/calibrated drc_controller" />
 
   <!-- Stereo image processing -->
-  <node name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="screen">
-    <remap to="/left_eye/image_raw" from="/left/image_raw" />
-    <remap to="/left_eye/camera_info" from="/left/camera_info" />
-    <remap to="/right_eye/image_raw" from="/right/image_raw" />
-    <remap to="/right_eye/camera_info" from="/right/camera_info" />
+  <node ns="multisense_sl" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="screen">
     <param name="disparity_range" type="int" value="128"/>
     <param name="approximate_sync" type="bool" value="true"/>
   </node>
