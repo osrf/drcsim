@@ -141,13 +141,12 @@ namespace gazebo
       this->pub_model_states_connection_count_ = 0;
 
       // hooks for applying forces, publishing simtime on /clock
+      this->time_update_event_   = gazebo::event::Events::ConnectWorldUpdateStart(boost::bind(&GazeboRosApiPlugin::updateRosSimTime,this));
       this->wrench_update_event_ = gazebo::event::Events::ConnectWorldUpdateStart(boost::bind(&GazeboRosApiPlugin::wrenchBodySchedulerSlot,this));
       this->force_update_event_  = gazebo::event::Events::ConnectWorldUpdateStart(boost::bind(&GazeboRosApiPlugin::forceJointSchedulerSlot,this));
-      this->time_update_event_   = gazebo::event::Events::ConnectWorldUpdateStart(boost::bind(&GazeboRosApiPlugin::publishSimTime,this));
 
       this->gazebonode_ = gazebo::transport::NodePtr(new gazebo::transport::Node());
       this->gazebonode_->Init(_worldName);
-      //this->stat_sub_ = this->gazebonode_->Subscribe("~/world_stats", &GazeboRosApiPlugin::publishSimTime, this); // TODO: does not work in server plugin?
       this->factory_pub_ = this->gazebonode_->Advertise<gazebo::msgs::Factory>("~/factory");
       this->request_pub_ = this->gazebonode_->Advertise<gazebo::msgs::Request>("~/request");
       this->response_sub_ = this->gazebonode_->Subscribe("~/response",&GazeboRosApiPlugin::OnResponse, this);
@@ -1634,20 +1633,14 @@ namespace gazebo
 
     ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
-    void GazeboRosApiPlugin::publishSimTime(const boost::shared_ptr<gazebo::msgs::WorldStatistics const> &msg)
-    {
-      ROS_ERROR("CLOCK2");
-      gazebo::common::Time currentTime = gazebo::msgs::Convert( msg->sim_time() );
-      rosgraph_msgs::Clock ros_time_;
-      ros_time_.clock.fromSec(currentTime.Double());
-      //  publish time to ros
-      this->pub_clock_.publish(ros_time_);
-    }
-    void GazeboRosApiPlugin::publishSimTime()
+    void GazeboRosApiPlugin::updateRosSimTime()
     {
       gazebo::common::Time currentTime = this->world->GetSimTime();
+
+      ros::Time::setNow(ros::Time(currentTime.sec, currentTime.nsec));
+
       rosgraph_msgs::Clock ros_time_;
-      ros_time_.clock.fromSec(currentTime.Double());
+      ros_time_.clock = (ros::Time(currentTime.sec, currentTime.nsec));
       //  publish time to ros
       this->pub_clock_.publish(ros_time_);
     }
