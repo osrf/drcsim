@@ -150,26 +150,18 @@
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_points">
-    <param name="hz" value="2.0"/>
-    <param name="hzerror" value="1.5"/>
+    <param name="hz" value="5.0"/>
+    <param name="hzerror" value="4.75"/>
     <param name="topic" value="/multisense_sl/points"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_points2">
-    <param name="hz" value="2.0"/>
-    <param name="hzerror" value="1.5"/>
+    <param name="hz" value="5.0"/>
+    <param name="hzerror" value="4.75"/>
     <param name="topic" value="/multisense_sl/points2"/>
     <param name="test_duration" value="10.0"/>
   </test>
-
-
-
-
-
-
-
-
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_camera_info">
     <param name="hz" value="25.0"/>
