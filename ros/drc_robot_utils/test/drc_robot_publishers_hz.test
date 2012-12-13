@@ -1,7 +1,7 @@
 <launch>
   <!-- Bring up gazebo without the GUI -->
   <include file="$(find drc_robot_utils)/launch/drc_robot.launch">
-    <arg name="gzname" value="gazebo"/>
+    <arg name="gzname" value="gzserver"/>
   </include>
 
   <!-- Test for nominal publication rates -->
