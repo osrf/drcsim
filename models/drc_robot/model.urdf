@@ -6,7 +6,7 @@
 <robot name="drc_robot" xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller" xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <link name="head">
     <inertial>
-      <origin xyz="-0.070093 3.3383E-05 0.02724" rpy="0 0 0" />
+      <origin xyz="-0.075493 3.3383E-05 0.02774" rpy="0 0 0" />
       <mass value="1.4199" />
       <inertia
         iyy="0.0041178"
@@ -17,7 +17,7 @@
         izz="0.0035243" />
     </inertial>
     <visual>
-      <origin xyz="-0.050 0 0.0875" rpy="0 0 1.570795" />
+      <origin xyz="-0.0446 0 0.0880" rpy="0 0 1.570795" />
       <geometry>
         <mesh filename="package://multisense_sl/meshes/base_link.STL" />
       </geometry>
@@ -26,7 +26,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.050 0 0.0875" rpy="0 0 1.570795" />
+      <origin xyz="-0.0446 0 0.0880" rpy="0 0 1.570795" />
       <geometry>
         <mesh filename="package://multisense_sl/meshes/base_link.STL" />
       </geometry>
@@ -61,7 +61,7 @@
     </collision>
   </link>
   <joint name="hokuyo_joint" type="continuous">
-    <origin xyz="-0.050 0 0.0875" rpy="0 0 0" />
+    <origin xyz="-0.0446 0 0.0880" rpy="0 0 0" />
     <parent link="head" />
     <child link="hokuyo_link" />
     <axis xyz="1 0 0" />
@@ -759,7 +759,7 @@
     <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.32" soft_upper_limit="11.14"/>
   </joint>
   <joint name="neck_ay" type="revolute">
-    <origin rpy="0 0 0" xyz="0.011 0 0.48"/>
+    <origin rpy="0 0 0" xyz="0.16555 0 0.50823"/>
     <axis xyz="0 1 0"/>
     <parent link="utorso"/>
     <child link="head"/>
@@ -1136,7 +1136,7 @@
     </sensor>
   </gazebo>
   <joint name="left_camera_frame_joint" type="fixed">
-    <origin xyz="0.00585 0.035 -0.0025"/>
+    <origin xyz="0.01125 0.035 -0.002"/>
     <parent link="head"/>
     <child link="left_camera_frame"/>
   </joint>
@@ -1155,9 +1155,12 @@
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
     <sensor name="left_camera_sensor" type="camera">
-      <update_rate>25.0</update_rate>
+      <!-- update rate based on spec sheet for 2mp 15fps -->
+      <update_rate>15.0</update_rate>
       <camera>
-        <horizontal_fov>1.5708</horizontal_fov>
+        <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
+        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <horizontal_fov>1.3962634</horizontal_fov>
         <image>
           <width>2048</width>
           <height>1088</height>
@@ -1170,7 +1173,8 @@
       </camera>
       <plugin filename="libgazebo_ros_camera.so" name="left_camera_controller">
         <alwaysOn>true</alwaysOn>
-        <updateRate>25.0</updateRate>
+        <!-- update rate based on spec sheet for 2mp 15fps -->
+        <updateRate>15.0</updateRate>
         <cameraName>multisense_sl/left</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
@@ -1185,7 +1189,7 @@
     </sensor>
   </gazebo>
   <joint name="right_camera_frame_joint" type="fixed">
-    <origin xyz="0.00585 -0.035 -0.0025"/>
+    <origin xyz="0.01125 -0.035 -0.002"/>
     <parent link="head"/>
     <child link="right_camera_frame"/>
   </joint>
@@ -1204,9 +1208,12 @@
   <link name="right_camera_optical_frame"/>
   <gazebo reference="right_camera_frame">
     <sensor name="right_camera_sensor" type="camera">
-      <update_rate>25.0</update_rate>
+      <!-- update rate based on spec sheet for 2mp 15fps -->
+      <update_rate>15.0</update_rate>
       <camera>
-        <horizontal_fov>1.5708</horizontal_fov>
+        <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
+        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <horizontal_fov>1.3962634</horizontal_fov>
         <image>
           <width>2048</width>
           <height>1088</height>
@@ -1219,7 +1226,8 @@
       </camera>
       <plugin filename="libgazebo_ros_camera.so" name="right_camera_controller">
         <alwaysOn>true</alwaysOn>
-        <updateRate>25.0</updateRate>
+        <!-- update rate based on spec sheet for 2mp 15fps -->
+        <updateRate>15.0</updateRate>
         <cameraName>multisense_sl/right</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
@@ -1237,7 +1245,7 @@
 
   <!-- leds -->
   <joint name="center_top_led_frame_joint" type="fixed">
-    <origin xyz="0.00585 0.0 0.01"/>
+    <origin xyz="0.01125 0.0 0.0105"/>
     <parent link="head"/>
     <child link="center_top_led_frame"/>
   </joint>
@@ -1249,7 +1257,7 @@
     </inertial>
   </link>
   <joint name="center_bottom_led_frame_joint" type="fixed">
-    <origin xyz="0.00585 0.0 -0.016"/>
+    <origin xyz="0.01125 0.0 -0.0155"/>
     <parent link="head"/>
     <child link="center_bottom_led_frame"/>
   </joint>
@@ -1261,7 +1269,7 @@
     </inertial>
   </link>
   <joint name="left_led_frame_joint" type="fixed">
-    <origin xyz="-0.01983 0.07452 0.049846" rpy="0 -0.15 0.53"/>
+    <origin xyz="-0.01443 0.07452 0.050346" rpy="0 -0.15 0.53"/>
     <parent link="head"/>
     <child link="left_led_frame"/>
   </joint>
@@ -1273,7 +1281,7 @@
     </inertial>
   </link>
   <joint name="right_led_frame_joint" type="fixed">
-    <origin xyz="-0.01983 -0.07452 0.049846" rpy="0 -0.15 -0.53"/>
+    <origin xyz="-0.01443 -0.07452 0.050346" rpy="0 -0.15 -0.53"/>
     <parent link="head"/>
     <child link="right_led_frame"/>
   </joint>
