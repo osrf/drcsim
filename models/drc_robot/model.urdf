@@ -1122,8 +1122,8 @@
           </horizontal>
         </scan>
         <range>
-          <min>0.08</min>
-          <max>10.0</max>
+          <min>0.10</min>
+          <max>30.0</max>
           <resolution>0.01</resolution>
         </range>
       </ray>
