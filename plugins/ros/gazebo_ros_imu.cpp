@@ -34,7 +34,6 @@ namespace gazebo
 // Constructor
 GazeboRosIMU::GazeboRosIMU()
 {
-  this->imu_connect_count_ = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,11 +141,7 @@ void GazeboRosIMU::LoadThread()
   // if topic name specified as empty, do not publish (then what is this plugin good for?)
   if (this->topic_name_ != "")
   {
-    ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::Imu>(
-      this->topic_name_,1,
-      boost::bind( &GazeboRosIMU::IMUConnect,this),
-      boost::bind( &GazeboRosIMU::IMUDisconnect,this), ros::VoidPtr(), &this->imu_queue_);
-    this->pub_ = this->rosnode_->advertise(ao);
+    this->pub_ = this->rosnode_->advertise<sensor_msgs::Imu>(this->topic_name_,1);
 
     // advertise services on the custom queue
     ros::AdvertiseServiceOptions aso = ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
@@ -182,23 +177,10 @@ bool GazeboRosIMU::ServiceCallback(std_srvs::Empty::Request &req,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Increment count
-void GazeboRosIMU::IMUConnect()
-{
-  this->imu_connect_count_++;
-}
-////////////////////////////////////////////////////////////////////////////////
-// Decrement count
-void GazeboRosIMU::IMUDisconnect()
-{
-  this->imu_connect_count_--;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Update the controller
 void GazeboRosIMU::UpdateChild()
 {
-  if ((this->imu_connect_count_ > 0 && this->topic_name_ != ""))
+  if ((this->pub_.getNumSubscribers() > 0 && this->topic_name_ != ""))
   {
     math::Pose pose;
     math::Quaternion rot;
@@ -288,7 +270,7 @@ void GazeboRosIMU::UpdateChild()
     {
       boost::mutex::scoped_lock lock(this->lock_);
       // publish to ros
-      if (this->imu_connect_count_ > 0 && this->topic_name_ != "")
+      if (this->pub_.getNumSubscribers() > 0 && this->topic_name_ != "")
           this->pub_.publish(this->imu_msg_);
     }
 

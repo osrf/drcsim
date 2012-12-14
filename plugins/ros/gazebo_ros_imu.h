@@ -105,11 +105,6 @@ namespace gazebo
       /// \brief for setting ROS name space
       private: std::string robot_namespace_;
 
-      /// \brief Keep track of number of connctions
-      private: int imu_connect_count_;
-      private: void IMUConnect();
-      private: void IMUDisconnect();
-
       /// \brief call back when using service
       private: bool ServiceCallback(std_srvs::Empty::Request &req,
                                     std_srvs::Empty::Response &res);

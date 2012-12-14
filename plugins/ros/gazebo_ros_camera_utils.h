@@ -114,7 +114,6 @@ namespace gazebo
     protected: void PublishCameraInfo(common::Time &last_update_time);
     protected: void PublishCameraInfo();
     /// \brief Keep track of number of connctions for CameraInfo
-    protected: int info_connect_count_;
     private: void InfoConnect();
     private: void InfoDisconnect();
     /// \brief camera info
@@ -179,8 +178,6 @@ namespace gazebo
     protected: common::Time sensor_update_time_;
 
     // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-    protected: int imageConnectCount;
-    protected: int infoConnectCount;
     protected: physics::WorldPtr world;
 
     // deferred load in case ros is blocking

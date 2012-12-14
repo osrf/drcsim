@@ -62,12 +62,6 @@ namespace gazebo
 GazeboRosCameraUtils::GazeboRosCameraUtils()
 {
   this->image_connect_count_ = 0;
-  this->info_connect_count_ = 0;
-
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->imageConnectCount = this->image_connect_count_;
-  this->infoConnectCount = this->info_connect_count_;
-
   this->last_update_time_ = common::Time(0);
   this->last_info_update_time_ = common::Time(0);
 }
@@ -272,13 +266,7 @@ void GazeboRosCameraUtils::LoadThread()
     boost::bind( &GazeboRosCameraUtils::ImageDisconnect,this),
     ros::VoidPtr(), &this->camera_queue_);
 
-  ros::AdvertiseOptions camera_info_ao =
-    ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
-        this->camera_info_topic_name_,1,
-        boost::bind( &GazeboRosCameraUtils::InfoConnect,this),
-        boost::bind( &GazeboRosCameraUtils::InfoDisconnect,this),
-        ros::VoidPtr(), &this->camera_queue_);
-  this->camera_info_pub_ = this->rosnode_->advertise(camera_info_ao);
+  this->camera_info_pub_ = this->rosnode_->advertise<sensor_msgs::CameraInfo>(this->camera_info_topic_name_,1);
 
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -295,23 +283,6 @@ void GazeboRosCameraUtils::LoadThread()
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
 
   this->Init();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Increment count
-void GazeboRosCameraUtils::InfoConnect()
-{
-  this->info_connect_count_++;
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->infoConnectCount = this->info_connect_count_;
-}
-////////////////////////////////////////////////////////////////////////////////
-// Decrement count
-void GazeboRosCameraUtils::InfoDisconnect()
-{
-  this->info_connect_count_--;
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->infoConnectCount = this->info_connect_count_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -334,7 +305,6 @@ void GazeboRosCameraUtils::ImageConnect()
 {
   this->image_connect_count_++;
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->imageConnectCount = this->image_connect_count_;
   this->parentSensor_->SetActive(true);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -343,7 +313,6 @@ void GazeboRosCameraUtils::ImageDisconnect()
 {
   this->image_connect_count_--;
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->imageConnectCount = this->image_connect_count_;
   if (this->image_connect_count_ <= 0)
     this->parentSensor_->SetActive(false);
 }
@@ -488,7 +457,7 @@ void GazeboRosCameraUtils::PublishCameraInfo(common::Time &last_update_time)
 
 void GazeboRosCameraUtils::PublishCameraInfo()
 {
-  if (this->info_connect_count_ > 0)
+  if (this->camera_info_pub_.getNumSubscribers() > 0)
   {
     this->sensor_update_time_ = this->parentSensor_->GetLastUpdateTime();
     common::Time cur_time = this->world_->GetSimTime();

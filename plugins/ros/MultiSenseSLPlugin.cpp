@@ -39,7 +39,6 @@ namespace gazebo
 // Constructor
 MultiSenseSL::MultiSenseSL()
 {
-  this->connectionCount = 0;
   this->spindlePID.Init(0.03, 0.30, 0.00001, 1., -1., 10.0, -10.0);
   this->spindleOn = true;
   this->spindleSpeed = 0;
@@ -124,13 +123,8 @@ void MultiSenseSL::LoadThread()
   this->rosnode_ = new ros::NodeHandle("");
 
   // ros publication
-  ros::AdvertiseOptions pub_status_ao =
-    ros::AdvertiseOptions::create<std_msgs::String>(
-    "multisense_sl/status", 10,
-    boost::bind(&MultiSenseSL::OnStatusConnect,this),
-    boost::bind(&MultiSenseSL::OnStatusDisconnect,this),
-    ros::VoidPtr(), &this->queue_);
-  this->pub_status_ = this->rosnode_->advertise(pub_status_ao);
+  this->pub_status_ = this->rosnode_->advertise<std_msgs::String>(
+    "multisense_sl/status", 10);
 
   // ros subscription
   ros::SubscribeOptions set_spindle_speed_so =
@@ -251,7 +245,7 @@ void MultiSenseSL::LoadThread()
 // Update the controller
 void MultiSenseSL::UpdateStates()
 {
-  if (this->connectionCount > 0)
+  if (this->pub_status_.getNumSubscribers() > 0)
   {
     double cur_time = this->world->GetSimTime().Double();
 
@@ -292,16 +286,6 @@ void MultiSenseSL::QueueThread()
   {
     this->queue_.callAvailable(ros::WallDuration(timeout));
   }
-}
-
-void MultiSenseSL::OnStatusConnect()
-{
-  this->connectionCount++;
-}
-
-void MultiSenseSL::OnStatusDisconnect()
-{
-  this->connectionCount--;
 }
 
 bool MultiSenseSL::SetSpindleSpeed(std_srvs::Empty::Request &req,

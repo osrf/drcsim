@@ -76,11 +76,6 @@ namespace gazebo
     /// Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
 
-    /// ROS connection count
-    private: int connectionCount;
-    private: void OnStatusConnect();
-    private: void OnStatusDisconnect();
-
     // deferred ros loading
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;

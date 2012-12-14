@@ -115,11 +115,6 @@ namespace gazebo
       /// \brief for setting ROS name space
       private: std::string robot_namespace_;
 
-      /// \brief Keep track of number of connctions
-      private: int p3d_connect_count_;
-      private: void P3DConnect();
-      private: void P3DDisconnect();
-
       private: ros::CallbackQueue p3d_queue_;
       private: void P3DQueueThread();
       private: boost::thread callback_queue_thread_;
