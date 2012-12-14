@@ -187,6 +187,7 @@ void DRCRobotPlugin::SetPluginMode(const std::string &_str)
   else if (_str == "nominal")
   {
     // reinitialize pinning
+    this->warpRobot = false;
     physics::Link_V links = this->model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
