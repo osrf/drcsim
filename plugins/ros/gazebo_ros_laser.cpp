@@ -84,7 +84,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("frameName"))
   {
@@ -92,7 +92,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->frame_name_ = "/world";
   }
   else
-    this->frame_name_ = this->sdf->GetElement("frameName")->GetValueString();
+    this->frame_name_ = this->sdf->GetValueString("frameName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -100,7 +100,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->topic_name_ = "/world";
   }
   else
-    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetValueString("topicName");
 
   if (!this->sdf->HasElement("gaussianNoise"))
   {
@@ -108,7 +108,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = this->sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussian_noise_ = this->sdf->GetValueDouble("gaussianNoise");
 
   if (!this->sdf->HasElement("hokuyoMinIntensity"))
   {
@@ -116,7 +116,8 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->hokuyo_min_intensity_ = 101;
   }
   else
-    this->hokuyo_min_intensity_ = this->sdf->GetElement("hokuyoMinIntensity")->GetValueDouble();
+    this->hokuyo_min_intensity_ =
+      this->sdf->GetValueDouble("hokuyoMinIntensity");
 
   ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyo_min_intensity_);
 
@@ -126,7 +127,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = this->sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetValueDouble("updateRate");
 
   // set parent sensor update rate
   this->parent_sensor_->SetUpdateRate(this->update_rate_);

@@ -68,7 +68,7 @@ void GazeboRosIMU::LoadThread()
   // load parameters
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("serviceName"))
   {
@@ -76,7 +76,7 @@ void GazeboRosIMU::LoadThread()
     this->service_name_ = "/default_imu";
   }
   else
-    this->service_name_ = this->sdf->GetElement("serviceName")->GetValueString();
+    this->service_name_ = this->sdf->GetValueString("serviceName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -84,7 +84,7 @@ void GazeboRosIMU::LoadThread()
     this->topic_name_ = "/default_imu";
   }
   else
-    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetValueString("topicName");
 
   if (!this->sdf->HasElement("gaussianNoise"))
   {
@@ -92,7 +92,7 @@ void GazeboRosIMU::LoadThread()
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = this->sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussian_noise_ = this->sdf->GetValueDouble("gaussianNoise");
 
   if (!this->sdf->HasElement("bodyName"))
   {
@@ -100,7 +100,7 @@ void GazeboRosIMU::LoadThread()
     return;
   }
   else
-    this->link_name_ = this->sdf->GetElement("bodyName")->GetValueString();
+    this->link_name_ = this->sdf->GetValueString("bodyName");
 
   if (!this->sdf->HasElement("xyzOffset"))
   {
@@ -108,7 +108,7 @@ void GazeboRosIMU::LoadThread()
     this->offset_.pos = math::Vector3(0,0,0);
   }
   else
-    this->offset_.pos = this->sdf->GetElement("xyzOffset")->GetValueVector3();
+    this->offset_.pos = this->sdf->GetValueVector3("xyzOffset");
 
   if (!this->sdf->HasElement("rpyOffset"))
   {
@@ -116,7 +116,7 @@ void GazeboRosIMU::LoadThread()
     this->offset_.rot = math::Vector3(0,0,0);
   }
   else
-    this->offset_.rot = this->sdf->GetElement("rpyOffset")->GetValueVector3();
+    this->offset_.rot = this->sdf->GetValueVector3("rpyOffset");
 
 
   // Exit if no ROS

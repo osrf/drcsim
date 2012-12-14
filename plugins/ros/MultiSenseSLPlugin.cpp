@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,9 +33,10 @@
 
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
 
 ////////////////////////////////////////////////////////////////////////////////
-// Constructor
 MultiSenseSL::MultiSenseSL()
 {
   this->spindlePID.Init(0.03, 0.30, 0.00001, 1., -1., 10.0, -10.0);
@@ -51,7 +51,6 @@ MultiSenseSL::MultiSenseSL()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Destructor
 MultiSenseSL::~MultiSenseSL()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
@@ -62,6 +61,7 @@ MultiSenseSL::~MultiSenseSL()
   delete this->rosnode_;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
   this->drcRobotModel = _parent;
@@ -74,11 +74,17 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->spindleLink = this->drcRobotModel->GetLink("drc_robot::hokuyo_link");
   if (!this->spindleLink)
-    gzerr << "spindle link not found\n";
+  {
+    gzerr << "spindle link not found, plugin will stop loading\n";
+    return;
+  }
 
   this->spindleJoint = this->drcRobotModel->GetJoint("drc_robot::hokuyo_joint");
   if (!this->spindleJoint)
-    gzerr << "spindle joint not found\n";
+  {
+    gzerr << "spindle joint not found, plugin will stop loading\n";
+    return;
+  }
 
   // sensors::Sensor_V s = sensors::SensorManager::Instance()->GetSensors();
   // for (sensors::Sensor_V::iterator siter = s.begin();
@@ -116,7 +122,6 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Load the controller
 void MultiSenseSL::LoadThread()
 {
   // create ros node
@@ -242,7 +247,6 @@ void MultiSenseSL::LoadThread()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update the controller
 void MultiSenseSL::UpdateStates()
 {
   if (this->pub_status_.getNumSubscribers() > 0)
@@ -278,6 +282,7 @@ void MultiSenseSL::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::QueueThread()
 {
   static const double timeout = 0.01;
@@ -288,28 +293,33 @@ void MultiSenseSL::QueueThread()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool MultiSenseSL::SetSpindleSpeed(std_srvs::Empty::Request &req,
                                    std_srvs::Empty::Response &res)
 {
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,
                                    std_srvs::Empty::Response &res)
 {
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 {
   this->spindleSpeed = (double)_msg->data;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 {
   this->spindleOn = (double)_msg->data;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -317,6 +327,7 @@ void MultiSenseSL::SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
   this->leftCameraSensor->SetUpdateRate(this->leftCameraFrameRate);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
                                            &_msg)
 {
@@ -324,6 +335,7 @@ void MultiSenseSL::SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
   this->rightCameraSensor->SetUpdateRate(this->rightCameraFrameRate);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetLeftCameraExposureTime(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -331,6 +343,7 @@ void MultiSenseSL::SetLeftCameraExposureTime(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
                                            &_msg)
 {
@@ -338,6 +351,7 @@ void MultiSenseSL::SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetLeftCameraGain(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -345,14 +359,11 @@ void MultiSenseSL::SetLeftCameraGain(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera gain in sim not implemented\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetRightCameraGain(const std_msgs::Float64::ConstPtr
                                            &_msg)
 {
   this->rightCameraGain = (double)_msg->data;
   gzwarn << "setting camera gain in sim not implemented\n";
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
-
 }
