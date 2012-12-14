@@ -74,14 +74,22 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 
 void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
+  // save pointers
+  this->parent_model_ = _parent;
+  this->sdf = _sdf;
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosControllerManager::LoadThread,this ) );
+}
+
+void GazeboRosControllerManager::LoadThread()
+{
   // Get then name of the parent model
-  std::string modelName = _sdf->GetParent()->GetValueString("name");
+  std::string modelName = this->sdf->GetParent()->GetValueString("name");
 
   // Get the world name.
-  this->world = _parent->GetWorld();
-
-  // Get a pointer to the model
-  this->parent_model_ = _parent;
+  this->world = this->parent_model_->GetWorld();
 
   // Error message if the model couldn't be found
   if (!this->parent_model_)
@@ -104,23 +112,32 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
 
   // get parameter name
   this->robotNamespace = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robotNamespace = _sdf->GetElement("robotNamespace")->GetValueString();
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robotNamespace = this->sdf->GetElement("robotNamespace")->GetValueString();
 
   this->robotParam = "robot_description";
-  if (_sdf->HasElement("robotParam"))
-    this->robotParam = _sdf->GetElement("robotParam")->GetValueString();
+  if (this->sdf->HasElement("robotParam"))
+    this->robotParam = this->sdf->GetElement("robotParam")->GetValueString();
 
   this->robotParam = this->robotNamespace+"/" + this->robotParam;
 
-  // Init ROS
+  // Exit if no ROS
+  if (!ros::isInitialized())
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
+  }
+
+  /* Init ROS
   if (!ros::isInitialized())
   {
     int argc = 0;
     char** argv = NULL;
     ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
     gzwarn << "should start ros::init in simulation by using the system plugin\n";
-  }
+  }*/
 
   this->rosnode_ = new ros::NodeHandle(this->robotNamespace);
   ROS_INFO("starting gazebo_ros_controller_manager plugin in ns: %s",this->robotNamespace.c_str());
@@ -136,8 +153,9 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
   
   this->rosnode_->param("gazebo/start_robot_calibrated", this->calibration_status_, true);
 
-  // read pr2 urdf
-  // setup actuators, then setup mechanism control node
+  // Read urdf from ros parameter server then
+  // setup actuators and mechanism control node.
+  // This call will block if ROS is not properly initialized.
   if (!LoadControllerManagerFromURDF())
   {
     ROS_ERROR("Error parsing URDF in gazebo controller manager plugin, plugin not active.\n");

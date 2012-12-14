@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -105,11 +104,6 @@ namespace gazebo
       /// \brief for setting ROS name space
       private: std::string robot_namespace_;
 
-      /// \brief Keep track of number of connctions
-      private: int imu_connect_count_;
-      private: void IMUConnect();
-      private: void IMUDisconnect();
-
       /// \brief call back when using service
       private: bool ServiceCallback(std_srvs::Empty::Request &req,
                                     std_srvs::Empty::Response &res);
@@ -122,6 +116,11 @@ namespace gazebo
 
       // Pointer to the update event connection
       private: event::ConnectionPtr update_connection_;
+
+      // deferred load in case ros is blocking
+      private: sdf::ElementPtr sdf;
+      private: void LoadThread();
+      private: boost::thread deferred_load_thread_;
    };
 
 /** \} */

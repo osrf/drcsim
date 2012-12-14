@@ -5,6 +5,7 @@
   <!-- start gazebo with the DRC Robot -->
   <include file="$(find drc_robot_utils)/launch/drc_robot_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
+    <arg name="gzworld" value="drc_robot_golf_cart_fire_hose.world"/>
   </include>
 
   <include file="$(find drc_robot_utils)/launch/drc_robot_bringup.launch"/>

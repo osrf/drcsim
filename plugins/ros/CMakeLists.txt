@@ -67,6 +67,15 @@ target_link_libraries(gazebo_ros_camera gazebo_ros_camera_utils)
 install (TARGETS gazebo_ros_camera DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 
+include_directories(${std_msgs_INCLUDE_DIRS} ${sensor_msgs_INCLUDE_DIRS} ${geometry_msgs_INCLUDE_DIRS} ${image_transport_INCLUDE_DIRS} ${tf_INCLUDE_DIRS})
+link_directories(${std_msgs_LIBRARY_DIRS} ${sensor_msgs_LIBRARY_DIRS} ${geometry_msgs_LIBRARY_DIRS} ${image_transport_LIBRARY_DIRS} ${tf_LIBRARY_DIRS})
+set(CMAKE_INSTALL_RPATH "${std_msgs_LIBRARY_DIRS} ${sensor_msgs_LIBRARY_DIRS} ${geometry_msgs_LIBRARY_DIRS} ${image_transport_LIBRARY_DIRS} ${tf_LIBRARY_DIRS}")
+add_library(MultiSenseSLPlugin SHARED MultiSenseSLPlugin.cpp)
+set_target_properties(MultiSenseSLPlugin PROPERTIES COMPILE_FLAGS "${std_msgs_CFLAGS_OTHER} ${sensor_msgs_CFLAGS_OTHER} ${geometry_msgs_CFLAGS_OTHER} ${image_transport_CFLAGS_OTHER} ${tf_CFLAGS_OTHER}")
+set_target_properties(MultiSenseSLPlugin PROPERTIES LINK_FLAGS "${std_msgs_LDFLAGS_OTHER} ${sensor_msgs_LDFLAGS_OTHER} ${geometry_msgs_LDFLAGS_OTHER} ${image_transport_LDFLAGS_OTHER} ${tf_LDFLAGS_OTHER}")
+target_link_libraries(MultiSenseSLPlugin gazebo_ros_camera_utils ${std_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${image_transport_LIBRARIES} ${tf_LIBRARIES} CameraPlugin)
+install (TARGETS MultiSenseSLPlugin DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+
 
 get_rospack_flags(trajectory_msgs)
 #get_rospack_flags(geometry_msgs)

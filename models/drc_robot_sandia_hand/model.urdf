@@ -1113,7 +1113,7 @@
       <plugin filename="libgazebo_ros_camera.so" name="left_camera_controller">
         <alwaysOn>true</alwaysOn>
         <updateRate>25.0</updateRate>
-        <cameraName>left_eye</cameraName>
+        <cameraName>multisense_sl/left</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>left_camera_optical_frame</frameName>
@@ -1162,7 +1162,7 @@
       <plugin filename="libgazebo_ros_camera.so" name="right_camera_controller">
         <alwaysOn>true</alwaysOn>
         <updateRate>25.0</updateRate>
-        <cameraName>right_eye</cameraName>
+        <cameraName>multisense_sl/right</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>left_camera_optical_frame</frameName>

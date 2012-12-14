@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -62,12 +61,6 @@ namespace gazebo
 GazeboRosCameraUtils::GazeboRosCameraUtils()
 {
   this->image_connect_count_ = 0;
-  this->info_connect_count_ = 0;
-
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->imageConnectCount = this->image_connect_count_;
-  this->infoConnectCount = this->info_connect_count_;
-
   this->last_update_time_ = common::Time(0);
   this->last_info_update_time_ = common::Time(0);
 }
@@ -102,118 +95,131 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   // Get the world_
   this->world_ = physics::get_world(world_name);
 
+  // save pointers
+  this->sdf = _sdf;
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosCameraUtils::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosCameraUtils::LoadThread()
+{
+
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
   this->world = this->world_;
 
   this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
   this->image_topic_name_ = "image_raw";
-  if (_sdf->HasElement("imageTopicName"))
-    this->image_topic_name_ = _sdf->GetElement("imageTopicName")->GetValueString();
+  if (this->sdf->HasElement("imageTopicName"))
+    this->image_topic_name_ = this->sdf->GetValueString("imageTopicName");
 
   this->camera_info_topic_name_ = "camera_info";
-  if (_sdf->HasElement("cameraInfoTopicName"))
-    this->camera_info_topic_name_ = _sdf->GetElement("cameraInfoTopicName")->GetValueString();
+  if (this->sdf->HasElement("cameraInfoTopicName"))
+    this->camera_info_topic_name_ = this->sdf->GetValueString("cameraInfoTopicName");
 
-  if (!_sdf->HasElement("cameraName"))
+  if (!this->sdf->HasElement("cameraName"))
     ROS_INFO("Camera plugin missing <cameraName>, default to empty");
   else
-    this->camera_name_ = _sdf->GetElement("cameraName")->GetValueString();
+    this->camera_name_ = this->sdf->GetValueString("cameraName");
 
-  if (!_sdf->HasElement("frameName"))
+  if (!this->sdf->HasElement("frameName"))
     ROS_INFO("Camera plugin missing <frameName>, defaults to /world");
   else
-    this->frame_name_ = _sdf->GetElement("frameName")->GetValueString();
+    this->frame_name_ = this->sdf->GetValueString("frameName");
 
-  if (!_sdf->HasElement("updateRate"))
+  if (!this->sdf->HasElement("updateRate"))
   {
-    ROS_INFO("Camera plugin missing <updateRate>, defaults to 0");
+    ROS_INFO("Camera plugin missing <updateRate>, defaults to unlimited (0).");
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = _sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetValueDouble("updateRate");
 
-  if (!_sdf->HasElement("CxPrime"))
+  if (!this->sdf->HasElement("CxPrime"))
   {
     ROS_INFO("Camera plugin missing <CxPrime>, defaults to 0");
     this->cx_prime_ = 0;
   }
   else
-    this->cx_prime_ = _sdf->GetElement("CxPrime")->GetValueDouble();
+    this->cx_prime_ = this->sdf->GetValueDouble("CxPrime");
 
-  if (!_sdf->HasElement("Cx"))
+  if (!this->sdf->HasElement("Cx"))
   {
     ROS_INFO("Camera plugin missing <Cx>, defaults to 0");
     this->cx_= 0;
   }
   else
-    this->cx_ = _sdf->GetElement("Cx")->GetValueDouble();
+    this->cx_ = this->sdf->GetValueDouble("Cx");
 
-  if (!_sdf->HasElement("Cy"))
+  if (!this->sdf->HasElement("Cy"))
   {
     ROS_INFO("Camera plugin missing <Cy>, defaults to 0");
     this->cy_= 0;
   }
   else
-    this->cy_ = _sdf->GetElement("Cy")->GetValueDouble();
+    this->cy_ = this->sdf->GetValueDouble("Cy");
 
-  if (!_sdf->HasElement("focalLength"))
+  if (!this->sdf->HasElement("focalLength"))
   {
     ROS_INFO("Camera plugin missing <focalLength>, defaults to 0");
     this->focal_length_= 0;
   }
   else
-    this->focal_length_ = _sdf->GetElement("focalLength")->GetValueDouble();
+    this->focal_length_ = this->sdf->GetValueDouble("focalLength");
 
-  if (!_sdf->HasElement("hackBaseline"))
+  if (!this->sdf->HasElement("hackBaseline"))
   {
     ROS_INFO("Camera plugin missing <hackBaseline>, defaults to 0");
     this->hack_baseline_= 0;
   }
   else
-    this->hack_baseline_ = _sdf->GetElement("hackBaseline")->GetValueDouble();
+    this->hack_baseline_ = this->sdf->GetValueDouble("hackBaseline");
 
-  if (!_sdf->HasElement("distortionK1"))
+  if (!this->sdf->HasElement("distortionK1"))
   {
     ROS_INFO("Camera plugin missing <distortionK1>, defaults to 0");
     this->distortion_k1_= 0;
   }
   else
-    this->distortion_k1_ = _sdf->GetElement("distortionK1")->GetValueDouble();
+    this->distortion_k1_ = this->sdf->GetValueDouble("distortionK1");
 
-  if (!_sdf->HasElement("distortionK2"))
+  if (!this->sdf->HasElement("distortionK2"))
   {
     ROS_INFO("Camera plugin missing <distortionK2>, defaults to 0");
     this->distortion_k2_= 0;
   }
   else
-    this->distortion_k2_ = _sdf->GetElement("distortionK2")->GetValueDouble();
+    this->distortion_k2_ = this->sdf->GetValueDouble("distortionK2");
 
-  if (!_sdf->HasElement("distortionK3"))
+  if (!this->sdf->HasElement("distortionK3"))
   {
     ROS_INFO("Camera plugin missing <distortionK3>, defaults to 0");
     this->distortion_k3_= 0;
   }
   else
-    this->distortion_k3_ = _sdf->GetElement("distortionK3")->GetValueDouble();
+    this->distortion_k3_ = this->sdf->GetValueDouble("distortionK3");
 
-  if (!_sdf->HasElement("distortionT1"))
+  if (!this->sdf->HasElement("distortionT1"))
   {
     ROS_INFO("Camera plugin missing <distortionT1>, defaults to 0");
     this->distortion_t1_= 0;
   }
   else
-    this->distortion_t1_ = _sdf->GetElement("distortionT1")->GetValueDouble();
+    this->distortion_t1_ = this->sdf->GetValueDouble("distortionT1");
 
-  if (!_sdf->HasElement("distortionT2"))
+  if (!this->sdf->HasElement("distortionT2"))
   {
     ROS_INFO("Camera plugin missing <distortionT2>, defaults to 0");
     this->distortion_t2_= 0;
   }
   else
-    this->distortion_t2_ = _sdf->GetElement("distortionT2")->GetValueDouble();
+    this->distortion_t2_ = this->sdf->GetValueDouble("distortionT2");
 
   if ((this->distortion_k1_ != 0.0) || (this->distortion_k2_ != 0.0) ||
       (this->distortion_k3_ != 0.0) || (this->distortion_t1_ != 0.0) ||
@@ -222,12 +228,13 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
     ROS_WARN("gazebo_ros_camera_ simulation does not support non-zero distortion parameters right now, your simulation maybe wrong.");
   }
 
-  // Init ROS
+  // Exit if no ROS
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_+"/"+this->camera_name_);
@@ -258,13 +265,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
     boost::bind( &GazeboRosCameraUtils::ImageDisconnect,this),
     ros::VoidPtr(), &this->camera_queue_);
 
-  ros::AdvertiseOptions camera_info_ao =
-    ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
-        this->camera_info_topic_name_,1,
-        boost::bind( &GazeboRosCameraUtils::InfoConnect,this),
-        boost::bind( &GazeboRosCameraUtils::InfoDisconnect,this),
-        ros::VoidPtr(), &this->camera_queue_);
-  this->camera_info_pub_ = this->rosnode_->advertise(camera_info_ao);
+  this->camera_info_pub_ = this->rosnode_->advertise<sensor_msgs::CameraInfo>(this->camera_info_topic_name_,1);
 
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -281,23 +282,6 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
 
   this->Init();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Increment count
-void GazeboRosCameraUtils::InfoConnect()
-{
-  this->info_connect_count_++;
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->infoConnectCount = this->info_connect_count_;
-}
-////////////////////////////////////////////////////////////////////////////////
-// Decrement count
-void GazeboRosCameraUtils::InfoDisconnect()
-{
-  this->info_connect_count_--;
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->infoConnectCount = this->info_connect_count_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,7 +304,6 @@ void GazeboRosCameraUtils::ImageConnect()
 {
   this->image_connect_count_++;
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->imageConnectCount = this->image_connect_count_;
   this->parentSensor_->SetActive(true);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -329,7 +312,6 @@ void GazeboRosCameraUtils::ImageDisconnect()
 {
   this->image_connect_count_--;
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-  this->imageConnectCount = this->image_connect_count_;
   if (this->image_connect_count_ <= 0)
     this->parentSensor_->SetActive(false);
 }
@@ -474,7 +456,7 @@ void GazeboRosCameraUtils::PublishCameraInfo(common::Time &last_update_time)
 
 void GazeboRosCameraUtils::PublishCameraInfo()
 {
-  if (this->info_connect_count_ > 0)
+  if (this->camera_info_pub_.getNumSubscribers() > 0)
   {
     this->sensor_update_time_ = this->parentSensor_->GetLastUpdateTime();
     common::Time cur_time = this->world_->GetSimTime();

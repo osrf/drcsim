@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -114,7 +113,6 @@ namespace gazebo
     protected: void PublishCameraInfo(common::Time &last_update_time);
     protected: void PublishCameraInfo();
     /// \brief Keep track of number of connctions for CameraInfo
-    protected: int info_connect_count_;
     private: void InfoConnect();
     private: void InfoDisconnect();
     /// \brief camera info
@@ -179,9 +177,12 @@ namespace gazebo
     protected: common::Time sensor_update_time_;
 
     // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
-    protected: int imageConnectCount;
-    protected: int infoConnectCount;
     protected: physics::WorldPtr world;
+
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: void LoadThread();
+    private: boost::thread deferred_load_thread_;
   };
 
 }
