@@ -235,12 +235,13 @@ void GazeboRosCameraUtils::LoadThread()
     ROS_WARN("gazebo_ros_camera_ simulation does not support non-zero distortion parameters right now, your simulation maybe wrong.");
   }
 
-  // Init ROS
+  // Exit if no ROS
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_+"/"+this->camera_name_);

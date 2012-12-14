@@ -75,15 +75,6 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   // save pointers
   this->sdf = _sdf;
 
-  // ros callback queue for processing subscription
-  this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosLaser::LoadThread,this ) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Load the controller
-void GazeboRosLaser::LoadThread()
-{
   this->last_update_time_ = common::Time(0);
 
   this->parent_ray_sensor_ = boost::shared_dynamic_cast<sensors::RaySensor>(this->parent_sensor_);
@@ -151,13 +142,25 @@ void GazeboRosLaser::LoadThread()
   this->laser_connect_count_ = 0;
 
   // Init ROS
-  if (!ros::isInitialized())
+  if (ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    // ros callback queue for processing subscription
+    this->deferred_load_thread_ = boost::thread(
+      boost::bind( &GazeboRosLaser::LoadThread,this ) );
+  }
+  else
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
   }
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosLaser::LoadThread()
+{
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // resolve tf prefix

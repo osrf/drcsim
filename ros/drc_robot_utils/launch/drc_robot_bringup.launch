@@ -3,7 +3,7 @@
   <param name="/use_sim_time" type="bool" value="true"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
+  <param name="robot_description" textfile="$(find drc_robot)/model.urdf"/>
 
   <!-- Controller Manager -->
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />
