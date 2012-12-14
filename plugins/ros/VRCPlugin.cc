@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -71,10 +70,10 @@ void VRCPlugin::LoadThread()
   // initialize ros
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc,argv,"gazebo",
-      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   // ros stuff

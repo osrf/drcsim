@@ -4,8 +4,8 @@
      drc_robot_utils
 
   </description>
-  <author>John</author>
-  <license>BSD</license>
+  <author>John Hsu</author>
+  <license>Apache 2.0</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/drc_robot_utils</url>
   <depend package="robot_state_publisher"/>

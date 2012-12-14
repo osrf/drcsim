@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +25,12 @@
  */
 #ifndef GAZEBO_DRC_VEHICLE_PLUGIN_HH
 #define GAZEBO_DRC_VEHICLE_PLUGIN_HH
+
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
+#include <ros/subscribe_options.h>
+#include <std_msgs/Float64.h>
 
 #include <boost/thread.hpp>
 
@@ -54,6 +59,9 @@ namespace gazebo
     /// \brief Update the controller.
     private: void UpdateStates();
 
+    /// \brief Publish the steering and pedal states on ROS topics.
+    private: void RosPublishStates();
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
@@ -61,6 +69,9 @@ namespace gazebo
 
     /// Pointer to the update event connection.
     private: event::ConnectionPtr update_connection_;
+
+    /// Pointer to the publish event connection.
+    private: event::ConnectionPtr ros_publish_connection_;
 
     /// \brief Sets DRC Vehicle control inputs, the vehicle internal model 
     ///        will decide the overall motion of the vehicle.
@@ -75,6 +86,11 @@ namespace gazebo
     ///        wheel steering angle.
     /// \param[in] _position Steering wheel angle in radians.
     public: void SetHandWheelState(double _position);
+
+    /// \brief Set the steering wheel angle; this will also update the front
+    ///        wheel steering angle.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetHandWheelState(const std_msgs::Float64::ConstPtr &_msg);
 
     /// \brief Sets the lower and upper limits of the steering wheel angle.
     /// \param[in] _min Lower limit of steering wheel angle (radians).
@@ -127,26 +143,49 @@ namespace gazebo
     /// \param[in] _position Desired gas pedal position in meters.
     public: void SetGasPedalState(double _position);
 
-    /// Sets gas pedal position limits in meters.
+    /// \brief Specify gas pedal position in meters.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg);
+
+    /// \brief Specify gas pedal position limits in meters.
+    /// \param[in] _min Lower limit of gas pedal position (meters).
+    /// \param[in] _max Upper limit of gas pedal position (meters).
     public: void SetGasPedalLimits(double _min, double _max);
 
-    /// Returns gas pedal position limits in meters.
+    /// \brief Returns gas pedal position limits in meters.
+    /// \param[out] _min Lower limit of gas pedal position (meters).
+    /// \param[out] _max Upper limit of gas pedal position (meters).
     public: void GetGasPedalLimits(double &_min, double &_max);
 
-    /// Returns the gas pedal position in meters.
+    /// \brief Returns the gas pedal position in meters.
     public: double GetGasPedalState();
 
-    /// Specify gas pedal position in meters.
+    /// \brief Specify brake pedal position in meters.
+    /// \param[in] _position Desired brake pedal position in meters.
     public: void SetBrakePedalState(double _position);
 
-    /// Sets gas pedal position limits in meters.
+    /// \brief Specify brake pedal position in meters.
+    /// \param[in] _msg ROS std_msgs::Float64 message.
+    public: void SetBrakePedalState(const std_msgs::Float64::ConstPtr &_msg);
+
+    /// \brief Sets brake pedal position limits in meters.
+    /// \param[in] _min Lower limit of brake pedal position (meters).
+    /// \param[in] _max Upper limit of brake pedal position (meters).
     public: void SetBrakePedalLimits(double _min, double _max);
 
-    /// Returns gas pedal position limits in meters.
+    /// \brief Returns brake pedal position limits in meters.
+    /// \param[out] _min Lower limit of brake pedal position (meters).
+    /// \param[out] _max Upper limit of brake pedal position (meters).
     public: void GetBrakePedalLimits(double &_min, double &_max);
 
-    /// Returns the gas pedal position in meters.
+    /// \brief Returns the brake pedal position in meters.
     public: double GetBrakePedalState();
+
+    /// Returns the ROS publish period (seconds).
+    public: common::Time GetRosPublishPeriod();
+
+    /// Set the ROS publish frequency (Hz).
+    public: void SetRosPublishRate(double _hz);
 
     /// Default plugin init call.
     public: void Init();
@@ -224,6 +263,20 @@ namespace gazebo
     private: double frWheelState;
     private: double blWheelState;
     private: double brWheelState;
+
+    // ros stuff
+    private: ros::NodeHandle* rosnode_;
+    private: ros::CallbackQueue queue_;
+    private: void QueueThread();
+    private: boost::thread callback_queue_thread_;
+    private: ros::Publisher brake_pedal_state_pub_;
+    private: ros::Publisher gas_pedal_state_pub_;
+    private: ros::Publisher hand_wheel_state_pub_;
+    private: ros::Subscriber brake_pedal_cmd_sub_;
+    private: ros::Subscriber gas_pedal_cmd_sub_;
+    private: ros::Subscriber hand_wheel_cmd_sub_;
+    private: common::Time rosPublishPeriod;
+    private: common::Time lastRosPublishTime;
   };
 /** \} */
 /// @}
