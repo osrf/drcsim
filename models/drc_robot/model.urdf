@@ -1137,7 +1137,8 @@
     </sensor>
   </gazebo>
   <joint name="left_camera_frame_joint" type="fixed">
-    <origin xyz="0.01125 0.035 -0.002"/>
+    <!-- optical frame collocated with tilting DOF -->
+    <origin xyz="0.0 0.035 -0.002"/>
     <parent link="head"/>
     <child link="left_camera_frame"/>
   </joint>
@@ -1161,6 +1162,7 @@
       <camera>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
           <width>2048</width>
@@ -1190,7 +1192,7 @@
     </sensor>
   </gazebo>
   <joint name="right_camera_frame_joint" type="fixed">
-    <origin xyz="0.01125 -0.035 -0.002"/>
+    <origin xyz="0.0 -0.035 -0.002"/>
     <parent link="head"/>
     <child link="right_camera_frame"/>
   </joint>
@@ -1214,6 +1216,7 @@
       <camera>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
           <width>2048</width>
