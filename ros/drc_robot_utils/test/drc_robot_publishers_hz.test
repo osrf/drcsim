@@ -37,118 +37,6 @@
     <param name="test_duration" value="10.0"/>
   </test>
 
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_camera_info">
-    <param name="hz" value="25.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/camera_info"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_color">
-    <param name="hz" value="18.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_color"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_color_compressed">
-    <param name="hz" value="18.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_color/compressed"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_color_theora">
-    <param name="hz" value="10.0"/>
-    <param name="hzerror" value="3.0"/>
-    <param name="topic" value="/multisense_sl/left/image_color/theora"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_mono">
-    <param name="hz" value="20.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_mono"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_mono_compressed">
-    <param name="hz" value="20.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_mono/compressed"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_mono_theora">
-    <param name="hz" value="10.0"/>
-    <param name="hzerror" value="3.0"/>
-    <param name="topic" value="/multisense_sl/left/image_mono/theora"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_raw">
-    <param name="hz" value="20.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_raw"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_raw_compressed">
-    <param name="hz" value="20.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_raw/compressed"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_raw_theora">
-    <param name="hz" value="10.0"/>
-    <param name="hzerror" value="3.0"/>
-    <param name="topic" value="/multisense_sl/left/image_raw/theora"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect">
-    <param name="hz" value="20.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_rect"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_compressed">
-    <param name="hz" value="18.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_rect/compressed"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_theora">
-    <param name="hz" value="10.0"/>
-    <param name="hzerror" value="3.0"/>
-    <param name="topic" value="/multisense_sl/left/image_rect/theora"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_color">
-    <param name="hz" value="18.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_rect_color"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_color_compressed">
-    <param name="hz" value="17.0"/>
-    <param name="hzerror" value="5.0"/>
-    <param name="topic" value="/multisense_sl/left/image_rect_color/compressed"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
-  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_color_theora">
-    <param name="hz" value="10.0"/>
-    <param name="hzerror" value="3.0"/>
-    <param name="topic" value="/multisense_sl/left/image_rect_color/theora"/>
-    <param name="test_duration" value="10.0"/>
-  </test>
-
   <test pkg="rostest" type="hztest" test-name="multisense_sl_points">
     <param name="hz" value="5.0"/>
     <param name="hzerror" value="4.75"/>
@@ -163,22 +51,135 @@
     <param name="test_duration" value="10.0"/>
   </test>
 
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_camera_info">
+    <param name="hz" value="15.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_color">
+    <param name="hz" value="12.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_color"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_color_compressed">
+    <param name="hz" value="12.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_color/compressed"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_color_theora">
+    <param name="hz" value="10.0"/>
+    <param name="hzerror" value="3.0"/>
+    <param name="topic" value="/multisense_sl/left/image_color/theora"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_mono">
+    <param name="hz" value="12.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_mono"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_mono_compressed">
+    <param name="hz" value="13.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_mono/compressed"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_mono_theora">
+    <param name="hz" value="10.0"/>
+    <param name="hzerror" value="3.0"/>
+    <param name="topic" value="/multisense_sl/left/image_mono/theora"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_raw">
+    <param name="hz" value="15.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_raw_compressed">
+    <param name="hz" value="15.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_raw/compressed"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_raw_theora">
+    <param name="hz" value="10.0"/>
+    <param name="hzerror" value="3.0"/>
+    <param name="topic" value="/multisense_sl/left/image_raw/theora"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect">
+    <param name="hz" value="15.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_rect"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_compressed">
+    <param name="hz" value="12.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_rect/compressed"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_theora">
+    <param name="hz" value="10.0"/>
+    <param name="hzerror" value="3.0"/>
+    <param name="topic" value="/multisense_sl/left/image_rect/theora"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_color">
+    <param name="hz" value="12.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_rect_color"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_color_compressed">
+    <param name="hz" value="12.0"/>
+    <param name="hzerror" value="5.0"/>
+    <param name="topic" value="/multisense_sl/left/image_rect_color/compressed"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" type="hztest" test-name="multisense_sl_left_image_rect_color_theora">
+    <param name="hz" value="10.0"/>
+    <param name="hzerror" value="3.0"/>
+    <param name="topic" value="/multisense_sl/left/image_rect_color/theora"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_camera_info">
-    <param name="hz" value="25.0"/>
+    <param name="hz" value="15.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/camera_info"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_color">
-    <param name="hz" value="18.0"/>
+    <param name="hz" value="12.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_color"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_color_compressed">
-    <param name="hz" value="18.0"/>
+    <param name="hz" value="12.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_color/compressed"/>
     <param name="test_duration" value="10.0"/>
@@ -192,14 +193,14 @@
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_mono">
-    <param name="hz" value="20.0"/>
+    <param name="hz" value="12.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_mono"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_mono_compressed">
-    <param name="hz" value="20.0"/>
+    <param name="hz" value="13.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_mono/compressed"/>
     <param name="test_duration" value="10.0"/>
@@ -213,14 +214,14 @@
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_raw">
-    <param name="hz" value="20.0"/>
+    <param name="hz" value="15.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_raw"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_raw_compressed">
-    <param name="hz" value="20.0"/>
+    <param name="hz" value="15.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_raw/compressed"/>
     <param name="test_duration" value="10.0"/>
@@ -234,14 +235,14 @@
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_rect">
-    <param name="hz" value="20.0"/>
+    <param name="hz" value="15.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_rect"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_rect_compressed">
-    <param name="hz" value="18.0"/>
+    <param name="hz" value="12.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_rect/compressed"/>
     <param name="test_duration" value="10.0"/>
@@ -255,14 +256,14 @@
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_rect_color">
-    <param name="hz" value="18.0"/>
+    <param name="hz" value="12.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_rect_color"/>
     <param name="test_duration" value="10.0"/>
   </test>
 
   <test pkg="rostest" type="hztest" test-name="multisense_sl_right_image_rect_color_compressed">
-    <param name="hz" value="17.0"/>
+    <param name="hz" value="12.0"/>
     <param name="hzerror" value="5.0"/>
     <param name="topic" value="/multisense_sl/right/image_rect_color/compressed"/>
     <param name="test_duration" value="10.0"/>
