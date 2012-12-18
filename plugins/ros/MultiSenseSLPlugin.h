@@ -150,6 +150,8 @@ namespace gazebo
 
     // spindle control
     private: double spindleSpeed;
+    private: double spindleMaxRPM;
+    private: double spindleMinRPM;
     private: bool spindleOn;
     private: physics::LinkPtr spindleLink;
     private: physics::JointPtr spindleJoint;
