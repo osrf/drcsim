@@ -55,7 +55,7 @@
          <pin_link>utorso</pin_link>
       </drc_robot>
       <drc_vehicle>
-        <model_name>Golf Cart</model_name>
+        <model_name>golf_cart</model_name>
         <seat_link>chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>

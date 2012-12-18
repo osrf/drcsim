@@ -367,7 +367,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
   }
   ROS_INFO("set configuration done");
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.17),
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
                                               math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
