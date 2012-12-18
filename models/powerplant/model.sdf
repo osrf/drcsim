@@ -166,7 +166,7 @@
         </geometry>
       </visual>
       <collision name="door_collision">
-        <pose>0.4575 0 0.025 0 0 0</pose>
+        <pose>-0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
             <size>0.915 .07 1.9</size>
