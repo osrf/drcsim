@@ -32,6 +32,7 @@
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Int8.h>
 
 #include <boost/thread.hpp>
 
@@ -121,6 +122,11 @@ namespace gazebo
     /// \brief Sets the key switch to OFF.
     public: void SetKeyOff();
 
+    /// \brief Sets the state of the key switch.
+    /// \param[in] _msg Desired key state as Int8 message.
+    ///            Use 0 for OFF, 1 for ON.
+    public: void SetKeyState(const std_msgs::Int8::ConstPtr &_msg);
+
     /// \brief Returns the state of the direction switch.
     /// \return Current direction state.
     public: DirectionType GetDirectionState();
@@ -128,6 +134,11 @@ namespace gazebo
     /// \brief Sets the state of the direction switch.
     /// \param[in] _direction Desired direction state.
     public: void SetDirectionState(DirectionType _direction);
+
+    /// \brief Sets the state of the direction switch.
+    /// \param[in] _msg Desired direction state as Int8 message.
+    ///            Use -1 for REVERSE, 0 for NEUTRAL, 1 for FORWARD.
+    public: void SetDirectionState(const std_msgs::Int8::ConstPtr &_msg);
 
     /// \brief Set the steering wheel angle; this will also update the front
     ///        wheel steering angle.
@@ -367,10 +378,14 @@ namespace gazebo
     private: ros::Publisher gas_pedal_state_pub_;
     private: ros::Publisher hand_wheel_state_pub_;
     private: ros::Publisher hand_brake_state_pub_;
+    private: ros::Publisher key_state_pub_;
+    private: ros::Publisher direction_state_pub_;
     private: ros::Subscriber brake_pedal_cmd_sub_;
     private: ros::Subscriber gas_pedal_cmd_sub_;
     private: ros::Subscriber hand_wheel_cmd_sub_;
     private: ros::Subscriber hand_brake_cmd_sub_;
+    private: ros::Subscriber key_cmd_sub_;
+    private: ros::Subscriber direction_cmd_sub_;
     private: common::Time rosPublishPeriod;
     private: common::Time lastRosPublishTime;
   };

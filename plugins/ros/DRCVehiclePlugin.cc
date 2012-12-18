@@ -137,6 +137,32 @@ void DRCVehiclePlugin::SetKeyOn()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetKeyState(const std_msgs::Int8::ConstPtr &_msg)
+{
+  if (_msg->data == 0)
+    this->SetKeyOff();
+  else if (_msg->data == 1)
+    this->SetKeyOn();
+  else
+    gzerr << "Invalid Key State: " << static_cast<int16_t>(_msg->data)
+          << ", expected 0 or 1\n";
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg)
+{
+  if (_msg->data == 0)
+    this->SetDirectionState(NEUTRAL);
+  else if (_msg->data == 1)
+    this->SetDirectionState(FORWARD);
+  else if (_msg->data == -1)
+    this->SetDirectionState(REVERSE);
+  else
+    gzerr << "Invalid Direction State: " << static_cast<int16_t>(_msg->data)
+          << ", expected -1, 0, or 1\n";
+}
+
+////////////////////////////////////////////////////////////////////////////////
 double DRCVehiclePlugin::GetGasTorqueMultiplier()
 {
   if (this->keyState == ON)
@@ -544,6 +570,24 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     ros::VoidPtr(), &this->queue_);
   this->brake_pedal_cmd_sub_ = this->rosnode_->subscribe(brake_pedal_cmd_so);
 
+  ros::SubscribeOptions key_cmd_so =
+    ros::SubscribeOptions::create<std_msgs::Int8>(
+    this->model->GetName() + "/key/cmd", 100,
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Int8::ConstPtr&)>(
+        &DRCVehiclePlugin::SetKeyState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->key_cmd_sub_ = this->rosnode_->subscribe(key_cmd_so);
+
+  ros::SubscribeOptions direction_cmd_so =
+    ros::SubscribeOptions::create<std_msgs::Int8>(
+    this->model->GetName() + "/direction/cmd", 100,
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Int8::ConstPtr&)>(
+        &DRCVehiclePlugin::SetDirectionState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->direction_cmd_sub_ = this->rosnode_->subscribe(direction_cmd_so);
+
   this->hand_wheel_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
     this->model->GetName() + "/hand_wheel/state",10);
   this->hand_brake_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
@@ -552,6 +596,10 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     this->model->GetName() + "/gas_pedal/state",10);
   this->brake_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
     this->model->GetName() + "/brake_pedal/state",10);
+  this->key_state_pub_ = this->rosnode_->advertise<std_msgs::Int8>(
+    this->model->GetName() + "/key/state",10);
+  this->direction_state_pub_ = this->rosnode_->advertise<std_msgs::Int8>(
+    this->model->GetName() + "/direction/state",10);
 
   // ros callback queue for processing subscription
   this->callback_queue_thread_ = boost::thread(
@@ -719,7 +767,7 @@ void DRCVehiclePlugin::RosPublishStates()
   {
     // Update time
     this->lastRosPublishTime = this->world->GetSimTime();
-    // Publish messages
+    // Publish Float64 messages
     std_msgs::Float64 msg_steer, msg_brake, msg_gas, msg_hand_brake;
     msg_steer.data = GetHandWheelState();
     this->hand_wheel_state_pub_.publish(msg_steer);
@@ -729,6 +777,12 @@ void DRCVehiclePlugin::RosPublishStates()
     this->gas_pedal_state_pub_.publish(msg_gas);
     msg_hand_brake.data = GetHandBrakeState();
     this->hand_brake_state_pub_.publish(msg_hand_brake);
+    // Publish Int8
+    std_msgs::Int8 msg_key, msg_direction;
+    msg_key.data = static_cast<int8_t>(GetKeyState());
+    this->key_state_pub_.publish(msg_key);
+    msg_direction.data = static_cast<int8_t>(GetDirectionState());
+    this->direction_state_pub_.publish(msg_direction);
   }
 }
 

@@ -709,8 +709,8 @@
       <hand_brake>hand_brake_joint</hand_brake>
       <front_torque>0</front_torque>
       <back_torque>2000</back_torque>
-      <front_brake_torque>1000</front_brake_torque>
-      <back_brake_torque>1000</back_brake_torque>
+      <front_brake_torque>2000</front_brake_torque>
+      <back_brake_torque>2000</back_brake_torque>
       <tire_angle_range>0.5</tire_angle_range>
       <max_speed>10</max_speed>
       <aero_load>0.1</aero_load>
