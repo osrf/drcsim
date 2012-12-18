@@ -43,7 +43,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->gasPedalCmd = 0;
   this->brakePedalCmd = 0;
   this->handWheelCmd = 0;
-  this->handBrakeCmd = 0;
+  this->handBrakeCmd = 1;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
   this->blWheelCmd = 0;
@@ -59,6 +59,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->brWheelRadius = 0.1;
   this->pedalForce = 10;
   this->handWheelForce = 1;
+  this->handBrakeForce = 10;
   this->steeredWheelForce = 200;
 
   this->rosPublishPeriod = common::Time(1.0);
@@ -133,6 +134,55 @@ void DRCVehiclePlugin::SetKeyOn()
     this->keyState = ON;
   else
     this->keyState = ON_FR;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetGasTorqueMultiplier()
+{
+  if (this->keyState == ON)
+  {
+    if (this->directionState == FORWARD)
+      return 1.0;
+    else if (this->directionState == REVERSE)
+      return -1.0;
+  }
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetHandBrakeState(double _position)
+{
+  this->handBrakeCmd = _position;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetHandBrakeState(const std_msgs::Float64::ConstPtr
+    &_msg)
+{
+  this->handBrakeCmd = (double)_msg->data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::SetHandBrakeLimits(double &_min, double &_max)
+{
+  this->handBrakeJoint->SetHighStop(0, _max);
+  this->handBrakeJoint->SetLowStop(0, _min);
+  this->handBrakeHigh  = this->handBrakeJoint->GetHighStop(0).Radian();
+  this->handBrakeLow   = this->handBrakeJoint->GetLowStop(0).Radian();
+  this->handBrakeRange   = this->handBrakeHigh - this->handBrakeLow;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::GetHandBrakeLimits(double &_min, double &_max)
+{
+  _max = this->handBrakeJoint->GetHighStop(0).Radian();
+  _min = this->handBrakeJoint->GetLowStop(0).Radian();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetHandBrakeState()
+{
+  return this->handBrakeState;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,6 +313,30 @@ double DRCVehiclePlugin::GetGasPedalState()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetGasPedalPercent()
+{
+  double min, max;
+  this->GetGasPedalLimits(min, max);
+  return (this->gasPedalState - min) / (max-min);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetBrakePedalPercent()
+{
+  double min, max;
+  this->GetBrakePedalLimits(min, max);
+  return (this->brakePedalState - min) / (max-min);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double DRCVehiclePlugin::GetHandBrakePercent()
+{
+  double min, max;
+  this->GetHandBrakeLimits(min, max);
+  return (this->handBrakeState - min) / (max-min);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetBrakePedalState(double _position)
 {
   this->brakePedalCmd = _position;
@@ -314,7 +388,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("~");
+  this->rosnode_ = new ros::NodeHandle("");
 
   // Get the world name.
   this->world = _parent->GetWorld();
@@ -332,6 +406,10 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   std::string handWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("steering_wheel");
   this->handWheelJoint = this->model->GetJoint(handWheelJointName);
+
+  std::string handBrakeJointName = this->model->GetName() + "::"
+    + _sdf->GetValueString("hand_brake");
+  this->handBrakeJoint = this->model->GetJoint(handBrakeJointName);
 
   std::string flWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("front_left_wheel");
@@ -417,12 +495,14 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   // initialize controllers for car
   /// \TODO: move PID parameters into SDF
-  this->gasPedalPID.Init(200, 1, 3, 10, -10,
+  this->gasPedalPID.Init(200, 0, 3, 10, -10,
                          this->pedalForce, -this->pedalForce);
-  this->brakePedalPID.Init(200, 1, 3, 10, -10,
+  this->brakePedalPID.Init(200, 0, 3, 10, -10,
                          this->pedalForce, -this->pedalForce);
-  this->handWheelPID.Init(30, 0.1, 3.0, 5.0, -5.0,
+  this->handWheelPID.Init(30, 0, 3.0, 5.0, -5.0,
                          this->handWheelForce, -this->handWheelForce);
+  this->handBrakePID.Init(30, 0, 3.0, 5.0, -5.0,
+                         this->handBrakeForce, -this->handBrakeForce);
   this->flWheelSteeringPID.Init(500, 1, 10, 50, -50,
                          this->steeredWheelForce, -this->steeredWheelForce);
   this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
@@ -436,6 +516,15 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
         &DRCVehiclePlugin::SetHandWheelState),this,_1),
     ros::VoidPtr(), &this->queue_);
   this->hand_wheel_cmd_sub_ = this->rosnode_->subscribe(hand_wheel_cmd_so);
+
+  ros::SubscribeOptions hand_brake_cmd_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    this->model->GetName() + "/hand_brake/cmd", 100,
+    boost::bind( static_cast<void (DRCVehiclePlugin::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &DRCVehiclePlugin::SetHandBrakeState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->hand_brake_cmd_sub_ = this->rosnode_->subscribe(hand_brake_cmd_so);
 
   ros::SubscribeOptions gas_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -457,6 +546,8 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   this->hand_wheel_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
     this->model->GetName() + "/hand_wheel/state",10);
+  this->hand_brake_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
+    this->model->GetName() + "/hand_brake/state",10);
   this->gas_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
     this->model->GetName() + "/gas_pedal/state",10);
   this->brake_pedal_state_pub_ = this->rosnode_->advertise<std_msgs::Float64>(
@@ -505,6 +596,11 @@ void DRCVehiclePlugin::UpdateStates()
     double steerCmd = this->handWheelPID.Update(steerError, dt);
     this->handWheelJoint->SetForce(0, steerCmd);
 
+    // PID (position) hand brake
+    double handBrakeError = this->handBrakeState - this->handBrakeCmd;
+    double handBrakeCmd = this->handBrakePID.Update(handBrakeError, dt);
+    this->handBrakeJoint->SetForce(0, handBrakeCmd);
+
     // PID (position) gas pedal
     double gasError = this->gasPedalState - this->gasPedalCmd;
     double gasCmd = this->gasPedalPID.Update(gasError, dt);
@@ -534,35 +630,49 @@ void DRCVehiclePlugin::UpdateStates()
     double frwsCmd = this->frWheelSteeringPID.Update(frwsError, dt);
     this->frWheelSteeringJoint->SetForce(0, frwsCmd);
 
-    // PID (wheel torque) front wheels based on gas position and velocity
-    double frontTorqueCmd;
-    if (abs(this->blWheelState * this->wheelRadius * 2.0) > this->maxSpeed)
-      frontTorqueCmd = 0;
-    else
-      frontTorqueCmd = this->frontTorque *
-                       (this->gasPedalState / this->gasPedalRange);
+    // Let SDF parameters specify front/rear/all-wheel drive.
 
-    this->flWheelJoint->SetForce(0, frontTorqueCmd);
-    this->frWheelJoint->SetForce(0, frontTorqueCmd);
+    // Gas pedal torque.
+    // Map gas torques to individual wheels.
+    // Cut off gas torque at a given wheel if max speed is exceeded.
+    // Use directionState to determine direction of applied torque.
+    // Note that definition of DirectionType allows multiplication to determine
+    // torque direction.
+    double gasPercent = this->GetGasPedalPercent();
+    double gasMultiplier = this->GetGasTorqueMultiplier();
+    double flGasTorque=0, frGasTorque=0, blGasTorque=0, brGasTorque=0;
+    // Apply equal torque at left and right wheels, which is an implicit model
+    // of the differential.
+    if (abs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
+      flGasTorque = gasPercent*this->frontTorque * gasMultiplier;
+    if (abs(this->frWheelState * this->frWheelRadius) < this->maxSpeed)
+      frGasTorque = gasPercent*this->frontTorque * gasMultiplier;
+    if (abs(this->blWheelState * this->blWheelRadius) < this->maxSpeed)
+      blGasTorque = gasPercent*this->backTorque * gasMultiplier;
+    if (abs(this->brWheelState * this->brWheelRadius) < this->maxSpeed)
+      brGasTorque = gasPercent*this->backTorque * gasMultiplier;
 
-    // PID (wheel torque) back wheels based on brake position and velocity
-    double backTorqueCmd;
-    double vel = this->blWheelState * this->wheelRadius * 2.0;
-    if (abs(vel) > this->maxSpeed)
-    {
-      backTorqueCmd = 0;
-    }
-    else
-    {
-      backTorqueCmd = this->backTorque *
-                       (this->gasPedalState / this->gasPedalRange);
-    }
-    /// apply brake
-    backTorqueCmd -= copysign(this->backBrakeTorque *
-              (this->brakePedalState / this->brakePedalRange), vel);
+    // Brake pedal, hand-brake torque.
+    // Compute percents and add together, saturating at 100%
+    double brakePercent = this->GetBrakePedalPercent()
+      + this->GetHandBrakePercent();
+    if (brakePercent > 1) brakePercent = 1;
+    // Map brake torques to individual wheels.
+    // Apply brake torque in opposition to wheel spin direction.
+    double flBrakeTorque, frBrakeTorque, blBrakeTorque, brBrakeTorque;
+    flBrakeTorque = -copysign(brakePercent*this->frontBrakeTorque,
+      this->flWheelState);
+    frBrakeTorque = -copysign(brakePercent*this->frontBrakeTorque,
+      this->frWheelState);
+    blBrakeTorque = -copysign(brakePercent*this->backBrakeTorque,
+      this->blWheelState);
+    brBrakeTorque = -copysign(brakePercent*this->backBrakeTorque,
+      this->brWheelState);
 
-    this->blWheelJoint->SetForce(0, backTorqueCmd);
-    this->brWheelJoint->SetForce(0, backTorqueCmd);
+    this->flWheelJoint->SetForce(0, flGasTorque + flBrakeTorque);
+    this->frWheelJoint->SetForce(0, frGasTorque + frBrakeTorque);
+    this->blWheelJoint->SetForce(0, blGasTorque + blBrakeTorque);
+    this->brWheelJoint->SetForce(0, brGasTorque + brBrakeTorque);
 
     // gzerr << "steer [" << this->handWheelState
     //       << "] range [" << this->handWheelRange
@@ -572,7 +682,8 @@ void DRCVehiclePlugin::UpdateStates()
     //       << "] gas [" << gasCmd
     //       << "] brake [" << this->brakePedalState
     //       << "] brake [" << brakeCmd
-    //       << "] torque [" << backTorqueCmd << "]\n";
+    //       << "] bl gas [" << blGasTorque
+    //       << "] bl brake [" << blBrakeTorque << "]\n";
     this->lastTime = curTime;
   }
   else if (dt < 0)
@@ -609,13 +720,15 @@ void DRCVehiclePlugin::RosPublishStates()
     // Update time
     this->lastRosPublishTime = this->world->GetSimTime();
     // Publish messages
-    std_msgs::Float64 msg_steer, msg_brake, msg_gas;
+    std_msgs::Float64 msg_steer, msg_brake, msg_gas, msg_hand_brake;
     msg_steer.data = GetHandWheelState();
     this->hand_wheel_state_pub_.publish(msg_steer);
     msg_brake.data = GetBrakePedalState();
     this->brake_pedal_state_pub_.publish(msg_brake);
     msg_gas.data = GetGasPedalState();
     this->gas_pedal_state_pub_.publish(msg_gas);
+    msg_hand_brake.data = GetHandBrakeState();
+    this->hand_brake_state_pub_.publish(msg_hand_brake);
   }
 }
 
