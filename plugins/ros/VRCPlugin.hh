@@ -494,9 +494,6 @@ namespace gazebo
     // \brief Robot Vehicle Interaction
     public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd);
     public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetGasPedalPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetBrakePedalPose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
     // \brief Cheats to teleport fire hose to hand and make a fixed joint
     public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);

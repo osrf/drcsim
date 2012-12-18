@@ -433,16 +433,6 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
     this->RemoveJoint(this->vehicleRobotJoint);
 }
 
-void VRCPlugin::SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd)
-{
-
-}
-
-void VRCPlugin::SetBrakePedalPose(const geometry_msgs::Pose::ConstPtr &_cmd)
-{
-
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // remove a joint
