@@ -173,6 +173,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "nominal")
   {
     // reinitialize pinning
+    this->warpRobotWithCmdVel = false;
     physics::Link_V links = this->drc_robot.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
