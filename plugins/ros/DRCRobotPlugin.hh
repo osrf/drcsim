@@ -66,9 +66,6 @@ namespace gazebo
 
     /// Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
-    private: int connectionCount;
-    private: void OnStatusConnect();
-    private: void OnStatusDisconnect();
 
     /// Throttle update rate
     private: double lastUpdateTime;
