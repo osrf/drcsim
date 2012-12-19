@@ -219,7 +219,7 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
+void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   /// \todo: get these from incoming message
   std::string modelName = "fire_hose";
@@ -254,7 +254,7 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd)
+void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   this->RemoveJoint(this->grabJoint);
 }
@@ -300,7 +300,7 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
+void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
@@ -396,7 +396,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
+void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
@@ -711,7 +711,7 @@ void VRCPlugin::LoadRobotROSAPI()
 
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-  &_cmd)
+  &/* _cmd */)
 {
   // This function is planned but not yet implemented.
   ROS_ERROR("The /drc_robot/configuration handler is not implemented.\n");

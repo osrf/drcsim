@@ -60,12 +60,15 @@ namespace gazebo
     /// \brief Destructor
     public: virtual ~VRCPlugin();
 
-    /// \brief Load the controller
+    /// \brief Load the plugin.
+    /// \param[in] _parent Pointer to parent world.
+    /// \param[in] _sdf Pointer to sdf element.
     public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
     /// \brief Update the controller
     private: void UpdateStates();
 
+    /// \brief Pointer to parent world.
     private: physics::WorldPtr world;
 
     /// \brief Mutex for VRC Plugin
@@ -89,15 +92,18 @@ namespace gazebo
       /// teleporting the robot.
       public: math::Pose initialPose;
 
-      /// \brief Pose of robot relative to vehicle
+      /// \brief Pose of robot relative to vehicle.
       public: math::Pose vehicleRelPose;
 
-      /// \brief robot configuration when inside of vehicle
+      /// \brief Robot configuration when inside of vehicle.
       public: std::map<std::string, double> inVehicleConfiguration;
 
-      /// flag to keep track of start-up 'harness' on the robot
+      /// \brief Flag to keep track of start-up 'harness' on the robot.
       public: bool startupHarness;
 
+      /// \brief Load the drc_robot portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
       public: ros::Subscriber trajectory_sub_;
@@ -118,6 +124,9 @@ namespace gazebo
       public: math::Pose initialPose;
       public: physics::LinkPtr seatLink;
 
+      /// \brief Load the drc_vehicle portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
     } drc_vehicle;
 
@@ -172,12 +181,12 @@ namespace gazebo
       }
 
       //! Sends the command to start a given trajectory
-      void startTrajectory(control_msgs::FollowJointTrajectoryGoal goal)
+      void startTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
       {
         // When to start the trajectory: 1s from now
-        goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
+        _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-        traj_client_->sendGoal(goal);
+        traj_client_->sendGoal(_goal);
       }
 
       //! Generates a simple trajectory with two waypoints, used as an example
@@ -453,7 +462,7 @@ namespace gazebo
     private: void Teleport(const physics::LinkPtr &_pinLink,
                           physics::JointPtr &_pinJoint,
                           const math::Pose &_pose,
-                          const std::map<std::string, double> &_jointPositions);
+                      const std::map<std::string, double> &/*_jointPositions*/);
 
     /// \brief sets robot's absolute world pose
     private: void Teleport(const physics::LinkPtr &_pinLink,
@@ -480,7 +489,7 @@ namespace gazebo
 
     /// \brief sets robot's joint positions
     public: void SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-                                       &_cmd);
+                                       &/*_cmd*/);
 
     /// \brief sets robot mode via ros topic
     public: void SetRobotModeTopic(const std_msgs::String::ConstPtr &_str);
@@ -490,15 +499,15 @@ namespace gazebo
 
 
     // \brief Robot Vehicle Interaction
-    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
+    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
 
     // \brief Cheats to teleport fire hose to hand and make a fixed joint
     public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
     // \brief create a fixed joint between robot hand link and a nearby link
-    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
+    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
 
 
 
@@ -517,7 +526,8 @@ namespace gazebo
                                         math::Vector3 _axis,
                                         double _upper, double _lower);
 
-    /// \brief Remove a joint
+    /// \brief Remove a joint.
+    /// \param[in] _joint Joint to remove.
     private: void RemoveJoint(physics::JointPtr &_joint);
 
     /// \brief setup Robot ROS publication and sbuscriptions for the Robot

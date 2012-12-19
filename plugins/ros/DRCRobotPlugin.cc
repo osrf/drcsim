@@ -231,8 +231,8 @@ void DRCRobotPlugin::OnLContactUpdate()
     }
     // low pass filter over time
     double e = 0.99;
-    this->lFootForce = e * this->lFootForce + (1.0 - e) * fTotal;
-    this->lFootTorque = e * this->lFootTorque + (1.0 - e) * tTotal;
+    this->lFootForce = this->lFootForce * e + fTotal*(1.0 - e);
+    this->lFootTorque = this->lFootTorque * e + tTotal*(1.0 - e);
 
     geometry_msgs::Wrench msg;
     msg.force.x = this->lFootForce.x;
@@ -289,8 +289,8 @@ void DRCRobotPlugin::OnRContactUpdate()
     }
     // low pass filter over time
     double e = 0.99;
-    this->rFootForce = e * this->rFootForce + (1.0 - e) * fTotal;
-    this->rFootTorque = e * this->rFootTorque + (1.0 - e) * tTotal;
+    this->rFootForce = this->rFootForce * e + fTotal*(1.0 - e);
+    this->rFootTorque = this->rFootTorque * e + tTotal*(1.0 - e);
 
     geometry_msgs::Wrench msg;
     msg.force.x = this->rFootForce.x;
