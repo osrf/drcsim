@@ -392,7 +392,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.5, 1.20),
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
                                               math::Quaternion());
 
   if (this->vehicleRobotJoint)
