@@ -33,6 +33,10 @@ namespace gazebo
 // Constructor
 DRCRobotPlugin::DRCRobotPlugin()
 {
+  this->lFootForce = 0;
+  this->lFootTorque = 0;
+  this->rFootForce = 0;
+  this->rFootTorque = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +60,29 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
   // Get the world name.
   this->world = this->model->GetWorld();
-
   this->sdf = _sdf;
+
+  // Get joints
+  this->rFootJoint = this->model->GetJoint("r_leg_lax");
+  if (!this->rFootJoint)
+    gzerr << "r_foot_joint not found\n";
+
+  this->lFootJoint = this->model->GetJoint("l_leg_lax");
+  if (!this->lFootJoint)
+    gzerr << "l_foot_joint not found\n";
+
+  // Get sensors
+  this->rFootContactSensor =
+    boost::shared_dynamic_cast<sensors::ContactSensor>
+      (sensors::SensorManager::Instance()->GetSensor("r_foot_contact_sensor"));
+  if (!this->rFootContactSensor)
+    gzerr << "r_foot_contact_sensor not found\n" << "\n";
+
+  this->lFootContactSensor =
+    boost::shared_dynamic_cast<sensors::ContactSensor>
+      (sensors::SensorManager::Instance()->GetSensor("l_foot_contact_sensor"));
+  if (!this->lFootContactSensor)
+    gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
@@ -79,11 +104,27 @@ void DRCRobotPlugin::LoadThread()
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("~");
+  this->rosnode_ = new ros::NodeHandle("");
 
   // ros publication / subscription
   this->pub_status_ =
     this->rosnode_->advertise<std_msgs::String>("drc_robot/status", 10);
+
+  this->pub_l_foot_ft_ =
+    this->rosnode_->advertise<geometry_msgs::Wrench>(
+      "drc_robot/l_foot_ft", 10);
+
+  this->pub_r_foot_ft_ =
+    this->rosnode_->advertise<geometry_msgs::Wrench>(
+      "drc_robot/r_foot_ft", 10);
+
+  this->pub_l_foot_contact_ =
+    this->rosnode_->advertise<geometry_msgs::Wrench>(
+      "drc_robot/l_foot_contact", 10);
+
+  this->pub_r_foot_contact_ =
+    this->rosnode_->advertise<geometry_msgs::Wrench>(
+      "drc_robot/r_foot_contact", 10);
 
   this->lastUpdateTime = this->world->GetSimTime().Double();
   this->updateRate = 1.0; // Hz
@@ -94,6 +135,12 @@ void DRCRobotPlugin::LoadThread()
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&DRCRobotPlugin::UpdateStates, this));
+
+  this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
+     boost::bind(&DRCRobotPlugin::OnLContactUpdate, this));
+
+  this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
+     boost::bind(&DRCRobotPlugin::OnRContactUpdate, this));
 }
 
 void DRCRobotPlugin::UpdateStates()
@@ -112,6 +159,147 @@ void DRCRobotPlugin::UpdateStates()
       msg.data = "ok";
       this->pub_status_.publish(msg);
     }
+  }
+
+  // this->rFootContactSensor->GetContact
+  {
+    physics::JointWrench wrench = this->rFootJoint->GetForceTorque(0);
+    geometry_msgs::Wrench msg;
+    msg.force.x = wrench.body1Force.x;
+    msg.force.y = wrench.body1Force.y;
+    msg.force.z = wrench.body1Force.z;
+    msg.torque.x = wrench.body1Torque.x;
+    msg.torque.y = wrench.body1Torque.y;
+    msg.torque.z = wrench.body1Torque.z;
+    this->pub_r_foot_ft_.publish(msg);
+  }
+
+  {
+    physics::JointWrench wrench = this->lFootJoint->GetForceTorque(0);
+    geometry_msgs::Wrench msg;
+    msg.force.x = wrench.body1Force.x;
+    msg.force.y = wrench.body1Force.y;
+    msg.force.z = wrench.body1Force.z;
+    msg.torque.x = wrench.body1Torque.x;
+    msg.torque.y = wrench.body1Torque.y;
+    msg.torque.z = wrench.body1Torque.z;
+    this->pub_l_foot_ft_.publish(msg);
+  }
+}
+
+void DRCRobotPlugin::OnLContactUpdate()
+{
+  // Get all the contacts.
+  msgs::Contacts contacts;
+  contacts = this->lFootContactSensor->GetContacts();
+
+
+  for (unsigned int i = 0; i < contacts.contact_size(); ++i)
+  {
+    // gzerr << "Collision between[" << contacts.contact(i).collision1()
+    //           << "] and [" << contacts.contact(i).collision2() << "]\n";
+    // gzerr << " t[" << this->world->GetSimTime()
+    //       << "] i[" << i
+    //       << "] s[" << contacts.contact(i).time().sec()
+    //       << "] n[" << contacts.contact(i).time().nsec()
+    //       << "] size[" << contacts.contact(i).position_size()
+    //       << "]\n";
+
+    // common::Time contactTime(contacts.contact(i).time().sec(),
+    //                          contacts.contact(i).time().nsec());
+    math::Vector3 fTotal;
+    math::Vector3 tTotal;
+    for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
+    {
+      // gzerr << j << "  Position:"
+      //       << contacts.contact(i).position(j).x() << " "
+      //       << contacts.contact(i).position(j).y() << " "
+      //       << contacts.contact(i).position(j).z() << "\n";
+      // gzerr << "   Normal:"
+      //       << contacts.contact(i).normal(j).x() << " "
+      //       << contacts.contact(i).normal(j).y() << " "
+      //       << contacts.contact(i).normal(j).z() << "\n";
+      // gzerr << "   Depth:" << contacts.contact(i).depth(j) << "\n";
+      fTotal += math::Vector3(
+                            contacts.contact(i).wrench(j).body_1_force().x(),
+                            contacts.contact(i).wrench(j).body_1_force().y(),
+                            contacts.contact(i).wrench(j).body_1_force().z());
+      tTotal += math::Vector3(
+                            contacts.contact(i).wrench(j).body_1_torque().x(),
+                            contacts.contact(i).wrench(j).body_1_torque().y(),
+                            contacts.contact(i).wrench(j).body_1_torque().z());
+    }
+    // low pass filter over time
+    double e = 0.99;
+    this->lFootForce = e * this->lFootForce + (1.0 - e) * fTotal;
+    this->lFootTorque = e * this->lFootTorque + (1.0 - e) * tTotal;
+
+    geometry_msgs::Wrench msg;
+    msg.force.x = this->lFootForce.x;
+    msg.force.y = this->lFootForce.y;
+    msg.force.z = this->lFootForce.z;
+    msg.torque.x = this->lFootTorque.x;
+    msg.torque.y = this->lFootTorque.y;
+    msg.torque.z = this->lFootTorque.z;
+    this->pub_l_foot_contact_.publish(msg);
+  }
+}
+
+void DRCRobotPlugin::OnRContactUpdate()
+{
+  // Get all the contacts.
+  msgs::Contacts contacts;
+  contacts = this->rFootContactSensor->GetContacts();
+
+
+  for (unsigned int i = 0; i < contacts.contact_size(); ++i)
+  {
+    // gzerr << "Collision between[" << contacts.contact(i).collision1()
+    //           << "] and [" << contacts.contact(i).collision2() << "]\n";
+    // gzerr << " t[" << this->world->GetSimTime()
+    //       << "] i[" << i
+    //       << "] s[" << contacts.contact(i).time().sec()
+    //       << "] n[" << contacts.contact(i).time().nsec()
+    //       << "] size[" << contacts.contact(i).position_size()
+    //       << "]\n";
+
+    // common::Time contactTime(contacts.contact(i).time().sec(),
+    //                          contacts.contact(i).time().nsec());
+    math::Vector3 fTotal;
+    math::Vector3 tTotal;
+    for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
+    {
+      // gzerr << j << "  Position:"
+      //       << contacts.contact(i).position(j).x() << " "
+      //       << contacts.contact(i).position(j).y() << " "
+      //       << contacts.contact(i).position(j).z() << "\n";
+      // gzerr << "   Normal:"
+      //       << contacts.contact(i).normal(j).x() << " "
+      //       << contacts.contact(i).normal(j).y() << " "
+      //       << contacts.contact(i).normal(j).z() << "\n";
+      // gzerr << "   Depth:" << contacts.contact(i).depth(j) << "\n";
+      fTotal += math::Vector3(
+                            contacts.contact(i).wrench(j).body_1_force().x(),
+                            contacts.contact(i).wrench(j).body_1_force().y(),
+                            contacts.contact(i).wrench(j).body_1_force().z());
+      tTotal += math::Vector3(
+                            contacts.contact(i).wrench(j).body_1_torque().x(),
+                            contacts.contact(i).wrench(j).body_1_torque().y(),
+                            contacts.contact(i).wrench(j).body_1_torque().z());
+    }
+    // low pass filter over time
+    double e = 0.99;
+    this->rFootForce = e * this->rFootForce + (1.0 - e) * fTotal;
+    this->rFootTorque = e * this->rFootTorque + (1.0 - e) * tTotal;
+
+    geometry_msgs::Wrench msg;
+    msg.force.x = this->rFootForce.x;
+    msg.force.y = this->rFootForce.y;
+    msg.force.z = this->rFootForce.z;
+    msg.torque.x = this->rFootTorque.x;
+    msg.torque.y = this->rFootTorque.y;
+    msg.torque.z = this->rFootTorque.z;
+    this->pub_r_foot_contact_.publish(msg);
   }
 }
 
