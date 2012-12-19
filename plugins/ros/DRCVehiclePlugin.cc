@@ -524,13 +524,13 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->pedalForce, -this->pedalForce);
   this->brakePedalPID.Init(200, 0, 3, 10, -10,
                          this->pedalForce, -this->pedalForce);
-  this->handWheelPID.Init(30, 0, 3.0, 5.0, -5.0,
+  this->handWheelPID.Init(200, 0, 30.0, 5.0, -5.0,
                          this->handWheelForce, -this->handWheelForce);
   this->handBrakePID.Init(30, 0, 3.0, 5.0, -5.0,
                          this->handBrakeForce, -this->handBrakeForce);
-  this->flWheelSteeringPID.Init(500, 1, 10, 50, -50,
+  this->flWheelSteeringPID.Init(5000, 0, 500, 50, -50,
                          this->steeredWheelForce, -this->steeredWheelForce);
-  this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
+  this->frWheelSteeringPID.Init(5000, 0, 500, 50, -50,
                          this->steeredWheelForce, -this->steeredWheelForce);
 
   ros::SubscribeOptions hand_wheel_cmd_so =
