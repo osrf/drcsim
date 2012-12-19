@@ -2,7 +2,7 @@
 <model>
   <name>DRC Robot</name>
   <version>0.1.0</version>
-  <sdf>model.urdf</sdf>
+  <sdf>model.urdf.square_foot</sdf>
   <author>
     <name>John Hsu</name>
     <email>hsu@osrfoundation.org</email>
