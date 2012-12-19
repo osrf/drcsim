@@ -77,7 +77,7 @@ void VRCPlugin::LoadThread()
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("~");
+  this->rosnode_ = new ros::NodeHandle("");
 
   // load VRC ROS API
   this->LoadVRCROSAPI();
@@ -624,7 +624,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 void VRCPlugin::LoadVRCROSAPI()
 {
   // ros subscription
-  std::string robot_enter_car_topic_name = "/drc_world/robot_enter_car";
+  std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
   ros::SubscribeOptions robot_enter_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_enter_car_topic_name, 100,
@@ -632,7 +632,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_enter_car_sub_ = this->rosnode_->subscribe(robot_enter_car_so);
 
-  std::string robot_exit_car_topic_name = "/drc_world/robot_exit_car";
+  std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
   ros::SubscribeOptions robot_exit_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_exit_car_topic_name, 100,
@@ -640,7 +640,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_exit_car_sub_ = this->rosnode_->subscribe(robot_exit_car_so);
 
-  std::string robot_grab_topic_name = "/drc_world/robot_grab_link";
+  std::string robot_grab_topic_name = "drc_world/robot_grab_link";
   ros::SubscribeOptions robot_grab_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_grab_topic_name, 100,
@@ -648,7 +648,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_grab_sub_ = this->rosnode_->subscribe(robot_grab_so);
 
-  std::string robot_release_topic_name = "/drc_world/robot_release_link";
+  std::string robot_release_topic_name = "drc_world/robot_release_link";
   ros::SubscribeOptions robot_release_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_release_topic_name, 100,
@@ -660,7 +660,7 @@ void VRCPlugin::LoadVRCROSAPI()
 void VRCPlugin::LoadRobotROSAPI()
 {
   // ros subscription
-  std::string trajectory_topic_name = "/cmd_vel";
+  std::string trajectory_topic_name = "drc_robot/cmd_vel";
   ros::SubscribeOptions trajectory_so =
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
@@ -668,7 +668,7 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
 
-  std::string pose_topic_name = "/drc_robot/pose";
+  std::string pose_topic_name = "drc_robot/pose";
   ros::SubscribeOptions pose_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     pose_topic_name, 100,
@@ -676,7 +676,7 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.pose_sub_ = this->rosnode_->subscribe(pose_so);
 
-  std::string configuration_topic_name = "/drc_robot/configuration";
+  std::string configuration_topic_name = "drc_robot/configuration";
   ros::SubscribeOptions configuration_so =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     configuration_topic_name, 100,
@@ -685,7 +685,7 @@ void VRCPlugin::LoadRobotROSAPI()
   this->drc_robot.configuration_sub_ =
     this->rosnode_->subscribe(configuration_so);
 
-  std::string mode_topic_name = "/drc_robot/mode";
+  std::string mode_topic_name = "drc_robot/mode";
   ros::SubscribeOptions mode_so =
     ros::SubscribeOptions::create<std_msgs::String>(
     mode_topic_name, 100,
