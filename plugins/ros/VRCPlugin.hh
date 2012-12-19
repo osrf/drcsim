@@ -18,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface.
- * Author: Sachin Chitta and John Hsu
- * Date: 10 June 2008
- * SVN: $Id$
+ * Desc: Plugin to allow development shortcuts for VRC competition.
+ * Author: John Hsu and Steven Peters
+ * Date: December 2012
  */
 #ifndef GAZEBO_VRC_PLUGIN_HH
 #define GAZEBO_VRC_PLUGIN_HH
@@ -40,15 +39,14 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "math/Vector3.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-
-#include "boost/thread/mutex.hpp"
+#include "gazebo/math/Vector3.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
 
 typedef actionlib::SimpleActionClient<
   control_msgs::FollowJointTrajectoryAction > TrajClient;

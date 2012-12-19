@@ -18,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
+ * Desc: Plugin to allow development shortcuts for VRC competition.
+ * Author: John Hsu and Steven Peters
+ * Date: December 2012
  */
 
 #include "VRCPlugin.hh"
@@ -116,11 +115,13 @@ void VRCPlugin::LoadThread()
      boost::bind(&VRCPlugin::UpdateStates, this));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotModeTopic(const std_msgs::String::ConstPtr &_str)
 {
   this->SetRobotMode(_str->data);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotMode(const std::string &_str)
 {
   if (_str == "no_gravity")
@@ -189,6 +190,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
   if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
@@ -203,6 +205,7 @@ void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 {
   math::Pose pose(math::Vector3(_pose->position.x,
@@ -215,6 +218,7 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
   this->drc_robot.model->SetWorldPose(pose);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
   /// \todo: get these from incoming message
@@ -248,6 +252,8 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
   this->RemoveJoint(this->grabJoint);
@@ -293,6 +299,7 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   return joint;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
   if (this->drc_robot.pinJoint)
@@ -352,7 +359,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 
   // wait for action server to come up
   while(!this->joint_trajectory_controller.traj_client_->waitForServer(
-    ros::Duration(1.0))){
+    ros::Duration(1.0)))
+  {
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
@@ -387,6 +395,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
                                        0.0, 0.0);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
   if (this->drc_robot.pinJoint)
@@ -453,10 +462,11 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
                          physics::JointPtr &_pinJoint,
                          const math::Pose &_pose,
-                         const std::map<std::string, double> &_jointPositions)
+                       const std::map<std::string, double> &/*_jointPositions*/)
 {
   // pause, break joint, update pose, create new joint, unpause
   bool p = this->world->IsPaused();
@@ -525,6 +535,7 @@ void VRCPlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::ROSQueueThread()
 {
   static const double timeout = 0.01;
@@ -535,6 +546,7 @@ void VRCPlugin::ROSQueueThread()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
@@ -578,6 +590,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialPose = this->seatLink->GetWorldPose();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
@@ -621,6 +634,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialPose = this->pinLink->GetWorldPose();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadVRCROSAPI()
 {
   // ros subscription
@@ -657,6 +671,7 @@ void VRCPlugin::LoadVRCROSAPI()
   this->robot_release_sub_ = this->rosnode_->subscribe(robot_release_so);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadRobotROSAPI()
 {
   // ros subscription
@@ -693,10 +708,13 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.mode_sub_ = this->rosnode_->subscribe(mode_so);
 }
+
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
   &_cmd)
 {
-
+  // This function is planned but not yet implemented.
+  ROS_ERROR("The /drc_robot/configuration handler is not implemented.\n");
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCPlugin)
