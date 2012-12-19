@@ -30,18 +30,26 @@
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
+
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Wrench.h>
 #include <std_msgs/String.h>
 
 #include <boost/thread.hpp>
 
-#include "math/Vector3.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
+#include "gazebo/math/Vector3.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/physics/PhysicsTypes.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
+#include "gazebo/sensors/SensorManager.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+#include "gazebo/sensors/ContactSensor.hh"
+#include "gazebo/sensors/Sensor.hh"
 
 #include "boost/thread/mutex.hpp"
 
@@ -66,15 +74,40 @@ namespace gazebo
 
     /// Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
-    private: int connectionCount;
-    private: void OnStatusConnect();
-    private: void OnStatusDisconnect();
+    private: event::ConnectionPtr rContactUpdateConnection;
+    private: event::ConnectionPtr lContactUpdateConnection;
+    void OnLContactUpdate();
+    void OnRContactUpdate();
 
     /// Throttle update rate
-    private: double lastUpdateTime;
+    private: double lastStatusTime;
     private: double updateRate;
 
-    // ros stuff
+    // Contact sensors
+    private: sensors::ContactSensorPtr lFootContactSensor;
+    private: sensors::ContactSensorPtr rFootContactSensor;
+    private: ros::Publisher pub_l_foot_contact_;
+    private: ros::Publisher pub_r_foot_contact_;
+
+    // Force torque sensors at ankles
+    private: physics::JointPtr rAnkleJoint;
+    private: physics::JointPtr lAnkleJoint;
+    private: ros::Publisher pub_l_ankle_ft_;
+    private: ros::Publisher pub_r_ankle_ft_;
+
+    // Force torque sensors at the wrists
+    private: physics::JointPtr rWristJoint;
+    private: physics::JointPtr lWristJoint;
+    private: ros::Publisher pub_l_wrist_ft_;
+    private: ros::Publisher pub_r_wrist_ft_;
+
+    // IMU sensor
+    private: std::string imuLinkName;
+    private: physics::LinkPtr imuLink;
+    private: common::Time lastImuTime;
+    private: math::Pose imuReferencePose;
+    private: math::Vector3 imuLastLinearVel;
+    private: ros::Publisher pub_imu_;
 
     // deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
@@ -87,6 +120,15 @@ namespace gazebo
     private: void QueueThread();
     private: boost::thread callback_queue_thread_;
     private: ros::Publisher pub_status_;
+    private: math::Vector3 lFootForce;
+    private: math::Vector3 lFootTorque;
+    private: math::Vector3 rFootForce;
+    private: math::Vector3 rFootTorque;
+
+    private: physics::Joint_V joints;
+
+    // Controls stuff
+    private: common::Time lastControllerUpdateTime;
   };
 /** \} */
 /// @}

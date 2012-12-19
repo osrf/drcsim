@@ -18,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
+ * Desc: Plugin to allow development shortcuts for VRC competition.
+ * Author: John Hsu and Steven Peters
+ * Date: December 2012
  */
 
 #include "VRCPlugin.hh"
@@ -77,7 +76,7 @@ void VRCPlugin::LoadThread()
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("~");
+  this->rosnode_ = new ros::NodeHandle("");
 
   // load VRC ROS API
   this->LoadVRCROSAPI();
@@ -116,11 +115,13 @@ void VRCPlugin::LoadThread()
      boost::bind(&VRCPlugin::UpdateStates, this));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotModeTopic(const std_msgs::String::ConstPtr &_str)
 {
   this->SetRobotMode(_str->data);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotMode(const std::string &_str)
 {
   if (_str == "no_gravity")
@@ -189,6 +190,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
   if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
@@ -203,6 +205,7 @@ void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 {
   math::Pose pose(math::Vector3(_pose->position.x,
@@ -215,7 +218,8 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
   this->drc_robot.model->SetWorldPose(pose);
 }
 
-void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   /// \todo: get these from incoming message
   std::string modelName = "fire_hose";
@@ -248,7 +252,9 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
     }
   }
 }
-void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd)
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   this->RemoveJoint(this->grabJoint);
 }
@@ -293,7 +299,8 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   return joint;
 }
 
-void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
@@ -352,7 +359,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 
   // wait for action server to come up
   while(!this->joint_trajectory_controller.traj_client_->waitForServer(
-    ros::Duration(1.0))){
+    ros::Duration(1.0)))
+  {
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
@@ -387,12 +395,13 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
                                        0.0, 0.0);
 }
 
-void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.5, 1.20),
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
                                               math::Quaternion());
 
   if (this->vehicleRobotJoint)
@@ -433,16 +442,6 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
     this->RemoveJoint(this->vehicleRobotJoint);
 }
 
-void VRCPlugin::SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd)
-{
-
-}
-
-void VRCPlugin::SetBrakePedalPose(const geometry_msgs::Pose::ConstPtr &_cmd)
-{
-
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // remove a joint
@@ -463,10 +462,11 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
                          physics::JointPtr &_pinJoint,
                          const math::Pose &_pose,
-                         const std::map<std::string, double> &_jointPositions)
+                       const std::map<std::string, double> &/*_jointPositions*/)
 {
   // pause, break joint, update pose, create new joint, unpause
   bool p = this->world->IsPaused();
@@ -535,6 +535,7 @@ void VRCPlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::ROSQueueThread()
 {
   static const double timeout = 0.01;
@@ -545,6 +546,7 @@ void VRCPlugin::ROSQueueThread()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
@@ -588,6 +590,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialPose = this->seatLink->GetWorldPose();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
@@ -631,10 +634,11 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialPose = this->pinLink->GetWorldPose();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadVRCROSAPI()
 {
   // ros subscription
-  std::string robot_enter_car_topic_name = "/drc_world/robot_enter_car";
+  std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
   ros::SubscribeOptions robot_enter_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_enter_car_topic_name, 100,
@@ -642,7 +646,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_enter_car_sub_ = this->rosnode_->subscribe(robot_enter_car_so);
 
-  std::string robot_exit_car_topic_name = "/drc_world/robot_exit_car";
+  std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
   ros::SubscribeOptions robot_exit_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_exit_car_topic_name, 100,
@@ -650,7 +654,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_exit_car_sub_ = this->rosnode_->subscribe(robot_exit_car_so);
 
-  std::string robot_grab_topic_name = "/drc_world/robot_grab_link";
+  std::string robot_grab_topic_name = "drc_world/robot_grab_link";
   ros::SubscribeOptions robot_grab_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_grab_topic_name, 100,
@@ -658,7 +662,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_grab_sub_ = this->rosnode_->subscribe(robot_grab_so);
 
-  std::string robot_release_topic_name = "/drc_world/robot_release_link";
+  std::string robot_release_topic_name = "drc_world/robot_release_link";
   ros::SubscribeOptions robot_release_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_release_topic_name, 100,
@@ -667,10 +671,11 @@ void VRCPlugin::LoadVRCROSAPI()
   this->robot_release_sub_ = this->rosnode_->subscribe(robot_release_so);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadRobotROSAPI()
 {
   // ros subscription
-  std::string trajectory_topic_name = "/cmd_vel";
+  std::string trajectory_topic_name = "drc_robot/cmd_vel";
   ros::SubscribeOptions trajectory_so =
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
@@ -678,7 +683,7 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
 
-  std::string pose_topic_name = "/drc_robot/pose";
+  std::string pose_topic_name = "drc_robot/pose";
   ros::SubscribeOptions pose_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     pose_topic_name, 100,
@@ -686,7 +691,7 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.pose_sub_ = this->rosnode_->subscribe(pose_so);
 
-  std::string configuration_topic_name = "/drc_robot/configuration";
+  std::string configuration_topic_name = "drc_robot/configuration";
   ros::SubscribeOptions configuration_so =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     configuration_topic_name, 100,
@@ -695,7 +700,7 @@ void VRCPlugin::LoadRobotROSAPI()
   this->drc_robot.configuration_sub_ =
     this->rosnode_->subscribe(configuration_so);
 
-  std::string mode_topic_name = "/drc_robot/mode";
+  std::string mode_topic_name = "drc_robot/mode";
   ros::SubscribeOptions mode_so =
     ros::SubscribeOptions::create<std_msgs::String>(
     mode_topic_name, 100,
@@ -703,10 +708,13 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.mode_sub_ = this->rosnode_->subscribe(mode_so);
 }
-void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-  &_cmd)
-{
 
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
+  &/* _cmd */)
+{
+  // This function is planned but not yet implemented.
+  ROS_ERROR("The /drc_robot/configuration handler is not implemented.\n");
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCPlugin)
