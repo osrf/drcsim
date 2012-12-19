@@ -2,11 +2,11 @@
 <model>
   <name>DRC Robot</name>
   <version>0.1.0</version>
-  <sdf>model.urdf.square_foot</sdf>
   <author>
     <name>John Hsu</name>
     <email>hsu@osrfoundation.org</email>
   </author>
+  <sdf>model.urdf</sdf>
   <description>
     This model approximates the DRC Robot, built by Boston Dynamics.
   </description>

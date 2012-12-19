@@ -136,7 +136,6 @@ void DRCRobotPlugin::LoadThread()
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&DRCRobotPlugin::UpdateStates, this));
 
-  gzerr << "starting contact sensor update connections\n";
   this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
      boost::bind(&DRCRobotPlugin::OnLContactUpdate, this));
 
@@ -161,22 +160,31 @@ void DRCRobotPlugin::UpdateStates()
       this->pub_status_.publish(msg);
     }
   }
-/*
-  // this->rFootContactSensor->GetContact
-  physics::JointWrench wrench = this->rFootJoint->GetForceTorque(0);
-  geometry_msgs::Wrench msg;
-  msg.force.x = wrench.body1Force.x;
-  msg.force.y = wrench.body1Force.y;
-  msg.force.z = wrench.body1Force.z;
-  msg.torque.x = wrench.body1Torque.x;
-  msg.torque.y = wrench.body1Torque.y;
-  msg.torque.z = wrench.body1Torque.z;
-  this->pub_l_foot_ft_.publish(msg);
 
-  gzerr << " f[" << wrench.body1Force
-        << "] t[" << wrench.body1Torque
-        << "]\n";
-*/
+  // this->rFootContactSensor->GetContact
+  {
+    physics::JointWrench wrench = this->rFootJoint->GetForceTorque(0);
+    geometry_msgs::Wrench msg;
+    msg.force.x = wrench.body1Force.x;
+    msg.force.y = wrench.body1Force.y;
+    msg.force.z = wrench.body1Force.z;
+    msg.torque.x = wrench.body1Torque.x;
+    msg.torque.y = wrench.body1Torque.y;
+    msg.torque.z = wrench.body1Torque.z;
+    this->pub_r_foot_ft_.publish(msg);
+  }
+
+  {
+    physics::JointWrench wrench = this->lFootJoint->GetForceTorque(0);
+    geometry_msgs::Wrench msg;
+    msg.force.x = wrench.body1Force.x;
+    msg.force.y = wrench.body1Force.y;
+    msg.force.z = wrench.body1Force.z;
+    msg.torque.x = wrench.body1Torque.x;
+    msg.torque.y = wrench.body1Torque.y;
+    msg.torque.z = wrench.body1Torque.z;
+    this->pub_l_foot_ft_.publish(msg);
+  }
 }
 
 void DRCRobotPlugin::OnLContactUpdate()
