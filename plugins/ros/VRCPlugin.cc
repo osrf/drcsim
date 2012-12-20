@@ -310,10 +310,9 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
   math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
                     _pose->orientation.y, _pose->orientation.z);
-  q.Normalize();
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
-                                _pose->position.z), q);
+                                _pose->position.z), q.Normalize());
   if (this->drcRobot.pinJoint)
     this->RemoveJoint(this->drcRobot.pinJoint);
 
@@ -410,13 +409,12 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
+                    _pose->orientation.y, _pose->orientation.z);
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
-                                _pose->position.z),
-                  math::Quaternion(_pose->orientation.w,
-                                   _pose->orientation.x,
-                                   _pose->orientation.y,
-                                   _pose->orientation.z));
+                                _pose->position.z), q.Normalize());
+
   if (this->drcRobot.pinJoint)
     this->RemoveJoint(this->drcRobot.pinJoint);
 
