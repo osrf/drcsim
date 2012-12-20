@@ -83,11 +83,15 @@
         <seat_link>chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
-        <model_name>fire_hose</model_name>
+        <fire_hose_model>fire_hose</fire_hose_model>
+        <coupling_link>coupling</coupling_link>
+        <standpipe_model>standpipe</standpipe_model>
+        <spout_link>standpipe</spout_link>
+        <thread_pitch>-1000</thread_pitch>
+        <coupling_relative_pose>
+          1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199
+        </coupling_relative_pose>
       </drc_fire_hose>
-      <drc_standpipe>
-        <model_name>standpipe</model_name>
-      </drc_standpipe>
     </plugin>
 
   </world>

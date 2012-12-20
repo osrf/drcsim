@@ -130,6 +130,57 @@ namespace gazebo
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
     } drc_vehicle;
 
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //   DRC Fire Hose (and Standpipe)                                        //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
+    private: class FireHose
+    {
+      public: physics::ModelPtr fireHoseModel;
+      public: physics::ModelPtr standpipeModel;
+
+      /// joint for pinning a link to the world
+      public: physics::JointPtr fixedJoint;
+
+      /// joints and links
+      public: physics::Joint_V fireHoseJoints;
+      public: physics::Link_V fireHoseLinks;
+      /// screw joint
+      public: physics::JointPtr screwJoint;
+      public: double threadPitch;
+
+      /// Pointer to the update event connection
+      public: event::ConnectionPtr updateConnection;
+
+      public: physics::LinkPtr couplingLink;
+      public: physics::LinkPtr spoutLink;
+      public: math::Pose couplingRelativePose;
+
+      /// \brief flag for successful initialization of fire hose, standpipe
+      public: bool isInitialized;
+
+      /// \brief set initial configuration of the fire hose link
+      public: void SetInitialConfiguration()
+      {
+        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
+        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+
+        // for (unsigned int i = 0; i < this->links.size(); ++i)
+        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
+
+        this->fireHoseJoints[17]->SetAngle(0, -M_PI/4.0);
+        this->fireHoseJoints[19]->SetAngle(0, -M_PI/4.0);
+      }
+
+      /// \brief Load the drc_fire_hose portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+    } drc_fire_hose;
+
+    /// \brief check and spawn thread if links are aligned
+    private: void CheckThreadStart();
 
     /// \brief fix robot butt to vehicle for efficiency
     // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;

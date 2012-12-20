@@ -91,6 +91,9 @@ void VRCPlugin::LoadThread()
   // Load Vehicle
   this->drc_vehicle.Load(this->world, this->sdf);
 
+  // Load fire hose and standpipe
+  this->drc_fire_hose.Load(this->world, this->sdf);
+
   // Setup ROS interfaces for robot
   this->LoadRobotROSAPI();
 
@@ -275,7 +278,7 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   joint->Attach(_link1, _link2);
   // load adds the joint to a vector of shared pointers kept
   // in parent and child links, preventing joint from being destroyed.
-  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+  joint->Load(_link1, _link2, _anchor);
   // joint->SetAnchor(0, _anchor);
   joint->SetAxis(0, _axis);
   joint->SetHighStop(0, _upper);
@@ -493,20 +496,23 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
 // Play the trajectory, update states
 void VRCPlugin::UpdateStates()
 {
-  double cur_time = this->world->GetSimTime().Double();
+  double curTime = this->world->GetSimTime().Double();
 
-  if (this->drc_robot.startupHarness && cur_time > 10)
+  if (this->drc_robot.startupHarness && curTime > 10)
   {
     this->SetRobotMode("nominal");
     this->drc_robot.startupHarness = false;
   }
 
-  if (this->warpRobotWithCmdVel && cur_time - this->lastUpdateTime >= 0)
+  if (curTime > this->lastUpdateTime)
   {
-    double dt = cur_time - this->lastUpdateTime;
-    if (dt > 0)
+    this->CheckThreadStart();
+
+    double dt = curTime - this->lastUpdateTime;
+
+    if (this->warpRobotWithCmdVel)
     {
-      this->lastUpdateTime = cur_time;
+      this->lastUpdateTime = curTime;
       math::Pose cur_pose = this->drc_robot.pinLink->GetWorldPose();
       math::Pose new_pose = cur_pose;
 
@@ -545,6 +551,112 @@ void VRCPlugin::ROSQueueThread()
     this->ros_queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+{
+  this->isInitialized = false;
+
+  sdf::ElementPtr sdf = _sdf->GetElement("drc_fire_hose");
+  // Get special coupling links (on the firehose side)
+  std::string fireHoseModelName = sdf->GetValueString("fire_hose_model");
+  this->fireHoseModel = _world->GetModel(fireHoseModelName);
+  if (!this->fireHoseModel)
+  {
+    gzerr << "fire_hose_model [" << fireHoseModelName << "] not found\n";
+    return;
+  }
+
+  // Get coupling link
+  std::string couplingLinkName = sdf->GetValueString("coupling_link");
+  this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
+  if (!this->couplingLink)
+  {
+    gzerr << "coupling [" << couplingLinkName << "] not found\n";
+    return;
+  }
+
+  // Get joints
+  this->fireHoseJoints = this->fireHoseModel->GetJoints();
+
+  // Get links
+  this->fireHoseLinks = this->fireHoseModel->GetLinks();
+
+  // Get special links from the standpipe
+  std::string standpipeModelName = sdf->GetValueString("standpipe_model");
+  this->standpipeModel = _world->GetModel(standpipeModelName);
+  if (!this->standpipeModel)
+  {
+    gzerr << "standpipe_model [" << standpipeModelName << "] not found\n";
+    return;
+  }
+
+  // Get spout link
+  std::string spoutLinkName = sdf->GetValueString("spout_link");
+  this->spoutLink = this->standpipeModel->GetLink(spoutLinkName);
+  if (!this->spoutLink)
+  {
+    gzerr << "spout [" << spoutLinkName << "] not found\n";
+    return;
+  }
+
+  this->threadPitch = sdf->GetValueDouble("thread_pitch");
+
+  this->couplingRelativePose = sdf->GetValuePose("coupling_relative_pose");
+
+  // Set initial configuration
+  // this->SetInitialConfiguration();
+
+  this->isInitialized = true;
+}
+
+void VRCPlugin::CheckThreadStart()
+{
+  if (!this->drc_fire_hose.isInitialized)
+    return;
+
+  // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
+  // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
+  math::Pose connectPose(this->drc_fire_hose.couplingRelativePose);
+  math::Pose relativePose = this->drc_fire_hose.couplingLink->GetWorldPose() -
+                            this->drc_fire_hose.spoutLink->GetWorldPose();
+
+  math::Pose connectOffset = relativePose - connectPose;
+
+  double posErr = (relativePose.pos - connectPose.pos).GetLength();
+  double rotErr = (relativePose.rot.GetZAxis() -
+                   connectPose.rot.GetZAxis()).GetLength();
+
+  // gzdbg << "connect offset [" << connectOffset
+  //       << "] xyz [" << posErr
+  //       << "] rpy [" << rotErr
+  //       << "]\n";
+
+  if (!this->drc_fire_hose.screwJoint)
+  {
+    if (posErr < 0.01 && rotErr < 0.01)
+    {
+      this->drc_fire_hose.screwJoint =
+        this->AddJoint(this->world, this->drc_fire_hose.fireHoseModel,
+                       this->drc_fire_hose.spoutLink,
+                       this->drc_fire_hose.couplingLink,
+                       "screw",
+                       math::Vector3(0, 0, 0),
+                       math::Vector3(0, 0, 1),
+                       20.0/1000, -0.5/1000);
+                       // 20.0, -0.5); // recover threadPitch
+    }
+  }
+  else
+  {
+    // check joint position to disconnect
+    double position = this->drc_fire_hose.screwJoint->GetAngle(0).Radian();
+    // gzerr << "position " << position << "\n";
+    if (position < -0.0003)
+      this->RemoveJoint(this->drc_fire_hose.screwJoint);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
@@ -679,15 +791,15 @@ void VRCPlugin::LoadRobotROSAPI()
   ros::SubscribeOptions trajectory_so =
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
-    boost::bind( &VRCPlugin::SetRobotCmdVel,this,_1),
+    boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
 
-  std::string pose_topic_name = "drc_robot/pose";
+  std::string pose_topic_name = "drc_robot/set_pose";
   ros::SubscribeOptions pose_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     pose_topic_name, 100,
-    boost::bind( &VRCPlugin::SetRobotPose,this,_1),
+    boost::bind(&VRCPlugin::SetRobotPose,this,_1),
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.pose_sub_ = this->rosnode_->subscribe(pose_so);
 
@@ -695,7 +807,7 @@ void VRCPlugin::LoadRobotROSAPI()
   ros::SubscribeOptions configuration_so =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     configuration_topic_name, 100,
-    boost::bind( &VRCPlugin::SetRobotConfiguration,this,_1),
+    boost::bind(&VRCPlugin::SetRobotConfiguration, this, _1),
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.configuration_sub_ =
     this->rosnode_->subscribe(configuration_so);
