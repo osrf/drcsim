@@ -106,6 +106,9 @@ namespace gazebo
       /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
+      /// \brief flag for successful initialization of fire hose, standpipe
+      public: bool isInitialized;
+
       public: ros::Subscriber trajectory_sub_;
       public: ros::Subscriber pose_sub_;
       public: ros::Subscriber configuration_sub_;
@@ -123,6 +126,9 @@ namespace gazebo
       public: physics::ModelPtr model;
       public: math::Pose initialPose;
       public: physics::LinkPtr seatLink;
+
+      /// \brief flag for successful initialization of fire hose, standpipe
+      public: bool isInitialized;
 
       /// \brief Load the drc_vehicle portion of plugin.
       /// \param[in] _parent Pointer to parent world.
@@ -156,6 +162,7 @@ namespace gazebo
       public: physics::LinkPtr couplingLink;
       public: physics::LinkPtr spoutLink;
       public: math::Pose couplingRelativePose;
+      public: math::Pose initialFireHosePose;
 
       /// \brief flag for successful initialization of fire hose, standpipe
       public: bool isInitialized;
@@ -165,12 +172,11 @@ namespace gazebo
       {
         // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
         //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
-
         // for (unsigned int i = 0; i < this->links.size(); ++i)
         //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
-
-        this->fireHoseJoints[17]->SetAngle(0, -M_PI/4.0);
-        this->fireHoseJoints[19]->SetAngle(0, -M_PI/4.0);
+        this->fireHoseModel->SetWorldPose(this->initialFireHosePose);
+        this->fireHoseJoints[fireHoseJoints.size()-4]->SetAngle(0, -M_PI/4.0);
+        this->fireHoseJoints[fireHoseJoints.size()-2]->SetAngle(0, -M_PI/4.0);
       }
 
       /// \brief Load the drc_fire_hose portion of plugin.

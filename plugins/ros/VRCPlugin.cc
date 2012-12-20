@@ -100,10 +100,13 @@ void VRCPlugin::LoadThread()
   // Harness the Robot
   // On startup, simulate "virtual harness" by turning gravity off
   // allowing the controllers can initialize without the robot falling
-  this->SetRobotMode("pinned");
-  this->drc_robot.startupHarness = true;
-  ROS_INFO("Start robot with gravity turned off and harnessed.");
-  ROS_INFO("Resume to nominal mode after 10 seconds.");
+  if (this->drc_robot.isInitialized)
+  {
+    this->SetRobotMode("pinned");
+    this->drc_robot.startupHarness = true;
+    ROS_INFO("Start robot with gravity turned off and harnessed.");
+    ROS_INFO("Resume to nominal mode after 10 seconds.");
+  }
 
 
 
@@ -498,7 +501,8 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
 
-  if (this->drc_robot.startupHarness && curTime > 10)
+  if (this->drc_robot.isInitialized &&
+      this->drc_robot.startupHarness && curTime > 10)
   {
     this->SetRobotMode("nominal");
     this->drc_robot.startupHarness = false;
@@ -566,6 +570,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     gzerr << "fire_hose_model [" << fireHoseModelName << "] not found\n";
     return;
   }
+  this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
 
   // Get coupling link
   std::string couplingLinkName = sdf->GetValueString("coupling_link");
@@ -605,7 +610,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->couplingRelativePose = sdf->GetValuePose("coupling_relative_pose");
 
   // Set initial configuration
-  // this->SetInitialConfiguration();
+  this->SetInitialConfiguration();
 
   this->isInitialized = true;
 }
@@ -661,6 +666,7 @@ void VRCPlugin::CheckThreadStart()
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
+  this->isInitialized = false;
   // load parameters
   if (_sdf->HasElement("drc_vehicle") &&
       _sdf->GetElement("drc_vehicle")->HasElement("model_name"))
@@ -700,11 +706,14 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   // Note: hardcoded link by name: @todo: make this a pugin param
   this->initialPose = this->seatLink->GetWorldPose();
+  this->isInitialized = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
+  this->isInitialized = false;
+
   // load parameters
   if (_sdf->HasElement("drc_robot") &&
       _sdf->GetElement("drc_robot")->HasElement("model_name"))
@@ -744,6 +753,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   // Note: hardcoded link by name: @todo: make this a pugin param
   this->initialPose = this->pinLink->GetWorldPose();
+  this->isInitialized = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
