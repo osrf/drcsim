@@ -34,10 +34,14 @@
       </geometry>
     </visual>
   </link>
-  <joint name="imu_joint" type="fixed">
+  <!-- use a zero limit revolute joint rather than fixed to prevent lumping -->
+  <joint name="imu_joint" type="revolute">
     <parent link="pelvis"/>
     <child link="imu_link"/>
     <origin rpy="0.05991527603 0 -0.01415" xyz="0 0 0"/>
+    <limit effort="0" lower="0" upper="0" velocity="0"/>
+    <safety_controller k_position="0" k_velocity="0" soft_lower_limit="0" soft_upper_limit="0"/>
+    <axis xyz="0 0 1"/>
   </joint>
   <gazebo>
     <plugin filename="libgazebo_ros_imu.so" name="drc_robot_imu">
@@ -49,6 +53,18 @@
       <xyzOffsets>0 0 0</xyzOffsets>
       <rpyOffsets>0 0 0</rpyOffsets>
     </plugin>
+  </gazebo>
+  <gazebo reference="l_arm_mwx">
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+  <gazebo reference="r_arm_mwx">
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+  <gazebo reference="l_leg_lax">
+    <provideFeedback>1</provideFeedback>
+  </gazebo>
+  <gazebo reference="r_leg_lax">
+    <provideFeedback>1</provideFeedback>
   </gazebo>
   <gazebo reference="r_foot">
     <mu1>10.0</mu1>
