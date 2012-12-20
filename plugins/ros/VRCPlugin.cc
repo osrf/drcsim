@@ -69,7 +69,7 @@ void VRCPlugin::LoadThread()
   // initialize ros
   if (!ros::isInitialized())
   {
-    gzerr << "Not loading plugin since ROS hasn't been "
+    gzerr << "Not loading vrc plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
           << "  gazebo -s libgazebo_ros_api.so\n";
     return;
@@ -580,7 +580,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    gzerr << "fire_hose_model [" << fireHoseModelName << "] not found\n";
+    ROS_ERROR("fire_hose_model [%s] not found", fireHoseModelName.c_str());
     return;
   }
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
@@ -590,7 +590,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
   if (!this->couplingLink)
   {
-    gzerr << "coupling [" << couplingLinkName << "] not found\n";
+    ROS_ERROR("coupling link [%s] not found", couplingLinkName.c_str());
     return;
   }
 
@@ -605,7 +605,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->standpipeModel = _world->GetModel(standpipeModelName);
   if (!this->standpipeModel)
   {
-    gzerr << "standpipe_model [" << standpipeModelName << "] not found\n";
+    ROS_ERROR("standpipe model [%s] not found", standpipeModelName.c_str());
     return;
   }
 
@@ -614,7 +614,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->spoutLink = this->standpipeModel->GetLink(spoutLinkName);
   if (!this->spoutLink)
   {
-    gzerr << "spout [" << spoutLinkName << "] not found\n";
+    ROS_ERROR("spout link [%s] not found", spoutLinkName.c_str());
     return;
   }
 
