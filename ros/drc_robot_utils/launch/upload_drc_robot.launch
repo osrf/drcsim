@@ -1,6 +1,6 @@
 <launch>
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find drc_robot)/model.sdf"/>
+  <param name="robot_description" textfile="$(find drc_robot)/model.urdf"/>
 </launch>
   
 

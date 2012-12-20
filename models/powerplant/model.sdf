@@ -71,7 +71,7 @@
           <izz>1</izz>
         </inertia>
       </inertial>
-      <visual name="door_visual">
+      <visual name="door_left_visual">
         <pose>0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
@@ -79,7 +79,7 @@
           </box>
         </geometry>
       </visual>
-      <collision name="door_collision">
+      <collision name="door_left_collision">
         <pose>0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
@@ -157,7 +157,7 @@
           <izz>1</izz>
         </inertia>
       </inertial>
-      <visual name="door_visual">
+      <visual name="door_right_visual">
         <pose>-0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
@@ -165,8 +165,8 @@
           </box>
         </geometry>
       </visual>
-      <collision name="door_collision">
-        <pose>0.4575 0 0.025 0 0 0</pose>
+      <collision name="door_right_collision">
+        <pose>-0.4575 0 0.025 0 0 0</pose>
         <geometry>
           <box>
             <size>0.915 .07 1.9</size>

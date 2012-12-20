@@ -19,7 +19,7 @@
     <inertial>
       <mass value="0.1"/>
       <origin xyz="0 0 0"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -35,9 +35,9 @@
     </visual>
   </link>
   <joint name="imu_joint" type="fixed">
-    <parent link="ltorso"/>
+    <parent link="pelvis"/>
     <child link="imu_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <origin rpy="0.05991527603 0 -0.01415" xyz="0 0 0"/>
   </joint>
   <gazebo>
     <plugin filename="libgazebo_ros_imu.so" name="drc_robot_imu">
@@ -53,9 +53,15 @@
   <gazebo reference="r_foot">
     <mu1>10.0</mu1>
     <mu2>10.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <maxVel>0.0</maxVel>
+    <minDepth>0.001</minDepth>
   </gazebo>
   <gazebo reference="l_foot">
     <mu1>10.0</mu1>
     <mu2>10.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <maxVel>0.0</maxVel>
+    <minDepth>0.001</minDepth>
   </gazebo>
 </robot>

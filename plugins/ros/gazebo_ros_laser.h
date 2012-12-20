@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -118,6 +117,11 @@ namespace gazebo
     private: ros::CallbackQueue laser_queue_;
     private: void LaserQueueThread();
     private: boost::thread callback_queue_thread_;
+
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: void LoadThread();
+    private: boost::thread deferred_load_thread_;
   };
 
 }

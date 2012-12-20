@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,18 +30,26 @@
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
+
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Wrench.h>
 #include <std_msgs/String.h>
 
 #include <boost/thread.hpp>
 
-#include "math/Vector3.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
+#include "gazebo/math/Vector3.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/physics/PhysicsTypes.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
+#include "gazebo/sensors/SensorManager.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+#include "gazebo/sensors/ContactSensor.hh"
+#include "gazebo/sensors/Sensor.hh"
 
 #include "boost/thread/mutex.hpp"
 
@@ -65,71 +72,63 @@ namespace gazebo
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
-    private: boost::mutex update_mutex;
-
     /// Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
+    private: event::ConnectionPtr rContactUpdateConnection;
+    private: event::ConnectionPtr lContactUpdateConnection;
+    void OnLContactUpdate();
+    void OnRContactUpdate();
 
-    /// Sets DRC Robot feet placement
-    /// No reachability checking here.
-    public: void SetFeetPose(math::Pose _lPose, math::Pose _rPose);
+    /// Throttle update rate
+    private: double lastStatusTime;
+    private: double updateRate;
 
-    /// Sets DRC Robot planar navigational command velocity
-    /// _cmd is a Vector3, where:
-    ///   - x is the desired forward linear velocity, positive is robot-forward
-    ///     and negative is robot-back.
-    ///   - y is the desired lateral linear velocity, positive is robot-left
-    ///     and negative is robot-right.
-    ///   - z is the desired heading angular velocity, positive makes
-    ///     the robot turn left, and negative makes the robot turn right
-    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
-    public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetPluginModeTopic(const std_msgs::String::ConstPtr &_str);
-    public: void SetPluginMode(const std::string &_str);
+    // Contact sensors
+    private: sensors::ContactSensorPtr lFootContactSensor;
+    private: sensors::ContactSensorPtr rFootContactSensor;
+    private: ros::Publisher pubLFootContact;
+    private: ros::Publisher pubRFootContact;
 
-    /// Move the robot's pinned joint to a certain location in the world.
-    public: void WarpDRCRobot(math::Pose _pose);
+    // Force torque sensors at ankles
+    private: physics::JointPtr rAnkleJoint;
+    private: physics::JointPtr lAnkleJoint;
+    private: ros::Publisher pubLAnkleFT;
+    private: ros::Publisher pubRAnkleFT;
 
-    /// \brief add a constraint between 2 links
-    private: physics::JointPtr AddJoint(physics::WorldPtr _world,
-                                        physics::ModelPtr _model,
-                                        physics::LinkPtr _link1,
-                                        physics::LinkPtr _link2,
-                                        std::string _type,
-                                        math::Vector3 _anchor,
-                                        math::Vector3 _axis,
-                                        double _upper, double _lower);
+    // Force torque sensors at the wrists
+    private: physics::JointPtr rWristJoint;
+    private: physics::JointPtr lWristJoint;
+    private: ros::Publisher pubLWristFT;
+    private: ros::Publisher pubRWristFT;
 
-    /// \brief Remove a joint
-    private: void RemoveJoint(physics::JointPtr &_joint);
+    // IMU sensor
+    private: std::string imuLinkName;
+    private: physics::LinkPtr imuLink;
+    private: common::Time lastImuTime;
+    private: math::Pose imuReferencePose;
+    private: math::Vector3 imuLastLinearVel;
+    private: ros::Publisher pubImu;
 
-    // \brief attach a model's link to the gripper with relative pose
-    private: void GrabLink(std::string _modelName, std::string _linkName,
-                           std::string _gripperName, math::Pose _pose);
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: void LoadThread();
+    private: boost::thread deferredLoadThread;
 
-    private: physics::LinkPtr fixedLink;
-    private: physics::JointPtr fixedJoint;
-    private: physics::JointPtr grabJoint;
-    private: math::Vector3 anchorPose;
-    private: bool warpRobot;
-
-    /// \brief keep initial pose of robot to prevent z-drifting when
-    /// teleporting the robot.
-    private: math::Pose initialPose;
-
-    private: bool harnessed;
-
-    private: double lastUpdateTime;
-    private: geometry_msgs::Twist cmdVel;
-
-    // ros stuff
-    private: ros::NodeHandle* rosnode_;
-    private: ros::CallbackQueue queue_;
+    // reset of ros stuff
+    private: ros::NodeHandle* rosNode;
+    private: ros::CallbackQueue queue;
     private: void QueueThread();
-    private: boost::thread callback_queue_thread_;
-    private: ros::Subscriber trajectory_sub_;
-    private: ros::Subscriber pose_sub_;
-    private: ros::Subscriber mode_sub_;
+    private: boost::thread callbackQueeuThread;
+    private: ros::Publisher pubStatus;
+    private: math::Vector3 lFootForce;
+    private: math::Vector3 lFootTorque;
+    private: math::Vector3 rFootForce;
+    private: math::Vector3 rFootTorque;
+
+    private: physics::Joint_V joints;
+
+    // Controls stuff
+    private: common::Time lastControllerUpdateTime;
   };
 /** \} */
 /// @}

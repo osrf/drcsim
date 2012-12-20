@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,21 +26,49 @@
 #ifndef GAZEBO_DRC_VEHICLE_PLUGIN_HH
 #define GAZEBO_DRC_VEHICLE_PLUGIN_HH
 
+// #include <ros/ros.h>
+// #include <ros/callback_queue.h>
+// #include <ros/advertise_options.h>
+// #include <ros/subscribe_options.h>
+// #include <std_msgs/Float64.h>
+// #include <std_msgs/Int8.h>
+ 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-#include "common/PID.hh"
-
-#include "boost/thread/mutex.hpp"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
+#include "gazebo/common/PID.hh"
 
 namespace gazebo
 {
   class DRCVehiclePlugin : public ModelPlugin
   {
+    /// \enum DirectionType
+    /// \brief Direction selector switch type.
+    public: enum DirectionType {
+              /// \brief Reverse
+              REVERSE = -1,
+              /// \brief Neutral
+              NEUTRAL = 0,
+              /// \brief Forward
+              FORWARD = 1
+            };
+
+    /// \enum KeyType
+    /// \brief Key switch type.
+    public: enum KeyType {
+              /// \brief On, but hasn't seen Neutral yet
+              ON_FR = -1,
+              /// \brief Off
+              OFF   = 0,
+              /// \brief On
+              ON    = 1
+            };
+
     /// \brief Constructor.
     public: DRCVehiclePlugin();
 
@@ -54,27 +81,70 @@ namespace gazebo
     /// \brief Update the controller.
     private: void UpdateStates();
 
+    // /// \brief Publish the steering and pedal states on ROS topics.
+    // private: void RosPublishStates();
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
-    private: boost::mutex update_mutex;
-
     /// Pointer to the update event connection.
-    private: event::ConnectionPtr update_connection_;
+    private: event::ConnectionPtr updateConnection;
+
+    // /// Pointer to the publish event connection.
+    // private: event::ConnectionPtr ros_publish_connection_;
 
     /// \brief Sets DRC Vehicle control inputs, the vehicle internal model 
     ///        will decide the overall motion of the vehicle.
     /// \param[in] _handWheelPosition steering wheel position in radians.
     /// \param[in] _gasPedalPosition gas pedal position in meters.
     /// \param[in] _brakePedalPosition brake pedal position in meters.
+    /// \param[in] _handBrakePosition handbrake position in radians.
+    /// \param[in] _key key state.
+    /// \param[in] _direction direction state.
     public: void SetVehicleState(double _handWheelPosition,
                                  double _gasPedalPosition,
-                                 double _brakePedalPosition);
+                                 double _brakePedalPosition,
+                                 double _handBrakePosition,
+                                 KeyType _key,
+                                 DirectionType _direction);
+
+    /// \brief Returns the state of the key switch.
+    /// \return Current key state.
+    public: KeyType GetKeyState();
+
+    /// \brief Sets the key switch to ON, may become ON_FR if not in NEUTRAL.
+    public: void SetKeyOn();
+
+    /// \brief Sets the key switch to OFF.
+    public: void SetKeyOff();
+
+    // /// \brief Sets the state of the key switch.
+    // /// \param[in] _msg Desired key state as Int8 message.
+    // ///            Use 0 for OFF, 1 for ON.
+    // public: void SetKeyState(const std_msgs::Int8::ConstPtr &_msg);
+
+    /// \brief Returns the state of the direction switch.
+    /// \return Current direction state.
+    public: DirectionType GetDirectionState();
+
+    /// \brief Sets the state of the direction switch.
+    /// \param[in] _direction Desired direction state.
+    public: void SetDirectionState(DirectionType _direction);
+
+    // /// \brief Sets the state of the direction switch.
+    // /// \param[in] _msg Desired direction state as Int8 message.
+    // ///            Use -1 for REVERSE, 0 for NEUTRAL, 1 for FORWARD.
+    // public: void SetDirectionState(const std_msgs::Int8::ConstPtr &_msg);
 
     /// \brief Set the steering wheel angle; this will also update the front
     ///        wheel steering angle.
     /// \param[in] _position Steering wheel angle in radians.
     public: void SetHandWheelState(double _position);
+
+    // /// \brief Set the steering wheel angle; this will also update the front
+    // ///        wheel steering angle.
+    // /// \param[in] _msg ROS std_msgs::Float64 message.
+    // public: void SetHandWheelState(const std_msgs::Float64::ConstPtr &_msg);
 
     /// \brief Sets the lower and upper limits of the steering wheel angle.
     /// \param[in] _min Lower limit of steering wheel angle (radians).
@@ -96,6 +166,33 @@ namespace gazebo
     /// \brief Returns the front wheel angle / steering wheel angle ratio.
     public: double GetHandWheelRatio();
 
+
+    // TODO: fix handbrake documentation
+    /// \brief Set the hand-brake angle.
+    /// \param[in] _position Hand-brake angle in radians.
+    public: void SetHandBrakeState(double _position);
+
+    // /// \brief Set the steering wheel angle; this will also update the front
+    // ///        wheel steering angle.
+    // /// \param[in] _msg ROS std_msgs::Float64 message.
+    // public: void SetHandBrakeState(const std_msgs::Float64::ConstPtr &_msg);
+
+    /// \brief Sets the lower and upper limits of the hand brake angle.
+    /// \param[in] _min Lower limit of hand-brake angle (radians).
+    /// \param[in] _max Upper limit of hand-brake angle (radians).
+    public: void SetHandBrakeLimits(double &_min, double &_max);
+
+    /// \brief Returns the lower and upper limits of the hand-brake angle.
+    /// \param[out] _min Lower hand-brake limit (radians).
+    /// \param[out] _max Upper hand-brake limit (radians).
+    public: void GetHandBrakeLimits(double &_min, double &_max);
+
+    /// \brief Returns the hand-brake angle (rad).
+    public: double GetHandBrakeState();
+
+    /// \brief Returns the percent utilization of the handbrake relative to
+    ///        joint limits.
+    public: double GetHandBrakePercent();
 
     /// \brief Specify front wheel orientation in radians (Note: this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
@@ -127,30 +224,62 @@ namespace gazebo
     /// \param[in] _position Desired gas pedal position in meters.
     public: void SetGasPedalState(double _position);
 
-    /// Sets gas pedal position limits in meters.
+    // /// \brief Specify gas pedal position in meters.
+    // /// \param[in] _msg ROS std_msgs::Float64 message.
+    // public: void SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg);
+
+    /// \brief Specify gas pedal position limits in meters.
+    /// \param[in] _min Lower limit of gas pedal position (meters).
+    /// \param[in] _max Upper limit of gas pedal position (meters).
     public: void SetGasPedalLimits(double _min, double _max);
 
-    /// Returns gas pedal position limits in meters.
+    /// \brief Returns gas pedal position limits in meters.
+    /// \param[out] _min Lower limit of gas pedal position (meters).
+    /// \param[out] _max Upper limit of gas pedal position (meters).
     public: void GetGasPedalLimits(double &_min, double &_max);
 
-    /// Returns the gas pedal position in meters.
+    /// \brief Returns the gas pedal position in meters.
     public: double GetGasPedalState();
 
-    /// Specify gas pedal position in meters.
+    /// \brief Returns the percent utilization of the gas pedal relative to
+    ///        joint limits.
+    public: double GetGasPedalPercent();
+
+    /// \brief Specify brake pedal position in meters.
+    /// \param[in] _position Desired brake pedal position in meters.
     public: void SetBrakePedalState(double _position);
 
-    /// Sets gas pedal position limits in meters.
+    // /// \brief Specify brake pedal position in meters.
+    // /// \param[in] _msg ROS std_msgs::Float64 message.
+    // public: void SetBrakePedalState(const std_msgs::Float64::ConstPtr &_msg);
+
+    /// \brief Sets brake pedal position limits in meters.
+    /// \param[in] _min Lower limit of brake pedal position (meters).
+    /// \param[in] _max Upper limit of brake pedal position (meters).
     public: void SetBrakePedalLimits(double _min, double _max);
 
-    /// Returns gas pedal position limits in meters.
+    /// \brief Returns brake pedal position limits in meters.
+    /// \param[out] _min Lower limit of brake pedal position (meters).
+    /// \param[out] _max Upper limit of brake pedal position (meters).
     public: void GetBrakePedalLimits(double &_min, double &_max);
 
-    /// Returns the gas pedal position in meters.
+    /// \brief Returns the brake pedal position in meters.
     public: double GetBrakePedalState();
+
+    /// \brief Returns the percent utilization of the brake pedal relative to
+    ///        joint limits.
+    public: double GetBrakePedalPercent();
+
+    // /// Returns the ROS publish period (seconds).
+    // public: common::Time GetRosPublishPeriod();
+
+    // /// Set the ROS publish frequency (Hz).
+    // public: void SetRosPublishRate(double _hz);
 
     /// Default plugin init call.
     public: void Init();
 
+    private: double GetGasTorqueMultiplier();
     private: double get_collision_radius(physics::CollisionPtr _collision);
     private: math::Vector3 get_collision_position(physics::LinkPtr _link,
                                                   unsigned int id);
@@ -158,6 +287,7 @@ namespace gazebo
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
     private: physics::JointPtr handWheelJoint;
+    private: physics::JointPtr handBrakeJoint;
     private: physics::JointPtr flWheelJoint;
     private: physics::JointPtr frWheelJoint;
     private: physics::JointPtr blWheelJoint;
@@ -175,11 +305,13 @@ namespace gazebo
     private: double steeringRatio;
     private: double pedalForce;
     private: double handWheelForce;
+    private: double handBrakeForce;
     private: double steeredWheelForce;
 
-    private: double gasPedalCmd;
-    private: double brakePedalCmd;
-    private: double handWheelCmd;
+    protected: double gasPedalCmd;
+    protected: double brakePedalCmd;
+    protected: double handWheelCmd;
+    protected: double handBrakeCmd;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
@@ -190,6 +322,7 @@ namespace gazebo
     private: common::PID gasPedalPID;
     private: common::PID brakePedalPID;
     private: common::PID handWheelPID;
+    private: common::PID handBrakePID;
     private: common::PID flWheelSteeringPID;
     private: common::PID frWheelSteeringPID;
 
@@ -205,6 +338,9 @@ namespace gazebo
     private: double handWheelHigh;
     private: double handWheelLow;
     private: double handWheelRange;
+    private: double handBrakeHigh;
+    private: double handBrakeLow;
+    private: double handBrakeRange;
     private: double wheelRadius;
     private: double flWheelRadius;
     private: double frWheelRadius;
@@ -214,8 +350,11 @@ namespace gazebo
     private: double frontTrackWidth;
     private: double backTrackWidth;
 
-    /// state of cart
+    /// state of vehicle
+    private: KeyType keyState;
+    private: DirectionType directionState;
     private: double handWheelState;
+    private: double handBrakeState;
     private: double flSteeringState;
     private: double frSteeringState;
     private: double gasPedalState;
@@ -224,6 +363,26 @@ namespace gazebo
     private: double frWheelState;
     private: double blWheelState;
     private: double brWheelState;
+
+    // // ros stuff
+    // private: ros::NodeHandle* rosNode;
+    // private: ros::CallbackQueue queue_;
+    // private: void QueueThread();
+    // private: boost::thread callbackQueueThread;
+    // private: ros::Publisher pubBrakePedalState;
+    // private: ros::Publisher pubGasPedalState;
+    // private: ros::Publisher pubHandWheelState;
+    // private: ros::Publisher pubHandBrakeState;
+    // private: ros::Publisher pubKeyState;
+    // private: ros::Publisher pubDirectionState;
+    // private: ros::Subscriber subBrakePedalCmd;
+    // private: ros::Subscriber subGasPedalCmd;
+    // private: ros::Subscriber subHandWheelCmd;
+    // private: ros::Subscriber subHandBrakeCmd;
+    // private: ros::Subscriber subKeyCmd;
+    // private: ros::Subscriber subDirectionCmd;
+    // private: common::Time rosPublishPeriod;
+    // private: common::Time lastRosPublishTime;
   };
 /** \} */
 /// @}

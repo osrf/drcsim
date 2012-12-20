@@ -5,16 +5,16 @@
 
 typedef actionlib::SimpleActionClient< control_msgs::FollowJointTrajectoryAction > TrajClient;
 
-class RobotController
+class RobotArm
 {
 private:
   // Action client for the joint trajectory action 
-  // used to trigger the joints movement action
+  // used to trigger the arm movement action
   TrajClient* traj_client_;
 
 public:
   //! Initialize the action client and wait for action server to come up
-  RobotController() 
+  RobotArm() 
   {
     // tell the action client that we want to spin a thread by default
     //traj_client_ = new TrajClient("/drc_controller/joint_trajectory_action", true);
@@ -27,7 +27,7 @@ public:
   }
 
   //! Clean up the action client
-  ~RobotController()
+  ~RobotArm()
   {
     delete traj_client_;
   }
@@ -49,7 +49,7 @@ public:
       be in its own trajectory - a trajectory can have one or more waypoints
       depending on the desired application.
   */
-  control_msgs::FollowJointTrajectoryGoal jointExtensionTrajectory()
+  control_msgs::FollowJointTrajectoryGoal armExtensionTrajectory()
   {
     //our goal variable
     control_msgs::FollowJointTrajectoryGoal goal;
@@ -95,40 +95,38 @@ public:
     // Positions
     int ind = 0;
     goal.trajectory.points[ind].positions.resize(28);
-    ////////////////////////////////////////////////
-    goal.trajectory.points[ind].positions[0]  =  0.0;
-    goal.trajectory.points[ind].positions[1]  =  0.0;
-    goal.trajectory.points[ind].positions[2]  =  0.0;
-    goal.trajectory.points[ind].positions[3]  =  0.0;
-    goal.trajectory.points[ind].positions[4]  =  0.0;
-    goal.trajectory.points[ind].positions[5]  =  0.0;
+    goal.trajectory.points[ind].positions[0]  =   0.00;
+    goal.trajectory.points[ind].positions[1]  =   0.00;
+    goal.trajectory.points[ind].positions[2]  =   0.00;
+    goal.trajectory.points[ind].positions[3]  =   0.00;
+    goal.trajectory.points[ind].positions[4]  =   0.00;
+    goal.trajectory.points[ind].positions[5]  =   0.00;
 
-    goal.trajectory.points[ind].positions[6]  =  0.0;
-    goal.trajectory.points[ind].positions[7]  =  0.0;
-    goal.trajectory.points[ind].positions[8]  =  0.0;
-    goal.trajectory.points[ind].positions[9]  =  0.0;
-    goal.trajectory.points[ind].positions[10] =  0.0;
-    goal.trajectory.points[ind].positions[11] =  0.0;
+    goal.trajectory.points[ind].positions[6]  =   0.00;
+    goal.trajectory.points[ind].positions[7]  =   0.00;
+    goal.trajectory.points[ind].positions[8]  =   0.00;
+    goal.trajectory.points[ind].positions[9]  =   0.00;
+    goal.trajectory.points[ind].positions[10] =   0.00;
+    goal.trajectory.points[ind].positions[11] =   0.00;
 
-    goal.trajectory.points[ind].positions[12] =  0.0;
-    goal.trajectory.points[ind].positions[13] = -1.6;
-    goal.trajectory.points[ind].positions[14] =  0.0;
-    goal.trajectory.points[ind].positions[15] =  0.0;
-    goal.trajectory.points[ind].positions[16] =  0.0;
-    goal.trajectory.points[ind].positions[17] =  0.0;
+    goal.trajectory.points[ind].positions[12] =   0.00;
+    goal.trajectory.points[ind].positions[13] =  -1.60;
+    goal.trajectory.points[ind].positions[14] =   0.00;
+    goal.trajectory.points[ind].positions[15] =   0.00;
+    goal.trajectory.points[ind].positions[16] =   0.00;
+    goal.trajectory.points[ind].positions[17] =   0.00;
 
-    goal.trajectory.points[ind].positions[18] =  0.0;
-    goal.trajectory.points[ind].positions[19] =  1.6;
-    goal.trajectory.points[ind].positions[20] =  0.0;
-    goal.trajectory.points[ind].positions[21] =  0.0;
-    goal.trajectory.points[ind].positions[22] =  0.0;
-    goal.trajectory.points[ind].positions[23] =  0.0;
+    goal.trajectory.points[ind].positions[18] =   0.00;
+    goal.trajectory.points[ind].positions[19] =   1.60;
+    goal.trajectory.points[ind].positions[20] =   0.00;
+    goal.trajectory.points[ind].positions[21] =   0.00;
+    goal.trajectory.points[ind].positions[22] =   0.00;
+    goal.trajectory.points[ind].positions[23] =   0.00;
 
-    goal.trajectory.points[ind].positions[24] =  0.0;
-    goal.trajectory.points[ind].positions[25] =  0.0;
-    goal.trajectory.points[ind].positions[26] =  0.0;
-    goal.trajectory.points[ind].positions[27] =  0.0;
-
+    goal.trajectory.points[ind].positions[24] =   0.00;
+    goal.trajectory.points[ind].positions[25] =   0.00;
+    goal.trajectory.points[ind].positions[26] =   0.00;
+    goal.trajectory.points[ind].positions[27] =   0.00;
     // Velocities
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
@@ -137,6 +135,15 @@ public:
     }
     // To be reached 1 second after starting along the trajectory
     goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
+
+    // Velocities
+    goal.trajectory.points[ind].velocities.resize(28);
+    for (size_t j = 0; j < 28; ++j)
+    {
+      goal.trajectory.points[ind].velocities[j] = 0.0;
+    }
+    // To be reached 2 seconds after starting along the trajectory
+    goal.trajectory.points[ind].time_from_start = ros::Duration(7.0);
 
     // tolerances
     /*
@@ -193,13 +200,12 @@ int main(int argc, char** argv)
       wait = false;
   }
 
-  RobotController rc;
-  rc.startTrajectory(rc.jointExtensionTrajectory());
-
+  RobotArm arm;
+  // Start the trajectory
+  arm.startTrajectory(arm.armExtensionTrajectory());
   // Wait for trajectory completion
-  while(!rc.getState().isDone() && ros::ok())
+  while(!arm.getState().isDone() && ros::ok())
   {
-    // Start the trajectory
     ros::spinOnce();
     usleep(50000);
   }
