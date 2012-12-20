@@ -306,15 +306,22 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
+void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Pose pose(math::Vector3(_pose->position.x,
+                                _pose->position.y,
+                                _pose->position.z),
+                  math::Quaternion(_pose->orientation.w,
+                                   _pose->orientation.x,
+                                   _pose->orientation.y,
+                                   _pose->orientation.z));
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
   this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
                                               math::Quaternion());
 
-  this->drc_robot.model->SetLinkWorldPose(
+  this->drc_robot.model->SetLinkWorldPose(pose +
     this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
     this->drc_robot.pinLink);
 
@@ -386,7 +393,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drc_robot.model->SetLinkWorldPose(
+  this->drc_robot.model->SetLinkWorldPose(pose +
     this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
     this->drc_robot.pinLink);
 
@@ -402,8 +409,15 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
+void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Pose pose(math::Vector3(_pose->position.x,
+                                _pose->position.y,
+                                _pose->position.z),
+                  math::Quaternion(_pose->orientation.w,
+                                   _pose->orientation.x,
+                                   _pose->orientation.y,
+                                   _pose->orientation.z));
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
@@ -413,7 +427,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drc_robot.model->SetLinkWorldPose(
+  this->drc_robot.model->SetLinkWorldPose(pose +
     this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
     this->drc_robot.pinLink);
 

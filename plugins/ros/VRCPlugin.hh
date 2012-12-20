@@ -531,8 +531,8 @@ namespace gazebo
         this->Teleport(_pinLink, _pinJoint, _pose, jointPositions);
       }
 
-    /// Sets DRC Robot planar navigational command velocity
-    /// _cmd is a Vector3, where:
+    /// \brief Sets DRC Robot planar navigational command velocity
+    /// \param[in] _cmd A Vector3, where:
     ///   - x is the desired forward linear velocity, positive is robot-forward
     ///     and negative is robot-back.
     ///   - y is the desired lateral linear velocity, positive is robot-left
@@ -555,9 +555,15 @@ namespace gazebo
     public: void SetRobotMode(const std::string &_str);
 
 
-    // \brief Robot Vehicle Interaction
-    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
-    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
+    /// \brief Robot Vehicle Interaction, put robot in driver's seat.
+    /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
+    ///                 behavior.
+    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose);
+
+    /// \brief Robot Vehicle Interaction, put robot outside driver's side door.
+    /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
+    ///                 behavior.
+    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose);
 
     // \brief Cheats to teleport fire hose to hand and make a fixed joint
     public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
