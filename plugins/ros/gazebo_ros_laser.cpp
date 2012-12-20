@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -75,15 +74,6 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   // save pointers
   this->sdf = _sdf;
 
-  // ros callback queue for processing subscription
-  this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosLaser::LoadThread,this ) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Load the controller
-void GazeboRosLaser::LoadThread()
-{
   this->last_update_time_ = common::Time(0);
 
   this->parent_ray_sensor_ = boost::shared_dynamic_cast<sensors::RaySensor>(this->parent_sensor_);
@@ -93,7 +83,7 @@ void GazeboRosLaser::LoadThread()
 
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("frameName"))
   {
@@ -101,7 +91,7 @@ void GazeboRosLaser::LoadThread()
     this->frame_name_ = "/world";
   }
   else
-    this->frame_name_ = this->sdf->GetElement("frameName")->GetValueString();
+    this->frame_name_ = this->sdf->GetValueString("frameName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -109,7 +99,7 @@ void GazeboRosLaser::LoadThread()
     this->topic_name_ = "/world";
   }
   else
-    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetValueString("topicName");
 
   if (!this->sdf->HasElement("gaussianNoise"))
   {
@@ -117,7 +107,7 @@ void GazeboRosLaser::LoadThread()
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = this->sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussian_noise_ = this->sdf->GetValueDouble("gaussianNoise");
 
   if (!this->sdf->HasElement("hokuyoMinIntensity"))
   {
@@ -125,7 +115,8 @@ void GazeboRosLaser::LoadThread()
     this->hokuyo_min_intensity_ = 101;
   }
   else
-    this->hokuyo_min_intensity_ = this->sdf->GetElement("hokuyoMinIntensity")->GetValueDouble();
+    this->hokuyo_min_intensity_ =
+      this->sdf->GetValueDouble("hokuyoMinIntensity");
 
   ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyo_min_intensity_);
 
@@ -135,7 +126,7 @@ void GazeboRosLaser::LoadThread()
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = this->sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetValueDouble("updateRate");
 
   // set parent sensor update rate
   this->parent_sensor_->SetUpdateRate(this->update_rate_);
@@ -151,13 +142,25 @@ void GazeboRosLaser::LoadThread()
   this->laser_connect_count_ = 0;
 
   // Init ROS
-  if (!ros::isInitialized())
+  if (ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
+    // ros callback queue for processing subscription
+    this->deferred_load_thread_ = boost::thread(
+      boost::bind( &GazeboRosLaser::LoadThread,this ) );
+  }
+  else
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
   }
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosLaser::LoadThread()
+{
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // resolve tf prefix

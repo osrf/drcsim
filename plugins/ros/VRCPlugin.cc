@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
+ * Desc: Plugin to allow development shortcuts for VRC competition.
+ * Author: John Hsu and Steven Peters
+ * Date: December 2012
  */
 
 #include "VRCPlugin.hh"
@@ -71,14 +69,14 @@ void VRCPlugin::LoadThread()
   // initialize ros
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc,argv,"gazebo",
-      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("~");
+  this->rosnode_ = new ros::NodeHandle("");
 
   // load VRC ROS API
   this->LoadVRCROSAPI();
@@ -92,6 +90,9 @@ void VRCPlugin::LoadThread()
 
   // Load Vehicle
   this->drc_vehicle.Load(this->world, this->sdf);
+
+  // Load fire hose and standpipe
+  this->drc_fire_hose.Load(this->world, this->sdf);
 
   // Setup ROS interfaces for robot
   this->LoadRobotROSAPI();
@@ -117,11 +118,13 @@ void VRCPlugin::LoadThread()
      boost::bind(&VRCPlugin::UpdateStates, this));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotModeTopic(const std_msgs::String::ConstPtr &_str)
 {
   this->SetRobotMode(_str->data);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotMode(const std::string &_str)
 {
   if (_str == "no_gravity")
@@ -174,6 +177,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "nominal")
   {
     // reinitialize pinning
+    this->warpRobotWithCmdVel = false;
     physics::Link_V links = this->drc_robot.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
@@ -189,6 +193,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
   if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
@@ -203,6 +208,7 @@ void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 {
   math::Pose pose(math::Vector3(_pose->position.x,
@@ -215,7 +221,8 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
   this->drc_robot.model->SetWorldPose(pose);
 }
 
-void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   /// \todo: get these from incoming message
   std::string modelName = "fire_hose";
@@ -248,7 +255,9 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd)
     }
   }
 }
-void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd)
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   this->RemoveJoint(this->grabJoint);
 }
@@ -269,7 +278,7 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   joint->Attach(_link1, _link2);
   // load adds the joint to a vector of shared pointers kept
   // in parent and child links, preventing joint from being destroyed.
-  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+  joint->Load(_link1, _link2, _anchor);
   // joint->SetAnchor(0, _anchor);
   joint->SetAxis(0, _axis);
   joint->SetHighStop(0, _upper);
@@ -293,15 +302,23 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   return joint;
 }
 
-void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Pose pose(math::Vector3(_pose->position.x,
+                                _pose->position.y,
+                                _pose->position.z),
+                  math::Quaternion(_pose->orientation.w,
+                                   _pose->orientation.x,
+                                   _pose->orientation.y,
+                                   _pose->orientation.z));
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
   this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
                                               math::Quaternion());
 
-  this->drc_robot.model->SetLinkWorldPose(
+  this->drc_robot.model->SetLinkWorldPose(pose +
     this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
     this->drc_robot.pinLink);
 
@@ -352,7 +369,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
 
   // wait for action server to come up
   while(!this->joint_trajectory_controller.traj_client_->waitForServer(
-    ros::Duration(1.0))){
+    ros::Duration(1.0)))
+  {
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
@@ -367,12 +385,12 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
   }
   ROS_INFO("set configuration done");
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.17),
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
                                               math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drc_robot.model->SetLinkWorldPose(
+  this->drc_robot.model->SetLinkWorldPose(pose +
     this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
     this->drc_robot.pinLink);
 
@@ -387,18 +405,26 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd)
                                        0.0, 0.0);
 }
 
-void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Pose pose(math::Vector3(_pose->position.x,
+                                _pose->position.y,
+                                _pose->position.z),
+                  math::Quaternion(_pose->orientation.w,
+                                   _pose->orientation.x,
+                                   _pose->orientation.y,
+                                   _pose->orientation.z));
   if (this->drc_robot.pinJoint)
     this->RemoveJoint(this->drc_robot.pinJoint);
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.5, 1.20),
+  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
                                               math::Quaternion());
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drc_robot.model->SetLinkWorldPose(
+  this->drc_robot.model->SetLinkWorldPose(pose +
     this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
     this->drc_robot.pinLink);
 
@@ -433,16 +459,6 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd)
     this->RemoveJoint(this->vehicleRobotJoint);
 }
 
-void VRCPlugin::SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd)
-{
-
-}
-
-void VRCPlugin::SetBrakePedalPose(const geometry_msgs::Pose::ConstPtr &_cmd)
-{
-
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // remove a joint
@@ -463,10 +479,11 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
                          physics::JointPtr &_pinJoint,
                          const math::Pose &_pose,
-                         const std::map<std::string, double> &_jointPositions)
+                       const std::map<std::string, double> &/*_jointPositions*/)
 {
   // pause, break joint, update pose, create new joint, unpause
   bool p = this->world->IsPaused();
@@ -493,20 +510,23 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
 // Play the trajectory, update states
 void VRCPlugin::UpdateStates()
 {
-  double cur_time = this->world->GetSimTime().Double();
+  double curTime = this->world->GetSimTime().Double();
 
-  if (this->drc_robot.startupHarness && cur_time > 10)
+  if (this->drc_robot.startupHarness && curTime > 10)
   {
     this->SetRobotMode("nominal");
     this->drc_robot.startupHarness = false;
   }
 
-  if (this->warpRobotWithCmdVel && cur_time - this->lastUpdateTime >= 0)
+  if (curTime > this->lastUpdateTime)
   {
-    double dt = cur_time - this->lastUpdateTime;
-    if (dt > 0)
+    this->CheckThreadStart();
+
+    double dt = curTime - this->lastUpdateTime;
+
+    if (this->warpRobotWithCmdVel)
     {
-      this->lastUpdateTime = cur_time;
+      this->lastUpdateTime = curTime;
       math::Pose cur_pose = this->drc_robot.pinLink->GetWorldPose();
       math::Pose new_pose = cur_pose;
 
@@ -535,6 +555,7 @@ void VRCPlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::ROSQueueThread()
 {
   static const double timeout = 0.01;
@@ -545,6 +566,113 @@ void VRCPlugin::ROSQueueThread()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+{
+  this->isInitialized = false;
+
+  sdf::ElementPtr sdf = _sdf->GetElement("drc_fire_hose");
+  // Get special coupling links (on the firehose side)
+  std::string fireHoseModelName = sdf->GetValueString("fire_hose_model");
+  this->fireHoseModel = _world->GetModel(fireHoseModelName);
+  if (!this->fireHoseModel)
+  {
+    gzerr << "fire_hose_model [" << fireHoseModelName << "] not found\n";
+    return;
+  }
+
+  // Get coupling link
+  std::string couplingLinkName = sdf->GetValueString("coupling_link");
+  this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
+  if (!this->couplingLink)
+  {
+    gzerr << "coupling [" << couplingLinkName << "] not found\n";
+    return;
+  }
+
+  // Get joints
+  this->fireHoseJoints = this->fireHoseModel->GetJoints();
+
+  // Get links
+  this->fireHoseLinks = this->fireHoseModel->GetLinks();
+
+  // Get special links from the standpipe
+  std::string standpipeModelName = sdf->GetValueString("standpipe_model");
+  this->standpipeModel = _world->GetModel(standpipeModelName);
+  if (!this->standpipeModel)
+  {
+    gzerr << "standpipe_model [" << standpipeModelName << "] not found\n";
+    return;
+  }
+
+  // Get spout link
+  std::string spoutLinkName = sdf->GetValueString("spout_link");
+  this->spoutLink = this->standpipeModel->GetLink(spoutLinkName);
+  if (!this->spoutLink)
+  {
+    gzerr << "spout [" << spoutLinkName << "] not found\n";
+    return;
+  }
+
+  this->threadPitch = sdf->GetValueDouble("thread_pitch");
+
+  this->couplingRelativePose = sdf->GetValuePose("coupling_relative_pose");
+
+  // Set initial configuration
+  // this->SetInitialConfiguration();
+
+  this->isInitialized = true;
+}
+
+void VRCPlugin::CheckThreadStart()
+{
+  if (!this->drc_fire_hose.isInitialized)
+    return;
+
+  // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
+  // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
+  math::Pose connectPose(this->drc_fire_hose.couplingRelativePose);
+  math::Pose relativePose = this->drc_fire_hose.couplingLink->GetWorldPose() -
+                            this->drc_fire_hose.spoutLink->GetWorldPose();
+
+  math::Pose connectOffset = relativePose - connectPose;
+
+  double posErr = (relativePose.pos - connectPose.pos).GetLength();
+  double rotErr = (relativePose.rot.GetZAxis() -
+                   connectPose.rot.GetZAxis()).GetLength();
+
+  // gzdbg << "connect offset [" << connectOffset
+  //       << "] xyz [" << posErr
+  //       << "] rpy [" << rotErr
+  //       << "]\n";
+
+  if (!this->drc_fire_hose.screwJoint)
+  {
+    if (posErr < 0.01 && rotErr < 0.01)
+    {
+      this->drc_fire_hose.screwJoint =
+        this->AddJoint(this->world, this->drc_fire_hose.fireHoseModel,
+                       this->drc_fire_hose.spoutLink,
+                       this->drc_fire_hose.couplingLink,
+                       "screw",
+                       math::Vector3(0, 0, 0),
+                       math::Vector3(0, 0, 1),
+                       20.0/1000, -0.5/1000);
+                       // 20.0, -0.5); // recover threadPitch
+    }
+  }
+  else
+  {
+    // check joint position to disconnect
+    double position = this->drc_fire_hose.screwJoint->GetAngle(0).Radian();
+    // gzerr << "position " << position << "\n";
+    if (position < -0.0003)
+      this->RemoveJoint(this->drc_fire_hose.screwJoint);
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
@@ -588,6 +716,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialPose = this->seatLink->GetWorldPose();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   // load parameters
@@ -631,10 +760,11 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialPose = this->pinLink->GetWorldPose();
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadVRCROSAPI()
 {
   // ros subscription
-  std::string robot_enter_car_topic_name = "/drc_world/robot_enter_car";
+  std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
   ros::SubscribeOptions robot_enter_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_enter_car_topic_name, 100,
@@ -642,7 +772,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_enter_car_sub_ = this->rosnode_->subscribe(robot_enter_car_so);
 
-  std::string robot_exit_car_topic_name = "/drc_world/robot_exit_car";
+  std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
   ros::SubscribeOptions robot_exit_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_exit_car_topic_name, 100,
@@ -650,7 +780,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_exit_car_sub_ = this->rosnode_->subscribe(robot_exit_car_so);
 
-  std::string robot_grab_topic_name = "/drc_world/robot_grab_link";
+  std::string robot_grab_topic_name = "drc_world/robot_grab_link";
   ros::SubscribeOptions robot_grab_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_grab_topic_name, 100,
@@ -658,7 +788,7 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->robot_grab_sub_ = this->rosnode_->subscribe(robot_grab_so);
 
-  std::string robot_release_topic_name = "/drc_world/robot_release_link";
+  std::string robot_release_topic_name = "drc_world/robot_release_link";
   ros::SubscribeOptions robot_release_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_release_topic_name, 100,
@@ -667,35 +797,36 @@ void VRCPlugin::LoadVRCROSAPI()
   this->robot_release_sub_ = this->rosnode_->subscribe(robot_release_so);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadRobotROSAPI()
 {
   // ros subscription
-  std::string trajectory_topic_name = "/cmd_vel";
+  std::string trajectory_topic_name = "drc_robot/cmd_vel";
   ros::SubscribeOptions trajectory_so =
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
-    boost::bind( &VRCPlugin::SetRobotCmdVel,this,_1),
+    boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
 
-  std::string pose_topic_name = "/drc_robot/pose";
+  std::string pose_topic_name = "drc_robot/set_pose";
   ros::SubscribeOptions pose_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     pose_topic_name, 100,
-    boost::bind( &VRCPlugin::SetRobotPose,this,_1),
+    boost::bind(&VRCPlugin::SetRobotPose,this,_1),
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.pose_sub_ = this->rosnode_->subscribe(pose_so);
 
-  std::string configuration_topic_name = "/drc_robot/configuration";
+  std::string configuration_topic_name = "drc_robot/configuration";
   ros::SubscribeOptions configuration_so =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     configuration_topic_name, 100,
-    boost::bind( &VRCPlugin::SetRobotConfiguration,this,_1),
+    boost::bind(&VRCPlugin::SetRobotConfiguration, this, _1),
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.configuration_sub_ =
     this->rosnode_->subscribe(configuration_so);
 
-  std::string mode_topic_name = "/drc_robot/mode";
+  std::string mode_topic_name = "drc_robot/mode";
   ros::SubscribeOptions mode_so =
     ros::SubscribeOptions::create<std_msgs::String>(
     mode_topic_name, 100,
@@ -703,10 +834,13 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::VoidPtr(), &this->ros_queue_);
   this->drc_robot.mode_sub_ = this->rosnode_->subscribe(mode_so);
 }
-void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-  &_cmd)
-{
 
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
+  &/* _cmd */)
+{
+  // This function is planned but not yet implemented.
+  ROS_ERROR("The /drc_robot/configuration handler is not implemented.\n");
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCPlugin)

@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -64,25 +63,15 @@ void GazeboRosJointTrajectory::Load(physics::ModelPtr _model, sdf::ElementPtr _s
   // save pointers
   this->model_ = _model;
   this->sdf = _sdf;
-
-  // ros callback queue for processing subscription
-  this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosJointTrajectory::LoadThread,this ) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Load the controller
-void GazeboRosJointTrajectory::LoadThread()
-{
-  // Get the world
   this->world_ = this->model_->GetWorld();
+
 
   //this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
 
   // load parameters
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("serviceName"))
   {
@@ -90,7 +79,7 @@ void GazeboRosJointTrajectory::LoadThread()
     this->service_name_ = "set_joint_trajectory";
   }
   else
-    this->service_name_ = this->sdf->GetElement("serviceName")->GetValueString();
+    this->service_name_ = this->sdf->GetValueString("serviceName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -98,7 +87,7 @@ void GazeboRosJointTrajectory::LoadThread()
     this->topic_name_ = "set_joint_trajectory";
   }
   else
-    this->topic_name_ = this->sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetValueString("topicName");
 
   if (!this->sdf->HasElement("updateRate"))
   {
@@ -106,17 +95,26 @@ void GazeboRosJointTrajectory::LoadThread()
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = this->sdf->GetElement("updateRate")->GetValueDouble();
+    this->update_rate_ = this->sdf->GetValueDouble("updateRate");
 
-  // Wait for ROS
-  if (!ros::isInitialized())
+  // ros callback queue for processing subscription
+  if (ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
-    gzwarn << "should start ros::init in simulation by using the system plugin\n";
+    this->deferred_load_thread_ = boost::thread(
+      boost::bind( &GazeboRosJointTrajectory::LoadThread,this ) );
   }
+  else
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+  }
+}
 
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosJointTrajectory::LoadThread()
+{
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // resolve tf prefix

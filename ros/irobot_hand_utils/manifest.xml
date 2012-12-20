@@ -5,7 +5,7 @@
 
   </description>
   <author>hsu</author>
-  <license>BSD</license>
+  <license>Apache 2.0</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/irobot_hand_utils</url>
   <depend package="urdf"/>

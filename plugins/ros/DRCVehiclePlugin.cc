@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -407,10 +406,10 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   // initialize ros
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc,argv,"gazebo",
-      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   // ros stuff
@@ -525,13 +524,13 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->pedalForce, -this->pedalForce);
   this->brakePedalPID.Init(200, 0, 3, 10, -10,
                          this->pedalForce, -this->pedalForce);
-  this->handWheelPID.Init(30, 0, 3.0, 5.0, -5.0,
+  this->handWheelPID.Init(200, 0, 30.0, 5.0, -5.0,
                          this->handWheelForce, -this->handWheelForce);
   this->handBrakePID.Init(30, 0, 3.0, 5.0, -5.0,
                          this->handBrakeForce, -this->handBrakeForce);
-  this->flWheelSteeringPID.Init(500, 1, 10, 50, -50,
+  this->flWheelSteeringPID.Init(5000, 0, 500, 50, -50,
                          this->steeredWheelForce, -this->steeredWheelForce);
-  this->frWheelSteeringPID.Init(500, 1, 10, 50, -50,
+  this->frWheelSteeringPID.Init(5000, 0, 500, 50, -50,
                          this->steeredWheelForce, -this->steeredWheelForce);
 
   ros::SubscribeOptions hand_wheel_cmd_so =

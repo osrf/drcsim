@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface.
- * Author: Sachin Chitta and John Hsu
- * Date: 10 June 2008
- * SVN: $Id$
+ * Desc: Plugin to allow development shortcuts for VRC competition.
+ * Author: John Hsu and Steven Peters
+ * Date: December 2012
  */
 #ifndef GAZEBO_VRC_PLUGIN_HH
 #define GAZEBO_VRC_PLUGIN_HH
@@ -41,15 +39,14 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "math/Vector3.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-
-#include "boost/thread/mutex.hpp"
+#include "gazebo/math/Vector3.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
 
 typedef actionlib::SimpleActionClient<
   control_msgs::FollowJointTrajectoryAction > TrajClient;
@@ -63,12 +60,15 @@ namespace gazebo
     /// \brief Destructor
     public: virtual ~VRCPlugin();
 
-    /// \brief Load the controller
+    /// \brief Load the plugin.
+    /// \param[in] _parent Pointer to parent world.
+    /// \param[in] _sdf Pointer to sdf element.
     public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
     /// \brief Update the controller
     private: void UpdateStates();
 
+    /// \brief Pointer to parent world.
     private: physics::WorldPtr world;
 
     /// \brief Mutex for VRC Plugin
@@ -92,15 +92,18 @@ namespace gazebo
       /// teleporting the robot.
       public: math::Pose initialPose;
 
-      /// \brief Pose of robot relative to vehicle
+      /// \brief Pose of robot relative to vehicle.
       public: math::Pose vehicleRelPose;
 
-      /// \brief robot configuration when inside of vehicle
+      /// \brief Robot configuration when inside of vehicle.
       public: std::map<std::string, double> inVehicleConfiguration;
 
-      /// flag to keep track of start-up 'harness' on the robot
+      /// \brief Flag to keep track of start-up 'harness' on the robot.
       public: bool startupHarness;
 
+      /// \brief Load the drc_robot portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
       public: ros::Subscriber trajectory_sub_;
@@ -121,9 +124,63 @@ namespace gazebo
       public: math::Pose initialPose;
       public: physics::LinkPtr seatLink;
 
+      /// \brief Load the drc_vehicle portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
     } drc_vehicle;
 
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //   DRC Fire Hose (and Standpipe)                                        //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
+    private: class FireHose
+    {
+      public: physics::ModelPtr fireHoseModel;
+      public: physics::ModelPtr standpipeModel;
+
+      /// joint for pinning a link to the world
+      public: physics::JointPtr fixedJoint;
+
+      /// joints and links
+      public: physics::Joint_V fireHoseJoints;
+      public: physics::Link_V fireHoseLinks;
+      /// screw joint
+      public: physics::JointPtr screwJoint;
+      public: double threadPitch;
+
+      /// Pointer to the update event connection
+      public: event::ConnectionPtr updateConnection;
+
+      public: physics::LinkPtr couplingLink;
+      public: physics::LinkPtr spoutLink;
+      public: math::Pose couplingRelativePose;
+
+      /// \brief flag for successful initialization of fire hose, standpipe
+      public: bool isInitialized;
+
+      /// \brief set initial configuration of the fire hose link
+      public: void SetInitialConfiguration()
+      {
+        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
+        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+
+        // for (unsigned int i = 0; i < this->links.size(); ++i)
+        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
+
+        this->fireHoseJoints[17]->SetAngle(0, -M_PI/4.0);
+        this->fireHoseJoints[19]->SetAngle(0, -M_PI/4.0);
+      }
+
+      /// \brief Load the drc_fire_hose portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+    } drc_fire_hose;
+
+    /// \brief check and spawn thread if links are aligned
+    private: void CheckThreadStart();
 
     /// \brief fix robot butt to vehicle for efficiency
     // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
@@ -175,12 +232,12 @@ namespace gazebo
       }
 
       //! Sends the command to start a given trajectory
-      void startTrajectory(control_msgs::FollowJointTrajectoryGoal goal)
+      void startTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
       {
         // When to start the trajectory: 1s from now
-        goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
+        _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-        traj_client_->sendGoal(goal);
+        traj_client_->sendGoal(_goal);
       }
 
       //! Generates a simple trajectory with two waypoints, used as an example
@@ -456,7 +513,7 @@ namespace gazebo
     private: void Teleport(const physics::LinkPtr &_pinLink,
                           physics::JointPtr &_pinJoint,
                           const math::Pose &_pose,
-                          const std::map<std::string, double> &_jointPositions);
+                      const std::map<std::string, double> &/*_jointPositions*/);
 
     /// \brief sets robot's absolute world pose
     private: void Teleport(const physics::LinkPtr &_pinLink,
@@ -468,8 +525,8 @@ namespace gazebo
         this->Teleport(_pinLink, _pinJoint, _pose, jointPositions);
       }
 
-    /// Sets DRC Robot planar navigational command velocity
-    /// _cmd is a Vector3, where:
+    /// \brief Sets DRC Robot planar navigational command velocity
+    /// \param[in] _cmd A Vector3, where:
     ///   - x is the desired forward linear velocity, positive is robot-forward
     ///     and negative is robot-back.
     ///   - y is the desired lateral linear velocity, positive is robot-left
@@ -483,7 +540,7 @@ namespace gazebo
 
     /// \brief sets robot's joint positions
     public: void SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-                                       &_cmd);
+                                       &/*_cmd*/);
 
     /// \brief sets robot mode via ros topic
     public: void SetRobotModeTopic(const std_msgs::String::ConstPtr &_str);
@@ -492,19 +549,22 @@ namespace gazebo
     public: void SetRobotMode(const std::string &_str);
 
 
-    // \brief Robot Vehicle Interaction
-    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetGasPedalPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetBrakePedalPose(const geometry_msgs::Pose::ConstPtr &_cmd);
+    /// \brief Robot Vehicle Interaction, put robot in driver's seat.
+    /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
+    ///                 behavior.
+    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose);
+
+    /// \brief Robot Vehicle Interaction, put robot outside driver's side door.
+    /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
+    ///                 behavior.
+    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose);
 
     // \brief Cheats to teleport fire hose to hand and make a fixed joint
     public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
     // \brief create a fixed joint between robot hand link and a nearby link
-    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
+    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
 
 
 
@@ -523,7 +583,8 @@ namespace gazebo
                                         math::Vector3 _axis,
                                         double _upper, double _lower);
 
-    /// \brief Remove a joint
+    /// \brief Remove a joint.
+    /// \param[in] _joint Joint to remove.
     private: void RemoveJoint(physics::JointPtr &_joint);
 
     /// \brief setup Robot ROS publication and sbuscriptions for the Robot
