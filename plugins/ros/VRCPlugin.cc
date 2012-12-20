@@ -41,11 +41,11 @@ VRCPlugin::VRCPlugin()
 VRCPlugin::~VRCPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
-  this->rosnode_->shutdown();
-  this->ros_queue_.clear();
-  this->ros_queue_.disable();
-  this->callback_queue_thread_.join();
-  delete this->rosnode_;
+  this->rosNode->shutdown();
+  this->rosQueue.clear();
+  this->rosQueue.disable();
+  this->callbackQueueThread.join();
+  delete this->rosNode;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
   this->sdf = _sdf;
 
   // ros callback queue for processing subscription
-  this->deferred_load_thread_ = boost::thread(
+  this->deferredLoadThread = boost::thread(
     boost::bind(&VRCPlugin::LoadThread, this));
 }
 
@@ -76,7 +76,7 @@ void VRCPlugin::LoadThread()
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("");
+  this->rosNode = new ros::NodeHandle("");
 
   // load VRC ROS API
   this->LoadVRCROSAPI();
@@ -86,13 +86,13 @@ void VRCPlugin::LoadThread()
   this->robotCmdVel = geometry_msgs::Twist();
 
   // Load Robot
-  this->drc_robot.Load(this->world, this->sdf);
+  this->drcRobot.Load(this->world, this->sdf);
 
   // Load Vehicle
-  this->drc_vehicle.Load(this->world, this->sdf);
+  this->drcVehicle.Load(this->world, this->sdf);
 
   // Load fire hose and standpipe
-  this->drc_fire_hose.Load(this->world, this->sdf);
+  this->drcFireHose.Load(this->world, this->sdf);
 
   // Setup ROS interfaces for robot
   this->LoadRobotROSAPI();
@@ -100,10 +100,10 @@ void VRCPlugin::LoadThread()
   // Harness the Robot
   // On startup, simulate "virtual harness" by turning gravity off
   // allowing the controllers can initialize without the robot falling
-  if (this->drc_robot.isInitialized)
+  if (this->drcRobot.isInitialized)
   {
     this->SetRobotMode("pinned");
-    this->drc_robot.startupHarness = true;
+    this->drcRobot.startupHarness = true;
     ROS_INFO("Start robot with gravity turned off and harnessed.");
     ROS_INFO("Resume to nominal mode after 10 seconds.");
   }
@@ -111,7 +111,7 @@ void VRCPlugin::LoadThread()
 
 
   // ros callback queue for processing subscription
-  this->callback_queue_thread_ = boost::thread(
+  this->callbackQueueThread = boost::thread(
     boost::bind( &VRCPlugin::ROSQueueThread,this ) );
 
   // Mechanism for Updating every World Cycle
@@ -134,19 +134,19 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->drc_robot.model->GetLinks();
+    physics::Link_V links = this->drcRobot.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
     }
-    if (this->drc_robot.pinJoint)
-      this->RemoveJoint(this->drc_robot.pinJoint);
+    if (this->drcRobot.pinJoint)
+      this->RemoveJoint(this->drcRobot.pinJoint);
   }
   else if (_str == "feet")
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->drc_robot.model->GetLinks();
+    physics::Link_V links = this->drcRobot.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
@@ -154,24 +154,24 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       else
         links[i]->SetGravityMode(false);
     }
-    if (this->drc_robot.pinJoint)
-      this->RemoveJoint(this->drc_robot.pinJoint);
+    if (this->drcRobot.pinJoint)
+      this->RemoveJoint(this->drcRobot.pinJoint);
   }
   else if (_str == "pinned")
   {
     // pinning robot, and turning off effect of gravity
-    if (!this->drc_robot.pinJoint)
-      this->drc_robot.pinJoint = this->AddJoint(this->world,
-                                        this->drc_robot.model,
+    if (!this->drcRobot.pinJoint)
+      this->drcRobot.pinJoint = this->AddJoint(this->world,
+                                        this->drcRobot.model,
                                         physics::LinkPtr(),
-                                        this->drc_robot.pinLink,
+                                        this->drcRobot.pinLink,
                                         "revolute",
                                         math::Vector3(0, 0, 0),
                                         math::Vector3(0, 0, 1),
                                         0.0, 0.0);
-    this->drc_robot.initialPose = this->drc_robot.pinLink->GetWorldPose();
+    this->drcRobot.initialPose = this->drcRobot.pinLink->GetWorldPose();
 
-    physics::Link_V links = this->drc_robot.model->GetLinks();
+    physics::Link_V links = this->drcRobot.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
@@ -181,13 +181,13 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // reinitialize pinning
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->drc_robot.model->GetLinks();
+    physics::Link_V links = this->drcRobot.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
     }
-    if (this->drc_robot.pinJoint)
-      this->RemoveJoint(this->drc_robot.pinJoint);
+    if (this->drcRobot.pinJoint)
+      this->RemoveJoint(this->drcRobot.pinJoint);
   }
   else
   {
@@ -221,7 +221,7 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
                                    _pose->orientation.x,
                                    _pose->orientation.y,
                                    _pose->orientation.z));
-  this->drc_robot.model->SetWorldPose(pose);
+  this->drcRobot.model->SetWorldPose(pose);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
     physics::LinkPtr object = grabModel->GetLink(linkName);
     if (object)
     {
-      physics::LinkPtr gripper = this->drc_robot.model->GetLink(gripperName);
+      physics::LinkPtr gripper = this->drcRobot.model->GetLink(gripperName);
       if (gripper)
       {
         // teleports the object being attached together
@@ -248,7 +248,7 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
         grabModel->SetLinkWorldPose(pose, object);
 
         if (!this->grabJoint)
-          this->grabJoint = this->AddJoint(this->world, this->drc_robot.model,
+          this->grabJoint = this->AddJoint(this->world, this->drcRobot.model,
                                            gripper, object,
                                            "revolute",
                                            math::Vector3(0, 0, 0),
@@ -314,24 +314,24 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
                                 _pose->position.z), q);
-  if (this->drc_robot.pinJoint)
-    this->RemoveJoint(this->drc_robot.pinJoint);
+  if (this->drcRobot.pinJoint)
+    this->RemoveJoint(this->drcRobot.pinJoint);
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+  this->drcRobot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
                                               math::Quaternion());
 
-  this->drc_robot.model->SetLinkWorldPose(pose +
-    this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
-    this->drc_robot.pinLink);
+  this->drcRobot.model->SetLinkWorldPose(pose +
+    this->drcRobot.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->drcRobot.pinLink);
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
-                                       this->drc_vehicle.model,
-                                       this->drc_vehicle.seatLink,
-                                       this->drc_robot.pinLink,
+                                       this->drcVehicle.model,
+                                       this->drcVehicle.seatLink,
+                                       this->drcRobot.pinLink,
                                        "revolute",
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
@@ -366,41 +366,41 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   jointPositions["drc_robot::r_arm_shx"] =  0.00;
   jointPositions["drc_robot::r_arm_usy"] =  1.60;
   jointPositions["drc_robot::r_arm_uwy"] =  0.00;
-  this->drc_robot.model->SetJointPositions(jointPositions);
+  this->drcRobot.model->SetJointPositions(jointPositions);
 */
 
   // wait for action server to come up
-  while(!this->joint_trajectory_controller.traj_client_->waitForServer(
+  while(!this->jointTrajectoryController.clientTraj->waitForServer(
     ros::Duration(1.0)))
   {
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
-  this->joint_trajectory_controller.startTrajectory(
-    this->joint_trajectory_controller.seatingConfiguration());
+  this->jointTrajectoryController.startTrajectory(
+    this->jointTrajectoryController.seatingConfiguration());
 
   // Wait for trajectory completion
-  while(!joint_trajectory_controller.getState().isDone() && ros::ok())
+  while(!jointTrajectoryController.getState().isDone() && ros::ok())
   {
     ros::spinOnce();
     usleep(50000);
   }
   ROS_INFO("set configuration done");
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
+  this->drcRobot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
                                               math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drc_robot.model->SetLinkWorldPose(pose +
-    this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
-    this->drc_robot.pinLink);
+  this->drcRobot.model->SetLinkWorldPose(pose +
+    this->drcRobot.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->drcRobot.pinLink);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
-                                       this->drc_vehicle.model,
-                                       this->drc_vehicle.seatLink,
-                                       this->drc_robot.pinLink,
+                                       this->drcVehicle.model,
+                                       this->drcVehicle.seatLink,
+                                       this->drcRobot.pinLink,
                                        "revolute",
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
@@ -417,40 +417,40 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                    _pose->orientation.x,
                                    _pose->orientation.y,
                                    _pose->orientation.z));
-  if (this->drc_robot.pinJoint)
-    this->RemoveJoint(this->drc_robot.pinJoint);
+  if (this->drcRobot.pinJoint)
+    this->RemoveJoint(this->drcRobot.pinJoint);
 
-  this->drc_robot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
+  this->drcRobot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
                                               math::Quaternion());
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drc_robot.model->SetLinkWorldPose(pose +
-    this->drc_robot.vehicleRelPose + this->drc_vehicle.model->GetWorldPose(),
-    this->drc_robot.pinLink);
+  this->drcRobot.model->SetLinkWorldPose(pose +
+    this->drcRobot.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->drcRobot.pinLink);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
-                                       this->drc_vehicle.model,
-                                       this->drc_vehicle.seatLink,
-                                       this->drc_robot.pinLink,
+                                       this->drcVehicle.model,
+                                       this->drcVehicle.seatLink,
+                                       this->drcRobot.pinLink,
                                        "revolute",
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
 
   // wait for action server to come up
-  while(!this->joint_trajectory_controller.traj_client_->waitForServer(
+  while(!this->jointTrajectoryController.clientTraj->waitForServer(
     ros::Duration(1.0))){
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
-  this->joint_trajectory_controller.startTrajectory(
-    this->joint_trajectory_controller.standingConfiguration());
+  this->jointTrajectoryController.startTrajectory(
+    this->jointTrajectoryController.standingConfiguration());
 
   // Wait for trajectory completion
-  while(!joint_trajectory_controller.getState().isDone() && ros::ok())
+  while(!jointTrajectoryController.getState().isDone() && ros::ok())
   {
     ros::spinOnce();
     usleep(50000);
@@ -499,7 +499,7 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
     _pinJoint = this->AddJoint(this->world,
                                _pinLink->GetModel(),
                                physics::LinkPtr(),
-                               this->drc_robot.pinLink,
+                               this->drcRobot.pinLink,
                                "revolute",
                                math::Vector3(0, 0, 0),
                                math::Vector3(0, 0, 1),
@@ -514,11 +514,11 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
 
-  if (this->drc_robot.isInitialized &&
-      this->drc_robot.startupHarness && curTime > 10)
+  if (this->drcRobot.isInitialized &&
+      this->drcRobot.startupHarness && curTime > 10)
   {
     this->SetRobotMode("nominal");
-    this->drc_robot.startupHarness = false;
+    this->drcRobot.startupHarness = false;
   }
 
   if (curTime > this->lastUpdateTime)
@@ -530,7 +530,7 @@ void VRCPlugin::UpdateStates()
     if (this->warpRobotWithCmdVel)
     {
       this->lastUpdateTime = curTime;
-      math::Pose cur_pose = this->drc_robot.pinLink->GetWorldPose();
+      math::Pose cur_pose = this->drcRobot.pinLink->GetWorldPose();
       math::Pose new_pose = cur_pose;
 
       // increment x,y in cur_pose frame
@@ -540,7 +540,7 @@ void VRCPlugin::UpdateStates()
 
       new_pose.pos = cur_pose.pos + cmd * dt;
       // prevent robot from drifting vertically
-      new_pose.pos.z = this->drc_robot.initialPose.pos.z;
+      new_pose.pos.z = this->drcRobot.initialPose.pos.z;
 
       math::Vector3 rpy = cur_pose.rot.GetAsEuler();
       // decay non-yaw tilts
@@ -551,8 +551,8 @@ void VRCPlugin::UpdateStates()
       new_pose.rot.SetFromEuler(rpy);
 
       // set this as the new anchor pose of the pin joint
-      this->Teleport(this->drc_robot.pinLink,
-                     this->drc_robot.pinJoint,
+      this->Teleport(this->drcRobot.pinLink,
+                     this->drcRobot.pinJoint,
                      new_pose);
     }
   }
@@ -563,9 +563,9 @@ void VRCPlugin::ROSQueueThread()
 {
   static const double timeout = 0.01;
 
-  while (this->rosnode_->ok())
+  while (this->rosNode->ok())
   {
-    this->ros_queue_.callAvailable(ros::WallDuration(timeout));
+    this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
 
@@ -630,14 +630,14 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
 void VRCPlugin::CheckThreadStart()
 {
-  if (!this->drc_fire_hose.isInitialized)
+  if (!this->drcFireHose.isInitialized)
     return;
 
   // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
   // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
-  math::Pose connectPose(this->drc_fire_hose.couplingRelativePose);
-  math::Pose relativePose = this->drc_fire_hose.couplingLink->GetWorldPose() -
-                            this->drc_fire_hose.spoutLink->GetWorldPose();
+  math::Pose connectPose(this->drcFireHose.couplingRelativePose);
+  math::Pose relativePose = this->drcFireHose.couplingLink->GetWorldPose() -
+                            this->drcFireHose.spoutLink->GetWorldPose();
 
   math::Pose connectOffset = relativePose - connectPose;
 
@@ -650,14 +650,14 @@ void VRCPlugin::CheckThreadStart()
   //       << "] rpy [" << rotErr
   //       << "]\n";
 
-  if (!this->drc_fire_hose.screwJoint)
+  if (!this->drcFireHose.screwJoint)
   {
     if (posErr < 0.01 && rotErr < 0.01)
     {
-      this->drc_fire_hose.screwJoint =
-        this->AddJoint(this->world, this->drc_fire_hose.fireHoseModel,
-                       this->drc_fire_hose.spoutLink,
-                       this->drc_fire_hose.couplingLink,
+      this->drcFireHose.screwJoint =
+        this->AddJoint(this->world, this->drcFireHose.fireHoseModel,
+                       this->drcFireHose.spoutLink,
+                       this->drcFireHose.couplingLink,
                        "screw",
                        math::Vector3(0, 0, 0),
                        math::Vector3(0, 0, 1),
@@ -668,10 +668,10 @@ void VRCPlugin::CheckThreadStart()
   else
   {
     // check joint position to disconnect
-    double position = this->drc_fire_hose.screwJoint->GetAngle(0).Radian();
+    double position = this->drcFireHose.screwJoint->GetAngle(0).Radian();
     // gzerr << "position " << position << "\n";
     if (position < -0.0003)
-      this->RemoveJoint(this->drc_fire_hose.screwJoint);
+      this->RemoveJoint(this->drcFireHose.screwJoint);
   }
 }
 
@@ -778,32 +778,32 @@ void VRCPlugin::LoadVRCROSAPI()
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_enter_car_topic_name, 100,
     boost::bind( &VRCPlugin::RobotEnterCar,this,_1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->robot_enter_car_sub_ = this->rosnode_->subscribe(robot_enter_car_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->subRobotEnterCar = this->rosNode->subscribe(robot_enter_car_so);
 
   std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
   ros::SubscribeOptions robot_exit_car_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_exit_car_topic_name, 100,
     boost::bind( &VRCPlugin::RobotExitCar,this,_1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->robot_exit_car_sub_ = this->rosnode_->subscribe(robot_exit_car_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->subRobotExitCar = this->rosNode->subscribe(robot_exit_car_so);
 
   std::string robot_grab_topic_name = "drc_world/robot_grab_link";
   ros::SubscribeOptions robot_grab_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_grab_topic_name, 100,
     boost::bind( &VRCPlugin::RobotGrabLink,this,_1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->robot_grab_sub_ = this->rosnode_->subscribe(robot_grab_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->subRobotGrab = this->rosNode->subscribe(robot_grab_so);
 
   std::string robot_release_topic_name = "drc_world/robot_release_link";
   ros::SubscribeOptions robot_release_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_release_topic_name, 100,
     boost::bind( &VRCPlugin::RobotReleaseLink,this,_1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->robot_release_sub_ = this->rosnode_->subscribe(robot_release_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->subRobotRelease = this->rosNode->subscribe(robot_release_so);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -815,33 +815,33 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
     boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->drc_robot.trajectory_sub_ = this->rosnode_->subscribe(trajectory_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->drcRobot.subTrajectory = this->rosNode->subscribe(trajectory_so);
 
   std::string pose_topic_name = "drc_robot/set_pose";
   ros::SubscribeOptions pose_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     pose_topic_name, 100,
     boost::bind(&VRCPlugin::SetRobotPose,this,_1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->drc_robot.pose_sub_ = this->rosnode_->subscribe(pose_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->drcRobot.subPose = this->rosNode->subscribe(pose_so);
 
   std::string configuration_topic_name = "drc_robot/configuration";
   ros::SubscribeOptions configuration_so =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     configuration_topic_name, 100,
     boost::bind(&VRCPlugin::SetRobotConfiguration, this, _1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->drc_robot.configuration_sub_ =
-    this->rosnode_->subscribe(configuration_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->drcRobot.subConfiguration =
+    this->rosNode->subscribe(configuration_so);
 
   std::string mode_topic_name = "drc_robot/mode";
   ros::SubscribeOptions mode_so =
     ros::SubscribeOptions::create<std_msgs::String>(
     mode_topic_name, 100,
     boost::bind( &VRCPlugin::SetRobotModeTopic,this,_1),
-    ros::VoidPtr(), &this->ros_queue_);
-  this->drc_robot.mode_sub_ = this->rosnode_->subscribe(mode_so);
+    ros::VoidPtr(), &this->rosQueue);
+  this->drcRobot.subMode = this->rosNode->subscribe(mode_so);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -86,20 +86,20 @@ namespace gazebo
     // Contact sensors
     private: sensors::ContactSensorPtr lFootContactSensor;
     private: sensors::ContactSensorPtr rFootContactSensor;
-    private: ros::Publisher pub_l_foot_contact_;
-    private: ros::Publisher pub_r_foot_contact_;
+    private: ros::Publisher pubLFootContact;
+    private: ros::Publisher pubRFootContact;
 
     // Force torque sensors at ankles
     private: physics::JointPtr rAnkleJoint;
     private: physics::JointPtr lAnkleJoint;
-    private: ros::Publisher pub_l_ankle_ft_;
-    private: ros::Publisher pub_r_ankle_ft_;
+    private: ros::Publisher pubLAnkleFT;
+    private: ros::Publisher pubRAnkleFT;
 
     // Force torque sensors at the wrists
     private: physics::JointPtr rWristJoint;
     private: physics::JointPtr lWristJoint;
-    private: ros::Publisher pub_l_wrist_ft_;
-    private: ros::Publisher pub_r_wrist_ft_;
+    private: ros::Publisher pubLWristFT;
+    private: ros::Publisher pubRWristFT;
 
     // IMU sensor
     private: std::string imuLinkName;
@@ -107,19 +107,19 @@ namespace gazebo
     private: common::Time lastImuTime;
     private: math::Pose imuReferencePose;
     private: math::Vector3 imuLastLinearVel;
-    private: ros::Publisher pub_imu_;
+    private: ros::Publisher pubImu;
 
     // deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
-    private: boost::thread deferred_load_thread_;
+    private: boost::thread deferredLoadThread;
 
     // reset of ros stuff
-    private: ros::NodeHandle* rosnode_;
-    private: ros::CallbackQueue queue_;
+    private: ros::NodeHandle* rosNode;
+    private: ros::CallbackQueue queue;
     private: void QueueThread();
-    private: boost::thread callback_queue_thread_;
-    private: ros::Publisher pub_status_;
+    private: boost::thread callbackQueeuThread;
+    private: ros::Publisher pubStatus;
     private: math::Vector3 lFootForce;
     private: math::Vector3 lFootTorque;
     private: math::Vector3 rFootForce;

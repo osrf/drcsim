@@ -46,11 +46,11 @@ DRCRobotPlugin::DRCRobotPlugin()
 DRCRobotPlugin::~DRCRobotPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
-  this->rosnode_->shutdown();
-  this->queue_.clear();
-  this->queue_.disable();
-  this->callback_queue_thread_.join();
-  delete this->rosnode_;
+  this->rosNode->shutdown();
+  this->queue.clear();
+  this->queue.disable();
+  this->callbackQueeuThread.join();
+  delete this->rosNode;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
   // ros callback queue for processing subscription
-  this->deferred_load_thread_ = boost::thread(
+  this->deferredLoadThread = boost::thread(
     boost::bind(&DRCRobotPlugin::LoadThread,this ));
 }
 
@@ -159,39 +159,39 @@ void DRCRobotPlugin::LoadThread()
   }
 
   // ros stuff
-  this->rosnode_ = new ros::NodeHandle("");
+  this->rosNode = new ros::NodeHandle("");
 
   // ros publication / subscription
-  this->pub_status_ =
-    this->rosnode_->advertise<std_msgs::String>("drc_robot/status", 10);
+  this->pubStatus =
+    this->rosNode->advertise<std_msgs::String>("drc_robot/status", 10);
 
-  this->pub_l_ankle_ft_ =
-    this->rosnode_->advertise<geometry_msgs::Wrench>(
+  this->pubLAnkleFT =
+    this->rosNode->advertise<geometry_msgs::Wrench>(
       "drc_robot/l_ankle_ft", 10);
 
-  this->pub_r_ankle_ft_ =
-    this->rosnode_->advertise<geometry_msgs::Wrench>(
+  this->pubRAnkleFT =
+    this->rosNode->advertise<geometry_msgs::Wrench>(
       "drc_robot/r_ankle_ft", 10);
 
-  this->pub_l_wrist_ft_ =
-    this->rosnode_->advertise<geometry_msgs::Wrench>(
+  this->pubLWristFT =
+    this->rosNode->advertise<geometry_msgs::Wrench>(
       "drc_robot/l_wrist_ft", 10);
 
-  this->pub_r_wrist_ft_ =
-    this->rosnode_->advertise<geometry_msgs::Wrench>(
+  this->pubRWristFT =
+    this->rosNode->advertise<geometry_msgs::Wrench>(
       "drc_robot/r_wrist_ft", 10);
 
-  this->pub_l_foot_contact_ =
-    this->rosnode_->advertise<geometry_msgs::Wrench>(
+  this->pubLFootContact =
+    this->rosNode->advertise<geometry_msgs::Wrench>(
       "drc_robot/l_foot_contact", 10);
 
-  this->pub_r_foot_contact_ =
-    this->rosnode_->advertise<geometry_msgs::Wrench>(
+  this->pubRFootContact =
+    this->rosNode->advertise<geometry_msgs::Wrench>(
       "drc_robot/r_foot_contact", 10);
 
   // publish imu data
-  this->pub_imu_ =
-    this->rosnode_->advertise<nav_msgs::Odometry>(
+  this->pubImu =
+    this->rosNode->advertise<nav_msgs::Odometry>(
       "drc_robot/imu", 10);
 
   // initialize status pub time
@@ -199,7 +199,7 @@ void DRCRobotPlugin::LoadThread()
   this->updateRate = 1.0; // Hz
 
   // ros callback queue for processing subscription
-  this->callback_queue_thread_ = boost::thread(
+  this->callbackQueeuThread = boost::thread(
     boost::bind( &DRCRobotPlugin::QueueThread,this ) );
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
@@ -218,7 +218,7 @@ void DRCRobotPlugin::UpdateStates()
   /// @todo:  robot internals
   /// self diagnostics, damages, etc.
 
-  if (this->pub_status_.getNumSubscribers() > 0)
+  if (this->pubStatus.getNumSubscribers() > 0)
   {
     double cur_time = this->world->GetSimTime().Double();
 
@@ -227,7 +227,7 @@ void DRCRobotPlugin::UpdateStates()
       this->lastStatusTime = cur_time;
       std_msgs::String msg;
       msg.data = "ok";
-      this->pub_status_.publish(msg);
+      this->pubStatus.publish(msg);
     }
   }
 
@@ -289,7 +289,7 @@ void DRCRobotPlugin::UpdateStates()
         msg.pose.pose.orientation.w = imuRot.w;
       }
 
-      this->pub_imu_.publish(msg);
+      this->pubImu.publish(msg);
 
       // update time
       this->lastImuTime = curTime.Double();
@@ -307,7 +307,7 @@ void DRCRobotPlugin::UpdateStates()
       msg.torque.x = wrench.body1Torque.x;
       msg.torque.y = wrench.body1Torque.y;
       msg.torque.z = wrench.body1Torque.z;
-      this->pub_l_ankle_ft_.publish(msg);
+      this->pubLAnkleFT.publish(msg);
 
       double l_foot_sensors_fz = wrench.body1Force.z;
       double l_foot_sensors_mx = wrench.body1Torque.x;
@@ -325,7 +325,7 @@ void DRCRobotPlugin::UpdateStates()
       msg.torque.x = wrench.body1Torque.x;
       msg.torque.y = wrench.body1Torque.y;
       msg.torque.z = wrench.body1Torque.z;
-      this->pub_r_ankle_ft_.publish(msg);
+      this->pubRAnkleFT.publish(msg);
 
       double r_foot_sensors_fz = wrench.body1Force.z;
       double r_foot_sensors_mx = wrench.body1Torque.x;
@@ -343,7 +343,7 @@ void DRCRobotPlugin::UpdateStates()
       msg.torque.x = wrench.body1Torque.x;
       msg.torque.y = wrench.body1Torque.y;
       msg.torque.z = wrench.body1Torque.z;
-      this->pub_l_wrist_ft_.publish(msg);
+      this->pubLWristFT.publish(msg);
 
       double l_wrist_sensors_fx = wrench.body1Force.x;
       double l_wrist_sensors_fy = wrench.body1Force.y;
@@ -364,7 +364,7 @@ void DRCRobotPlugin::UpdateStates()
       msg.torque.x = wrench.body1Torque.x;
       msg.torque.y = wrench.body1Torque.y;
       msg.torque.z = wrench.body1Torque.z;
-      this->pub_r_wrist_ft_.publish(msg);
+      this->pubRWristFT.publish(msg);
 
       double r_wrist_sensors_fx = wrench.body1Force.x;
       double r_wrist_sensors_fy = wrench.body1Force.y;
@@ -434,7 +434,7 @@ void DRCRobotPlugin::OnLContactUpdate()
     msg.torque.x = this->lFootTorque.x;
     msg.torque.y = this->lFootTorque.y;
     msg.torque.z = this->lFootTorque.z;
-    this->pub_l_foot_contact_.publish(msg);
+    this->pubLFootContact.publish(msg);
   }
 }
 
@@ -492,7 +492,7 @@ void DRCRobotPlugin::OnRContactUpdate()
     msg.torque.x = this->rFootTorque.x;
     msg.torque.y = this->rFootTorque.y;
     msg.torque.z = this->rFootTorque.z;
-    this->pub_r_foot_contact_.publish(msg);
+    this->pubRFootContact.publish(msg);
   }
 }
 
@@ -500,9 +500,9 @@ void DRCRobotPlugin::QueueThread()
 {
   static const double timeout = 0.01;
 
-  while (this->rosnode_->ok())
+  while (this->rosNode->ok())
   {
-    this->queue_.callAvailable(ros::WallDuration(timeout));
+    this->queue.callAvailable(ros::WallDuration(timeout));
   }
 }
 

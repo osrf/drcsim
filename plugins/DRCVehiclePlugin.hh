@@ -87,10 +87,8 @@ namespace gazebo
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
-    private: boost::mutex update_mutex;
-
     /// Pointer to the update event connection.
-    private: event::ConnectionPtr update_connection_;
+    private: event::ConnectionPtr updateConnection;
 
     // /// Pointer to the publish event connection.
     // private: event::ConnectionPtr ros_publish_connection_;
@@ -367,22 +365,22 @@ namespace gazebo
     private: double brWheelState;
 
     // // ros stuff
-    // private: ros::NodeHandle* rosnode_;
+    // private: ros::NodeHandle* rosNode;
     // private: ros::CallbackQueue queue_;
     // private: void QueueThread();
-    // private: boost::thread callback_queue_thread_;
-    // private: ros::Publisher brake_pedal_state_pub_;
-    // private: ros::Publisher gas_pedal_state_pub_;
-    // private: ros::Publisher hand_wheel_state_pub_;
-    // private: ros::Publisher hand_brake_state_pub_;
-    // private: ros::Publisher key_state_pub_;
-    // private: ros::Publisher direction_state_pub_;
-    // private: ros::Subscriber brake_pedal_cmd_sub_;
-    // private: ros::Subscriber gas_pedal_cmd_sub_;
-    // private: ros::Subscriber hand_wheel_cmd_sub_;
-    // private: ros::Subscriber hand_brake_cmd_sub_;
-    // private: ros::Subscriber key_cmd_sub_;
-    // private: ros::Subscriber direction_cmd_sub_;
+    // private: boost::thread callbackQueueThread;
+    // private: ros::Publisher pubBrakePedalState;
+    // private: ros::Publisher pubGasPedalState;
+    // private: ros::Publisher pubHandWheelState;
+    // private: ros::Publisher pubHandBrakeState;
+    // private: ros::Publisher pubKeyState;
+    // private: ros::Publisher pubDirectionState;
+    // private: ros::Subscriber subBrakePedalCmd;
+    // private: ros::Subscriber subGasPedalCmd;
+    // private: ros::Subscriber subHandWheelCmd;
+    // private: ros::Subscriber subHandBrakeCmd;
+    // private: ros::Subscriber subKeyCmd;
+    // private: ros::Subscriber subDirectionCmd;
     // private: common::Time rosPublishPeriod;
     // private: common::Time lastRosPublishTime;
   };

@@ -71,9 +71,6 @@ namespace gazebo
     /// \brief Pointer to parent world.
     private: physics::WorldPtr world;
 
-    /// \brief Mutex for VRC Plugin
-    private: boost::mutex update_mutex;
-
     /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
 
@@ -109,12 +106,12 @@ namespace gazebo
       /// \brief flag for successful initialization of fire hose, standpipe
       public: bool isInitialized;
 
-      public: ros::Subscriber trajectory_sub_;
-      public: ros::Subscriber pose_sub_;
-      public: ros::Subscriber configuration_sub_;
-      public: ros::Subscriber mode_sub_;
+      public: ros::Subscriber subTrajectory;
+      public: ros::Subscriber subPose;
+      public: ros::Subscriber subConfiguration;
+      public: ros::Subscriber subMode;
 
-    } drc_robot;
+    } drcRobot;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -130,11 +127,11 @@ namespace gazebo
       /// \brief flag for successful initialization of fire hose, standpipe
       public: bool isInitialized;
 
-      /// \brief Load the drc_vehicle portion of plugin.
+      /// \brief Load the drc vehicle portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
-    } drc_vehicle;
+    } drcVehicle;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -183,7 +180,7 @@ namespace gazebo
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
-    } drc_fire_hose;
+    } drcFireHose;
 
     /// \brief check and spawn thread if links are aligned
     private: void CheckThreadStart();
@@ -191,20 +188,6 @@ namespace gazebo
     /// \brief fix robot butt to vehicle for efficiency
     // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
     public: physics::JointPtr vehicleRobotJoint;
-
-    ////////////////////////////////////////////////////////////////////////////
-    //                                                                        //
-    //   Fire Hose   properties and states                                    //
-    //                                                                        //
-    ////////////////////////////////////////////////////////////////////////////
-    private: physics::ModelPtr fire_hose;
-
-    ////////////////////////////////////////////////////////////////////////////
-    //                                                                        //
-    //   Standpipe   properties and states                                    //
-    //                                                                        //
-    ////////////////////////////////////////////////////////////////////////////
-    private: physics::ModelPtr standpipe;
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -219,22 +202,22 @@ namespace gazebo
     public:
       // Action client for the joint trajectory action 
       // used to trigger the arm movement action
-      TrajClient* traj_client_;
+      TrajClient* clientTraj;
 
     public:
       //! Initialize the action client and wait for action server to come up
       JointTrajectory() 
       {
         // tell the action client that we want to spin a thread by default
-        //traj_client_ = new TrajClient("/drc_controller/joint_trajectory_action", true);
-        traj_client_ = new TrajClient("/drc_controller/follow_joint_trajectory", true);
+        //clientTraj = new TrajClient("/drc_controller/joint_trajectory_action", true);
+        clientTraj = new TrajClient("/drc_controller/follow_joint_trajectory", true);
 
       }
 
       //! Clean up the action client
       ~JointTrajectory()
       {
-        delete traj_client_;
+        delete clientTraj;
       }
 
       //! Sends the command to start a given trajectory
@@ -243,7 +226,7 @@ namespace gazebo
         // When to start the trajectory: 1s from now
         _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-        traj_client_->sendGoal(_goal);
+        clientTraj->sendGoal(_goal);
       }
 
       //! Generates a simple trajectory with two waypoints, used as an example
@@ -505,10 +488,10 @@ namespace gazebo
       //! Returns the current state of the action
       actionlib::SimpleClientGoalState getState()
       {
-        return traj_client_->getState();
+        return clientTraj->getState();
       }
      
-    } joint_trajectory_controller;
+    } jointTrajectoryController;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -569,8 +552,8 @@ namespace gazebo
     public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
     // \brief create a fixed joint between robot hand link and a nearby link
-    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
-    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/);
+    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
 
 
 
@@ -616,22 +599,22 @@ namespace gazebo
     private: geometry_msgs::Twist robotCmdVel;
 
     // ros stuff
-    private: ros::NodeHandle* rosnode_;
-    private: ros::CallbackQueue ros_queue_;
+    private: ros::NodeHandle* rosNode;
+    private: ros::CallbackQueue rosQueue;
     private: void ROSQueueThread();
-    private: boost::thread callback_queue_thread_;
+    private: boost::thread callbackQueueThread;
 
     // ros subscription for grabbing objects
-    public: ros::Subscriber robot_grab_sub_;
-    public: ros::Subscriber robot_release_sub_;
-    public: ros::Subscriber robot_enter_car_sub_;
-    public: ros::Subscriber robot_exit_car_sub_;
+    public: ros::Subscriber subRobotGrab;
+    public: ros::Subscriber subRobotRelease;
+    public: ros::Subscriber subRobotEnterCar;
+    public: ros::Subscriber subRobotExitCar;
     private: physics::JointPtr grabJoint;
 
     // deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
-    private: boost::thread deferred_load_thread_;
+    private: boost::thread deferredLoadThread;
   };
 /** \} */
 /// @}
