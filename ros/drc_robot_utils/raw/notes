@@ -1,12 +1,12 @@
-first, make sure that both drc_robot_utils and sandia_hand_utils are under ROS_PACKAGE_PATHS, then
+first, make sure that both atlas_utils and sandia_hand_utils are under ROS_PACKAGE_PATHS, then
 
 run
 
-bdi_parser drc_robot_utils/raw/drc_skeleton_vX.cfg to generate drc_robot.urdf
+bdi_parser atlas_utils/raw/drc_skeleton_vX.cfg to generate atlas.urdf
 
-install generated drc_robot.urdf as drc_robot_utils/urdf/drc_robot.urdf
+install generated atlas.urdf as atlas_utils/urdf/atlas.urdf
 
 then
 
-rosrun xacro xacro.py drc_robot.model.xacro > drc_robot.model
-copy drc_robot.model into the gazebo model database as [somewhere]/model/drc_robot/model.sdf
+rosrun xacro xacro.py atlas.model.xacro > atlas.model
+copy atlas.model into the gazebo model database as [somewhere]/model/atlas/model.sdf

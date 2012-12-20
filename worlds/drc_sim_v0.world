@@ -42,7 +42,7 @@
     </include>
 
     <include>
-      <uri>model://drc_robot</uri>
+      <uri>model://atlas</uri>
       <pose>0 2 0.93 0 0 0</pose>
     </include>
 
@@ -74,10 +74,10 @@
 -->
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
-      <drc_robot>
-         <model_name>drc_robot</model_name>
+      <atlas>
+         <model_name>atlas</model_name>
          <pin_link>utorso</pin_link>
-      </drc_robot>
+      </atlas>
       <drc_vehicle>
         <model_name>golf_cart</model_name>
         <seat_link>chassis</seat_link>

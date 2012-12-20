@@ -365,12 +365,12 @@ int main(int argc, char** argv)
             // have names that corresponds to link name, so I can hack up a filename reference for each link
             boost::shared_ptr<urdf::Mesh> mesh_dae;
             mesh_dae.reset(new urdf::Mesh);
-            mesh_dae->filename = std::string("package://drc_robot/meshes/") + entity_name + std::string(".dae");
+            mesh_dae->filename = std::string("package://atlas/meshes/") + entity_name + std::string(".dae");
             link->visual->geometry = mesh_dae;
 
             boost::shared_ptr<urdf::Mesh> mesh_stl;
             mesh_stl.reset(new urdf::Mesh);
-            mesh_stl->filename = std::string("package://drc_robot/meshes/") + entity_name + std::string(".stl");
+            mesh_stl->filename = std::string("package://atlas/meshes/") + entity_name + std::string(".stl");
             link->collision->geometry = mesh_stl;
 
 
@@ -510,13 +510,13 @@ int main(int argc, char** argv)
 
 #if USE_ROS
       // install the urdf in my own package at the right place for the robot/*.xacro
-      std::string package_name("drc_robot_utils");
+      std::string package_name("atlas_utils");
       std::string package_path = ros::package::getPath(package_name);
 #else
       std::string package_path(".");
 #endif
       TiXmlDocument *model_xml = urdf::exportURDF(model);
-      model_xml->SaveFile(package_path + "/" + std::string("drc_robot.urdf"));
+      model_xml->SaveFile(package_path + "/" + std::string("atlas.urdf"));
 
     }
   }

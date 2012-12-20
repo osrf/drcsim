@@ -1,14 +1,14 @@
 <launch>
 
   <arg name="gzname" default="gazebo"/>
-  <arg name="gzworld" default="drc_robot.world"/>
+  <arg name="gzworld" default="atlas.world"/>
   <param name="/use_sim_time" type="bool" value="true"/>
 
   <!-- start gazebo with the DRC Robot -->
-  <node name="gazebo" pkg="drc_robot_utils" type="run_$(arg gzname)" args="$(arg gzworld)" output="screen" />
+  <node name="gazebo" pkg="atlas_utils" type="run_$(arg gzname)" args="$(arg gzworld)" output="screen" />
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find drc_robot)/model.urdf"/>
+  <param name="robot_description" textfile="$(find atlas)/model.urdf"/>
   
 </launch>
   

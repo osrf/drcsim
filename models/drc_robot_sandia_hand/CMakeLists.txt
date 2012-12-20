@@ -1,4 +1,4 @@
-set(MODEL_NAME drc_robot_sandia_hand)
+set(MODEL_NAME atlas_sandia_hand)
 set (files 
   model.urdf
   manifest.xml

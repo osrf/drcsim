@@ -3,9 +3,9 @@
   <arg name="gzname" default="gazebo"/>
 
   <!-- start gazebo with the DRC Robot -->
-  <include file="$(find drc_robot_utils)/launch/drc_robot_no_controllers.launch">
+  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
   </include>
 
-  <include file="$(find drc_robot_utils)/launch/drc_robot_bringup.launch"/>
+  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
 </launch>

@@ -4,7 +4,7 @@
     <pose>0 0 0.93 0 0 0</pose>
   </gazebo>
   <gazebo>
-    <plugin name="drc_robot_plugin" filename="libDRCRobotPlugin.so"/>
+    <plugin name="atlas_plugin" filename="libAtlasPlugin.so"/>
     <plugin filename="libgazebo_ros_joint_trajectory.so" name="joint_trajectory_plugin">
       <topicName>joint_trajectory</topicName>
       <updateRate>1000.0</updateRate>
@@ -40,7 +40,7 @@
     <origin rpy="0.05991527603 0 -0.01415" xyz="0 0 0"/>
   </joint>
   <gazebo>
-    <plugin filename="libgazebo_ros_imu.so" name="drc_robot_imu">
+    <plugin filename="libgazebo_ros_imu.so" name="atlas_imu">
       <alwaysOn>true</alwaysOn>
       <updateRate>100.0</updateRate>
       <bodyName>imu_link</bodyName>

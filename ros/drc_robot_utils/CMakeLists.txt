@@ -1,4 +1,4 @@
-set (ROS_PACKAGE_NAME drc_robot_utils)
+set (ROS_PACKAGE_NAME atlas_utils)
 
 set (files
   manifest.xml

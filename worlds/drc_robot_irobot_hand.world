@@ -28,7 +28,7 @@
       <uri>model://ground_plane</uri>
     </include>
     <include>
-      <uri>model://drc_robot_irobot_hand</uri>
+      <uri>model://atlas_irobot_hand</uri>
     </include>
   </world>
 </gazebo>

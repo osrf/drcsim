@@ -24,7 +24,7 @@
  * SVN info: $Id$
  */
 
-#include "DRCRobotPlugin.hh"
+#include "AtlasPlugin.hh"
 #include "nav_msgs/Odometry.h"
 
 namespace gazebo
@@ -32,7 +32,7 @@ namespace gazebo
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-DRCRobotPlugin::DRCRobotPlugin()
+AtlasPlugin::AtlasPlugin()
 {
   this->lFootForce = 0;
   this->lFootTorque = 0;
@@ -43,7 +43,7 @@ DRCRobotPlugin::DRCRobotPlugin()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
-DRCRobotPlugin::~DRCRobotPlugin()
+AtlasPlugin::~AtlasPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
   this->rosNode->shutdown();
@@ -55,7 +55,7 @@ DRCRobotPlugin::~DRCRobotPlugin()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void DRCRobotPlugin::Load(physics::ModelPtr _parent,
+void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
   this->model = _parent;
@@ -141,13 +141,13 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
-    boost::bind(&DRCRobotPlugin::LoadThread,this ));
+    boost::bind(&AtlasPlugin::LoadThread,this ));
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void DRCRobotPlugin::LoadThread()
+void AtlasPlugin::LoadThread()
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -163,36 +163,36 @@ void DRCRobotPlugin::LoadThread()
 
   // ros publication / subscription
   this->pubStatus =
-    this->rosNode->advertise<std_msgs::String>("drc_robot/status", 10);
+    this->rosNode->advertise<std_msgs::String>("atlas/status", 10);
 
   this->pubLAnkleFT =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "drc_robot/l_ankle_ft", 10);
+      "atlas/l_ankle_ft", 10);
 
   this->pubRAnkleFT =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "drc_robot/r_ankle_ft", 10);
+      "atlas/r_ankle_ft", 10);
 
   this->pubLWristFT =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "drc_robot/l_wrist_ft", 10);
+      "atlas/l_wrist_ft", 10);
 
   this->pubRWristFT =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "drc_robot/r_wrist_ft", 10);
+      "atlas/r_wrist_ft", 10);
 
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "drc_robot/l_foot_contact", 10);
+      "atlas/l_foot_contact", 10);
 
   this->pubRFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "drc_robot/r_foot_contact", 10);
+      "atlas/r_foot_contact", 10);
 
   // publish imu data
   this->pubImu =
     this->rosNode->advertise<nav_msgs::Odometry>(
-      "drc_robot/imu", 10);
+      "atlas/imu", 10);
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
@@ -200,19 +200,19 @@ void DRCRobotPlugin::LoadThread()
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
-    boost::bind( &DRCRobotPlugin::QueueThread,this ) );
+    boost::bind( &AtlasPlugin::QueueThread,this ) );
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
-     boost::bind(&DRCRobotPlugin::UpdateStates, this));
+     boost::bind(&AtlasPlugin::UpdateStates, this));
 
   this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
-     boost::bind(&DRCRobotPlugin::OnLContactUpdate, this));
+     boost::bind(&AtlasPlugin::OnLContactUpdate, this));
 
   this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
-     boost::bind(&DRCRobotPlugin::OnRContactUpdate, this));
+     boost::bind(&AtlasPlugin::OnRContactUpdate, this));
 }
 
-void DRCRobotPlugin::UpdateStates()
+void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
   /// @todo:  robot internals
@@ -380,7 +380,7 @@ void DRCRobotPlugin::UpdateStates()
 
 }
 
-void DRCRobotPlugin::OnLContactUpdate()
+void AtlasPlugin::OnLContactUpdate()
 {
   // Get all the contacts.
   msgs::Contacts contacts;
@@ -438,7 +438,7 @@ void DRCRobotPlugin::OnLContactUpdate()
   }
 }
 
-void DRCRobotPlugin::OnRContactUpdate()
+void AtlasPlugin::OnRContactUpdate()
 {
   // Get all the contacts.
   msgs::Contacts contacts;
@@ -496,7 +496,7 @@ void DRCRobotPlugin::OnRContactUpdate()
   }
 }
 
-void DRCRobotPlugin::QueueThread()
+void AtlasPlugin::QueueThread()
 {
   static const double timeout = 0.01;
 
@@ -506,5 +506,5 @@ void DRCRobotPlugin::QueueThread()
   }
 }
 
-GZ_REGISTER_MODEL_PLUGIN(DRCRobotPlugin)
+GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 }

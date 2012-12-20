@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('drc_robot_utils')
+import roslib; roslib.load_manifest('atlas_utils')
 import rospy, math
 
 from std_msgs.msg import Float64

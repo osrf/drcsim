@@ -1,4 +1,4 @@
-set(MODEL_NAME drc_robot_irobot_hand)
+set(MODEL_NAME atlas_irobot_hand)
 set (files 
   model.urdf
   manifest.xml

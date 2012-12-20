@@ -1,4 +1,4 @@
-set(MODEL_NAME drc_robot)
+set(MODEL_NAME atlas)
 add_subdirectory(meshes)
 add_subdirectory(ros)
 add_subdirectory(materials)

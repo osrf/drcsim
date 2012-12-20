@@ -23,8 +23,8 @@
  * Date: 10 June 2008
  * SVN: $Id$
  */
-#ifndef GAZEBO_DRC_ROBOT_PLUGIN_HH
-#define GAZEBO_DRC_ROBOT_PLUGIN_HH
+#ifndef GAZEBO_ATLAS_PLUGIN_HH
+#define GAZEBO_ATLAS_PLUGIN_HH
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -55,13 +55,13 @@
 
 namespace gazebo
 {
-  class DRCRobotPlugin : public ModelPlugin
+  class AtlasPlugin : public ModelPlugin
   {
     /// \brief Constructor
-    public: DRCRobotPlugin();
+    public: AtlasPlugin();
 
     /// \brief Destructor
-    public: virtual ~DRCRobotPlugin();
+    public: virtual ~AtlasPlugin();
 
     /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);

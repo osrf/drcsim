@@ -1,6 +1,6 @@
 <launch>
   <!-- Bring up gazebo without the GUI -->
-  <include file="$(find drc_robot_utils)/launch/drc_sim_v0.launch">
+  <include file="$(find atlas_utils)/launch/drc_sim_v0.launch">
     <arg name="gzname" value="gzserver"/>
   </include>
 

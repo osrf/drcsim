@@ -1,6 +1,6 @@
 set (rostests
-  drc_robot_no_controllers_publishers_hz
-  drc_robot_publishers_hz
+  atlas_no_controllers_publishers_hz
+  atlas_publishers_hz
   drc_sim_v0_publishers_hz
 ) 
 foreach (rostest ${rostests})

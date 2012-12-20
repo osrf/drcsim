@@ -1,13 +1,13 @@
 set (files
-  upload_drc_robot.launch
-  drc_robot_bringup.launch
-  drc_robot.launch
-  drc_robot_golf_cart_fire_hose.launch
-  drc_robot_arm_controllers.launch
-  drc_robot_position_controllers.launch
-  drc_robot_no_controllers.launch
-  drc_robot_sandia_hand_no_controllers.launch
-  drc_robot_irobot_hand_no_controllers.launch
+  upload_atlas.launch
+  atlas_bringup.launch
+  atlas.launch
+  atlas_golf_cart_fire_hose.launch
+  atlas_arm_controllers.launch
+  atlas_position_controllers.launch
+  atlas_no_controllers.launch
+  atlas_sandia_hand_no_controllers.launch
+  atlas_irobot_hand_no_controllers.launch
   drc_sim_v0.launch
   drc_trajectory_controllers.launch
 )
