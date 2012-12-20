@@ -45,7 +45,6 @@ DRCVehicleROSPlugin::DRCVehicleROSPlugin()
 // Destructor
 DRCVehicleROSPlugin::~DRCVehicleROSPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
   event::Events::DisconnectWorldUpdateStart(this->ros_publish_connection_);
   this->rosnode_->shutdown();
   this->queue_.clear();
@@ -77,11 +76,11 @@ void DRCVehicleROSPlugin::SetKeyState(const std_msgs::Int8::ConstPtr &_msg)
 void DRCVehicleROSPlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg)
 {
   if (_msg->data == 0)
-    this->SetDirectionState(NEUTRAL);
+    this->DRCVehiclePlugin::SetDirectionState(NEUTRAL);
   else if (_msg->data == 1)
-    this->SetDirectionState(FORWARD);
+    this->DRCVehiclePlugin::SetDirectionState(FORWARD);
   else if (_msg->data == -1)
-    this->SetDirectionState(REVERSE);
+    this->DRCVehiclePlugin::SetDirectionState(REVERSE);
   else
     gzerr << "Invalid Direction State: " << static_cast<int16_t>(_msg->data)
           << ", expected -1, 0, or 1\n";
@@ -119,6 +118,8 @@ void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
 void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
+  DRCVehiclePlugin::Load(_parent, _sdf);
+
   // initialize ros
   if (!ros::isInitialized())
   {
@@ -254,6 +255,17 @@ void DRCVehicleROSPlugin::RosPublishStates()
     this->direction_state_pub_.publish(msg_direction);
   }
 }
+
+void DRCVehicleROSPlugin::QueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosnode_->ok())
+  {
+    this->queue_.callAvailable(ros::WallDuration(timeout));
+  }
+}
+
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehicleROSPlugin)
 }

@@ -36,8 +36,8 @@ namespace gazebo
 // Constructor
 DRCVehiclePlugin::DRCVehiclePlugin()
 {
-  this->keyState = OFF;
-  this->directionState = NEUTRAL;
+  this->keyState = ON;
+  this->directionState = FORWARD;
   this->gasPedalCmd = 0;
   this->brakePedalCmd = 0;
   this->handWheelCmd = 0;
@@ -810,15 +810,15 @@ math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
   return pose.pos;
 }
 
-void DRCVehiclePlugin::QueueThread()
-{
-  static const double timeout = 0.01;
-
-  while (this->rosnode_->ok())
-  {
-    this->queue_.callAvailable(ros::WallDuration(timeout));
-  }
-}
+// void DRCVehiclePlugin::QueueThread()
+// {
+//   static const double timeout = 0.01;
+// 
+//   while (this->rosnode_->ok())
+//   {
+//     this->queue_.callAvailable(ros::WallDuration(timeout));
+//   }
+// }
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
 }

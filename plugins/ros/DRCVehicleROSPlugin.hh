@@ -33,13 +33,11 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int8.h>
 
-#include "plugins/DRCVehiclePlugin.hh"
+#include "../DRCVehiclePlugin.hh"
 
 namespace gazebo
 {
-  class DRCVehiclePlugin;
-  
-  class DRCVehicleROSPlugin: public ModelPlugin
+  class DRCVehicleROSPlugin: public DRCVehiclePlugin
   {
     /// \brief Constructor.
     public: DRCVehicleROSPlugin();

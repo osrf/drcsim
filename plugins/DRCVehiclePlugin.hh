@@ -310,10 +310,10 @@ namespace gazebo
     private: double handBrakeForce;
     private: double steeredWheelForce;
 
-    private: double gasPedalCmd;
-    private: double brakePedalCmd;
-    private: double handWheelCmd;
-    private: double handBrakeCmd;
+    protected: double gasPedalCmd;
+    protected: double brakePedalCmd;
+    protected: double handWheelCmd;
+    protected: double handBrakeCmd;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
