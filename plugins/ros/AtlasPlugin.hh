@@ -18,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface.
- * Author: Sachin Chitta and John Hsu
- * Date: 10 June 2008
- * SVN: $Id$
+ * Desc: Plugin for the Atlas robot
+ * Author: John Hsu
+ * Date: December 2012
  */
 #ifndef GAZEBO_ATLAS_PLUGIN_HH
 #define GAZEBO_ATLAS_PLUGIN_HH

@@ -18,12 +18,10 @@
  *
  */
 /*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
+ * Desc: Plugin for the Atlas robot
+ * Author: John Hsu
+ * Date: December 2012
  */
-
 #include "AtlasPlugin.hh"
 #include "nav_msgs/Odometry.h"
 
