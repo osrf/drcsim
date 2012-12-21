@@ -39,9 +39,12 @@ GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
 ////////////////////////////////////////////////////////////////////////////////
 MultiSenseSL::MultiSenseSL()
 {
+  /// \todo: hardcoded for now, make them into plugin parameters
   this->spindlePID.Init(0.03, 0.30, 0.00001, 1., -1., 10.0, -10.0);
   this->spindleOn = true;
   this->spindleSpeed = 0;
+  this->spindleMaxRPM = 50.0;
+  this->spindleMinRPM = 0;
   this->leftCameraFrameRate = 25.0;
   this->rightCameraFrameRate = 25.0;
   this->leftCameraExposureTime = 0.001;
@@ -311,6 +314,10 @@ bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,
 void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 {
   this->spindleSpeed = (double)_msg->data;
+  if (this->spindleSpeed > this->spindleMaxRPM * 2.0*M_PI / 60.0)
+    this->spindleSpeed = this->spindleMaxRPM * 2.0*M_PI / 60.0;
+  else if (this->spindleSpeed < this->spindleMinRPM * 2.0*M_PI / 60.0)
+    this->spindleSpeed = this->spindleMinRPM * 2.0*M_PI / 60.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
