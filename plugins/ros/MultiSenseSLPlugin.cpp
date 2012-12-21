@@ -67,7 +67,7 @@ MultiSenseSL::~MultiSenseSL()
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
-  this->drcRobotModel = _parent;
+  this->atlasModel = _parent;
   this->world = _parent->GetWorld();
   this->sdf = _sdf;
 
@@ -75,14 +75,14 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->lastTime = this->world->GetSimTime();
 
-  this->spindleLink = this->drcRobotModel->GetLink("drc_robot::hokuyo_link");
+  this->spindleLink = this->atlasModel->GetLink("atlas::hokuyo_link");
   if (!this->spindleLink)
   {
     gzerr << "spindle link not found, plugin will stop loading\n";
     return;
   }
 
-  this->spindleJoint = this->drcRobotModel->GetJoint("drc_robot::hokuyo_joint");
+  this->spindleJoint = this->atlasModel->GetJoint("atlas::hokuyo_joint");
   if (!this->spindleJoint)
   {
     gzerr << "spindle joint not found, plugin will stop loading\n";

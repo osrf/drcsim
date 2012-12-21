@@ -86,7 +86,7 @@ void VRCPlugin::DeferredLoad()
   this->robotCmdVel = geometry_msgs::Twist();
 
   // Load Robot
-  this->drcRobot.Load(this->world, this->sdf);
+  this->atlas.Load(this->world, this->sdf);
 
   // Load Vehicle
   this->drcVehicle.Load(this->world, this->sdf);
@@ -100,10 +100,10 @@ void VRCPlugin::DeferredLoad()
   // Harness the Robot
   // On startup, simulate "virtual harness" by turning gravity off
   // allowing the controllers can initialize without the robot falling
-  if (this->drcRobot.isInitialized)
+  if (this->atlas.isInitialized)
   {
     this->SetRobotMode("pinned");
-    this->drcRobot.startupHarness = true;
+    this->atlas.startupHarness = true;
     ROS_INFO("Start robot with gravity turned off and harnessed.");
     ROS_INFO("Resume to nominal mode after 10 seconds.");
   }
@@ -132,19 +132,19 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->drcRobot.model->GetLinks();
+    physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
     }
-    if (this->drcRobot.pinJoint)
-      this->RemoveJoint(this->drcRobot.pinJoint);
+    if (this->atlas.pinJoint)
+      this->RemoveJoint(this->atlas.pinJoint);
   }
   else if (_str == "feet")
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->drcRobot.model->GetLinks();
+    physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
@@ -152,24 +152,24 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       else
         links[i]->SetGravityMode(false);
     }
-    if (this->drcRobot.pinJoint)
-      this->RemoveJoint(this->drcRobot.pinJoint);
+    if (this->atlas.pinJoint)
+      this->RemoveJoint(this->atlas.pinJoint);
   }
   else if (_str == "pinned")
   {
     // pinning robot, and turning off effect of gravity
-    if (!this->drcRobot.pinJoint)
-      this->drcRobot.pinJoint = this->AddJoint(this->world,
-                                        this->drcRobot.model,
+    if (!this->atlas.pinJoint)
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
                                         physics::LinkPtr(),
-                                        this->drcRobot.pinLink,
+                                        this->atlas.pinLink,
                                         "revolute",
                                         math::Vector3(0, 0, 0),
                                         math::Vector3(0, 0, 1),
                                         0.0, 0.0);
-    this->drcRobot.initialPose = this->drcRobot.pinLink->GetWorldPose();
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
-    physics::Link_V links = this->drcRobot.model->GetLinks();
+    physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
@@ -179,13 +179,13 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // reinitialize pinning
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->drcRobot.model->GetLinks();
+    physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(true);
     }
-    if (this->drcRobot.pinJoint)
-      this->RemoveJoint(this->drcRobot.pinJoint);
+    if (this->atlas.pinJoint)
+      this->RemoveJoint(this->atlas.pinJoint);
   }
   else
   {
@@ -219,7 +219,7 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
                                    _pose->orientation.x,
                                    _pose->orientation.y,
                                    _pose->orientation.z));
-  this->drcRobot.model->SetWorldPose(pose);
+  this->atlas.model->SetWorldPose(pose);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
     physics::LinkPtr object = grabModel->GetLink(linkName);
     if (object)
     {
-      physics::LinkPtr gripper = this->drcRobot.model->GetLink(gripperName);
+      physics::LinkPtr gripper = this->atlas.model->GetLink(gripperName);
       if (gripper)
       {
         // teleports the object being attached together
@@ -246,7 +246,7 @@ void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
         grabModel->SetLinkWorldPose(pose, object);
 
         if (!this->grabJoint)
-          this->grabJoint = this->AddJoint(this->world, this->drcRobot.model,
+          this->grabJoint = this->AddJoint(this->world, this->atlas.model,
                                            gripper, object,
                                            "revolute",
                                            math::Vector3(0, 0, 0),
@@ -312,15 +312,15 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
                                 _pose->position.z), q);
-  if (this->drcRobot.pinJoint)
-    this->RemoveJoint(this->drcRobot.pinJoint);
+  if (this->atlas.pinJoint)
+    this->RemoveJoint(this->atlas.pinJoint);
 
-  this->drcRobot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
                                               math::Quaternion());
 
-  this->drcRobot.model->SetLinkWorldPose(pose +
-    this->drcRobot.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
-    this->drcRobot.pinLink);
+  this->atlas.model->SetLinkWorldPose(pose +
+    this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->atlas.pinLink);
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
@@ -329,42 +329,42 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
     this->vehicleRobotJoint = this->AddJoint(this->world,
                                        this->drcVehicle.model,
                                        this->drcVehicle.seatLink,
-                                       this->drcRobot.pinLink,
+                                       this->atlas.pinLink,
                                        "revolute",
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
 /*
   std::map<std::string, double> jointPositions;
-  jointPositions["drc_robot::back_lbz" ] =  0.00;
-  jointPositions["drc_robot::back_mby" ] =  0.00;
-  jointPositions["drc_robot::back_ubx" ] =  0.00;
-  jointPositions["drc_robot::neck_ay"  ] =  0.00;
-  jointPositions["drc_robot::l_leg_uhz"] =  0.00;
-  jointPositions["drc_robot::l_leg_mhx"] =  0.00;
-  jointPositions["drc_robot::l_leg_lhy"] = -1.80;
-  jointPositions["drc_robot::l_leg_kny"] =  1.80;
-  jointPositions["drc_robot::l_leg_uay"] =  0.00;
-  jointPositions["drc_robot::l_leg_lax"] =  0.00;
-  jointPositions["drc_robot::r_leg_uhz"] =  0.00;
-  jointPositions["drc_robot::r_leg_mhx"] =  0.00;
-  jointPositions["drc_robot::r_leg_lhy"] = -1.80;
-  jointPositions["drc_robot::r_leg_kny"] =  1.80;
-  jointPositions["drc_robot::r_leg_uay"] =  0.00;
-  jointPositions["drc_robot::r_leg_lax"] =  0.00;
-  jointPositions["drc_robot::l_arm_elx"] =  0.00;
-  jointPositions["drc_robot::l_arm_ely"] =  0.00;
-  jointPositions["drc_robot::l_arm_mwx"] =  0.00;
-  jointPositions["drc_robot::l_arm_shx"] =  0.00;
-  jointPositions["drc_robot::l_arm_usy"] = -1.60;
-  jointPositions["drc_robot::l_arm_uwy"] =  0.00;
-  jointPositions["drc_robot::r_arm_elx"] =  0.00;
-  jointPositions["drc_robot::r_arm_ely"] =  0.00;
-  jointPositions["drc_robot::r_arm_mwx"] =  0.00;
-  jointPositions["drc_robot::r_arm_shx"] =  0.00;
-  jointPositions["drc_robot::r_arm_usy"] =  1.60;
-  jointPositions["drc_robot::r_arm_uwy"] =  0.00;
-  this->drcRobot.model->SetJointPositions(jointPositions);
+  jointPositions["atlas::back_lbz" ] =  0.00;
+  jointPositions["atlas::back_mby" ] =  0.00;
+  jointPositions["atlas::back_ubx" ] =  0.00;
+  jointPositions["atlas::neck_ay"  ] =  0.00;
+  jointPositions["atlas::l_leg_uhz"] =  0.00;
+  jointPositions["atlas::l_leg_mhx"] =  0.00;
+  jointPositions["atlas::l_leg_lhy"] = -1.80;
+  jointPositions["atlas::l_leg_kny"] =  1.80;
+  jointPositions["atlas::l_leg_uay"] =  0.00;
+  jointPositions["atlas::l_leg_lax"] =  0.00;
+  jointPositions["atlas::r_leg_uhz"] =  0.00;
+  jointPositions["atlas::r_leg_mhx"] =  0.00;
+  jointPositions["atlas::r_leg_lhy"] = -1.80;
+  jointPositions["atlas::r_leg_kny"] =  1.80;
+  jointPositions["atlas::r_leg_uay"] =  0.00;
+  jointPositions["atlas::r_leg_lax"] =  0.00;
+  jointPositions["atlas::l_arm_elx"] =  0.00;
+  jointPositions["atlas::l_arm_ely"] =  0.00;
+  jointPositions["atlas::l_arm_mwx"] =  0.00;
+  jointPositions["atlas::l_arm_shx"] =  0.00;
+  jointPositions["atlas::l_arm_usy"] = -1.60;
+  jointPositions["atlas::l_arm_uwy"] =  0.00;
+  jointPositions["atlas::r_arm_elx"] =  0.00;
+  jointPositions["atlas::r_arm_ely"] =  0.00;
+  jointPositions["atlas::r_arm_mwx"] =  0.00;
+  jointPositions["atlas::r_arm_shx"] =  0.00;
+  jointPositions["atlas::r_arm_usy"] =  1.60;
+  jointPositions["atlas::r_arm_uwy"] =  0.00;
+  this->atlas.model->SetJointPositions(jointPositions);
 */
 
   // wait for action server to come up
@@ -385,20 +385,20 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   }
   ROS_INFO("set configuration done");
 
-  this->drcRobot.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
+  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
                                               math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drcRobot.model->SetLinkWorldPose(pose +
-    this->drcRobot.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
-    this->drcRobot.pinLink);
+  this->atlas.model->SetLinkWorldPose(pose +
+    this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->atlas.pinLink);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
                                        this->drcVehicle.model,
                                        this->drcVehicle.seatLink,
-                                       this->drcRobot.pinLink,
+                                       this->atlas.pinLink,
                                        "revolute",
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
@@ -415,24 +415,24 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                 _pose->position.y,
                                 _pose->position.z), q);
 
-  if (this->drcRobot.pinJoint)
-    this->RemoveJoint(this->drcRobot.pinJoint);
+  if (this->atlas.pinJoint)
+    this->RemoveJoint(this->atlas.pinJoint);
 
-  this->drcRobot.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
+  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
                                               math::Quaternion());
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->drcRobot.model->SetLinkWorldPose(pose +
-    this->drcRobot.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
-    this->drcRobot.pinLink);
+  this->atlas.model->SetLinkWorldPose(pose +
+    this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->atlas.pinLink);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
                                        this->drcVehicle.model,
                                        this->drcVehicle.seatLink,
-                                       this->drcRobot.pinLink,
+                                       this->atlas.pinLink,
                                        "revolute",
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
@@ -506,7 +506,7 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
     _pinJoint = this->AddJoint(this->world,
                                _pinLink->GetModel(),
                                physics::LinkPtr(),
-                               this->drcRobot.pinLink,
+                               this->atlas.pinLink,
                                "revolute",
                                math::Vector3(0, 0, 0),
                                math::Vector3(0, 0, 1),
@@ -521,11 +521,11 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
 
-  if (this->drcRobot.isInitialized &&
-      this->drcRobot.startupHarness && curTime > 10)
+  if (this->atlas.isInitialized &&
+      this->atlas.startupHarness && curTime > 10)
   {
     this->SetRobotMode("nominal");
-    this->drcRobot.startupHarness = false;
+    this->atlas.startupHarness = false;
   }
 
   if (curTime > this->lastUpdateTime)
@@ -537,7 +537,7 @@ void VRCPlugin::UpdateStates()
     if (this->warpRobotWithCmdVel)
     {
       this->lastUpdateTime = curTime;
-      math::Pose cur_pose = this->drcRobot.pinLink->GetWorldPose();
+      math::Pose cur_pose = this->atlas.pinLink->GetWorldPose();
       math::Pose new_pose = cur_pose;
 
       // increment x,y in cur_pose frame
@@ -547,7 +547,7 @@ void VRCPlugin::UpdateStates()
 
       new_pose.pos = cur_pose.pos + cmd * dt;
       // prevent robot from drifting vertically
-      new_pose.pos.z = this->drcRobot.initialPose.pos.z;
+      new_pose.pos.z = this->atlas.initialPose.pos.z;
 
       math::Vector3 rpy = cur_pose.rot.GetAsEuler();
       // decay non-yaw tilts
@@ -558,8 +558,8 @@ void VRCPlugin::UpdateStates()
       new_pose.rot.SetFromEuler(rpy);
 
       // set this as the new anchor pose of the pin joint
-      this->Teleport(this->drcRobot.pinLink,
-                     this->drcRobot.pinJoint,
+      this->Teleport(this->atlas.pinLink,
+                     this->atlas.pinJoint,
                      new_pose);
     }
   }
@@ -735,39 +735,39 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->isInitialized = false;
 
   // load parameters
-  if (_sdf->HasElement("drc_robot") &&
-      _sdf->GetElement("drc_robot")->HasElement("model_name"))
+  if (_sdf->HasElement("atlas") &&
+      _sdf->GetElement("atlas")->HasElement("model_name"))
   {
-    this->model = _world->GetModel(_sdf->GetElement("drc_robot")
+    this->model = _world->GetModel(_sdf->GetElement("atlas")
                         ->GetValueString("model_name"));
   }
   else
   {
-    ROS_INFO("Can't find <drc_robot><model_name> blocks. using default.");
-    this->model = _world->GetModel("drc_robot");
+    ROS_INFO("Can't find <atlas><model_name> blocks. using default.");
+    this->model = _world->GetModel("atlas");
   }
 
   if (!this->model)
   {
-    ROS_ERROR("drc robot not found.");
+    ROS_ERROR("atlas model not found.");
     return;
   }
 
-  if (_sdf->HasElement("drc_robot") &&
-      _sdf->GetElement("drc_robot")->HasElement("pin_link"))
+  if (_sdf->HasElement("atlas") &&
+      _sdf->GetElement("atlas")->HasElement("pin_link"))
   {
-    this->pinLink = this->model->GetLink(_sdf->GetElement("drc_robot")
+    this->pinLink = this->model->GetLink(_sdf->GetElement("atlas")
                         ->GetValueString("pin_link"));
   }
   else
   {
-    ROS_INFO("Can't find <drc_robot><pin_link> blocks, using default.");
+    ROS_INFO("Can't find <atlas><pin_link> blocks, using default.");
     this->pinLink = this->model->GetLink("utorso");
   }
 
   if (!this->pinLink)
   {
-    ROS_ERROR("drc robot pin link not found.");
+    ROS_ERROR("atlas robot pin link not found.");
     return;
   }
 
@@ -817,38 +817,38 @@ void VRCPlugin::LoadVRCROSAPI()
 void VRCPlugin::LoadRobotROSAPI()
 {
   // ros subscription
-  std::string trajectory_topic_name = "drc_robot/cmd_vel";
+  std::string trajectory_topic_name = "atlas/cmd_vel";
   ros::SubscribeOptions trajectory_so =
     ros::SubscribeOptions::create<geometry_msgs::Twist>(
     trajectory_topic_name, 100,
     boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
     ros::VoidPtr(), &this->rosQueue);
-  this->drcRobot.subTrajectory = this->rosNode->subscribe(trajectory_so);
+  this->atlas.subTrajectory = this->rosNode->subscribe(trajectory_so);
 
-  std::string pose_topic_name = "drc_robot/set_pose";
+  std::string pose_topic_name = "atlas/set_pose";
   ros::SubscribeOptions pose_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     pose_topic_name, 100,
     boost::bind(&VRCPlugin::SetRobotPose,this,_1),
     ros::VoidPtr(), &this->rosQueue);
-  this->drcRobot.subPose = this->rosNode->subscribe(pose_so);
+  this->atlas.subPose = this->rosNode->subscribe(pose_so);
 
-  std::string configuration_topic_name = "drc_robot/configuration";
+  std::string configuration_topic_name = "atlas/configuration";
   ros::SubscribeOptions configuration_so =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     configuration_topic_name, 100,
     boost::bind(&VRCPlugin::SetRobotConfiguration, this, _1),
     ros::VoidPtr(), &this->rosQueue);
-  this->drcRobot.subConfiguration =
+  this->atlas.subConfiguration =
     this->rosNode->subscribe(configuration_so);
 
-  std::string mode_topic_name = "drc_robot/mode";
+  std::string mode_topic_name = "atlas/mode";
   ros::SubscribeOptions mode_so =
     ros::SubscribeOptions::create<std_msgs::String>(
     mode_topic_name, 100,
     boost::bind( &VRCPlugin::SetRobotModeTopic,this,_1),
     ros::VoidPtr(), &this->rosQueue);
-  this->drcRobot.subMode = this->rosNode->subscribe(mode_so);
+  this->atlas.subMode = this->rosNode->subscribe(mode_so);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -856,7 +856,7 @@ void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
   &/* _cmd */)
 {
   // This function is planned but not yet implemented.
-  ROS_ERROR("The /drc_robot/configuration handler is not implemented.\n");
+  ROS_ERROR("The atlas/configuration handler is not implemented.\n");
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCPlugin)

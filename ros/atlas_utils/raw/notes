@@ -1,0 +1,12 @@
+first, make sure that both atlas_utils and sandia_hand_utils are under ROS_PACKAGE_PATHS, then
+
+run
+
+bdi_parser atlas_utils/raw/drc_skeleton_vX.cfg to generate atlas.urdf
+
+install generated atlas.urdf as atlas_utils/urdf/atlas.urdf
+
+then
+
+rosrun xacro xacro.py atlas.model.xacro > atlas.model
+copy atlas.model into the gazebo model database as [somewhere]/model/atlas/model.sdf

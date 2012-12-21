@@ -1,5 +1,5 @@
 set (plugins
-  #DRCRobotPlugin
+  #AtlasPlugin
   DRCVehiclePlugin
   DRCBuildingPlugin
   #DRCFirehosePlugin

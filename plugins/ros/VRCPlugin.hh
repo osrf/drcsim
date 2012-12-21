@@ -73,7 +73,7 @@ namespace gazebo
     //   List of available actions                                            //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Sets DRC Robot planar navigational command velocity
+    /// \brief Sets Atlas planar navigational command velocity
     /// \param[in] _cmd A Vector3, where:
     ///   - x is the desired forward linear velocity, positive is robot-forward
     ///     and negative is robot-back.
@@ -183,7 +183,7 @@ namespace gazebo
 
     /// \brief setup ROS publication and sbuscriptions for VRC
     /// These ros api describes interactions between different models
-    /// /drc_robot/cmd_vel - in pinned mode, the robot teleports based on
+    /// /atlas/cmd_vel - in pinned mode, the robot teleports based on
     ///                      messages from the cmd_vel
     private: void LoadVRCROSAPI();
 
@@ -203,7 +203,7 @@ namespace gazebo
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
-    //   DRC Robot properties and states                                      //
+    //   Atlas properties and states                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     private: class Robot
@@ -225,7 +225,7 @@ namespace gazebo
       /// \brief Flag to keep track of start-up 'harness' on the robot.
       public: bool startupHarness;
 
-      /// \brief Load the drc_robot portion of plugin.
+      /// \brief Load the atlas portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
@@ -238,7 +238,7 @@ namespace gazebo
       public: ros::Subscriber subConfiguration;
       public: ros::Subscriber subMode;
 
-    } drcRobot;
+    } atlas;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -314,7 +314,6 @@ namespace gazebo
     //   Joint Trajectory Controller                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-
     private: class JointTrajectory
     {
     public:
@@ -328,7 +327,7 @@ namespace gazebo
       {
         // tell the action client that we want to spin a thread by default
         this->clientTraj = new TrajClient(
-          "/drc_controller/follow_joint_trajectory", true);
+          "/atlas_controller/follow_joint_trajectory", true);
 
       }
 
