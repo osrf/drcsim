@@ -191,6 +191,13 @@ namespace gazebo
     /// if links are aligned
     private: void CheckThreadStart();
 
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void DeferredLoad();
+
+    /// \brief ROS callback queue thread
+    private: void ROSQueueThread();
+
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //   Atlas properties and states                                          //
@@ -201,32 +208,34 @@ namespace gazebo
       /// \brief Load the atlas portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
-      public: physics::ModelPtr model;
-      public: physics::LinkPtr pinLink;
-      public: physics::JointPtr pinJoint;
+      private: physics::ModelPtr model;
+      private: physics::LinkPtr pinLink;
+      private: physics::JointPtr pinJoint;
 
       /// \brief keep initial pose of robot to prevent z-drifting when
       /// teleporting the robot.
-      public: math::Pose initialPose;
+      private: math::Pose initialPose;
 
       /// \brief Pose of robot relative to vehicle.
-      public: math::Pose vehicleRelPose;
+      private: math::Pose vehicleRelPose;
 
       /// \brief Robot configuration when inside of vehicle.
-      public: std::map<std::string, double> inVehicleConfiguration;
+      private: std::map<std::string, double> inVehicleConfiguration;
 
       /// \brief Flag to keep track of start-up 'harness' on the robot.
-      public: bool startupHarness;
+      private: bool startupHarness;
 
       /// \brief flag for successful initialization of atlas
-      public: bool isInitialized;
+      private: bool isInitialized;
 
-      public: ros::Subscriber subTrajectory;
-      public: ros::Subscriber subPose;
-      public: ros::Subscriber subConfiguration;
-      public: ros::Subscriber subMode;
+      private: ros::Subscriber subTrajectory;
+      private: ros::Subscriber subPose;
+      private: ros::Subscriber subConfiguration;
+      private: ros::Subscriber subMode;
+
+      friend class VRCPlugin;
 
     } atlas;
 
@@ -240,14 +249,16 @@ namespace gazebo
       /// \brief Load the drc vehicle portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
-      public: physics::ModelPtr model;
-      public: math::Pose initialPose;
-      public: physics::LinkPtr seatLink;
+      private: physics::ModelPtr model;
+      private: math::Pose initialPose;
+      private: physics::LinkPtr seatLink;
 
       /// \brief flag for successful initialization of vehicle
-      public: bool isInitialized;
+      private: bool isInitialized;
+
+      friend class VRCPlugin;
     } drcVehicle;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -258,7 +269,7 @@ namespace gazebo
     private: class FireHose
     {
       /// \brief set initial configuration of the fire hose link
-      public: void SetInitialConfiguration()
+      private: void SetInitialConfiguration()
       {
         // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
         //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
@@ -272,31 +283,33 @@ namespace gazebo
       /// \brief Load the drc_fire_hose portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
-      public: physics::ModelPtr fireHoseModel;
-      public: physics::ModelPtr standpipeModel;
+      private: physics::ModelPtr fireHoseModel;
+      private: physics::ModelPtr standpipeModel;
 
       /// joint for pinning a link to the world
-      public: physics::JointPtr fixedJoint;
+      private: physics::JointPtr fixedJoint;
 
       /// joints and links
-      public: physics::Joint_V fireHoseJoints;
-      public: physics::Link_V fireHoseLinks;
+      private: physics::Joint_V fireHoseJoints;
+      private: physics::Link_V fireHoseLinks;
       /// screw joint
-      public: physics::JointPtr screwJoint;
-      public: double threadPitch;
+      private: physics::JointPtr screwJoint;
+      private: double threadPitch;
 
       /// Pointer to the update event connection
-      public: event::ConnectionPtr updateConnection;
+      private: event::ConnectionPtr updateConnection;
 
-      public: physics::LinkPtr couplingLink;
-      public: physics::LinkPtr spoutLink;
-      public: math::Pose couplingRelativePose;
-      public: math::Pose initialFireHosePose;
+      private: physics::LinkPtr couplingLink;
+      private: physics::LinkPtr spoutLink;
+      private: math::Pose couplingRelativePose;
+      private: math::Pose initialFireHosePose;
 
       /// \brief flag for successful initialization of fire hose, standpipe
-      public: bool isInitialized;
+      private: bool isInitialized;
+
+      friend class VRCPlugin;
     } drcFireHose;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -572,7 +585,6 @@ namespace gazebo
       // used to trigger the arm movement action
       public: TrajClient* clientTraj;
 
-     
     } jointTrajectoryController;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -597,7 +609,6 @@ namespace gazebo
     // default ros stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
-    private: void ROSQueueThread();
     private: boost::thread callbackQueueThread;
 
     // ros subscribers for robot actions
@@ -609,7 +620,6 @@ namespace gazebo
 
     // items below are used for deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
-    private: void DeferredLoad();
     private: boost::thread deferredLoadThread;
   };
 /** \} */
