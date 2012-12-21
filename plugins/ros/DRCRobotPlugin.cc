@@ -47,8 +47,8 @@ DRCRobotPlugin::~DRCRobotPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
   this->rosNode->shutdown();
-  this->queue.clear();
-  this->queue.disable();
+  this->rosQueue.clear();
+  this->rosQueue.disable();
   this->callbackQueeuThread.join();
   delete this->rosNode;
 }
@@ -147,13 +147,13 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
-    boost::bind(&DRCRobotPlugin::LoadThread,this ));
+    boost::bind(&DRCRobotPlugin::DeferredLoad,this ));
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void DRCRobotPlugin::LoadThread()
+void DRCRobotPlugin::DeferredLoad()
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -206,7 +206,7 @@ void DRCRobotPlugin::LoadThread()
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
-    boost::bind( &DRCRobotPlugin::QueueThread,this ) );
+    boost::bind( &DRCRobotPlugin::RosQueueThread,this ) );
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&DRCRobotPlugin::UpdateStates, this));
@@ -502,13 +502,13 @@ void DRCRobotPlugin::OnRContactUpdate()
   }
 }
 
-void DRCRobotPlugin::QueueThread()
+void DRCRobotPlugin::RosQueueThread()
 {
   static const double timeout = 0.01;
 
   while (this->rosNode->ok())
   {
-    this->queue.callAvailable(ros::WallDuration(timeout));
+    this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
 

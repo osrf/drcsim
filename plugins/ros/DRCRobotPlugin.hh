@@ -109,17 +109,17 @@ namespace gazebo
     private: math::Vector3 imuLastLinearVel;
     private: ros::Publisher pubImu;
 
-    // deferred load in case ros is blocking
-    private: sdf::ElementPtr sdf;
+    // deferred loading in case ros is blocking
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
-    private: void LoadThread();
+    private: void DeferredLoad();
+    private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
-    // reset of ros stuff
+    // ROS stuff
+    private: void RosQueueThread();
     private: ros::NodeHandle* rosNode;
-    private: ros::CallbackQueue queue;
-    private: void QueueThread();
+    private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
     private: ros::Publisher pubStatus;
     private: math::Vector3 lFootForce;
