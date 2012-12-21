@@ -327,7 +327,7 @@ namespace gazebo
       {
         // tell the action client that we want to spin a thread by default
         this->clientTraj = new TrajClient(
-          "/drc_controller/follow_joint_trajectory", true);
+          "/atlas_controller/follow_joint_trajectory", true);
 
       }
 

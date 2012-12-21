@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 
   ros::init(argc, argv, "pub_joint_trajectory_test");
   ros::NodeHandle rosnode;
-  ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>("/drc_controller/command",1, true);
+  ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>("/atlas_controller/command",1, true);
 
   trajectory_msgs::JointTrajectory jt;
 

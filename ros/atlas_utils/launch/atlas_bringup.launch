@@ -23,7 +23,7 @@
   <!-- Controllers that come up started -->
   <node name="atlas_controller_spawner"
         pkg="pr2_controller_manager" type="spawner" output="screen"
-        args="--wait-for=/calibrated drc_controller" />
+        args="--wait-for=/calibrated atlas_controller" />
 
   <!-- Stereo image processing -->
   <node ns="multisense_sl" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="screen">

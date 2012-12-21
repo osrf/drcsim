@@ -1,4 +1,4 @@
-drc_controller:
+atlas_controller:
   type: "robot_mechanism_controllers/JointTrajectoryActionController"
   joints:
     - l_leg_uhz
