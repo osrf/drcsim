@@ -869,7 +869,7 @@
   <joint name="imu_joint" type="revolute">
     <parent link="pelvis"/>
     <child link="imu_link"/>
-    <origin rpy="0.05991527603 0 -0.01415" xyz="0 0 0"/>
+    <origin xyz="0.05991527603 0 -0.01415" rpy="0 0 0"/>
     <limit effort="0" lower="0" upper="0" velocity="0"/>
     <safety_controller k_position="0" k_velocity="0" soft_lower_limit="0" soft_upper_limit="0"/>
     <axis xyz="0 0 1"/>
@@ -1072,15 +1072,15 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>640</samples>
+            <samples>720</samples>
             <resolution>1</resolution>
-            <min_angle>-1.57</min_angle>
-            <max_angle>1.57</max_angle>
+            <min_angle>-1.570796</min_angle>
+            <max_angle>1.570796</max_angle>
           </horizontal>
         </scan>
         <range>
-          <min>0.08</min>
-          <max>10.0</max>
+          <min>0.10</min>
+          <max>30.0</max>
           <resolution>0.01</resolution>
         </range>
       </ray>
