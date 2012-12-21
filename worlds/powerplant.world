@@ -38,7 +38,7 @@
 
 <!--
     <include>
-      <uri>model://drc_robot</uri>
+      <uri>model://atlas</uri>
       <pose>0 2 0.93 0 0 0</pose>
     </include>
 
