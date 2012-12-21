@@ -223,7 +223,7 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotGrabLink(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
+void VRCPlugin::RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
 {
   /// \todo: get these from incoming message
   std::string modelName = "fire_hose";
@@ -800,7 +800,7 @@ void VRCPlugin::LoadVRCROSAPI()
   ros::SubscribeOptions robot_grab_so =
     ros::SubscribeOptions::create<geometry_msgs::Pose>(
     robot_grab_topic_name, 100,
-    boost::bind( &VRCPlugin::RobotGrabLink,this,_1),
+    boost::bind( &VRCPlugin::RobotGrabFireHose,this,_1),
     ros::VoidPtr(), &this->rosQueue);
   this->subRobotGrab = this->rosNode->subscribe(robot_grab_so);
 

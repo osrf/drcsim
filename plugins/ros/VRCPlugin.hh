@@ -117,13 +117,8 @@ namespace gazebo
     public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose);
 
     /// \brief Cheats to teleport fire hose to hand and make a fixed joint
-    /// \param[in] _cmd Relative pose offset between the fire hose and the hand.
-    /// \todo: not yet implemented
-    public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
-
-    /// \brief Cheats to teleport fire hose to hand and make a fixed joint
     /// \param[in] _cmd Relative pose offset between the link and the hand.
-    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd);
+    public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
     /// \brief remove the fixed joint between robot hand link and fire hose.
     /// \param[in] _cmd not used.
