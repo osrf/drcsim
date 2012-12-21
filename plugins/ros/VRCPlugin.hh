@@ -323,31 +323,31 @@ namespace gazebo
       TrajClient* clientTraj;
 
     public:
-      //! Initialize the action client and wait for action server to come up
+      /// Initialize the action client and wait for action server to come up
       JointTrajectory() 
       {
         // tell the action client that we want to spin a thread by default
-        //clientTraj = new TrajClient("/drc_controller/joint_trajectory_action", true);
-        clientTraj = new TrajClient("/drc_controller/follow_joint_trajectory", true);
+        this->clientTraj = new TrajClient(
+          "/drc_controller/follow_joint_trajectory", true);
 
       }
 
-      //! Clean up the action client
+      /// Clean up the action client
       ~JointTrajectory()
       {
-        delete clientTraj;
+        delete this->clientTraj;
       }
 
-      //! Sends the command to start a given trajectory
+      /// Sends the command to start a given trajectory
       void startTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
       {
         // When to start the trajectory: 1s from now
         _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-        clientTraj->sendGoal(_goal);
+        this->clientTraj->sendGoal(_goal);
       }
 
-      //! Generates a simple trajectory with two waypoints, used as an example
+      /// Generates a simple trajectory with two waypoints, used as an example
       /*! Note that this trajectory contains two waypoints, joined together
           as a single trajectory. Alternatively, each of these waypoints could
           be in its own trajectory - a trajectory can have one or more waypoints
@@ -446,19 +446,6 @@ namespace gazebo
         {
           goal.trajectory.points[ind].velocities[j] = 0.0;
         }
-
-        // tolerances
-        /*
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 0.1;
-          jt.velocity = 0.1;
-          jt.acceleration = 0.1;
-          goal.path_tolerance.push_back(jt);
-        }
-        */
 
         // tolerances
         for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
@@ -573,19 +560,6 @@ namespace gazebo
         }
 
         // tolerances
-        /*
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 0.1;
-          jt.velocity = 0.1;
-          jt.acceleration = 0.1;
-          goal.path_tolerance.push_back(jt);
-        }
-        */
-
-        // tolerances
         for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
         {
           control_msgs::JointTolerance jt;
@@ -606,7 +580,7 @@ namespace gazebo
       //! Returns the current state of the action
       actionlib::SimpleClientGoalState getState()
       {
-        return clientTraj->getState();
+        return this->clientTraj->getState();
       }
      
     } jointTrajectoryController;
@@ -620,20 +594,20 @@ namespace gazebo
     private: double lastUpdateTime;
     private: geometry_msgs::Twist robotCmdVel;
 
-    // ros stuff
+    // default ros stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: void ROSQueueThread();
     private: boost::thread callbackQueueThread;
 
-    // ros subscription for grabbing objects
+    // ros subscribers for robot actions
     private: ros::Subscriber subRobotGrab;
     private: ros::Subscriber subRobotRelease;
     private: ros::Subscriber subRobotEnterCar;
     private: ros::Subscriber subRobotExitCar;
     private: physics::JointPtr grabJoint;
 
-    // deferred load in case ros is blocking
+    // items below are used for deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: void DeferredLoad();
     private: boost::thread deferredLoadThread;
