@@ -65,18 +65,24 @@ namespace gazebo
     /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
+    /// \brief connected by lContactUpdateConnection, called when contact
+    /// sensor update
+    private: void OnLContactUpdate();
+
+    /// \brief connected by rContactUpdateConnection, called when contact
+    /// sensor update
+    private: void OnRContactUpdate();
+
     /// \brief Update the controller
     private: void UpdateStates();
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
-    /// Pointer to the update event connection
+    /// Pointer to the update event connections
     private: event::ConnectionPtr updateConnection;
     private: event::ConnectionPtr rContactUpdateConnection;
     private: event::ConnectionPtr lContactUpdateConnection;
-    void OnLContactUpdate();
-    void OnRContactUpdate();
 
     /// Throttle update rate
     private: double lastStatusTime;

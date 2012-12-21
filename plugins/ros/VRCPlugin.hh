@@ -187,16 +187,6 @@ namespace gazebo
     ///                      messages from the cmd_vel
     private: void LoadVRCROSAPI();
 
-    /// \brief fix robot butt to vehicle for efficiency
-    // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
-    public: physics::JointPtr vehicleRobotJoint;
-
-    /// \brief Pointer to parent world.
-    private: physics::WorldPtr world;
-
-    /// \brief Pointer to the update event connection
-    private: event::ConnectionPtr updateConnection;
-
     /// \brief check and spawn screw joint to simulate threads
     /// if links are aligned
     private: void CheckThreadStart();
@@ -592,6 +582,16 @@ namespace gazebo
     private: bool warpRobotWithCmdVel;
     private: double lastUpdateTime;
     private: geometry_msgs::Twist robotCmdVel;
+
+    /// \brief fix robot butt to vehicle for efficiency
+    // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
+    public: physics::JointPtr vehicleRobotJoint;
+
+    /// \brief Pointer to parent world.
+    private: physics::WorldPtr world;
+
+    /// \brief Pointer to the update event connection
+    private: event::ConnectionPtr updateConnection;
 
     // default ros stuff
     private: ros::NodeHandle* rosNode;
