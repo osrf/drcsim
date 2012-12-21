@@ -129,13 +129,19 @@ void DRCRobotPlugin::Load(physics::ModelPtr _parent,
   // Get sensors
   this->rFootContactSensor =
     boost::shared_dynamic_cast<sensors::ContactSensor>
-      (sensors::SensorManager::Instance()->GetSensor("r_foot_contact_sensor"));
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->model->GetScopedName()
+        + "::r_foot::"
+        "r_foot_contact_sensor"));
   if (!this->rFootContactSensor)
     gzerr << "r_foot_contact_sensor not found\n" << "\n";
 
   this->lFootContactSensor =
     boost::shared_dynamic_cast<sensors::ContactSensor>
-      (sensors::SensorManager::Instance()->GetSensor("l_foot_contact_sensor"));
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->model->GetScopedName()
+        + "::l_foot::"
+        "l_foot_contact_sensor"));
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
