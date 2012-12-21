@@ -2,7 +2,7 @@
 
   <arg name="gzname" default="gazebo"/>
 
-  <!-- start gazebo with the DRC Robot -->
+  <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="atlas_golf_cart_fire_hose.world"/>

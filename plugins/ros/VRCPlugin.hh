@@ -73,7 +73,7 @@ namespace gazebo
     //   List of available actions                                            //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Sets DRC Robot planar navigational command velocity
+    /// \brief Sets Atlas planar navigational command velocity
     /// \param[in] _cmd A Vector3, where:
     ///   - x is the desired forward linear velocity, positive is robot-forward
     ///     and negative is robot-back.
@@ -203,7 +203,7 @@ namespace gazebo
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
-    //   DRC Robot properties and states                                      //
+    //   Atlas properties and states                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     private: class Robot

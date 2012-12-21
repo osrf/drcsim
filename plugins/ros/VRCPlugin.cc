@@ -749,7 +749,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->model)
   {
-    ROS_ERROR("drc robot not found.");
+    ROS_ERROR("atlas model not found.");
     return;
   }
 
@@ -767,7 +767,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->pinLink)
   {
-    ROS_ERROR("drc robot pin link not found.");
+    ROS_ERROR("atlas robot pin link not found.");
     return;
   }
 

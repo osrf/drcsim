@@ -1,6 +1,6 @@
 <launch>
 
-  <!-- start gazebo with the DRC Robot -->
+  <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch"/>
 
   <!-- Controller Manager -->

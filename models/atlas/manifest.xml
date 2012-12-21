@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <model>
-  <name>DRC Robot</name>
+  <name>Atlas</name>
   <version>0.1.0</version>
   <author>
     <name>John Hsu</name>
@@ -8,7 +8,7 @@
   </author>
   <sdf>model.urdf</sdf>
   <description>
-    This model approximates the DRC Robot, built by Boston Dynamics.
+    This model approximates the Atlas, built by Boston Dynamics.
   </description>
   <depend>
     <model>
