@@ -198,6 +198,11 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class Robot
     {
+      /// \brief Load the atlas portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+
       public: physics::ModelPtr model;
       public: physics::LinkPtr pinLink;
       public: physics::JointPtr pinJoint;
@@ -215,12 +220,7 @@ namespace gazebo
       /// \brief Flag to keep track of start-up 'harness' on the robot.
       public: bool startupHarness;
 
-      /// \brief Load the atlas portion of plugin.
-      /// \param[in] _parent Pointer to parent world.
-      /// \param[in] _sdf Pointer to sdf element.
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
-
-      /// \brief flag for successful initialization of fire hose, standpipe
+      /// \brief flag for successful initialization of atlas
       public: bool isInitialized;
 
       public: ros::Subscriber subTrajectory;
@@ -237,17 +237,17 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class Vehicle
     {
-      public: physics::ModelPtr model;
-      public: math::Pose initialPose;
-      public: physics::LinkPtr seatLink;
-
-      /// \brief flag for successful initialization of fire hose, standpipe
-      public: bool isInitialized;
-
       /// \brief Load the drc vehicle portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
       public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+
+      public: physics::ModelPtr model;
+      public: math::Pose initialPose;
+      public: physics::LinkPtr seatLink;
+
+      /// \brief flag for successful initialization of vehicle
+      public: bool isInitialized;
     } drcVehicle;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -257,6 +257,23 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class FireHose
     {
+      /// \brief set initial configuration of the fire hose link
+      public: void SetInitialConfiguration()
+      {
+        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
+        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+        // for (unsigned int i = 0; i < this->links.size(); ++i)
+        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
+        this->fireHoseModel->SetWorldPose(this->initialFireHosePose);
+        this->fireHoseJoints[fireHoseJoints.size()-4]->SetAngle(0, -M_PI/4.0);
+        this->fireHoseJoints[fireHoseJoints.size()-2]->SetAngle(0, -M_PI/4.0);
+      }
+
+      /// \brief Load the drc_fire_hose portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+
       public: physics::ModelPtr fireHoseModel;
       public: physics::ModelPtr standpipeModel;
 
@@ -280,23 +297,6 @@ namespace gazebo
 
       /// \brief flag for successful initialization of fire hose, standpipe
       public: bool isInitialized;
-
-      /// \brief set initial configuration of the fire hose link
-      public: void SetInitialConfiguration()
-      {
-        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
-        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
-        // for (unsigned int i = 0; i < this->links.size(); ++i)
-        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
-        this->fireHoseModel->SetWorldPose(this->initialFireHosePose);
-        this->fireHoseJoints[fireHoseJoints.size()-4]->SetAngle(0, -M_PI/4.0);
-        this->fireHoseJoints[fireHoseJoints.size()-2]->SetAngle(0, -M_PI/4.0);
-      }
-
-      /// \brief Load the drc_fire_hose portion of plugin.
-      /// \param[in] _parent Pointer to parent world.
-      /// \param[in] _sdf Pointer to sdf element.
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
     } drcFireHose;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -306,14 +306,9 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class JointTrajectory
     {
-    public:
-      // Action client for the joint trajectory action 
-      // used to trigger the arm movement action
-      TrajClient* clientTraj;
-
-    public:
-      /// Initialize the action client and wait for action server to come up
-      JointTrajectory() 
+      /// \brief Constructor, note atlas_controller is the name
+      /// of the controller loaded from yaml
+      public: JointTrajectory() 
       {
         // tell the action client that we want to spin a thread by default
         this->clientTraj = new TrajClient(
@@ -321,14 +316,14 @@ namespace gazebo
 
       }
 
-      /// Clean up the action client
-      ~JointTrajectory()
+      /// \brief Destructor, clean up the action client
+      public: ~JointTrajectory()
       {
         delete this->clientTraj;
       }
 
-      /// Sends the command to start a given trajectory
-      void startTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
+      /// \brief Sends the command to start a given trajectory
+      public: void sendTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
       {
         // When to start the trajectory: 1s from now
         _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
@@ -336,13 +331,12 @@ namespace gazebo
         this->clientTraj->sendGoal(_goal);
       }
 
-      /// Generates a simple trajectory with two waypoints, used as an example
-      /*! Note that this trajectory contains two waypoints, joined together
-          as a single trajectory. Alternatively, each of these waypoints could
-          be in its own trajectory - a trajectory can have one or more waypoints
-          depending on the desired application.
-      */
-      control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
+      /// \brief Generates a simple trajectory
+      /// Note that this trajectory contains two waypoints, joined together
+      /// as a single trajectory. Alternatively, each of these waypoints could
+      /// be in its own trajectory - a trajectory can have one or more waypoints
+      /// depending on the desired application.
+      public: control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
       {
         //our goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
@@ -454,7 +448,8 @@ namespace gazebo
         return goal;
       }
 
-      control_msgs::FollowJointTrajectoryGoal standingConfiguration()
+      /// \brief Generates a simple trajectory for standing configuration.
+      public: control_msgs::FollowJointTrajectoryGoal standingConfiguration()
       {
         //our goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
@@ -566,11 +561,17 @@ namespace gazebo
         return goal;
       }
 
-      //! Returns the current state of the action
-      actionlib::SimpleClientGoalState getState()
+      /// \brief Get state of the simple action client
+      /// \return the current state of the action
+      public: actionlib::SimpleClientGoalState getState()
       {
         return this->clientTraj->getState();
       }
+
+      // Action client for the joint trajectory action 
+      // used to trigger the arm movement action
+      public: TrajClient* clientTraj;
+
      
     } jointTrajectoryController;
 

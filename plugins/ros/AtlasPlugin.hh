@@ -76,6 +76,13 @@ namespace gazebo
     /// \brief Update the controller
     private: void UpdateStates();
 
+    /// \brief ROS callback queue thread
+    private: void RosQueueThread();
+
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void DeferredLoad();
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
@@ -115,14 +122,10 @@ namespace gazebo
     private: ros::Publisher pubImu;
 
     // deferred loading in case ros is blocking
-    /// \brief: thread out Load function with
-    /// with anything that might be blocking.
-    private: void DeferredLoad();
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
     // ROS stuff
-    private: void RosQueueThread();
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;

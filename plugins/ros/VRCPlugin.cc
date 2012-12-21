@@ -374,7 +374,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
-  this->jointTrajectoryController.startTrajectory(
+  this->jointTrajectoryController.sendTrajectory(
     this->jointTrajectoryController.seatingConfiguration());
 
   // Wait for trajectory completion
@@ -444,7 +444,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
-  this->jointTrajectoryController.startTrajectory(
+  this->jointTrajectoryController.sendTrajectory(
     this->jointTrajectoryController.standingConfiguration());
 
   // Wait for trajectory completion
