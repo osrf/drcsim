@@ -58,12 +58,12 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
-    boost::bind(&VRCPlugin::LoadThread, this));
+    boost::bind(&VRCPlugin::DeferredLoad, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void VRCPlugin::LoadThread()
+void VRCPlugin::DeferredLoad()
 {
 
   // initialize ros
@@ -107,8 +107,6 @@ void VRCPlugin::LoadThread()
     ROS_INFO("Start robot with gravity turned off and harnessed.");
     ROS_INFO("Resume to nominal mode after 10 seconds.");
   }
-
-
 
   // ros callback queue for processing subscription
   this->callbackQueueThread = boost::thread(
@@ -485,7 +483,16 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
 void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
                          physics::JointPtr &_pinJoint,
                          const math::Pose &_pose,
-                       const std::map<std::string, double> &/*_jointPositions*/)
+                         const std::map<std::string, double> &/*_jp*/)
+{
+  this->Teleport(_pinLink, _pinJoint, _pose);
+  /// \todo: use _jp to set robot configuration
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
+                         physics::JointPtr &_pinJoint,
+                         const math::Pose &_pose)
 {
   // pause, break joint, update pose, create new joint, unpause
   bool p = this->world->IsPaused();

@@ -47,8 +47,8 @@ AtlasPlugin::~AtlasPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
   this->rosNode->shutdown();
-  this->queue.clear();
-  this->queue.disable();
+  this->rosQueue.clear();
+  this->rosQueue.disable();
   this->callbackQueeuThread.join();
   delete this->rosNode;
 }
@@ -129,25 +129,31 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // Get sensors
   this->rFootContactSensor =
     boost::shared_dynamic_cast<sensors::ContactSensor>
-      (sensors::SensorManager::Instance()->GetSensor("r_foot_contact_sensor"));
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->model->GetScopedName()
+        + "::r_foot::"
+        "r_foot_contact_sensor"));
   if (!this->rFootContactSensor)
     gzerr << "r_foot_contact_sensor not found\n" << "\n";
 
   this->lFootContactSensor =
     boost::shared_dynamic_cast<sensors::ContactSensor>
-      (sensors::SensorManager::Instance()->GetSensor("l_foot_contact_sensor"));
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->model->GetScopedName()
+        + "::l_foot::"
+        "l_foot_contact_sensor"));
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
-    boost::bind(&AtlasPlugin::LoadThread,this ));
+    boost::bind(&AtlasPlugin::DeferredLoad,this ));
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void AtlasPlugin::LoadThread()
+void AtlasPlugin::DeferredLoad()
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -200,7 +206,7 @@ void AtlasPlugin::LoadThread()
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
-    boost::bind( &AtlasPlugin::QueueThread,this ) );
+    boost::bind( &AtlasPlugin::RosQueueThread,this ) );
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&AtlasPlugin::UpdateStates, this));
@@ -496,13 +502,13 @@ void AtlasPlugin::OnRContactUpdate()
   }
 }
 
-void AtlasPlugin::QueueThread()
+void AtlasPlugin::RosQueueThread()
 {
   static const double timeout = 0.01;
 
   while (this->rosNode->ok())
   {
-    this->queue.callAvailable(ros::WallDuration(timeout));
+    this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
 
