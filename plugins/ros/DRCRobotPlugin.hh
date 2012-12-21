@@ -111,6 +111,8 @@ namespace gazebo
 
     // deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
     private: void LoadThread();
     private: boost::thread deferredLoadThread;
 
