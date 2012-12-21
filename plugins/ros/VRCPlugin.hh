@@ -84,16 +84,25 @@ namespace gazebo
     public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
 
     /// \brief sets robot's absolute world pose
+    /// \param[in] _cmd Pose command for the robot
     public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
     /// \brief sets robot's joint positions
+    /// \param[in] _cmd configuration made of sensor_msgs::JointState message
+    /// \todo: not yet implemented
     public: void SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
                                        &/*_cmd*/);
 
     /// \brief sets robot mode via ros topic
+    /// \sa SetRobotMode(const std::string &_str)
     public: void SetRobotModeTopic(const std_msgs::String::ConstPtr &_str);
 
     /// \brief sets robot mode
+    /// \param[in] _str sets robot mode by a string.  Supported modes are:
+    ///  - "no_gravity" Gravity disabled for the robot.
+    ///  - "nominal" Nominal "normal" physics.
+    ///  - "pinned" Robot is pinned to inertial world by the pelvis.
+    ///  - "feet" same as no_gravity except for r_foot and l_foot links.
     public: void SetRobotMode(const std::string &_str);
 
 
@@ -107,11 +116,17 @@ namespace gazebo
     ///                 behavior.
     public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose);
 
-    // \brief Cheats to teleport fire hose to hand and make a fixed joint
+    /// \brief Cheats to teleport fire hose to hand and make a fixed joint
+    /// \param[in] _cmd Relative pose offset between the fire hose and the hand.
+    /// \todo: not yet implemented
     public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
 
-    // \brief create a fixed joint between robot hand link and a nearby link
+    /// \brief Cheats to teleport fire hose to hand and make a fixed joint
+    /// \param[in] _cmd Relative pose offset between the link and the hand.
     public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+    /// \brief remove the fixed joint between robot hand link and fire hose.
+    /// \param[in] _cmd not used.
     public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
 
 
