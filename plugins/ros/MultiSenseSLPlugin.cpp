@@ -39,9 +39,12 @@ GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
 ////////////////////////////////////////////////////////////////////////////////
 MultiSenseSL::MultiSenseSL()
 {
+  /// \todo: hardcoded for now, make them into plugin parameters
   this->spindlePID.Init(0.03, 0.30, 0.00001, 1., -1., 10.0, -10.0);
   this->spindleOn = true;
   this->spindleSpeed = 0;
+  this->spindleMaxRPM = 50.0;
+  this->spindleMinRPM = 0;
   this->leftCameraFrameRate = 25.0;
   this->rightCameraFrameRate = 25.0;
   this->leftCameraExposureTime = 0.001;
@@ -64,7 +67,7 @@ MultiSenseSL::~MultiSenseSL()
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
-  this->drcRobotModel = _parent;
+  this->atlasModel = _parent;
   this->world = _parent->GetWorld();
   this->sdf = _sdf;
 
@@ -72,14 +75,14 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->lastTime = this->world->GetSimTime();
 
-  this->spindleLink = this->drcRobotModel->GetLink("drc_robot::hokuyo_link");
+  this->spindleLink = this->atlasModel->GetLink("atlas::hokuyo_link");
   if (!this->spindleLink)
   {
     gzerr << "spindle link not found, plugin will stop loading\n";
     return;
   }
 
-  this->spindleJoint = this->drcRobotModel->GetJoint("drc_robot::hokuyo_joint");
+  this->spindleJoint = this->atlasModel->GetJoint("atlas::hokuyo_joint");
   if (!this->spindleJoint)
   {
     gzerr << "spindle joint not found, plugin will stop loading\n";
@@ -311,6 +314,10 @@ bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,
 void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 {
   this->spindleSpeed = (double)_msg->data;
+  if (this->spindleSpeed > this->spindleMaxRPM * 2.0*M_PI / 60.0)
+    this->spindleSpeed = this->spindleMaxRPM * 2.0*M_PI / 60.0;
+  else if (this->spindleSpeed < this->spindleMinRPM * 2.0*M_PI / 60.0)
+    this->spindleSpeed = this->spindleMinRPM * 2.0*M_PI / 60.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

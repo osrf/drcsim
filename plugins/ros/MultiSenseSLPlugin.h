@@ -131,7 +131,7 @@ namespace gazebo
 
     // gazebo variables
     private: physics::WorldPtr world;
-    private: physics::ModelPtr drcRobotModel;
+    private: physics::ModelPtr atlasModel;
     private: sdf::ElementPtr sdf;
     private: common::Time lastTime;
 
@@ -150,6 +150,8 @@ namespace gazebo
 
     // spindle control
     private: double spindleSpeed;
+    private: double spindleMaxRPM;
+    private: double spindleMinRPM;
     private: bool spindleOn;
     private: physics::LinkPtr spindleLink;
     private: physics::JointPtr spindleJoint;
