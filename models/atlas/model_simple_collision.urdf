@@ -456,13 +456,13 @@
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0.017227 0.06"/>
+      <origin rpy="0 0 0" xyz="0 0.034 0.06"/>
       <geometry>
         <cylinder radius="0.130" length="0.07"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 0" xyz="0 -0.017227 0.06"/>
+      <origin rpy="0 0 0" xyz="0 -0.034 0.06"/>
       <geometry>
         <cylinder radius="0.130" length="0.07"/>
       </geometry>
