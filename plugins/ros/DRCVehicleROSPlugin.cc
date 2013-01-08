@@ -68,8 +68,8 @@ void DRCVehicleROSPlugin::SetKeyState(const std_msgs::Int8::ConstPtr &_msg)
   else if (_msg->data == 1)
     this->SetKeyOn();
   else
-    gzerr << "Invalid Key State: " << static_cast<int16_t>(_msg->data)
-          << ", expected 0 or 1\n";
+    ROS_ERROR("Invalid Key State: %d, expected 0 or 1\n",
+      static_cast<int16_t>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,8 +82,8 @@ void DRCVehicleROSPlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg
   else if (_msg->data == -1)
     this->DRCVehiclePlugin::SetDirectionState(REVERSE);
   else
-    gzerr << "Invalid Direction State: " << static_cast<int16_t>(_msg->data)
-          << ", expected -1, 0, or 1\n";
+    ROS_ERROR("Invalid Direction State: %d, expected -1, 0, or 1\n",
+      static_cast<int16_t>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
