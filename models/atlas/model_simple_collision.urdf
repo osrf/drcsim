@@ -512,7 +512,7 @@
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="0.000226 0.06028 0.0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0.000226 -0.06028 0.0"/>
       <geometry>
         <cylinder radius="0.0279" length="0.050472"/>
       </geometry>
