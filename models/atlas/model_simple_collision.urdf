@@ -80,15 +80,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0.0744 0.03657"/>
       <geometry>
-        <cylinder radius="0.00964" length="0.1525">
+        <cylinder radius="0.045" length="0.1525">
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0.0325"/>
+      <origin rpy="-0.05236 0 0" xyz="0 0.012 0.012"/>
       <geometry>
-        <cylinder radius="0.04325" length="0.065">
+        <cylinder radius="0.04" length="0.027">
       </geometry>
     </collision>
   </link>
@@ -105,7 +105,7 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="-0.0009825 0.0009825 0.0174215"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0.0174215 0"/>
       <geometry>
         <cylinder radius="0.0458825" length="0.035181">
       </geometry>
@@ -157,15 +157,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="0.034375 0.02643 0.0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0.034375 0.002643 0"/>
       <geometry>
-        <cylinder radius="0.071878" length="0.020116"/>
+        <cylinder radius="0.071878" length="0.019"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="-0.0365945 0.02643 0.0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.0365945 0.002643 0"/>
       <geometry>
-        <cylinder radius="0.071878" length="0.020116"/>
+        <cylinder radius="0.071878" length="0.019"/>
       </geometry>
     </collision>
     <collision>
@@ -190,19 +190,19 @@
     <collision>
       <origin rpy="0 1.5707963267949 0" xyz="0.56065 0 0"/>
       <geometry>
-        <cylinder radius="0.091541" length="0.018286"/>
+        <cylinder radius="0.045" length="0.0161"/>
       </geometry>
     </collision>
     <collision>
       <origin rpy="0 1.5707963267949 0" xyz="-0.556155 0 0"/> <!-- double check -->
       <geometry>
-        <cylinder radius="0.091541" length="0.018931"/>
+        <cylinder radius="0.045" length="0.0161"/>
       </geometry>
     </collision>
     <collision>
       <origin rpy="1.5707963267949 0 0" xyz="0 0.0940525 0.0"/>
       <geometry>
-        <cylinder radius="0.044203789" length="0.188105"/>
+        <cylinder radius="0.045" length="0.188105"/>
       </geometry>
     </collision>
   </link>
@@ -294,13 +294,13 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
       <geometry>
         <cylinder radius="0.010181" length="0.029542"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 1.5707963267949" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0 0"/>
       <geometry>
         <cylinder radius="0.010348" length="0.010059"/>
       </geometry>
@@ -319,13 +319,13 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 1.5707963267949" xyz="0 0 0.0583385"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0 0.0583385"/>
       <geometry>
         <cylinder radius="0.0449" length="0.116677"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0.1205235 0.00912975"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0.1205235 0.00912975"/>
       <geometry>
         <cylinder radius="0.04504847" length="0.088934"/>
       </geometry>
@@ -344,13 +344,13 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
       <geometry>
         <cylinder radius="0.019096" length="0.078396"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <cylinder radius="0.019841" length="0.080842"/>
       </geometry>
@@ -450,9 +450,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/pelvis.stl" scale="1 1 1"/>
+        <sphere radius="0.129"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0.017227 0.06"/>
+      <geometry>
+        <cylinder radius="0.130" length="0.07"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0 -0.017227 0.06"/>
+      <geometry>
+        <cylinder radius="0.130" length="0.07"/>
       </geometry>
     </collision>
   </link>
@@ -469,9 +481,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 -0.0744 0.03657"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_clav.stl" scale="1 1 1"/>
+        <cylinder radius="0.045" length="0.1525">
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0.05236 0 0" xyz="0 -0.012 0.012"/>
+      <geometry>
+        <cylinder radius="0.04" length="0.027">
       </geometry>
     </collision>
   </link>
@@ -488,9 +506,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 -0.0174215 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_farm.stl" scale="1 1 1"/>
+        <cylinder radius="0.0458825" length="0.035181">
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0.000226 0.06028 0.0"/>
+      <geometry>
+        <cylinder radius="0.0279" length="0.050472">
       </geometry>
     </collision>
   </link>
@@ -512,17 +536,19 @@
       </geometry>
       -->
     </visual>
+    <!-- bottom -->
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://atlas/meshes/r_foot.stl" scale="1 1 1"/>
-      </geometry>
-      <!--
       <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
       <geometry>
         <box size="0.26 0.124887 0.01"/>
       </geometry>
-      -->
+    </collision>
+    <!-- ankle -->
+    <collision>
+      <origin xyz="0.0 0 -0.0528735" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.0373" length="0.037827"/>
+      </geometry>
     </collision>
   </link>
   <link name="r_hand">
@@ -538,9 +564,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0.034375 -0.002643 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_hand.stl" scale="1 1 1"/>
+        <cylinder radius="0.071878" length="0.019"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.0365945 -0.002643 0"/>
+      <geometry>
+        <cylinder radius="0.071878" length="0.019"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="1.5707963267949 0 0" xyz="0 -0.0526955 0.0"/>
+      <geometry>
+        <cylinder radius="0.071878" length="0.055117"/>
       </geometry>
     </collision>
   </link>
@@ -557,9 +595,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0.56065 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_larm.stl" scale="1 1 1"/>
+        <cylinder radius="0.045" length="0.0161"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.556155 0 0"/> <!-- double check -->
+      <geometry>
+        <cylinder radius="0.045" length="0.0161"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="1.5707963267949 0 0" xyz="0 -0.0940525 0.0"/>
+      <geometry>
+        <cylinder radius="0.045" length="0.188105"/>
       </geometry>
     </collision>
   </link>
@@ -576,9 +626,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0.049968 -0.022488 -0.0501165"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_lglut.stl" scale="1 1 1"/>
+        <cylinder radius="0.02009687" length="0.060306"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.12"/>
       </geometry>
     </collision>
   </link>
@@ -595,9 +651,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="-0.00345 -0.00295 -0.1913"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_lleg.stl" scale="1 1 1"/>
+        <box size="0.1465 0.1205 0.476"/>
       </geometry>
     </collision>
   </link>
@@ -614,9 +670,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 -0.118521 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_scap.stl" scale="1 1 1"/>
+        <cylinder radius="0.0418405" length="0.137492"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.0884125 0 0"/>
+      <geometry>
+        <cylinder radius="0.048709" length="0.013937"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0.0847565 0 0"/>
+      <geometry>
+        <cylinder radius="0.048709" length="0.013737"/>
       </geometry>
     </collision>
   </link>
@@ -633,9 +701,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_talus.stl" scale="1 1 1"/>
+        <cylinder radius="0.010181" length="0.029542"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.010348" length="0.010059"/>
       </geometry>
     </collision>
   </link>
@@ -652,9 +726,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0 0.0583385"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_uarm.stl" scale="1 1 1"/>
+        <cylinder radius="0.0449" length="0.116677"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0.1205235 0.00912975"/>
+      <geometry>
+        <cylinder radius="0.04504847" length="0.088934"/>
       </geometry>
     </collision>
   </link>
@@ -671,9 +751,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_uglut.stl" scale="1 1 1"/>
+        <cylinder radius="0.019096" length="0.078396"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.019841" length="0.080842"/>
       </geometry>
     </collision>
   </link>
@@ -690,9 +776,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="-0.0179 -0.02085 -0.21"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/r_uleg.stl" scale="1 1 1"/>
+        <box size="0.2 0.1865 0.26"/>
       </geometry>
     </collision>
   </link>
