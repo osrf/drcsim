@@ -344,9 +344,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_uglut.stl" scale="1 1 1"/>
+        <cylinder radius="0.019096" length="0.078396"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.019841" length="0.080842"/>
       </geometry>
     </collision>
   </link>
@@ -363,9 +369,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="-0.0179 0.02085 -0.21"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_uleg.stl" scale="1 1 1"/>
+        <box size="0.2 0.1865 0.26"/>
       </geometry>
     </collision>
   </link>
