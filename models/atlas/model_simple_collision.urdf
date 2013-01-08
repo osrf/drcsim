@@ -263,9 +263,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0.118521 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_scap.stl" scale="1 1 1"/>
+        <cylinder radius="0.0418405" length="0.137492"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.0884125 0 0"/>
+      <geometry>
+        <cylinder radius="0.048709" length="0.013937"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0.0847565 0 0"/>
+      <geometry>
+        <cylinder radius="0.048709" length="0.013737"/>
       </geometry>
     </collision>
   </link>
