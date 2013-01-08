@@ -188,9 +188,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0.56065 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_larm.stl" scale="1 1 1"/>
+        <cylinder radius="0.091541" length="0.018286"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.556155 0 0"/>
+      <geometry>
+        <cylinder radius="0.091541" length="0.018931"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0.0940525 0.0"/>
+      <geometry>
+        <cylinder radius="0.044203789" length="0.188105"/>
       </geometry>
     </collision>
   </link>
