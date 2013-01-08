@@ -244,9 +244,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="-0.00345 0.00295 -0.1913"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_lleg.stl" scale="1 1 1"/>
+        <box size="0.1465 0.1205 0.476"/>
       </geometry>
     </collision>
   </link>
