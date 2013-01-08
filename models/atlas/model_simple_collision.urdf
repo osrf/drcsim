@@ -388,9 +388,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0.039762"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/ltorso.stl" scale="1 1 1"/>
+        <cylinder radius="0.025918" length="0.076922"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 1.5707963267949" xyz="0 0.0250065 0.09025"/>
+      <geometry>
+        <cylinder radius="0.014828" length="0.020367"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 1.5707963267949" xyz="0 -0.0248895 0.09025"/>
+      <geometry>
+        <cylinder radius="0.014828" length="0.020169"/>
       </geometry>
     </collision>
   </link>
