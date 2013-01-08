@@ -456,13 +456,13 @@
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="0 0.017227 0.06"/>
+      <origin rpy="0 0 0" xyz="0 0.017227 0.06"/>
       <geometry>
         <cylinder radius="0.130" length="0.07"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="0 -0.017227 0.06"/>
+      <origin rpy="0 0 0" xyz="0 -0.017227 0.06"/>
       <geometry>
         <cylinder radius="0.130" length="0.07"/>
       </geometry>
@@ -569,13 +569,13 @@
         <cylinder radius="0.035939" length="0.055117"/>
       </geometry>
     </collision>
-    <collision group="1">
+    <collision>
       <origin rpy="0 1.5707963267949 0" xyz="0.034375 -0.002643 0"/>
       <geometry>
         <cylinder radius="0.035939" length="0.019"/>
       </geometry>
     </collision>
-    <collision group="2">
+    <collision>
       <origin rpy="0 1.5707963267949 0" xyz="-0.0365945 -0.002643 0"/>
       <geometry>
         <cylinder radius="0.035939" length="0.019"/>
