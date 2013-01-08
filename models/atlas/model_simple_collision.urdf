@@ -294,9 +294,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_talus.stl" scale="1 1 1"/>
+        <cylinder radius="0.010181" length="0.029542"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 1.5707963267949" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.010348" length="0.010059"/>
       </geometry>
     </collision>
   </link>
