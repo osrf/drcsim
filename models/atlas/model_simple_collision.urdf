@@ -136,13 +136,14 @@
         <box size="0.26 0.124887 0.01"/>
       </geometry>
     </collision>
-    <!-- ankle -->
+    <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
     <collision>
       <origin xyz="0.0 0 -0.0528735" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0373" length="0.037827"/>
       </geometry>
     </collision>
+    -->
   </link>
   <link name="l_hand">
     <inertial>
@@ -543,13 +544,14 @@
         <box size="0.26 0.124887 0.01"/>
       </geometry>
     </collision>
-    <!-- ankle -->
+    <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
     <collision>
       <origin xyz="0.0 0 -0.0528735" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0373" length="0.037827"/>
       </geometry>
     </collision>
+    -->
   </link>
   <link name="r_hand">
     <inertial>
