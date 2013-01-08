@@ -90,27 +90,28 @@ void DRCVehicleROSPlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg
 void DRCVehicleROSPlugin::SetHandBrakeState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  this->handBrakeCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetHandBrakeState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  this->handWheelCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetHandWheelState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg)
+void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr
+                                                &_msg)
 {
-  this->gasPedalCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetGasPedalState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  this->brakePedalCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetBrakePedalState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

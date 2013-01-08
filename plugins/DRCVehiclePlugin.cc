@@ -82,6 +82,7 @@ void DRCVehiclePlugin::SetVehicleState(double _handWheelPosition,
                                    DRCVehiclePlugin::KeyType _key,
                                    DRCVehiclePlugin::DirectionType _direction)
 {
+  // This function isn't currently looking at joint limits.
   this->handWheelCmd = _handWheelPosition;
   this->handBrakeCmd = _handBrakePosition;
   this->gasPedalCmd = _gasPedalPosition;
@@ -142,7 +143,9 @@ double DRCVehiclePlugin::GetGasTorqueMultiplier()
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetHandBrakeState(double _position)
 {
-  this->handBrakeCmd = _position;
+  double min, max;
+  this->GetHandBrakeLimits(min, max);
+  this->handBrakeCmd = this->Saturate(_position, min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,12 +174,14 @@ double DRCVehiclePlugin::GetHandBrakeState()
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetHandWheelState(double _position)
 {
-  this->handWheelCmd = _position;
+  math::Angle min, max;
+  this->GetHandWheelLimits(min, max);
+  this->handWheelCmd = this->Saturate(_position, min.Radian(), max.Radian());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetHandWheelLimits(const math::Angle &_min,
-                                              const math::Angle &_max)
+                                          const math::Angle &_max)
 {
   this->handWheelJoint->SetHighStop(0, _max);
   this->handWheelJoint->SetLowStop(0, _min);
@@ -184,8 +189,7 @@ void DRCVehiclePlugin::SetHandWheelLimits(const math::Angle &_min,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehiclePlugin::GetHandWheelLimits(math::Angle &_min,
-                                              math::Angle &_max)
+void DRCVehiclePlugin::GetHandWheelLimits(math::Angle &_min, math::Angle &_max)
 {
   _max = this->handWheelJoint->GetHighStop(0);
   _min = this->handWheelJoint->GetLowStop(0);
@@ -255,7 +259,9 @@ void DRCVehiclePlugin::GetSteeredWheelLimits(math::Angle &_min, math::Angle &_ma
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetGasPedalState(double _position)
 {
-  this->gasPedalCmd = _position;
+  double min, max;
+  this->GetGasPedalLimits(min, max);
+  this->gasPedalCmd = this->Saturate(_position, min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -309,7 +315,9 @@ double DRCVehiclePlugin::GetHandBrakePercent()
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::SetBrakePedalState(double _position)
 {
-  this->brakePedalCmd = _position;
+  double min, max;
+  this->GetBrakePedalLimits(min, max);
+  this->brakePedalCmd = this->Saturate(_position, min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -590,6 +598,16 @@ void DRCVehiclePlugin::UpdateStates()
     // has time been reset?
     this->lastTime = curTime;
   }
+}
+
+// limit _data to _min and _max
+double DRCVehiclePlugin::Saturate(double _data, double _min, double _max)
+{
+  if (_data < _min)
+    return _min;
+  if (_data > _max)
+    return _max;
+  return _data;
 }
 
 // function that extracts the radius of a cylinder or sphere collision shape
