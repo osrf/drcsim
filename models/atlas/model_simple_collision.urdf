@@ -194,7 +194,7 @@
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="-0.556155 0 0"/>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.556155 0 0"/> <!-- double check -->
       <geometry>
         <cylinder radius="0.091541" length="0.018931"/>
       </geometry>
@@ -219,9 +219,15 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0.049968 0.022488 -0.0501165"/>
       <geometry>
-        <mesh filename="package://atlas/meshes/l_lglut.stl" scale="1 1 1"/>
+        <cylinder radius="0.02009687" length="0.060306"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.12"/>
       </geometry>
     </collision>
   </link>
