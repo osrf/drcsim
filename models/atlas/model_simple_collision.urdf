@@ -26,9 +26,15 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.0446 0.0057 0.05725" rpy="0 0 1.570795" />
+      <origin xyz="-0.0503 0 -0.00195" rpy="0 0 0" />
       <geometry>
-        <box size="0.1804 0.0661 0.08875"/>
+        <box size="0.1311 0.12 0.0591"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="-0.093 0 0.0868" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0468 0.12 0.1184"/>
       </geometry>
     </collision>
   </link>
@@ -54,9 +60,15 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.00233 -0.01884 -0.0057" rpy="1.5707963267949 0 1.5707963267949" />
+      <origin xyz="0.01885 0 -0.02119" rpy="0 0 0" />
       <geometry>
-        <box size="0.07242 0.07998 0.0962"/>
+        <box size="0.08 0.06 0.04238"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.03 0 0.0235" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.024425" length="0.047"/>
       </geometry>
     </collision>
   </link>
@@ -388,24 +400,26 @@
         <mesh filename="package://atlas/meshes/ltorso.dae" scale="1 1 1"/>
       </geometry>
     </visual>
+    <!-- this part is completely internal
     <collision>
-      <origin rpy="0 1.5707963267949 0" xyz="0 0 0.039762"/>
+      <origin rpy="0 0 0" xyz="0 0 0.039762"/>
       <geometry>
         <cylinder radius="0.025918" length="0.076922"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 1.5707963267949" xyz="0 0.0250065 0.09025"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0.0250065 0.09025"/>
       <geometry>
         <cylinder radius="0.014828" length="0.020367"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 1.5707963267949" xyz="0 -0.0248895 0.09025"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 -0.0248895 0.09025"/>
       <geometry>
         <cylinder radius="0.014828" length="0.020169"/>
       </geometry>
     </collision>
+    -->
   </link>
   <link name="mtorso">
     <inertial>
@@ -420,19 +434,19 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 1.5707963267949" xyz="0 0 0"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0 0 0"/>
       <geometry>
         <cylinder radius="0.017" length="0.03"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 0" xyz="0.0285 0 0.05"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0.0285 0 0.05"/>
       <geometry>
         <cylinder radius="0.015" length="0.02"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0 0 0" xyz="-0.0285 0 0.05"/>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.0285 0 0.05"/>
       <geometry>
         <cylinder radius="0.015" length="0.02"/>
       </geometry>
@@ -797,19 +811,19 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 -0 0" xyz="0.0446 0 0.295"/>
+      <origin rpy="0 -0 0" xyz="0.0446 0 0.1869"/>
       <geometry>
-        <box size="0.3188 0.24 0.15"/>
+        <box size="0.3188 0.24 0.3662"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="-0.5236 0 0" xyz="0.0025 0.15 0.18"/>
+      <origin rpy="-0.5236 0 0" xyz="0.024 0.16 0.18"/>
       <geometry>
         <cylinder radius="0.0363" length="0.22375"/>
       </geometry>
     </collision>
     <collision>
-      <origin rpy="0.5236 0 0" xyz="0.0025 -0.15 0.18"/>
+      <origin rpy="0.5236 0 0" xyz="0.024 -0.16 0.18"/>
       <geometry>
         <cylinder radius="0.0363" length="0.22375"/>
       </geometry>
