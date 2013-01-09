@@ -299,7 +299,6 @@ void AtlasPlugin::UpdateStates()
       this->lastImuTime = curTime.Double();
     }
 
-/* Not yet available in gazebo 1.3
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
     {
@@ -377,7 +376,6 @@ void AtlasPlugin::UpdateStates()
       double r_wrist_sensors_my = wrench.body1Torque.y;
       double r_wrist_sensors_mz = wrench.body1Torque.z;
     }
-*/
 
     this->lastControllerUpdateTime = curTime;
   }
