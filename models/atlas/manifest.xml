@@ -6,7 +6,7 @@
     <name>John Hsu</name>
     <email>hsu@osrfoundation.org</email>
   </author>
-  <sdf>model_simple_collision.urdf</sdf>
+  <sdf>model.urdf</sdf>
   <description>
     This model approximates the Atlas, built by Boston Dynamics.
   </description>
