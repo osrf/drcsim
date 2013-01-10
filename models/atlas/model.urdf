@@ -965,6 +965,11 @@
       <updateRate>100.0</updateRate>
     </plugin>
   </gazebo>
+  <transmission name="imu_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="imu_joint"/>
+    <actuator name="imu_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <transmission name="head_hokuyo_trans" type="pr2_mechanism_model/SimpleTransmission">
     <joint name="hokuyo_joint"/>
     <actuator name="hokuyo_motor"/>
