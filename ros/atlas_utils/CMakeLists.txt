@@ -37,7 +37,10 @@ add_executable(bdi_parser src/bdi_parser.cpp)
 target_link_libraries(bdi_parser ${urdfdom_LIBRARIES} ${tinyxml_libraries} ${console_bridge_LIBRARIES} ${Boost_LIBRARIES})
 INSTALL(TARGETS bdi_parser DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/bin/)
 
-# install robot
+# compile robot from xacro
+# note the hand integrated needs ros package sandia_hand_description installed by sandia-hand to be in ROS_PACKAGE_PATH already
+# (e.g. export ROS_PACKAGE_PATH=${CMAKE_INSTALL_PREFIX}/share/sandia-hand/ros:${ROS_PACKAGE_PATH} or similar)
+# this package and irobot hand package also need to to be in ROS_PACKAGE_PATH
 # compile using xacro
 set (model_basenames
      sandia_hand_left_on_box

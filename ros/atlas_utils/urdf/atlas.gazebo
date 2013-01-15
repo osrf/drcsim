@@ -4,6 +4,7 @@
     <pose>0 0 0.93 0 0 0</pose>
   </gazebo>
   <gazebo>
+    <plugin filename="libMultiSenseSLPlugin.so" name="multisense_plugin"/>
     <plugin name="atlas_plugin" filename="libAtlasPlugin.so"/>
     <plugin filename="libgazebo_ros_joint_trajectory.so" name="joint_trajectory_plugin">
       <topicName>joint_trajectory</topicName>
@@ -34,8 +35,8 @@
       </geometry>
     </visual>
   </link>
-  <!-- use a zero limit revolute joint rather than fixed to prevent lumping -->
   <joint name="imu_joint" type="revolute">
+    <!-- use a zero limit revolute joint rather than fixed to prevent lumping -->
     <parent link="pelvis"/>
     <child link="imu_link"/>
     <origin xyz="0.05991527603 0 -0.01415" rpy="0 0 0"/>
@@ -79,5 +80,13 @@
     <fdir1>1 0 0</fdir1>
     <maxVel>0.0</maxVel>
     <minDepth>0.001</minDepth>
+  </gazebo>
+  <gazebo>
+    <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
+      <bodyName>pelvis</bodyName>
+      <topicName>/ground_truth_odom</topicName>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>100.0</updateRate>
+    </plugin>
   </gazebo>
 </robot>

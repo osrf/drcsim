@@ -116,24 +116,12 @@
       <geometry>
         <mesh filename="package://atlas/meshes/l_foot.dae" scale="1 1 1"/>
       </geometry>
-      <!--
-      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.26 0.124887 0.01"/>
-      </geometry>
-      -->
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://atlas/meshes/l_foot.stl" scale="1 1 1"/>
       </geometry>
-      <!--
-      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.26 0.124887 0.01"/>
-      </geometry>
-      -->
     </collision>
   </link>
   <link name="l_hand">
@@ -413,24 +401,12 @@
       <geometry>
         <mesh filename="package://atlas/meshes/r_foot.dae" scale="1 1 1"/>
       </geometry>
-      <!--
-      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.26 0.124887 0.01"/>
-      </geometry>
-      -->
     </visual>
     <collision>
       <origin rpy="0 -0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://atlas/meshes/r_foot.stl" scale="1 1 1"/>
       </geometry>
-      <!--
-      <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.26 0.124887 0.01"/>
-      </geometry>
-      -->
     </collision>
   </link>
   <link name="r_hand">

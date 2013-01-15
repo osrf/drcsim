@@ -1,4 +1,9 @@
 <robot name="drc_skeleton">
+  <transmission name="head_hokuyo_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="hokuyo_joint"/>
+    <actuator name="hokuyo_motor"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
   <transmission name="back_lbz_trans" type="pr2_mechanism_model/SimpleTransmission">
     <joint name="back_lbz"/>
     <actuator name="back_lbz_motor"/>

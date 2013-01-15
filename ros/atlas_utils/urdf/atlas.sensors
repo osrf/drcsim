@@ -2,15 +2,15 @@
   <!-- Hokuyo Laser -->
   <joint name="head_hokuyo_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="0.03 0 0.13" rpy="0 0 0"/>
-    <parent link="head"/>
+    <origin xyz="0.03 0 0.015" rpy="0 0 0"/>
+    <parent link="hokuyo_link"/>
     <child link="head_hokuyo"/>
   </joint>
   <link name="head_hokuyo" type="laser">
     <inertial>
-      <mass value="0.1" />
+      <mass value="0.01" />
       <origin xyz="0 0 0" rpy="0 0 0" />
-      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+      <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001" />
     </inertial>
   </link>
   <gazebo reference="head_hokuyo">
@@ -45,7 +45,8 @@
 
   <!-- Stereo Camera -->
   <joint name="left_camera_frame_joint" type="fixed">
-    <origin xyz="0.03 0.1 0.1" />
+    <!-- optical frame collocated with tilting DOF -->
+    <origin xyz="0.0 0.035 -0.002"/>
     <parent link="head"/>
     <child link="left_camera_frame"/>
   </joint>
@@ -64,22 +65,27 @@
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
     <sensor type="camera" name="left_camera_sensor">
-      <update_rate>25.0</update_rate>
+      <!-- update rate based on spec sheet for 2mp 15fps -->
+      <update_rate>15.0</update_rate>
       <camera>
-        <horizontal_fov>1.5708</horizontal_fov>
+        <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
+        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
+        <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>320</width>
-          <height>240</height>
+          <width>2048</width>
+          <height>1088</height>
           <format>R8G8B8</format>
         </image>
         <clip>
-          <near>0.01</near>
+          <near>0.02</near>
           <far>100</far>
         </clip>
       </camera>
       <plugin name="left_camera_controller" filename="libgazebo_ros_camera.so">
         <alwaysOn>true</alwaysOn>
-        <updateRate>25.0</updateRate>
+        <!-- update rate based on spec sheet for 2mp 15fps -->
+        <updateRate>15.0</updateRate>
         <cameraName>multisense_sl/left</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
@@ -96,7 +102,7 @@
 
 
   <joint name="right_camera_frame_joint" type="fixed">
-    <origin xyz="0.03 -0.1 0.1" />
+    <origin xyz="0.0 -0.035 -0.002"/>
     <parent link="head"/>
     <child link="right_camera_frame"/>
   </joint>
@@ -115,27 +121,32 @@
   <link name="right_camera_optical_frame"/>
   <gazebo reference="right_camera_frame">
     <sensor type="camera" name="right_camera_sensor">
-      <update_rate>25.0</update_rate>
+      <!-- update rate based on spec sheet for 2mp 15fps -->
+      <update_rate>15.0</update_rate>
       <camera>
-        <horizontal_fov>1.5708</horizontal_fov>
+        <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
+        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
+        <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>320</width>
-          <height>240</height>
+          <width>2048</width>
+          <height>1088</height>
           <format>R8G8B8</format>
         </image>
         <clip>
-          <near>0.01</near>
+          <near>0.02</near>
           <far>100</far>
         </clip>
       </camera>
       <plugin name="right_camera_controller" filename="libgazebo_ros_camera.so">
         <alwaysOn>true</alwaysOn>
-        <updateRate>25.0</updateRate>
+        <!-- update rate based on spec sheet for 2mp 15fps -->
+        <updateRate>15.0</updateRate>
         <cameraName>multisense_sl/right</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>left_camera_optical_frame</frameName>
-        <hackBaseline>0.2</hackBaseline> <!-- check this -->
+        <hackBaseline>0.07</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
         <distortionK3>0.0</distortionK3>
@@ -144,5 +155,78 @@
       </plugin>
     </sensor>
   </gazebo>
+
+  <joint name="center_top_led_frame_joint" type="fixed">
+    <origin xyz="0.01125 0.0 0.0105"/>
+    <parent link="head"/>
+    <child link="center_top_led_frame"/>
+  </joint>
+  <link name="center_top_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="center_bottom_led_frame_joint" type="fixed">
+    <origin xyz="0.01125 0.0 -0.0155"/>
+    <parent link="head"/>
+    <child link="center_bottom_led_frame"/>
+  </joint>
+  <link name="center_bottom_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="left_led_frame_joint" type="fixed">
+    <origin xyz="-0.01443 0.07452 0.050346" rpy="0 -0.15 0.53"/>
+    <parent link="head"/>
+    <child link="left_led_frame"/>
+  </joint>
+  <link name="left_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="right_led_frame_joint" type="fixed">
+    <origin xyz="-0.01443 -0.07452 0.050346" rpy="0 -0.15 -0.53"/>
+    <parent link="head"/>
+    <child link="right_led_frame"/>
+  </joint>
+  <link name="right_led_frame">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="r_foot">
+    <!-- contact sensor -->
+    <sensor type="contact" name="r_foot_contact_sensor">
+      <update_rate>1000.0</update_rate>
+      <always_on>1</always_on>
+      <contact>
+        <collision>r_foot_collision</collision>
+        <topic>/r_foot_contact</topic>
+      </contact>
+    </sensor>
+  </gazebo>
+  <gazebo reference="l_foot">
+    <!-- contact sensor -->
+    <sensor type="contact" name="l_foot_contact_sensor">
+      <update_rate>1000.0</update_rate>
+      <always_on>1</always_on>
+      <contact>
+        <collision>l_foot_collision</collision>
+        <topic>/l_foot_contact</topic>
+      </contact>
+    </sensor>
+  </gazebo>
+
 </robot>
 
