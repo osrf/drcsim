@@ -1,7 +1,4 @@
 set(MODEL_NAME atlas)
-add_subdirectory(meshes)
-add_subdirectory(ros)
-add_subdirectory(materials)
 set (files 
   model.urdf
   model.urdf.square_foot

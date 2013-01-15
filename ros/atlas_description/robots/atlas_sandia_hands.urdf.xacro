@@ -1,6 +1,6 @@
 <robot xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" name="atlas" >
   
-  <include filename="$(find atlas_utils)/urdf/atlas.urdf" />
+  <include filename="$(find atlas_description)/urdf/atlas.urdf" />
   <include filename="$(find sandia_hand_description)/urdf/sandia_hand_simple_shapes.urdf.xacro" />
 
   <xacro:sandia_hand side="right" parent="r_hand" reflect="1">
@@ -10,7 +10,7 @@
     <origin xyz="0  0.1 -0.03" rpy="0 3.1416 -1.57079"/>
   </xacro:sandia_hand>
 
-  <include filename="$(find atlas_utils)/urdf/atlas.gazebo" />
-  <include filename="$(find atlas_utils)/urdf/atlas.transmission" />
-  <include filename="$(find atlas_utils)/urdf/atlas.sensors" />
+  <include filename="$(find atlas_description)/urdf/atlas.gazebo" />
+  <include filename="$(find atlas_description)/urdf/atlas.transmission" />
+  <include filename="$(find atlas_description)/urdf/atlas.sensors" />
 </robot>

@@ -7,17 +7,16 @@
 # compile using xacro
 
 if (HAVE_SANDIA_HAND)
-  set(ENV{ROS_PACKAGE_PATH} ${_ROS_PACKAGE_PATH}:${CMAKE_SOURCE_DIR}/ros:${ROS_PACKAGE_PATH})
   set (model_basenames atlas atlas_sandia_hands)
 else()
-  set(ENV{ROS_PACKAGE_PATH}                      ${CMAKE_SOURCE_DIR}/ros:${ROS_PACKAGE_PATH})
   set (model_basenames atlas)
 endif()
+
 
 foreach(model_basename ${model_basenames})
   add_custom_command(
     OUTPUT ${model_basename}.urdf
-    COMMAND rosrun xacro xacro.py ${CMAKE_SOURCE_DIR}/ros/${ROS_PACKAGE_NAME}/robots/${model_basename}.urdf.xacro > ${model_basename}.urdf 
+    COMMAND ROS_PACKAGE_PATH=${_ROS_PACKAGE_PATH}:${CMAKE_SOURCE_DIR}/ros:$ENV{ROS_PACKAGE_PATH} && rosrun xacro xacro.py ${CMAKE_SOURCE_DIR}/ros/${ROS_PACKAGE_NAME}/robots/${model_basename}.urdf.xacro > ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf 
     DEPENDS ${model_basename}.urdf.xacro)
   add_custom_target(${model_basename}_urdf ALL DEPENDS ${model_basename}.urdf)
 
