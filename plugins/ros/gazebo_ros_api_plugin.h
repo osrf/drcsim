@@ -105,8 +105,6 @@
 
 // For model pose transform to set custom joint angles
 #include <ros/ros.h>
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btVector3.h"
 #ifdef GAZEBO_MSGS
 #include <gazebo_msgs/SetModelConfiguration.h>
 #endif
