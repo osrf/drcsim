@@ -1,1 +1,2 @@
 add_subdirectory(atlas_utils)
+add_subdirectory(atlas_description)
