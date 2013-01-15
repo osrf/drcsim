@@ -1,9 +1,0 @@
-<launch>
-  <include file="$(find humanoid)/launch/upload.launch"/>
-  <node name="rviz" pkg="rviz" type="rviz" />
-  <rosparam file="$(find humanoid)/config/joint_state_publisher.yaml" command="load"/>
-  <node name="jsp" pkg="joint_state_publisher" type="joint_state_publisher">
-    <param name="/use_gui" value="true"/>
-  </node>
-  <node name="state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
-</launch>
