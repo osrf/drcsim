@@ -14,7 +14,7 @@ fi
 # We don't just add the top 'models' directory because it contains a 'manifest.xml', which stops rospack in its tracks.
 for d in `find @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models -mindepth 1 -maxdepth 1 -type d`; do export ROS_PACKAGE_PATH=$d:$ROS_PACKAGE_PATH; done
 # Also add our 'ros' directory to RPP; it contains utility packages with things like launch files
-export ROS_PACKAGE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/ros:$ROS_PACKAGE_PATH
+export ROS_PACKAGE_PATH=@_ROS_PACKAGE_PATH@:@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/ros:$ROS_PACKAGE_PATH
 # Make ROS plugins visible to the runtime loader; they'll be pulled in by ROS via pluginlib
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@PROJECT_NAME@-@DRC_SIM_VERSION@/plugins:$LD_LIBRARY_PATH
 
@@ -29,5 +29,5 @@ fi
 
 # Step 4: modify Gazebo configuration.
 export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/worlds:$GAZEBO_RESOURCE_PATH
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/ros/atlas_utils/gazebo:@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/models:$GAZEBO_MODEL_PATH
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@PROJECT_NAME@-@DRC_SIM_VERSION@/plugins:$GAZEBO_PLUGIN_PATH
