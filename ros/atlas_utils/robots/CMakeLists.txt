@@ -1,6 +1,17 @@
 # compile robot from xacro
+
 # note the hand integrated needs ros package sandia_hand_description installed by sandia-hand to be in ROS_PACKAGE_PATH already
 # (e.g. export ROS_PACKAGE_PATH=${CMAKE_INSTALL_PREFIX}/share/sandia-hand/ros:${ROS_PACKAGE_PATH} or similar)
+find_package(sandia-hand)
+if (NOT sandia-hand_FOUND)
+  message(status ":\tsandia-hand not found, not building atlas with sandia hand")
+  set(HAVE_SANDIA_HAND false)
+else ()
+  message(status ":\tsandia-hand found, building atlas with sandia hand")
+  set(HAVE_SANDIA_HAND true)
+endif ()
+
+
 # this package and irobot hand package also need to to be in ROS_PACKAGE_PATH
 # compile using xacro
 set (model_basenames

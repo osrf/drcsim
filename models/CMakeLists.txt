@@ -1,5 +1,5 @@
-add_subdirectory(atlas)
-add_subdirectory(atlas_sandia_hand)
+#add_subdirectory(atlas)
+#add_subdirectory(atlas_sandia_hand)
 add_subdirectory(atlas_irobot_hand)
 add_subdirectory(drc_terrain)
 add_subdirectory(fire_hose)
