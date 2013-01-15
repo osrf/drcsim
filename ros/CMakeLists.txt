@@ -1,2 +1,1 @@
 add_subdirectory(atlas_utils)
-add_subdirectory(sandia_hand_utils)

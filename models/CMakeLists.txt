@@ -1,6 +1,3 @@
-add_subdirectory(sandia_hand_left)
-add_subdirectory(sandia_hand_right)
-add_subdirectory(sandia_hand)
 add_subdirectory(atlas)
 add_subdirectory(atlas_sandia_hand)
 add_subdirectory(atlas_irobot_hand)
