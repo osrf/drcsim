@@ -715,7 +715,7 @@
     </joint>
     <joint name="r_arm_usy" type="revolute">
         <origin xyz="0.024 -0.221 0.289" rpy="0 -0 0" />
-        <axis xyz="0 0.5 -0.866025" />
+        <axis xyz="0 -0.5 0.866025" />
         <parent link="utorso" />
         <child link="r_clav" />
         <dynamics damping="0.1" friction="0" />
