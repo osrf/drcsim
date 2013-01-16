@@ -8,7 +8,7 @@
   <node name="gazebo" pkg="atlas_utils" type="run_$(arg gzname)" args="$(arg gzworld)" output="screen" />
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas)/model.urdf"/>
+  <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
   
 </launch>
   
