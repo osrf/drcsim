@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="gzname" default="gazebo"/>
+
+  <!-- start gazebo with the Atlas -->
+  <include file="$(find atlas_utils)/launch/atlas_sandia_hands_no_controllers.launch">
+    <arg name="gzname" value="$(arg gzname)"/>
+  </include>
+
+  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
+</launch>
