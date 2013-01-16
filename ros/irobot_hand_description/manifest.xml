@@ -1,13 +1,13 @@
 <package>
-  <description brief="irobot_hand_utils">
+  <description brief="irobot_hand_description">
 
-     irobot_hand_utils
+     irobot_hand_description
 
   </description>
   <author>hsu</author>
   <license>Apache 2.0</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/irobot_hand_utils</url>
+  <url>http://ros.org/wiki/irobot_hand_description</url>
   <depend package="urdf"/>
   <depend package="xacro"/>
 
