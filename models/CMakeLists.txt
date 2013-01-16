@@ -1,12 +1,8 @@
-#add_subdirectory(atlas)
-#add_subdirectory(atlas_sandia_hand)
-add_subdirectory(atlas_irobot_hand)
 add_subdirectory(drc_terrain)
 add_subdirectory(fire_hose)
 add_subdirectory(golf_cart)
 add_subdirectory(multisense_sl)
 add_subdirectory(standpipe)
-add_subdirectory(irobot_hand)
 add_subdirectory(powerplant)
 set (files 
   manifest.xml
