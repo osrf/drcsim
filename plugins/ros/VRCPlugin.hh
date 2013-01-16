@@ -411,7 +411,7 @@ namespace gazebo
         goal.trajectory.points[ind].positions[16] =   0.00;
         goal.trajectory.points[ind].positions[17] =   0.00;
 
-        goal.trajectory.points[ind].positions[18] =   1.60;
+        goal.trajectory.points[ind].positions[18] =  -1.60;
         goal.trajectory.points[ind].positions[19] =   1.60;
         goal.trajectory.points[ind].positions[20] =   0.00;
         goal.trajectory.points[ind].positions[21] =   0.00;
