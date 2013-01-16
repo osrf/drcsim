@@ -4,16 +4,16 @@
     <axis xyz="0 1 0" />
     <origin xyz="0.03 0 0.015" rpy="0 0 0"/>
     <parent link="hokuyo_link"/>
-    <child link="head_hokuyo"/>
+    <child link="head_hokuyo_frame"/>
   </joint>
-  <link name="head_hokuyo" type="laser">
+  <link name="head_hokuyo_frame">
     <inertial>
       <mass value="0.01" />
       <origin xyz="0 0 0" rpy="0 0 0" />
       <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001" />
     </inertial>
   </link>
-  <gazebo reference="head_hokuyo">
+  <gazebo reference="head_hokuyo_frame">
     <sensor type="ray" name="head_hokuyo_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
@@ -38,7 +38,7 @@
         <alwaysOn>true</alwaysOn>
         <updateRate>40</updateRate>
         <topicName>/scan</topicName>
-        <frameName>head_hokuyo</frameName>
+        <frameName>head_hokuyo_frame</frameName>
       </plugin>
     </sensor>
   </gazebo>
