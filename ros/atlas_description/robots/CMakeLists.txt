@@ -7,9 +7,9 @@
 # compile using xacro
 
 if (HAVE_SANDIA_HAND)
-  set (model_basenames atlas atlas_sandia_hands)
+  set (model_basenames atlas atlas_irobot_hands atlas_sandia_hands)
 else()
-  set (model_basenames atlas)
+  set (model_basenames atlas atlas_irobot_hands)
 endif()
 
 

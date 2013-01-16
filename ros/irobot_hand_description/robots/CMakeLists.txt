@@ -1,5 +1,5 @@
 # compile using xacro
-set (model_basenames irobot_hand)
+set (model_basenames irobot_hand_on_box)
 foreach(model_basename ${model_basenames})
   add_custom_command(
     OUTPUT ${model_basename}.urdf
