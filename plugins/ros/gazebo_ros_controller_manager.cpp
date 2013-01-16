@@ -121,14 +121,23 @@ void GazeboRosControllerManager::LoadThread()
 
   this->robotParam = this->robotNamespace+"/" + this->robotParam;
 
-  // Init ROS
+  // Exit if no ROS
+  if (!ros::isInitialized())
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
+  }
+
+  /* Init ROS
   if (!ros::isInitialized())
   {
     int argc = 0;
     char** argv = NULL;
     ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
     gzwarn << "should start ros::init in simulation by using the system plugin\n";
-  }
+  }*/
 
   this->rosnode_ = new ros::NodeHandle(this->robotNamespace);
   ROS_INFO("starting gazebo_ros_controller_manager plugin in ns: %s",this->robotNamespace.c_str());
@@ -144,8 +153,9 @@ void GazeboRosControllerManager::LoadThread()
   
   this->rosnode_->param("gazebo/start_robot_calibrated", this->calibration_status_, true);
 
-  // read pr2 urdf
-  // setup actuators, then setup mechanism control node
+  // Read urdf from ros parameter server then
+  // setup actuators and mechanism control node.
+  // This call will block if ROS is not properly initialized.
   if (!LoadControllerManagerFromURDF())
   {
     ROS_ERROR("Error parsing URDF in gazebo controller manager plugin, plugin not active.\n");

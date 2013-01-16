@@ -17,8 +17,7 @@ public:
   RobotArm() 
   {
     // tell the action client that we want to spin a thread by default
-    //traj_client_ = new TrajClient("/drc_controller/joint_trajectory_action", true);
-    traj_client_ = new TrajClient("/drc_controller/follow_joint_trajectory", true);
+    traj_client_ = new TrajClient("/atlas_controller/follow_joint_trajectory", true);
 
     // wait for action server to come up
     while(!traj_client_->waitForServer(ros::Duration(1.0))){

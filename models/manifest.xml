@@ -6,7 +6,7 @@
 
   <models>
     <uri>file://camhand</uri>
-    <uri>file://drc_robot</uri>
+    <uri>file://atlas</uri>
     <uri>file://fire_hose</uri>
     <uri>file://golf_cart</uri>
     <uri>file://standpipe</uri>

@@ -1,0 +1,6 @@
+<launch>
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find atlas)/model.urdf"/>
+</launch>
+  
+

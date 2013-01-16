@@ -39,5 +39,25 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
+    <plugin filename="libVRCPlugin.so" name="vrc_plugin">
+      <atlas>
+         <model_name>atlas</model_name>
+         <pin_link>utorso</pin_link>
+      </atlas>
+      <drc_vehicle>
+        <model_name>golf_cart</model_name>
+        <seat_link>chassis</seat_link>
+      </drc_vehicle>
+      <drc_fire_hose>
+        <fire_hose_model>fire_hose</fire_hose_model>
+        <coupling_link>coupling</coupling_link>
+        <standpipe_model>standpipe</standpipe_model>
+        <spout_link>standpipe</spout_link>
+        <thread_pitch>-1000</thread_pitch>
+        <coupling_relative_pose>
+          1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199
+        </coupling_relative_pose>
+      </drc_fire_hose>
+    </plugin>
   </world>
 </gazebo>

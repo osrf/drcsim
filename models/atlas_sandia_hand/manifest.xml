@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<model>
+  <name>Atlas with Sandia Hands</name>
+  <version>0.1.0</version>
+  <sdf>model.urdf</sdf>
+  <author>
+    <name>John Hsu</name>
+    <email>hsu@osrfoundation.org</email>
+  </author>
+  <description>
+    This model approximates Atlas, built by Boston Dynamics with Sandia Hands.
+  </description>
+  <depend>
+    <model>
+      <uri>model://sandia_hand</uri>
+      <version>0.1.0</version>
+    </model>
+  </depend>
+</model>

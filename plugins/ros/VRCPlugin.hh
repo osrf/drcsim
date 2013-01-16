@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +18,9 @@
  *
  */
 /*
- * Desc: 3D position interface.
- * Author: Sachin Chitta and John Hsu
- * Date: 10 June 2008
- * SVN: $Id$
+ * Desc: Plugin to allow development shortcuts for VRC competition.
+ * Author: John Hsu and Steven Peters
+ * Date: December 2012
  */
 #ifndef GAZEBO_VRC_PLUGIN_HH
 #define GAZEBO_VRC_PLUGIN_HH
@@ -41,15 +39,14 @@
 #include <actionlib/client/simple_action_client.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "math/Vector3.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-
-#include "boost/thread/mutex.hpp"
+#include "gazebo/math/Vector3.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
 
 typedef actionlib::SimpleActionClient<
   control_msgs::FollowJointTrajectoryAction > TrajClient;
@@ -63,52 +60,179 @@ namespace gazebo
     /// \brief Destructor
     public: virtual ~VRCPlugin();
 
-    /// \brief Load the controller
+    /// \brief Load the plugin.
+    /// \param[in] _parent Pointer to parent world.
+    /// \param[in] _sdf Pointer to sdf element.
     public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \brief Update the controller
+    /// \brief Update the controller on every World::Update
     private: void UpdateStates();
-
-    private: physics::WorldPtr world;
-
-    /// \brief Mutex for VRC Plugin
-    private: boost::mutex update_mutex;
-
-    /// \brief Pointer to the update event connection
-    private: event::ConnectionPtr updateConnection;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
-    //   DRC Robot properties and states                                      //
+    //   List of available actions                                            //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Sets Atlas planar navigational command velocity
+    /// \param[in] _cmd A Vector3, where:
+    ///   - x is the desired forward linear velocity, positive is robot-forward
+    ///     and negative is robot-back.
+    ///   - y is the desired lateral linear velocity, positive is robot-left
+    ///     and negative is robot-right.
+    ///   - z is the desired heading angular velocity, positive makes
+    ///     the robot turn left, and negative makes the robot turn right
+    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
+
+    /// \brief sets robot's absolute world pose
+    /// \param[in] _cmd Pose command for the robot
+    public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+    /// \brief sets robot's joint positions
+    /// \param[in] _cmd configuration made of sensor_msgs::JointState message
+    /// \todo: not yet implemented
+    public: void SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
+                                       &/*_cmd*/);
+
+    /// \brief sets robot mode via ros topic
+    /// \sa SetRobotMode(const std::string &_str)
+    public: void SetRobotModeTopic(const std_msgs::String::ConstPtr &_str);
+
+    /// \brief sets robot mode
+    /// \param[in] _str sets robot mode by a string.  Supported modes are:
+    ///  - "no_gravity" Gravity disabled for the robot.
+    ///  - "nominal" Nominal "normal" physics.
+    ///  - "pinned" Robot is pinned to inertial world by the pelvis.
+    ///  - "feet" same as no_gravity except for r_foot and l_foot links.
+    public: void SetRobotMode(const std::string &_str);
+
+
+    /// \brief Robot Vehicle Interaction, put robot in driver's seat.
+    /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
+    ///                 behavior.
+    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose);
+
+    /// \brief Robot Vehicle Interaction, put robot outside driver's side door.
+    /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
+    ///                 behavior.
+    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose);
+
+    /// \brief Cheats to teleport fire hose to hand and make a fixed joint
+    /// \param[in] _cmd Relative pose offset between the link and the hand.
+    public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+    /// \brief remove the fixed joint between robot hand link and fire hose.
+    /// \param[in] _cmd not used.
+    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //   Generic tools for manipulating models                                //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief sets robot's absolute world pose
+    /// \param[in] _pinLink Link to pin to the world
+    /// \param[in] _pose sets the _pinLink world pose before pinning
+    /// \param[in] _jp joint and positions for model configuration (TODO)
+    /// \param[out] _pinJoint a pin Joint is created
+    private: void Teleport(const physics::LinkPtr &_pinLink,
+                          physics::JointPtr &_pinJoint,
+                          const math::Pose &_pose,
+                          const std::map<std::string, double> &/*_jp*/);
+
+    /// \brief sets robot's absolute world pose
+    /// \param[in] _pinLink Link to pin to the world
+    /// \param[in] _pose sets the _pinLink world pose before pinning
+    /// \param[out] _pinJoint a pin Joint is created
+    private: void Teleport(const physics::LinkPtr &_pinLink,
+                          physics::JointPtr &_pinJoint,
+                          const math::Pose &_pose);
+
+    /// \brief add a constraint between 2 links
+    /// \param[in] _world a pointer to the current World
+    /// \param[in] _model a pointer to the Model the new Joint will be under
+    /// \param[in] _link1 parent link in the new Joint
+    /// \param[in] _link2 child link in the new Joint
+    /// \param[in] _type string specifying joint type
+    /// \param[in] _anchor a Vector3 anchor offset of the new joint
+    /// \param[in] _axis Vector3 containing xyz axis of the new joint
+    /// \param[in] _upper upper linit of the new joint
+    /// \param[in] _lower lower linit of the new joint
+    /// \return Joint created between _link1 and _link2 under _model.
+    private: physics::JointPtr AddJoint(physics::WorldPtr _world,
+                                        physics::ModelPtr _model,
+                                        physics::LinkPtr _link1,
+                                        physics::LinkPtr _link2,
+                                        std::string _type,
+                                        math::Vector3 _anchor,
+                                        math::Vector3 _axis,
+                                        double _upper, double _lower);
+
+    /// \brief Remove a joint.
+    /// \param[in] _joint Joint to remove.
+    private: void RemoveJoint(physics::JointPtr &_joint);
+
+    /// \brief setup Robot ROS publication and sbuscriptions for the Robot
+    /// These ros api describes Robot only actions
+    private: void LoadRobotROSAPI();
+
+    /// \brief setup ROS publication and sbuscriptions for VRC
+    /// These ros api describes interactions between different models
+    /// /atlas/cmd_vel - in pinned mode, the robot teleports based on
+    ///                      messages from the cmd_vel
+    private: void LoadVRCROSAPI();
+
+    /// \brief check and spawn screw joint to simulate threads
+    /// if links are aligned
+    private: void CheckThreadStart();
+
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void DeferredLoad();
+
+    /// \brief ROS callback queue thread
+    private: void ROSQueueThread();
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //   Atlas properties and states                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     private: class Robot
     {
-      public: physics::ModelPtr model;
-      public: physics::LinkPtr pinLink;
-      public: physics::JointPtr pinJoint;
+      /// \brief Load the atlas portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+
+      private: physics::ModelPtr model;
+      private: physics::LinkPtr pinLink;
+      private: physics::JointPtr pinJoint;
 
       /// \brief keep initial pose of robot to prevent z-drifting when
       /// teleporting the robot.
-      public: math::Pose initialPose;
+      private: math::Pose initialPose;
 
-      /// \brief Pose of robot relative to vehicle
-      public: math::Pose vehicleRelPose;
+      /// \brief Pose of robot relative to vehicle.
+      private: math::Pose vehicleRelPose;
 
-      /// \brief robot configuration when inside of vehicle
-      public: std::map<std::string, double> inVehicleConfiguration;
+      /// \brief Robot configuration when inside of vehicle.
+      private: std::map<std::string, double> inVehicleConfiguration;
 
-      /// flag to keep track of start-up 'harness' on the robot
-      public: bool startupHarness;
+      /// \brief Flag to keep track of start-up 'harness' on the robot.
+      private: bool startupHarness;
 
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+      /// \brief flag for successful initialization of atlas
+      private: bool isInitialized;
 
-      public: ros::Subscriber trajectory_sub_;
-      public: ros::Subscriber pose_sub_;
-      public: ros::Subscriber configuration_sub_;
-      public: ros::Subscriber mode_sub_;
+      private: ros::Subscriber subTrajectory;
+      private: ros::Subscriber subPose;
+      private: ros::Subscriber subConfiguration;
+      private: ros::Subscriber subMode;
 
-    } drc_robot;
+      friend class VRCPlugin;
+
+    } atlas;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -117,79 +241,110 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class Vehicle
     {
-      public: physics::ModelPtr model;
-      public: math::Pose initialPose;
-      public: physics::LinkPtr seatLink;
+      /// \brief Load the drc vehicle portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
-      public: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
-    } drc_vehicle;
+      private: physics::ModelPtr model;
+      private: math::Pose initialPose;
+      private: physics::LinkPtr seatLink;
 
+      /// \brief flag for successful initialization of vehicle
+      private: bool isInitialized;
 
-    /// \brief fix robot butt to vehicle for efficiency
-    // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
-    public: physics::JointPtr vehicleRobotJoint;
-
-    ////////////////////////////////////////////////////////////////////////////
-    //                                                                        //
-    //   Fire Hose   properties and states                                    //
-    //                                                                        //
-    ////////////////////////////////////////////////////////////////////////////
-    private: physics::ModelPtr fire_hose;
+      friend class VRCPlugin;
+    } drcVehicle;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
-    //   Standpipe   properties and states                                    //
+    //   DRC Fire Hose (and Standpipe)                                        //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    private: physics::ModelPtr standpipe;
+    private: class FireHose
+    {
+      /// \brief set initial configuration of the fire hose link
+      private: void SetInitialConfiguration()
+      {
+        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
+        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+        // for (unsigned int i = 0; i < this->links.size(); ++i)
+        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
+        this->fireHoseModel->SetWorldPose(this->initialFireHosePose);
+        this->fireHoseJoints[fireHoseJoints.size()-4]->SetAngle(0, -M_PI/4.0);
+        this->fireHoseJoints[fireHoseJoints.size()-2]->SetAngle(0, -M_PI/4.0);
+      }
 
+      /// \brief Load the drc_fire_hose portion of plugin.
+      /// \param[in] _parent Pointer to parent world.
+      /// \param[in] _sdf Pointer to sdf element.
+      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+
+      private: physics::ModelPtr fireHoseModel;
+      private: physics::ModelPtr standpipeModel;
+
+      /// joint for pinning a link to the world
+      private: physics::JointPtr fixedJoint;
+
+      /// joints and links
+      private: physics::Joint_V fireHoseJoints;
+      private: physics::Link_V fireHoseLinks;
+      /// screw joint
+      private: physics::JointPtr screwJoint;
+      private: double threadPitch;
+
+      /// Pointer to the update event connection
+      private: event::ConnectionPtr updateConnection;
+
+      private: physics::LinkPtr couplingLink;
+      private: physics::LinkPtr spoutLink;
+      private: math::Pose couplingRelativePose;
+      private: math::Pose initialFireHosePose;
+
+      /// \brief flag for successful initialization of fire hose, standpipe
+      private: bool isInitialized;
+
+      friend class VRCPlugin;
+    } drcFireHose;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //   Joint Trajectory Controller                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-
-
     private: class JointTrajectory
     {
-    public:
-      // Action client for the joint trajectory action 
-      // used to trigger the arm movement action
-      TrajClient* traj_client_;
-
-    public:
-      //! Initialize the action client and wait for action server to come up
-      JointTrajectory() 
+      /// \brief Constructor, note atlas_controller is the name
+      /// of the controller loaded from yaml
+      public: JointTrajectory() 
       {
         // tell the action client that we want to spin a thread by default
-        //traj_client_ = new TrajClient("/drc_controller/joint_trajectory_action", true);
-        traj_client_ = new TrajClient("/drc_controller/follow_joint_trajectory", true);
+        this->clientTraj = new TrajClient(
+          "/atlas_controller/follow_joint_trajectory", true);
 
       }
 
-      //! Clean up the action client
-      ~JointTrajectory()
+      /// \brief Destructor, clean up the action client
+      public: ~JointTrajectory()
       {
-        delete traj_client_;
+        delete this->clientTraj;
       }
 
-      //! Sends the command to start a given trajectory
-      void startTrajectory(control_msgs::FollowJointTrajectoryGoal goal)
+      /// \brief Sends the command to start a given trajectory
+      public: void sendTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
       {
         // When to start the trajectory: 1s from now
-        goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
+        _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-        traj_client_->sendGoal(goal);
+        this->clientTraj->sendGoal(_goal);
       }
 
-      //! Generates a simple trajectory with two waypoints, used as an example
-      /*! Note that this trajectory contains two waypoints, joined together
-          as a single trajectory. Alternatively, each of these waypoints could
-          be in its own trajectory - a trajectory can have one or more waypoints
-          depending on the desired application.
-      */
-      control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
+      /// \brief Generates a simple trajectory
+      /// Note that this trajectory contains two waypoints, joined together
+      /// as a single trajectory. Alternatively, each of these waypoints could
+      /// be in its own trajectory - a trajectory can have one or more waypoints
+      /// depending on the desired application.
+      public: control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
       {
         //our goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
@@ -284,19 +439,6 @@ namespace gazebo
         }
 
         // tolerances
-        /*
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 0.1;
-          jt.velocity = 0.1;
-          jt.acceleration = 0.1;
-          goal.path_tolerance.push_back(jt);
-        }
-        */
-
-        // tolerances
         for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
         {
           control_msgs::JointTolerance jt;
@@ -314,7 +456,8 @@ namespace gazebo
         return goal;
       }
 
-      control_msgs::FollowJointTrajectoryGoal standingConfiguration()
+      /// \brief Generates a simple trajectory for standing configuration.
+      public: control_msgs::FollowJointTrajectoryGoal standingConfiguration()
       {
         //our goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
@@ -409,19 +552,6 @@ namespace gazebo
         }
 
         // tolerances
-        /*
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 0.1;
-          jt.velocity = 0.1;
-          jt.acceleration = 0.1;
-          goal.path_tolerance.push_back(jt);
-        }
-        */
-
-        // tolerances
         for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
         {
           control_msgs::JointTolerance jt;
@@ -439,132 +569,53 @@ namespace gazebo
         return goal;
       }
 
-      //! Returns the current state of the action
-      actionlib::SimpleClientGoalState getState()
+      /// \brief Get state of the simple action client
+      /// \return the current state of the action
+      public: actionlib::SimpleClientGoalState getState()
       {
-        return traj_client_->getState();
-      }
-     
-    } joint_trajectory_controller;
-
-    ////////////////////////////////////////////////////////////////////////////
-    //                                                                        //
-    //   List of available actions                                            //
-    //                                                                        //
-    ////////////////////////////////////////////////////////////////////////////
-    /// Move the robot's pinned joint to a certain location in the world.
-    private: void Teleport(const physics::LinkPtr &_pinLink,
-                          physics::JointPtr &_pinJoint,
-                          const math::Pose &_pose,
-                          const std::map<std::string, double> &_jointPositions);
-
-    /// \brief sets robot's absolute world pose
-    private: void Teleport(const physics::LinkPtr &_pinLink,
-                          physics::JointPtr &_pinJoint,
-                          const math::Pose &_pose)
-      {
-        // default empty joint positions if not provided
-        std::map<std::string, double> jointPositions;
-        this->Teleport(_pinLink, _pinJoint, _pose, jointPositions);
+        return this->clientTraj->getState();
       }
 
-    /// Sets DRC Robot planar navigational command velocity
-    /// _cmd is a Vector3, where:
-    ///   - x is the desired forward linear velocity, positive is robot-forward
-    ///     and negative is robot-back.
-    ///   - y is the desired lateral linear velocity, positive is robot-left
-    ///     and negative is robot-right.
-    ///   - z is the desired heading angular velocity, positive makes
-    ///     the robot turn left, and negative makes the robot turn right
-    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
+      // Action client for the joint trajectory action 
+      // used to trigger the arm movement action
+      public: TrajClient* clientTraj;
 
-    /// \brief sets robot's absolute world pose
-    public: void SetRobotPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-
-    /// \brief sets robot's joint positions
-    public: void SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-                                       &_cmd);
-
-    /// \brief sets robot mode via ros topic
-    public: void SetRobotModeTopic(const std_msgs::String::ConstPtr &_str);
-
-    /// \brief sets robot mode
-    public: void SetRobotMode(const std::string &_str);
-
-
-    // \brief Robot Vehicle Interaction
-    public: void RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void RobotExitCar(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetHandWheelPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetGasPedalPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void SetBrakePedalPose(const geometry_msgs::Pose::ConstPtr &_cmd);
-
-    // \brief Cheats to teleport fire hose to hand and make a fixed joint
-    public: void RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd);
-
-    // \brief create a fixed joint between robot hand link and a nearby link
-    public: void RobotGrabLink(const geometry_msgs::Pose::ConstPtr &_cmd);
-    public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
-
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    //                                                                        //
-    //   Generic tools for manipulating models                                //
-    //                                                                        //
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief add a constraint between 2 links
-    private: physics::JointPtr AddJoint(physics::WorldPtr _world,
-                                        physics::ModelPtr _model,
-                                        physics::LinkPtr _link1,
-                                        physics::LinkPtr _link2,
-                                        std::string _type,
-                                        math::Vector3 _anchor,
-                                        math::Vector3 _axis,
-                                        double _upper, double _lower);
-
-    /// \brief Remove a joint
-    private: void RemoveJoint(physics::JointPtr &_joint);
-
-    /// \brief setup Robot ROS publication and sbuscriptions for the Robot
-    /// These ros api describes Robot only actions
-    private: void LoadRobotROSAPI();
-
-    /// \brief setup ROS publication and sbuscriptions for VRC
-    /// These ros api describes interactions between different models
-    /// /drc_robot/cmd_vel - in pinned mode, the robot teleports based on
-    ///                      messages from the cmd_vel
-    private: void LoadVRCROSAPI();
+    } jointTrajectoryController;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //   Private variables                                                    //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    // private: std::map<physics::LinkPtr, physics::JointPtr> pins;
-
     private: bool warpRobotWithCmdVel;
-
     private: double lastUpdateTime;
     private: geometry_msgs::Twist robotCmdVel;
 
-    // ros stuff
-    private: ros::NodeHandle* rosnode_;
-    private: ros::CallbackQueue ros_queue_;
-    private: void ROSQueueThread();
-    private: boost::thread callback_queue_thread_;
+    /// \brief fix robot butt to vehicle for efficiency
+    // public: std::pair<physics::LinkPtr, physics::LinkPtr> vehicleRobot;
+    public: physics::JointPtr vehicleRobotJoint;
 
-    // ros subscription for grabbing objects
-    public: ros::Subscriber robot_grab_sub_;
-    public: ros::Subscriber robot_release_sub_;
-    public: ros::Subscriber robot_enter_car_sub_;
-    public: ros::Subscriber robot_exit_car_sub_;
+    /// \brief Pointer to parent world.
+    private: physics::WorldPtr world;
+
+    /// \brief Pointer to the update event connection
+    private: event::ConnectionPtr updateConnection;
+
+    // default ros stuff
+    private: ros::NodeHandle* rosNode;
+    private: ros::CallbackQueue rosQueue;
+    private: boost::thread callbackQueueThread;
+
+    // ros subscribers for robot actions
+    private: ros::Subscriber subRobotGrab;
+    private: ros::Subscriber subRobotRelease;
+    private: ros::Subscriber subRobotEnterCar;
+    private: ros::Subscriber subRobotExitCar;
     private: physics::JointPtr grabJoint;
 
-    // deferred load in case ros is blocking
+    // items below are used for deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
-    private: void LoadThread();
-    private: boost::thread deferred_load_thread_;
+    private: boost::thread deferredLoadThread;
   };
 /** \} */
 /// @}
