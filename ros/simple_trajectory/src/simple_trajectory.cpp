@@ -17,8 +17,7 @@ public:
   RobotArm() 
   {
     // tell the action client that we want to spin a thread by default
-    //traj_client_ = new TrajClient("/drc_controller/joint_trajectory_action", true);
-    traj_client_ = new TrajClient("/drc_controller/follow_joint_trajectory", true);
+    traj_client_ = new TrajClient("/atlas_controller/follow_joint_trajectory", true);
 
     // wait for action server to come up
     while(!traj_client_->waitForServer(ros::Duration(1.0))){
@@ -35,20 +34,15 @@ public:
   //! Sends the command to start a given trajectory
   void startTrajectory(control_msgs::FollowJointTrajectoryGoal goal)
   {
-    ROS_ERROR("starting trajectory");
+    ROS_INFO("starting trajectory");
     // When to start the trajectory: 1s from now
     goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 
-    ROS_ERROR("sending trajectory");
+    ROS_INFO("sending trajectory");
     traj_client_->sendGoal(goal);
   }
 
-  //! Generates a simple trajectory with two waypoints, used as an example
-  /*! Note that this trajectory contains two waypoints, joined together
-      as a single trajectory. Alternatively, each of these waypoints could
-      be in its own trajectory - a trajectory can have one or more waypoints
-      depending on the desired application.
-  */
+  //! Generates a simple trajectory with four waypoints, used as an example
   control_msgs::FollowJointTrajectoryGoal armExtensionTrajectory()
   {
     //our goal variable
@@ -88,7 +82,7 @@ public:
     goal.trajectory.joint_names.push_back("back_mby" );
     goal.trajectory.joint_names.push_back("back_ubx" );
 
-    // We will have two waypoints in this goal trajectory
+    // We will have four waypoints in this goal trajectory
     goal.trajectory.points.resize(4);
 
     // First trajectory point
@@ -131,9 +125,10 @@ public:
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
     {
+      // Zero velocity lets the controller pick
       goal.trajectory.points[ind].velocities[j] = 0.0;
     }
-    // To be reached 1 second after starting along the trajectory
+    // To be reached 1 second after the start of the trajectory
     goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
 
     // Second trajectory point
@@ -176,9 +171,10 @@ public:
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
     {
+      // Zero velocity lets the controller pick
       goal.trajectory.points[ind].velocities[j] = 0.0;
     }
-    // To be reached 2 seconds after starting along the trajectory
+    // To be reached 1.5 seconds after the start of the trajectory
     goal.trajectory.points[ind].time_from_start = ros::Duration(1.5);
 
     // Second trajectory point
@@ -221,9 +217,10 @@ public:
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
     {
+      // Zero velocity lets the controller pick
       goal.trajectory.points[ind].velocities[j] = 0.0;
     }
-    // To be reached 2 seconds after starting along the trajectory
+    // To be reached 3 seconds after the start of the trajectory
     goal.trajectory.points[ind].time_from_start = ros::Duration(3.0);
 
     // Third trajectory point
@@ -266,39 +263,27 @@ public:
     goal.trajectory.points[ind].velocities.resize(28);
     for (size_t j = 0; j < 28; ++j)
     {
+      // Zero velocity lets the controller pick
       goal.trajectory.points[ind].velocities[j] = 0.0;
     }
-    // To be reached 2 seconds after starting along the trajectory
+    // To be reached 4 seconds after the start of the trajectory
     goal.trajectory.points[ind].time_from_start = ros::Duration(4.0);
 
     // tolerances
-    /*
-    for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-    {
-      control_msgs::JointTolerance jt;
-      jt.name = goal.trajectory.joint_names[j];
-      jt.position = 0.1;
-      jt.velocity = 0.1;
-      jt.acceleration = 0.1;
-      goal.path_tolerance.push_back(jt);
-    }
-    */
+    //for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
+    //{
+      //control_msgs::JointTolerance jt;
+      //jt.name = goal.trajectory.joint_names[j];
+      //jt.position = 1000;
+      //jt.velocity = 1000;
+      //jt.acceleration = 1000;
+      //goal.goal_tolerance.push_back(jt);
+    //}
 
-    // tolerances
-    for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-    {
-      control_msgs::JointTolerance jt;
-      jt.name = goal.trajectory.joint_names[j];
-      jt.position = 1000;
-      jt.velocity = 1000;
-      jt.acceleration = 1000;
-      goal.goal_tolerance.push_back(jt);
-    }
+    //goal.goal_time_tolerance.sec = 10;
+    //goal.goal_time_tolerance.nsec = 0;
 
-    goal.goal_time_tolerance.sec = 10;
-    goal.goal_time_tolerance.nsec = 0;
-
-    //we are done; return the goal
+    // we are done; return the goal
     return goal;
   }
 
@@ -307,7 +292,7 @@ public:
   {
     return traj_client_->getState();
   }
- 
+
 };
 
 int main(int argc, char** argv)
@@ -317,13 +302,12 @@ int main(int argc, char** argv)
 
   ros::NodeHandle rh;
 
-  bool wait = true;
-  while (wait)
+  // On startup, wait until we've started receiving the time feed from
+  // simulation.  Otherwise we might send improperly timestamped trajectories.
+  while (ros::Time::now().toSec() == 0)
   {
-    ros::Time t = ros::Time::now();
-    ROS_INFO("t %f", t.toSec());
-    if (t.toSec() > 0)
-      wait = false;
+    // Use WallDuration because we don't have a time feed yet.
+    ros::WallDuration(0.1).sleep();
   }
 
   RobotArm arm;
@@ -333,6 +317,6 @@ int main(int argc, char** argv)
   while(!arm.getState().isDone() && ros::ok())
   {
     ros::spinOnce();
-    usleep(50000);
+    ros::WallDuration(0.05).sleep();
   }
 }

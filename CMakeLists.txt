@@ -4,7 +4,7 @@ enable_testing()
 project (drcsim)
 
 set (DRC_SIM_MAJOR_VERSION 1)
-set (DRC_SIM_MINOR_VERSION 1)
+set (DRC_SIM_MINOR_VERSION 4)
 set (DRC_SIM_PATCH_VERSION 0)
 set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
 set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
@@ -37,7 +37,7 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
 
 include (FindPkgConfig)
 if (PKG_CONFIG_FOUND)
-  pkg_check_modules(GAZEBO gazebo REQUIRED)
+  pkg_check_modules(GAZEBO gazebo>=1.3.0 REQUIRED)
 else()
   message(FATAL_ERROR "pkg-config is required; please install it")
 endif()
@@ -48,15 +48,12 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 #####################################
 # Configure the setup script
 
-# Use only major.minor from gazebo's version
-STRING (REGEX REPLACE "^([0-9]+).*" "\\1" GAZEBO_MAJOR_VERSION "${GAZEBO_VERSION}")
-STRING (REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" GAZEBO_MINOR_VERSION "${GAZEBO_VERSION}")
-set (GAZEBO_VERSION "${GAZEBO_MAJOR_VERSION}.${GAZEBO_MINOR_VERSION}")
-
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/setup-unversioned.sh.in ${PROJECT_BINARY_DIR}/unversioned/setup.sh @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/unversioned/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
 
 add_subdirectory(models)
 add_subdirectory(plugins)

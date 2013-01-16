@@ -111,6 +111,9 @@ private:
   /// From URDF, fill out actuators in hardware interface,
   /// and initialize mechanism state within mechanism controller
   bool LoadControllerManagerFromURDF();
+
+  /// Read and parse URDF as a string from a param
+  /// \param[in] _param_name ROS param name for the URDf
   std::string GetURDF(std::string _param_name) const;
 
   ///  Pushes out gazebo simulation state into mechanism state
@@ -122,6 +125,13 @@ private:
   ///  Propagate joint state efforts to simulation
   ///    with some tweaks in efforts
   void propagateMechanismStateForcesToSimulation();
+
+  /// \brief ROS callback queue thread
+  private: void ControllerManagerROSThread();
+
+  /// \brief: thread out Load function with
+  /// with anything that might be blocking.
+  private: void LoadThread();
 
   /// \brief pointer to ros node
   ros::NodeHandle* rosnode_;
@@ -142,12 +152,16 @@ private:
   private: void ControllerManagerQueueThread();
   private: boost::thread controller_manager_callback_queue_thread_;
 #endif
-  private: void ControllerManagerROSThread();
   private: boost::thread ros_spinner_thread_;
 
   private: physics::WorldPtr world;
 
   private: event::ConnectionPtr updateConnection;
+
+  // deferred load in case ros is blocking
+  private: sdf::ElementPtr sdf;
+  private: boost::thread deferred_load_thread_;
+
 };
 
 }

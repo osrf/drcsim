@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,7 +33,6 @@ namespace gazebo
 // Constructor
 GazeboRosIMU::GazeboRosIMU()
 {
-  this->imu_connect_count_ = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,71 +48,83 @@ GazeboRosIMU::~GazeboRosIMU()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosIMU::Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
+void GazeboRosIMU::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
-  // Get the world name.
+  // save pointers
   this->world_ = _parent->GetWorld();
+  this->sdf = _sdf;
+
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosIMU::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosIMU::LoadThread()
+{
 
   // load parameters
   this->robot_namespace_ = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
-  if (!_sdf->HasElement("serviceName"))
+  if (!this->sdf->HasElement("serviceName"))
   {
     ROS_INFO("imu plugin missing <serviceName>, defaults to /default_imu");
     this->service_name_ = "/default_imu";
   }
   else
-    this->service_name_ = _sdf->GetElement("serviceName")->GetValueString();
+    this->service_name_ = this->sdf->GetValueString("serviceName");
 
-  if (!_sdf->HasElement("topicName"))
+  if (!this->sdf->HasElement("topicName"))
   {
     ROS_INFO("imu plugin missing <topicName>, defaults to /default_imu");
     this->topic_name_ = "/default_imu";
   }
   else
-    this->topic_name_ = _sdf->GetElement("topicName")->GetValueString();
+    this->topic_name_ = this->sdf->GetValueString("topicName");
 
-  if (!_sdf->HasElement("gaussianNoise"))
+  if (!this->sdf->HasElement("gaussianNoise"))
   {
     ROS_INFO("imu plugin missing <gaussianNoise>, defaults to 0.0");
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = _sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussian_noise_ = this->sdf->GetValueDouble("gaussianNoise");
 
-  if (!_sdf->HasElement("bodyName"))
+  if (!this->sdf->HasElement("bodyName"))
   {
     ROS_FATAL("imu plugin missing <bodyName>, cannot proceed");
     return;
   }
   else
-    this->link_name_ = _sdf->GetElement("bodyName")->GetValueString();
+    this->link_name_ = this->sdf->GetValueString("bodyName");
 
-  if (!_sdf->HasElement("xyzOffset"))
+  if (!this->sdf->HasElement("xyzOffset"))
   {
     ROS_INFO("imu plugin missing <xyzOffset>, defaults to 0s");
     this->offset_.pos = math::Vector3(0,0,0);
   }
   else
-    this->offset_.pos = _sdf->GetElement("xyzOffset")->GetValueVector3();
+    this->offset_.pos = this->sdf->GetValueVector3("xyzOffset");
 
-  if (!_sdf->HasElement("rpyOffset"))
+  if (!this->sdf->HasElement("rpyOffset"))
   {
     ROS_INFO("imu plugin missing <rpyOffset>, defaults to 0s");
     this->offset_.rot = math::Vector3(0,0,0);
   }
   else
-    this->offset_.rot = _sdf->GetElement("rpyOffset")->GetValueVector3();
+    this->offset_.rot = this->sdf->GetValueVector3("rpyOffset");
 
 
-  // start ros node
+  // Exit if no ROS
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc,argv,"gazebo",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
@@ -130,11 +140,7 @@ void GazeboRosIMU::Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
   // if topic name specified as empty, do not publish (then what is this plugin good for?)
   if (this->topic_name_ != "")
   {
-    ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::Imu>(
-      this->topic_name_,1,
-      boost::bind( &GazeboRosIMU::IMUConnect,this),
-      boost::bind( &GazeboRosIMU::IMUDisconnect,this), ros::VoidPtr(), &this->imu_queue_);
-    this->pub_ = this->rosnode_->advertise(ao);
+    this->pub_ = this->rosnode_->advertise<sensor_msgs::Imu>(this->topic_name_,1);
 
     // advertise services on the custom queue
     ros::AdvertiseServiceOptions aso = ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
@@ -170,23 +176,10 @@ bool GazeboRosIMU::ServiceCallback(std_srvs::Empty::Request &req,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Increment count
-void GazeboRosIMU::IMUConnect()
-{
-  this->imu_connect_count_++;
-}
-////////////////////////////////////////////////////////////////////////////////
-// Decrement count
-void GazeboRosIMU::IMUDisconnect()
-{
-  this->imu_connect_count_--;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Update the controller
 void GazeboRosIMU::UpdateChild()
 {
-  if ((this->imu_connect_count_ > 0 && this->topic_name_ != ""))
+  if ((this->pub_.getNumSubscribers() > 0 && this->topic_name_ != ""))
   {
     math::Pose pose;
     math::Quaternion rot;
@@ -276,7 +269,7 @@ void GazeboRosIMU::UpdateChild()
     {
       boost::mutex::scoped_lock lock(this->lock_);
       // publish to ros
-      if (this->imu_connect_count_ > 0 && this->topic_name_ != "")
+      if (this->pub_.getNumSubscribers() > 0 && this->topic_name_ != "")
           this->pub_.publish(this->imu_msg_);
     }
 

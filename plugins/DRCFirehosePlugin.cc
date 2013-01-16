@@ -180,7 +180,7 @@ physics::JointPtr DRCFirehosePlugin::AddJoint(physics::WorldPtr _world,
   joint->Attach(_link1, _link2);
   // load adds the joint to a vector of shared pointers kept
   // in parent and child links, preventing joint from being destroyed.
-  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+  joint->Load(_link1, _link2, _anchor);
   // joint->SetAnchor(0, _anchor);
   joint->SetAxis(0, _axis);
   joint->SetHighStop(0, _upper);
