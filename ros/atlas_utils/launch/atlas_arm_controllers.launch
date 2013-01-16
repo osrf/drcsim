@@ -16,8 +16,8 @@
   </node>
 
   <!-- Arms -->
-  <rosparam command="load" file="$(find atlas)/ros/arm_controllers.yaml" />
-  <rosparam command="load" file="$(find atlas)/ros/leg_torso_position_controllers.yaml" />
+  <rosparam command="load" file="$(find atlas_utils)/config/arm_controllers.yaml" />
+  <rosparam command="load" file="$(find atlas_utils)/config/leg_torso_position_controllers.yaml" />
 
   <!-- Controllers that come up started -->
   <node name="atlas_arm_controllers_spawner"

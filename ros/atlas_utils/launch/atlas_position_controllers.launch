@@ -24,7 +24,7 @@
   </node>
 
   <!-- Position Controllers -->
-  <rosparam file="$(find atlas)/ros/position_controllers.yaml" command="load" />
+  <rosparam file="$(find atlas_utils)/config/position_controllers.yaml" command="load" />
 
   <!-- finger controllers omitted
   <rosparam file="$(find sandia_hand_left)/ros/position_controllers.yaml" command="load" />

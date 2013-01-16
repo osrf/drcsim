@@ -5,10 +5,13 @@
   <license>Creative Commons Attribution 3.0 Unported</license>
 
   <models>
-    <uri>file://camhand</uri>
-    <uri>file://atlas</uri>
     <uri>file://fire_hose</uri>
+    <uri>file://drc_terrain</uri>
+    <uri>file://atlas_irobot_hand</uri>
     <uri>file://golf_cart</uri>
     <uri>file://standpipe</uri>
+    <uri>file://multisense_sl</uri>
+    <uri>file://irobot_hand</uri>
+    <uri>file://powerplant</uri>
   </models>
 </database>

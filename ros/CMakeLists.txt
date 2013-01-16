@@ -1,2 +1,3 @@
 add_subdirectory(atlas_utils)
-add_subdirectory(sandia_hand_utils)
+add_subdirectory(atlas_description)
+add_subdirectory(irobot_hand_description)

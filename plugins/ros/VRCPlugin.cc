@@ -306,6 +306,12 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  // Check if drcVehicle.model is loaded
+  if (!this->drcVehicle.model)
+  {
+    ROS_ERROR("drc_vehicle model not found, cannot enter car.");
+    return;
+  }
   math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
                     _pose->orientation.y, _pose->orientation.z);
   q.Normalize();
@@ -408,6 +414,12 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  // Check if drcVehicle.model is loaded
+  if (!this->drcVehicle.model)
+  {
+    ROS_ERROR("drc_vehicle model not found, cannot exit car.");
+    return;
+  }
   math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
                     _pose->orientation.y, _pose->orientation.z);
   q.Normalize();
@@ -587,7 +599,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    ROS_ERROR("fire_hose_model [%s] not found", fireHoseModelName.c_str());
+    ROS_INFO("fire_hose_model [%s] not found", fireHoseModelName.c_str());
     return;
   }
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
@@ -702,7 +714,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->model)
   {
-    ROS_ERROR("drc vehicle not found.");
+    ROS_INFO("drc vehicle not found.");
     return;
   }
 
