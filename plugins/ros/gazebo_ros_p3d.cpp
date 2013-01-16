@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +36,6 @@ namespace gazebo
 // Constructor
 GazeboRosP3D::GazeboRosP3D()
 {
-  this->p3d_connect_count_ = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,11 +143,7 @@ void GazeboRosP3D::Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 
   if (this->topic_name_ != "")
   {
-    ros::AdvertiseOptions p3d_ao = ros::AdvertiseOptions::create<nav_msgs::Odometry>(
-    this->topic_name_,1,
-    boost::bind( &GazeboRosP3D::P3DConnect,this),
-    boost::bind( &GazeboRosP3D::P3DDisconnect,this), ros::VoidPtr(), &this->p3d_queue_);
-    this->pub_ = this->rosnode_->advertise(p3d_ao);
+    this->pub_ = this->rosnode_->advertise<nav_msgs::Odometry>(this->topic_name_,1);
   }
   
   this->last_time_ = this->world_->GetSimTime();
@@ -192,19 +186,6 @@ void GazeboRosP3D::Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Increment count
-void GazeboRosP3D::P3DConnect()
-{
-  this->p3d_connect_count_++;
-}
-////////////////////////////////////////////////////////////////////////////////
-// Decrement count
-void GazeboRosP3D::P3DDisconnect()
-{
-  this->p3d_connect_count_--;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Update the controller
 void GazeboRosP3D::UpdateChild()
 {
@@ -217,7 +198,7 @@ void GazeboRosP3D::UpdateChild()
   if (this->update_rate_ > 0 && (cur_time-this->last_time_).Double() < (1.0/this->update_rate_))
     return;
 
-  if (this->p3d_connect_count_ > 0)
+  if (this->pub_.getNumSubscribers() > 0)
   {
 
 

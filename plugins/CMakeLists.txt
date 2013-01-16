@@ -1,8 +1,8 @@
 set (plugins
-  #DRCRobotPlugin
-  #DRCVehiclePlugin
+  #AtlasPlugin
+  DRCVehiclePlugin
   DRCBuildingPlugin
-  DRCFirehosePlugin
+  #DRCFirehosePlugin
 )
 
 foreach (src ${plugins})

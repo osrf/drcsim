@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,15 +33,18 @@
 
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
 
 ////////////////////////////////////////////////////////////////////////////////
-// Constructor
 MultiSenseSL::MultiSenseSL()
 {
-  this->connectionCount = 0;
+  /// \todo: hardcoded for now, make them into plugin parameters
   this->spindlePID.Init(0.03, 0.30, 0.00001, 1., -1., 10.0, -10.0);
   this->spindleOn = true;
   this->spindleSpeed = 0;
+  this->spindleMaxRPM = 50.0;
+  this->spindleMinRPM = 0;
   this->leftCameraFrameRate = 25.0;
   this->rightCameraFrameRate = 25.0;
   this->leftCameraExposureTime = 0.001;
@@ -52,7 +54,6 @@ MultiSenseSL::MultiSenseSL()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Destructor
 MultiSenseSL::~MultiSenseSL()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
@@ -63,9 +64,10 @@ MultiSenseSL::~MultiSenseSL()
   delete this->rosnode_;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
-  this->drcRobotModel = _parent;
+  this->atlasModel = _parent;
   this->world = _parent->GetWorld();
   this->sdf = _sdf;
 
@@ -73,13 +75,19 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->lastTime = this->world->GetSimTime();
 
-  this->spindleLink = this->drcRobotModel->GetLink("drc_robot::hokuyo_link");
+  this->spindleLink = this->atlasModel->GetLink("atlas::hokuyo_link");
   if (!this->spindleLink)
-    gzerr << "spindle link not found\n";
+  {
+    gzerr << "spindle link not found, plugin will stop loading\n";
+    return;
+  }
 
-  this->spindleJoint = this->drcRobotModel->GetJoint("drc_robot::hokuyo_joint");
+  this->spindleJoint = this->atlasModel->GetJoint("atlas::hokuyo_joint");
   if (!this->spindleJoint)
-    gzerr << "spindle joint not found\n";
+  {
+    gzerr << "spindle joint not found, plugin will stop loading\n";
+    return;
+  }
 
   // sensors::Sensor_V s = sensors::SensorManager::Instance()->GetSensors();
   // for (sensors::Sensor_V::iterator siter = s.begin();
@@ -104,16 +112,147 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->laserSensor)
     gzerr << "laser sensor not found\n";
 
-  // ros callback queue for processing subscription
+  if (!ros::isInitialized())
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
+  }
+  
   this->deferred_load_thread_ = boost::thread(
     boost::bind( &MultiSenseSL::LoadThread,this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update the controller
+void MultiSenseSL::LoadThread()
+{
+  // create ros node
+  this->rosnode_ = new ros::NodeHandle("");
+
+  // ros publication
+  this->pub_status_ = this->rosnode_->advertise<std_msgs::String>(
+    "multisense_sl/status", 10);
+
+  // ros subscription
+  ros::SubscribeOptions set_spindle_speed_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/set_spindle_speed", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetSpindleSpeed),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_spindle_speed_sub_ =
+    this->rosnode_->subscribe(set_spindle_speed_so);
+
+  ros::SubscribeOptions set_spindle_state_so =
+    ros::SubscribeOptions::create<std_msgs::Bool>(
+    "multisense_sl/set_spindle_state", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Bool::ConstPtr&)>(
+        &MultiSenseSL::SetSpindleState),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_spindle_state_sub_ =
+    this->rosnode_->subscribe(set_spindle_state_so);
+
+  ros::SubscribeOptions set_left_camera_frame_rate_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/left/set_camera_frame_rate", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetLeftCameraFrameRate),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_left_camera_frame_rate_sub_ =
+    this->rosnode_->subscribe(set_left_camera_frame_rate_so);
+
+  ros::SubscribeOptions set_right_camera_frame_rate_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/right/set_camera_frame_rate", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetRightCameraFrameRate),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_right_camera_frame_rate_sub_ =
+    this->rosnode_->subscribe(set_right_camera_frame_rate_so);
+
+  ros::SubscribeOptions set_left_camera_exposure_time_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/left/set_camera_exposure_time", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetLeftCameraExposureTime),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_left_camera_exposure_time_sub_ =
+    this->rosnode_->subscribe(set_left_camera_exposure_time_so);
+
+  ros::SubscribeOptions set_right_camera_exposure_time_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/right/set_camera_exposure_time", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetRightCameraExposureTime),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_right_camera_exposure_time_sub_ =
+    this->rosnode_->subscribe(set_right_camera_exposure_time_so);
+
+  ros::SubscribeOptions set_left_camera_gain_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/left/set_camera_gain", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetLeftCameraGain),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_left_camera_gain_sub_ =
+    this->rosnode_->subscribe(set_left_camera_gain_so);
+
+  ros::SubscribeOptions set_right_camera_gain_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/right/set_camera_gain", 100,
+    boost::bind( static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetRightCameraGain),this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_right_camera_gain_sub_ =
+    this->rosnode_->subscribe(set_right_camera_gain_so);
+
+  /// \todo: waiting for gen_srv to be implemented (issue #37)
+  /* Advertise services on the custom queue
+  std::string set_spindle_speed_service_name(
+    "multisense_sl/set_spindle_speed");
+  ros::AdvertiseServiceOptions set_spindle_speed_aso =
+    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+      set_spindle_speed_service_name,
+      boost::bind(&MultiSenseSL::SetSpindleSpeed,this,_1,_2),
+      ros::VoidPtr(), &this->queue_);
+  this->set_spindle_speed_service_ =
+    this->rosnode_->advertiseService(set_spindle_speed_aso);
+
+  std::string set_spindle_state_service_name(
+    "multisense_sl/set_spindle_state");
+  ros::AdvertiseServiceOptions set_spindle_state_aso =
+    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+      set_spindle_state_service_name,
+      boost::bind(&MultiSenseSL::SetSpindleState,this,_1,_2),
+      ros::VoidPtr(), &this->queue_);
+  this->set_spindle_state_service_ =
+    this->rosnode_->advertiseService(set_spindle_state_aso);
+  */
+
+  this->lastUpdateTime = this->world->GetSimTime().Double();
+  this->updateRate = 1.0; // Hz
+
+  // ros callback queue for processing subscription
+  this->callback_queue_thread_ = boost::thread(
+    boost::bind( &MultiSenseSL::QueueThread,this ) );
+
+  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+     boost::bind(&MultiSenseSL::UpdateStates, this));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::UpdateStates()
 {
-  if (this->connectionCount > 0)
+  if (this->pub_status_.getNumSubscribers() > 0)
   {
     double cur_time = this->world->GetSimTime().Double();
 
@@ -144,148 +283,9 @@ void MultiSenseSL::UpdateStates()
   {
     this->spindlePID.Reset();
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Load the controller
-void MultiSenseSL::LoadThread()
-{
-  // initialize ros
-  if (!ros::isInitialized())
-  {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc,argv,"gazebo",
-      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
-  }
-
-  // ros stuff
-  this->rosnode_ = new ros::NodeHandle("~");
-
-  // ros publication
-  ros::AdvertiseOptions pub_status_ao =
-    ros::AdvertiseOptions::create<std_msgs::String>(
-    "/multisense_sl/status", 10,
-    boost::bind(&MultiSenseSL::OnStatusConnect,this),
-    boost::bind(&MultiSenseSL::OnStatusDisconnect,this),
-    ros::VoidPtr(), &this->queue_);
-  this->pub_status_ = this->rosnode_->advertise(pub_status_ao);
-
-  // ros subscription
-  ros::SubscribeOptions set_spindle_speed_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/set_spindle_speed", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetSpindleSpeed),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_spindle_speed_sub_ =
-    this->rosnode_->subscribe(set_spindle_speed_so);
-
-  ros::SubscribeOptions set_spindle_state_so =
-    ros::SubscribeOptions::create<std_msgs::Bool>(
-    "/multisense_sl/set_spindle_state", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Bool::ConstPtr&)>(
-        &MultiSenseSL::SetSpindleState),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_spindle_state_sub_ =
-    this->rosnode_->subscribe(set_spindle_state_so);
-
-  ros::SubscribeOptions set_left_camera_frame_rate_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/left/set_camera_frame_rate", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetLeftCameraFrameRate),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_left_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_left_camera_frame_rate_so);
-
-  ros::SubscribeOptions set_right_camera_frame_rate_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/right/set_camera_frame_rate", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetRightCameraFrameRate),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_right_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_right_camera_frame_rate_so);
-
-  ros::SubscribeOptions set_left_camera_exposure_time_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/left/set_camera_exposure_time", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetLeftCameraExposureTime),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_left_camera_exposure_time_sub_ =
-    this->rosnode_->subscribe(set_left_camera_exposure_time_so);
-
-  ros::SubscribeOptions set_right_camera_exposure_time_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/right/set_camera_exposure_time", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetRightCameraExposureTime),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_right_camera_exposure_time_sub_ =
-    this->rosnode_->subscribe(set_right_camera_exposure_time_so);
-
-  ros::SubscribeOptions set_left_camera_gain_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/left/set_camera_gain", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetLeftCameraGain),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_left_camera_gain_sub_ =
-    this->rosnode_->subscribe(set_left_camera_gain_so);
-
-  ros::SubscribeOptions set_right_camera_gain_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "/multisense_sl/right/set_camera_gain", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetRightCameraGain),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_right_camera_gain_sub_ =
-    this->rosnode_->subscribe(set_right_camera_gain_so);
-
-  // Advertise services on the custom queue
-  std::string set_spindle_speed_service_name(
-    "/multisense_sl/set_spindle_speed");
-  ros::AdvertiseServiceOptions set_spindle_speed_aso =
-    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-      set_spindle_speed_service_name,
-      boost::bind(&MultiSenseSL::SetSpindleSpeed,this,_1,_2),
-      ros::VoidPtr(), &this->queue_);
-  this->set_spindle_speed_service_ =
-    this->rosnode_->advertiseService(set_spindle_speed_aso);
-
-  std::string set_spindle_state_service_name(
-    "/multisense_sl/set_spindle_state");
-  ros::AdvertiseServiceOptions set_spindle_state_aso =
-    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-      set_spindle_state_service_name,
-      boost::bind(&MultiSenseSL::SetSpindleState,this,_1,_2),
-      ros::VoidPtr(), &this->queue_);
-  this->set_spindle_state_service_ =
-    this->rosnode_->advertiseService(set_spindle_state_aso);
-
-
-  this->lastUpdateTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0; // Hz
-
-  // ros callback queue for processing subscription
-  this->callback_queue_thread_ = boost::thread(
-    boost::bind( &MultiSenseSL::QueueThread,this ) );
-
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
-     boost::bind(&MultiSenseSL::UpdateStates, this));
-}
-
 void MultiSenseSL::QueueThread()
 {
   static const double timeout = 0.01;
@@ -296,38 +296,37 @@ void MultiSenseSL::QueueThread()
   }
 }
 
-void MultiSenseSL::OnStatusConnect()
-{
-  this->connectionCount++;
-}
-
-void MultiSenseSL::OnStatusDisconnect()
-{
-  this->connectionCount--;
-}
-
+////////////////////////////////////////////////////////////////////////////////
 bool MultiSenseSL::SetSpindleSpeed(std_srvs::Empty::Request &req,
                                    std_srvs::Empty::Response &res)
 {
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,
                                    std_srvs::Empty::Response &res)
 {
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 {
   this->spindleSpeed = (double)_msg->data;
+  if (this->spindleSpeed > this->spindleMaxRPM * 2.0*M_PI / 60.0)
+    this->spindleSpeed = this->spindleMaxRPM * 2.0*M_PI / 60.0;
+  else if (this->spindleSpeed < this->spindleMinRPM * 2.0*M_PI / 60.0)
+    this->spindleSpeed = this->spindleMinRPM * 2.0*M_PI / 60.0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 {
   this->spindleOn = (double)_msg->data;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -335,6 +334,7 @@ void MultiSenseSL::SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
   this->leftCameraSensor->SetUpdateRate(this->leftCameraFrameRate);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
                                            &_msg)
 {
@@ -342,6 +342,7 @@ void MultiSenseSL::SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
   this->rightCameraSensor->SetUpdateRate(this->rightCameraFrameRate);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetLeftCameraExposureTime(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -349,6 +350,7 @@ void MultiSenseSL::SetLeftCameraExposureTime(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
                                            &_msg)
 {
@@ -356,6 +358,7 @@ void MultiSenseSL::SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetLeftCameraGain(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
@@ -363,14 +366,11 @@ void MultiSenseSL::SetLeftCameraGain(const std_msgs::Float64::ConstPtr
   gzwarn << "setting camera gain in sim not implemented\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetRightCameraGain(const std_msgs::Float64::ConstPtr
                                            &_msg)
 {
   this->rightCameraGain = (double)_msg->data;
   gzwarn << "setting camera gain in sim not implemented\n";
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(MultiSenseSL)
-
 }

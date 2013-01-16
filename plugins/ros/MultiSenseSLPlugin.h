@@ -1,7 +1,6 @@
 /*
  *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003  
- *     Nate Koenig & Andrew Howard
+ *  Copyright (C) 2012 Open Source Robotics Foundation
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -67,21 +66,17 @@ namespace gazebo
     public: ~MultiSenseSL();
 
     /// \brief Load the plugin
-    /// \param take in SDF root element
+    /// \param[in] _parent pointer to parent Model
+    /// \param[in] _sdf SDF root element corresponds to the plugin XML block
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \brief Update the controller
+    /// \brief Update the controller periodically via Events.
     protected: virtual void UpdateStates();
 
-    /// Pointer to the update event connection
+    /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
 
-    /// ROS connection count
-    private: int connectionCount;
-    private: void OnStatusConnect();
-    private: void OnStatusDisconnect();
-
-    // deferred ros loading
+    /// \brief Thread for loading and initializing ROS
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
 
@@ -136,7 +131,7 @@ namespace gazebo
 
     // gazebo variables
     private: physics::WorldPtr world;
-    private: physics::ModelPtr drcRobotModel;
+    private: physics::ModelPtr atlasModel;
     private: sdf::ElementPtr sdf;
     private: common::Time lastTime;
 
@@ -155,6 +150,8 @@ namespace gazebo
 
     // spindle control
     private: double spindleSpeed;
+    private: double spindleMaxRPM;
+    private: double spindleMinRPM;
     private: bool spindleOn;
     private: physics::LinkPtr spindleLink;
     private: physics::JointPtr spindleJoint;
