@@ -11,4 +11,3 @@ foreach (src ${plugins})
   install (TARGETS ${src} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 endforeach (src ${plugins})
 
-add_subdirectory(ros)
