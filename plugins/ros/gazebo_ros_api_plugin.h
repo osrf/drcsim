@@ -138,10 +138,10 @@ class GazeboRosApiPlugin : public SystemPlugin
 
     void Load(int argc, char** argv);
 
-    /// \brief ros queue thread for this node
+    /// \brief ros queue thread for this ros node
     void gazeboQueueThread();
 
-    /// \brief advertise services
+    /// \brief advertise ros services
     void AdvertiseServices();
 
     void onLinkStatesConnect();
@@ -154,103 +154,157 @@ class GazeboRosApiPlugin : public SystemPlugin
     bool spawnGazeboModel(gazebo_msgs::SpawnModel::Request &req,gazebo_msgs::SpawnModel::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief delete model given name
+    /// \brief delete model in simulation
+    /// \param[in] req DeleteModel request message
+    /// \param[out] res DeleteModel response message
     bool deleteModel(gazebo_msgs::DeleteModel::Request &req,gazebo_msgs::DeleteModel::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get state of model in simulation
+    /// \param[in] req request in the form of gazebo_msgs::GetModelState
+    /// \param[out] res response in the form of gazebo_msgs::GetModelState
     bool getModelState(gazebo_msgs::GetModelState::Request &req,gazebo_msgs::GetModelState::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get properties of model in simulation
+    /// \param[in] req request in the form of gazebo_msgs::GetModelProperties
+    /// \param[out] res response in the form of gazebo_msgs::GetModelProperties
     bool getModelProperties(gazebo_msgs::GetModelProperties::Request &req,gazebo_msgs::GetModelProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get properties of simulation world
+    /// \param[in] req request in the form of gazebo_msgs::GetWorldProperties
+    /// \param[out] res response in the form of gazebo_msgs::GetWorldProperties
     bool getWorldProperties(gazebo_msgs::GetWorldProperties::Request &req,gazebo_msgs::GetWorldProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get joint properties in simulation
+    /// \param[in] req request in the form of gazebo_msgs::GetJointProperties
+    /// \param[out] res response in the form of gazebo_msgs::GetJointProperties
     bool getJointProperties(gazebo_msgs::GetJointProperties::Request &req,gazebo_msgs::GetJointProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get link properties in simulation
+    /// \param[in] req request in the form of gazebo_msgs::GetLinkProperties
+    /// \param[out] res response in the form of gazebo_msgs::GetLinkProperties
     bool getLinkProperties(gazebo_msgs::GetLinkProperties::Request &req,gazebo_msgs::GetLinkProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get link state in simulation
+    /// \param[in] req request in the form of gazebo_msgs::GetLinkState
+    /// \param[out] res response in the form of gazebo_msgs::GetLinkState
     bool getLinkState(gazebo_msgs::GetLinkState::Request &req,gazebo_msgs::GetLinkState::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief set link state in simulation
+    /// \param[in] req request in the form of gazebo_msgs::SetLinkState
+    /// \param[out] res response in the form of gazebo_msgs::SetLinkState
     bool setLinkProperties(gazebo_msgs::SetLinkProperties::Request &req,gazebo_msgs::SetLinkProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief set physics properties in simulation
+    /// \param[in] req request in the form of gazebo_msgs::SetPhysicsProperties
+    /// \param[out] res response in the form of gazebo_msgs::SetPhysicsProperties
     bool setPhysicsProperties(gazebo_msgs::SetPhysicsProperties::Request &req,gazebo_msgs::SetPhysicsProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief get physics properties in simulation
+    /// \param[in] req request in the form of gazebo_msgs::GetPhysicsProperties
+    /// \param[out] res response in the form of gazebo_msgs::GetPhysicsProperties
     bool getPhysicsProperties(gazebo_msgs::GetPhysicsProperties::Request &req,gazebo_msgs::GetPhysicsProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief set joint properties in simulation
+    /// \param[in] req request in the form of gazebo_msgs::SetJointProperties
+    /// \param[out] res response in the form of gazebo_msgs::SetJointProperties
     bool setJointProperties(gazebo_msgs::SetJointProperties::Request &req,gazebo_msgs::SetJointProperties::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief set model state in simulation
+    /// \param[in] req request in the form of gazebo_msgs::SetModelState
+    /// \param[out] res response in the form of gazebo_msgs::SetModelState
     bool setModelState(gazebo_msgs::SetModelState::Request &req,gazebo_msgs::SetModelState::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief set model state in simulation
+    /// \param[in] model_satate desired model name and state specified in gazebo_msgs::ModelState
     void updateModelState(const gazebo_msgs::ModelState::ConstPtr& model_state);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief apply joint effort
+    /// \param[in] req request in the form of gazebo_msgs::ApplyJointEffort
+    /// \param[out] res response in the form of gazebo_msgs::ApplyJointEffort
     bool applyJointEffort(gazebo_msgs::ApplyJointEffort::Request &req,gazebo_msgs::ApplyJointEffort::Response &res);
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Reset simulation
+    /// \param[in] req std_srvs::Empty
+    /// \param[out] res std_srvs::Empty
     bool resetSimulation(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Reset simulation
+    /// \param[in] req std_srvs::Empty
+    /// \param[out] res std_srvs::Empty
     bool resetWorld(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Pause simulation
+    /// \param[in] req std_srvs::Empty
+    /// \param[out] res std_srvs::Empty
     bool pausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief  Unpause simulation
+    /// \param[in] req std_srvs::Empty
+    /// \param[out] res std_srvs::Empty
     bool unpausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
 #ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief clear joint force application from queue
+    /// \param[in] req service request from gazebo_msgs::JointRequest
+    /// \param[out] res service response from gazebo_msgs::JointRequest
     bool clearJointForces(gazebo_msgs::JointRequest::Request &req,gazebo_msgs::JointRequest::Response &res);
+
+    /// \brief clear joint force from queue
+    /// \param[in] joint_name name of the joint to be removed from joint force queue
     bool clearJointForces(std::string joint_name);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief clear linkf orce application from queue
+    /// \param[in] req service request from gazebo_msgs::BodyRequest
+    /// \param[out] res service response from gazebo_msgs::BodyRequest
     bool clearBodyWrenches(gazebo_msgs::BodyRequest::Request &req,gazebo_msgs::BodyRequest::Response &res);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    /// \brief clear link force application from queue
+    /// \param[in] body_name name of the link to be removed from link force queue
     bool clearBodyWrenches(std::string body_name);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief set model configuration via gazebo_msgs::SetModelConfiguration
+    /// \param[in] req service request from gazebo_msgs::SetModelConfiguration
+    /// \param[out] res service response from gazebo_msgs::SetModelConfiguration
     bool setModelConfiguration(gazebo_msgs::SetModelConfiguration::Request &req,gazebo_msgs::SetModelConfiguration::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Set link state in simulation via message
+    /// \param[in] req service request from gazebo_msgs::SetLinkState
+    /// \param[in] res service response from gazebo_msgs::SetLinkState
     bool setLinkState(gazebo_msgs::SetLinkState::Request &req,gazebo_msgs::SetLinkState::Response &res);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Set link state in simulation via ros topic
+    /// \param[in] link_state A gazebo_msgs::LinkState message
     void updateLinkState(const gazebo_msgs::LinkState::ConstPtr& link_state);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Request to apply forces to links in simulation
+    /// \param[in] req service call request
+    /// \param[out] res service call response
+    /// \return true to service call succeeds
     bool applyBodyWrench(gazebo_msgs::ApplyBodyWrench::Request &req,gazebo_msgs::ApplyBodyWrench::Response &res);
 #endif
 
@@ -363,62 +417,83 @@ class GazeboRosApiPlugin : public SystemPlugin
     std::vector<GazeboRosApiPlugin::ForceJointJob*> force_joint_jobs;
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief apply forces to links in simulation
     void wrenchBodySchedulerSlot();
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief apply forces to joints in simulation
     void forceJointSchedulerSlot();
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Sets ROS time to simulation time
+    /// by calling ros::Time::setNow and publish ros topic /clock
     void updateRosSimTime();
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief publish ros topic ~link_states
     void publishLinkStates();
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief publish ros topic ~model_states
     void publishModelStates();
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief String XML declaration from XML string
+    /// \param model_xml if XML string contains XML declaration, it will be stripped
     void stripXmlDeclaration(std::string &model_xml);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Modify the robot model pose in old Gazebo pre-1.0 XML for spawning in simulation
+    /// \param gazebo_model_xml contains URDF of the model, the pose will be overwritten
+    /// \param[in] initial_xyq desired model pose linear offset
+    /// \param[in] initial_q desired model pose quaternion
     void updateGazeboXmlModelPose(TiXmlDocument &gazebo_model_xml, gazebo::math::Vector3 initial_xyz, gazebo::math::Quaternion initial_q);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Modify robot name field in old Gazebo pre-1.0 XML
+    /// \param[in] model_name desired naem of the model
+    /// \param gazebo_model_xml SDF of the model, name will be overwritten
     void updateGazeboXmlName(TiXmlDocument &gazebo_model_xml, std::string model_name);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Modify the robot model pose in SDF for spawning in simulation
+    /// \param gazebo_model_xml contains URDF of the model, the pose will be overwritten
+    /// \param[in] initial_xyq desired model pose linear offset
+    /// \param[in] initial_q desired model pose quaternion
     void updateGazeboSDFModelPose(TiXmlDocument &gazebo_model_xml, gazebo::math::Vector3 initial_xyz, gazebo::math::Quaternion initial_q);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Modify robot name in the gazebo SDF
+    /// \param[in] model_name desired naem of the model
+    /// \param gazebo_model_xml SDF of the model, name will be overwritten
     void updateGazeboSDFName(TiXmlDocument &gazebo_model_xml, std::string model_name);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Modify the robot model pose in URDF for spawning in simulation
+    /// \param gazebo_model_xml contains URDF of the model, the pose will be overwritten
+    /// \param[in] initial_xyq desired model pose linear offset
+    /// \param[in] initial_q desired model pose quaternion
     void updateURDFModelPose(TiXmlDocument &gazebo_model_xml, gazebo::math::Vector3 initial_xyz, gazebo::math::Quaternion initial_q);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Modify the robot name field in URDF
+    /// \param[in] model_name Name to be given to the URDF
+    /// \param gazebo_model_xml TiXmlDocument containing the robot URDF, name will be overwritten
     void updateURDFName(TiXmlDocument &gazebo_model_xml, std::string model_name);
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief  Go through the robot xml and update "robotNamespace" in plugins
+    /// \param robot_xml TiXmlNode containing entire robot model
     void walkChildAddRobotNamespace(TiXmlNode* robot_xml);
 
     std::string robot_namespace_;
 
 #ifdef GAZEBO_MSGS
     ////////////////////////////////////////////////////////////////////////////////
-    /// \brief 
+    /// \brief Spawn model via service
+    /// \param[in] gazebo_model_xml TiXmlDocument containing the model
+    /// \param[in] model_name name of the model in gazebo
+    /// \param[out] res SpawnModel service message response
     bool spawnAndConfirm(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res);
 #endif
 };
