@@ -68,8 +68,8 @@ void DRCVehicleROSPlugin::SetKeyState(const std_msgs::Int8::ConstPtr &_msg)
   else if (_msg->data == 1)
     this->SetKeyOn();
   else
-    gzerr << "Invalid Key State: " << static_cast<int16_t>(_msg->data)
-          << ", expected 0 or 1\n";
+    ROS_ERROR("Invalid Key State: %d, expected 0 or 1\n",
+      static_cast<int16_t>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,35 +82,36 @@ void DRCVehicleROSPlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg
   else if (_msg->data == -1)
     this->DRCVehiclePlugin::SetDirectionState(REVERSE);
   else
-    gzerr << "Invalid Direction State: " << static_cast<int16_t>(_msg->data)
-          << ", expected -1, 0, or 1\n";
+    ROS_ERROR("Invalid Direction State: %d, expected -1, 0, or 1\n",
+      static_cast<int16_t>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetHandBrakeState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  this->handBrakeCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetHandBrakeState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  this->handWheelCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetHandWheelState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg)
+void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr
+                                                &_msg)
 {
-  this->gasPedalCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetGasPedalState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  this->brakePedalCmd = (double)_msg->data;
+  DRCVehiclePlugin::SetBrakePedalState( static_cast<double>(_msg->data) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
