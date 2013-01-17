@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.4.6)
 set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 set(ENV{ROS_PACKAGE_PATH} ${DRC_SIM_CMAKE_SOURCE_DIR}/ros/drcsim_plugins:$ENV{ROS_PACKAGE_PATH})
+include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 # save project name, paths
 #set(SAVE_PROJECT_NAME ${PROJECT_NAME})

@@ -1,0 +1,7 @@
+<package>
+  <description brief="atlas_msgs">
+    Atlas Robot Controller Messages
+  </description>
+  <author>John Hsu</author>
+  <license>Apache 2.0</license>
+</package>
