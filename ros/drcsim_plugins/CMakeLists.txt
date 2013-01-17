@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-set(ENV{ROS_PACKAGE_PATH} ${CMAKE_SOURCE_DIR}/ros/drcsim_plugins:$ENV{ROS_PACKAGE_PATH})
+set(ENV{ROS_PACKAGE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}:$ENV{ROS_PACKAGE_PATH})
+message(status "\n\n\n $ENV{ROS_PACKAGE_PATH} \n\n\n")
 
 # save project name, paths
 set(SAVE_PROJECT_NAME ${PROJECT_NAME})
@@ -8,9 +9,9 @@ set(SAVE_PROJECT_NAME ${PROJECT_NAME})
 set(ROSBUILD_DONT_REDEFINE_PROJECT 1)
 project(drcsim_plugins)
 rosbuild_init()
+# Note: recovering PROJECT_NAME here to drcsim leads to build failure
 
-# Note: recover PROJECT_NAME to drcsim leads to build failure
-
+# depends on DRCVehiclePlugin
 include_directories(
   ${CMAKE_SOURCE_DIR}/plugins
 )
