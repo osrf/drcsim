@@ -35,6 +35,7 @@ include_directories(
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/bin/)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)")
 
 rosbuild_genmsg()
 rosbuild_gensrv()
