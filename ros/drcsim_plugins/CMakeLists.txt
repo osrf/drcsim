@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-set(ENV{ROS_PACKAGE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}:$ENV{ROS_PACKAGE_PATH})
-message(status "\n\n\n $ENV{ROS_PACKAGE_PATH} \n\n\n")
+#set(ENV{ROS_PACKAGE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}:$ENV{ROS_PACKAGE_PATH})
+set(ENV{ROS_PACKAGE_PATH} ${CMAKE_SOURCE_DIR}/ros/:$ENV{ROS_PACKAGE_PATH})
+#message(status "\n\n\n $ENV{ROS_PACKAGE_PATH} \n\n\n")
 
 # save project name, paths
 set(SAVE_PROJECT_NAME ${PROJECT_NAME})

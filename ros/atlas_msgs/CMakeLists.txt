@@ -9,7 +9,7 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
-set(ENV{ROS_PACKAGE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}:$ENV{ROS_PACKAGE_PATH})
+set(ENV{ROS_PACKAGE_PATH} ${CMAKE_SOURCE_DIR}/ros/:$ENV{ROS_PACKAGE_PATH})
 
 # save project name, paths
 set(SAVE_PROJECT_NAME ${PROJECT_NAME})
