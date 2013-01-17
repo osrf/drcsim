@@ -1,4 +1,4 @@
-<robot name="drc_skeleton">
+<robot name="multisense_sl">
   <!-- Head Link Simplified Collision Mesh -->
   <link name="head">
     <inertial>

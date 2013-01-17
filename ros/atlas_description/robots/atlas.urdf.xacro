@@ -2,5 +2,5 @@
   <include filename="$(find atlas_description)/urdf/atlas_simple_shapes.urdf" />
   <include filename="$(find atlas_description)/urdf/atlas.gazebo" />
   <include filename="$(find atlas_description)/urdf/atlas.transmission" />
-  <include filename="$(find atlas_description)/urdf/atlas.sensors" />
+  <include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
 </robot>

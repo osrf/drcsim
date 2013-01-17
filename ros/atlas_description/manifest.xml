@@ -9,5 +9,6 @@
   <review status="unreviewed" notes=""/>
   <url>http://gazebosim.org/wiki/atlas_description</url>
   <depend package="xacro"/>
+  <depend package="multisense_sl_description"/>
 
 </package>
