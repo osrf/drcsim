@@ -4,4 +4,5 @@
   </description>
   <author>John Hsu</author>
   <license>Apache 2.0</license>
+  <depend package="std_msgs"/>
 </package>
