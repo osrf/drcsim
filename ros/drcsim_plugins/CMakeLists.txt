@@ -1,32 +1,40 @@
 cmake_minimum_required(VERSION 2.4.6)
-set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
+# set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-set(ENV{ROS_PACKAGE_PATH} ${DRC_SIM_CMAKE_SOURCE_DIR}/ros/drcsim_plugins:$ENV{ROS_PACKAGE_PATH})
+set(ENV{ROS_PACKAGE_PATH} ${CMAKE_SOURCE_DIR}/ros/drcsim_plugins:$ENV{ROS_PACKAGE_PATH})
+
+# save project name, paths
+set(SAVE_PROJECT_NAME ${PROJECT_NAME})
+
+# message(status "\n\n\n ${PKG_CONFIG_PATH} \n\n\n")
+set(ROSBUILD_DONT_REDEFINE_PROJECT 1)
+project(drcsim_plugins)
 rosbuild_init()
 
+# recover project name
+#set(PROJECT_NAME ${SAVE_PROJECT_NAME})
+
 include_directories(
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins
+  ${CMAKE_SOURCE_DIR}/plugins
 )
 
-link_directories(
-  ${DRC_SIM_CMAKE_CURRENT_BINARY_DIR}/plugins
-)
+#link_directories(${DRC_SIM_CMAKE_CURRENT_BINARY_DIR}/plugins)
 
 # find gazebo include (FindPkgConfig)
-include (FindPkgConfig)
-if (PKG_CONFIG_FOUND)
-  pkg_check_modules(GAZEBO gazebo)
-else()
-  message(FATAL_ERROR "pkg-config is required; please install it")
-endif()
-
-include_directories(${GAZEBO_INCLUDE_DIRS})
-link_directories(${GAZEBO_LIBRARY_DIRS})
+# include (FindPkgConfig)
+# if (PKG_CONFIG_FOUND)
+#   pkg_check_modules(GAZEBO gazebo)
+# else()
+#   message(FATAL_ERROR "pkg-config is required; please install it")
+# endif()
+#
+# include_directories(${GAZEBO_INCLUDE_DIRS})
+# link_directories(${GAZEBO_LIBRARY_DIRS})
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/bin/)
 #set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
 
 rosbuild_genmsg()
 rosbuild_gensrv()
@@ -66,8 +74,9 @@ rosbuild_add_library(VRCPlugin VRCPlugin.cpp)
 target_link_libraries(VRCPlugin)
 
 # needs DRCVehiclePlugin from non-ros plugins
-#rosbuild_add_library(DRCVehicleROSPlugin DRCVehicleROSPlugin.cpp)
-#target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
+rosbuild_add_library(DRCVehicleROSPlugin DRCVehicleROSPlugin.cpp)
+target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
+#target_link_libraries(DRCVehicleROSPlugin :../../plugins/libDRCVehiclePlugin.so)
 
 
 
