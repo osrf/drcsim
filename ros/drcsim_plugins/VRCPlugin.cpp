@@ -23,7 +23,7 @@
  * Date: December 2012
  */
 
-#include "VRCPlugin.hh"
+#include "VRCPlugin.h"
 
 namespace gazebo
 {

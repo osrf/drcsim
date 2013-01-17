@@ -33,7 +33,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int8.h>
 
-#include "../DRCVehiclePlugin.hh"
+#include "DRCVehiclePlugin.hh"
 
 namespace gazebo
 {

@@ -25,7 +25,7 @@
  */
 
 #include <math.h>
-#include "DRCVehicleROSPlugin.hh"
+#include "DRCVehicleROSPlugin.h"
 #include "gazebo/common/common.hh"
 #include "gazebo/physics/Base.hh"
 #include "gazebo/physics/CylinderShape.hh"

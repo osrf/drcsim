@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 enable_testing()
 
 project (drcsim)
+include(ExternalProject)
 
 set (DRC_SIM_MAJOR_VERSION 1)
 set (DRC_SIM_MINOR_VERSION 4)

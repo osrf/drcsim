@@ -22,7 +22,7 @@
  * Author: John Hsu
  * Date: December 2012
  */
-#include "AtlasPlugin.hh"
+#include "AtlasPlugin.h"
 #include "nav_msgs/Odometry.h"
 
 namespace gazebo
