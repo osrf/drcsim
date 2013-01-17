@@ -25,6 +25,10 @@
 #include "AtlasPlugin.h"
 #include "nav_msgs/Odometry.h"
 #include "atlas_msgs/AtlasJointState.h"
+#include "atlas_msgs/AtlasJointStateArray.h"
+#include "atlas_msgs/AtlasJointDesired.h"
+#include "atlas_msgs/AtlasJointDesiredArray.h"
+#include "atlas_msgs/AtlasJointControlParams.h"
 
 namespace gazebo
 {
