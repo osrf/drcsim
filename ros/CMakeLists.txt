@@ -1,5 +1,4 @@
 add_subdirectory(atlas_utils)
 add_subdirectory(atlas_description)
 add_subdirectory(irobot_hand_description)
-add_subdirectory(drcsim_plugins)
-#add_subdirectory(atlas_msgs)
+add_subdirectory(atlas_msgs)
