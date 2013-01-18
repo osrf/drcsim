@@ -23,7 +23,8 @@
  * Date: December 2012
  */
 #include "AtlasPlugin.h"
-#include "nav_msgs/Odometry.h"
+
+#include "sensor_msgs/Imu.h"
 #include "atlas_msgs/ForceTorqueSensors.h"
 #include "sensor_msgs/JointState.h"
 
@@ -197,7 +198,7 @@ void AtlasPlugin::DeferredLoad()
 
   // publish imu data
   this->pubImu =
-    this->rosNode->advertise<nav_msgs::Odometry>(
+    this->rosNode->advertise<sensor_msgs::Imu>(
       "atlas/imu", 10);
 
   // initialize status pub time
@@ -249,7 +250,7 @@ void AtlasPlugin::UpdateStates()
       math::Vector3 imuLinearVel = imuPose.rot.RotateVector(
         this->imuLink->GetWorldLinearVel());
 
-      nav_msgs::Odometry msg;
+      sensor_msgs::Imu msg;
       msg.header.frame_id = this->imuLinkName;
       msg.header.stamp = ros::Time(curTime.Double());
 
@@ -258,9 +259,9 @@ void AtlasPlugin::UpdateStates()
         // get world twist and convert to local frame
         math::Vector3 wLocal = imuPose.rot.RotateVector(
           this->imuLink->GetWorldAngularVel());
-        msg.twist.twist.angular.x = wLocal.x;
-        msg.twist.twist.angular.y = wLocal.y;
-        msg.twist.twist.angular.z = wLocal.z;
+        msg.angular_velocity.x = wLocal.x;
+        msg.angular_velocity.y = wLocal.y;
+        msg.angular_velocity.z = wLocal.z;
       }
 
       // compute acceleration
@@ -270,9 +271,9 @@ void AtlasPlugin::UpdateStates()
         double imuDdy = accel.y;
         double imuDdz = accel.z;
 
-        msg.twist.twist.linear.x = imuLinearVel.x;
-        msg.twist.twist.linear.y = imuLinearVel.y;
-        msg.twist.twist.linear.z = imuLinearVel.z;
+        msg.linear_acceleration.x = imuDdx;
+        msg.linear_acceleration.y = imuDdy;
+        msg.linear_acceleration.z = imuDdz;
 
         this->imuLastLinearVel = imuLinearVel;
       }
@@ -289,10 +290,10 @@ void AtlasPlugin::UpdateStates()
         imuOrientationEstimate[2] = imuRot.y;
         imuOrientationEstimate[3] = imuRot.z;
 
-        msg.pose.pose.orientation.x = imuRot.x;
-        msg.pose.pose.orientation.y = imuRot.y;
-        msg.pose.pose.orientation.z = imuRot.z;
-        msg.pose.pose.orientation.w = imuRot.w;
+        msg.orientation.x = imuRot.x;
+        msg.orientation.y = imuRot.y;
+        msg.orientation.z = imuRot.z;
+        msg.orientation.w = imuRot.w;
       }
 
       this->pubImu.publish(msg);
