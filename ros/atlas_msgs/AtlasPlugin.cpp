@@ -168,6 +168,11 @@ void AtlasPlugin::DeferredLoad()
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // ROS Controller API
+  /// brief broadcasts the robot states
+  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+    "multisense_sl/joint_states", 10);
+
   // ros publication / subscription
   this->pubStatus =
     this->rosNode->advertise<std_msgs::String>("atlas/status", 10);
@@ -284,11 +289,11 @@ void AtlasPlugin::UpdateStates()
         math::Quaternion imuRot =
           imuPose.rot * this->imuReferencePose.rot.GetInverse();
 
-        double imuOrientationEstimate[4];
-        imuOrientationEstimate[0] = imuRot.w;
-        imuOrientationEstimate[1] = imuRot.x;
-        imuOrientationEstimate[2] = imuRot.y;
-        imuOrientationEstimate[3] = imuRot.z;
+        // double imuOrientationEstimate[4];
+        // imuOrientationEstimate[0] = imuRot.w;
+        // imuOrientationEstimate[1] = imuRot.x;
+        // imuOrientationEstimate[2] = imuRot.y;
+        // imuOrientationEstimate[3] = imuRot.z;
 
         msg.orientation.x = imuRot.x;
         msg.orientation.y = imuRot.y;
@@ -394,7 +399,7 @@ void AtlasPlugin::OnLContactUpdate()
   contacts = this->lFootContactSensor->GetContacts();
 
 
-  for (unsigned int i = 0; i < contacts.contact_size(); ++i)
+  for (int i = 0; i < contacts.contact_size(); ++i)
   {
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
@@ -409,7 +414,7 @@ void AtlasPlugin::OnLContactUpdate()
     //                          contacts.contact(i).time().nsec());
     math::Vector3 fTotal;
     math::Vector3 tTotal;
-    for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
+    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // gzerr << j << "  Position:"
       //       << contacts.contact(i).position(j).x() << " "
@@ -452,7 +457,7 @@ void AtlasPlugin::OnRContactUpdate()
   contacts = this->rFootContactSensor->GetContacts();
 
 
-  for (unsigned int i = 0; i < contacts.contact_size(); ++i)
+  for (int i = 0; i < contacts.contact_size(); ++i)
   {
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
@@ -467,7 +472,7 @@ void AtlasPlugin::OnRContactUpdate()
     //                          contacts.contact(i).time().nsec());
     math::Vector3 fTotal;
     math::Vector3 tTotal;
-    for (unsigned int j = 0; j < contacts.contact(i).position_size(); ++j)
+    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // gzerr << j << "  Position:"
       //       << contacts.contact(i).position(j).x() << " "

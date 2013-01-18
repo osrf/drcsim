@@ -50,6 +50,8 @@
 #include "gazebo/sensors/ContactSensor.hh"
 #include "gazebo/sensors/Sensor.hh"
 
+#include "osrf_msgs/JointCommands.h"
+
 #include "boost/thread/mutex.hpp"
 
 namespace gazebo
@@ -130,6 +132,7 @@ namespace gazebo
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
     private: ros::Publisher pubStatus;
+    private: ros::Publisher pubJointStates;
     private: math::Vector3 lFootForce;
     private: math::Vector3 lFootTorque;
     private: math::Vector3 rFootForce;

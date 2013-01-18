@@ -3,5 +3,5 @@ set (files
   manifest.xml
 )
 
-install(FILES ${files} DESTINATION ${ROS_PKG_INSTALL_PATH}/gazebo/)
+install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/)
 

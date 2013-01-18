@@ -16,7 +16,7 @@ endif()
 foreach(model_basename ${model_basenames})
   add_custom_command(
     OUTPUT ${model_basename}.urdf
-    COMMAND ROS_PACKAGE_PATH=${_ROS_PACKAGE_PATH}:${CMAKE_SOURCE_DIR}/ros:$ENV{ROS_PACKAGE_PATH} && rosrun xacro xacro.py ${CMAKE_SOURCE_DIR}/ros/${ROS_PACKAGE_NAME}/robots/${model_basename}.urdf.xacro > ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf 
+    COMMAND ROS_PACKAGE_PATH=${sandia-hand_ROS_PACKAGE_PATH}:${CMAKE_SOURCE_DIR}/ros:$ENV{ROS_PACKAGE_PATH} && rosrun xacro xacro.py ${CMAKE_SOURCE_DIR}/ros/${ROS_PACKAGE_NAME}/robots/${model_basename}.urdf.xacro > ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf 
     DEPENDS ${model_basename}.urdf.xacro)
   add_custom_target(${model_basename}_urdf ALL DEPENDS ${model_basename}.urdf)
 
@@ -29,9 +29,9 @@ foreach(model_basename ${model_basenames})
   install(FILES ${model_basename}.urdf.xacro
           DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/gazebo/${model_basename})
+          DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.manifest.xml
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/gazebo/${model_basename}
+          DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME manifest.xml)
 endforeach()
 

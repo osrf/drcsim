@@ -14,6 +14,7 @@
   <depend package="trajectory_msgs"/>
   <depend package="actionlib"/>
   <depend package="control_msgs"/>
+  <depend package="osrf_msgs"/>
   <!-- generate these here
   <depend package="gazebo_msgs"/>
   -->

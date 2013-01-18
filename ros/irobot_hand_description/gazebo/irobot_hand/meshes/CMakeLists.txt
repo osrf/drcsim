@@ -4,4 +4,4 @@ finger_distal.stl
 finger_proximal.stl
 palm.stl
 )
-install(FILES ${files} DESTINATION ${ROS_PKG_INSTALL_PATH}/gazebo/irobot_hand/meshes/)
+install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/irobot_hand/meshes/)
