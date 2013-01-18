@@ -46,13 +46,23 @@ endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
+# find osrf-common
+find_package(osrf-common)
+if (NOT osrf-common_FOUND)
+  message(STATUS "osrf-common not found, not building atlas with joint controllers.")
+  set(HAVE_OSRF_COMMON false)
+else ()
+  message(STATUS "osrf-common found [${osrf-common_ROS_PACKAGE_PATH}], building atlas with joint controllers.")
+  set(HAVE_OSRF_COMMON true)
+endif ()
+
 # find sandia-hand
 find_package(sandia-hand)
 if (NOT sandia-hand_FOUND)
   message(STATUS "sandia-hand not found, not building atlas with sandia hand")
   set(HAVE_SANDIA_HAND false)
 else ()
-  message(STATUS "sandia-hand found [${_ROS_PACKAGE_PATH}], building atlas with sandia hand")
+  message(STATUS "sandia-hand found [${sandia-hand_ROS_PACKAGE_PATH}], building atlas with sandia hand")
   set(HAVE_SANDIA_HAND true)
 endif ()
 
