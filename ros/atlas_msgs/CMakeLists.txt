@@ -46,6 +46,7 @@ rosbuild_add_library(gazebo_ros_api_plugin gazebo_ros_api_plugin.cpp)
 rosbuild_add_library(gazebo_ros_p3d gazebo_ros_p3d.cpp)
 
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
+rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
 
 # needs actionlib, control_msgs
