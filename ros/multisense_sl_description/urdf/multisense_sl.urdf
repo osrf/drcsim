@@ -176,7 +176,7 @@
   </joint>
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
-    <sensor type="camera" name="left_camera_sensor">
+    <sensor type="multicamera" name="left_camera_sensor">
       <!-- update rate based on spec sheet for 2mp 15fps -->
       <update_rate>15.0</update_rate>
       <camera>
@@ -232,7 +232,7 @@
   </joint>
   <link name="right_camera_optical_frame"/>
   <gazebo reference="right_camera_frame">
-    <sensor type="camera" name="right_camera_sensor">
+    <sensor type="multicamera" name="right_camera_sensor">
       <!-- update rate based on spec sheet for 2mp 15fps -->
       <update_rate>15.0</update_rate>
       <camera>
