@@ -25,8 +25,6 @@
 #include "AtlasPlugin.h"
 
 #include "sensor_msgs/Imu.h"
-#include "atlas_msgs/ForceTorqueSensors.h"
-#include "sensor_msgs/JointState.h"
 
 namespace gazebo
 {
@@ -98,6 +96,39 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->joints.push_back(model->GetJoint("r_arm_elx")); 
   this->joints.push_back(model->GetJoint("r_arm_uwy")); 
   this->joints.push_back(model->GetJoint("r_arm_mwx")); 
+
+  this->errorTerms.resize(this->joints.size());
+
+  this->jointCommands.name.resize(this->joints.size());
+  this->jointCommands.position.resize(this->joints.size());
+  this->jointCommands.velocity.resize(this->joints.size());
+  this->jointCommands.effort.resize(this->joints.size());
+  this->jointCommands.kp_position.resize(this->joints.size());
+  this->jointCommands.ki_position.resize(this->joints.size());
+  this->jointCommands.kd_position.resize(this->joints.size());
+  this->jointCommands.kp_velocity.resize(this->joints.size());
+
+  this->jointStates.name.resize(this->joints.size());
+  this->jointStates.position.resize(this->joints.size());
+  this->jointStates.velocity.resize(this->joints.size());
+  this->jointStates.effort.resize(this->joints.size());
+
+  for(unsigned i = 0; i < this->joints.size(); ++i)
+  {
+    this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].qd_p = 0;
+    this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+    this->jointCommands.position[i] = 0;
+    this->jointCommands.velocity[i] = 0;
+    this->jointCommands.effort[i] = 0;
+    this->jointCommands.kp_position[i] = 0;
+    this->jointCommands.ki_position[i] = 0;
+    this->jointCommands.kd_position[i] = 0;
+    this->jointCommands.kp_velocity[i] = 0;
+    this->jointCommands.i_effort_min[i] = 0;
+    this->jointCommands.i_effort_max[i] = 0;
+  }
 
   // Get imu link
   this->imuLink = this->model->GetLink(this->imuLinkName);
@@ -171,27 +202,14 @@ void AtlasPlugin::DeferredLoad()
   // ROS Controller API
   /// brief broadcasts the robot states
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-    "multisense_sl/joint_states", 10);
+    "atlas/joint_states", 10);
+
+  this->pubForceTorqueSensors = this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
+    "atlas/force_torque_sensors", 10);
 
   // ros publication / subscription
   this->pubStatus =
     this->rosNode->advertise<std_msgs::String>("atlas/status", 10);
-
-  this->pubLAnkleFT =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/l_ankle_ft", 10);
-
-  this->pubRAnkleFT =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/r_ankle_ft", 10);
-
-  this->pubLWristFT =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/l_wrist_ft", 10);
-
-  this->pubRWristFT =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/r_wrist_ft", 10);
 
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
@@ -201,6 +219,15 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<geometry_msgs::Wrench>(
       "atlas/r_foot_contact", 10);
 
+  // ros topic subscribtions
+  ros::SubscribeOptions jointCommandsSo =
+    ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
+    "atlas/joint_commands", 100,
+    boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subJointCommands=
+    this->rosNode->subscribe(jointCommandsSo);
+ 
   // publish imu data
   this->pubImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
@@ -217,6 +244,7 @@ void AtlasPlugin::DeferredLoad()
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&AtlasPlugin::UpdateStates, this));
 
+  // on contact
   this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
      boost::bind(&AtlasPlugin::OnLContactUpdate, this));
 
@@ -248,25 +276,23 @@ void AtlasPlugin::UpdateStates()
     // get imu data from imu link
     if (this->imuLink && curTime > this->lastImuTime)
     {
-      double dt = (curTime - this->lastImuTime).Double();
-
       // Get imuLnk Pose/Orientation
       math::Pose imuPose = this->imuLink->GetWorldPose();
       math::Vector3 imuLinearVel = imuPose.rot.RotateVector(
         this->imuLink->GetWorldLinearVel());
 
-      sensor_msgs::Imu msg;
-      msg.header.frame_id = this->imuLinkName;
-      msg.header.stamp = ros::Time(curTime.Double());
+      sensor_msgs::Imu imuMsg;
+      imuMsg.header.frame_id = this->imuLinkName;
+      imuMsg.header.stamp = ros::Time(curTime.Double());
 
       // compute angular rates
       {
         // get world twist and convert to local frame
         math::Vector3 wLocal = imuPose.rot.RotateVector(
           this->imuLink->GetWorldAngularVel());
-        msg.angular_velocity.x = wLocal.x;
-        msg.angular_velocity.y = wLocal.y;
-        msg.angular_velocity.z = wLocal.z;
+        imuMsg.angular_velocity.x = wLocal.x;
+        imuMsg.angular_velocity.y = wLocal.y;
+        imuMsg.angular_velocity.z = wLocal.z;
       }
 
       // compute acceleration
@@ -276,9 +302,9 @@ void AtlasPlugin::UpdateStates()
         double imuDdy = accel.y;
         double imuDdz = accel.z;
 
-        msg.linear_acceleration.x = imuDdx;
-        msg.linear_acceleration.y = imuDdy;
-        msg.linear_acceleration.z = imuDdz;
+        imuMsg.linear_acceleration.x = imuDdx;
+        imuMsg.linear_acceleration.y = imuDdy;
+        imuMsg.linear_acceleration.z = imuDdz;
 
         this->imuLastLinearVel = imuLinearVel;
       }
@@ -289,103 +315,101 @@ void AtlasPlugin::UpdateStates()
         math::Quaternion imuRot =
           imuPose.rot * this->imuReferencePose.rot.GetInverse();
 
-        // double imuOrientationEstimate[4];
-        // imuOrientationEstimate[0] = imuRot.w;
-        // imuOrientationEstimate[1] = imuRot.x;
-        // imuOrientationEstimate[2] = imuRot.y;
-        // imuOrientationEstimate[3] = imuRot.z;
-
-        msg.orientation.x = imuRot.x;
-        msg.orientation.y = imuRot.y;
-        msg.orientation.z = imuRot.z;
-        msg.orientation.w = imuRot.w;
+        imuMsg.orientation.x = imuRot.x;
+        imuMsg.orientation.y = imuRot.y;
+        imuMsg.orientation.z = imuRot.z;
+        imuMsg.orientation.w = imuRot.w;
       }
 
-      this->pubImu.publish(msg);
+      this->pubImu.publish(imuMsg);
 
       // update time
       this->lastImuTime = curTime.Double();
     }
 
-/* Not yet available in gazebo 1.3
+#if GAZEBO_MINOR_VERSION > 3
+    this->forceTorqueSensorsMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
     {
       physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(0);
-      geometry_msgs::Wrench msg;
-      msg.force.x = wrench.body1Force.x;
-      msg.force.y = wrench.body1Force.y;
-      msg.force.z = wrench.body1Force.z;
-      msg.torque.x = wrench.body1Torque.x;
-      msg.torque.y = wrench.body1Torque.y;
-      msg.torque.z = wrench.body1Torque.z;
-      this->pubLAnkleFT.publish(msg);
-
-      double l_foot_sensors_fz = wrench.body1Force.z;
-      double l_foot_sensors_mx = wrench.body1Torque.x;
-      double l_foot_sensors_my = wrench.body1Torque.y;
+      this->forceTorqueSensorsMsg.l_foot.force.z = wrench.body1Force.z;
+      this->forceTorqueSensorsMsg.l_foot.torque.x = wrench.body1Torque.x;
+      this->forceTorqueSensorsMsg.l_foot.torque.y = wrench.body1Torque.y;
     }
 
     // get force torque at right ankle and publish
     if (this->rAnkleJoint)
     {
       physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(0);
-      geometry_msgs::Wrench msg;
-      msg.force.x = wrench.body1Force.x;
-      msg.force.y = wrench.body1Force.y;
-      msg.force.z = wrench.body1Force.z;
-      msg.torque.x = wrench.body1Torque.x;
-      msg.torque.y = wrench.body1Torque.y;
-      msg.torque.z = wrench.body1Torque.z;
-      this->pubRAnkleFT.publish(msg);
-
-      double r_foot_sensors_fz = wrench.body1Force.z;
-      double r_foot_sensors_mx = wrench.body1Torque.x;
-      double r_foot_sensors_my = wrench.body1Torque.y;
+      this->forceTorqueSensorsMsg.r_foot.force.z = wrench.body1Force.z;
+      this->forceTorqueSensorsMsg.r_foot.torque.x = wrench.body1Torque.x;
+      this->forceTorqueSensorsMsg.r_foot.torque.y = wrench.body1Torque.y;
     }
 
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
       physics::JointWrench wrench = this->lWristJoint->GetForceTorque(0);
-      geometry_msgs::Wrench msg;
-      msg.force.x = wrench.body1Force.x;
-      msg.force.y = wrench.body1Force.y;
-      msg.force.z = wrench.body1Force.z;
-      msg.torque.x = wrench.body1Torque.x;
-      msg.torque.y = wrench.body1Torque.y;
-      msg.torque.z = wrench.body1Torque.z;
-      this->pubLWristFT.publish(msg);
-
-      double l_wrist_sensors_fx = wrench.body1Force.x;
-      double l_wrist_sensors_fy = wrench.body1Force.y;
-      double l_wrist_sensors_fz = wrench.body1Force.z;
-      double l_wrist_sensors_mx = wrench.body1Torque.x;
-      double l_wrist_sensors_my = wrench.body1Torque.y;
-      double l_wrist_sensors_mz = wrench.body1Torque.z;
+      this->forceTorqueSensorsMsg.l_hand.force.x = wrench.body1Force.x;
+      this->forceTorqueSensorsMsg.l_hand.force.y = wrench.body1Force.y;
+      this->forceTorqueSensorsMsg.l_hand.force.z = wrench.body1Force.z;
+      this->forceTorqueSensorsMsg.l_hand.torque.x = wrench.body1Torque.x;
+      this->forceTorqueSensorsMsg.l_hand.torque.y = wrench.body1Torque.y;
+      this->forceTorqueSensorsMsg.l_hand.torque.z = wrench.body1Torque.z;
     }
 
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
       physics::JointWrench wrench = this->rWristJoint->GetForceTorque(0);
-      geometry_msgs::Wrench msg;
-      msg.force.x = wrench.body1Force.x;
-      msg.force.y = wrench.body1Force.y;
-      msg.force.z = wrench.body1Force.z;
-      msg.torque.x = wrench.body1Torque.x;
-      msg.torque.y = wrench.body1Torque.y;
-      msg.torque.z = wrench.body1Torque.z;
-      this->pubRWristFT.publish(msg);
-
-      double r_wrist_sensors_fx = wrench.body1Force.x;
-      double r_wrist_sensors_fy = wrench.body1Force.y;
-      double r_wrist_sensors_fz = wrench.body1Force.z;
-      double r_wrist_sensors_mx = wrench.body1Torque.x;
-      double r_wrist_sensors_my = wrench.body1Torque.y;
-      double r_wrist_sensors_mz = wrench.body1Torque.z;
+      this->forceTorqueSensorsMsg.r_hand.force.x = wrench.body1Force.x;
+      this->forceTorqueSensorsMsg.r_hand.force.y = wrench.body1Force.y;
+      this->forceTorqueSensorsMsg.r_hand.force.z = wrench.body1Force.z;
+      this->forceTorqueSensorsMsg.r_hand.torque.x = wrench.body1Torque.x;
+      this->forceTorqueSensorsMsg.r_hand.torque.y = wrench.body1Torque.y;
+      this->forceTorqueSensorsMsg.r_hand.torque.z = wrench.body1Torque.z;
     }
-*/
+    this->pubForceTorqueSensors.publish(this->forceTorqueSensorsMsg);
+#endif
+
+    // populate FromRobot from robot
+    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
+      this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
+      // better to us e GetForceTorque dot joint axis ??
+      this->jointStates.effort[i] = this->joints[i]->GetForce(0);
+    }
+    this->pubJointStates.publish(this->jointStates);
+
+    double dt = (curTime - this->lastImuTime).Double();
+
+    /// update pid with feedforward force
+    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      this->errorTerms[i].q_p =
+         this->jointCommands.position[i] - this->jointStates.position[i];
+
+      this->errorTerms[i].qd_p =
+         this->jointCommands.velocity[i] - this->jointStates.velocity[i];
+
+      this->errorTerms[i].q_i = math::clamp(
+        this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
+        static_cast<double>(this->jointCommands.i_effort_min[i]),
+        static_cast<double>(this->jointCommands.i_effort_max[i]));
+
+      // use gain params to compute force cmd
+      double force = this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
+                     this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
+                     this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
+                     this->jointCommands.kd_position[i] * (0) +
+                     this->jointCommands.effort[i];
+
+      this->joints[i]->SetForce(0, force);
+
+    }
 
     this->lastControllerUpdateTime = curTime;
   }

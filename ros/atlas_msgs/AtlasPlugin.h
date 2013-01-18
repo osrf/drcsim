@@ -45,14 +45,17 @@
 #include "gazebo/common/Time.hh"
 #include "gazebo/common/Plugin.hh"
 #include "gazebo/common/Events.hh"
+#include "gazebo/common/PID.hh"
 #include "gazebo/sensors/SensorManager.hh"
 #include "gazebo/sensors/SensorTypes.hh"
 #include "gazebo/sensors/ContactSensor.hh"
 #include "gazebo/sensors/Sensor.hh"
 
-#include "osrf_msgs/JointCommands.h"
-
 #include "boost/thread/mutex.hpp"
+
+#include "osrf_msgs/JointCommands.h"
+#include "atlas_msgs/ForceTorqueSensors.h"
+#include "sensor_msgs/JointState.h"
 
 namespace gazebo
 {
@@ -106,14 +109,12 @@ namespace gazebo
     // Force torque sensors at ankles
     private: physics::JointPtr rAnkleJoint;
     private: physics::JointPtr lAnkleJoint;
-    private: ros::Publisher pubLAnkleFT;
-    private: ros::Publisher pubRAnkleFT;
 
     // Force torque sensors at the wrists
     private: physics::JointPtr rWristJoint;
     private: physics::JointPtr lWristJoint;
-    private: ros::Publisher pubLWristFT;
-    private: ros::Publisher pubRWristFT;
+
+    private: atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
 
     // IMU sensor
     private: std::string imuLinkName;
@@ -133,12 +134,28 @@ namespace gazebo
     private: boost::thread callbackQueeuThread;
     private: ros::Publisher pubStatus;
     private: ros::Publisher pubJointStates;
+    private: ros::Publisher pubForceTorqueSensors;
     private: math::Vector3 lFootForce;
     private: math::Vector3 lFootTorque;
     private: math::Vector3 rFootForce;
     private: math::Vector3 rFootTorque;
 
+    private: ros::Subscriber subJointCommands;
+    private: void SetJointCommands(
+      const osrf_msgs::JointCommands::ConstPtr &_msg);
+
     private: physics::Joint_V joints;
+    private: class ErrorTerms
+      {
+        double q_p;
+        double q_i;
+        double qd_p;
+        friend class AtlasPlugin;
+      };
+    private: std::vector<ErrorTerms> errorTerms;
+
+    private: osrf_msgs::JointCommands jointCommands;
+    private: sensor_msgs::JointState jointStates;
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;
