@@ -182,11 +182,12 @@
       <camera>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- robot also capable of 1024 x 544 resolution -->
         <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>2048</width>
-          <height>1088</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -238,11 +239,12 @@
       <camera>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- robot also capable of 1024 x 544 resolution -->
         <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>2048</width>
-          <height>1088</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
