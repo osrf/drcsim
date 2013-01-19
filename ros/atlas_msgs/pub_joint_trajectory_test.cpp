@@ -8,13 +8,10 @@ int main(int argc, char** argv)
 
   ros::init(argc, argv, "pub_joint_trajectory_test");
 
-  ros::NodeHandle rh;
-
   bool wait = true;
   while (wait)
   {
     ros::Time t = ros::Time::now();
-    ROS_INFO("t %f", t.toSec());
     if (t.toSec() > 0)
       wait = false;
   }
