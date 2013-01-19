@@ -116,6 +116,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   for(unsigned i = 0; i < this->joints.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].d_q_p_dt = 0;
     this->errorTerms[i].q_i = 0;
     this->errorTerms[i].qd_p = 0;
     this->jointCommands.name[i] = this->joints[i]->GetScopedName();
@@ -389,8 +390,13 @@ void AtlasPlugin::UpdateStates()
     /// update pid with feedforward force
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      this->errorTerms[i].q_p =
+      double q_p =
          this->jointCommands.position[i] - this->jointStates.position[i];
+
+      if (!math::equal(dt, 0.0)) 
+        this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
+
+      this->errorTerms[i].q_p = q_p;
 
       this->errorTerms[i].qd_p =
          this->jointCommands.velocity[i] - this->jointStates.velocity[i];
@@ -404,7 +410,7 @@ void AtlasPlugin::UpdateStates()
       double force = this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
                      this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
                      this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] * (0) +
+                     this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
                      this->jointCommands.effort[i];
 
       this->joints[i]->SetForce(0, force);

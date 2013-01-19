@@ -148,6 +148,7 @@ namespace gazebo
     private: class ErrorTerms
       {
         double q_p;
+        double d_q_p_dt;
         double q_i;
         double qd_p;
         friend class AtlasPlugin;
