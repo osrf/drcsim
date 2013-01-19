@@ -57,6 +57,12 @@ AtlasPlugin::~AtlasPlugin()
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
+  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
   this->model = _parent;
 
   // Get the world name.
