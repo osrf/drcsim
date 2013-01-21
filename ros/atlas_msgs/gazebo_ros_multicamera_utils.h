@@ -23,8 +23,8 @@
  * Date: 24 Sept 2008
  * SVN: $Id$
  */
-#ifndef GAZEBO_ROS_CAMERA_UTILS_HH
-#define GAZEBO_ROS_CAMERA_UTILS_HH
+#ifndef GAZEBO_ROS_MULTI_CAMERA_UTILS_HH
+#define GAZEBO_ROS_MULTI_CAMERA_UTILS_HH
 
 // ros stuff
 #include <ros/ros.h>
@@ -45,13 +45,13 @@
 #include "msgs/MessageTypes.hh"
 #include "common/Time.hh"
 #include "sensors/SensorTypes.hh"
-#include "plugins/CameraPlugin.hh"
+#include "MultiCameraPlugin.hh"
 
 // no dynamic reconfigure for now, since we don't want to depend on gazebo_plugins directly
 #undef DYNAMIC_RECONFIGURE
 #ifdef DYNAMIC_RECONFIGURE
 // dynamic reconfigure stuff
-#include <gazebo_plugins/GazeboRosCameraConfig.h>
+#include <gazebo_plugins/GazeboRosMultiCameraConfig.h>
 #include <dynamic_reconfigure/server.h>
 #endif
 
@@ -62,15 +62,15 @@
 
 namespace gazebo
 {
-
-  class GazeboRosCameraUtils //: public CameraPlugin
+  class GazeboRosMultiCamera;
+  class GazeboRosMultiCameraUtils //: public CameraPlugin
   {
     /// \brief Constructor
     /// \param parent The parent entity, must be a Model or a Sensor
-    public: GazeboRosCameraUtils();
+    public: GazeboRosMultiCameraUtils();
 
     /// \brief Destructor
-    public: ~GazeboRosCameraUtils();
+    public: ~GazeboRosMultiCameraUtils();
 
     /// \brief Load the plugin
     /// \param take in SDF root element
@@ -96,14 +96,11 @@ namespace gazebo
     protected: image_transport::Publisher image_pub_;
     private: image_transport::ImageTransport* itnode_;
 
-    /// \brief ROS image message
-    protected: sensor_msgs::Image image_msg_;
-
     /// \brief for setting ROS name space
     private: std::string robot_namespace_;
 
     /// \brief ROS camera name
-    private: std::string camera_name_;
+    private: std::string camera_namespace_;
 
     /// \brief ROS image topic name
     protected: std::string image_topic_name_;
@@ -122,7 +119,8 @@ namespace gazebo
 
     /// \brief ROS frame transform name to use in the image message header.
     ///        This should typically match the link name the sensor is attached.
-    protected: std::string frame_name_;
+    protected: std::string left_frame_name_;
+    protected: std::string right_frame_name_;
     /// update rate of this sensor
     protected: double update_rate_;
     protected: double update_period_;
@@ -152,9 +150,9 @@ namespace gazebo
 #ifdef DYNAMIC_RECONFIGURE
     // Time last published, refrain from publish unless new image has been rendered
     // Allow dynamic reconfiguration of camera params
-    dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig> *dyn_srv_;
+    dynamic_reconfigure::Server<gazebo_plugins::GazeboRosMultiCameraConfig> *dyn_srv_;
 
-    void configCallback(gazebo_plugins::GazeboRosCameraConfig &config, uint32_t level);
+    void configCallback(gazebo_plugins::GazeboRosMultiCameraConfig &config, uint32_t level);
 #endif
 
     protected: ros::CallbackQueue camera_queue_;
@@ -162,12 +160,16 @@ namespace gazebo
     protected: boost::thread callback_queue_thread_;
 
 
+    protected: sensors::SensorPtr parentSensor_;
+
     // copied from CameraPlugin
     protected: unsigned int width_, height_, depth_;
     protected: std::string format_;
-
-    protected: sensors::SensorPtr parentSensor_;
     protected: rendering::CameraPtr camera_;
+
+    /// \brief ROS image message
+    protected: sensor_msgs::Image image_msg_;
+
 
     // Pointer to the world
     protected: physics::WorldPtr world_;
@@ -183,6 +185,8 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
+
+    friend GazeboRosMultiCamera;
   };
 
 }

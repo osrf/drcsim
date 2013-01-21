@@ -23,31 +23,37 @@
  * Date: 24 Sept 2008
  * SVN: $Id$
  */
-#ifndef GAZEBO_ROS_CAMERA_HH
-#define GAZEBO_ROS_CAMERA_HH
+#ifndef GAZEBO_ROS_MULTICAMERA_HH
+#define GAZEBO_ROS_MULTICAMERA_HH
 
 // library for processing camera data for gazebo / ros conversions
 #include "gazebo_ros_camera_utils.h"
-#include "plugins/CameraPlugin.hh"
+#include "MultiCameraPlugin.hh"
 
 namespace gazebo
 {
 
-  class GazeboRosCamera : public CameraPlugin, GazeboRosCameraUtils
+  class GazeboRosMultiCamera : public MultiCameraPlugin
   {
     /// \brief Constructor
     /// \param parent The parent entity, must be a Model or a Sensor
-    public: GazeboRosCamera();
+    public: GazeboRosMultiCamera();
 
     /// \brief Destructor
-    public: ~GazeboRosCamera();
+    public: ~GazeboRosMultiCamera();
 
     /// \brief Load the plugin
     /// \param take in SDF root element
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
 
+    std::vector<GazeboRosCameraUtils*> utils;
+
     /// \brief Update the controller
-    protected: virtual void OnNewFrame(const unsigned char *_image, 
+    /// FIXME: switch to function vectors
+    protected: virtual void OnNewFrame0(const unsigned char *_image, 
+                   unsigned int _width, unsigned int _height, 
+                   unsigned int _depth, const std::string &_format);
+    protected: virtual void OnNewFrame1(const unsigned char *_image, 
                    unsigned int _width, unsigned int _height, 
                    unsigned int _depth, const std::string &_format);
 

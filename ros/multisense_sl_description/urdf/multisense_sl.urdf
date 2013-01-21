@@ -212,14 +212,14 @@
           <far>100</far>
         </clip>
       </camera>
-<!--
-      <plugin name="stereo_camera_controller" filename="libgazebo_ros_camera.so">
+      <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>15.0</updateRate>
         <cameraName>multisense_sl</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>left_camera_optical_frame</frameName>
+        <leftFrameName>left_camera_optical_frame</leftFrameName>
+        <rightFrameName>right_camera_optical_frame</rightFrameName>
         <hackBaseline>0.0</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
@@ -227,7 +227,6 @@
         <distortionT1>0.0</distortionT1>
         <distortionT2>0.0</distortionT2>
       </plugin>
--->
     </sensor>
   </gazebo>
 

@@ -63,6 +63,7 @@
 namespace gazebo
 {
 
+  class GazeboRosMultiCamera;
   class GazeboRosCameraUtils //: public CameraPlugin
   {
     /// \brief Constructor
@@ -183,6 +184,8 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
+
+    friend class GazeboRosMultiCamera;
   };
 
 }

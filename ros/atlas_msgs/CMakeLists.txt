@@ -36,14 +36,24 @@ rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)
 target_link_libraries(gazebo_ros_camera_utils CameraPlugin)
+rosbuild_add_library(gazebo_ros_camera gazebo_ros_camera.cpp)
+target_link_libraries(gazebo_ros_camera gazebo_ros_camera_utils CameraPlugin)
+
+rosbuild_add_library(MultiCameraPlugin MultiCameraPlugin.cc)
+#rosbuild_add_library(gazebo_ros_multicamera_utils gazebo_ros_multicamera_utils.cpp)
+#target_link_libraries(gazebo_ros_multicamera_utils CameraPlugin)
+rosbuild_add_library(gazebo_ros_multicamera gazebo_ros_multicamera.cpp)
+target_link_libraries(gazebo_ros_multicamera gazebo_ros_camera_utils MultiCameraPlugin)
+
 rosbuild_add_library(gazebo_ros_laser gazebo_ros_laser.cpp)
 target_link_libraries(gazebo_ros_laser RayPlugin)
+
 rosbuild_add_library(gazebo_ros_imu gazebo_ros_imu.cpp)
-rosbuild_add_library(MultiCameraPlugin MultiCameraPlugin.cc)
-rosbuild_add_library(gazebo_ros_camera gazebo_ros_camera.cpp)
-target_link_libraries(gazebo_ros_camera gazebo_ros_camera_utils MultiCameraPlugin)
+
 rosbuild_add_library(gazebo_ros_joint_trajectory gazebo_ros_joint_trajectory.cpp)
+
 rosbuild_add_library(gazebo_ros_api_plugin gazebo_ros_api_plugin.cpp)
+
 rosbuild_add_library(gazebo_ros_p3d gazebo_ros_p3d.cpp)
 
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)

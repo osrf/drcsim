@@ -61,20 +61,42 @@ void MultiCameraPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*
   {
     this->camera.push_back(this->parentSensor->GetCamera(i));
 
+    // save camera attributes
     this->width.push_back(this->camera[i]->GetImageWidth());
     this->height.push_back(this->camera[i]->GetImageHeight());
     this->depth.push_back(this->camera[i]->GetImageDepth());
     this->format.push_back(this->camera[i]->GetImageFormat());
 
-    this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
-        boost::bind(&MultiCameraPlugin::OnNewFrame, this, _1, _2, _3, _4, _5)));
+    // debug
+    // gzerr << "cmaera " << i < " naem " << this->parentSensor->GetCamera(i)->GetName() << "\n";
+
+    // hardcoded 2 camera support only
+    if (i == 0)
+      this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
+        boost::bind(&MultiCameraPlugin::OnNewFrame0, this, _1, _2, _3, _4, _5)));
+    else if (i == 1)
+      this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
+        boost::bind(&MultiCameraPlugin::OnNewFrame1, this, _1, _2, _3, _4, _5)));
   }
 
   this->parentSensor->SetActive(true);
 }
 
 /////////////////////////////////////////////////
-void MultiCameraPlugin::OnNewFrame(const unsigned char * /*_image*/,
+void MultiCameraPlugin::OnNewFrame0(const unsigned char * /*_image*/,
+                              unsigned int /*_width*/,
+                              unsigned int /*_height*/,
+                              unsigned int /*_depth*/,
+                              const std::string &/*_format*/)
+{
+  /*rendering::Camera::SaveFrame(_image, this->width,
+    this->height, this->depth, this->format,
+    "/tmp/camera/me.jpg");
+    */
+}
+
+/////////////////////////////////////////////////
+void MultiCameraPlugin::OnNewFrame1(const unsigned char * /*_image*/,
                               unsigned int /*_width*/,
                               unsigned int /*_height*/,
                               unsigned int /*_depth*/,

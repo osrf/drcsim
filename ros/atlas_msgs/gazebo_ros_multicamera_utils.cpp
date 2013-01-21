@@ -19,12 +19,12 @@
  */
 /*
  @mainpage
-   Desc: GazeboRosCameraUtils plugin for simulating camera_s in Gazebo
+   Desc: GazeboRosMultiCameraUtils plugin for simulating camera_s in Gazebo
    Author: John Hsu
    Date: 24 Sept 2008
    SVN info: $Id$
  @htmlinclude manifest.html
- @b GazeboRosCameraUtils plugin broadcasts ROS Image messages
+ @b GazeboRosMultiCameraUtils plugin broadcasts ROS Image messages
  */
 
 #include <algorithm>
@@ -32,7 +32,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
-#include "gazebo_ros_camera_utils.h"
+#include "gazebo_ros_multicamera_utils.h"
 
 #include "physics/World.hh"
 #include "physics/HingeJoint.hh"
@@ -40,7 +40,7 @@
 #include "sdf/interface/SDF.hh"
 #include "sdf/interface/Param.hh"
 #include "common/Exception.hh"
-#include "sensors/CameraSensor.hh"
+#include "sensors/MultiCameraSensor.hh"
 #include "sensors/SensorTypes.hh"
 #include "rendering/Camera.hh"
 
@@ -58,7 +58,7 @@ namespace gazebo
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-GazeboRosCameraUtils::GazeboRosCameraUtils()
+GazeboRosMultiCameraUtils::GazeboRosMultiCameraUtils()
 {
   this->image_connect_count_ = 0;
   this->last_update_time_ = common::Time(0);
@@ -66,16 +66,16 @@ GazeboRosCameraUtils::GazeboRosCameraUtils()
 }
 
 #ifdef DYNAMIC_RECONFIGURE
-void GazeboRosCameraUtils::configCallback(gazebo_plugins::GazeboRosCameraConfig &config, uint32_t level)
+void GazeboRosMultiCameraUtils::configCallback(gazebo_plugins::GazeboRosMultiCameraConfig &config, uint32_t level)
 {
-  ROS_INFO("Reconfigure request for the gazebo ros camera_: %s. New rate: %.2f", this->camera_name_.c_str(), config.imager_rate);
+  ROS_INFO("Reconfigure request for the gazebo ros camera_: %s. New rate: %.2f", this->camera_namespace_.c_str(), config.imager_rate);
   this->parentSensor_->SetUpdateRate(config.imager_rate);
 }
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
-GazeboRosCameraUtils::~GazeboRosCameraUtils()
+GazeboRosMultiCameraUtils::~GazeboRosMultiCameraUtils()
 {
   this->parentSensor_->SetActive(false);
   this->rosnode_->shutdown();
@@ -87,7 +87,7 @@ GazeboRosCameraUtils::~GazeboRosCameraUtils()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void GazeboRosMultiCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 {
   // Get the world name.
   std::string world_name = _parent->GetWorldName();
@@ -100,12 +100,12 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
 
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosCameraUtils::LoadThread,this ) );
+    boost::bind( &GazeboRosMultiCameraUtils::LoadThread,this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosCameraUtils::LoadThread()
+void GazeboRosMultiCameraUtils::LoadThread()
 {
 
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
@@ -126,12 +126,17 @@ void GazeboRosCameraUtils::LoadThread()
   if (!this->sdf->HasElement("cameraName"))
     ROS_INFO("Camera plugin missing <cameraName>, default to empty");
   else
-    this->camera_name_ = this->sdf->GetValueString("cameraName");
+    this->camera_namespace_ = this->sdf->GetValueString("cameraName");
 
-  if (!this->sdf->HasElement("frameName"))
-    ROS_INFO("Camera plugin missing <frameName>, defaults to /world");
+  if (!this->sdf->HasElement("leftFrameName"))
+    ROS_INFO("Camera plugin missing <leftFrameName>, defaults to /world");
   else
-    this->frame_name_ = this->sdf->GetValueString("frameName");
+    this->left_frame_name_ = this->sdf->GetValueString("leftFrameName");
+
+  if (!this->sdf->HasElement("rightFrameName"))
+    ROS_INFO("Camera plugin missing <rightFrameName>, defaults to /world");
+  else
+    this->right_frame_name_ = this->sdf->GetValueString("rightFrameName");
 
   if (!this->sdf->HasElement("updateRate"))
   {
@@ -237,20 +242,21 @@ void GazeboRosCameraUtils::LoadThread()
     return;
   }
 
-  this->rosnode_ = new ros::NodeHandle(this->robot_namespace_+"/"+this->camera_name_);
+  this->rosnode_ = new ros::NodeHandle(this->robot_namespace_+"/"+this->camera_namespace_);
 
   this->itnode_ = new image_transport::ImageTransport(*this->rosnode_);
 
   // resolve tf prefix
   std::string prefix;
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
-  this->frame_name_ = tf::resolve(prefix, this->frame_name_);
+  this->right_frame_name_ = tf::resolve(prefix, this->right_frame_name_);
+  this->left_frame_name_ = tf::resolve(prefix, this->left_frame_name_);
 
 #ifdef DYNAMIC_RECONFIGURE
-  if (!this->camera_name_.empty())
+  if (!this->camera_namespace_.empty())
   {
-    dyn_srv_ = new dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>(*this->rosnode_);
-    dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>::CallbackType f = boost::bind(&GazeboRosCameraUtils::configCallback, this, _1, _2);
+    dyn_srv_ = new dynamic_reconfigure::Server<gazebo_plugins::GazeboRosMultiCameraConfig>(*this->rosnode_);
+    dynamic_reconfigure::Server<gazebo_plugins::GazeboRosMultiCameraConfig>::CallbackType f = boost::bind(&GazeboRosMultiCameraUtils::configCallback, this, _1, _2);
     dyn_srv_->setCallback(f);
   }
   else
@@ -261,8 +267,8 @@ void GazeboRosCameraUtils::LoadThread()
 
   this->image_pub_ = this->itnode_->advertise(
     this->image_topic_name_,1,
-    boost::bind( &GazeboRosCameraUtils::ImageConnect,this),
-    boost::bind( &GazeboRosCameraUtils::ImageDisconnect,this),
+    boost::bind( &GazeboRosMultiCameraUtils::ImageConnect,this),
+    boost::bind( &GazeboRosMultiCameraUtils::ImageDisconnect,this),
     ros::VoidPtr(), &this->camera_queue_);
 
   this->camera_info_pub_ = this->rosnode_->advertise<sensor_msgs::CameraInfo>(this->camera_info_topic_name_,1);
@@ -270,14 +276,14 @@ void GazeboRosCameraUtils::LoadThread()
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
         "set_hfov",1,
-        boost::bind( &GazeboRosCameraUtils::SetHFOV,this,_1),
+        boost::bind( &GazeboRosMultiCameraUtils::SetHFOV,this,_1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraHFOVSubscriber_ = this->rosnode_->subscribe(zoom_so);
 
   ros::SubscribeOptions rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
         "set_update_rate",1,
-        boost::bind( &GazeboRosCameraUtils::SetUpdateRate,this,_1),
+        boost::bind( &GazeboRosMultiCameraUtils::SetUpdateRate,this,_1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
 
@@ -286,21 +292,21 @@ void GazeboRosCameraUtils::LoadThread()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Horizontal Field of View
-void GazeboRosCameraUtils::SetHFOV(const std_msgs::Float64::ConstPtr& hfov)
+void GazeboRosMultiCameraUtils::SetHFOV(const std_msgs::Float64::ConstPtr& hfov)
 {
   this->camera_->SetHFOV(hfov->data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Update Rate
-void GazeboRosCameraUtils::SetUpdateRate(const std_msgs::Float64::ConstPtr& update_rate)
+void GazeboRosMultiCameraUtils::SetUpdateRate(const std_msgs::Float64::ConstPtr& update_rate)
 {
   this->parentSensor_->SetUpdateRate(update_rate->data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Increment count
-void GazeboRosCameraUtils::ImageConnect()
+void GazeboRosMultiCameraUtils::ImageConnect()
 {
   this->image_connect_count_++;
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
@@ -308,7 +314,7 @@ void GazeboRosCameraUtils::ImageConnect()
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Decrement count
-void GazeboRosCameraUtils::ImageDisconnect()
+void GazeboRosMultiCameraUtils::ImageDisconnect()
 {
   this->image_connect_count_--;
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
@@ -318,7 +324,7 @@ void GazeboRosCameraUtils::ImageDisconnect()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Initialize the controller
-void GazeboRosCameraUtils::Init()
+void GazeboRosMultiCameraUtils::Init()
 {
   // set parent sensor update rate
   this->parentSensor_->SetUpdateRate(this->update_rate_);
@@ -408,39 +414,43 @@ void GazeboRosCameraUtils::Init()
 
 
   // start custom queue for camera_
-  this->callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosCameraUtils::CameraQueueThread,this ) );
+  this->callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosMultiCameraUtils::CameraQueueThread,this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Put camera_ data to the interface
-void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src, common::Time &last_update_time)
+void GazeboRosMultiCameraUtils::PutCameraData(const unsigned char *_src, common::Time &last_update_time)
 {
   this->sensor_update_time_ = last_update_time;
   this->PutCameraData(_src);
 }
 
-void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
+void GazeboRosMultiCameraUtils::PutCameraData(const unsigned char *_src)
 {
   boost::mutex::scoped_lock lock(this->lock_);
 
-  // copy data into image
-  this->image_msg_.header.frame_id = this->frame_name_;
-  this->image_msg_.header.stamp.sec = this->sensor_update_time_.sec;
-  this->image_msg_.header.stamp.nsec = this->sensor_update_time_.nsec;
-
-  /// don't bother if there are no subscribers
-  if (this->image_connect_count_ > 0)
+  for (std::vector<rendering::CameraPtr>::iterator
+    ci = this->camera_.begin(); ci != this->camera_.end(); ++ci)
   {
-    // copy from src to image_msg_
-    fillImage(this->image_msg_,
-        this->type_,
-        this->height_,
-        this->width_,
-        this->skip_*this->width_,
-        (void*)_src );
+    // copy data into image
+    this->image_msg_.header.frame_id = this->frame_name_;
+    this->image_msg_.header.stamp.sec = this->sensor_update_time_.sec;
+    this->image_msg_.header.stamp.nsec = this->sensor_update_time_.nsec;
 
-    // publish to ros
-    this->image_pub_.publish(this->image_msg_);
+    /// don't bother if there are no subscribers
+    if (this->image_connect_count_ > 0)
+    {
+      // copy from src to image_msg_
+      fillImage(this->image_msg_,
+          this->type_,
+          this->height_,
+          this->width_,
+          this->skip_*this->width_,
+          (void*)_src );
+
+      // publish to ros
+      this->image_pub_.publish(this->image_msg_);
+    }
   }
 }
 
@@ -448,13 +458,13 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Put camera_ data to the interface
-void GazeboRosCameraUtils::PublishCameraInfo(common::Time &last_update_time)
+void GazeboRosMultiCameraUtils::PublishCameraInfo(common::Time &last_update_time)
 {
   this->sensor_update_time_ = last_update_time;
   this->PublishCameraInfo();
 }
 
-void GazeboRosCameraUtils::PublishCameraInfo()
+void GazeboRosMultiCameraUtils::PublishCameraInfo()
 {
   if (this->camera_info_pub_.getNumSubscribers() > 0)
   {
@@ -468,7 +478,7 @@ void GazeboRosCameraUtils::PublishCameraInfo()
   }
 }
 
-void GazeboRosCameraUtils::PublishCameraInfo(ros::Publisher camera_info_publisher)
+void GazeboRosMultiCameraUtils::PublishCameraInfo(ros::Publisher camera_info_publisher)
 {
   sensor_msgs::CameraInfo camera_info_msg;
   // fill CameraInfo
@@ -528,7 +538,7 @@ void GazeboRosCameraUtils::PublishCameraInfo(ros::Publisher camera_info_publishe
 
 ////////////////////////////////////////////////////////////////////////////////
 // Put camera_ data to the interface
-void GazeboRosCameraUtils::CameraQueueThread()
+void GazeboRosMultiCameraUtils::CameraQueueThread()
 {
   static const double timeout = 0.001;
 

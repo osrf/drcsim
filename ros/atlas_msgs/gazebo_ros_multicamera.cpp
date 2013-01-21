@@ -19,18 +19,18 @@
  */
 /*
  @mainpage
-   Desc: GazeboRosCamera plugin for simulating cameras in Gazebo
+   Desc: GazeboRosMultiCamera plugin for simulating cameras in Gazebo
    Author: John Hsu
    Date: 24 Sept 2008
    SVN info: $Id$
  @htmlinclude manifest.html
- @b GazeboRosCamera plugin broadcasts ROS Image messages
+ @b GazeboRosMultiCamera plugin broadcasts ROS Image messages
  */
 
-#include "gazebo_ros_camera.h"
+#include "gazebo_ros_multicamera.h"
 
 #include "sensors/Sensor.hh"
-#include "sensors/CameraSensor.hh"
+#include "sensors/MultiCameraSensor.hh"
 #include "sensors/SensorTypes.hh"
 
 namespace gazebo
@@ -38,58 +38,93 @@ namespace gazebo
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-GazeboRosCamera::GazeboRosCamera()
+GazeboRosMultiCamera::GazeboRosMultiCamera()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
-GazeboRosCamera::~GazeboRosCamera()
+GazeboRosMultiCamera::~GazeboRosMultiCamera()
 {
 }
 
-void GazeboRosCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 {
-  CameraPlugin::Load(_parent, _sdf);
+  MultiCameraPlugin::Load(_parent, _sdf);
   // copying from CameraPlugin into GazeboRosCameraUtils
-  this->parentSensor_ = this->parentSensor;
-  this->width_ = this->width;
-  this->height_ = this->height;
-  this->depth_ = this->depth;
-  this->format_ = this->format;
-  this->camera_ = this->camera;
-  GazeboRosCameraUtils::Load(_parent, _sdf);
+  for (unsigned i = 0; i < this->camera.size(); ++i)
+  {
+    GazeboRosCameraUtils* util = new GazeboRosCameraUtils();
+    util->parentSensor_ = this->parentSensor;
+    util->width_   = this->width[i];
+    util->height_  = this->height[i];
+    util->depth_   = this->depth[i];
+    util->format_  = this->format[i];
+    util->camera_  = this->camera[i];
+    util->Load(_parent, _sdf);
+    this->utils.push_back(util);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-void GazeboRosCamera::OnNewFrame(const unsigned char *_image, 
+void GazeboRosMultiCamera::OnNewFrame0(const unsigned char *_image, 
     unsigned int _width, unsigned int _height, unsigned int _depth, 
     const std::string &_format)
 {
-  this->sensor_update_time_ = this->parentSensor_->GetLastUpdateTime();
+  GazeboRosCameraUtils* util = this->utils[0];
+  util->sensor_update_time_ = util->parentSensor_->GetLastUpdateTime();
 
-  if (!this->parentSensor->IsActive())
+  if (!util->parentSensor_->IsActive())
   {
-    if (this->image_connect_count_ > 0)
-      // do this first so there's chance for sensor to run 1 frame after activate
-      this->parentSensor->SetActive(true);
+    if (util->image_connect_count_ > 0)
+      // activate first so there's chance for sensor to run 1 frame after activate
+      util->parentSensor_->SetActive(true);
   }
   else
   {
-    if (this->image_connect_count_ > 0)
+    if (util->image_connect_count_ > 0)
     {
-      common::Time cur_time = this->world_->GetSimTime();
-      if (cur_time - this->last_update_time_ >= this->update_period_)
+      common::Time cur_time = util->world_->GetSimTime();
+      if (cur_time - util->last_update_time_ >= util->update_period_)
       {
-        this->PutCameraData(_image);
-        this->last_update_time_ = cur_time;
+        util->PutCameraData(_image);
+        util->last_update_time_ = cur_time;
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Update the controller
+void GazeboRosMultiCamera::OnNewFrame1(const unsigned char *_image, 
+    unsigned int _width, unsigned int _height, unsigned int _depth, 
+    const std::string &_format)
+{
+  GazeboRosCameraUtils* util = this->utils[1];
+  util->sensor_update_time_ = util->parentSensor_->GetLastUpdateTime();
+
+  if (!util->parentSensor_->IsActive())
+  {
+    if (util->image_connect_count_ > 0)
+      // activate first so there's chance for sensor to run 1 frame after activate
+      util->parentSensor_->SetActive(true);
+  }
+  else
+  {
+    if (util->image_connect_count_ > 0)
+    {
+      common::Time cur_time = util->world_->GetSimTime();
+      if (cur_time - util->last_update_time_ >= util->update_period_)
+      {
+        util->PutCameraData(_image);
+        util->last_update_time_ = cur_time;
       }
     }
   }
 }
 
 // Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosCamera)
+GZ_REGISTER_SENSOR_PLUGIN(GazeboRosMultiCamera)
 
 }
