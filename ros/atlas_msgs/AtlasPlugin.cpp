@@ -57,12 +57,7 @@ AtlasPlugin::~AtlasPlugin()
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "Loading AtlasPlugin\n";
   this->model = _parent;
 
   // Get the world name.
@@ -113,6 +108,8 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointCommands.ki_position.resize(this->joints.size());
   this->jointCommands.kd_position.resize(this->joints.size());
   this->jointCommands.kp_velocity.resize(this->joints.size());
+  this->jointCommands.i_effort_min.resize(this->joints.size());
+  this->jointCommands.i_effort_max.resize(this->joints.size());
 
   this->jointStates.name.resize(this->joints.size());
   this->jointStates.position.resize(this->joints.size());
@@ -191,9 +188,16 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// Set Joint Commands
+void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void AtlasPlugin::DeferredLoad()
 {
+  gzerr << "Deferred Loading AtlasPlugin\n";
   // initialize ros
   if (!ros::isInitialized())
   {

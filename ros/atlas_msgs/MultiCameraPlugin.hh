@@ -35,10 +35,10 @@ namespace gazebo
 
     public: virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf);
 
-    public: virtual void OnNewFrame0(const unsigned char *_image,
+    public: virtual void OnNewFrameLeft(const unsigned char *_image,
                               unsigned int _width, unsigned int _height,
                               unsigned int _depth, const std::string &_format);
-    public: virtual void OnNewFrame1(const unsigned char *_image,
+    public: virtual void OnNewFrameRight(const unsigned char *_image,
                               unsigned int _width, unsigned int _height,
                               unsigned int _depth, const std::string &_format);
 

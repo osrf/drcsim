@@ -218,8 +218,8 @@
         <cameraName>multisense_sl</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <leftFrameName>left_camera_optical_frame</leftFrameName>
-        <rightFrameName>right_camera_optical_frame</rightFrameName>
+        <frameName>left_camera_optical_frame</frameName>
+        <!--<rightFrameName>right_camera_optical_frame</rightFrameName>-->
         <hackBaseline>0.0</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>

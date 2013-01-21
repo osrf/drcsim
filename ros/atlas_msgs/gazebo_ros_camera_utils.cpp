@@ -98,16 +98,6 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   // save pointers
   this->sdf = _sdf;
 
-  // ros callback queue for processing subscription
-  this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosCameraUtils::LoadThread,this ) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Load the controller
-void GazeboRosCameraUtils::LoadThread()
-{
-
   // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
   this->world = this->world_;
 
@@ -132,6 +122,8 @@ void GazeboRosCameraUtils::LoadThread()
     ROS_INFO("Camera plugin missing <frameName>, defaults to /world");
   else
     this->frame_name_ = this->sdf->GetValueString("frameName");
+
+  gzerr << this->frame_name_ << "\n";
 
   if (!this->sdf->HasElement("updateRate"))
   {
@@ -228,6 +220,15 @@ void GazeboRosCameraUtils::LoadThread()
     ROS_WARN("gazebo_ros_camera_ simulation does not support non-zero distortion parameters right now, your simulation maybe wrong.");
   }
 
+  // ros callback queue for processing subscription
+  this->deferred_load_thread_ = boost::thread(
+    boost::bind( &GazeboRosCameraUtils::LoadThread,this ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosCameraUtils::LoadThread()
+{
   // Exit if no ROS
   if (!ros::isInitialized())
   {

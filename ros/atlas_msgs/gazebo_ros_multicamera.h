@@ -50,10 +50,10 @@ namespace gazebo
 
     /// \brief Update the controller
     /// FIXME: switch to function vectors
-    protected: virtual void OnNewFrame0(const unsigned char *_image, 
+    protected: virtual void OnNewFrameLeft(const unsigned char *_image, 
                    unsigned int _width, unsigned int _height, 
                    unsigned int _depth, const std::string &_format);
-    protected: virtual void OnNewFrame1(const unsigned char *_image, 
+    protected: virtual void OnNewFrameRight(const unsigned char *_image, 
                    unsigned int _width, unsigned int _height, 
                    unsigned int _depth, const std::string &_format);
 

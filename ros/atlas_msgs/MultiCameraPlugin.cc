@@ -68,22 +68,27 @@ void MultiCameraPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*
     this->format.push_back(this->camera[i]->GetImageFormat());
 
     // debug
-    // gzerr << "cmaera " << i < " naem " << this->parentSensor->GetCamera(i)->GetName() << "\n";
+    std::string cameraName = this->parentSensor->GetCamera(i)->GetName();
+    gzdbg << "cmaera(" << i << ") name [" << cameraName << "]\n";
 
-    // hardcoded 2 camera support only
-    if (i == 0)
+    // FIXME: hardcoded 2 camera support only
+    if (cameraName.find("left") != std::string::npos)
+    {
       this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
-        boost::bind(&MultiCameraPlugin::OnNewFrame0, this, _1, _2, _3, _4, _5)));
-    else if (i == 1)
+        boost::bind(&MultiCameraPlugin::OnNewFrameLeft, this, _1, _2, _3, _4, _5)));
+    }
+    else if (cameraName.find("right") != std::string::npos)
+    {
       this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
-        boost::bind(&MultiCameraPlugin::OnNewFrame1, this, _1, _2, _3, _4, _5)));
+        boost::bind(&MultiCameraPlugin::OnNewFrameRight, this, _1, _2, _3, _4, _5)));
+    }
   }
 
   this->parentSensor->SetActive(true);
 }
 
 /////////////////////////////////////////////////
-void MultiCameraPlugin::OnNewFrame0(const unsigned char * /*_image*/,
+void MultiCameraPlugin::OnNewFrameLeft(const unsigned char * /*_image*/,
                               unsigned int /*_width*/,
                               unsigned int /*_height*/,
                               unsigned int /*_depth*/,
@@ -96,7 +101,7 @@ void MultiCameraPlugin::OnNewFrame0(const unsigned char * /*_image*/,
 }
 
 /////////////////////////////////////////////////
-void MultiCameraPlugin::OnNewFrame1(const unsigned char * /*_image*/,
+void MultiCameraPlugin::OnNewFrameRight(const unsigned char * /*_image*/,
                               unsigned int /*_width*/,
                               unsigned int /*_height*/,
                               unsigned int /*_depth*/,

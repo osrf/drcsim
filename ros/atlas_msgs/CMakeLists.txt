@@ -40,6 +40,7 @@ rosbuild_add_library(gazebo_ros_camera gazebo_ros_camera.cpp)
 target_link_libraries(gazebo_ros_camera gazebo_ros_camera_utils CameraPlugin)
 
 rosbuild_add_library(MultiCameraPlugin MultiCameraPlugin.cc)
+target_link_libraries(MultiCameraPlugin gazebo_sensors gazebo_rendering)
 #rosbuild_add_library(gazebo_ros_multicamera_utils gazebo_ros_multicamera_utils.cpp)
 #target_link_libraries(gazebo_ros_multicamera_utils CameraPlugin)
 rosbuild_add_library(gazebo_ros_multicamera gazebo_ros_multicamera.cpp)
