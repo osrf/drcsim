@@ -1,4 +1,3 @@
-add_subdirectory(multisense_sl)
 set (files
   manifest.xml
 )

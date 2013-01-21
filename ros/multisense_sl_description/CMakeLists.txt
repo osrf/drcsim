@@ -9,3 +9,4 @@ install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}
 add_subdirectory(robots)
 add_subdirectory(urdf)
 add_subdirectory(gazebo)
+add_subdirectory(meshes)
