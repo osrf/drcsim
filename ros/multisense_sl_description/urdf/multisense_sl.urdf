@@ -196,7 +196,7 @@
         </clip>
       </camera>
       <camera name="right">
-        <pose>0 -0.07 0 0 0 0</pose>
+        <pose>1 -1.07 0 0 0 0</pose>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
         <!-- robot also capable of 1024 x 544 resolution -->
