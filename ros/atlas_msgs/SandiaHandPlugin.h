@@ -18,11 +18,12 @@
  *
  */
 /*
- * Desc: Plugin for controlling Sandia Hand model in gazebo
+ * Desc: Plugin for the SandiaHand
  * Author: John Hsu
+ * Date: December 2012
  */
-#ifndef __SANDIA_HAND_PLUGIN_HH_
-#define __SANDIA_HAND_PLUGIN_HH_
+#ifndef GAZEBO_SANDIA_HAND_PLUGIN_HH
+#define GAZEBO_SANDIA_HAND_PLUGIN_HH
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -31,96 +32,104 @@
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Wrench.h>
 #include <std_msgs/String.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/Bool.h>
-
-#include "std_srvs/Empty.h"
-
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
-#include "gazebo/common/Time.hh"
-#include "transport/TransportTypes.hh"
-#include "gazebo/physics/physics.hh"
-
-#include "gazebo/sensors/SensorManager.hh"
-#include "gazebo/sensors/CameraSensor.hh"
-#include "gazebo/sensors/RaySensor.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/sensors/Sensor.hh"
 
 #include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
+
+#include "gazebo/math/Vector3.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/physics/PhysicsTypes.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
+#include "gazebo/common/PID.hh"
+#include "gazebo/sensors/SensorManager.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+#include "gazebo/sensors/ContactSensor.hh"
+#include "gazebo/sensors/Sensor.hh"
+
+#include "boost/thread/mutex.hpp"
+
+#include "osrf_msgs/JointCommands.h"
+#include "sensor_msgs/JointState.h"
 
 namespace gazebo
 {
-
   class SandiaHandPlugin : public ModelPlugin
   {
     /// \brief Constructor
-    /// \param parent The parent entity, must be a Model
     public: SandiaHandPlugin();
 
     /// \brief Destructor
-    public: ~SandiaHandPlugin();
+    public: virtual ~SandiaHandPlugin();
 
-    /// \brief Load the plugin
-    /// \param[in] _parent pointer to parent Model
-    /// \param[in] _sdf SDF root element corresponds to the plugin XML block
+    /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \brief Update the controller periodically via Events.
-    protected: virtual void UpdateStates();
+    /// \brief Update the controller
+    private: void UpdateStates();
 
-    /// \brief Pointer to the update event connection
+    /// \brief ROS callback queue thread
+    private: void RosQueueThread();
+
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void DeferredLoad();
+
+    private: physics::WorldPtr world;
+    private: physics::ModelPtr model;
+
+    /// Pointer to the update event connections
     private: event::ConnectionPtr updateConnection;
 
-    /// \brief Thread for loading and initializing ROS
-    private: void LoadThread();
-    private: boost::thread deferred_load_thread_;
-
-    // reset of ros stuff
-    private: ros::NodeHandle* rosnode_;
-    private: ros::CallbackQueue queue_;
-    private: void QueueThread();
-    private: boost::thread callback_queue_thread_;
-
-    // ros topics publisher
-    private: ros::Publisher pub_status_;
-
-    // ros topic subscriber
-    private: ros::Subscriber set_left_camera_frame_rate_sub_;
-    private: void SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
-                                         &_msg);
-
-    private: ros::Subscriber set_right_camera_frame_rate_sub_;
-    private: void SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
-                                          &_msg);
-
-    // ros services
-
-    // gazebo variables
-    private: physics::WorldPtr world;
-    private: physics::ModelPtr atlasModel;
-    private: sdf::ElementPtr sdf;
-    private: common::Time lastTime;
-
-    // camera control
-    private: sensors::CameraSensorPtr leftCameraSensor;
-    private: sensors::CameraSensorPtr rightCameraSensor;
-    private: double leftCameraFrameRate;
-    private: double rightCameraFrameRate;
-
-    // laser sensor control
-    private: sensors::RaySensorPtr laserSensor;
-
     /// Throttle update rate
-    private: double lastUpdateTime;
+    private: double lastStatusTime;
     private: double updateRate;
 
-  };
+    // IMU sensor
+    private: std::string imuLinkName;
+    private: physics::LinkPtr imuLink;
+    private: common::Time lastImuTime;
+    private: math::Pose imuReferencePose;
+    private: math::Vector3 imuLastLinearVel;
+    private: ros::Publisher pubImu;
 
+    // deferred loading in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: boost::thread deferredLoadThread;
+
+    // ROS stuff
+    private: ros::NodeHandle* rosNode;
+    private: ros::CallbackQueue rosQueue;
+    private: boost::thread callbackQueeuThread;
+    private: ros::Publisher pubStatus;
+    private: ros::Publisher pubJointStates;
+
+    private: ros::Subscriber subJointCommands;
+    private: void SetJointCommands(
+      const osrf_msgs::JointCommands::ConstPtr &_msg);
+
+    private: physics::Joint_V joints;
+    private: class ErrorTerms
+      {
+        double q_p;
+        double d_q_p_dt;
+        double q_i;
+        double qd_p;
+        friend class SandiaHandPlugin;
+      };
+    private: std::vector<ErrorTerms> errorTerms;
+
+    private: osrf_msgs::JointCommands jointCommands;
+    private: sensor_msgs::JointState jointStates;
+
+    // Controls stuff
+    private: common::Time lastControllerUpdateTime;
+  };
+/** \} */
+/// @}
 }
 #endif
-
