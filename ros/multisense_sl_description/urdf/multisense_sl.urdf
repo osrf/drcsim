@@ -322,5 +322,9 @@
     </sensor>
   </gazebo>
 
+  <gazebo>
+    <plugin filename="libMultiSenseSLPlugin.so" name="multisense_plugin"/>
+  </gazebo>
+
 </robot>
 

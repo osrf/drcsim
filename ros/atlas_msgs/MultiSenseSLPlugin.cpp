@@ -45,12 +45,9 @@ MultiSenseSL::MultiSenseSL()
   this->spindleSpeed = 0;
   this->spindleMaxRPM = 50.0;
   this->spindleMinRPM = 0;
-  this->leftCameraFrameRate = 25.0;
-  this->rightCameraFrameRate = 25.0;
-  this->leftCameraExposureTime = 0.001;
-  this->rightCameraExposureTime = 0.001;
-  this->leftCameraGain = 1.0;
-  this->rightCameraGain = 1.0;
+  this->multiCameraFrameRate = 25.0;
+  this->multiCameraExposureTime = 0.001;
+  this->multiCameraGain = 1.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,17 +91,11 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   //                                  siter != s.end(); ++siter)
   //   gzerr << (*siter)->GetName() << "\n";
 
-  this->leftCameraSensor =
-    boost::shared_dynamic_cast<sensors::CameraSensor>(
-    sensors::SensorManager::Instance()->GetSensor("left_camera_sensor"));
-  if (!this->leftCameraSensor)
-    gzerr << "left camera sensor not found\n";
-
-  this->rightCameraSensor =
-    boost::shared_dynamic_cast<sensors::CameraSensor>(
-    sensors::SensorManager::Instance()->GetSensor("right_camera_sensor"));
-  if (!this->rightCameraSensor)
-    gzerr << "right camera sensor not found\n";
+  this->multiCameraSensor =
+    boost::shared_dynamic_cast<sensors::MultiCameraSensor>(
+    sensors::SensorManager::Instance()->GetSensor("stereo_camera"));
+  if (!this->multiCameraSensor)
+    gzerr << "multicamera sensor not found\n";
 
   this->laserSensor =
     boost::shared_dynamic_cast<sensors::RaySensor>(
@@ -155,65 +146,35 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_state_sub_ =
     this->rosnode_->subscribe(set_spindle_state_so);
 
-  ros::SubscribeOptions set_left_camera_frame_rate_so =
+  ros::SubscribeOptions set_multi_camera_frame_rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/left/set_camera_frame_rate", 100,
+    "multisense_sl/set_camera_frame_rate", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetLeftCameraFrameRate),this,_1),
+        &MultiSenseSL::SetMultiCameraFrameRate),this,_1),
     ros::VoidPtr(), &this->queue_);
-  this->set_left_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_left_camera_frame_rate_so);
+  this->set_multi_camera_frame_rate_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
 
-  ros::SubscribeOptions set_right_camera_frame_rate_so =
+  ros::SubscribeOptions set_multi_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/right/set_camera_frame_rate", 100,
+    "multisense_sl/set_camera_exposure_time", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetRightCameraFrameRate),this,_1),
+        &MultiSenseSL::SetMultiCameraExposureTime),this,_1),
     ros::VoidPtr(), &this->queue_);
-  this->set_right_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_right_camera_frame_rate_so);
+  this->set_multi_camera_exposure_time_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_exposure_time_so);
 
-  ros::SubscribeOptions set_left_camera_exposure_time_so =
+  ros::SubscribeOptions set_multi_camera_gain_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/left/set_camera_exposure_time", 100,
+    "multisense_sl/set_camera_gain", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetLeftCameraExposureTime),this,_1),
+        &MultiSenseSL::SetMultiCameraGain),this,_1),
     ros::VoidPtr(), &this->queue_);
-  this->set_left_camera_exposure_time_sub_ =
-    this->rosnode_->subscribe(set_left_camera_exposure_time_so);
-
-  ros::SubscribeOptions set_right_camera_exposure_time_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/right/set_camera_exposure_time", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetRightCameraExposureTime),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_right_camera_exposure_time_sub_ =
-    this->rosnode_->subscribe(set_right_camera_exposure_time_so);
-
-  ros::SubscribeOptions set_left_camera_gain_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/left/set_camera_gain", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetLeftCameraGain),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_left_camera_gain_sub_ =
-    this->rosnode_->subscribe(set_left_camera_gain_so);
-
-  ros::SubscribeOptions set_right_camera_gain_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/right/set_camera_gain", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetRightCameraGain),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_right_camera_gain_sub_ =
-    this->rosnode_->subscribe(set_right_camera_gain_so);
+  this->set_multi_camera_gain_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_gain_so);
 
   /// \todo: waiting for gen_srv to be implemented (issue #37)
   /* Advertise services on the custom queue
@@ -327,50 +288,26 @@ void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MultiSenseSL::SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
+void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->leftCameraFrameRate = (double)_msg->data;
-  this->leftCameraSensor->SetUpdateRate(this->leftCameraFrameRate);
+  this->multiCameraFrameRate = (double)_msg->data;
+  this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MultiSenseSL::SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
-                                           &_msg)
-{
-  this->rightCameraFrameRate = (double)_msg->data;
-  this->rightCameraSensor->SetUpdateRate(this->rightCameraFrameRate);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void MultiSenseSL::SetLeftCameraExposureTime(const std_msgs::Float64::ConstPtr
+void MultiSenseSL::SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->leftCameraExposureTime = (double)_msg->data;
+  this->multiCameraExposureTime = (double)_msg->data;
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MultiSenseSL::SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
-                                           &_msg)
-{
-  this->rightCameraExposureTime = (double)_msg->data;
-  gzwarn << "setting camera exposure time in sim not implemented\n";
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void MultiSenseSL::SetLeftCameraGain(const std_msgs::Float64::ConstPtr
+void MultiSenseSL::SetMultiCameraGain(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->leftCameraGain = (double)_msg->data;
-  gzwarn << "setting camera gain in sim not implemented\n";
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void MultiSenseSL::SetRightCameraGain(const std_msgs::Float64::ConstPtr
-                                           &_msg)
-{
-  this->rightCameraGain = (double)_msg->data;
+  this->multiCameraGain = (double)_msg->data;
   gzwarn << "setting camera gain in sim not implemented\n";
 }
 }
