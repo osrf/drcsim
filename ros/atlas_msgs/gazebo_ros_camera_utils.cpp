@@ -1,48 +1,35 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- @mainpage
-   Desc: GazeboRosCameraUtils plugin for simulating camera_s in Gazebo
-   Author: John Hsu
-   Date: 24 Sept 2008
-   SVN info: $Id$
- @htmlinclude manifest.html
- @b GazeboRosCameraUtils plugin broadcasts ROS Image messages
- */
+*/
 
+#include <string>
 #include <algorithm>
 #include <assert.h>
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
-#include "gazebo_ros_camera_utils.h"
-
-#include "physics/World.hh"
-#include "physics/HingeJoint.hh"
-#include "sensors/Sensor.hh"
-#include "sdf/interface/SDF.hh"
-#include "sdf/interface/Param.hh"
-#include "common/Exception.hh"
-#include "sensors/CameraSensor.hh"
-#include "sensors/SensorTypes.hh"
-#include "rendering/Camera.hh"
+#include "gazebo/physics/World.hh"
+#include "gazebo/physics/HingeJoint.hh"
+#include "gazebo/sensors/Sensor.hh"
+#include "gazebo/sdf/interface/SDF.hh"
+#include "gazebo/sdf/interface/Param.hh"
+#include "gazebo/common/Exception.hh"
+#include "gazebo/sensors/CameraSensor.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+#include "gazebo/rendering/Camera.hh"
 
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/fill_image.h"
@@ -52,6 +39,8 @@
 #include <sensor_msgs/ChannelFloat32.h>
 
 #include "tf/tf.h"
+
+#include "gazebo_ros_camera_utils.h"
 
 namespace gazebo
 {
