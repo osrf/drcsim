@@ -196,7 +196,7 @@
         </clip>
       </camera>
       <camera name="right">
-        <pose>1 -1.07 0 0 0 0</pose>
+        <pose>0 -0.07 0 0 0 0</pose>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
         <!-- robot also capable of 1024 x 544 resolution -->
@@ -220,7 +220,7 @@
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>left_camera_optical_frame</frameName>
         <!--<rightFrameName>right_camera_optical_frame</rightFrameName>-->
-        <hackBaseline>0.0</hackBaseline>
+        <hackBaseline>0.07</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
         <distortionK3>0.0</distortionK3>

@@ -67,12 +67,18 @@ void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
       util->camera_name_ = util->camera_name_ + "/left";
       // if (_sdf->HasElement("leftFrameName"))
       //   util->frame_name_ = _sdf->GetValueString("leftFrameName");
+      // FIXME: hardcoded, left hack_baseline_ 0
+      util->hack_baseline_ = 0.0;
     }
     else if (this->camera[i]->GetName().find("right") != std::string::npos)
     {
       util->camera_name_ = util->camera_name_ + "/right";
       // if (_sdf->HasElement("rightFrameName"))
       //   util->frame_name_ = _sdf->GetValueString("rightFrameName");
+
+      // FIXME: hardcoded, right hack_baseline_ from sdf
+      if (_sdf->HasElement("hackBaseline"))
+        util->hack_baseline_ = _sdf->GetValueDouble("hackBaseline");
     }
     this->utils.push_back(util);
   }
