@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <database>
-  <name>multisense_sl</name>
+  <name>multisense_sl_description</name>
   <license>Creative Commons Attribution 3.0 Unported</license>
   <models>
-    <uri>file://multisense_sl</uri>
+    <uri>file://multisense_sl_description</uri>
   </models>
 </database>

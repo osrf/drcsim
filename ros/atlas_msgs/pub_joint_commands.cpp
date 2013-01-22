@@ -74,10 +74,10 @@ int main(int argc, char** argv)
     double x1 = -0.5*sin(2*theta);
     double x2 =  0.5*sin(1*theta);
 
-    jc.position[i]     = 1;
+    jc.position[i]     = ros::Time::now().toSec();
     jc.velocity[i]     = 0;
     jc.effort[i]       = 0;
-    jc.kp_position[i]  = 1;
+    jc.kp_position[i]  = 10;
     jc.ki_position[i]  = 0;
     jc.kd_position[i]  = 0;
     jc.kp_velocity[i]  = 0;

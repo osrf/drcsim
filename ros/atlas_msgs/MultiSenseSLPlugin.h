@@ -45,7 +45,7 @@
 #include "gazebo/physics/physics.hh"
 
 #include "gazebo/sensors/SensorManager.hh"
-#include "gazebo/sensors/CameraSensor.hh"
+#include "gazebo/sensors/MultiCameraSensor.hh"
 #include "gazebo/sensors/RaySensor.hh"
 #include "gazebo/sensors/SensorTypes.hh"
 #include "gazebo/sensors/Sensor.hh"
@@ -96,29 +96,17 @@ namespace gazebo
     private: ros::Subscriber set_spindle_state_sub_;
     private: void SetSpindleState(const std_msgs::Bool::ConstPtr &_msg);
 
-    private: ros::Subscriber set_left_camera_frame_rate_sub_;
-    private: void SetLeftCameraFrameRate(const std_msgs::Float64::ConstPtr
+    private: ros::Subscriber set_multi_camera_frame_rate_sub_;
+    private: void SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                          &_msg);
 
-    private: ros::Subscriber set_right_camera_frame_rate_sub_;
-    private: void SetRightCameraFrameRate(const std_msgs::Float64::ConstPtr
-                                          &_msg);
-
-    private: ros::Subscriber set_left_camera_exposure_time_sub_;
-    private: void SetLeftCameraExposureTime(const std_msgs::Float64::ConstPtr
+    private: ros::Subscriber set_multi_camera_exposure_time_sub_;
+    private: void SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
                                             &_msg);
 
-    private: ros::Subscriber set_right_camera_exposure_time_sub_;
-    private: void SetRightCameraExposureTime(const std_msgs::Float64::ConstPtr
-                                             &_msg);
-
-    private: ros::Subscriber set_left_camera_gain_sub_;
-    private: void SetLeftCameraGain(const std_msgs::Float64::ConstPtr
+    private: ros::Subscriber set_multi_camera_gain_sub_;
+    private: void SetMultiCameraGain(const std_msgs::Float64::ConstPtr
                                     &_msg);
-
-    private: ros::Subscriber set_right_camera_gain_sub_;
-    private: void SetRightCameraGain(const std_msgs::Float64::ConstPtr
-                                     &_msg);
 
     // ros services
     private: ros::ServiceServer set_spindle_state_service_;
@@ -136,14 +124,10 @@ namespace gazebo
     private: common::Time lastTime;
 
     // camera control
-    private: sensors::CameraSensorPtr leftCameraSensor;
-    private: sensors::CameraSensorPtr rightCameraSensor;
-    private: double leftCameraFrameRate;
-    private: double rightCameraFrameRate;
-    private: double leftCameraExposureTime;
-    private: double rightCameraExposureTime;
-    private: double leftCameraGain;
-    private: double rightCameraGain;
+    private: boost::shared_ptr<sensors::MultiCameraSensor> multiCameraSensor;
+    private: double multiCameraFrameRate;
+    private: double multiCameraExposureTime;
+    private: double multiCameraGain;
 
     // laser sensor control
     private: sensors::RaySensorPtr laserSensor;

@@ -57,12 +57,7 @@ AtlasPlugin::~AtlasPlugin()
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
-  gzerr << "\n\n\n\n\n\n\n\n-------------------\n\n\n";
+  gzerr << "Loading AtlasPlugin\n";
   this->model = _parent;
 
   // Get the world name.
@@ -103,7 +98,21 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->joints.push_back(model->GetJoint("r_arm_uwy")); 
   this->joints.push_back(model->GetJoint("r_arm_mwx")); 
 
+  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    if (!this->joints[i])
+    {
+      ROS_INFO("atlas robot expected joint[%d] not present, plugin not loaded",i);
+      return;
+    }
+  }
+
   this->errorTerms.resize(this->joints.size());
+
+  this->jointStates.name.resize(this->joints.size());
+  this->jointStates.position.resize(this->joints.size());
+  this->jointStates.velocity.resize(this->joints.size());
+  this->jointStates.effort.resize(this->joints.size());
 
   this->jointCommands.name.resize(this->joints.size());
   this->jointCommands.position.resize(this->joints.size());
@@ -113,11 +122,8 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointCommands.ki_position.resize(this->joints.size());
   this->jointCommands.kd_position.resize(this->joints.size());
   this->jointCommands.kp_velocity.resize(this->joints.size());
-
-  this->jointStates.name.resize(this->joints.size());
-  this->jointStates.position.resize(this->joints.size());
-  this->jointStates.velocity.resize(this->joints.size());
-  this->jointStates.effort.resize(this->joints.size());
+  this->jointCommands.i_effort_min.resize(this->joints.size());
+  this->jointCommands.i_effort_max.resize(this->joints.size());
 
   for(unsigned i = 0; i < this->joints.size(); ++i)
   {
@@ -191,9 +197,46 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// Set Joint Commands
+void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
+{
+  if (_msg->name.size() == this->jointCommands.name.size() &&
+      _msg->position.size() == this->jointCommands.position.size() &&
+      _msg->velocity.size() == this->jointCommands.velocity.size() &&
+      _msg->effort.size() == this->jointCommands.effort.size() &&
+      _msg->kp_position.size() == this->jointCommands.kp_position.size() &&
+      _msg->ki_position.size() == this->jointCommands.ki_position.size() &&
+      _msg->kd_position.size() == this->jointCommands.kd_position.size() &&
+      _msg->kp_velocity.size() == this->jointCommands.kp_velocity.size() &&
+      _msg->i_effort_min.size() == this->jointCommands.i_effort_min.size() &&
+      _msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+  {
+    /// \todo: make this smarter and skip messages if not specified
+    for(unsigned i = 0; i < this->joints.size(); ++i)
+    {
+      this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+      this->jointCommands.position[i] = _msg->position[i];
+      this->jointCommands.velocity[i] = _msg->velocity[i];
+      this->jointCommands.effort[i] = _msg->effort[i];
+      this->jointCommands.kp_position[i] = _msg->kp_position[i];
+      this->jointCommands.ki_position[i] = _msg->ki_position[i];
+      this->jointCommands.kd_position[i] = _msg->kd_position[i];
+      this->jointCommands.kp_velocity[i] = _msg->kp_velocity[i];
+      this->jointCommands.i_effort_min[i] = _msg->i_effort_min[i];
+      this->jointCommands.i_effort_max[i] = _msg->i_effort_max[i];
+    }
+  }
+  else
+  {
+    ROS_DEBUG("joint commands message contains different number of joints than expected");
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void AtlasPlugin::DeferredLoad()
 {
+  gzerr << "Deferred Loading AtlasPlugin\n";
   // initialize ros
   if (!ros::isInitialized())
   {
