@@ -55,7 +55,6 @@
 
 namespace gazebo
 {
-
   class GazeboRosMultiCamera;
   class GazeboRosCameraUtils
   {
@@ -175,7 +174,7 @@ namespace gazebo
 
     protected: common::Time sensor_update_time_;
 
-    // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
+    // maintain for one more release for backwards compatibility
     protected: physics::WorldPtr world;
 
     // deferred load in case ros is blocking

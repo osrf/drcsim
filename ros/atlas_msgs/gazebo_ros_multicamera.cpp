@@ -15,14 +15,19 @@
  *
 */
 
-#include "gazebo_ros_multicamera.h"
+#include <string>
 
 #include "sensors/Sensor.hh"
 #include "sensors/MultiCameraSensor.hh"
 #include "sensors/SensorTypes.hh"
 
+#include "gazebo_ros_multicamera.h"
+
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_SENSOR_PLUGIN(GazeboRosMultiCamera)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 GazeboRosMultiCamera::GazeboRosMultiCamera()
@@ -35,7 +40,8 @@ GazeboRosMultiCamera::~GazeboRosMultiCamera()
 {
 }
 
-void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent,
+  sdf::ElementPtr _sdf)
 {
   MultiCameraPlugin::Load(_parent, _sdf);
   // copying from CameraPlugin into GazeboRosCameraUtils
@@ -73,8 +79,8 @@ void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-void GazeboRosMultiCamera::OnNewFrameLeft(const unsigned char *_image, 
-    unsigned int _width, unsigned int _height, unsigned int _depth, 
+void GazeboRosMultiCamera::OnNewFrameLeft(const unsigned char *_image,
+    unsigned int _width, unsigned int _height, unsigned int _depth,
     const std::string &_format)
 {
   GazeboRosCameraUtils* util = this->utils[0];
@@ -83,7 +89,8 @@ void GazeboRosMultiCamera::OnNewFrameLeft(const unsigned char *_image,
   if (!util->parentSensor_->IsActive())
   {
     if (util->image_connect_count_ > 0)
-      // activate first so there's chance for sensor to run 1 frame after activate
+      // activate first so there's chance for sensor to run 1 frame
+      // after activation
       util->parentSensor_->SetActive(true);
   }
   else
@@ -102,8 +109,8 @@ void GazeboRosMultiCamera::OnNewFrameLeft(const unsigned char *_image,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-void GazeboRosMultiCamera::OnNewFrameRight(const unsigned char *_image, 
-    unsigned int _width, unsigned int _height, unsigned int _depth, 
+void GazeboRosMultiCamera::OnNewFrameRight(const unsigned char *_image,
+    unsigned int _width, unsigned int _height, unsigned int _depth,
     const std::string &_format)
 {
   GazeboRosCameraUtils* util = this->utils[1];
@@ -112,7 +119,8 @@ void GazeboRosMultiCamera::OnNewFrameRight(const unsigned char *_image,
   if (!util->parentSensor_->IsActive())
   {
     if (util->image_connect_count_ > 0)
-      // activate first so there's chance for sensor to run 1 frame after activate
+      // activate first so there's chance for sensor to run 1 frame
+      // after activation
       util->parentSensor_->SetActive(true);
   }
   else
@@ -128,8 +136,4 @@ void GazeboRosMultiCamera::OnNewFrameRight(const unsigned char *_image,
     }
   }
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosMultiCamera)
-
 }

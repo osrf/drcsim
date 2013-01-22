@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 Open Source Robotics Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+*/
 #include <ros/ros.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
@@ -6,7 +22,6 @@
 
 int main(int argc, char** argv)
 {
-
   ros::init(argc, argv, "pub_joint_trajectory_test");
 
   ros::NodeHandle rosnode;
@@ -19,16 +34,17 @@ int main(int argc, char** argv)
       wait = false;
   }
 
-  ros::Publisher pub_ = rosnode.advertise<osrf_msgs::JointCommands>("/atlas/joint_commands",1, true);
+  ros::Publisher pub_ = rosnode.advertise<osrf_msgs::JointCommands>(
+    "/atlas/joint_commands", 1, true);
 
   osrf_msgs::JointCommands jc;
 
   jc.header.stamp = ros::Time::now();
 
-  jc.name.push_back("atlas::back_lbz" );
-  jc.name.push_back("atlas::back_mby" );
-  jc.name.push_back("atlas::back_ubx" );
-  jc.name.push_back("atlas::neck_ay"  );
+  jc.name.push_back("atlas::back_lbz");
+  jc.name.push_back("atlas::back_mby");
+  jc.name.push_back("atlas::back_ubx");
+  jc.name.push_back("atlas::neck_ay");
   jc.name.push_back("atlas::l_leg_uhz");
   jc.name.push_back("atlas::l_leg_mhx");
   jc.name.push_back("atlas::l_leg_lhy");
@@ -65,19 +81,12 @@ int main(int argc, char** argv)
   jc.i_effort_min.resize(n);
   jc.i_effort_max.resize(n);
 
-  double dt = 1.0;
-  double rps = 0.05;
-
   for (int i = 0; i < n; i++)
   {
-    double theta = rps*2.0*M_PI*i*dt;
-    double x1 = -0.5*sin(2*theta);
-    double x2 =  0.5*sin(1*theta);
-
     jc.position[i]     = ros::Time::now().toSec();
     jc.velocity[i]     = 0;
     jc.effort[i]       = 0;
-    jc.kp_position[i]  = 10;
+    jc.kp_position[i]  = 1;
     jc.ki_position[i]  = 0;
     jc.kd_position[i]  = 0;
     jc.kp_velocity[i]  = 0;
@@ -85,7 +94,7 @@ int main(int argc, char** argv)
     jc.i_effort_max[i] = 0;
   }
 
-  pub_.publish(jc); // use publisher
+  pub_.publish(jc);
   ros::spin();
 
   return 0;
