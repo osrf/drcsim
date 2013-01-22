@@ -549,7 +549,7 @@ void DRCVehiclePlugin::UpdateStates()
     // torque direction.
     double gasPercent = this->GetGasPedalPercent();
     double gasMultiplier = this->GetGasTorqueMultiplier();
-    double flGasTorque=0, frGasTorque=0, blGasTorque=0, brGasTorque=0;
+    double flGasTorque = 0, frGasTorque = 0, blGasTorque = 0, brGasTorque = 0;
     // Apply equal torque at left and right wheels, which is an implicit model
     // of the differential.
     if (abs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
