@@ -90,6 +90,15 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->joints.push_back(model->GetJoint("right_f3_j1" )); 
   this->joints.push_back(model->GetJoint("right_f3_j2" )); 
 
+  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    if (!this->joints[i])
+    {
+      ROS_INFO("sandia hand not present, plugin not loaded");
+      return;
+    }
+  }
+
   this->errorTerms.resize(this->joints.size());
 
   this->jointStates.name.resize(this->joints.size());
@@ -147,46 +156,36 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 // Set Joint Commands
 void SandiaHandPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
-  if (_msg->name.size() == this->jointCommands.name.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.name[i] = this->joints[i]->GetScopedName();
-
-  if (_msg->position.size() == this->jointCommands.position.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.position[i] = _msg->position[i];
-
-  if (_msg->velocity.size() == this->jointCommands.velocity.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.velocity[i] = _msg->velocity[i];
-
-  if (_msg->effort.size() == this->jointCommands.effort.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.effort[i] = _msg->effort[i];
-
-  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.kp_position[i] = _msg->kp_position[i];
-
-  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.ki_position[i] = _msg->ki_position[i];
-
-  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.kd_position[i] = _msg->kd_position[i];
-
-  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.kp_velocity[i] = _msg->kp_velocity[i];
-
-  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.i_effort_min[i] = _msg->i_effort_min[i];
-
-  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-  for(unsigned i = 0; i < this->joints.size(); ++i)
-    this->jointCommands.i_effort_max[i] = _msg->i_effort_max[i];
-
+  if (_msg->name.size() == this->jointCommands.name.size() &&
+      _msg->position.size() == this->jointCommands.position.size() &&
+      _msg->velocity.size() == this->jointCommands.velocity.size() &&
+      _msg->effort.size() == this->jointCommands.effort.size() &&
+      _msg->kp_position.size() == this->jointCommands.kp_position.size() &&
+      _msg->ki_position.size() == this->jointCommands.ki_position.size() &&
+      _msg->kd_position.size() == this->jointCommands.kd_position.size() &&
+      _msg->kp_velocity.size() == this->jointCommands.kp_velocity.size() &&
+      _msg->i_effort_min.size() == this->jointCommands.i_effort_min.size() &&
+      _msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+  {
+    /// \todo: make this smarter and skip messages if not specified
+    for(unsigned i = 0; i < this->joints.size(); ++i)
+    {
+      this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+      this->jointCommands.position[i] = _msg->position[i];
+      this->jointCommands.velocity[i] = _msg->velocity[i];
+      this->jointCommands.effort[i] = _msg->effort[i];
+      this->jointCommands.kp_position[i] = _msg->kp_position[i];
+      this->jointCommands.ki_position[i] = _msg->ki_position[i];
+      this->jointCommands.kd_position[i] = _msg->kd_position[i];
+      this->jointCommands.kp_velocity[i] = _msg->kp_velocity[i];
+      this->jointCommands.i_effort_min[i] = _msg->i_effort_min[i];
+      this->jointCommands.i_effort_max[i] = _msg->i_effort_max[i];
+    }
+  }
+  else
+  {
+    ROS_DEBUG("joint commands message contains different number of joints than expected");
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -319,13 +318,10 @@ void SandiaHandPlugin::UpdateStates()
     // populate FromRobot from robot
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      if (this->joints[i])
-      {
-        this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
-        this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
-        // better to us e GetForceTorque dot joint axis ??
-        this->jointStates.effort[i] = this->joints[i]->GetForce(0);
-      }
+      this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
+      this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
+      // better to us e GetForceTorque dot joint axis ??
+      this->jointStates.effort[i] = this->joints[i]->GetForce(0);
     }
     this->pubJointStates.publish(this->jointStates);
 
@@ -357,8 +353,7 @@ void SandiaHandPlugin::UpdateStates()
                      this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
                      this->jointCommands.effort[i];
 
-      if (this->joints[i])
-        this->joints[i]->SetForce(0, force);
+      this->joints[i]->SetForce(0, force);
 
     }
 
