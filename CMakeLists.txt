@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 enable_testing()
 
 project (drcsim)
+include(ExternalProject)
 
 set (DRC_SIM_MAJOR_VERSION 1)
 set (DRC_SIM_MINOR_VERSION 4)
@@ -20,7 +21,7 @@ list (APPEND CPACK_SOURCE_IGNORE_FILES ";Ogre.log;TODO;/.hg/;.hgignore;.swp$;/bu
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "@PROJECT_NAME@-@DRC_SIM_VERSION_FULL@")
 include (CPack)
 
-set (ROS_DISTRO "fuerte")
+set (ROS_DISTRO "groovy")
 
 set (INCLUDE_INSTALL_DIR "include/${PROJECT_NAME}-${DRC_SIM_VERSION}/${PROJECT_NAME}") 
 set (LIB_INSTALL_DIR "lib" CACHE STRING "Installation directory for libraries (relative to CMAKE_INSTALL_PREFIX)") 
@@ -45,13 +46,23 @@ endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
+# find osrf-common
+find_package(osrf-common)
+if (NOT osrf-common_FOUND)
+  message(STATUS "osrf-common not found, not building atlas with joint controllers.")
+  set(HAVE_OSRF_COMMON false)
+else ()
+  message(STATUS "osrf-common found [${OSRF_COMMON_ROS_PACKAGE_PATH}], building atlas with joint controllers.")
+  set(HAVE_OSRF_COMMON true)
+endif ()
+
 # find sandia-hand
 find_package(sandia-hand)
 if (NOT sandia-hand_FOUND)
   message(STATUS "sandia-hand not found, not building atlas with sandia hand")
   set(HAVE_SANDIA_HAND false)
 else ()
-  message(STATUS "sandia-hand found [${_ROS_PACKAGE_PATH}], building atlas with sandia hand")
+  message(STATUS "sandia-hand found [${SANDIA_HAND_ROS_PACKAGE_PATH}], building atlas with sandia hand")
   set(HAVE_SANDIA_HAND true)
 endif ()
 
@@ -65,7 +76,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup-unversioned.sh.in ${PROJECT_BINARY_DIR}/unversioned/setup.sh @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/unversioned/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
 
-add_subdirectory(models)
+add_subdirectory(gazebo_models)
 add_subdirectory(plugins)
 add_subdirectory(ros)
 add_subdirectory(worlds)
