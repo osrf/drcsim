@@ -32,7 +32,7 @@
 // #include <ros/subscribe_options.h>
 // #include <std_msgs/Float64.h>
 // #include <std_msgs/Int8.h>
- 
+
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -87,7 +87,7 @@ namespace gazebo
     /// Pointer to the update event connection.
     private: event::ConnectionPtr updateConnection;
 
-    /// \brief Sets DRC Vehicle control inputs, the vehicle internal model 
+    /// \brief Sets DRC Vehicle control inputs, the vehicle internal model
     ///        will decide the overall motion of the vehicle.
     /// \param[in] _handWheelPosition steering wheel position in radians.
     /// \param[in] _gasPedalPosition gas pedal position in meters.
