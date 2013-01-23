@@ -26,6 +26,8 @@
 
 #include "sensor_msgs/Imu.h"
 
+using std::string;
+
 namespace gazebo
 {
 
@@ -57,7 +59,6 @@ AtlasPlugin::~AtlasPlugin()
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
-  gzerr << "Loading AtlasPlugin\n";
   this->model = _parent;
 
   // Get the world name.
@@ -236,7 +237,6 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
 // Load the controller
 void AtlasPlugin::DeferredLoad()
 {
-  gzerr << "Deferred Loading AtlasPlugin\n";
   // initialize ros
   if (!ros::isInitialized())
   {
@@ -248,6 +248,33 @@ void AtlasPlugin::DeferredLoad()
 
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
+
+  // pull down controller parameters
+  for (unsigned int joint = 0; joint < this->joints.size(); ++joint)
+  {
+    char joint_ns[200] = "";
+    snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
+             this->joints[joint]->GetName().c_str());
+    // this is so ugly
+    double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
+    string p_str = string(joint_ns)+"p";
+    string i_str = string(joint_ns)+"i";
+    string d_str = string(joint_ns)+"d";
+    string i_clamp_str = string(joint_ns)+"i_clamp";
+    if (!this->rosNode->getParam(p_str, p_val) || 
+        !this->rosNode->getParam(i_str, i_val) || 
+        !this->rosNode->getParam(d_str, d_val) || 
+        !this->rosNode->getParam(i_clamp_str, i_clamp_val))
+    {
+      ROS_ERROR("couldn't find a param for %s", joint_ns);
+      continue;
+    }
+    this->jointCommands.kp_position[joint]  =  p_val;
+    this->jointCommands.ki_position[joint]  =  i_val;
+    this->jointCommands.kd_position[joint]  =  d_val;
+    this->jointCommands.i_effort_min[joint] = -i_clamp_val;
+    this->jointCommands.i_effort_max[joint] =  i_clamp_val;
+  }
 
   // ROS Controller API
   /// brief broadcasts the robot states
@@ -435,7 +462,7 @@ void AtlasPlugin::UpdateStates()
     }
     this->pubJointStates.publish(this->jointStates);
 
-    double dt = (curTime - this->lastImuTime).Double();
+    double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     /// update pid with feedforward force
     for(unsigned int i = 0; i < this->joints.size(); ++i)

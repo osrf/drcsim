@@ -123,8 +123,6 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   else
     this->frame_name_ = this->sdf->GetValueString("frameName");
 
-  gzerr << this->frame_name_ << "\n";
-
   if (!this->sdf->HasElement("updateRate"))
   {
     ROS_INFO("Camera plugin missing <updateRate>, defaults to unlimited (0).");

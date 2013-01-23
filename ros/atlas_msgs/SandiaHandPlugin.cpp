@@ -56,7 +56,6 @@ SandiaHandPlugin::~SandiaHandPlugin()
 void SandiaHandPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
-  gzerr << "Loading SandiaHandPlugin\n";
   this->model = _parent;
 
   // Get the world name.
@@ -211,7 +210,6 @@ void SandiaHandPlugin::SetJointCommands(
 // Load the controller
 void SandiaHandPlugin::DeferredLoad()
 {
-  gzerr << "Deferred Loading SandiaHandPlugin\n";
   // initialize ros
   if (!ros::isInitialized())
   {
