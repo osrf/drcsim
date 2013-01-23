@@ -1247,55 +1247,63 @@ namespace gazebo
     math::Vector3 target_pos(req.model_state.pose.position.x,
       req.model_state.pose.position.y, req.model_state.pose.position.z);
     math::Quaternion target_rot(req.model_state.pose.orientation.w,
-      req.model_state.pose.orientation.x, req.model_state.pose.orientation.y, req.model_state.pose.orientation.z);
+      req.model_state.pose.orientation.x, req.model_state.pose.orientation.y,
+      req.model_state.pose.orientation.z);
     target_rot.Normalize(); // eliminates invalid rotation (0, 0, 0, 0)
     math::Pose target_pose(target_pos, target_rot);
-    math::Vector3 target_pos_dot(req.model_state.twist.linear.x, req.model_state.twist.linear.y, req.model_state.twist.linear.z);
-    math::Vector3 target_rot_dot(req.model_state.twist.angular.x, req.model_state.twist.angular.y, req.model_state.twist.angular.z);
+    math::Vector3 target_pos_dot(req.model_state.twist.linear.x,
+      req.model_state.twist.linear.y, req.model_state.twist.linear.z);
+    math::Vector3 target_rot_dot(req.model_state.twist.angular.x,
+      req.model_state.twist.angular.y, req.model_state.twist.angular.z);
 
     physics::ModelPtr model = this->world->GetModel(req.model_state.model_name);
     if (!model)
     {
-      ROS_ERROR("Updating ModelState: model [%s] does not exist", req.model_state.model_name.c_str());
+      ROS_ERROR("Updating ModelState: model [%s] does not exist",
+        req.model_state.model_name.c_str());
       res.success = false;
       res.status_message = "SetModelState: model does not exist";
       return false;
     }
     else
     {
-      physics::LinkPtr relative_entity = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.model_state.reference_frame));
+      physics::LinkPtr relative_entity =
+        boost::dynamic_pointer_cast<physics::Link>(
+        this->world->GetEntity(req.model_state.reference_frame));
       if (relative_entity)
       {
-        math::Pose  frame_pose = relative_entity->GetWorldPose(); // - this->myBody->GetCoMPose();
+        math::Pose  frame_pose = relative_entity->GetWorldPose();
         math::Vector3 frame_pos = frame_pose.pos;
         math::Quaternion frame_rot = frame_pose.rot;
 
-        //std::cout << " debug : " << relative_entity->GetName() << " : " << frame_pose << " : " << target_pose << std::endl;
-        //target_pose = frame_pose + target_pose; // seems buggy, use my own
         target_pose.pos = frame_pos + frame_rot.RotateVector(target_pos);
         target_pose.rot = frame_rot * target_pose.rot;
       }
       /// @todo: FIXME map is really wrong, need to use tf here somehow
-      else if (req.model_state.reference_frame == "" || req.model_state.reference_frame == "world" || req.model_state.reference_frame == "map" || req.model_state.reference_frame == "/map")
+      else if (req.model_state.reference_frame == "" ||
+               req.model_state.reference_frame == "world" ||
+               req.model_state.reference_frame == "map" ||
+               req.model_state.reference_frame == "/map")
       {
-        ROS_DEBUG("Updating ModelState: reference frame is empty/world/map, usig inertial frame");
+        ROS_DEBUG("Updating ModelState: reference frame is empty/world/map,"
+                  " usig inertial frame");
       }
       else
       {
-        ROS_ERROR("Updating ModelState: for model[%s], specified reference frame entity [%s] does not exist",
-                  req.model_state.model_name.c_str(), req.model_state.reference_frame.c_str());
+        ROS_ERROR("Updating ModelState: for model[%s], specified reference"
+                  " frame entity [%s] does not exist",
+                  req.model_state.model_name.c_str(),
+                  req.model_state.reference_frame.c_str());
         res.success = false;
-        res.status_message = "SetModelState: specified reference frame entity does not exist";
+        res.status_message = "SetModelState: specified reference frame"
+                             " entity does not exist";
         return false;
       }
 
-      //ROS_ERROR("target state: %f %f %f", target_pose.pos.x, target_pose.pos.y, target_pose.pos.z);
       bool is_paused = this->world->IsPaused();
       this->world->SetPaused(true);
       model->SetWorldPose(target_pose);
       this->world->SetPaused(is_paused);
-      //math::Pose p3d = model->GetWorldPose();
-      //ROS_ERROR("model updated state: %f %f %f", p3d.pos.x, p3d.pos.y, p3d.pos.z);
 
       // set model velocity
       model->SetLinearVel(target_pos_dot);
@@ -1308,7 +1316,8 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateModelState(const gazebo_msgs::ModelState::ConstPtr& model_state)
+  void GazeboRosApiPlugin::updateModelState(
+    const gazebo_msgs::ModelState::ConstPtr& model_state)
   {
     gazebo_msgs::SetModelState::Response res;
     gazebo_msgs::SetModelState::Request req;
@@ -1317,7 +1326,9 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::applyJointEffort(gazebo_msgs::ApplyJointEffort::Request &req, gazebo_msgs::ApplyJointEffort::Response &res)
+  bool GazeboRosApiPlugin::applyJointEffort(
+    gazebo_msgs::ApplyJointEffort::Request &req,
+    gazebo_msgs::ApplyJointEffort::Response &res)
   {
     physics::JointPtr joint;
     for (unsigned int i = 0; i < this->world->GetModelCount(); i ++)
@@ -1325,7 +1336,8 @@ namespace gazebo
       joint = this->world->GetModel(i)->GetJoint(req.joint_name);
       if (joint)
       {
-        GazeboRosApiPlugin::ForceJointJob* fjj = new GazeboRosApiPlugin::ForceJointJob;
+        GazeboRosApiPlugin::ForceJointJob* fjj =
+          new GazeboRosApiPlugin::ForceJointJob;
         fjj->joint = joint;
         fjj->force = req.effort;
         fjj->start_time = req.start_time;
@@ -1350,7 +1362,8 @@ namespace gazebo
 #endif
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::resetSimulation(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+  bool GazeboRosApiPlugin::resetSimulation(
+    std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
   {
     this->world->Reset();
     return true;
