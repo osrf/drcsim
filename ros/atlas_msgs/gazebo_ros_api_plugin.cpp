@@ -879,7 +879,7 @@ namespace gazebo
       res.joint_names.clear();
       unsigned int jc = model->GetJointCount();
       for (unsigned int i = 0; i < jc ; i++)
-        res.joint_names.push_back( model->GetJoint(i)->GetName());
+        res.joint_names.push_back(model->GetJoint(i)->GetName());
 
       // get children model names
       res.child_model_names.clear();
@@ -941,13 +941,13 @@ namespace gazebo
       /// @todo: FIXME
       res.type = res.REVOLUTE;
 
-      res.damping.clear(); // to be added to gazebo
-      //res.damping.push_back(joint->GetDamping(0));
+      res.damping.clear();  // to be added to gazebo
+      // res.damping.push_back(joint->GetDamping(0));
 
-      res.position.clear(); // use GetAngle(i)
+      res.position.clear();  // use GetAngle(i)
       res.position.push_back(joint->GetAngle(0).Radian());
 
-      res.rate.clear(); // use GetVelocity(i)
+      res.rate.clear();  // use GetVelocity(i)
       res.rate.push_back(joint->GetVelocity(0));
 
       res.success = true;
@@ -1002,23 +1002,30 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::getLinkState(gazebo_msgs::GetLinkState::Request &req, gazebo_msgs::GetLinkState::Response &res)
+  bool GazeboRosApiPlugin::getLinkState(
+    gazebo_msgs::GetLinkState::Request &req,
+    gazebo_msgs::GetLinkState::Response &res)
   {
-    physics::LinkPtr body = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.link_name));
-    physics::LinkPtr frame = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.reference_frame));
+    physics::LinkPtr body =
+      boost::dynamic_pointer_cast<physics::Link>(
+      this->world->GetEntity(req.link_name));
+    physics::LinkPtr frame =
+      boost::dynamic_pointer_cast<physics::Link>(
+      this->world->GetEntity(req.reference_frame));
 
     if (body)
     {
       res.success = false;
-      res.status_message = "GetLinkState: link not found, did you forget to scope the link by model name?";
+      res.status_message = "GetLinkState: link not found, did you "
+                           "forget to scope the link by model name?";
       return false;
     }
 
     // get body pose
     math::Pose body_pose = body->GetWorldPose();
     // Get inertial rates
-    math::Vector3 body_vpos = body->GetWorldLinearVel(); // get velocity in gazebo frame
-    math::Vector3 body_veul = body->GetWorldAngularVel(); // get velocity in gazebo frame
+    math::Vector3 body_vpos = body->GetWorldLinearVel();
+    math::Vector3 body_veul = body->GetWorldAngularVel();
 
     if (frame)
     {
@@ -1029,20 +1036,23 @@ namespace gazebo
       body_pose.rot *= frame_pose.rot.GetInverse();
 
       // convert to relative rates
-      math::Vector3 frame_vpos = frame->GetWorldLinearVel(); // get velocity in gazebo frame
-      math::Vector3 frame_veul = frame->GetWorldAngularVel(); // get velocity in gazebo frame
+      math::Vector3 frame_vpos = frame->GetWorldLinearVel();
+      math::Vector3 frame_veul = frame->GetWorldAngularVel();
       body_vpos = frame_pose.rot.RotateVector(body_vpos - frame_vpos);
       body_veul = frame_pose.rot.RotateVector(body_veul - frame_veul);
     }
     /// @todo: FIXME map is really wrong, need to use tf here somehow
-    else if (req.reference_frame == "" || req.reference_frame == "world" || req.reference_frame == "map" || req.reference_frame == "/map")
+    else if (req.reference_frame == "" || req.reference_frame == "world" ||
+             req.reference_frame == "map" || req.reference_frame == "/map")
     {
-        ROS_DEBUG("GetLinkState: reference_frame is empty/world/map, using inertial frame");
+        ROS_DEBUG("GetLinkState: reference_frame is empty/world/map,"
+                  " using inertial frame");
     }
     else
     {
       res.success = false;
-      res.status_message = "GetLinkState: reference reference_frame not found, did you forget to scope the link by model name?";
+      res.status_message = "GetLinkState: reference reference_frame not found,"
+                           " did you forget to scope the link by model name?";
       return false;
     }
 
@@ -1068,9 +1078,13 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::setLinkProperties(gazebo_msgs::SetLinkProperties::Request &req, gazebo_msgs::SetLinkProperties::Response &res)
+  bool GazeboRosApiPlugin::setLinkProperties(
+    gazebo_msgs::SetLinkProperties::Request &req,
+    gazebo_msgs::SetLinkProperties::Response &res)
   {
-    physics::LinkPtr body = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.link_name));
+    physics::LinkPtr body =
+      boost::dynamic_pointer_cast<physics::Link>(
+      this->world->GetEntity(req.link_name));
     if (body)
     {
       res.success = false;
@@ -1081,9 +1095,12 @@ namespace gazebo
     {
       physics::InertialPtr mass = body->GetInertial();
       // @todo: FIXME: add inertia matrix rotation to Gazebo
-      // mass.SetInertiaRotation(math::Quaternionion(req.com.orientation.w, res.com.orientation.x, req.com.orientation.y req.com.orientation.z));
-      mass->SetCoG(math::Vector3(req.com.position.x, req.com.position.y, req.com.position.z));
-      mass->SetInertiaMatrix(req.ixx, req.iyy, req.izz, req.ixy, req.ixz, req.iyz);
+      // mass.SetInertiaRotation(math::Quaternionion(req.com.orientation.w,
+      // res.com.orientation.x, req.com.orientation.y req.com.orientation.z));
+      mass->SetCoG(math::Vector3(
+        req.com.position.x, req.com.position.y, req.com.position.z));
+      mass->SetInertiaMatrix(
+        req.ixx, req.iyy, req.izz, req.ixy, req.ixz, req.iyz);
       mass->SetMass(req.mass);
       body->SetGravityMode(req.gravity_mode);
       // @todo: mass change unverified
@@ -1094,7 +1111,9 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::setPhysicsProperties(gazebo_msgs::SetPhysicsProperties::Request &req, gazebo_msgs::SetPhysicsProperties::Response &res)
+  bool GazeboRosApiPlugin::setPhysicsProperties(
+    gazebo_msgs::SetPhysicsProperties::Request &req,
+    gazebo_msgs::SetPhysicsProperties::Response &res)
   {
     // pause simulation if requested
     bool is_paused = this->world->IsPaused();
@@ -1104,7 +1123,8 @@ namespace gazebo
     physics::PhysicsEnginePtr ode_pe = (this->world->GetPhysicsEngine());
     ode_pe->SetStepTime(req.time_step);
     ode_pe->SetUpdateRate(req.max_update_rate);
-    ode_pe->SetGravity(math::Vector3(req.gravity.x, req.gravity.y, req.gravity.z));
+    ode_pe->SetGravity(math::Vector3(req.gravity.x,
+      req.gravity.y, req.gravity.z));
 
     // stuff only works in ODE right now
     ode_pe->SetAutoDisableFlag(req.ode_config.auto_disable_bodies);
@@ -1114,7 +1134,8 @@ namespace gazebo
     ode_pe->SetWorldCFM(req.ode_config.cfm);
     ode_pe->SetWorldERP(req.ode_config.erp);
     ode_pe->SetContactSurfaceLayer(req.ode_config.contact_surface_layer);
-    ode_pe->SetContactMaxCorrectingVel(req.ode_config.contact_max_correcting_vel);
+    ode_pe->SetContactMaxCorrectingVel(
+      req.ode_config.contact_max_correcting_vel);
     ode_pe->SetMaxContacts(req.ode_config.max_contacts);
 
     this->world->SetPaused(is_paused);
@@ -1125,7 +1146,9 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::getPhysicsProperties(gazebo_msgs::GetPhysicsProperties::Request &req, gazebo_msgs::GetPhysicsProperties::Response &res)
+  bool GazeboRosApiPlugin::getPhysicsProperties(
+    gazebo_msgs::GetPhysicsProperties::Request &req,
+    gazebo_msgs::GetPhysicsProperties::Response &res)
   {
     // supported updates
     res.time_step = this->world->GetPhysicsEngine()->GetStepTime();
@@ -1137,15 +1160,21 @@ namespace gazebo
     res.gravity.z = gravity.z;
 
     // stuff only works in ODE right now
-    res.ode_config.auto_disable_bodies = this->world->GetPhysicsEngine()->GetAutoDisableFlag();
-    res.ode_config.sor_pgs_precon_iters = this->world->GetPhysicsEngine()->GetSORPGSPreconIters();
-    res.ode_config.sor_pgs_iters = this->world->GetPhysicsEngine()->GetSORPGSIters();
+    res.ode_config.auto_disable_bodies =
+      this->world->GetPhysicsEngine()->GetAutoDisableFlag();
+    res.ode_config.sor_pgs_precon_iters =
+      this->world->GetPhysicsEngine()->GetSORPGSPreconIters();
+    res.ode_config.sor_pgs_iters =
+      this->world->GetPhysicsEngine()->GetSORPGSIters();
     res.ode_config.sor_pgs_w = this->world->GetPhysicsEngine()->GetSORPGSW();
-    res.ode_config.contact_surface_layer = this->world->GetPhysicsEngine()->GetContactSurfaceLayer();
-    res.ode_config.contact_max_correcting_vel = this->world->GetPhysicsEngine()->GetContactMaxCorrectingVel();
+    res.ode_config.contact_surface_layer =
+      this->world->GetPhysicsEngine()->GetContactSurfaceLayer();
+    res.ode_config.contact_max_correcting_vel =
+      this->world->GetPhysicsEngine()->GetContactMaxCorrectingVel();
     res.ode_config.cfm = this->world->GetPhysicsEngine()->GetWorldCFM();
     res.ode_config.erp = this->world->GetPhysicsEngine()->GetWorldERP();
-    res.ode_config.max_contacts = this->world->GetPhysicsEngine()->GetMaxContacts();
+    res.ode_config.max_contacts =
+      this->world->GetPhysicsEngine()->GetMaxContacts();
 
     res.success = true;
     res.status_message = "GetPhysicsProperties: got properties";
@@ -1153,11 +1182,14 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::setJointProperties(gazebo_msgs::SetJointProperties::Request &req, gazebo_msgs::SetJointProperties::Response &res)
+  bool GazeboRosApiPlugin::setJointProperties(
+    gazebo_msgs::SetJointProperties::Request &req,
+    gazebo_msgs::SetJointProperties::Response &res)
   {
-    /// @todo: current settings only allows for setting of 1DOF joints (e.g. HingeJoint and SliderJoint) correctly.
+    /// @todo: current settings only allows for setting of 1DOF joints
+    /// (e.g. HingeJoint and SliderJoint) correctly.
     physics::JointPtr joint;
-    for (unsigned int i = 0; i < this->world->GetModelCount(); i ++)
+    for (unsigned int i = 0; i < this->world->GetModelCount(); ++i)
     {
       joint = this->world->GetModel(i)->GetJoint(req.joint_name);
       if (joint) break;
@@ -1174,23 +1206,32 @@ namespace gazebo
       for(unsigned int i=0;i< req.ode_joint_config.damping.size();i++)
         joint->SetDamping(i, req.ode_joint_config.damping[i]);
       for(unsigned int i=0;i< req.ode_joint_config.hiStop.size();i++)
-        joint->SetAttribute(physics::Joint::HI_STOP, i, req.ode_joint_config.hiStop[i]);
+        joint->SetAttribute(physics::Joint::HI_STOP, i,
+          req.ode_joint_config.hiStop[i]);
       for(unsigned int i=0;i< req.ode_joint_config.loStop.size();i++)
-        joint->SetAttribute(physics::Joint::LO_STOP, i, req.ode_joint_config.loStop[i]);
+        joint->SetAttribute(physics::Joint::LO_STOP, i,
+          req.ode_joint_config.loStop[i]);
       for(unsigned int i=0;i< req.ode_joint_config.erp.size();i++)
-        joint->SetAttribute(physics::Joint::ERP, i, req.ode_joint_config.erp[i]);
+        joint->SetAttribute(physics::Joint::ERP, i,
+          req.ode_joint_config.erp[i]);
       for(unsigned int i=0;i< req.ode_joint_config.cfm.size();i++)
-        joint->SetAttribute(physics::Joint::CFM, i, req.ode_joint_config.cfm[i]);
+        joint->SetAttribute(physics::Joint::CFM, i,
+          req.ode_joint_config.cfm[i]);
       for(unsigned int i=0;i< req.ode_joint_config.stop_erp.size();i++)
-        joint->SetAttribute(physics::Joint::STOP_ERP, i, req.ode_joint_config.stop_erp[i]);
+        joint->SetAttribute(physics::Joint::STOP_ERP, i,
+          req.ode_joint_config.stop_erp[i]);
       for(unsigned int i=0;i< req.ode_joint_config.stop_cfm.size();i++)
-        joint->SetAttribute(physics::Joint::STOP_CFM, i, req.ode_joint_config.stop_cfm[i]);
+        joint->SetAttribute(physics::Joint::STOP_CFM, i,
+          req.ode_joint_config.stop_cfm[i]);
       for(unsigned int i=0;i< req.ode_joint_config.fudge_factor.size();i++)
-        joint->SetAttribute(physics::Joint::FUDGE_FACTOR, i, req.ode_joint_config.fudge_factor[i]);
+        joint->SetAttribute(physics::Joint::FUDGE_FACTOR, i,
+          req.ode_joint_config.fudge_factor[i]);
       for(unsigned int i=0;i< req.ode_joint_config.fmax.size();i++)
-        joint->SetAttribute(physics::Joint::FMAX, i, req.ode_joint_config.fmax[i]);
+        joint->SetAttribute(physics::Joint::FMAX, i,
+          req.ode_joint_config.fmax[i]);
       for(unsigned int i=0;i< req.ode_joint_config.vel.size();i++)
-        joint->SetAttribute(physics::Joint::VEL, i, req.ode_joint_config.vel[i]);
+        joint->SetAttribute(physics::Joint::VEL, i,
+          req.ode_joint_config.vel[i]);
 
       res.success = true;
       res.status_message = "SetJointProperties: properties set";
@@ -1199,10 +1240,14 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::setModelState(gazebo_msgs::SetModelState::Request &req, gazebo_msgs::SetModelState::Response &res)
+  bool GazeboRosApiPlugin::setModelState(
+    gazebo_msgs::SetModelState::Request &req,
+    gazebo_msgs::SetModelState::Response &res)
   {
-    math::Vector3 target_pos(req.model_state.pose.position.x, req.model_state.pose.position.y, req.model_state.pose.position.z);
-    math::Quaternion target_rot(req.model_state.pose.orientation.w, req.model_state.pose.orientation.x, req.model_state.pose.orientation.y, req.model_state.pose.orientation.z);
+    math::Vector3 target_pos(req.model_state.pose.position.x,
+      req.model_state.pose.position.y, req.model_state.pose.position.z);
+    math::Quaternion target_rot(req.model_state.pose.orientation.w,
+      req.model_state.pose.orientation.x, req.model_state.pose.orientation.y, req.model_state.pose.orientation.z);
     target_rot.Normalize(); // eliminates invalid rotation (0, 0, 0, 0)
     math::Pose target_pose(target_pos, target_rot);
     math::Vector3 target_pos_dot(req.model_state.twist.linear.x, req.model_state.twist.linear.y, req.model_state.twist.linear.z);
