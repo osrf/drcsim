@@ -33,13 +33,14 @@
 
 enum StructType { LINK, JOINT };
 
-std::string findNextKeyword(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model, std::string struct_tok)
+std::string findNextKeyword(std::ifstream &ifs,
+  boost::shared_ptr<urdf::ModelInterface> model, std::string struct_tok)
 {
   std::string line;
-  std::getline(ifs,line);
+  std::getline(ifs, line);
   // find first keyword "struct "
   while (ifs.good() && line.find(struct_tok) == std::string::npos)
-    std::getline(ifs,line);
+    std::getline(ifs, line);
   if (!line.empty())
   {
     boost::trim(line);
@@ -50,13 +51,15 @@ std::string findNextKeyword(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInt
 }
 
 
-std::pair<std::string, std::vector<std::string> > findNextKeyValuesPair(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model, std::string delim_tok)
+std::pair<std::string, std::vector<std::string> > findNextKeyValuesPair(
+  std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model,
+  std::string delim_tok)
 {
   std::string line;
-  std::getline(ifs,line);
+  std::getline(ifs, line);
   // find first keyword "struct "
   while (ifs.good() && line.find(delim_tok) == std::string::npos)
-    std::getline(ifs,line);
+    std::getline(ifs, line);
   if (!line.empty())
   {
     boost::trim(line);
@@ -72,7 +75,8 @@ std::pair<std::string, std::vector<std::string> > findNextKeyValuesPair(std::ifs
     boost::trim(key);
     return std::pair<std::string, std::vector<std::string> >(key, pieces);
   }
-  return std::pair<std::string, std::vector<std::string> >(std::string(), std::vector<std::string>());
+  return std::pair<std::string, std::vector<std::string> >(std::string(),
+    std::vector<std::string>());
 }
 
 urdf::Vector3 stringToVector3(std::string str, double scale = 1)
@@ -89,21 +93,23 @@ urdf::Vector3 stringToVector3(std::string str, double scale = 1)
       {
         try
         {
-          vals.push_back(scale * boost::lexical_cast<double>(pieces[i].c_str()));
+          vals.push_back(scale *
+                         boost::lexical_cast<double>(pieces[i].c_str()));
         }
         catch(boost::bad_lexical_cast &e)
         {
-          printf("xml key [%s][%d] value [%s] is not a valid double from a 3-tuple\n",str.c_str(),i,pieces[i].c_str());
-          return urdf::Vector3(0,0,0);
+          printf("xml key [%s][%d] value [%s] is not a valid double"
+                 " from a 3-tuple\n", str.c_str(), i, pieces[i].c_str());
+          return urdf::Vector3(0, 0, 0);
         }
       }
     }
-    return urdf::Vector3(vals[0],vals[1],vals[2]);
+    return urdf::Vector3(vals[0], vals[1], vals[2]);
   }
   else
   {
     std::cout << "WARNING:   stringToVector3, input string empty\n";
-    return urdf::Vector3(0,0,0);
+    return urdf::Vector3(0, 0, 0);
   }
 }
 
@@ -111,10 +117,10 @@ urdf::Vector3 stringToVector3(std::string str, double scale = 1)
 std::pair<std::string, std::string> findNextKeyValuePair(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model, std::string delim_tok)
 {
   std::string line;
-  std::getline(ifs,line);
+  std::getline(ifs, line);
   // find first keyword "struct "
   while (ifs.good() && line.find(delim_tok) == std::string::npos)
-    std::getline(ifs,line);
+    std::getline(ifs, line);
   if (!line.empty())
   {
     boost::trim(line);
@@ -128,13 +134,15 @@ std::pair<std::string, std::string> findNextKeyValuePair(std::ifstream &ifs, boo
   return std::pair<std::string, std::string>(std::string(), std::string());
 }
 
-std::pair<std::string, std::string> findNextStructOrKeyValuePair(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model, std::string struct_tok, std::string delim_tok)
+std::pair<std::string, std::string> findNextStructOrKeyValuePair(
+  std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model,
+  std::string struct_tok, std::string delim_tok)
 {
   std::string line;
-  std::getline(ifs,line);
+  std::getline(ifs, line);
   // find first keyword "struct "
   while (ifs.good() && line.find(delim_tok) == std::string::npos)
-    std::getline(ifs,line);
+    std::getline(ifs, line);
   if (!line.empty())
   {
     boost::trim(line);
@@ -150,28 +158,34 @@ std::pair<std::string, std::string> findNextStructOrKeyValuePair(std::ifstream &
 
 void removeComments(std::string &val)
 {
-  size_t pos = val.find("#",0);
+  size_t pos = val.find("#", 0);
   if (pos != std::string::npos)
     val = val.substr(0, pos - 1);
 }
 
-void printTree(boost::shared_ptr<const urdf::Link> link,int level = 0)
+void printTree(boost::shared_ptr<const urdf::Link> link, int level = 0)
 {
-  level+=2;
+  level += 2;
   int count = 0;
-  for (std::vector<boost::shared_ptr<urdf::Link> >::const_iterator child = link->child_links.begin(); child != link->child_links.end(); child++)
+  for (std::vector<boost::shared_ptr<urdf::Link> >::const_iterator
+       child = link->child_links.begin();
+       child != link->child_links.end(); ++child)
   {
     if (*child)
     {
-      for(int j=0;j<level;j++) std::cout << "  "; //indent
-      std::cout << "child(" << (count++)+1 << "):  " << (*child)->name  << std::endl;
+      for(int j = 0;j<level;++j)
+        std::cout << "  "; //indent
+      std::cout << "child(" << (count++)+1 << "):  "
+                << (*child)->name  << std::endl;
       // first grandchild
-      printTree(*child,level);
+      printTree(*child, level);
     }
     else
     {
-      for(int j=0;j<level;j++) std::cout << " "; //indent
-      std::cout << "root link: " << link->name << " has a null child!" << *child << std::endl;
+      for(int j = 0;j<level;++j)
+        std::cout << " "; //indent
+      std::cout << "root link: " << link->name
+                << " has a null child!" << *child << std::endl;
     }
   }
 
@@ -222,7 +236,7 @@ int main(int argc, char** argv)
       {
         // read a line
         std::string line;
-        std::getline(ifs,line);
+        std::getline(ifs, line);
         
         std::string joint_namespace;
         if (line.find(struct_tok) != std::string::npos)

@@ -69,7 +69,7 @@ class RobotArm
     */
     control_msgs::FollowJointTrajectoryGoal armExtensionTrajectory()
     {
-      //our goal variable
+      // our goal variable
       control_msgs::FollowJointTrajectoryGoal goal;
 
       // First, the joint names, which apply to all waypoints
@@ -101,10 +101,10 @@ class RobotArm
       goal.trajectory.joint_names.push_back("r_arm_uwy");
       goal.trajectory.joint_names.push_back("r_arm_mwx");
 
-      goal.trajectory.joint_names.push_back("neck_ay"  );
-      goal.trajectory.joint_names.push_back("back_lbz" );
-      goal.trajectory.joint_names.push_back("back_mby" );
-      goal.trajectory.joint_names.push_back("back_ubx" );
+      goal.trajectory.joint_names.push_back("neck_ay");
+      goal.trajectory.joint_names.push_back("back_lbz");
+      goal.trajectory.joint_names.push_back("back_mby");
+      goal.trajectory.joint_names.push_back("back_ubx");
 
       // We will have two waypoints in this goal trajectory
       goal.trajectory.points.resize(1);
@@ -190,7 +190,7 @@ class RobotArm
       goal.goal_time_tolerance.sec = 10;
       goal.goal_time_tolerance.nsec = 0;
 
-      //we are done; return the goal
+      // we are done; return the goal
       return goal;
     }
 
