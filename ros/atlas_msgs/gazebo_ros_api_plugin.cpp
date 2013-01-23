@@ -1724,7 +1724,6 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
       math::Pose target_to_reference = body->GetWorldPose();
       target_force = reference_force;
       target_torque = reference_torque;
-
     }
     else
     {
@@ -1763,7 +1762,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   {
     // todo: make a wait loop that does not provide extra ros::spin()
     ros::Rate r(10);
-    while(ros::ok())
+    while (ros::ok())
     {
       ros::spinOnce();
       r.sleep();
@@ -1785,7 +1784,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     // FIXME: very crude check
     TiXmlDocument doc_in;
     doc_in.Parse(model_xml.c_str());
-    if (doc_in.FirstChild("model:physical")) // old gazebo xml
+    if (doc_in.FirstChild("model:physical"))  // old gazebo xml
       return true;
     else
       return false;
