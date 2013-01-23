@@ -20,6 +20,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <utility>
+#include <map>
+#include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -114,7 +117,9 @@ urdf::Vector3 stringToVector3(std::string str, double scale = 1)
 }
 
 
-std::pair<std::string, std::string> findNextKeyValuePair(std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model, std::string delim_tok)
+std::pair<std::string, std::string> findNextKeyValuePair(
+  std::ifstream &ifs, boost::shared_ptr<urdf::ModelInterface> model,
+  std::string delim_tok)
 {
   std::string line;
   std::getline(ifs, line);
@@ -173,8 +178,8 @@ void printTree(boost::shared_ptr<const urdf::Link> link, int level = 0)
   {
     if (*child)
     {
-      for(int j = 0;j<level;++j)
-        std::cout << "  "; //indent
+      for (int j = 0; j < level; ++j)
+        std::cout << "  ";
       std::cout << "child(" << (count++)+1 << "):  "
                 << (*child)->name  << std::endl;
       // first grandchild
@@ -182,18 +187,16 @@ void printTree(boost::shared_ptr<const urdf::Link> link, int level = 0)
     }
     else
     {
-      for(int j = 0;j<level;++j)
-        std::cout << " "; //indent
+      for (int j = 0; j < level; ++j)
+        std::cout << " ";
       std::cout << "root link: " << link->name
                 << " has a null child!" << *child << std::endl;
     }
   }
-
 }
 
 int main(int argc, char** argv)
 {
-
   if (argc < 2)
     printf("run:\n./bdi_parser drc_skeleton.cfg\n");
   else
@@ -206,8 +209,6 @@ int main(int argc, char** argv)
 
     if (ifs.good())
     {
-
-
       // read very first struct, use the value as model name
       model->name_ = findNextKeyword(ifs, model, "struct ");
       std::cout << "model name [" << model->name_ << "]\n";
@@ -237,7 +238,7 @@ int main(int argc, char** argv)
         // read a line
         std::string line;
         std::getline(ifs, line);
-        
+
         std::string joint_namespace;
         if (line.find(struct_tok) != std::string::npos)
         {
@@ -253,7 +254,8 @@ int main(int argc, char** argv)
 
           if (struct_level == 1)
           {
-            // potentially a link name, but it could be followed by another struct, then it is not a link
+            // potentially a link name, but it could be followed
+            // by another struct, then it is not a link
             std::cout << "------------------------------------\n"
                       << "struct level [" << struct_level << "] "
                       << "name [" << struct_name[struct_level] << "]\n";
@@ -271,10 +273,13 @@ int main(int argc, char** argv)
             std::cout << "current struct name [" << entity_name << "]\n";
 
 
-            // just checking, joint should have been created when reading link struct
-            boost::shared_ptr<urdf::Joint> joint = model->joints_.find(entity_name)->second;
+            // just checking, joint should have been created when
+            // reading link struct
+            boost::shared_ptr<urdf::Joint> joint =
+              model->joints_.find(entity_name)->second;
             if (!joint)
-              std::cout << "     intermediate struct, not a joint name [" << entity_name << "].\n";
+              std::cout << "     intermediate struct, not a joint name ["
+                        << entity_name << "].\n";
           }
         }
         else if (line.find("=") != std::string::npos)
@@ -289,7 +294,8 @@ int main(int argc, char** argv)
             // infor for link
             // insert link to model
             // add key value pair to link
-            boost::shared_ptr<urdf::Link> link = model->links_.find(entity_name)->second;
+            boost::shared_ptr<urdf::Link> link =
+              model->links_.find(entity_name)->second;
             if (!link)
             {
               std::cout << "  LINK: Creating [" << entity_name << "]\n";
@@ -322,7 +328,8 @@ int main(int argc, char** argv)
             {
               std::cout << "          parent link [" << val << "]\n";
               // add parent to child link, add child to parent link
-              boost::shared_ptr<urdf::Link> parent = model->links_.find(val)->second;
+              boost::shared_ptr<urdf::Link> parent =
+                model->links_.find(val)->second;
               parent->child_links.push_back(link);
               link->setParent(parent);
             }
@@ -335,8 +342,9 @@ int main(int argc, char** argv)
               std::cout << "  JOINT: Creating [" << val << "]\n";
               joint.reset(new urdf::Joint);
 
-              // as ROS Graph Resource Names do not allow "." characters, replace with _
-              std::replace( val.begin(), val.end(), '.', '_');
+              // as ROS Graph Resource Names do not allow "." characters,
+              // replace with _
+              std::replace(val.begin(), val.end(), '.', '_');
               joint->name = val;
               std::cout << "\n\n" << joint->name << "\n\n";
 
@@ -380,38 +388,41 @@ int main(int argc, char** argv)
             }
             else if (key == "com_x")
             {
-              link->inertial->origin.position.x = boost::lexical_cast<double>(val);
+              link->inertial->origin.position.x =
+                boost::lexical_cast<double>(val);
             }
             else if (key == "com_y")
             {
-              link->inertial->origin.position.y = boost::lexical_cast<double>(val);
+              link->inertial->origin.position.y =
+                boost::lexical_cast<double>(val);
             }
             else if (key == "com_z")
             {
-              link->inertial->origin.position.z = boost::lexical_cast<double>(val);
+              link->inertial->origin.position.z =
+                boost::lexical_cast<double>(val);
             }
 
-            // insert collision and visual block for the robot manually, currently the files I get
-            // have names that corresponds to link name, so I can hack up a filename reference for each link
+            // insert collision and visual block for the robot manually,
+            // currently the files I get have names that corresponds to
+            // link name, so I can hack up a filename reference for each link
             boost::shared_ptr<urdf::Mesh> mesh_dae;
             mesh_dae.reset(new urdf::Mesh);
-            mesh_dae->filename = std::string("package://atlas/meshes/") + entity_name + std::string(".dae");
+            mesh_dae->filename = std::string("package://atlas/meshes/") +
+                                 entity_name + std::string(".dae");
             link->visual->geometry = mesh_dae;
 
             boost::shared_ptr<urdf::Mesh> mesh_stl;
             mesh_stl.reset(new urdf::Mesh);
-            mesh_stl->filename = std::string("package://atlas/meshes/") + entity_name + std::string(".stl");
+            mesh_stl->filename = std::string("package://atlas/meshes/") +
+                                 entity_name + std::string(".stl");
             link->collision->geometry = mesh_stl;
-
-
-
           }
           else
           {
-
             // this is a joint name
-            // as ROS Graph Resource Names do not allow "." characters, replace with _
-            std::replace( entity_name.begin(), entity_name.end(), '.', '_');
+            // as ROS Graph Resource Names do not allow "." characters,
+            // replace with _
+            std::replace(entity_name.begin(), entity_name.end(), '.', '_');
               std::cout << "\n\n" << entity_name << "\n\n";
 
             // parse key value pair
@@ -430,31 +441,37 @@ int main(int argc, char** argv)
                       << "val [" << val << "]\n";
 
             // add key value pair to join
-            boost::shared_ptr<urdf::Joint> joint = model->joints_.find(entity_name)->second;
+            boost::shared_ptr<urdf::Joint> joint =
+              model->joints_.find(entity_name)->second;
             // std::cout << "    debug [" << joint->name << "] has "
             //           << " parent [" << joint->parent_link_name
             //           << "] child [" << joint->child_link_name << "]\n";
 
             if (!joint)
             {
-              // this joint is not referred by any link, therefore, not created yet here.
+              // this joint is not referred by any link, therefore,
+              // not created yet here.
               /* we can create this joint, but it has no parent / child
               std::cout << "  JOINT: Creating [" << entity_name << "]\n";
               joint.reset(new urdf::Joint);
               joint->name = entity_name;
               model->joints_.insert(std::make_pair(joint->name, joint));
               */
-              std::cout << "  JOINT: [" << entity_name << "] is not referred to by any link\n";
+              std::cout << "  JOINT: [" << entity_name
+                        << "] is not referred to by any link\n";
             }
             else if (!val.empty())
             {
               if (key == "offset")
               {
                 // add parent to child transform
-                joint->parent_to_joint_origin_transform.position = stringToVector3(val);
+                joint->parent_to_joint_origin_transform.position =
+                  stringToVector3(val);
                 std::cout << "  JOINT: [" << entity_name << "] origin ["
-                          << joint->parent_to_joint_origin_transform.position.x << ", "
-                          << joint->parent_to_joint_origin_transform.position.y << ", "
+                          << joint->parent_to_joint_origin_transform.position.x
+                          << ", "
+                          << joint->parent_to_joint_origin_transform.position.y
+                          << ", "
                           << joint->parent_to_joint_origin_transform.position.z
                           << "]\n";
               }
@@ -485,7 +502,8 @@ int main(int argc, char** argv)
                   joint->type = urdf::Joint::FIXED;
                 else
                 {
-                  printf("Joint [%s] has no known type [%s]", joint->name.c_str(), val.c_str());
+                  printf("Joint [%s] has no known type [%s]",
+                    joint->name.c_str(), val.c_str());
                   return false;
                 }
                 std::cout << "    JOINT: is of type [" << val << "] "
@@ -503,7 +521,8 @@ int main(int argc, char** argv)
               }
               else if (key == "vel_min")
               {
-                std::cout << "    URDF assumes symmetric velocity limits, vel_min ignored\n";
+                std::cout << "    URDF assumes symmetric velocity limits,"
+                          << " vel_min ignored\n";
               }
               else if (key == "vel_max")
               {
@@ -511,7 +530,8 @@ int main(int argc, char** argv)
               }
               else if (key == "f_min")
               {
-                std::cout << "    URDF assumes symmetric effort limits, f_min ignored\n";
+                std::cout << "    URDF assumes symmetric effort limits,"
+                          << " f_min ignored\n";
               }
               else if (key == "f_max")
               {
@@ -526,11 +546,11 @@ int main(int argc, char** argv)
             joint->safety->soft_lower_limit = joint->limits->lower-10.0;
             joint->safety->k_position = 100.0;
             joint->safety->k_velocity = 100.0;
+
             // add dynamic damping
             joint->dynamics->damping = 0.1;
           }
         }
-
       }
       std::map<std::string, std::string> parent_link_tree;
       parent_link_tree.clear();
@@ -539,7 +559,8 @@ int main(int argc, char** argv)
       printTree(model->getRoot());
 
 #if USE_ROS
-      // install the urdf in my own package at the right place for the robot/*.xacro
+      // install the urdf in my own package at the right place
+      // for the robot/*.xacro
       std::string package_name("atlas_utils");
       std::string package_path = ros::package::getPath(package_name);
 #else
@@ -547,7 +568,6 @@ int main(int argc, char** argv)
 #endif
       TiXmlDocument *model_xml = urdf::exportURDF(model);
       model_xml->SaveFile(package_path + "/" + std::string("atlas.urdf"));
-
     }
   }
   return 0;

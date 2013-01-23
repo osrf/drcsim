@@ -18,20 +18,13 @@
 #ifndef GAZEBO_ROS_BUMPER_HH
 #define GAZEBO_ROS_BUMPER_HH
 
+#include <string>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 
 #include <sys/time.h>
-
-#include "sdf/interface/Param.hh"
-#include "physics/physics.h"
-#include "transport/TransportTypes.hh"
-#include "msgs/MessageTypes.hh"
-#include "common/Time.hh"
-#include "sensors/SensorTypes.hh"
-#include "sensors/ContactSensor.hh"
-#include "plugins/ContactPlugin.hh"
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -41,6 +34,15 @@
 #include <gazebo_msgs/ContactState.h>
 #include <gazebo_msgs/ContactsState.h>
 
+#include "gazebo/sdf/interface/Param.hh"
+#include "gazebo/physics/physics.h"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/msgs/MessageTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+#include "gazebo/sensors/ContactSensor.hh"
+#include "gazebo/plugins/ContactPlugin.hh"
+
 namespace gazebo
 {
   /// \brief A Bumper controller
@@ -48,17 +50,16 @@ namespace gazebo
   {
     /// Constructor
     public: GazeboRosBumper();
-  
+
     /// Destructor
     public: ~GazeboRosBumper();
-  
+
     /// \brief Load the plugin
     /// \param take in SDF root element
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
-  
+
     /// Update the controller
     protected: virtual void UpdateChild();
-  
 
     /// \brief pointer to ros node
     private: ros::NodeHandle* rosnode_;
@@ -82,7 +83,6 @@ namespace gazebo
     // Pointer to the update event connection
     private: event::ConnectionPtr update_connection_;
   };
-
 }
 
 #endif
