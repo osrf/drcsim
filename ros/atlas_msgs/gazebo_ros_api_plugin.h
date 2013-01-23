@@ -142,103 +142,79 @@ class GazeboRosApiPlugin : public SystemPlugin
     bool spawnURDFModel(gazebo_msgs::SpawnModel::Request &req,gazebo_msgs::SpawnModel::Response &res);
     bool spawnGazeboModel(gazebo_msgs::SpawnModel::Request &req,gazebo_msgs::SpawnModel::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief delete model given name
     bool deleteModel(gazebo_msgs::DeleteModel::Request &req,gazebo_msgs::DeleteModel::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getModelState(gazebo_msgs::GetModelState::Request &req,gazebo_msgs::GetModelState::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getModelProperties(gazebo_msgs::GetModelProperties::Request &req,gazebo_msgs::GetModelProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getWorldProperties(gazebo_msgs::GetWorldProperties::Request &req,gazebo_msgs::GetWorldProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getJointProperties(gazebo_msgs::GetJointProperties::Request &req,gazebo_msgs::GetJointProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getLinkProperties(gazebo_msgs::GetLinkProperties::Request &req,gazebo_msgs::GetLinkProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getLinkState(gazebo_msgs::GetLinkState::Request &req,gazebo_msgs::GetLinkState::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool setLinkProperties(gazebo_msgs::SetLinkProperties::Request &req,gazebo_msgs::SetLinkProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool setPhysicsProperties(gazebo_msgs::SetPhysicsProperties::Request &req,gazebo_msgs::SetPhysicsProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool getPhysicsProperties(gazebo_msgs::GetPhysicsProperties::Request &req,gazebo_msgs::GetPhysicsProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool setJointProperties(gazebo_msgs::SetJointProperties::Request &req,gazebo_msgs::SetJointProperties::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool setModelState(gazebo_msgs::SetModelState::Request &req,gazebo_msgs::SetModelState::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateModelState(const gazebo_msgs::ModelState::ConstPtr& model_state);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool applyJointEffort(gazebo_msgs::ApplyJointEffort::Request &req,gazebo_msgs::ApplyJointEffort::Response &res);
 #endif
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool resetSimulation(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool resetWorld(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool pausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool unpausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
 
 #ifdef GAZEBO_MSGS
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool clearJointForces(gazebo_msgs::JointRequest::Request &req,gazebo_msgs::JointRequest::Response &res);
     bool clearJointForces(std::string joint_name);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool clearBodyWrenches(gazebo_msgs::BodyRequest::Request &req,gazebo_msgs::BodyRequest::Response &res);
     bool clearBodyWrenches(std::string body_name);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool setModelConfiguration(gazebo_msgs::SetModelConfiguration::Request &req,gazebo_msgs::SetModelConfiguration::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool setLinkState(gazebo_msgs::SetLinkState::Request &req,gazebo_msgs::SetLinkState::Response &res);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateLinkState(const gazebo_msgs::LinkState::ConstPtr& link_state);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool applyBodyWrench(gazebo_msgs::ApplyBodyWrench::Request &req,gazebo_msgs::ApplyBodyWrench::Response &res);
 #endif
@@ -246,7 +222,9 @@ class GazeboRosApiPlugin : public SystemPlugin
     void spin();
 
   private:
-    // helper function for applyBodyWrench
+    /// \brief helper function for applyBodyWrench
+    /// shift wrench from reference frame to target frame
+    /// assume wrench is defined in 
     void transformWrench(gazebo::math::Vector3 &target_force, gazebo::math::Vector3 &target_torque,
                          gazebo::math::Vector3 reference_force, gazebo::math::Vector3 reference_torque,
                          gazebo::math::Pose target_to_reference );
@@ -351,63 +329,49 @@ class GazeboRosApiPlugin : public SystemPlugin
     std::vector<GazeboRosApiPlugin::WrenchBodyJob*> wrench_body_jobs;
     std::vector<GazeboRosApiPlugin::ForceJointJob*> force_joint_jobs;
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void wrenchBodySchedulerSlot();
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void forceJointSchedulerSlot();
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void publishSimTime(const boost::shared_ptr<gazebo::msgs::WorldStatistics const> &msg);
     void publishSimTime();
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void publishLinkStates();
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void publishModelStates();
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void stripXmlDeclaration(std::string &model_xml);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateGazeboXmlModelPose(TiXmlDocument &gazebo_model_xml, gazebo::math::Vector3 initial_xyz, gazebo::math::Quaternion initial_q);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateGazeboXmlName(TiXmlDocument &gazebo_model_xml, std::string model_name);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateGazeboSDFModelPose(TiXmlDocument &gazebo_model_xml, gazebo::math::Vector3 initial_xyz, gazebo::math::Quaternion initial_q);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateGazeboSDFName(TiXmlDocument &gazebo_model_xml, std::string model_name);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateURDFModelPose(TiXmlDocument &gazebo_model_xml, gazebo::math::Vector3 initial_xyz, gazebo::math::Quaternion initial_q);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void updateURDFName(TiXmlDocument &gazebo_model_xml, std::string model_name);
 
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     void walkChildAddRobotNamespace(TiXmlNode* robot_xml);
 
     std::string robot_namespace_;
 
 #ifdef GAZEBO_MSGS
-    ////////////////////////////////////////////////////////////////////////////////
     /// \brief 
     bool spawnAndConfirm(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res);
 #endif
