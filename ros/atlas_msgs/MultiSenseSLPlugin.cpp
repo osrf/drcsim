@@ -121,10 +121,6 @@ void MultiSenseSL::LoadThread()
   // create ros node
   this->rosnode_ = new ros::NodeHandle("");
 
-  // ros publication
-  this->pub_status_ = this->rosnode_->advertise<std_msgs::String>(
-    "multisense_sl/status", 10);
-
   // ros subscription
   ros::SubscribeOptions set_spindle_speed_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -136,6 +132,7 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
+  /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
     "multisense_sl/set_spindle_state", 100,
@@ -175,6 +172,7 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_multi_camera_gain_sub_ =
     this->rosnode_->subscribe(set_multi_camera_gain_so);
+  */
 
   /// \todo: waiting for gen_srv to be implemented (issue #37)
   /* Advertise services on the custom queue
@@ -213,19 +211,6 @@ void MultiSenseSL::LoadThread()
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::UpdateStates()
 {
-  if (this->pub_status_.getNumSubscribers() > 0)
-  {
-    double cur_time = this->world->GetSimTime().Double();
-
-    if (cur_time - this->lastUpdateTime >= 1.0/this->updateRate)
-    {
-      this->lastUpdateTime = cur_time;
-      std_msgs::String msg;
-      msg.data = "ok";
-      this->pub_status_.publish(msg);
-    }
-  }
-
   if (this->spindleOn)
   {
     common::Time curTime = this->world->GetSimTime();

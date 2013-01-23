@@ -93,12 +93,17 @@ namespace gazebo
     private: double updateRate;
 
     // IMU sensor
-    private: std::string imuLinkName;
-    private: physics::LinkPtr imuLink;
     private: common::Time lastImuTime;
-    private: math::Pose imuReferencePose;
-    private: math::Vector3 imuLastLinearVel;
-    private: ros::Publisher pubImu;
+    private: std::string leftImuLinkName;
+    private: physics::LinkPtr leftImuLink;
+    private: math::Pose leftImuReferencePose;
+    private: math::Vector3 leftImuLastLinearVel;
+    private: ros::Publisher pubLeftImu;
+    private: std::string rightImuLinkName;
+    private: physics::LinkPtr rightImuLink;
+    private: math::Pose rightImuReferencePose;
+    private: math::Vector3 rightImuLastLinearVel;
+    private: ros::Publisher pubRightImu;
 
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
@@ -108,8 +113,8 @@ namespace gazebo
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
-    private: ros::Publisher pubStatus;
-    private: ros::Publisher pubJointStates;
+    private: ros::Publisher pubLeftJointStates;
+    private: ros::Publisher pubRightJointStates;
 
     private: ros::Subscriber subJointCommands[2];
     private: void SetJointCommands(
@@ -128,7 +133,8 @@ namespace gazebo
     private: std::vector<ErrorTerms> errorTerms;
 
     private: osrf_msgs::JointCommands jointCommands;
-    private: sensor_msgs::JointState jointStates;
+    private: sensor_msgs::JointState leftJointStates;
+    private: sensor_msgs::JointState rightJointStates;
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;

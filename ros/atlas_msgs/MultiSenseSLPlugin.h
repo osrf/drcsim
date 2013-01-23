@@ -86,9 +86,6 @@ namespace gazebo
     private: void QueueThread();
     private: boost::thread callback_queue_thread_;
 
-    // ros topics publisher
-    private: ros::Publisher pub_status_;
-
     // ros topic subscriber
     private: ros::Subscriber set_spindle_speed_sub_;
     private: void SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg);
