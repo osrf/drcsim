@@ -16,19 +16,21 @@
 */
 
 #include <algorithm>
+#include <string>
 #include <assert.h>
 
-#include "gazebo_ros_laser.h"
+#include "gazebo/physics/World.hh"
+#include "gazebo/physics/HingeJoint.hh"
+#include "gazebo/sensors/Sensor.hh"
+#include "gazebo/sdf/interface/SDF.hh"
+#include "gazebo/sdf/interface/Param.hh"
+#include "gazebo/common/Exception.hh"
+#include "gazebo/sensors/RaySensor.hh"
+#include "gazebo/sensors/SensorTypes.hh"
 
-#include "physics/World.hh"
-#include "physics/HingeJoint.hh"
-#include "sensors/Sensor.hh"
-#include "sdf/interface/SDF.hh"
-#include "sdf/interface/Param.hh"
-#include "common/Exception.hh"
-#include "sensors/RaySensor.hh"
-#include "sensors/SensorTypes.hh"
 #include "tf/tf.h"
+
+#include "gazebo_ros_laser.h"
 
 namespace gazebo
 {
@@ -39,6 +41,7 @@ GZ_REGISTER_SENSOR_PLUGIN(GazeboRosLaser)
 // Constructor
 GazeboRosLaser::GazeboRosLaser()
 {
+  this->seed = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +115,8 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->hokuyo_min_intensity_ =
       this->sdf->GetValueDouble("hokuyoMinIntensity");
 
-  ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyo_min_intensity_);
+  ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to"
+           " %f due to cutoff in hokuyo filters.", this->hokuyo_min_intensity_);
 
   if (!this->sdf->GetElement("updateRate"))
   {
@@ -252,23 +256,24 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
     this->laser_msg_.header.stamp.nsec = _updateTime.nsec;
 
 
+    // for computing yaw
     double tmp_res_angle = (maxAngle.Radian() -
-      minAngle.Radian())/((double)(rangeCount -1)); // for computing yaw
+      minAngle.Radian())/(static_cast<double>(rangeCount -1));
     this->laser_msg_.angle_min = minAngle.Radian();
     this->laser_msg_.angle_max = maxAngle.Radian();
     this->laser_msg_.angle_increment = tmp_res_angle;
-    this->laser_msg_.time_increment  = 0; // instantaneous simulator scan
-    this->laser_msg_.scan_time       = 0; // FIXME: what's this?
+    this->laser_msg_.time_increment  = 0;  // instantaneous simulator scan
+    this->laser_msg_.scan_time       = 0;  // FIXME: what's this?
     this->laser_msg_.range_min = minRange;
     this->laser_msg_.range_max = maxRange;
     this->laser_msg_.ranges.clear();
     this->laser_msg_.intensities.clear();
 
     // Interpolate the range readings from the rays
-    for (i = 0; i<rangeCount; i++)
+    for (i = 0; i < rangeCount; ++i)
     {
-      b = (double) i * (rayCount - 1) / (rangeCount - 1);
-      ja = (int) floor(b);
+      b = static_cast<double>(i * (rayCount - 1) / (rangeCount - 1));
+      ja = static_cast<int>(floor(b));
       jb = std::min(ja + 1, rayCount - 1);
       b = b - floor(b);
 
@@ -276,15 +281,15 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
       assert(jb >= 0 && jb < rayCount);
 
       ra = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(ja),
-        maxRange-minRange); // length of ray
+        maxRange-minRange);  // length of ray
       rb = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(jb),
-        maxRange-minRange); // length of ray
+        maxRange-minRange);  // length of ray
 
       // Range is linear interpolation if values are close,
       // and min if they are very different
-      //if (fabs(ra - rb) < 0.10)
-        r = (1 - b) * ra + b * rb;
-      //else r = std::min(ra, rb);
+      // if (fabs(ra - rb) < 0.10)
+      r = (1 - b) * ra + b * rb;
+      // else r = std::min(ra, rb);
 
       // Intensity is averaged
       intensity = 0.5*(this->parent_ray_sensor_->GetLaserShape()->GetRetro(ja)
@@ -307,7 +312,6 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
     // send data out via ros message
     if (this->laser_connect_count_ > 0 && this->topic_name_ != "")
         this->pub_.publish(this->laser_msg_);
-
   }
 }
 
@@ -319,13 +323,15 @@ double GazeboRosLaser::GaussianKernel(double mu, double sigma)
   // normally disbributed normal variables see wikipedia
 
   // normalized uniform random variable
-  double U = (double)rand()/(double)RAND_MAX;
+  double U = static_cast<double>(rand_r(&this->seed)) /
+             static_cast<double>(RAND_MAX);
 
   // normalized uniform random variable
-  double V = (double)rand()/(double)RAND_MAX;
+  double V = static_cast<double>(rand_r(&this->seed)) /
+             static_cast<double>(RAND_MAX);
 
-  double X = sqrt(-2.0 * ::log(U)) * cos( 2.0*M_PI * V);
-  //double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V);
+  double X = sqrt(-2.0 * ::log(U)) * cos(2.0*M_PI * V);
+  // double Y = sqrt(-2.0 * ::log(U)) * sin(2.0*M_PI * V);
 
   // we'll just use X
   // scale to our mu and sigma
