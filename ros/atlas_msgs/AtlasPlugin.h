@@ -137,6 +137,7 @@ namespace gazebo
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
+    private: std::vector<std::string> jointNames;
     private: physics::Joint_V joints;
     private: class ErrorTerms
       {

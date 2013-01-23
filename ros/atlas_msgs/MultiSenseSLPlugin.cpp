@@ -74,6 +74,12 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     return;
   }
 
+  // publish joint states for spindle joint
+  this->jointStates.name.resize(1);
+  this->jointStates.position.resize(1);
+  this->jointStates.velocity.resize(1);
+  this->jointStates.effort.resize(1);
+
   // sensors::Sensor_V s = sensors::SensorManager::Instance()->GetSensors();
   // for (sensors::Sensor_V::iterator siter = s.begin();
   //                                  siter != s.end(); ++siter)
@@ -110,8 +116,8 @@ void MultiSenseSL::LoadThread()
   this->rosnode_ = new ros::NodeHandle("");
 
   // ros publication
-  this->pub_status_ = this->rosnode_->advertise<std_msgs::String>(
-    "multisense_sl/status", 10);
+  this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
+    "multisense_sl/joint_states", 10);
 
   // ros subscription
   ros::SubscribeOptions set_spindle_speed_so =
@@ -124,6 +130,7 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
+  /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
     "multisense_sl/set_spindle_state", 100,
@@ -163,6 +170,7 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_multi_camera_gain_sub_ =
     this->rosnode_->subscribe(set_multi_camera_gain_so);
+  */
 
   /// \todo: waiting for gen_srv to be implemented (issue #37)
   /* Advertise services on the custom queue
@@ -201,36 +209,33 @@ void MultiSenseSL::LoadThread()
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::UpdateStates()
 {
-  if (this->pub_status_.getNumSubscribers() > 0)
+  common::Time curTime = this->world->GetSimTime();
+  double dt = (curTime - this->lastTime).Double();
+  if (dt > 0)
   {
-    double cur_time = this->world->GetSimTime().Double();
+    this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+    this->jointStates.name[0] = this->spindleJoint->GetName();
+    this->jointStates.position[0] = this->spindleJoint->GetAngle(0).Radian();
+    this->jointStates.velocity[0] = this->spindleJoint->GetVelocity(0);
+    this->jointStates.effort[0] = 0;
 
-    if (cur_time - this->lastUpdateTime >= 1.0/this->updateRate)
-    {
-      this->lastUpdateTime = cur_time;
-      std_msgs::String msg;
-      msg.data = "ok";
-      this->pub_status_.publish(msg);
-    }
-  }
-
-  if (this->spindleOn)
-  {
-    common::Time curTime = this->world->GetSimTime();
-    double dt = (curTime - this->lastTime).Double();
-    if (dt > 0)
+    if (this->spindleOn)
     {
       // PID control (velocity) spindle
       double spindleError = this->spindleJoint->GetVelocity(0)
                           - this->spindleSpeed;
       double spindleCmd = this->spindlePID.Update(spindleError, dt);
       this->spindleJoint->SetForce(0, spindleCmd);
+
+      this->jointStates.effort[0] = spindleCmd;
+
       this->lastTime = curTime;
     }
-  }
-  else
-  {
-    this->spindlePID.Reset();
+    else
+    {
+      this->spindlePID.Reset();
+    }
+    this->pubJointStates.publish(this->jointStates);
   }
 }
 

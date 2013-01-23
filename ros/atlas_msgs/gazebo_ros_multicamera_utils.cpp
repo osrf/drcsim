@@ -261,19 +261,23 @@ void GazeboRosMultiCameraUtils::LoadThread()
 
   this->camera_info_pub_ = this->rosnode_->advertise<sensor_msgs::CameraInfo>(this->camera_info_topic_name_,1);
 
+  /* pending pull request #185
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
         "set_hfov",1,
         boost::bind( &GazeboRosMultiCameraUtils::SetHFOV,this,_1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraHFOVSubscriber_ = this->rosnode_->subscribe(zoom_so);
+  */
 
+  /* will not be changeable for vrc
   ros::SubscribeOptions rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
         "set_update_rate",1,
         boost::bind( &GazeboRosMultiCameraUtils::SetUpdateRate,this,_1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
+  */
 
   this->Init();
 }

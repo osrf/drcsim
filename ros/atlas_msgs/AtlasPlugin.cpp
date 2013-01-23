@@ -19,6 +19,8 @@
 
 #include "sensor_msgs/Imu.h"
 
+using std::string;
+
 namespace gazebo
 {
 
@@ -50,7 +52,6 @@ AtlasPlugin::~AtlasPlugin()
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
-  gzerr << "Loading AtlasPlugin\n";
   this->model = _parent;
 
   // Get the world name.
@@ -62,40 +63,43 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->lastImuTime = this->world->GetSimTime();
 
   // get joints
-  this->joints.push_back(model->GetJoint("back_lbz")); 
-  this->joints.push_back(model->GetJoint("back_mby")); 
-  this->joints.push_back(model->GetJoint("back_ubx")); 
-  this->joints.push_back(model->GetJoint("neck_ay")); 
-  this->joints.push_back(model->GetJoint("l_leg_uhz")); 
-  this->joints.push_back(model->GetJoint("l_leg_mhx")); 
-  this->joints.push_back(model->GetJoint("l_leg_lhy")); 
-  this->joints.push_back(model->GetJoint("l_leg_kny")); 
-  this->joints.push_back(model->GetJoint("l_leg_uay")); 
-  this->joints.push_back(model->GetJoint("l_leg_lax")); 
-  this->joints.push_back(model->GetJoint("r_leg_uhz")); 
-  this->joints.push_back(model->GetJoint("r_leg_mhx")); 
-  this->joints.push_back(model->GetJoint("r_leg_lhy")); 
-  this->joints.push_back(model->GetJoint("r_leg_kny")); 
-  this->joints.push_back(model->GetJoint("r_leg_uay")); 
-  this->joints.push_back(model->GetJoint("r_leg_lax")); 
-  this->joints.push_back(model->GetJoint("l_arm_usy")); 
-  this->joints.push_back(model->GetJoint("l_arm_shx")); 
-  this->joints.push_back(model->GetJoint("l_arm_ely")); 
-  this->joints.push_back(model->GetJoint("l_arm_elx")); 
-  this->joints.push_back(model->GetJoint("l_arm_uwy")); 
-  this->joints.push_back(model->GetJoint("l_arm_mwx")); 
-  this->joints.push_back(model->GetJoint("r_arm_usy")); 
-  this->joints.push_back(model->GetJoint("r_arm_shx")); 
-  this->joints.push_back(model->GetJoint("r_arm_ely")); 
-  this->joints.push_back(model->GetJoint("r_arm_elx")); 
-  this->joints.push_back(model->GetJoint("r_arm_uwy")); 
-  this->joints.push_back(model->GetJoint("r_arm_mwx")); 
+  this->jointNames.push_back("back_lbz"); 
+  this->jointNames.push_back("back_mby"); 
+  this->jointNames.push_back("back_ubx"); 
+  this->jointNames.push_back("neck_ay"); 
+  this->jointNames.push_back("l_leg_uhz"); 
+  this->jointNames.push_back("l_leg_mhx"); 
+  this->jointNames.push_back("l_leg_lhy"); 
+  this->jointNames.push_back("l_leg_kny"); 
+  this->jointNames.push_back("l_leg_uay"); 
+  this->jointNames.push_back("l_leg_lax"); 
+  this->jointNames.push_back("r_leg_uhz"); 
+  this->jointNames.push_back("r_leg_mhx"); 
+  this->jointNames.push_back("r_leg_lhy"); 
+  this->jointNames.push_back("r_leg_kny"); 
+  this->jointNames.push_back("r_leg_uay"); 
+  this->jointNames.push_back("r_leg_lax"); 
+  this->jointNames.push_back("l_arm_usy"); 
+  this->jointNames.push_back("l_arm_shx"); 
+  this->jointNames.push_back("l_arm_ely"); 
+  this->jointNames.push_back("l_arm_elx"); 
+  this->jointNames.push_back("l_arm_uwy"); 
+  this->jointNames.push_back("l_arm_mwx"); 
+  this->jointNames.push_back("r_arm_usy"); 
+  this->jointNames.push_back("r_arm_shx"); 
+  this->jointNames.push_back("r_arm_ely"); 
+  this->jointNames.push_back("r_arm_elx"); 
+  this->jointNames.push_back("r_arm_uwy"); 
+  this->jointNames.push_back("r_arm_mwx"); 
 
+  this->joints.resize(this->jointNames.size());
   for(unsigned int i = 0; i < this->joints.size(); ++i)
   {
+    this->joints[i] = this->model->GetJoint(this->jointNames[i]);
     if (!this->joints[i])
     {
-      ROS_INFO("atlas robot expected joint[%d] not present, plugin not loaded",i);
+      ROS_ERROR("atlas robot expected joint[%s] not present, plugin not loaded",
+        this->jointNames[i].c_str());
       return;
     }
   }
@@ -106,6 +110,9 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointStates.position.resize(this->joints.size());
   this->jointStates.velocity.resize(this->joints.size());
   this->jointStates.effort.resize(this->joints.size());
+
+  for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    this->jointStates.name[i] = this->jointNames[i];
 
   this->jointCommands.name.resize(this->joints.size());
   this->jointCommands.position.resize(this->joints.size());
@@ -207,7 +214,7 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
     /// \todo: make this smarter and skip messages if not specified
     for(unsigned i = 0; i < this->joints.size(); ++i)
     {
-      this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+      // this->jointCommands.name[i] = this->joints[i]->GetScopedName();
       this->jointCommands.position[i] = _msg->position[i];
       this->jointCommands.velocity[i] = _msg->velocity[i];
       this->jointCommands.effort[i] = _msg->effort[i];
@@ -229,7 +236,6 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
 // Load the controller
 void AtlasPlugin::DeferredLoad()
 {
-  gzerr << "Deferred Loading AtlasPlugin\n";
   // initialize ros
   if (!ros::isInitialized())
   {
@@ -241,6 +247,33 @@ void AtlasPlugin::DeferredLoad()
 
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
+
+  // pull down controller parameters
+  for (unsigned int joint = 0; joint < this->joints.size(); ++joint)
+  {
+    char joint_ns[200] = "";
+    snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
+             this->joints[joint]->GetName().c_str());
+    // this is so ugly
+    double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
+    string p_str = string(joint_ns)+"p";
+    string i_str = string(joint_ns)+"i";
+    string d_str = string(joint_ns)+"d";
+    string i_clamp_str = string(joint_ns)+"i_clamp";
+    if (!this->rosNode->getParam(p_str, p_val) || 
+        !this->rosNode->getParam(i_str, i_val) || 
+        !this->rosNode->getParam(d_str, d_val) || 
+        !this->rosNode->getParam(i_clamp_str, i_clamp_val))
+    {
+      ROS_ERROR("couldn't find a param for %s", joint_ns);
+      continue;
+    }
+    this->jointCommands.kp_position[joint]  =  p_val;
+    this->jointCommands.ki_position[joint]  =  i_val;
+    this->jointCommands.kd_position[joint]  =  d_val;
+    this->jointCommands.i_effort_min[joint] = -i_clamp_val;
+    this->jointCommands.i_effort_max[joint] =  i_clamp_val;
+  }
 
   // ROS Controller API
   /// brief broadcasts the robot states
@@ -418,6 +451,7 @@ void AtlasPlugin::UpdateStates()
 #endif
 
     // populate FromRobot from robot
+    this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
       this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
@@ -427,7 +461,7 @@ void AtlasPlugin::UpdateStates()
     }
     this->pubJointStates.publish(this->jointStates);
 
-    double dt = (curTime - this->lastImuTime).Double();
+    double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     /// update pid with feedforward force
     for(unsigned int i = 0; i < this->joints.size(); ++i)
