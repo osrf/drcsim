@@ -75,6 +75,14 @@ namespace gazebo
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
 
+    // IMU sensor
+    private: std::string imuLinkName;
+    private: physics::LinkPtr imuLink;
+    private: common::Time lastImuTime;
+    private: math::Pose imuReferencePose;
+    private: math::Vector3 imuLastLinearVel;
+    private: ros::Publisher pubImu;
+
     // reset of ros stuff
     private: ros::NodeHandle* rosnode_;
     private: ros::CallbackQueue queue_;

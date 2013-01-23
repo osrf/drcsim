@@ -25,6 +25,8 @@ using std::string;
 
 namespace gazebo
 {
+GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 AtlasPlugin::AtlasPlugin()
@@ -231,7 +233,7 @@ void AtlasPlugin::SetJointCommands(
   else
   {
     ROS_DEBUG("joint commands message contains different number of joints"
-             " than expected");
+              " than expected");
   }
 }
 
@@ -627,6 +629,4 @@ void AtlasPlugin::RosQueueThread()
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 }
