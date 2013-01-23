@@ -70,40 +70,43 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->lastImuTime = this->world->GetSimTime();
 
   // get joints
-  this->joints.push_back(model->GetJoint("back_lbz")); 
-  this->joints.push_back(model->GetJoint("back_mby")); 
-  this->joints.push_back(model->GetJoint("back_ubx")); 
-  this->joints.push_back(model->GetJoint("neck_ay")); 
-  this->joints.push_back(model->GetJoint("l_leg_uhz")); 
-  this->joints.push_back(model->GetJoint("l_leg_mhx")); 
-  this->joints.push_back(model->GetJoint("l_leg_lhy")); 
-  this->joints.push_back(model->GetJoint("l_leg_kny")); 
-  this->joints.push_back(model->GetJoint("l_leg_uay")); 
-  this->joints.push_back(model->GetJoint("l_leg_lax")); 
-  this->joints.push_back(model->GetJoint("r_leg_uhz")); 
-  this->joints.push_back(model->GetJoint("r_leg_mhx")); 
-  this->joints.push_back(model->GetJoint("r_leg_lhy")); 
-  this->joints.push_back(model->GetJoint("r_leg_kny")); 
-  this->joints.push_back(model->GetJoint("r_leg_uay")); 
-  this->joints.push_back(model->GetJoint("r_leg_lax")); 
-  this->joints.push_back(model->GetJoint("l_arm_usy")); 
-  this->joints.push_back(model->GetJoint("l_arm_shx")); 
-  this->joints.push_back(model->GetJoint("l_arm_ely")); 
-  this->joints.push_back(model->GetJoint("l_arm_elx")); 
-  this->joints.push_back(model->GetJoint("l_arm_uwy")); 
-  this->joints.push_back(model->GetJoint("l_arm_mwx")); 
-  this->joints.push_back(model->GetJoint("r_arm_usy")); 
-  this->joints.push_back(model->GetJoint("r_arm_shx")); 
-  this->joints.push_back(model->GetJoint("r_arm_ely")); 
-  this->joints.push_back(model->GetJoint("r_arm_elx")); 
-  this->joints.push_back(model->GetJoint("r_arm_uwy")); 
-  this->joints.push_back(model->GetJoint("r_arm_mwx")); 
+  this->jointNames.push_back("back_lbz"); 
+  this->jointNames.push_back("back_mby"); 
+  this->jointNames.push_back("back_ubx"); 
+  this->jointNames.push_back("neck_ay"); 
+  this->jointNames.push_back("l_leg_uhz"); 
+  this->jointNames.push_back("l_leg_mhx"); 
+  this->jointNames.push_back("l_leg_lhy"); 
+  this->jointNames.push_back("l_leg_kny"); 
+  this->jointNames.push_back("l_leg_uay"); 
+  this->jointNames.push_back("l_leg_lax"); 
+  this->jointNames.push_back("r_leg_uhz"); 
+  this->jointNames.push_back("r_leg_mhx"); 
+  this->jointNames.push_back("r_leg_lhy"); 
+  this->jointNames.push_back("r_leg_kny"); 
+  this->jointNames.push_back("r_leg_uay"); 
+  this->jointNames.push_back("r_leg_lax"); 
+  this->jointNames.push_back("l_arm_usy"); 
+  this->jointNames.push_back("l_arm_shx"); 
+  this->jointNames.push_back("l_arm_ely"); 
+  this->jointNames.push_back("l_arm_elx"); 
+  this->jointNames.push_back("l_arm_uwy"); 
+  this->jointNames.push_back("l_arm_mwx"); 
+  this->jointNames.push_back("r_arm_usy"); 
+  this->jointNames.push_back("r_arm_shx"); 
+  this->jointNames.push_back("r_arm_ely"); 
+  this->jointNames.push_back("r_arm_elx"); 
+  this->jointNames.push_back("r_arm_uwy"); 
+  this->jointNames.push_back("r_arm_mwx"); 
 
+  this->joints.resize(this->jointNames.size());
   for(unsigned int i = 0; i < this->joints.size(); ++i)
   {
+    this->joints[i] = this->model->GetJoint(this->jointNames[i]);
     if (!this->joints[i])
     {
-      ROS_INFO("atlas robot expected joint[%d] not present, plugin not loaded",i);
+      ROS_ERROR("atlas robot expected joint[%s] not present, plugin not loaded",
+        this->jointNames[i].c_str());
       return;
     }
   }
@@ -114,6 +117,9 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointStates.position.resize(this->joints.size());
   this->jointStates.velocity.resize(this->joints.size());
   this->jointStates.effort.resize(this->joints.size());
+
+  for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    this->jointStates.name[i] = this->jointNames[i];
 
   this->jointCommands.name.resize(this->joints.size());
   this->jointCommands.position.resize(this->joints.size());
@@ -215,7 +221,7 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
     /// \todo: make this smarter and skip messages if not specified
     for(unsigned i = 0; i < this->joints.size(); ++i)
     {
-      this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+      // this->jointCommands.name[i] = this->joints[i]->GetScopedName();
       this->jointCommands.position[i] = _msg->position[i];
       this->jointCommands.velocity[i] = _msg->velocity[i];
       this->jointCommands.effort[i] = _msg->effort[i];
