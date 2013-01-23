@@ -31,7 +31,7 @@ class RobotArm
     TrajClient* traj_client_;
 
   public:
-    //! Initialize the action client and wait for action server to come up
+    // Initialize the action client and wait for action server to come up
     RobotArm()
     {
       // tell the action client that we want to spin a thread by default
@@ -294,7 +294,7 @@ class RobotArm
       return goal;
     }
 
-    //! Returns the current state of the action
+    // Returns the current state of the action
     actionlib::SimpleClientGoalState getState()
     {
       return traj_client_->getState();
