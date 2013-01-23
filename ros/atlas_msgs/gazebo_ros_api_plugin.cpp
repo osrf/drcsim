@@ -26,6 +26,9 @@
 
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
+
   GazeboRosApiPlugin::GazeboRosApiPlugin()
   {
     this->robot_namespace_.clear();
@@ -1408,7 +1411,7 @@ namespace gazebo
   {
     bool search = true;
     boost::mutex::scoped_lock lock(this->lock_);
-    while(search)
+    while (search)
     {
       search = false;
       for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator
@@ -1441,7 +1444,7 @@ namespace gazebo
   {
     bool search = true;
     boost::mutex::scoped_lock lock(this->lock_);
-    while(search)
+    while (search)
     {
       search = false;
       for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator
@@ -1604,7 +1607,7 @@ namespace gazebo
 
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::transformWrench( math::Vector3 &target_force,
+  void GazeboRosApiPlugin::transformWrench(math::Vector3 &target_force,
     math::Vector3 &target_torque, math::Vector3 reference_force,
     math::Vector3 reference_torque, math::Pose target_to_reference)
   {
@@ -1689,8 +1692,7 @@ namespace gazebo
                  target_to_reference.pos.z,
                  target_to_reference.rot.GetAsEuler().x,
                  target_to_reference.rot.GetAsEuler().y,
-                 target_to_reference.rot.GetAsEuler().z
-               );
+                 target_to_reference.rot.GetAsEuler().z);
       this->transformWrench(target_force, target_torque, reference_force,
         reference_torque, target_to_reference);
       ROS_ERROR("wrench defined as [%s]:[%f %f %f, %f %f %f] -->"
@@ -1708,9 +1710,7 @@ namespace gazebo
                  target_force.z,
                  target_torque.x,
                  target_torque.y,
-                 target_torque.z
-               );
-
+                 target_torque.z);
     }
     else if (req.reference_frame == "" ||
              req.reference_frame == "world" ||
@@ -2136,9 +2136,13 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateGazeboXmlModelPose(TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz, math::Quaternion initial_q)
+  void GazeboRosApiPlugin::updateGazeboXmlModelPose(
+    TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz,
+    math::Quaternion initial_q)
   {
-    TiXmlElement* model_tixml = gazebo_model_xml.FirstChildElement("model:physical"); // old gazebo pre 1.0.0
+    TiXmlElement* model_tixml =
+      gazebo_model_xml.FirstChildElement("model:physical");
+
     if (model_tixml)
     {
       // replace initial pose of robot
@@ -2154,9 +2158,12 @@ namespace gazebo
       rpy_key = new TiXmlElement("rpy");
 
       std::ostringstream xyz_stream, rpy_stream;
-      xyz_stream << initial_xyz.x << " " << initial_xyz.y << " " << initial_xyz.z;
-      math::Vector3 initial_rpy = initial_q.GetAsEuler(); // convert to Euler angles for Gazebo XML
-      rpy_stream << initial_rpy.x*180.0/M_PI << " " << initial_rpy.y*180.0/M_PI << " " << initial_rpy.z*180.0/M_PI; // convert to degrees for Gazebo (though ROS is in Radians)
+      xyz_stream << initial_xyz.x << " " << initial_xyz.y << " "
+                 << initial_xyz.z;
+      math::Vector3 initial_rpy = initial_q.GetAsEuler();
+      rpy_stream << initial_rpy.x*180.0/M_PI << " "
+                 << initial_rpy.y*180.0/M_PI << " "
+                 << initial_rpy.z*180.0/M_PI;
 
 
       TiXmlText* xyz_txt = new TiXmlText(xyz_stream.str());
@@ -2169,13 +2176,16 @@ namespace gazebo
       model_tixml->LinkEndChild(rpy_key);
     }
     else
-      ROS_ERROR("could not find <gazebo> element in sdf, so new name not applied");
+      ROS_ERROR("could not find <gazebo> element in sdf, so new name not"
+                " applied");
   }
 
   //////////////////////////////////////////////////////////////////////////////
   void GazeboRosApiPlugin::updateGazeboXmlName(TiXmlDocument &gazebo_model_xml, std::string model_name)
   {
-    TiXmlElement* model_tixml = gazebo_model_xml.FirstChildElement("model:physical"); // old gazebo pre 1.0.0
+    TiXmlElement* model_tixml =
+      gazebo_model_xml.FirstChildElement("model:physical");
+
     // replace model name if one is specified by the user
     if (model_tixml)
     {
@@ -2188,11 +2198,14 @@ namespace gazebo
       model_tixml->SetAttribute("name", model_name);
     }
     else
-      ROS_ERROR("could not find <gazebo> element in sdf, so new name not applied");
+      ROS_ERROR("could not find <gazebo> element in sdf, so new name"
+                " not applied");
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateGazeboSDFModelPose(TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz, math::Quaternion initial_q)
+  void GazeboRosApiPlugin::updateGazeboSDFModelPose(
+    TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz,
+    math::Quaternion initial_q)
   {
     TiXmlElement* gazebo_tixml = gazebo_model_xml.FirstChildElement("gazebo");
     if (gazebo_tixml)
@@ -2211,21 +2224,26 @@ namespace gazebo
         }
 
         std::ostringstream origin_stream;
-        math::Vector3 initial_rpy = initial_q.GetAsEuler(); // convert to Euler angles for Gazebo XML
-        origin_stream << initial_xyz.x << " " << initial_xyz.y << " " << initial_xyz.z << " "
-                      << initial_rpy.x << " " << initial_rpy.y << " " << initial_rpy.z;
+        math::Vector3 initial_rpy = initial_q.GetAsEuler();
+        origin_stream << initial_xyz.x << " " << initial_xyz.y
+                      << " " << initial_xyz.z << " "
+                      << initial_rpy.x << " " << initial_rpy.y
+                      << " " << initial_rpy.z;
 
         origin_key->SetAttribute("pose", origin_stream.str());
       }
       else
-        ROS_ERROR("could not find <model> element in sdf, so name and initial position is not applied");
+        ROS_ERROR("could not find <model> element in sdf, so name and"
+                  " initial position is not applied");
     }
     else
-      ROS_ERROR("could not find <gazebo> element in sdf, so new name not applied");
+      ROS_ERROR("could not find <gazebo> element in sdf, so new name"
+                " not applied");
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateGazeboSDFName(TiXmlDocument &gazebo_model_xml, std::string model_name)
+  void GazeboRosApiPlugin::updateGazeboSDFName(TiXmlDocument &gazebo_model_xml,
+    std::string model_name)
   {
     TiXmlElement* gazebo_tixml = gazebo_model_xml.FirstChildElement("gazebo");
     if (gazebo_tixml)
@@ -2242,14 +2260,17 @@ namespace gazebo
         model_tixml->SetAttribute("name", model_name);
       }
       else
-        ROS_ERROR("could not find <model> element in sdf, so name and initial position is not applied");
+        ROS_ERROR("could not find <model> element in sdf, so name and"
+                  " initial position is not applied");
     }
     else
-      ROS_ERROR("could not find <gazebo> element in sdf, so new name not applied");
+      ROS_ERROR("could not find <gazebo> element in sdf, so new name"
+                " not applied");
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateURDFModelPose(TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz, math::Quaternion initial_q)
+  void GazeboRosApiPlugin::updateURDFModelPose(TiXmlDocument &gazebo_model_xml,
+    math::Vector3 initial_xyz, math::Quaternion initial_q)
   {
     TiXmlElement* model_tixml = (gazebo_model_xml.FirstChildElement("robot"));
     if (model_tixml)
@@ -2270,11 +2291,13 @@ namespace gazebo
         origin_key->RemoveAttribute("rpy");
 
       std::ostringstream xyz_stream;
-      xyz_stream << initial_xyz.x << " " << initial_xyz.y << " " << initial_xyz.z;
+      xyz_stream << initial_xyz.x << " " << initial_xyz.y
+                 << " " << initial_xyz.z;
 
       std::ostringstream rpy_stream;
-      math::Vector3 initial_rpy = initial_q.GetAsEuler(); // convert to Euler angles for Gazebo XML
-      rpy_stream << initial_rpy.x << " " << initial_rpy.y << " " << initial_rpy.z;
+      math::Vector3 initial_rpy = initial_q.GetAsEuler();
+      rpy_stream << initial_rpy.x << " " << initial_rpy.y
+                 << " " << initial_rpy.z;
 
       origin_key->SetAttribute("xyz", xyz_stream.str());
       origin_key->SetAttribute("rpy", rpy_stream.str());
@@ -2284,7 +2307,8 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateURDFName(TiXmlDocument &gazebo_model_xml, std::string model_name)
+  void GazeboRosApiPlugin::updateURDFName(TiXmlDocument &gazebo_model_xml,
+    std::string model_name)
   {
     TiXmlElement* model_tixml = gazebo_model_xml.FirstChildElement("robot");
     // replace model name if one is specified by the user
@@ -2309,18 +2333,23 @@ namespace gazebo
     child = robot_xml->IterateChildren(child);
     while (child != NULL)
     {
-      if (child->ValueStr().find(std::string("plugin")) == 0 && child->ValueStr().find(std::string("plugin")) != std::string::npos)
+      if (child->ValueStr().find(std::string("plugin")) == 0 &&
+          child->ValueStr().find(std::string("plugin")) != std::string::npos)
       {
-        ROS_DEBUG("recursively walking gazebo extension for %s --> %d", child->ValueStr().c_str(),(int)child->ValueStr().find(std::string("plugin")));
+        ROS_DEBUG("recursively walking gazebo extension for %s --> %d",
+          child->ValueStr().c_str(),
+          (int)child->ValueStr().find(std::string("plugin")));
         if (child->FirstChildElement("robotNamespace") == NULL)
         {
-          ROS_DEBUG("    adding robotNamespace for %s", child->ValueStr().c_str());
-          //addKeyValue(child->ToElement(), "robotNamespace", this->robot_namespace_);
-          TiXmlElement* child_elem = child->ToElement()->FirstChildElement("robotNamespace");
+          ROS_DEBUG("    adding robotNamespace for %s",
+            child->ValueStr().c_str());
+          TiXmlElement* child_elem =
+            child->ToElement()->FirstChildElement("robotNamespace");
           while (child_elem)
           {
             child->ToElement()->RemoveChild(child_elem);
-            child_elem = child->ToElement()->FirstChildElement("robotNamespace");
+            child_elem =
+              child->ToElement()->FirstChildElement("robotNamespace");
           }
           TiXmlElement* key = new TiXmlElement("robotNamespace");
           TiXmlText* val = new TiXmlText(this->robot_namespace_);
@@ -2329,7 +2358,8 @@ namespace gazebo
         }
         else
         {
-          ROS_DEBUG("    robotNamespace already exists for %s", child->ValueStr().c_str());
+          ROS_DEBUG("    robotNamespace already exists for %s",
+            child->ValueStr().c_str());
         }
       }
       this->walkChildAddRobotNamespace(child);
@@ -2352,18 +2382,19 @@ namespace gazebo
     msgs::Init(msg, "spawn_model");
     msg.set_sdf(gazebo_model_xml_string);
 
-    //ROS_ERROR("attempting to spawn model name [%s] [%s]", model_name.c_str(), gazebo_model_xml_string.c_str());
-
-    // FIXME: should use entity_info or add lock to World::receiveMutex
+    /// \todo: should use entity_info or add lock to World::receiveMutex
     // looking for Model to see if it exists already
-    msgs::Request *entity_info_msg = msgs::CreateRequest("entity_info", model_name);
+    msgs::Request *entity_info_msg =
+      msgs::CreateRequest("entity_info", model_name);
     this->request_pub_->Publish(*entity_info_msg, true);
-    // todo: should wait for response response_sub_, check to see that if _msg->response == "nonexistant"
-    
+    /// \todo: should wait for response response_sub_, check to see that
+    // if _msg->response == "nonexistant"
+
     physics::ModelPtr model = this->world->GetModel(model_name);
     if (model)
     {
-      ROS_ERROR("SpawnModel: Failure - model name %s already exist.", model_name.c_str());
+      ROS_ERROR("SpawnModel: Failure - model name %s already exist.",
+        model_name.c_str());
       res.success = false;
       res.status_message = "SpawnModel: Failure - model already exists.";
       return false;
@@ -2383,7 +2414,9 @@ namespace gazebo
       if (ros::Time::now() > timeout)
       {
         res.success = false;
-        res.status_message = std::string("SpawnModel: Model pushed to spawn queue, but spawn service timed out waiting for model to appear in simulation");
+        res.status_message = std::string("SpawnModel: Model pushed to spawn"
+          " queue, but spawn service timed out waiting for model "
+          "to appear in simulation");
         return false;
       }
       {
@@ -2400,8 +2433,4 @@ namespace gazebo
     return true;
   }
 #endif
-
-// Register this plugin with the simulator
-GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 }
-
