@@ -78,6 +78,9 @@ namespace gazebo
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
     private: void DeferredLoad();
+    private: void CopyVectorIfValid(const std::vector<double> &from,
+                                    std::vector<double> &to,
+                                    const unsigned joint_offset);
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
@@ -108,9 +111,10 @@ namespace gazebo
     private: ros::Publisher pubStatus;
     private: ros::Publisher pubJointStates;
 
-    private: ros::Subscriber subJointCommands;
+    private: ros::Subscriber subJointCommands[2];
     private: void SetJointCommands(
-      const osrf_msgs::JointCommands::ConstPtr &_msg);
+      const osrf_msgs::JointCommands::ConstPtr &_msg,
+      const unsigned jointOffset); // to handle left/right hands
 
     private: physics::Joint_V joints;
     private: class ErrorTerms

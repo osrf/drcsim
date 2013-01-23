@@ -26,6 +26,8 @@
 
 #include "sensor_msgs/Imu.h"
 
+using std::string;
+
 namespace gazebo
 {
 
@@ -151,42 +153,38 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     boost::bind(&SandiaHandPlugin::DeferredLoad,this ));
 }
 
+// helper function to save some typing
+void SandiaHandPlugin::CopyVectorIfValid(const std::vector<double> &from,
+                                         std::vector<double> &to,
+                                         const unsigned joint_offset)
+{
+  if (joint_offset != 0 && joint_offset != to.size() / 2)
+    return; // get outta here, it's all over
+  if (!from.size() || from.size() != to.size() / 2)
+    return;
+  for (size_t i = 0; i < from.size(); i++)
+    to[i + joint_offset] = from[i];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Joint Commands
-void SandiaHandPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
+void SandiaHandPlugin::SetJointCommands(
+  const osrf_msgs::JointCommands::ConstPtr &_msg,
+  const unsigned ofs) // ofs = joint offset
 {
-  if (_msg->name.size() == this->jointCommands.name.size() &&
-      _msg->position.size() == this->jointCommands.position.size() &&
-      _msg->velocity.size() == this->jointCommands.velocity.size() &&
-      _msg->effort.size() == this->jointCommands.effort.size() &&
-      _msg->kp_position.size() == this->jointCommands.kp_position.size() &&
-      _msg->ki_position.size() == this->jointCommands.ki_position.size() &&
-      _msg->kd_position.size() == this->jointCommands.kd_position.size() &&
-      _msg->kp_velocity.size() == this->jointCommands.kp_velocity.size() &&
-      _msg->i_effort_min.size() == this->jointCommands.i_effort_min.size() &&
-      _msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-  {
-    /// \todo: make this smarter and skip messages if not specified
-    for(unsigned i = 0; i < this->joints.size(); ++i)
-    {
-      this->jointCommands.name[i] = this->joints[i]->GetScopedName();
-      this->jointCommands.position[i] = _msg->position[i];
-      this->jointCommands.velocity[i] = _msg->velocity[i];
-      this->jointCommands.effort[i] = _msg->effort[i];
-      this->jointCommands.kp_position[i] = _msg->kp_position[i];
-      this->jointCommands.ki_position[i] = _msg->ki_position[i];
-      this->jointCommands.kd_position[i] = _msg->kd_position[i];
-      this->jointCommands.kp_velocity[i] = _msg->kp_velocity[i];
-      this->jointCommands.i_effort_min[i] = _msg->i_effort_min[i];
-      this->jointCommands.i_effort_max[i] = _msg->i_effort_max[i];
-    }
-  }
-  else
-  {
-    ROS_DEBUG("joint commands message contains different number of joints than expected");
-  }
+  // this implementation does not check the ordering of the joints. they must 
+  // agree with the structure initialized above!
+  CopyVectorIfValid(_msg->position, this->jointCommands.position, ofs);
+  CopyVectorIfValid(_msg->velocity, this->jointCommands.velocity, ofs);
+  CopyVectorIfValid(_msg->effort, this->jointCommands.effort, ofs);
+  CopyVectorIfValid(_msg->kp_position, this->jointCommands.kp_position, ofs);
+  CopyVectorIfValid(_msg->ki_position, this->jointCommands.ki_position, ofs);
+  CopyVectorIfValid(_msg->kd_position, this->jointCommands.kd_position, ofs);
+  CopyVectorIfValid(_msg->kp_velocity, this->jointCommands.kp_velocity, ofs);
+  CopyVectorIfValid(_msg->i_effort_min, this->jointCommands.i_effort_min, ofs);
+  CopyVectorIfValid(_msg->i_effort_max, this->jointCommands.i_effort_max, ofs);
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
@@ -205,6 +203,44 @@ void SandiaHandPlugin::DeferredLoad()
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // pull down controller parameters; they should be on the param server by now
+  const int NUM_SIDES = 2, NUM_FINGERS = 4, NUM_FINGER_JOINTS = 3;
+  const char *sides[NUM_SIDES] = {"left", "right"};
+  for (int side = 0; side < NUM_SIDES; side++)
+  {
+    for (int finger = 0; finger < NUM_FINGERS; finger++)
+    {
+      for (int joint = 0; joint < NUM_FINGER_JOINTS; joint++)
+      {
+        char joint_ns[200] = "";
+        snprintf(joint_ns, sizeof(joint_ns), "sandia_hand/gains/%s_f%d_j%d/",
+                 sides[side], finger, joint);
+        // this is so ugly
+        double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
+        string p_str = string(joint_ns)+"p";
+        string i_str = string(joint_ns)+"i";
+        string d_str = string(joint_ns)+"d";
+        string i_clamp_str = string(joint_ns)+"i_clamp";
+        if (!this->rosNode->getParam(p_str, p_val) || 
+            !this->rosNode->getParam(i_str, i_val) || 
+            !this->rosNode->getParam(d_str, d_val) || 
+            !this->rosNode->getParam(i_clamp_str, i_clamp_val))
+        {
+          ROS_ERROR("couldn't find a param for %s", joint_ns);
+          continue;
+        }
+        int joint_idx = side * (NUM_FINGERS * NUM_FINGER_JOINTS) + 
+                        finger * NUM_FINGER_JOINTS + 
+                        joint;
+        this->jointCommands.kp_position[joint_idx]  =  p_val;
+        this->jointCommands.ki_position[joint_idx]  =  i_val;
+        this->jointCommands.kd_position[joint_idx]  =  d_val;
+        this->jointCommands.i_effort_min[joint_idx] = -i_clamp_val;
+        this->jointCommands.i_effort_max[joint_idx] =  i_clamp_val;
+      }
+    }
+  }
+
   // ROS Controller API
   /// brief broadcasts the robot states
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
@@ -214,14 +250,19 @@ void SandiaHandPlugin::DeferredLoad()
   this->pubStatus =
     this->rosNode->advertise<std_msgs::String>("sandia_hand/status", 10);
 
-  // ros topic subscribtions
+  // ros topic subscriptions
   ros::SubscribeOptions jointCommandsSo =
     ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    "sandia_hand/joint_commands", 100,
-    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1),
+    "sandia_hand/l_hand/joint_commands", 100,
+    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1, 0),
     ros::VoidPtr(), &this->rosQueue);
-  this->subJointCommands=
-    this->rosNode->subscribe(jointCommandsSo);
+  this->subJointCommands[0] = this->rosNode->subscribe(jointCommandsSo);
+  jointCommandsSo =
+    ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
+    "sandia_hand/r_hand/joint_commands", 100,
+    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1, 12),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subJointCommands[1] = this->rosNode->subscribe(jointCommandsSo);
  
   // publish imu data
   this->pubImu =
@@ -325,7 +366,7 @@ void SandiaHandPlugin::UpdateStates()
     }
     this->pubJointStates.publish(this->jointStates);
 
-    double dt = (curTime - this->lastImuTime).Double();
+    double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     /// update pid with feedforward force
     for(unsigned int i = 0; i < this->joints.size(); ++i)
