@@ -121,6 +121,7 @@ namespace gazebo
       const osrf_msgs::JointCommands::ConstPtr &_msg,
       const unsigned jointOffset); // to handle left/right hands
 
+    private: std::vector<std::string> jointNames;
     private: physics::Joint_V joints;
     private: class ErrorTerms
       {

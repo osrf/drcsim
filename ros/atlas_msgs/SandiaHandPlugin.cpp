@@ -67,37 +67,39 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->lastImuTime = this->world->GetSimTime();
 
   // get joints
-  this->joints.push_back(model->GetJoint("left_f0_j0"));
-  this->joints.push_back(model->GetJoint("left_f0_j1"));
-  this->joints.push_back(model->GetJoint("left_f0_j2"));
-  this->joints.push_back(model->GetJoint("left_f1_j0"));
-  this->joints.push_back(model->GetJoint("left_f1_j1"));
-  this->joints.push_back(model->GetJoint("left_f1_j2"));
-  this->joints.push_back(model->GetJoint("left_f2_j0"));
-  this->joints.push_back(model->GetJoint("left_f2_j1"));
-  this->joints.push_back(model->GetJoint("left_f2_j2"));
-  this->joints.push_back(model->GetJoint("left_f3_j0"));
-  this->joints.push_back(model->GetJoint("left_f3_j1"));
-  this->joints.push_back(model->GetJoint("left_f3_j2"));
+  this->jointNames.push_back("left_f0_j0");
+  this->jointNames.push_back("left_f0_j1");
+  this->jointNames.push_back("left_f0_j2");
+  this->jointNames.push_back("left_f1_j0");
+  this->jointNames.push_back("left_f1_j1");
+  this->jointNames.push_back("left_f1_j2");
+  this->jointNames.push_back("left_f2_j0");
+  this->jointNames.push_back("left_f2_j1");
+  this->jointNames.push_back("left_f2_j2");
+  this->jointNames.push_back("left_f3_j0");
+  this->jointNames.push_back("left_f3_j1");
+  this->jointNames.push_back("left_f3_j2");
+  this->jointNames.push_back("right_f0_j0");
+  this->jointNames.push_back("right_f0_j1");
+  this->jointNames.push_back("right_f0_j2");
+  this->jointNames.push_back("right_f1_j0");
+  this->jointNames.push_back("right_f1_j1");
+  this->jointNames.push_back("right_f1_j2");
+  this->jointNames.push_back("right_f2_j0");
+  this->jointNames.push_back("right_f2_j1");
+  this->jointNames.push_back("right_f2_j2");
+  this->jointNames.push_back("right_f3_j0");
+  this->jointNames.push_back("right_f3_j1");
+  this->jointNames.push_back("right_f3_j2");
 
-  this->joints.push_back(model->GetJoint("right_f0_j0"));
-  this->joints.push_back(model->GetJoint("right_f0_j1"));
-  this->joints.push_back(model->GetJoint("right_f0_j2"));
-  this->joints.push_back(model->GetJoint("right_f1_j0"));
-  this->joints.push_back(model->GetJoint("right_f1_j1"));
-  this->joints.push_back(model->GetJoint("right_f1_j2"));
-  this->joints.push_back(model->GetJoint("right_f2_j0"));
-  this->joints.push_back(model->GetJoint("right_f2_j1"));
-  this->joints.push_back(model->GetJoint("right_f2_j2"));
-  this->joints.push_back(model->GetJoint("right_f3_j0"));
-  this->joints.push_back(model->GetJoint("right_f3_j1"));
-  this->joints.push_back(model->GetJoint("right_f3_j2"));
+  this->joints.resize(this->jointNames.size());
 
   for(unsigned int i = 0; i < this->joints.size(); ++i)
   {
+    this->joints[i] = this->model->GetJoint(this->jointNames[i]);
     if (!this->joints[i])
     {
-      ROS_INFO("sandia hand not present, plugin not loaded");
+      ROS_ERROR("sandia hand not present, plugin not loaded");
       return;
     }
   }
@@ -113,6 +115,19 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->rightJointStates.position.resize(this->joints.size() / 2);
   this->rightJointStates.velocity.resize(this->joints.size() / 2);
   this->rightJointStates.effort.resize(this->joints.size() / 2);
+
+  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    if (i < this->joints.size() / 2)
+    {
+      this->leftJointStates.name[i] = this->jointNames[i];
+    }
+    else
+    {
+      unsigned j = i - this->joints.size() / 2;
+      this->rightJointStates.name[j] = this->jointNames[i];
+    }
+  }
 
   this->jointCommands.name.resize(this->joints.size());
   this->jointCommands.position.resize(this->joints.size());
@@ -419,10 +434,10 @@ void SandiaHandPlugin::UpdateStates()
     }
 
     // populate FromRobot from robot
+    this->leftJointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+    this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      this->leftJointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-      this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
       if (i < this->joints.size() / 2)
       {
         this->leftJointStates.position[i] =

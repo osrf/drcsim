@@ -226,6 +226,7 @@ void MultiSenseSL::UpdateStates()
   if (dt > 0)
   {
     this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+    this->jointStates.name[0] = this->spindleJoint->GetName();
     this->jointStates.position[0] = this->spindleJoint->GetAngle(0).Radian();
     this->jointStates.velocity[0] = this->spindleJoint->GetVelocity(0);
     this->jointStates.effort[0] = 0;
