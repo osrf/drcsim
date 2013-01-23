@@ -199,7 +199,8 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Joint Commands
-void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
+void AtlasPlugin::SetJointCommands(
+  const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
   if (_msg->name.size() == this->jointCommands.name.size() &&
       _msg->position.size() == this->jointCommands.position.size() &&
@@ -229,7 +230,8 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
   }
   else
   {
-    ROS_DEBUG("joint commands message contains different number of joints than expected");
+    ROS_DEBUG("joint commands message contains different number of joints"
+             " than expected");
   }
 }
 
@@ -281,7 +283,8 @@ void AtlasPlugin::DeferredLoad()
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "atlas/joint_states", 10);
 
-  this->pubForceTorqueSensors = this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
+  this->pubForceTorqueSensors =
+    this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
 
   // ros publication / subscription
@@ -307,12 +310,11 @@ void AtlasPlugin::DeferredLoad()
 
   // publish imu data
   this->pubImu =
-    this->rosNode->advertise<sensor_msgs::Imu>(
-      "atlas/imu", 10);
+    this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0; // Hz
+  this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
@@ -405,7 +407,8 @@ void AtlasPlugin::UpdateStates()
     }
 
 #if GAZEBO_MINOR_VERSION > 3
-    this->forceTorqueSensorsMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+    this->forceTorqueSensorsMsg.header.stamp =
+      ros::Time(curTime.sec, curTime.nsec);
 
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
