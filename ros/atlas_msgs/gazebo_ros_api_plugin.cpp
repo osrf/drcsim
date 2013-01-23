@@ -92,12 +92,12 @@ namespace gazebo
 
     this->rosnode_ = new ros::NodeHandle("~");
 
-    /// \brief setup custom callback queue
+    // setup custom callback queue
     gazebo_callback_queue_thread_ = new boost::thread(
       &GazeboRosApiPlugin::gazeboQueueThread, this);
 
 #ifdef USE_DYNAMIC_RECONFIGURE
-    /// \brief start a thread for the physics dynamic reconfigure node
+    // start a thread for the physics dynamic reconfigure node
     this->physics_reconfigure_thread_ = new boost::thread(
       boost::bind(&GazeboRosApiPlugin::PhysicsReconfigureNode, this));
     this->physics_reconfigure_initialized_ = false;
@@ -136,7 +136,7 @@ namespace gazebo
       return;
     }
 
-    /// \brief advertise all services
+    // advertise all services
     this->AdvertiseServices();
 
     // reset topic connection counts
@@ -172,7 +172,7 @@ namespace gazebo
   {
   }
 
-  /// \brief ros queue thread for this node
+  // ros queue thread for this node
   void GazeboRosApiPlugin::gazeboQueueThread()
   {
     ROS_DEBUG_STREAM("Callback thread id=" << boost::this_thread::get_id());
@@ -181,7 +181,7 @@ namespace gazebo
       this->gazebo_queue_.callAvailable(ros::WallDuration(timeout));
   }
 
-  /// \brief advertise services
+  // advertise services
   void GazeboRosApiPlugin::AdvertiseServices()
   {
     // publish clock for simulated ros time
@@ -680,7 +680,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief delete model given name
   bool GazeboRosApiPlugin::deleteModel(gazebo_msgs::DeleteModel::Request &req,
     gazebo_msgs::DeleteModel::Response &res)
   {
@@ -1088,7 +1087,8 @@ namespace gazebo
     if (body)
     {
       res.success = false;
-      res.status_message = "SetLinkProperties: link not found, did you forget to scope the link by model name?";
+      res.status_message = "SetLinkProperties: link not found, did you"
+                           " forget to scope the link by model name?";
       return false;
     }
     else
@@ -1203,33 +1203,34 @@ namespace gazebo
     }
     else
     {
-      for(unsigned int i=0;i< req.ode_joint_config.damping.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.damping.size(); ++i)
         joint->SetDamping(i, req.ode_joint_config.damping[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.hiStop.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.hiStop.size(); ++i)
         joint->SetAttribute(physics::Joint::HI_STOP, i,
           req.ode_joint_config.hiStop[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.loStop.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.loStop.size(); ++i)
         joint->SetAttribute(physics::Joint::LO_STOP, i,
           req.ode_joint_config.loStop[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.erp.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.erp.size(); ++i)
         joint->SetAttribute(physics::Joint::ERP, i,
           req.ode_joint_config.erp[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.cfm.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.cfm.size(); ++i)
         joint->SetAttribute(physics::Joint::CFM, i,
           req.ode_joint_config.cfm[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.stop_erp.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.stop_erp.size(); ++i)
         joint->SetAttribute(physics::Joint::STOP_ERP, i,
           req.ode_joint_config.stop_erp[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.stop_cfm.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.stop_cfm.size(); ++i)
         joint->SetAttribute(physics::Joint::STOP_CFM, i,
           req.ode_joint_config.stop_cfm[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.fudge_factor.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.fudge_factor.size();
+           ++i)
         joint->SetAttribute(physics::Joint::FUDGE_FACTOR, i,
           req.ode_joint_config.fudge_factor[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.fmax.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.fmax.size(); ++i)
         joint->SetAttribute(physics::Joint::FMAX, i,
           req.ode_joint_config.fmax[i]);
-      for(unsigned int i=0;i< req.ode_joint_config.vel.size();i++)
+      for (unsigned int i = 0; i < req.ode_joint_config.vel.size(); ++i)
         joint->SetAttribute(physics::Joint::VEL, i,
           req.ode_joint_config.vel[i]);
 
@@ -1249,7 +1250,7 @@ namespace gazebo
     math::Quaternion target_rot(req.model_state.pose.orientation.w,
       req.model_state.pose.orientation.x, req.model_state.pose.orientation.y,
       req.model_state.pose.orientation.z);
-    target_rot.Normalize(); // eliminates invalid rotation (0, 0, 0, 0)
+    target_rot.Normalize();  // eliminates invalid rotation (0, 0, 0, 0)
     math::Pose target_pose(target_pos, target_rot);
     math::Vector3 target_pos_dot(req.model_state.twist.linear.x,
       req.model_state.twist.linear.y, req.model_state.twist.linear.z);
@@ -1370,21 +1371,24 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::resetWorld(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+  bool GazeboRosApiPlugin::resetWorld(std_srvs::Empty::Request &req,
+    std_srvs::Empty::Response &res)
   {
     this->world->ResetEntities(physics::Base::MODEL);
     return true;
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::pausePhysics(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+  bool GazeboRosApiPlugin::pausePhysics(std_srvs::Empty::Request &req,
+    std_srvs::Empty::Response &res)
   {
     this->world->SetPaused(true);
     return true;
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::unpausePhysics(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+  bool GazeboRosApiPlugin::unpausePhysics(std_srvs::Empty::Request &req,
+    std_srvs::Empty::Response &res)
   {
     this->world->SetPaused(false);
     return true;
@@ -1392,10 +1396,14 @@ namespace gazebo
 
 #ifdef GAZEBO_MSGS
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::clearJointForces(gazebo_msgs::JointRequest::Request &req, gazebo_msgs::JointRequest::Response &res)
+  bool GazeboRosApiPlugin::clearJointForces(
+    gazebo_msgs::JointRequest::Request &req,
+    gazebo_msgs::JointRequest::Response &res)
   {
     return this->clearJointForces(req.joint_name);
   }
+
+  //////////////////////////////////////////////////////////////////////////////
   bool GazeboRosApiPlugin::clearJointForces(std::string joint_name)
   {
     bool search = true;
@@ -1403,7 +1411,9 @@ namespace gazebo
     while(search)
     {
       search = false;
-      for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator iter=this->force_joint_jobs.begin();iter!=this->force_joint_jobs.end();iter++)
+      for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator
+           iter = this->force_joint_jobs.begin();
+           iter != this->force_joint_jobs.end(); ++iter)
       {
         if ((*iter)->joint->GetName() == joint_name)
         {
@@ -1419,10 +1429,14 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::clearBodyWrenches(gazebo_msgs::BodyRequest::Request &req, gazebo_msgs::BodyRequest::Response &res)
+  bool GazeboRosApiPlugin::clearBodyWrenches(
+    gazebo_msgs::BodyRequest::Request &req,
+    gazebo_msgs::BodyRequest::Response &res)
   {
     return this->clearBodyWrenches(req.body_name);
   }
+
+  //////////////////////////////////////////////////////////////////////////////
   bool GazeboRosApiPlugin::clearBodyWrenches(std::string body_name)
   {
     bool search = true;
@@ -1430,9 +1444,10 @@ namespace gazebo
     while(search)
     {
       search = false;
-      for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator iter=this->wrench_body_jobs.begin();iter!=this->wrench_body_jobs.end();iter++)
+      for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator
+           iter = this->wrench_body_jobs.begin();
+           iter != this->wrench_body_jobs.end(); ++iter)
       {
-        //ROS_ERROR("search %s %s",(*iter)->body->GetScopedName().c_str(), body_name.c_str());
         if ((*iter)->body->GetScopedName() == body_name)
         {
           // found one, search through again
@@ -1447,7 +1462,9 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::setModelConfiguration(gazebo_msgs::SetModelConfiguration::Request &req, gazebo_msgs::SetModelConfiguration::Response &res)
+  bool GazeboRosApiPlugin::setModelConfiguration(
+    gazebo_msgs::SetModelConfiguration::Request &req,
+    gazebo_msgs::SetModelConfiguration::Response &res)
   {
     std::string gazebo_model_name = req.model_name;
 
@@ -1455,7 +1472,8 @@ namespace gazebo
     physics::ModelPtr gazebo_model = this->world->GetModel(req.model_name);
     if (!gazebo_model)
     {
-      ROS_ERROR("SetModelConfiguration: model [%s] does not exist", gazebo_model_name.c_str());
+      ROS_ERROR("SetModelConfiguration: model [%s] does not exist",
+        gazebo_model_name.c_str());
       res.success = false;
       res.status_message = "SetModelConfiguration: model does not exist";
       return false;
@@ -1485,19 +1503,27 @@ namespace gazebo
     else
     {
       res.success = false;
-      res.status_message = "SetModelConfiguration: joint name and position list have different lengths";
+      res.status_message = "SetModelConfiguration: joint name and position"
+                           " list have different lengths";
       return false;
     }
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::setLinkState(gazebo_msgs::SetLinkState::Request &req, gazebo_msgs::SetLinkState::Response &res)
+  bool GazeboRosApiPlugin::setLinkState(
+    gazebo_msgs::SetLinkState::Request &req,
+    gazebo_msgs::SetLinkState::Response &res)
   {
-    physics::LinkPtr body = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.link_state.link_name));
-    physics::LinkPtr frame = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.link_state.reference_frame));
+    physics::LinkPtr body =
+      boost::dynamic_pointer_cast<physics::Link>(
+        this->world->GetEntity(req.link_state.link_name));
+    physics::LinkPtr frame =
+      boost::dynamic_pointer_cast<physics::Link>(
+        this->world->GetEntity(req.link_state.reference_frame));
     if (!body)
     {
-      ROS_ERROR("Updating LinkState: link [%s] does not exist", req.link_state.link_name.c_str());
+      ROS_ERROR("Updating LinkState: link [%s] does not exist",
+        req.link_state.link_name.c_str());
       res.success = false;
       res.status_message = "SetLinkState: link does not exist";
       return false;
@@ -1506,20 +1532,27 @@ namespace gazebo
     /// @todo: FIXME map is really wrong, unless using tf here somehow
     // get reference frame (body/model(link)) pose and
     // transform target pose to absolute world frame
-    math::Vector3 target_pos(req.link_state.pose.position.x, req.link_state.pose.position.y, req.link_state.pose.position.z);
-    math::Quaternion target_rot(req.link_state.pose.orientation.w, req.link_state.pose.orientation.x, req.link_state.pose.orientation.y, req.link_state.pose.orientation.z);
+    math::Vector3 target_pos(req.link_state.pose.position.x,
+                             req.link_state.pose.position.y,
+                             req.link_state.pose.position.z);
+    math::Quaternion target_rot(req.link_state.pose.orientation.w,
+                                req.link_state.pose.orientation.x,
+                                req.link_state.pose.orientation.y,
+                                req.link_state.pose.orientation.z);
     math::Pose target_pose(target_pos, target_rot);
-    math::Vector3 target_linear_vel(req.link_state.twist.linear.x, req.link_state.twist.linear.y, req.link_state.twist.linear.z);
-    math::Vector3 target_angular_vel(req.link_state.twist.angular.x, req.link_state.twist.angular.y, req.link_state.twist.angular.z);
+    math::Vector3 target_linear_vel(req.link_state.twist.linear.x,
+                                    req.link_state.twist.linear.y,
+                                    req.link_state.twist.linear.z);
+    math::Vector3 target_angular_vel(req.link_state.twist.angular.x,
+                                     req.link_state.twist.angular.y,
+                                     req.link_state.twist.angular.z);
 
     if (frame)
     {
-      math::Pose  frame_pose = frame->GetWorldPose(); // - this->myBody->GetCoMPose();
+      math::Pose  frame_pose = frame->GetWorldPose();
       math::Vector3 frame_pos = frame_pose.pos;
       math::Quaternion frame_rot = frame_pose.rot;
 
-      //std::cout << " debug : " << frame->GetName() << " : " << frame_pose << " : " << target_pose << std::endl;
-      //target_pose = frame_pose + target_pose; // seems buggy, use my own
       target_pose.pos = frame_pos + frame_rot.RotateVector(target_pos);
       target_pose.rot = frame_rot * target_pose.rot;
 
@@ -1528,9 +1561,13 @@ namespace gazebo
       target_linear_vel -= frame_linear_vel;
       target_angular_vel -= frame_angular_vel;
     }
-    else if (req.link_state.reference_frame == "" || req.link_state.reference_frame == "world" || req.link_state.reference_frame == "map" || req.link_state.reference_frame == "/map")
+    else if (req.link_state.reference_frame == "" ||
+             req.link_state.reference_frame == "world" ||
+             req.link_state.reference_frame == "map" ||
+             req.link_state.reference_frame == "/map")
     {
-      ROS_INFO("Updating LinkState: reference_frame is empty/world/map, using inertial frame");
+      ROS_INFO("Updating LinkState: reference_frame is empty/world/map,"
+               " using inertial frame");
     }
     else
     {
@@ -1540,11 +1577,9 @@ namespace gazebo
       return false;
     }
 
-    //std::cout << " debug : " << target_pose << std::endl;
-    //boost::recursive_mutex::scoped_lock lock(*this->world->GetMRMutex());
-
     bool is_paused = this->world->IsPaused();
-    if (!is_paused) this->world->SetPaused(true);
+    if (!is_paused)
+      this->world->SetPaused(true);
     body->SetWorldPose(target_pose);
     this->world->SetPaused(is_paused);
 
@@ -1558,55 +1593,71 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateLinkState(const gazebo_msgs::LinkState::ConstPtr& link_state)
+  void GazeboRosApiPlugin::updateLinkState(
+    const gazebo_msgs::LinkState::ConstPtr& link_state)
   {
     gazebo_msgs::SetLinkState::Request req;
     gazebo_msgs::SetLinkState::Response res;
     req.link_state = *link_state;
-    /*bool success = */ this->setLinkState(req, res);
+    /*bool success = */  this->setLinkState(req, res);
   }
 
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::transformWrench( math::Vector3 &target_force, math::Vector3 &target_torque,
-                             math::Vector3 reference_force, math::Vector3 reference_torque,
-                             math::Pose target_to_reference)
+  void GazeboRosApiPlugin::transformWrench( math::Vector3 &target_force,
+    math::Vector3 &target_torque, math::Vector3 reference_force,
+    math::Vector3 reference_torque, math::Pose target_to_reference)
   {
     // rotate force into target frame
     target_force = target_to_reference.rot.RotateVector(reference_force);
     // rotate torque into target frame
     target_torque = target_to_reference.rot.RotateVector(reference_torque);
 
-    // target force is the refence force rotated by the target->reference transform
+    // target force is the refence force rotated by the target->reference
+    // transform
     target_force = target_force;
     target_torque = target_torque + target_to_reference.pos.Cross(target_force);
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
-  bool GazeboRosApiPlugin::applyBodyWrench(gazebo_msgs::ApplyBodyWrench::Request &req, gazebo_msgs::ApplyBodyWrench::Response &res)
+  bool GazeboRosApiPlugin::applyBodyWrench(
+    gazebo_msgs::ApplyBodyWrench::Request &req,
+    gazebo_msgs::ApplyBodyWrench::Response &res)
   {
-    physics::LinkPtr body = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.body_name));
-    physics::LinkPtr frame = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(req.reference_frame));
+    physics::LinkPtr body =
+      boost::dynamic_pointer_cast<physics::Link>(
+      this->world->GetEntity(req.body_name));
+    physics::LinkPtr frame =
+      boost::dynamic_pointer_cast<physics::Link>(
+      this->world->GetEntity(req.reference_frame));
     if (!body)
     {
-      ROS_ERROR("ApplyBodyWrench: body [%s] does not exist", req.body_name.c_str());
+      ROS_ERROR("ApplyBodyWrench: body [%s] does not exist",
+        req.body_name.c_str());
       res.success = false;
       res.status_message = "ApplyBodyWrench: body does not exist";
       return false;
     }
 
     // target wrench
-    math::Vector3 reference_force(req.wrench.force.x, req.wrench.force.y, req.wrench.force.z);
-    math::Vector3 reference_torque(req.wrench.torque.x, req.wrench.torque.y, req.wrench.torque.z);
-    math::Vector3 reference_point(req.reference_point.x, req.reference_point.y, req.reference_point.z);
+    math::Vector3 reference_force(req.wrench.force.x,
+                                  req.wrench.force.y,
+                                  req.wrench.force.z);
+    math::Vector3 reference_torque(req.wrench.torque.x,
+                                   req.wrench.torque.y,
+                                   req.wrench.torque.z);
+    math::Vector3 reference_point(req.reference_point.x,
+                                  req.reference_point.y,
+                                  req.reference_point.z);
 
     math::Vector3 target_force;
     math::Vector3 target_torque;
 
     /// shift wrench to body frame if a non-zero reference point is given
-    ///   @todo: to be more general, should we make the reference point a reference pose?
-    reference_torque = reference_torque + reference_point.Cross(reference_force);
+    /// @todo: to be more general, should we make the reference point
+    /// a reference pose?
+    reference_torque = reference_torque +
+      reference_point.Cross(reference_force);
 
     /// @todo: FIXME map is really wrong, need to use tf here somehow
     if (frame)
@@ -1617,8 +1668,10 @@ namespace gazebo
       //        transform wrench from reference_point in reference_frame
       //        into the reference frame of the body
       //        first, translate by reference point to the body frame
-      math::Pose target_to_reference = frame->GetWorldPose() - body->GetWorldPose();
-      ROS_DEBUG("reference frame for applied wrench: [%f %f %f, %f %f %f]-[%f %f %f, %f %f %f]=[%f %f %f, %f %f %f]",
+      math::Pose target_to_reference = frame->GetWorldPose() -
+        body->GetWorldPose();
+      ROS_DEBUG("reference frame for applied wrench: [%f %f %f"
+                ", %f %f %f]-[%f %f %f, %f %f %f]=[%f %f %f, %f %f %f]",
                  body->GetWorldPose().pos.x,
                  body->GetWorldPose().pos.y,
                  body->GetWorldPose().pos.z,
@@ -1638,8 +1691,10 @@ namespace gazebo
                  target_to_reference.rot.GetAsEuler().y,
                  target_to_reference.rot.GetAsEuler().z
                );
-      this->transformWrench(target_force, target_torque, reference_force, reference_torque, target_to_reference);
-      ROS_ERROR("wrench defined as [%s]:[%f %f %f, %f %f %f] --> applied as [%s]:[%f %f %f, %f %f %f]",
+      this->transformWrench(target_force, target_torque, reference_force,
+        reference_torque, target_to_reference);
+      ROS_ERROR("wrench defined as [%s]:[%f %f %f, %f %f %f] -->"
+                " applied as [%s]:[%f %f %f, %f %f %f]",
                  frame->GetName().c_str(),
                  reference_force.x,
                  reference_force.y,
@@ -1657,9 +1712,14 @@ namespace gazebo
                );
 
     }
-    else if (req.reference_frame == "" || req.reference_frame == "world" || req.reference_frame == "map" || req.reference_frame == "/map")
+    else if (req.reference_frame == "" ||
+             req.reference_frame == "world" ||
+             req.reference_frame == "map" ||
+             req.reference_frame == "/map")
     {
-      ROS_INFO("ApplyBodyWrench: reference_frame is empty/world/map, using inertial frame, transferring from body relative to inertial frame");
+      ROS_INFO("ApplyBodyWrench: reference_frame is empty/world/map,"
+               " using inertial frame, transferring from body relative"
+               " to inertial frame");
       // FIXME: transfer to inertial frame
       math::Pose target_to_reference = body->GetWorldPose();
       target_force = reference_force;
@@ -1678,7 +1738,8 @@ namespace gazebo
     // schedule a job to do below at appropriate times:
     // body->SetForce(force)
     // body->SetTorque(torque)
-    GazeboRosApiPlugin::WrenchBodyJob* wej = new GazeboRosApiPlugin::WrenchBodyJob;
+    GazeboRosApiPlugin::WrenchBodyJob* wej =
+      new GazeboRosApiPlugin::WrenchBodyJob;
     wej->body = body;
     wej->force = target_force;
     wej->torque = target_torque;
@@ -1709,7 +1770,7 @@ namespace gazebo
     }
   }
 
-  /// \brief utilites for checking incoming string URDF/XML/Param
+  // utilites for checking incoming string URDF/XML/Param
   bool GazeboRosApiPlugin::IsURDF(std::string model_xml)
   {
     TiXmlDocument doc_in;
@@ -1741,29 +1802,33 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::wrenchBodySchedulerSlot()
   {
-    // MDMutex locks in case model is getting deleted, don't have to do this if we delete jobs first
+    // MDMutex locks in case model is getting deleted, don't have to
+    // do this if we delete jobs first
     // boost::recursive_mutex::scoped_lock lock(*this->world->GetMDMutex());
     boost::mutex::scoped_lock lock(this->lock_);
-    for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator iter=this->wrench_body_jobs.begin();iter!=this->wrench_body_jobs.end();)
+    for (std::vector<GazeboRosApiPlugin::WrenchBodyJob*>::iterator
+         iter = this->wrench_body_jobs.begin();
+         iter != this->wrench_body_jobs.end(); )
     {
       // check times and apply wrench if necessary
       if (ros::Time(this->world->GetSimTime().Double()) >= (*iter)->start_time)
-        if (ros::Time(this->world->GetSimTime().Double()) <= (*iter)->start_time+(*iter)->duration ||
+        if (ros::Time(this->world->GetSimTime().Double()) <=
+            (*iter)->start_time+(*iter)->duration ||
             (*iter)->duration.toSec() < 0.0)
         {
-          if ((*iter)->body) // if body exists
+          if ((*iter)->body)
           {
             (*iter)->body->SetForce((*iter)->force);
             (*iter)->body->SetTorque((*iter)->torque);
           }
           else
-            (*iter)->duration.fromSec(0.0); // mark for delete
+            (*iter)->duration.fromSec(0.0);
         }
 
-      if (ros::Time(this->world->GetSimTime().Double()) > (*iter)->start_time+(*iter)->duration &&
+      if (ros::Time(this->world->GetSimTime().Double()) >
+          (*iter)->start_time+(*iter)->duration &&
           (*iter)->duration.toSec() >= 0.0)
       {
         // remove from queue once expires
@@ -1776,26 +1841,30 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::forceJointSchedulerSlot()
   {
-    // MDMutex locks in case model is getting deleted, don't have to do this if we delete jobs first
+    // MDMutex locks in case model is getting deleted, don't have to
+    // do this if we delete jobs first
     // boost::recursive_mutex::scoped_lock lock(*this->world->GetMDMutex());
     boost::mutex::scoped_lock lock(this->lock_);
-    for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator iter=this->force_joint_jobs.begin();iter!=this->force_joint_jobs.end();)
+    for (std::vector<GazeboRosApiPlugin::ForceJointJob*>::iterator
+         iter = this->force_joint_jobs.begin();
+         iter != this->force_joint_jobs.end(); )
     {
       // check times and apply force if necessary
       if (ros::Time(this->world->GetSimTime().Double()) >= (*iter)->start_time)
-        if (ros::Time(this->world->GetSimTime().Double()) <= (*iter)->start_time+(*iter)->duration ||
+        if (ros::Time(this->world->GetSimTime().Double()) <=
+            (*iter)->start_time+(*iter)->duration ||
             (*iter)->duration.toSec() < 0.0)
           {
-            if ((*iter)->joint) // if joint exists
+            if ((*iter)->joint)
               (*iter)->joint->SetForce(0,(*iter)->force);
             else
-              (*iter)->duration.fromSec(0.0); // mark for delete
+              (*iter)->duration.fromSec(0.0);
           }
 
-      if (ros::Time(this->world->GetSimTime().Double()) > (*iter)->start_time+(*iter)->duration &&
+      if (ros::Time(this->world->GetSimTime().Double()) >
+          (*iter)->start_time+(*iter)->duration &&
           (*iter)->duration.toSec() >= 0.0)
       {
         // remove from queue once expires
@@ -1807,8 +1876,8 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
-  void GazeboRosApiPlugin::publishSimTime(const boost::shared_ptr<msgs::WorldStatistics const> &msg)
+  void GazeboRosApiPlugin::publishSimTime(
+    const boost::shared_ptr<msgs::WorldStatistics const> &msg)
   {
     ROS_ERROR("CLOCK2");
     common::Time currentTime = msgs::Convert( msg->sim_time());
@@ -1817,6 +1886,8 @@ namespace gazebo
     //  publish time to ros
     this->pub_clock_.publish(ros_time_);
   }
+
+  //////////////////////////////////////////////////////////////////////////////
   void GazeboRosApiPlugin::publishSimTime()
   {
     common::Time currentTime = this->world->GetSimTime();
@@ -1826,10 +1897,8 @@ namespace gazebo
     this->pub_clock_.publish(ros_time_);
   }
 
-
 #ifdef GAZEBO_MSGS
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::publishLinkStates()
   {
     gazebo_msgs::LinkStates link_states;
@@ -1841,13 +1910,14 @@ namespace gazebo
 
       for (unsigned int j = 0 ; j < model->GetChildCount(); j ++)
       {
-        physics::LinkPtr body = boost::dynamic_pointer_cast<physics::Link>(model->GetChild(j));
+        physics::LinkPtr body =
+          boost::dynamic_pointer_cast<physics::Link>(model->GetChild(j));
 
         if (body)
         {
           link_states.name.push_back(body->GetScopedName());
           geometry_msgs::Pose pose;
-          math::Pose  body_pose = body->GetWorldPose(); // - this->myBody->GetCoMPose();
+          math::Pose  body_pose = body->GetWorldPose();
           math::Vector3 pos = body_pose.pos;
           math::Quaternion rot = body_pose.rot;
           pose.position.x = pos.x;
@@ -1876,18 +1946,17 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::publishModelStates()
   {
     gazebo_msgs::ModelStates model_states;
 
     // fill model_states
-    for (unsigned int i = 0; i < this->world->GetModelCount(); i ++)
+    for (unsigned int i = 0; i < this->world->GetModelCount(); ++i)
     {
       physics::ModelPtr model = this->world->GetModel(i);
       model_states.name.push_back(model->GetName());
       geometry_msgs::Pose pose;
-      math::Pose  model_pose = model->GetWorldPose(); // - this->myBody->GetCoMPose();
+      math::Pose  model_pose = model->GetWorldPose();
       math::Vector3 pos = model_pose.pos;
       math::Quaternion rot = model_pose.rot;
       pose.position.x = pos.x;
@@ -1913,28 +1982,34 @@ namespace gazebo
   }
 
 #ifdef USE_DYNAMIC_RECONFIGURE
-  void GazeboRosApiPlugin::PhysicsReconfigureCallback(PhysicsConfig &config, uint32_t level)
+  void GazeboRosApiPlugin::PhysicsReconfigureCallback(
+    PhysicsConfig &config, uint32_t level)
   {
     if (!physics_reconfigure_initialized_)
     {
       gazebo_msgs::GetPhysicsProperties srv;
       this->physics_reconfigure_get_client_.call(srv);
 
-      config.time_step                   = srv.response.time_step;
-      config.max_update_rate             = srv.response.max_update_rate;
-      config.gravity_x                   = srv.response.gravity.x;
-      config.gravity_y                   = srv.response.gravity.y;
-      config.gravity_z                   = srv.response.gravity.z;
-      config.auto_disable_bodies         = srv.response.ode_config.auto_disable_bodies;
-      config.sor_pgs_precon_iters        = srv.response.ode_config.sor_pgs_precon_iters;
-      config.sor_pgs_iters               = srv.response.ode_config.sor_pgs_iters;
-      config.sor_pgs_rms_error_tol       = srv.response.ode_config.sor_pgs_rms_error_tol;
-      config.sor_pgs_w                   = srv.response.ode_config.sor_pgs_w;
-      config.contact_surface_layer       = srv.response.ode_config.contact_surface_layer;
-      config.contact_max_correcting_vel  = srv.response.ode_config.contact_max_correcting_vel;
-      config.cfm                         = srv.response.ode_config.cfm;
-      config.erp                         = srv.response.ode_config.erp;
-      config.max_contacts                = srv.response.ode_config.max_contacts;
+      config.time_step                  = srv.response.time_step;
+      config.max_update_rate            = srv.response.max_update_rate;
+      config.gravity_x                  = srv.response.gravity.x;
+      config.gravity_y                  = srv.response.gravity.y;
+      config.gravity_z                  = srv.response.gravity.z;
+      config.auto_disable_bodies        =
+        srv.response.ode_config.auto_disable_bodies;
+      config.sor_pgs_precon_iters       =
+        srv.response.ode_config.sor_pgs_precon_iters;
+      config.sor_pgs_iters              = srv.response.ode_config.sor_pgs_iters;
+      config.sor_pgs_rms_error_tol      =
+        srv.response.ode_config.sor_pgs_rms_error_tol;
+      config.sor_pgs_w                  = srv.response.ode_config.sor_pgs_w;
+      config.contact_surface_layer      =
+        srv.response.ode_config.contact_surface_layer;
+      config.contact_max_correcting_vel =
+        srv.response.ode_config.contact_max_correcting_vel;
+      config.cfm                        = srv.response.ode_config.cfm;
+      config.erp                        = srv.response.ode_config.erp;
+      config.max_contacts               = srv.response.ode_config.max_contacts;
       physics_reconfigure_initialized_ = true;
     }
     else
@@ -1944,41 +2019,66 @@ namespace gazebo
       this->physics_reconfigure_get_client_.call(srv);
 
       // check for changes
-      if (config.time_step                      != srv.response.time_step)                                 changed = true;
-      if (config.max_update_rate                != srv.response.max_update_rate)                           changed = true;
-      if (config.gravity_x                      != srv.response.gravity.x)                                 changed = true;
-      if (config.gravity_y                      != srv.response.gravity.y)                                 changed = true;
-      if (config.gravity_z                      != srv.response.gravity.z)                                 changed = true;
-      if (config.auto_disable_bodies            != srv.response.ode_config.auto_disable_bodies)            changed = true;
-      if ((uint32_t)config.sor_pgs_precon_iters != srv.response.ode_config.sor_pgs_precon_iters)           changed = true;
-      if ((uint32_t)config.sor_pgs_iters        != srv.response.ode_config.sor_pgs_iters)                  changed = true;
-      if (config.sor_pgs_rms_error_tol          != srv.response.ode_config.sor_pgs_rms_error_tol)          changed = true;
-      if (config.sor_pgs_w                      != srv.response.ode_config.sor_pgs_w)                      changed = true;
-      if (config.contact_surface_layer          != srv.response.ode_config.contact_surface_layer)          changed = true;
-      if (config.contact_max_correcting_vel     != srv.response.ode_config.contact_max_correcting_vel)     changed = true;
-      if (config.cfm                            != srv.response.ode_config.cfm)                            changed = true;
-      if (config.erp                            != srv.response.ode_config.erp)                            changed = true;
-      if ((uint32_t)config.max_contacts         != srv.response.ode_config.max_contacts)                   changed = true;
+      if (config.time_step != srv.response.time_step)
+        changed = true;
+      if (config.max_update_rate != srv.response.max_update_rate)
+        changed = true;
+      if (config.gravity_x != srv.response.gravity.x)
+        changed = true;
+      if (config.gravity_y != srv.response.gravity.y)
+        changed = true;
+      if (config.gravity_z != srv.response.gravity.z)
+        changed = true;
+      if (config.auto_disable_bodies !=
+        srv.response.ode_config.auto_disable_bodies)
+        changed = true;
+      if ((uint32_t)config.sor_pgs_precon_iters !=
+        srv.response.ode_config.sor_pgs_precon_iters)
+        changed = true;
+      if ((uint32_t)config.sor_pgs_iters !=
+        srv.response.ode_config.sor_pgs_iters)
+        changed = true;
+      if (config.sor_pgs_rms_error_tol !=
+        srv.response.ode_config.sor_pgs_rms_error_tol)
+        changed = true;
+      if (config.sor_pgs_w != srv.response.ode_config.sor_pgs_w)
+        changed = true;
+      if (config.contact_surface_layer !=
+        srv.response.ode_config.contact_surface_layer)
+        changed = true;
+      if (config.contact_max_correcting_vel !=
+        srv.response.ode_config.contact_max_correcting_vel)
+        changed = true;
+      if (config.cfm != srv.response.ode_config.cfm)
+        changed = true;
+      if (config.erp != srv.response.ode_config.erp)
+        changed = true;
+      if ((uint32_t)config.max_contacts != srv.response.ode_config.max_contacts)
+        changed = true;
 
       if (changed)
       {
         // pause simulation if requested
         gazebo_msgs::SetPhysicsProperties srv;
-        srv.request.time_step                             = config.time_step                   ;
-        srv.request.max_update_rate                       = config.max_update_rate             ;
-        srv.request.gravity.x                             = config.gravity_x                   ;
-        srv.request.gravity.y                             = config.gravity_y                   ;
-        srv.request.gravity.z                             = config.gravity_z                   ;
-        srv.request.ode_config.auto_disable_bodies        = config.auto_disable_bodies         ;
-        srv.request.ode_config.sor_pgs_precon_iters       = config.sor_pgs_precon_iters        ;
-        srv.request.ode_config.sor_pgs_iters              = config.sor_pgs_iters               ;
-        srv.request.ode_config.sor_pgs_rms_error_tol      = config.sor_pgs_rms_error_tol       ;
-        srv.request.ode_config.sor_pgs_w                  = config.sor_pgs_w                   ;
-        srv.request.ode_config.contact_surface_layer      = config.contact_surface_layer       ;
-        srv.request.ode_config.contact_max_correcting_vel = config.contact_max_correcting_vel  ;
-        srv.request.ode_config.cfm                        = config.cfm                         ;
-        srv.request.ode_config.erp                        = config.erp                         ;
-        srv.request.ode_config.max_contacts               = config.max_contacts                ;
+        srv.request.time_step = config.time_step;
+        srv.request.max_update_rate = config.max_update_rate;
+        srv.request.gravity.x = config.gravity_x;
+        srv.request.gravity.y = config.gravity_y;
+        srv.request.gravity.z = config.gravity_z;
+        srv.request.ode_config.auto_disable_bodies = config.auto_disable_bodies;
+        srv.request.ode_config.sor_pgs_precon_iters =
+          config.sor_pgs_precon_iters;
+        srv.request.ode_config.sor_pgs_iters = config.sor_pgs_iters;
+        srv.request.ode_config.sor_pgs_rms_error_tol =
+          config.sor_pgs_rms_error_tol;
+        srv.request.ode_config.sor_pgs_w = config.sor_pgs_w;
+        srv.request.ode_config.contact_surface_layer =
+          config.contact_surface_layer;
+        srv.request.ode_config.contact_max_correcting_vel =
+          config.contact_max_correcting_vel;
+        srv.request.ode_config.cfm = config.cfm;
+        srv.request.ode_config.erp = config.erp;
+        srv.request.ode_config.max_contacts = config.max_contacts;
         this->physics_reconfigure_set_client_.call(srv);
         ROS_INFO("physics dynamics reconfigure update complete");
       }
@@ -1989,17 +2089,24 @@ namespace gazebo
   void GazeboRosApiPlugin::PhysicsReconfigureNode()
   {
     ros::NodeHandle node_handle;
-    this->physics_reconfigure_set_client_ = node_handle.serviceClient<gazebo_msgs::SetPhysicsProperties>("/gazebo/set_physics_properties");
-    this->physics_reconfigure_get_client_ = node_handle.serviceClient<gazebo_msgs::GetPhysicsProperties>("/gazebo/get_physics_properties");
+    this->physics_reconfigure_set_client_ =
+      node_handle.serviceClient<gazebo_msgs::SetPhysicsProperties>(
+      "/gazebo/set_physics_properties");
+    this->physics_reconfigure_get_client_ =
+      node_handle.serviceClient<gazebo_msgs::GetPhysicsProperties>(
+      "/gazebo/get_physics_properties");
     this->physics_reconfigure_set_client_.waitForExistence();
     this->physics_reconfigure_get_client_.waitForExistence();
 
     // for dynamic reconfigure physics
     // for dynamic_reconfigure
     dynamic_reconfigure::Server<PhysicsConfig> physics_reconfigure_srv;
-    dynamic_reconfigure::Server<PhysicsConfig>::CallbackType physics_reconfigure_f;
+    dynamic_reconfigure::Server<PhysicsConfig>::CallbackType
+      physics_reconfigure_f;
 
-    physics_reconfigure_f = boost::bind(&GazeboRosApiPlugin::PhysicsReconfigureCallback, this, _1, _2);
+    physics_reconfigure_f =
+      boost::bind(&GazeboRosApiPlugin::PhysicsReconfigureCallback,
+      this, _1, _2);
     physics_reconfigure_srv.setCallback(physics_reconfigure_f);
 
     ROS_INFO("Starting to spin physics dynamic reconfigure node...");
@@ -2014,7 +2121,6 @@ namespace gazebo
 #endif
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::stripXmlDeclaration(std::string &model_xml)
   {
     // incoming robot model string is a string containing a Gazebo Model XML
@@ -2030,7 +2136,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::updateGazeboXmlModelPose(TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz, math::Quaternion initial_q)
   {
     TiXmlElement* model_tixml = gazebo_model_xml.FirstChildElement("model:physical"); // old gazebo pre 1.0.0
@@ -2068,7 +2173,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::updateGazeboXmlName(TiXmlDocument &gazebo_model_xml, std::string model_name)
   {
     TiXmlElement* model_tixml = gazebo_model_xml.FirstChildElement("model:physical"); // old gazebo pre 1.0.0
@@ -2088,7 +2192,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::updateGazeboSDFModelPose(TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz, math::Quaternion initial_q)
   {
     TiXmlElement* gazebo_tixml = gazebo_model_xml.FirstChildElement("gazebo");
@@ -2122,7 +2225,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::updateGazeboSDFName(TiXmlDocument &gazebo_model_xml, std::string model_name)
   {
     TiXmlElement* gazebo_tixml = gazebo_model_xml.FirstChildElement("gazebo");
@@ -2147,7 +2249,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::updateURDFModelPose(TiXmlDocument &gazebo_model_xml, math::Vector3 initial_xyz, math::Quaternion initial_q)
   {
     TiXmlElement* model_tixml = (gazebo_model_xml.FirstChildElement("robot"));
@@ -2183,7 +2284,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::updateURDFName(TiXmlDocument &gazebo_model_xml, std::string model_name)
   {
     TiXmlElement* model_tixml = gazebo_model_xml.FirstChildElement("robot");
@@ -2203,7 +2303,6 @@ namespace gazebo
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   void GazeboRosApiPlugin::walkChildAddRobotNamespace(TiXmlNode* robot_xml)
   {
     TiXmlNode* child = 0;
@@ -2240,7 +2339,6 @@ namespace gazebo
 
 #ifdef GAZEBO_MSGS
   //////////////////////////////////////////////////////////////////////////////
-  /// \brief 
   bool GazeboRosApiPlugin::spawnAndConfirm(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res)
   {
     // push to factory iface
@@ -2273,10 +2371,11 @@ namespace gazebo
 
     // Publish the factory message
     this->factory_pub_->Publish(msg);
-    /// FIXME: should change publish to direct invocation World::LoadModel() and/or
-    ///        change the poll for Model existence to common::Events based check.
 
-    /// \brief poll and wait, verify that the model is spawned within Hardcoded 60 seconds
+    /// \todo: should change publish to direct invocation World::LoadModel()
+    /// and/or change the poll for Model existence to common::Events check.
+
+    /// poll and wait, verify that the model is spawned within 60 seconds
     ros::Duration model_spawn_timeout(60.0);
     ros::Time timeout = ros::Time::now() + model_spawn_timeout;
     while (true)
