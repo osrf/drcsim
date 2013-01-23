@@ -425,6 +425,7 @@ void AtlasPlugin::UpdateStates()
 #endif
 
     // populate FromRobot from robot
+    this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
       this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();

@@ -423,6 +423,8 @@ void SandiaHandPlugin::UpdateStates()
     // populate FromRobot from robot
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
+      this->leftJointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+      this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
       if (i < this->joints.size() / 2)
       {
         this->leftJointStates.position[i] =
@@ -459,8 +461,8 @@ void SandiaHandPlugin::UpdateStates()
       else
       {
         unsigned j = i - this->joints.size() / 2;
-        position = this->leftJointStates.position[j];
-        velocity = this->leftJointStates.velocity[j];
+        position = this->rightJointStates.position[j];
+        velocity = this->rightJointStates.velocity[j];
       }
 
       double q_p =

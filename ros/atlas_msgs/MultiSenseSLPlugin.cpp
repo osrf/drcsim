@@ -86,6 +86,12 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     return;
   }
 
+  // publish joint states for spindle joint
+  this->jointStates.name.resize(1);
+  this->jointStates.position.resize(1);
+  this->jointStates.velocity.resize(1);
+  this->jointStates.effort.resize(1);
+
   // sensors::Sensor_V s = sensors::SensorManager::Instance()->GetSensors();
   // for (sensors::Sensor_V::iterator siter = s.begin();
   //                                  siter != s.end(); ++siter)
@@ -120,6 +126,10 @@ void MultiSenseSL::LoadThread()
 {
   // create ros node
   this->rosnode_ = new ros::NodeHandle("");
+
+  // ros publication
+  this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
+    "multisense_sl/joint_states", 10);
 
   // ros subscription
   ros::SubscribeOptions set_spindle_speed_so =
@@ -211,23 +221,32 @@ void MultiSenseSL::LoadThread()
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::UpdateStates()
 {
-  if (this->spindleOn)
+  common::Time curTime = this->world->GetSimTime();
+  double dt = (curTime - this->lastTime).Double();
+  if (dt > 0)
   {
-    common::Time curTime = this->world->GetSimTime();
-    double dt = (curTime - this->lastTime).Double();
-    if (dt > 0)
+    this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+    this->jointStates.position[0] = this->spindleJoint->GetAngle(0).Radian();
+    this->jointStates.velocity[0] = this->spindleJoint->GetVelocity(0);
+    this->jointStates.effort[0] = 0;
+
+    if (this->spindleOn)
     {
       // PID control (velocity) spindle
       double spindleError = this->spindleJoint->GetVelocity(0)
                           - this->spindleSpeed;
       double spindleCmd = this->spindlePID.Update(spindleError, dt);
       this->spindleJoint->SetForce(0, spindleCmd);
+
+      this->jointStates.effort[0] = spindleCmd;
+
       this->lastTime = curTime;
     }
-  }
-  else
-  {
-    this->spindlePID.Reset();
+    else
+    {
+      this->spindlePID.Reset();
+    }
+    this->pubJointStates.publish(this->jointStates);
   }
 }
 

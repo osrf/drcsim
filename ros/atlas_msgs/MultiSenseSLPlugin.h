@@ -34,6 +34,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Bool.h>
+#include <sensor_msgs/JointState.h>
 
 #include "std_srvs/Empty.h"
 
@@ -41,7 +42,7 @@
 #include "gazebo/common/Plugin.hh"
 #include "gazebo/common/Events.hh"
 #include "gazebo/common/Time.hh"
-#include "transport/TransportTypes.hh"
+#include "gazebo/transport/TransportTypes.hh"
 #include "gazebo/physics/physics.hh"
 
 #include "gazebo/sensors/SensorManager.hh"
@@ -119,6 +120,10 @@ namespace gazebo
     private: physics::ModelPtr atlasModel;
     private: sdf::ElementPtr sdf;
     private: common::Time lastTime;
+
+    // joint state
+    private: ros::Publisher pubJointStates;
+    private: sensor_msgs::JointState jointStates;
 
     // camera control
     private: boost::shared_ptr<sensors::MultiCameraSensor> multiCameraSensor;
