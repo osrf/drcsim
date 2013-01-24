@@ -38,7 +38,6 @@
 #include <std_srvs/Empty.h>
 
 #include <gazebo/common/Plugin.hh>
-#include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 #include <gazebo/common/Time.hh>
 #include <gazebo/transport/TransportTypes.hh>
