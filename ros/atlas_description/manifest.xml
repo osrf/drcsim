@@ -1,0 +1,14 @@
+<package>
+  <description brief="atlas_description">
+
+     contains Atlas robot description files
+
+  </description>
+  <author>John Hsu</author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://gazebosim.org/wiki/atlas_description</url>
+  <depend package="xacro"/>
+  <depend package="multisense_sl_description"/>
+
+</package>

@@ -121,7 +121,6 @@ void DRCFirehosePlugin::UpdateStates()
 
 bool DRCFirehosePlugin::CheckThreadStart()
 {
-  // 
   // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
   // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
   math::Pose connectPose(this->couplingRelativePose);

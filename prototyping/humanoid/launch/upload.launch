@@ -1,5 +1,0 @@
-<launch>
-    <!-- send urdf to param server -->
-    <!--param name="robot_description" command="$(find xacro)/xacro.py '$(find humanoid)/robots/humanoid.urdf.xacro'" /-->
-    <param name="robot_description" command="$(find xacro)/xacro.py '$(find humanoid)/bdi/test.urdf'" />
-</launch>
