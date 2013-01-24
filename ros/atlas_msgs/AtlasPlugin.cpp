@@ -489,19 +489,20 @@ void AtlasPlugin::UpdateStates()
         static_cast<double>(this->jointCommands.i_effort_max[i]));
 
       // use gain params to compute force cmd
-      double force = this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
-                     this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
-                     this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+      double force = this->jointCommands.kp_position[i] *
+                     this->errorTerms[i].q_p +
+                     this->jointCommands.kp_velocity[i] *
+                     this->errorTerms[i].qd_p +
+                     this->jointCommands.ki_position[i] *
+                     this->errorTerms[i].q_i +
+                     this->jointCommands.kd_position[i] *
+                     this->errorTerms[i].d_q_p_dt +
                      this->jointCommands.effort[i];
 
       this->joints[i]->SetForce(0, force);
-
     }
-
     this->lastControllerUpdateTime = curTime;
   }
-
 }
 
 void AtlasPlugin::OnLContactUpdate()

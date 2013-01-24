@@ -14,15 +14,17 @@
  * limitations under the License.
  *
 */
+#include <string>
+#include <vector>
+#include <sensor_msgs/Imu.h>
 
 #include "SandiaHandPlugin.h"
-
-#include "sensor_msgs/Imu.h"
 
 using std::string;
 
 namespace gazebo
 {
+GZ_REGISTER_MODEL_PLUGIN(SandiaHandPlugin)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -87,7 +89,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
   this->joints.resize(this->jointNames.size());
 
-  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     this->joints[i] = this->model->GetJoint(this->jointNames[i]);
     if (!this->joints[i])
@@ -109,7 +111,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->rightJointStates.velocity.resize(this->joints.size() / 2);
   this->rightJointStates.effort.resize(this->joints.size() / 2);
 
-  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     if (i < this->joints.size() / 2)
     {
@@ -133,7 +135,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->jointCommands.i_effort_min.resize(this->joints.size());
   this->jointCommands.i_effort_max.resize(this->joints.size());
 
-  for(unsigned i = 0; i < this->joints.size(); ++i)
+  for (unsigned i = 0; i < this->joints.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
@@ -178,7 +180,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
-    boost::bind(&SandiaHandPlugin::DeferredLoad,this ));
+    boost::bind(&SandiaHandPlugin::DeferredLoad, this));
 }
 
 // helper function to save some typing
@@ -187,7 +189,7 @@ void SandiaHandPlugin::CopyVectorIfValid(const std::vector<double> &from,
                                          const unsigned joint_offset)
 {
   if (joint_offset != 0 && joint_offset != to.size() / 2)
-    return; // get outta here, it's all over
+    return;  // get outta here, it's all over
   if (!from.size() || from.size() != to.size() / 2)
     return;
   for (size_t i = 0; i < from.size(); i++)
@@ -198,9 +200,9 @@ void SandiaHandPlugin::CopyVectorIfValid(const std::vector<double> &from,
 // Set Joint Commands
 void SandiaHandPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg,
-  const unsigned ofs) // ofs = joint offset
+  const unsigned ofs)  // ofs = joint offset
 {
-  // this implementation does not check the ordering of the joints. they must 
+  // this implementation does not check the ordering of the joints. they must
   // agree with the structure initialized above!
   CopyVectorIfValid(_msg->position, this->jointCommands.position, ofs);
   CopyVectorIfValid(_msg->velocity, this->jointCommands.velocity, ofs);
@@ -248,16 +250,16 @@ void SandiaHandPlugin::DeferredLoad()
         string i_str = string(joint_ns)+"i";
         string d_str = string(joint_ns)+"d";
         string i_clamp_str = string(joint_ns)+"i_clamp";
-        if (!this->rosNode->getParam(p_str, p_val) || 
-            !this->rosNode->getParam(i_str, i_val) || 
-            !this->rosNode->getParam(d_str, d_val) || 
+        if (!this->rosNode->getParam(p_str, p_val) ||
+            !this->rosNode->getParam(i_str, i_val) ||
+            !this->rosNode->getParam(d_str, d_val) ||
             !this->rosNode->getParam(i_clamp_str, i_clamp_val))
         {
           ROS_ERROR("couldn't find a param for %s", joint_ns);
           continue;
         }
-        int joint_idx = side * (NUM_FINGERS * NUM_FINGER_JOINTS) + 
-                        finger * NUM_FINGER_JOINTS + 
+        int joint_idx = side * (NUM_FINGERS * NUM_FINGER_JOINTS) +
+                        finger * NUM_FINGER_JOINTS +
                         joint;
         this->jointCommands.kp_position[joint_idx]  =  p_val;
         this->jointCommands.ki_position[joint_idx]  =  i_val;
@@ -290,7 +292,7 @@ void SandiaHandPlugin::DeferredLoad()
     boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1, 12),
     ros::VoidPtr(), &this->rosQueue);
   this->subJointCommands[1] = this->rosNode->subscribe(jointCommandsSo);
- 
+
   // publish imu data
   this->pubLeftImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
@@ -301,11 +303,11 @@ void SandiaHandPlugin::DeferredLoad()
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0; // Hz
+  this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
-    boost::bind( &SandiaHandPlugin::RosQueueThread,this ) );
+    boost::bind(&SandiaHandPlugin::RosQueueThread, this));
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&SandiaHandPlugin::UpdateStates, this));
@@ -429,7 +431,7 @@ void SandiaHandPlugin::UpdateStates()
     // populate FromRobot from robot
     this->leftJointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
     this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
       if (i < this->joints.size() / 2)
       {
@@ -456,9 +458,8 @@ void SandiaHandPlugin::UpdateStates()
     /// update pid with feedforward force
     double position;
     double velocity;
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-
       if (i < this->joints.size() / 2)
       {
         position = this->leftJointStates.position[i];
@@ -474,7 +475,7 @@ void SandiaHandPlugin::UpdateStates()
       double q_p =
          this->jointCommands.position[i] - position;
 
-      if (!math::equal(dt, 0.0)) 
+      if (!math::equal(dt, 0.0))
         this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
 
       this->errorTerms[i].q_p = q_p;
@@ -488,19 +489,20 @@ void SandiaHandPlugin::UpdateStates()
         static_cast<double>(this->jointCommands.i_effort_max[i]));
 
       // use gain params to compute force cmd
-      double force = this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
-                     this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
-                     this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+      double force = this->jointCommands.kp_position[i] *
+                     this->errorTerms[i].q_p +
+                     this->jointCommands.kp_velocity[i] *
+                     this->errorTerms[i].qd_p +
+                     this->jointCommands.ki_position[i] *
+                     this->errorTerms[i].q_i +
+                     this->jointCommands.kd_position[i] *
+                     this->errorTerms[i].d_q_p_dt +
                      this->jointCommands.effort[i];
 
       this->joints[i]->SetForce(0, force);
-
     }
-
     this->lastControllerUpdateTime = curTime;
   }
-
 }
 
 void SandiaHandPlugin::RosQueueThread()
@@ -512,6 +514,4 @@ void SandiaHandPlugin::RosQueueThread()
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-GZ_REGISTER_MODEL_PLUGIN(SandiaHandPlugin)
 }

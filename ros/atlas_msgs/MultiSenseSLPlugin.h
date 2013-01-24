@@ -18,6 +18,11 @@
 #ifndef __MULTISENSE_SL_PLUGIN_HH_
 #define __MULTISENSE_SL_PLUGIN_HH_
 
+#include <string>
+
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
@@ -30,27 +35,23 @@
 #include <std_msgs/Bool.h>
 #include <sensor_msgs/JointState.h>
 
-#include "std_srvs/Empty.h"
+#include <std_srvs/Empty.h>
 
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/physics/physics.hh"
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/physics/physics.hh>
 
-#include "gazebo/sensors/SensorManager.hh"
-#include "gazebo/sensors/MultiCameraSensor.hh"
-#include "gazebo/sensors/RaySensor.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/sensors/Sensor.hh"
-
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <gazebo/sensors/SensorManager.hh>
+#include <gazebo/sensors/MultiCameraSensor.hh>
+#include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/sensors/Sensor.hh>
 
 namespace gazebo
 {
-
   class MultiSenseSL : public ModelPlugin
   {
     /// \brief Constructor
@@ -148,9 +149,6 @@ namespace gazebo
     /// Throttle update rate
     private: double lastUpdateTime;
     private: double updateRate;
-
   };
-
 }
 #endif
-

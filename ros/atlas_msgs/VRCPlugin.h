@@ -18,6 +18,9 @@
 #ifndef GAZEBO_VRC_PLUGIN_HH
 #define GAZEBO_VRC_PLUGIN_HH
 
+#include <map>
+#include <string>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
@@ -34,12 +37,12 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "gazebo/math/Vector3.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
+#include <gazebo/math/Vector3.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
 
 typedef actionlib::SimpleActionClient<
   control_msgs::FollowJointTrajectoryAction > TrajClient;
@@ -224,7 +227,6 @@ namespace gazebo
       private: ros::Subscriber subMode;
 
       friend class VRCPlugin;
-
     } atlas;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -309,12 +311,11 @@ namespace gazebo
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      public: JointTrajectory() 
+      public: JointTrajectory()
       {
         // tell the action client that we want to spin a thread by default
         this->clientTraj = new TrajClient(
           "/atlas_controller/follow_joint_trajectory", true);
-
       }
 
       /// \brief Destructor, clean up the action client
@@ -339,7 +340,7 @@ namespace gazebo
       /// depending on the desired application.
       public: control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
       {
-        //our goal variable
+        // goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
 
         // First, the joint names, which apply to all waypoints
@@ -371,10 +372,10 @@ namespace gazebo
         goal.trajectory.joint_names.push_back("r_arm_uwy");
         goal.trajectory.joint_names.push_back("r_arm_mwx");
 
-        goal.trajectory.joint_names.push_back("neck_ay"  );
-        goal.trajectory.joint_names.push_back("back_lbz" );
-        goal.trajectory.joint_names.push_back("back_mby" );
-        goal.trajectory.joint_names.push_back("back_ubx" );
+        goal.trajectory.joint_names.push_back("neck_ay");
+        goal.trajectory.joint_names.push_back("back_lbz");
+        goal.trajectory.joint_names.push_back("back_mby");
+        goal.trajectory.joint_names.push_back("back_ubx");
 
         // We will have two waypoints in this goal trajectory
         goal.trajectory.points.resize(1);
@@ -445,14 +446,14 @@ namespace gazebo
         goal.goal_time_tolerance.sec = 10;
         goal.goal_time_tolerance.nsec = 0;
 
-        //we are done; return the goal
+        // we are done; return the goal
         return goal;
       }
 
       /// \brief Generates a simple trajectory for standing configuration.
       public: control_msgs::FollowJointTrajectoryGoal standingConfiguration()
       {
-        //our goal variable
+        // goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
 
         // First, the joint names, which apply to all waypoints
@@ -484,10 +485,10 @@ namespace gazebo
         goal.trajectory.joint_names.push_back("r_arm_uwy");
         goal.trajectory.joint_names.push_back("r_arm_mwx");
 
-        goal.trajectory.joint_names.push_back("neck_ay"  );
-        goal.trajectory.joint_names.push_back("back_lbz" );
-        goal.trajectory.joint_names.push_back("back_mby" );
-        goal.trajectory.joint_names.push_back("back_ubx" );
+        goal.trajectory.joint_names.push_back("neck_ay");
+        goal.trajectory.joint_names.push_back("back_lbz");
+        goal.trajectory.joint_names.push_back("back_mby");
+        goal.trajectory.joint_names.push_back("back_ubx");
 
         // We will have two waypoints in this goal trajectory
         goal.trajectory.points.resize(1);
@@ -558,7 +559,7 @@ namespace gazebo
         goal.goal_time_tolerance.sec = 10;
         goal.goal_time_tolerance.nsec = 0;
 
-        //we are done; return the goal
+        // we are done; return the goal
         return goal;
       }
 
@@ -569,10 +570,9 @@ namespace gazebo
         return this->clientTraj->getState();
       }
 
-      // Action client for the joint trajectory action 
+      // Action client for the joint trajectory action
       // used to trigger the arm movement action
       public: TrajClient* clientTraj;
-
     } jointTrajectoryController;
 
     ////////////////////////////////////////////////////////////////////////////

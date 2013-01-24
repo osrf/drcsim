@@ -121,9 +121,9 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
           << "  gazebo -s libgazebo_ros_api.so\n";
     return;
   }
-  
+
   this->deferred_load_thread_ = boost::thread(
-    boost::bind( &MultiSenseSL::LoadThread,this ) );
+    boost::bind(&MultiSenseSL::LoadThread, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,9 +145,9 @@ void MultiSenseSL::LoadThread()
   ros::SubscribeOptions set_spindle_speed_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "multisense_sl/set_spindle_speed", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
+    boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetSpindleSpeed),this,_1),
+        &MultiSenseSL::SetSpindleSpeed), this, _1),
     ros::VoidPtr(), &this->queue_);
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
@@ -218,11 +218,11 @@ void MultiSenseSL::LoadThread()
   */
 
   this->lastUpdateTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0; // Hz
+  this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
   this->callback_queue_thread_ = boost::thread(
-    boost::bind( &MultiSenseSL::QueueThread,this ) );
+    boost::bind(&MultiSenseSL::QueueThread, this));
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&MultiSenseSL::UpdateStates, this));
@@ -347,7 +347,7 @@ bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 {
-  this->spindleSpeed = (double)_msg->data;
+  this->spindleSpeed = static_cast<double>(_msg->data);
   if (this->spindleSpeed > this->spindleMaxRPM * 2.0*M_PI / 60.0)
     this->spindleSpeed = this->spindleMaxRPM * 2.0*M_PI / 60.0;
   else if (this->spindleSpeed < this->spindleMinRPM * 2.0*M_PI / 60.0)
@@ -357,14 +357,14 @@ void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 {
-  this->spindleOn = (double)_msg->data;
+  this->spindleOn = static_cast<double>(_msg->data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->multiCameraFrameRate = (double)_msg->data;
+  this->multiCameraFrameRate = static_cast<double>(_msg->data);
   this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
 }
 
@@ -372,7 +372,7 @@ void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
 void MultiSenseSL::SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->multiCameraExposureTime = (double)_msg->data;
+  this->multiCameraExposureTime = static_cast<double>(_msg->data);
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
@@ -380,7 +380,7 @@ void MultiSenseSL::SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
 void MultiSenseSL::SetMultiCameraGain(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->multiCameraGain = (double)_msg->data;
+  this->multiCameraGain = static_cast<double>(_msg->data);
   gzwarn << "setting camera gain in sim not implemented\n";
 }
 }
