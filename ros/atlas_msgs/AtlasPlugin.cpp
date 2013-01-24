@@ -30,6 +30,7 @@ using std::string;
 
 namespace gazebo
 {
+GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -631,5 +632,4 @@ void AtlasPlugin::RosQueueThread()
   }
 }
 
-GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 }
