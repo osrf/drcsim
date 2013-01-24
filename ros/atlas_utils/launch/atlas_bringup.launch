@@ -5,11 +5,10 @@
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
 
-  <!-- Controller Manager
+  <!-- Controller Manager -->
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />
-  -->
 
-  <!-- joint states to tf -->
+  <!-- joint states to tf
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="atlas_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/atlas/joint_states" />
@@ -26,11 +25,11 @@
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/sandia_hands/r_hand/joint_states" />
   </node>
+  -->
 
-  <!-- Fake Calibration
+  <!-- Fake Calibration -->
   <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
         args="pub /calibrated std_msgs/Bool true" />
-  -->
 
   <!-- TF Buffer Server -->
   <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" output="screen">
@@ -40,11 +39,10 @@
   <!-- Arms -->
   <rosparam command="load" file="$(find atlas_utils)/config/whole_body_trajectory_controller.yaml" />
 
-  <!-- Controllers that come up started
+  <!-- Controllers that come up started -->
   <node name="atlas_controller_spawner"
         pkg="pr2_controller_manager" type="spawner" output="screen"
-        args="- -wait-for=/calibrated atlas_controller" />
-  -->
+        args="--wait-for=/calibrated atlas_controller" />
 
   <!-- Stereo image processing -->
   <node ns="multisense_sl/camera" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="screen">

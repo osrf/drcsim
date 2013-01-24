@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find pr2_controller_manager)/controller_manager.launch" />
+  <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
+        args="pub /calibrated std_msgs/Bool true" />
+  <node name="atlas_controller_spawner"
+        pkg="pr2_controller_manager" type="spawner" output="screen"
+        args="--wait-for=/calibrated atlas_controller" />
+</launch>

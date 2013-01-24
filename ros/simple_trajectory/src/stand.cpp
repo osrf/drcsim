@@ -115,27 +115,27 @@ class RobotArm
       goal.trajectory.points[ind].positions.resize(28);
       goal.trajectory.points[ind].positions[0]  =   0.00;
       goal.trajectory.points[ind].positions[1]  =   0.00;
-      goal.trajectory.points[ind].positions[2]  =   0.00;
-      goal.trajectory.points[ind].positions[3]  =   0.00;
+      goal.trajectory.points[ind].positions[2]  =  -1.60;
+      goal.trajectory.points[ind].positions[3]  =   1.60;
       goal.trajectory.points[ind].positions[4]  =   0.00;
       goal.trajectory.points[ind].positions[5]  =   0.00;
 
       goal.trajectory.points[ind].positions[6]  =   0.00;
       goal.trajectory.points[ind].positions[7]  =   0.00;
-      goal.trajectory.points[ind].positions[8]  =   0.00;
-      goal.trajectory.points[ind].positions[9]  =   0.00;
+      goal.trajectory.points[ind].positions[8]  =  -1.60;
+      goal.trajectory.points[ind].positions[9]  =   1.60;
       goal.trajectory.points[ind].positions[10] =   0.00;
       goal.trajectory.points[ind].positions[11] =   0.00;
 
       goal.trajectory.points[ind].positions[12] =   0.00;
-      goal.trajectory.points[ind].positions[13] =  -1.60;
+      goal.trajectory.points[ind].positions[13] =   0.00;
       goal.trajectory.points[ind].positions[14] =   0.00;
       goal.trajectory.points[ind].positions[15] =   0.00;
       goal.trajectory.points[ind].positions[16] =   0.00;
       goal.trajectory.points[ind].positions[17] =   0.00;
 
       goal.trajectory.points[ind].positions[18] =   0.00;
-      goal.trajectory.points[ind].positions[19] =   1.60;
+      goal.trajectory.points[ind].positions[19] =   0.00;
       goal.trajectory.points[ind].positions[20] =   0.00;
       goal.trajectory.points[ind].positions[21] =   0.00;
       goal.trajectory.points[ind].positions[22] =   0.00;
