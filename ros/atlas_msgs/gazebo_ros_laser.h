@@ -18,25 +18,26 @@
 #ifndef GAZEBO_ROS_LASER_HH
 #define GAZEBO_ROS_LASER_HH
 
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-
-#include "sdf/interface/Param.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "msgs/MessageTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-#include "sensors/SensorTypes.hh"
-#include "plugins/RayPlugin.hh"
+#include <string>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
 #include <sensor_msgs/LaserScan.h>
+
+#include <gazebo/sdf/interface/Param.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/plugins/RayPlugin.hh>
 
 namespace gazebo
 {
@@ -75,10 +76,9 @@ namespace gazebo
 
     /// \brief ros message
     private: sensor_msgs::LaserScan laser_msg_;
-   
+
     /// \brief topic name
     private: std::string topic_name_;
-    //private: ParamT<std::string> *topicNameP;
 
     /// \brief frame transform name, should match link name
     private: std::string frame_name_;
@@ -88,13 +88,12 @@ namespace gazebo
     //private: ParamT<double> *gaussianNoiseP;
 
     /// \brief Gaussian noise generator
-    private: double GaussianKernel(double mu,double sigma);
+    private: double GaussianKernel(double mu, double sigma);
 
-    /// \brief A mutex to lock access to fields that are used in message callbacks
+    /// \brief mutex to lock access to fields that are used in message callbacks
     private: boost::mutex lock_;
 
     /// \brief hack to mimic hokuyo intensity cutoff of 100
-    //private: ParamT<double> *hokuyoMinIntensityP;
     private: double hokuyo_min_intensity_;
 
     /// update rate of this sensor
@@ -115,8 +114,5 @@ namespace gazebo
     private: boost::thread deferred_load_thread_;
     private: unsigned int seed;
   };
-
 }
-
 #endif
-

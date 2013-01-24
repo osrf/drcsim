@@ -113,10 +113,7 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
+    private: unsigned int seed;
   };
-/** \} */
-/// @}
 }
-
 #endif
-

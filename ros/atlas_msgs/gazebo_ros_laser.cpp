@@ -333,7 +333,7 @@ double GazeboRosLaser::GaussianKernel(double mu, double sigma)
   double X = sqrt(-2.0 * ::log(U)) * cos(2.0*M_PI * V);
   // double Y = sqrt(-2.0 * ::log(U)) * sin(2.0*M_PI * V);
 
-  // we'll just use X
+  // there are 2 indep. vars, we'll just use X
   // scale to our mu and sigma
   X = sigma * X + mu;
   return X;

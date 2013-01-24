@@ -19,11 +19,14 @@
 
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosIMU)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 GazeboRosIMU::GazeboRosIMU()
 {
+  this->seed = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,14 +50,13 @@ void GazeboRosIMU::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosIMU::LoadThread,this ) );
+    boost::bind(&GazeboRosIMU::LoadThread, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void GazeboRosIMU::LoadThread()
 {
-
   // load parameters
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
@@ -95,7 +97,7 @@ void GazeboRosIMU::LoadThread()
   if (!this->sdf->HasElement("xyzOffset"))
   {
     ROS_INFO("imu plugin missing <xyzOffset>, defaults to 0s");
-    this->offset_.pos = math::Vector3(0,0,0);
+    this->offset_.pos = math::Vector3(0, 0, 0);
   }
   else
     this->offset_.pos = this->sdf->GetValueVector3("xyzOffset");
@@ -103,7 +105,7 @@ void GazeboRosIMU::LoadThread()
   if (!this->sdf->HasElement("rpyOffset"))
   {
     ROS_INFO("imu plugin missing <rpyOffset>, defaults to 0s");
-    this->offset_.rot = math::Vector3(0,0,0);
+    this->offset_.rot = math::Vector3(0, 0, 0);
   }
   else
     this->offset_.rot = this->sdf->GetValueVector3("rpyOffset");
@@ -121,34 +123,41 @@ void GazeboRosIMU::LoadThread()
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // assert that the body by link_name_ exists
-  this->link = boost::shared_dynamic_cast<physics::Link>(this->world_->GetEntity(this->link_name_));
+  this->link = boost::shared_dynamic_cast<physics::Link>(
+    this->world_->GetEntity(this->link_name_));
   if (!this->link)
   {
-    ROS_FATAL("gazebo_ros_imu plugin error: bodyName: %s does not exist\n",this->link_name_.c_str());
+    ROS_FATAL("gazebo_ros_imu plugin error: bodyName: %s does not exist\n",
+      this->link_name_.c_str());
     return;
   }
 
-  // if topic name specified as empty, do not publish (then what is this plugin good for?)
+  // if topic name specified as empty, do not publish
   if (this->topic_name_ != "")
   {
-    this->pub_ = this->rosnode_->advertise<sensor_msgs::Imu>(this->topic_name_,1);
+    this->pub_ = this->rosnode_->advertise<sensor_msgs::Imu>(
+      this->topic_name_, 1);
 
     // advertise services on the custom queue
-    ros::AdvertiseServiceOptions aso = ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-        this->service_name_,boost::bind( &GazeboRosIMU::ServiceCallback, this, _1, _2 ), ros::VoidPtr(), &this->imu_queue_);
+    ros::AdvertiseServiceOptions aso =
+      ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+      this->service_name_, boost::bind(&GazeboRosIMU::ServiceCallback,
+      this, _1, _2), ros::VoidPtr(), &this->imu_queue_);
     this->srv_ = this->rosnode_->advertiseService(aso);
   }
 
   // Initialize the controller
   this->last_time_ = this->world_->GetSimTime();
-  //this->initial_pose_ = this->link->GetPose(); // get initial pose of the local link
-  this->last_vpos_ = this->link->GetWorldLinearVel(); // get velocity in gazebo frame
-  this->last_veul_ = this->link->GetWorldAngularVel(); // get velocity in gazebo frame
+
+  // this->initial_pose_ = this->link->GetPose();
+  this->last_vpos_ = this->link->GetWorldLinearVel();
+  this->last_veul_ = this->link->GetWorldAngularVel();
   this->apos_ = 0;
   this->aeul_ = 0;
 
   // start custom queue for imu
-  this->callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosIMU::IMUQueueThread,this ) );
+  this->callback_queue_thread_ =
+    boost::thread(boost::bind(&GazeboRosIMU::IMUQueueThread, this));
 
 
   // New Mechanism for Updating every World Cycle
@@ -177,21 +186,20 @@ void GazeboRosIMU::UpdateChild()
     math::Vector3 pos;
 
     // Get Pose/Orientation ///@todo: verify correctness
-    pose = this->link->GetWorldPose(); // - this->link->GetCoMPose();
+    pose = this->link->GetWorldPose();
     // apply xyz offsets and get position and rotation components
     pos = pose.pos + this->offset_.pos;
     rot = pose.rot;
-    // std::cout << " --------- GazeboRosIMU rot " << rot.x << ", " << rot.y << ", " << rot.z << ", " << rot.u << std::endl;
 
     // apply rpy offsets
     rot = this->offset_.rot*rot;
     rot.Normalize();
 
     common::Time cur_time = this->world_->GetSimTime();
-    
+
     // get Rates
-    math::Vector3 vpos = this->link->GetWorldLinearVel(); // get velocity in gazebo frame
-    math::Vector3 veul = this->link->GetWorldAngularVel(); // get velocity in gazebo frame
+    math::Vector3 vpos = this->link->GetWorldLinearVel();
+    math::Vector3 veul = this->link->GetWorldAngularVel();
 
     // differentiate to get accelerations
     double tmp_dt = this->last_time_.Double() - cur_time.Double();
@@ -222,9 +230,10 @@ void GazeboRosIMU::UpdateChild()
     this->imu_msg_.orientation.w = rot.w;
 
     // pass euler angular rates
-    math::Vector3 linear_velocity(veul.x + this->GaussianKernel(0,this->gaussian_noise_)
-                           ,veul.y + this->GaussianKernel(0,this->gaussian_noise_)
-                           ,veul.z + this->GaussianKernel(0,this->gaussian_noise_));
+    math::Vector3 linear_velocity(
+      veul.x + this->GaussianKernel(0, this->gaussian_noise_),
+      veul.y + this->GaussianKernel(0, this->gaussian_noise_),
+      veul.z + this->GaussianKernel(0, this->gaussian_noise_));
     // rotate into local frame
     // @todo: deal with offsets!
     linear_velocity = rot.RotateVector(linear_velocity);
@@ -233,9 +242,10 @@ void GazeboRosIMU::UpdateChild()
     this->imu_msg_.angular_velocity.z    = linear_velocity.z;
 
     // pass accelerations
-    math::Vector3 linear_acceleration(apos_.x + this->GaussianKernel(0,this->gaussian_noise_)
-                                     ,apos_.y + this->GaussianKernel(0,this->gaussian_noise_)
-                                     ,apos_.z + this->GaussianKernel(0,this->gaussian_noise_));
+    math::Vector3 linear_acceleration(
+      apos_.x + this->GaussianKernel(0, this->gaussian_noise_),
+      apos_.y + this->GaussianKernel(0, this->gaussian_noise_),
+      apos_.z + this->GaussianKernel(0, this->gaussian_noise_));
     // rotate into local frame
     // @todo: deal with offsets!
     linear_acceleration = rot.RotateVector(linear_acceleration);
@@ -272,15 +282,23 @@ void GazeboRosIMU::UpdateChild()
 
 //////////////////////////////////////////////////////////////////////////////
 // Utility for adding noise
-double GazeboRosIMU::GaussianKernel(double mu,double sigma)
+double GazeboRosIMU::GaussianKernel(double mu, double sigma)
 {
-  // using Box-Muller transform to generate two independent standard normally disbributed normal variables
-  // see wikipedia
-  double U = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-  double V = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-  double X = sqrt(-2.0 * ::log(U)) * cos( 2.0*M_PI * V);
-  //double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V); // the other indep. normal variable
-  // we'll just use X
+  // using Box-Muller transform to generate two independent standard
+  // normally disbributed normal variables see wikipedia
+
+  // normalized uniform random variable
+  double U = static_cast<double>(rand_r(&this->seed)) /
+             static_cast<double>(RAND_MAX);
+
+  // normalized uniform random variable
+  double V = static_cast<double>(rand_r(&this->seed)) /
+             static_cast<double>(RAND_MAX);
+
+  double X = sqrt(-2.0 * ::log(U)) * cos(2.0*M_PI * V);
+  // double Y = sqrt(-2.0 * ::log(U)) * sin(2.0*M_PI * V);
+
+  // there are 2 indep. vars, we'll just use X
   // scale to our mu and sigma
   X = sigma * X + mu;
   return X;
@@ -297,7 +315,4 @@ void GazeboRosIMU::IMUQueueThread()
     this->imu_queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(GazeboRosIMU)
 }

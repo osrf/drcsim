@@ -55,117 +55,113 @@
 
 namespace gazebo
 {
-
 class GazeboRosControllerManager : public ModelPlugin
 {
-public:
-  GazeboRosControllerManager();
-  virtual ~GazeboRosControllerManager();
-  void Load( physics::ModelPtr _parent, sdf::ElementPtr _sdf );
+  public:
+    GazeboRosControllerManager();
+    virtual ~GazeboRosControllerManager();
+    void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-private:
+  private:
+    /// Callback state / effort propagations, controller updates at every simulation update time step
+    /// There are 3 separate states at work here
+    ///   - Simulation States (SS) from gazebo
+    ///   - Virtual Mechanism State (VMS)
+    ///   - Controller Manager's "Real" Robot Mechanism States (RMS)
+    ///
+    /// We introduce Virtual Mechanism State so we can exercise the actuator transmission
+    /// used on the robot here in simulation.
+    ///
+    ///                                        +-----------------------------+
+    /// SS:JointStates --> VMS:JointStates --> | Inverse State Transmissions | --> VMS:ActuatorStates
+    ///                                        +-----------------------------+
+    ///
+    ///                                        +---------------------+
+    /// VMS:ActuatorStates (or real robot) --> | State Transmissions | --> RMS:JointStates
+    ///                                        +---------------------+
+    ///
+    ///                     +-------------+
+    /// RMS:JointStates --> | Controllers | --> RMS:JointEfforts (this step is identical on the real robot)
+    ///                     +-------------+
+    ///
+    ///                      +----------------------+
+    /// RMS:JointEfforts --> | Effort Transmissions |  --> RMS:ActuatorEfforts (or real robot)
+    ///                      +----------------------+
+    ///
+    ///                         +------------------------------+
+    /// RMS:ActuatorEfforts --> | Inverse Effort Transmissions | --> VMS:JointEfforts --> SS:JointEfforts
+    ///                         +------------------------------+
+    ///
+    void UpdateControllerForces();
 
-  /// Callback state / effort propagations, controller updates at every simulation update time step
-  /// There are 3 separate states at work here
-  ///   - Simulation States (SS) from gazebo
-  ///   - Virtual Mechanism State (VMS)
-  ///   - Controller Manager's "Real" Robot Mechanism States (RMS)
-  ///
-  /// We introduce Virtual Mechanism State so we can exercise the actuator transmission
-  /// used on the robot here in simulation.
-  ///
-  ///                                        +-----------------------------+
-  /// SS:JointStates --> VMS:JointStates --> | Inverse State Transmissions | --> VMS:ActuatorStates
-  ///                                        +-----------------------------+
-  ///
-  ///                                        +---------------------+
-  /// VMS:ActuatorStates (or real robot) --> | State Transmissions | --> RMS:JointStates
-  ///                                        +---------------------+
-  ///
-  ///                     +-------------+
-  /// RMS:JointStates --> | Controllers | --> RMS:JointEfforts (this step is identical on the real robot)
-  ///                     +-------------+
-  ///
-  ///                      +----------------------+
-  /// RMS:JointEfforts --> | Effort Transmissions |  --> RMS:ActuatorEfforts (or real robot)
-  ///                      +----------------------+
-  ///
-  ///                         +------------------------------+
-  /// RMS:ActuatorEfforts --> | Inverse Effort Transmissions | --> VMS:JointEfforts --> SS:JointEfforts
-  ///                         +------------------------------+
-  ///
-  void UpdateControllerForces();
+    gazebo::physics::ModelPtr parent_model_;
 
-  gazebo::physics::ModelPtr parent_model_;
+    /// this interface holds actuator information as well as time
+    pr2_hardware_interface::HardwareInterface hardware_interface_;
 
-  /// this interface holds actuator information as well as time
-  pr2_hardware_interface::HardwareInterface hardware_interface_;
+    /// this interface contains controllers and mechanism state
+    pr2_controller_manager::ControllerManager *controller_manager_;
 
-  /// this interface contains controllers and mechanism state
-  pr2_controller_manager::ControllerManager *controller_manager_;
+    /// we create this virtual mechanism state to obtain simulated
+    /// actuator states using transmission
+    pr2_mechanism_model::RobotState *virtual_mechanism_state_;
 
-  /// we create this virtual mechanism state to obtain simulated actuator states using transmission
-  pr2_mechanism_model::RobotState *virtual_mechanism_state_;
+    /// A list of joints in simulation, this should match the list
+    /// of joints in mechanism state 1-to-1
+    std::vector<gazebo::physics::JointPtr>  gazebo_joints_;
 
-  /// A list of joints in simulation, this should match the list of joints in mechanism state 1-to-1
-  std::vector<gazebo::physics::JointPtr>  gazebo_joints_;
+    /// From URDF, fill out actuators in hardware interface,
+    /// and initialize mechanism state within mechanism controller
+    bool LoadControllerManagerFromURDF();
 
-  /// From URDF, fill out actuators in hardware interface,
-  /// and initialize mechanism state within mechanism controller
-  bool LoadControllerManagerFromURDF();
+    /// Read and parse URDF as a string from a param
+    /// \param[in] _param_name ROS param name for the URDf
+    std::string GetURDF(std::string _param_name) const;
 
-  /// Read and parse URDF as a string from a param
-  /// \param[in] _param_name ROS param name for the URDf
-  std::string GetURDF(std::string _param_name) const;
+    ///  Pushes out gazebo simulation state into mechanism state
+    ///    1.  Set measured efforts to commanded effort
+    ///    2.  Simulation joint position --> mechanism joint states
+    ///    3.  Simulation joint velocity --> mechanism joint velocity
+    void propagateSimulationToMechanismState();
 
-  ///  Pushes out gazebo simulation state into mechanism state
-  ///    1.  Set measured efforts to commanded effort
-  ///    2.  Simulation joint position --> mechanism joint states
-  ///    3.  Simulation joint velocity --> mechanism joint velocity
-  void propagateSimulationToMechanismState();
+    ///  Propagate joint state efforts to simulation
+    ///    with some tweaks in efforts
+    void propagateMechanismStateForcesToSimulation();
 
-  ///  Propagate joint state efforts to simulation
-  ///    with some tweaks in efforts
-  void propagateMechanismStateForcesToSimulation();
+    /// \brief ROS callback queue thread
+    private: void ControllerManagerROSThread();
 
-  /// \brief ROS callback queue thread
-  private: void ControllerManagerROSThread();
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void LoadThread();
 
-  /// \brief: thread out Load function with
-  /// with anything that might be blocking.
-  private: void LoadThread();
+    /// \brief pointer to ros node
+    ros::NodeHandle* rosnode_;
 
-  /// \brief pointer to ros node
-  ros::NodeHandle* rosnode_;
+    /// \brief tmp vars for performance checking
+    double wall_start_, sim_start_;
 
-  /// \brief tmp vars for performance checking
-  double wall_start_, sim_start_;
+    /// \brief set topic name of robot description parameter
+    std::string robotParam;
+    std::string robotNamespace;
 
-  /// \brief set topic name of robot description parameter
-  //ParamT<std::string> *robotParamP;
-  //ParamT<std::string> *robotNamespaceP;
-  std::string robotParam;
-  std::string robotNamespace;
-
-  bool calibration_status_;
+    bool calibration_status_;
 
 #ifdef USE_CBQ
-  private: ros::CallbackQueue controller_manager_queue_;
-  private: void ControllerManagerQueueThread();
-  private: boost::thread controller_manager_callback_queue_thread_;
+    private: ros::CallbackQueue controller_manager_queue_;
+    private: void ControllerManagerQueueThread();
+    private: boost::thread controller_manager_callback_queue_thread_;
 #endif
-  private: boost::thread ros_spinner_thread_;
+    private: boost::thread ros_spinner_thread_;
 
-  private: physics::WorldPtr world;
+    private: physics::WorldPtr world;
 
-  private: event::ConnectionPtr updateConnection;
+    private: event::ConnectionPtr updateConnection;
 
-  // deferred load in case ros is blocking
-  private: sdf::ElementPtr sdf;
-  private: boost::thread deferred_load_thread_;
-
+    // deferred load in case ros is blocking
+    private: sdf::ElementPtr sdf;
+    private: boost::thread deferred_load_thread_;
 };
-
 }
 
 #endif
