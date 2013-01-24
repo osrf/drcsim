@@ -18,6 +18,11 @@
 #ifndef GAZEBO_ATLAS_PLUGIN_HH
 #define GAZEBO_ATLAS_PLUGIN_HH
 
+#include <string>
+#include <vector>
+
+#include <boost/thread/mutex.hpp>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
@@ -31,24 +36,22 @@
 
 #include <boost/thread.hpp>
 
-#include "gazebo/math/Vector3.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/physics/PhysicsTypes.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
-#include "gazebo/common/PID.hh"
-#include "gazebo/sensors/SensorManager.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/sensors/ContactSensor.hh"
-#include "gazebo/sensors/Sensor.hh"
+#include <gazebo/math/Vector3.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/physics/PhysicsTypes.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
+#include <gazebo/common/PID.hh>
+#include <gazebo/sensors/SensorManager.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/sensors/ContactSensor.hh>
+#include <gazebo/sensors/Sensor.hh>
 
-#include "boost/thread/mutex.hpp"
-
-#include "osrf_msgs/JointCommands.h"
-#include "atlas_msgs/ForceTorqueSensors.h"
-#include "sensor_msgs/JointState.h"
+#include <osrf_msgs/JointCommands.h>
+#include <atlas_msgs/ForceTorqueSensors.h>
+#include <sensor_msgs/JointState.h>
 
 namespace gazebo
 {

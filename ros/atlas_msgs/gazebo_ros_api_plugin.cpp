@@ -18,6 +18,10 @@
 /// skip gazebo_msgs usage for sake of dependency
 #undef GAZEBO_MSGS
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include <boost/thread/mutex.hpp>
 
 #include "gazebo/common/Events.hh"
@@ -1757,7 +1761,6 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   }
 #endif
 
-
   void GazeboRosApiPlugin::spin()
   {
     // todo: make a wait loop that does not provide extra ros::spin()
@@ -1794,7 +1797,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     // FIXME: very crude check
     TiXmlDocument doc_in;
     doc_in.Parse(model_xml.c_str());
-    if (doc_in.FirstChild("gazebo")) // sdf
+    if (doc_in.FirstChild("gazebo"))
       return true;
     else
       return false;
@@ -1857,7 +1860,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
             (*iter)->duration.toSec() < 0.0)
           {
             if ((*iter)->joint)
-              (*iter)->joint->SetForce(0,(*iter)->force);
+              (*iter)->joint->SetForce(0, (*iter)->force);
             else
               (*iter)->duration.fromSec(0.0);
           }
@@ -1879,7 +1882,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     const boost::shared_ptr<msgs::WorldStatistics const> &msg)
   {
     ROS_ERROR("CLOCK2");
-    common::Time currentTime = msgs::Convert( msg->sim_time());
+    common::Time currentTime = msgs::Convert(msg->sim_time());
     rosgraph_msgs::Clock ros_time_;
     ros_time_.clock.fromSec(currentTime.Double());
     //  publish time to ros
@@ -2110,7 +2113,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 
     ROS_INFO("Starting to spin physics dynamic reconfigure node...");
     ros::Rate r(10);
-    while(ros::ok())
+    while (ros::ok())
     {
       ros::spinOnce();
       r.sleep();
@@ -2180,7 +2183,8 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  void GazeboRosApiPlugin::updateGazeboXmlName(TiXmlDocument &gazebo_model_xml, std::string model_name)
+  void GazeboRosApiPlugin::updateGazeboXmlName(
+    TiXmlDocument &gazebo_model_xml, std::string model_name)
   {
     TiXmlElement* model_tixml =
       gazebo_model_xml.FirstChildElement("model:physical");
@@ -2302,7 +2306,8 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
       origin_key->SetAttribute("rpy", rpy_stream.str());
     }
     else
-      ROS_ERROR("could not find <model> element in sdf, so name and initial position is not applied");
+      ROS_ERROR("could not find <model> element in sdf, so name and"
+                " initial position is not applied");
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -2368,7 +2373,9 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 
 #ifdef GAZEBO_MSGS
   //////////////////////////////////////////////////////////////////////////////
-  bool GazeboRosApiPlugin::spawnAndConfirm(TiXmlDocument &gazebo_model_xml, std::string model_name, gazebo_msgs::SpawnModel::Response &res)
+  bool GazeboRosApiPlugin::spawnAndConfirm(
+    TiXmlDocument &gazebo_model_xml, std::string model_name,
+     gazebo_msgs::SpawnModel::Response &res)
   {
     // push to factory iface
     std::ostringstream stream;
@@ -2419,7 +2426,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
         return false;
       }
       {
-        //boost::recursive_mutex::scoped_lock lock(*this->world->GetMRMutex());
+        // boost::recursive_mutex::scoped_lock lock(*this->world->GetMRMutex());
         if (this->world->GetModel(model_name)) break;
       }
       ROS_DEBUG("Waiting for spawning model (%s)", model_name.c_str());

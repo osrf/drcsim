@@ -15,29 +15,33 @@
  *
 */
 
-#include <gazebo_plugins/gazebo_ros_bumper.h>
+#include <map>
+#include <string>
 
-#include "physics/World.hh"
-#include "physics/HingeJoint.hh"
-#include "physics/Contact.hh"
-#include "sensors/Sensor.hh"
-#include "sdf/interface/SDF.hh"
-#include "sdf/interface/Param.hh"
-#include "common/Exception.hh"
-#include "sensors/SensorTypes.hh"
-#include "math/Pose.hh"
-#include "math/Quaternion.hh"
-#include "math/Vector3.hh"
+#include <gazebo/physics/World.hh>
+#include <gazebo/physics/HingeJoint.hh>
+#include <gazebo/physics/Contact.hh>
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/sdf/interface/SDF.hh>
+#include <gazebo/sdf/interface/Param.hh>
+#include <gazebo/common/Exception.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/math/Pose.hh>
+#include <gazebo/math/Quaternion.hh>
+#include <gazebo/math/Vector3.hh>
 
-#include "tf/tf.h"
+#include <tf/tf.h>
+
+#include "gazebo_plugins/gazebo_ros_bumper.h"
 
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_SENSOR_PLUGIN(GazeboRosBumper)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-GazeboRosBumper::GazeboRosBumper()
-  : ContactPlugin()
+GazeboRosBumper::GazeboRosBumper() : ContactPlugin()
 {
 }
 
@@ -59,14 +63,18 @@ void GazeboRosBumper::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->robot_namespace_ = "";
   if (_sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robot_namespace_ =
+      _sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
-  // "publishing contact/collisions to this topic name: " << this->bumper_topic_name_ << std::endl;
+  // "publishing contact/collisions to this topic name: "
+  //   << this->bumper_topic_name_ << std::endl;
   this->bumper_topic_name_ = "bumper_states";
   if (_sdf->GetElement("bumperTopicName"))
-    this->bumper_topic_name_ = _sdf->GetElement("bumperTopicName")->GetValueString();
+    this->bumper_topic_name_ =
+      _sdf->GetElement("bumperTopicName")->GetValueString();
 
-  // "transform contact/collisions pose, forces to this body (link) name: " << this->frame_name_ << std::endl;
+  // "transform contact/collisions pose, forces to this body (link) name: "
+  //   << this->frame_name_ << std::endl;
   if (!_sdf->HasElement("frameName"))
   {
     ROS_INFO("bumper plugin missing <frameName>, defaults to world");
@@ -91,15 +99,17 @@ void GazeboRosBumper::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
   this->frame_name_ = tf::resolve(prefix, this->frame_name_);
 
-  this->contact_pub_ = this->rosnode_->advertise<gazebo_msgs::ContactsState>(std::string(this->bumper_topic_name_),1);
+  this->contact_pub_ = this->rosnode_->advertise<gazebo_msgs::ContactsState>(
+    std::string(this->bumper_topic_name_), 1);
 
   // Initialize
-  // preset myFrame to NULL, will search for the body with matching name in UpdateChild()
+  // preset myFrame to NULL, will search for the body with matching
+  // name in UpdateChild()
   // since most bodies are constructed on the fly
-  //this->myFrame = NULL;
+  // this->myFrame = NULL;
   // start custom queue for contact bumper
-  this->callback_queue_thread_ = boost::thread( 
-      boost::bind( &GazeboRosBumper::ContactQueueThread,this ) );
+  this->callback_queue_thread_ = boost::thread(
+      boost::bind(&GazeboRosBumper::ContactQueueThread, this));
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -111,27 +121,34 @@ void GazeboRosBumper::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 // Update the controller
 void GazeboRosBumper::UpdateChild()
 {
-  if (this->contact_pub_.getNumSubscribers() <= 0) 
+  if (this->contact_pub_.getNumSubscribers() <= 0)
     return;
 
 /*
-  /// if frameName specified is "world", "/map" or "map" report back inertial values in the gazebo world
-  if (this->myFrame == NULL && this->frame_name_ != "world" && this->frame_name_ != "/map" && this->frame_name_ != "map")
+  // if frameName specified is "world", "/map" or "map" report back
+  // inertial values in the gazebo world
+  if (this->myFrame == NULL && this->frame_name_ != "world" &&
+    this->frame_name_ != "/map" && this->frame_name_ != "map")
   {
     // lock in case a model is being spawned
-    boost::recursive_mutex::scoped_lock lock(*Simulator::Instance()->GetMRMutex());
-    // look through all models in the world, search for body name that matches frameName
+    boost::recursive_mutex::scoped_lock lock(
+      *Simulator::Instance()->GetMRMutex());
+    // look through all models in the world, search for body
+    // name that matches frameName
     std::vector<Model*> all_models = World::Instance()->GetModels();
-    for (std::vector<Model*>::iterator iter = all_models.begin(); iter != all_models.end(); iter++)
+    for (std::vector<Model*>::iterator iter = all_models.begin();
+      iter != all_models.end(); iter++)
     {
-      if (*iter) this->myFrame = dynamic_cast<Body*>((*iter)->GetBody(this->frame_name_));
+      if (*iter) this->myFrame =
+        dynamic_cast<Body*>((*iter)->GetBody(this->frame_name_));
       if (this->myFrame) break;
     }
 
     // not found
     if (this->myFrame == NULL)
     {
-      ROS_DEBUG("gazebo_ros_bumper plugin: frameName: %s does not exist yet, will not publish\n",this->frame_name_.c_str());
+      ROS_DEBUG("gazebo_ros_bumper plugin: frameName: %s does not exist"
+                " yet, will not publish\n",this->frame_name_.c_str());
       return;
     }
   }
@@ -145,30 +162,30 @@ void GazeboRosBumper::UpdateChild()
   cur_time = this->world->GetSimTime();
 
   // information are in inertial coordinates
-  this->contact_state_msg_.header.frame_id = this->frame_name_;  
+  this->contact_state_msg_.header.frame_id = this->frame_name_;
   this->contact_state_msg_.header.stamp.sec = cur_time.sec;
-  this->contact_state_msg_.header.stamp.nsec = cur_time.nsec;;
+  this->contact_state_msg_.header.stamp.nsec = cur_time.nsec;
 
   // set contact states size
-  this->contact_state_msg_.states.clear();  // one contact_count per pair of geoms in contact (up to 64 contact points per pair of geoms)
+  this->contact_state_msg_.states.clear();
 
   // For each collision that the sensor is monitoring
-  for (unsigned int i=0; i < this->parentSensor->GetCollisionCount();i++)
+  for (unsigned int i = 0; i < this->parentSensor->GetCollisionCount(); ++i)
   {
     int l = 0;
     std::string collisionName = this->parentSensor->GetCollisionName(i);
     contacts = this->parentSensor->GetContacts(collisionName);
 
     // populate header
-    //if (cur_body)
-    //  this->contactMsg.header.frame_id = cur_body->GetName();  // @todo: transform results to the link name
-    
-    // get contact array sizes for this contact param.  
+    // if (cur_body)
+    //   this->contactMsg.header.frame_id = cur_body->GetName();
+
+    // get contact array sizes for this contact param.
     // each contact param has num_contact_count contact pairs,
     // each contact geom pair has up to 64 contact points
-    //std::vector<physics::Collision*> contact_geoms;
+    // std::vector<physics::Collision*> contact_geoms;
 
-    // get reference frame (body(link)) pose and subtract from it to get 
+    // get reference frame (body(link)) pose and subtract from it to get
     // relative force, torque, position and normal vectors
     math::Pose pose, frame_pose;
     math::Quaternion rot, frame_rot;
@@ -183,16 +200,16 @@ void GazeboRosBumper::UpdateChild()
     else
     */
     {
-      // no specific frames specified, use identity pose, keeping 
+      // no specific frames specified, use identity pose, keeping
       // relative frame at inertial origin
-      frame_pos = math::Vector3(0,0,0);
-      frame_rot = math::Quaternion(1,0,0,0); // gazebo u,x,y,z == identity
+      frame_pos = math::Vector3(0, 0, 0);
+      frame_rot = math::Quaternion(1, 0, 0, 0);  // gazebo u,x,y,z == identity
       frame_pose = math::Pose(frame_pos, frame_rot);
     }
 
-    // For each collision contact 
-    for (std::map<std::string, gazebo::physics::Contact>::iterator citer = 
-         contacts.begin(); citer != contacts.end() ; citer++)
+    // For each collision contact
+    for (std::map<std::string, gazebo::physics::Contact>::iterator
+         citer = contacts.begin(); citer != contacts.end() ; citer++)
     {
       gazebo::physics::Contact contact = citer->second;
 
@@ -200,7 +217,7 @@ void GazeboRosBumper::UpdateChild()
       unsigned int pts = contact.count;
 
       std::ostringstream stream;
-      stream    << "touched!    i:" << l
+      stream << "touched!    i:" << l
         << "      my geom:" << contact.collision1->GetName()
         << "   other geom:" << contact.collision2->GetName()
         << "         time:" << contact.time
@@ -225,9 +242,9 @@ void GazeboRosBumper::UpdateChild()
       total_wrench.torque.y = 0;
       total_wrench.torque.z = 0;
 
-      for (unsigned int k=0; k < pts; k++)
+      for (unsigned int k = 0; k < pts; ++k)
       {
-        // rotate into user specified frame. 
+        // rotate into user specified frame.
         // frame_rot is identity if world is used.
         math::Vector3 force = frame_rot.RotateVectorReverse(
             math::Vector3(contact.forces[k].body1Force.x,
@@ -247,9 +264,9 @@ void GazeboRosBumper::UpdateChild()
         wrench.torque.y = torque.y;
         wrench.torque.z = torque.z;
         state.wrenches.push_back(wrench);
-        total_wrench.force.x  += wrench.force.x ;
-        total_wrench.force.y  += wrench.force.y ;
-        total_wrench.force.z  += wrench.force.z ;
+        total_wrench.force.x  += wrench.force.x;
+        total_wrench.force.y  += wrench.force.y;
+        total_wrench.force.z  += wrench.force.z;
         total_wrench.torque.x += wrench.torque.x;
         total_wrench.torque.y += wrench.torque.y;
         total_wrench.torque.z += wrench.torque.z;
@@ -265,7 +282,7 @@ void GazeboRosBumper::UpdateChild()
         tmp.z = contact_position.z;
         state.contact_positions.push_back(tmp);
 
-        // rotate normal into user specified frame. 
+        // rotate normal into user specified frame.
         // frame_rot is identity if world is used.
         math::Vector3 normal = frame_rot.RotateVectorReverse(
             math::Vector3(contact.normals[k].x,
@@ -301,8 +318,4 @@ void GazeboRosBumper::ContactQueueThread()
     this->contact_queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosBumper)
-
 }

@@ -18,13 +18,15 @@
 #ifndef GAZEBO_ROS_MULTICAMERA_HH
 #define GAZEBO_ROS_MULTICAMERA_HH
 
+#include <string>
+#include <vector>
+
 // library for processing camera data for gazebo / ros conversions
 #include "gazebo_ros_camera_utils.h"
 #include "MultiCameraPlugin.hh"
 
 namespace gazebo
 {
-
   class GazeboRosMultiCamera : public MultiCameraPlugin
   {
     /// \brief Constructor
@@ -42,16 +44,13 @@ namespace gazebo
 
     /// \brief Update the controller
     /// FIXME: switch to function vectors
-    protected: virtual void OnNewFrameLeft(const unsigned char *_image, 
-                   unsigned int _width, unsigned int _height, 
+    protected: virtual void OnNewFrameLeft(const unsigned char *_image,
+                   unsigned int _width, unsigned int _height,
                    unsigned int _depth, const std::string &_format);
-    protected: virtual void OnNewFrameRight(const unsigned char *_image, 
-                   unsigned int _width, unsigned int _height, 
+    protected: virtual void OnNewFrameRight(const unsigned char *_image,
+                   unsigned int _width, unsigned int _height,
                    unsigned int _depth, const std::string &_format);
-
-
   };
-
 }
 #endif
 

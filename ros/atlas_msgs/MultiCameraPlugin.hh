@@ -18,6 +18,7 @@
 #define _GAZEBO_MULTI_CAMERA_PLUGIN_HH_
 
 #include <string>
+#include <vector>
 
 #include "gazebo/common/Plugin.hh"
 #include "gazebo/sensors/MultiCameraSensor.hh"
