@@ -94,7 +94,7 @@ void GazeboRosJointTrajectory::Load(physics::ModelPtr _model,
   if (ros::isInitialized())
   {
     this->deferred_load_thread_ = boost::thread(
-      boost::bind( &GazeboRosJointTrajectory::LoadThread, this));
+      boost::bind(&GazeboRosJointTrajectory::LoadThread, this));
   }
   else
   {
@@ -135,13 +135,13 @@ void GazeboRosJointTrajectory::LoadThread()
     this->srv_ = this->rosnode_->advertiseService(srv_aso);
   }
 #endif
-  
+
   this->last_time_ = this->world_->GetSimTime();
 
   // start custom queue for joint trajectory plugin ros topics
   this->callback_queue_thread_ =
-    boost::thread( boost::bind( &GazeboRosJointTrajectory::QueueThread, this));
-  
+    boost::thread(boost::bind(&GazeboRosJointTrajectory::QueueThread, this));
+
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -151,7 +151,8 @@ void GazeboRosJointTrajectory::LoadThread()
 
 ////////////////////////////////////////////////////////////////////////////////
 // set joint trajectory
-void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
+void GazeboRosJointTrajectory::SetTrajectory(
+  const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
 
@@ -219,7 +220,6 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
     this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
     this->world_->EnablePhysicsEngine(false);
   }
-
 }
 
 #ifdef ENABLE_SERVICE
@@ -258,7 +258,7 @@ bool GazeboRosJointTrajectory::SetTrajectory(
   }
 
   this->model_ =  this->world_->GetModel(req.model_name);
-  if (!this->model_) // look for it by frame_id name
+  if (!this->model_)  // look for it by frame_id name
   {
     this->model_ = this->reference_link_->GetParentModel();
     if (this->model_)
@@ -302,16 +302,17 @@ bool GazeboRosJointTrajectory::SetTrajectory(
 // Play the trajectory, update states
 void GazeboRosJointTrajectory::UpdateStates()
 {
-
   boost::mutex::scoped_lock lock(this->update_mutex);
   if (this->has_trajectory_)
   {
     common::Time cur_time = this->world_->GetSimTime();
     // roll out trajectory via set model configuration
-    // gzerr << "i[" << trajectory_index  << "] time " << trajectory_start << " now: " << cur_time << " : "<< "\n";
+    // gzerr << "i[" << trajectory_index  << "] time "
+    //       << trajectory_start << " now: " << cur_time << " : "<< "\n";
     if (cur_time >= this->trajectory_start)
     {
-      // @todo:  consider a while loop until the trajectory "catches up" to the current time?
+      // @todo:  consider a while loop until the trajectory
+      // catches up to the current time
       // gzerr << trajectory_index << " : "  << this->points_.size() << "\n";
       if (this->trajectory_index < this->points_.size())
       {
@@ -325,9 +326,11 @@ void GazeboRosJointTrajectory::UpdateStates()
           reference_pose = this->reference_link_->GetWorldPose();
         }
 
-        // trajectory roll-out based on time:  set model configuration from trajectory message
+        // trajectory roll-out based on time:
+        //  set model configuration from trajectory message
         unsigned int chain_size = this->joints_.size();
-        if (chain_size == this->points_[this->trajectory_index].positions.size())
+        if (chain_size ==
+          this->points_[this->trajectory_index].positions.size())
         {
           for (unsigned int i = 0; i < chain_size; ++i)
           {
@@ -352,20 +355,19 @@ void GazeboRosJointTrajectory::UpdateStates()
                     this->points_[this->trajectory_index].positions.size());
         }
 
-
-        //this->world_->SetPaused(is_paused); // resume original pause-state
+        // this->world_->SetPaused(is_paused);  // resume original pause-state
         gazebo::common::Time duration(
           this->points_[this->trajectory_index].time_from_start.sec,
           this->points_[this->trajectory_index].time_from_start.nsec);
 
         // reset start time for next trajectory point
         this->trajectory_start += duration;
-        this->trajectory_index++; // increment to next trajectory point
+        this->trajectory_index++;  // increment to next trajectory point
 
         // save last update time stamp
         this->last_time_ = cur_time;
       }
-      else // no more trajectory points
+      else  // no more trajectory points
       {
         // trajectory finished
         this->reference_link_.reset();
@@ -375,7 +377,6 @@ void GazeboRosJointTrajectory::UpdateStates()
       }
     }
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
