@@ -21,30 +21,27 @@
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
-#include "gazebo/physics/World.hh"
-#include "gazebo/physics/HingeJoint.hh"
-#include "gazebo/sensors/Sensor.hh"
-#include "gazebo/sdf/interface/SDF.hh"
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/common/Exception.hh"
-#include "gazebo/sensors/CameraSensor.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/rendering/Camera.hh"
-
-#include "sensor_msgs/Image.h"
-#include "sensor_msgs/fill_image.h"
-#include "image_transport/image_transport.h"
-
+#include <tf/tf.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/fill_image.h>
+#include <image_transport/image_transport.h>
 #include <geometry_msgs/Point32.h>
 #include <sensor_msgs/ChannelFloat32.h>
 
-#include "tf/tf.h"
+#include <gazebo/physics/World.hh>
+#include <gazebo/physics/HingeJoint.hh>
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/sdf/interface/SDF.hh>
+#include <gazebo/sdf/interface/Param.hh>
+#include <gazebo/common/Exception.hh>
+#include <gazebo/sensors/CameraSensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/rendering/Camera.hh>
 
 #include "gazebo_ros_camera_utils.h"
 
 namespace gazebo
 {
-
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 GazeboRosCameraUtils::GazeboRosCameraUtils()
@@ -55,9 +52,11 @@ GazeboRosCameraUtils::GazeboRosCameraUtils()
 }
 
 #ifdef DYNAMIC_RECONFIGURE
-void GazeboRosCameraUtils::configCallback(gazebo_plugins::GazeboRosCameraConfig &config, uint32_t level)
+void GazeboRosCameraUtils::configCallback(
+  gazebo_plugins::GazeboRosCameraConfig &config, uint32_t level)
 {
-  ROS_INFO("Reconfigure request for the gazebo ros camera_: %s. New rate: %.2f", this->camera_name_.c_str(), config.imager_rate);
+  ROS_INFO("Reconfigure request for the gazebo ros camera_: %s. New rate: %.2f",
+    this->camera_name_.c_str(), config.imager_rate);
   this->parentSensor_->SetUpdateRate(config.imager_rate);
 }
 #endif
@@ -76,7 +75,8 @@ GazeboRosCameraUtils::~GazeboRosCameraUtils()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
+  sdf::ElementPtr _sdf)
 {
   // Get the world name.
   std::string world_name = _parent->GetWorldName();
@@ -87,7 +87,8 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
   // save pointers
   this->sdf = _sdf;
 
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
+  // maintain for one more release for backwards compatibility with
+  // pr2_gazebo_plugins
   this->world = this->world_;
 
   this->robot_namespace_ = "";
@@ -100,7 +101,8 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
 
   this->camera_info_topic_name_ = "camera_info";
   if (this->sdf->HasElement("cameraInfoTopicName"))
-    this->camera_info_topic_name_ = this->sdf->GetValueString("cameraInfoTopicName");
+    this->camera_info_topic_name_ =
+      this->sdf->GetValueString("cameraInfoTopicName");
 
   if (!this->sdf->HasElement("cameraName"))
     ROS_INFO("Camera plugin missing <cameraName>, default to empty");
@@ -204,12 +206,13 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf
       (this->distortion_k3_ != 0.0) || (this->distortion_t1_ != 0.0) ||
       (this->distortion_t2_ != 0.0))
   {
-    ROS_WARN("gazebo_ros_camera_ simulation does not support non-zero distortion parameters right now, your simulation maybe wrong.");
+    ROS_WARN("gazebo_ros_camera_ simulation does not support non-zero"
+             " distortion parameters right now, your simulation maybe wrong.");
   }
 
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosCameraUtils::LoadThread,this ) );
+    boost::bind(&GazeboRosCameraUtils::LoadThread, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -225,7 +228,8 @@ void GazeboRosCameraUtils::LoadThread()
     return;
   }
 
-  this->rosnode_ = new ros::NodeHandle(this->robot_namespace_+"/"+this->camera_name_);
+  this->rosnode_ = new ros::NodeHandle(this->robot_namespace_ +
+    "/" + this->camera_name_);
 
   this->itnode_ = new image_transport::ImageTransport(*this->rosnode_);
 
@@ -237,35 +241,43 @@ void GazeboRosCameraUtils::LoadThread()
 #ifdef DYNAMIC_RECONFIGURE
   if (!this->camera_name_.empty())
   {
-    dyn_srv_ = new dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>(*this->rosnode_);
-    dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>::CallbackType f = boost::bind(&GazeboRosCameraUtils::configCallback, this, _1, _2);
+    dyn_srv_ =
+      new dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>
+      (*this->rosnode_);
+    dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>
+      ::CallbackType f =
+      boost::bind(&GazeboRosCameraUtils::configCallback, this, _1, _2);
     dyn_srv_->setCallback(f);
   }
   else
   {
-    ROS_WARN("dynamic reconfigure is not enabled for this image topic [%s] becuase <cameraName> is not specified",this->image_topic_name_.c_str());
+    ROS_WARN("dynamic reconfigure is not enabled for this image topic [%s]"
+             " becuase <cameraName> is not specified",
+             this->image_topic_name_.c_str());
   }
 #endif
 
   this->image_pub_ = this->itnode_->advertise(
-    this->image_topic_name_,1,
-    boost::bind( &GazeboRosCameraUtils::ImageConnect,this),
-    boost::bind( &GazeboRosCameraUtils::ImageDisconnect,this),
+    this->image_topic_name_, 1,
+    boost::bind(&GazeboRosCameraUtils::ImageConnect, this),
+    boost::bind(&GazeboRosCameraUtils::ImageDisconnect, this),
     ros::VoidPtr(), &this->camera_queue_);
 
-  this->camera_info_pub_ = this->rosnode_->advertise<sensor_msgs::CameraInfo>(this->camera_info_topic_name_,1);
+  this->camera_info_pub_ =
+    this->rosnode_->advertise<sensor_msgs::CameraInfo>(
+    this->camera_info_topic_name_, 1);
 
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-        "set_hfov",1,
-        boost::bind( &GazeboRosCameraUtils::SetHFOV,this,_1),
+        "set_hfov", 1,
+        boost::bind(&GazeboRosCameraUtils::SetHFOV, this, _1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraHFOVSubscriber_ = this->rosnode_->subscribe(zoom_so);
 
   ros::SubscribeOptions rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-        "set_update_rate",1,
-        boost::bind( &GazeboRosCameraUtils::SetUpdateRate,this,_1),
+        "set_update_rate", 1,
+        boost::bind(&GazeboRosCameraUtils::SetUpdateRate, this, _1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
 
@@ -281,7 +293,8 @@ void GazeboRosCameraUtils::SetHFOV(const std_msgs::Float64::ConstPtr& hfov)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Update Rate
-void GazeboRosCameraUtils::SetUpdateRate(const std_msgs::Float64::ConstPtr& update_rate)
+void GazeboRosCameraUtils::SetUpdateRate(
+  const std_msgs::Float64::ConstPtr& update_rate)
 {
   this->parentSensor_->SetUpdateRate(update_rate->data);
 }
@@ -291,7 +304,8 @@ void GazeboRosCameraUtils::SetUpdateRate(const std_msgs::Float64::ConstPtr& upda
 void GazeboRosCameraUtils::ImageConnect()
 {
   this->image_connect_count_++;
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
+  // maintain for one more release for backwards compatibility
+  // with pr2_gazebo_plugins
   this->parentSensor_->SetActive(true);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +313,8 @@ void GazeboRosCameraUtils::ImageConnect()
 void GazeboRosCameraUtils::ImageDisconnect()
 {
   this->image_connect_count_--;
-  // maintain for one more release for backwards compatibility with pr2_gazebo_plugins
+  // maintain for one more release for backwards compatibility with
+  // pr2_gazebo_plugins
   if (this->image_connect_count_ <= 0)
     this->parentSensor_->SetActive(false);
 }
@@ -372,36 +387,48 @@ void GazeboRosCameraUtils::Init()
 
   /// Compute camera_ parameters if set to 0
   if (this->cx_prime_ == 0)
-    this->cx_prime_ = ((double)this->width_+1.0) /2.0;
+    this->cx_prime_ = (static_cast<double>(this->width_) + 1.0) /2.0;
   if (this->cx_ == 0)
-    this->cx_ = ((double)this->width_+1.0) /2.0;
+    this->cx_ = (static_cast<double>(this->width_) + 1.0) /2.0;
   if (this->cy_ == 0)
-    this->cy_ = ((double)this->height_+1.0) /2.0;
+    this->cy_ = (static_cast<double>(this->height_) + 1.0) /2.0;
 
 
-  double computed_focal_length = ((double)this->width_) / (2.0 *tan(this->camera_->GetHFOV().Radian()/2.0));
+  double computed_focal_length =
+    (static_cast<double>(this->width_)) /
+    (2.0 * tan(this->camera_->GetHFOV().Radian() / 2.0));
+
   if (this->focal_length_ == 0)
   {
     this->focal_length_ = computed_focal_length;
   }
   else
   {
-    if (!gazebo::math::equal(this->focal_length_, computed_focal_length)) // check against float precision
+    // check against float precision
+    if (!gazebo::math::equal(this->focal_length_, computed_focal_length))
     {
-      ROS_WARN("The <focal_length>[%f] you have provided for camera_ [%s] is inconsistent with specified image_width [%d] and HFOV [%f].   Please double check to see that focal_length = width_ / (2.0 * tan( HFOV/2.0 )), the explected focal_lengtth value is [%f], please update your camera_ model description accordingly.",
-                this->focal_length_,this->parentSensor_->GetName().c_str(),this->width_,this->camera_->GetHFOV().Radian(),
+      ROS_WARN("The <focal_length>[%f] you have provided for camera_ [%s]"
+               " is inconsistent with specified image_width [%d] and"
+               " HFOV [%f].   Please double check to see that"
+               " focal_length = width_ / (2.0 * tan(HFOV/2.0)),"
+               " the explected focal_lengtth value is [%f],"
+               " please update your camera_ model description accordingly.",
+                this->focal_length_, this->parentSensor_->GetName().c_str(),
+                this->width_, this->camera_->GetHFOV().Radian(),
                 computed_focal_length);
     }
   }
 
 
   // start custom queue for camera_
-  this->callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosCameraUtils::CameraQueueThread,this ) );
+  this->callback_queue_thread_ = boost::thread(
+    boost::bind(&GazeboRosCameraUtils::CameraQueueThread, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Put camera_ data to the interface
-void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src, common::Time &last_update_time)
+void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src,
+  common::Time &last_update_time)
 {
   this->sensor_update_time_ = last_update_time;
   this->PutCameraData(_src);
@@ -420,12 +447,9 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
   if (this->image_connect_count_ > 0)
   {
     // copy from src to image_msg_
-    fillImage(this->image_msg_,
-        this->type_,
-        this->height_,
-        this->width_,
-        this->skip_*this->width_,
-        (void*)_src );
+    fillImage(this->image_msg_, this->type_, this->height_, this->width_,
+        //this->skip_*this->width_, (void*)_src);
+        this->skip_*this->width_, reinterpret_cast<const void*>(_src));
 
     // publish to ros
     this->image_pub_.publish(this->image_msg_);
@@ -456,7 +480,8 @@ void GazeboRosCameraUtils::PublishCameraInfo()
   }
 }
 
-void GazeboRosCameraUtils::PublishCameraInfo(ros::Publisher camera_info_publisher)
+void GazeboRosCameraUtils::PublishCameraInfo(
+  ros::Publisher camera_info_publisher)
 {
   sensor_msgs::CameraInfo camera_info_msg;
   // fill CameraInfo
@@ -496,7 +521,8 @@ void GazeboRosCameraUtils::PublishCameraInfo(ros::Publisher camera_info_publishe
   camera_info_msg.R[6] = 0.0;
   camera_info_msg.R[7] = 0.0;
   camera_info_msg.R[8] = 1.0;
-  // camera_ projection matrix (same as camera_ matrix due to lack of distortion/rectification) (is this generated?)
+  // camera_ projection matrix (same as camera_ matrix due
+  // to lack of distortion/rectification) (is this generated?)
   camera_info_msg.P[0] = this->focal_length_;
   camera_info_msg.P[1] = 0.0;
   camera_info_msg.P[2] = this->cx_;
@@ -529,5 +555,4 @@ void GazeboRosCameraUtils::CameraQueueThread()
     this->camera_queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
-
 }

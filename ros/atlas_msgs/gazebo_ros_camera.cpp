@@ -15,14 +15,18 @@
  *
 */
 
-#include "gazebo_ros_camera.h"
+#include <string>
 
-#include "sensors/Sensor.hh"
-#include "sensors/CameraSensor.hh"
-#include "sensors/SensorTypes.hh"
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/sensors/CameraSensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+
+#include "gazebo_ros_camera.h"
 
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_SENSOR_PLUGIN(GazeboRosCamera)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -51,8 +55,8 @@ void GazeboRosCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-void GazeboRosCamera::OnNewFrame(const unsigned char *_image, 
-    unsigned int _width, unsigned int _height, unsigned int _depth, 
+void GazeboRosCamera::OnNewFrame(const unsigned char *_image,
+    unsigned int _width, unsigned int _height, unsigned int _depth,
     const std::string &_format)
 {
   this->sensor_update_time_ = this->parentSensor_->GetLastUpdateTime();
@@ -60,7 +64,7 @@ void GazeboRosCamera::OnNewFrame(const unsigned char *_image,
   if (!this->parentSensor->IsActive())
   {
     if (this->image_connect_count_ > 0)
-      // do this first so there's chance for sensor to run 1 frame after activate
+      // do this first so there's chance for sensor to run once after activated
       this->parentSensor->SetActive(true);
   }
   else
@@ -76,8 +80,4 @@ void GazeboRosCamera::OnNewFrame(const unsigned char *_image,
     }
   }
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosCamera)
-
 }

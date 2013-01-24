@@ -18,6 +18,9 @@
 #ifndef GAZEBO_ROS_JOINT_TRAJECTORY_PLUGIN_HH
 #define GAZEBO_ROS_JOINT_TRAJECTORY_PLUGIN_HH
 
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
@@ -30,18 +33,14 @@
 #include <gazebo_msgs/SetJointTrajectory.h>
 #endif
 
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-
-#include <boost/thread.hpp>
-#include "boost/thread/mutex.hpp"
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
 
 namespace gazebo
 {
-
    class GazeboRosJointTrajectory : public ModelPlugin
    {
       /// \brief Constructor
@@ -54,10 +53,12 @@ namespace gazebo
       public: void Load( physics::ModelPtr _model, sdf::ElementPtr _sdf );
 
       /// \brief Update the controller
-      private: void SetTrajectory(const trajectory_msgs::JointTrajectory::ConstPtr& trajectory);
+      private: void SetTrajectory(
+        const trajectory_msgs::JointTrajectory::ConstPtr& trajectory);
 #ifdef ENABLE_SERVICE
-      private: bool SetTrajectory(const gazebo_msgs::SetJointTrajectory::Request& req,
-                                  const gazebo_msgs::SetJointTrajectory::Response& res);
+      private: bool SetTrajectory(
+        const gazebo_msgs::SetJointTrajectory::Request& req,
+        const gazebo_msgs::SetJointTrajectory::Response& res);
 #endif
       private: void UpdateStates();
 
@@ -85,7 +86,8 @@ namespace gazebo
       private: std::string topic_name_;
       private: std::string service_name_;
 
-      /// \brief A mutex to lock access to fields that are used in message callbacks
+      /// \brief A mutex to lock access to fields that are
+      /// used in message callbacks
       private: boost::mutex update_mutex;
 
       /// \brief save last_time
@@ -109,7 +111,7 @@ namespace gazebo
 
       private: std::vector<gazebo::physics::JointPtr> joints_;
       private: std::vector<trajectory_msgs::JointTrajectoryPoint> points_;
-      
+
       // Pointer to the update event connection
       private: event::ConnectionPtr update_connection_;
 
@@ -120,11 +122,5 @@ namespace gazebo
       private: void LoadThread();
       private: boost::thread deferred_load_thread_;
    };
-
-/** \} */
-/// @}
-
-
 }
-
 #endif
