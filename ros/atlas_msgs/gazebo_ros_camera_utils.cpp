@@ -448,7 +448,6 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
   {
     // copy from src to image_msg_
     fillImage(this->image_msg_, this->type_, this->height_, this->width_,
-        //this->skip_*this->width_, (void*)_src);
         this->skip_*this->width_, reinterpret_cast<const void*>(_src));
 
     // publish to ros
