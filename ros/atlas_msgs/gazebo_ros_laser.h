@@ -85,7 +85,6 @@ namespace gazebo
 
     /// \brief Gaussian noise
     private: double gaussian_noise_;
-    //private: ParamT<double> *gaussianNoiseP;
 
     /// \brief Gaussian noise generator
     private: double GaussianKernel(double mu, double sigma);
