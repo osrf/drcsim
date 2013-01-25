@@ -33,7 +33,7 @@ if (NOT ROS_DISTRO)
                   RESULT_VARIABLE rosversion_error
                   ERROR_VARIABLE rosversion_stderr
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(RESULT_VARIABLE)
+  if(rosversion_error)
     message(FATAL_ERROR "`rosversion -d` failed. stdout: ${ROS_DISTRO}.  stderr: ${rosversion_stderr}.")
   endif()
 endif()
