@@ -1,24 +1,43 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-# save project name, paths
-set(SAVE_PROJECT_NAME ${PROJECT_NAME})
+set(ENV{ROS_PACKAGE_PATH} ${DRC_SIM_CMAKE_SOURCE_DIR}/ros/atlas_msgs:${ROS_PACKAGE_PATH})
+set(ENV{ROS_PACKAGE_PATH} ${DRC_SIM_CMAKE_SOURCE_DIR}/ros:${ROS_PACKAGE_PATH})
+set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
+message(status "\n\n\n$ENV{ROS_PACKAGE_PATH}\n\n\n")
 
-set(ROSBUILD_DONT_REDEFINE_PROJECT 1)
+set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH})
+message(status "\n\n\n PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}\n\n\n")
+
 project(atlas_msgs)
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
 
+#find gazebo include (FindPkgConfig)
+include (FindPkgConfig)
+if (PKG_CONFIG_FOUND)
+  pkg_check_modules(GAZEBO gazebo)
+else()
+  message(FATAL_ERROR "pkg-config is required; please install it")
+endif()
+
+message(STATUS "\n\n\nGID:  ${GAZEBO_INCLUDE_DIRS}\n\n")
+
 # depends on DRCVehiclePlugin
 include_directories(
-  ${CMAKE_SOURCE_DIR}/plugins
+  ${GAZEBO_INCLUDE_DIRS}
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins
+)
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
+  ${PLUGIN_LINK_DIRECTORIES}
 )
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/bin/)
 #set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
-INSTALL(CODE "EXECUTE_PROCESS(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)")
+set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins/)")
 
 rosbuild_genmsg()
 #rosbuild_gensrv()
@@ -67,5 +86,5 @@ target_link_libraries(VRCPlugin)
 rosbuild_add_library(DRCVehicleROSPlugin DRCVehicleROSPlugin.cpp)
 target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 
-install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
-install(DIRECTORY msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${SAVE_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
+install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
+install(DIRECTORY msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
