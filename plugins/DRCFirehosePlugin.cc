@@ -83,7 +83,7 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   this->lastTime = this->world->GetSimTime();
 
   // Set initial configuration
-  this->SetInitialConfiguration();
+  // this->SetInitialConfiguration();
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
@@ -103,8 +103,11 @@ void DRCFirehosePlugin::SetInitialConfiguration()
   //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
 
   // should do this via setting initial state in sdf when it's working
-  this->joints[this->joints.size()-4]->SetAngle(0, -M_PI/4.0);
-  this->joints[this->joints.size()-2]->SetAngle(0, -M_PI/4.0);
+  // this->joints[this->joints.size()-4]->SetAngle(0, -M_PI/4.0);
+  // this->joints[this->joints.size()-2]->SetAngle(0, -M_PI/4.0);
+
+  this->joints[17]->SetAngle(0, -M_PI/4.0);
+  this->joints[19]->SetAngle(0, -M_PI/4.0);
 }
 
 
