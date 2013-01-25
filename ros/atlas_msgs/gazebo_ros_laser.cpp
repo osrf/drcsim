@@ -1,51 +1,47 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: Ros Laser controller.
- * Author: Nathan Koenig
- * Date: 01 Feb 2007
- * SVN info: $Id: gazebo_ros_laser.cpp 6683 2008-06-25 19:12:30Z natepak $
- */
+*/
 
 #include <algorithm>
+#include <string>
 #include <assert.h>
+
+#include "gazebo/physics/World.hh"
+#include "gazebo/physics/HingeJoint.hh"
+#include "gazebo/sensors/Sensor.hh"
+#include "gazebo/sdf/interface/SDF.hh"
+#include "gazebo/sdf/interface/Param.hh"
+#include "gazebo/common/Exception.hh"
+#include "gazebo/sensors/RaySensor.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+
+#include "tf/tf.h"
 
 #include "gazebo_ros_laser.h"
 
-#include "physics/World.hh"
-#include "physics/HingeJoint.hh"
-#include "sensors/Sensor.hh"
-#include "sdf/interface/SDF.hh"
-#include "sdf/interface/Param.hh"
-#include "common/Exception.hh"
-#include "sensors/RaySensor.hh"
-#include "sensors/SensorTypes.hh"
-#include "tf/tf.h"
-
 namespace gazebo
 {
+// Register this plugin with the simulator
+GZ_REGISTER_SENSOR_PLUGIN(GazeboRosLaser)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 GazeboRosLaser::GazeboRosLaser()
 {
+  this->seed = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +72,8 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->last_update_time_ = common::Time(0);
 
-  this->parent_ray_sensor_ = boost::shared_dynamic_cast<sensors::RaySensor>(this->parent_sensor_);
+  this->parent_ray_sensor_ =
+    boost::shared_dynamic_cast<sensors::RaySensor>(this->parent_sensor_);
 
   if (!this->parent_ray_sensor_)
     gzthrow("GazeboRosLaser controller requires a Ray Sensor as its parent");
@@ -118,7 +115,8 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->hokuyo_min_intensity_ =
       this->sdf->GetValueDouble("hokuyoMinIntensity");
 
-  ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyo_min_intensity_);
+  ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to"
+           " %f due to cutoff in hokuyo filters.", this->hokuyo_min_intensity_);
 
   if (!this->sdf->GetElement("updateRate"))
   {
@@ -146,7 +144,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   {
     // ros callback queue for processing subscription
     this->deferred_load_thread_ = boost::thread(
-      boost::bind( &GazeboRosLaser::LoadThread,this ) );
+      boost::bind(&GazeboRosLaser::LoadThread, this));
   }
   else
   {
@@ -154,7 +152,6 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
           << "  gazebo -s libgazebo_ros_api.so\n";
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,10 +167,12 @@ void GazeboRosLaser::LoadThread()
 
   if (this->topic_name_ != "")
   {
-    ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::LaserScan>(
-      this->topic_name_,1,
-      boost::bind( &GazeboRosLaser::LaserConnect,this),
-      boost::bind( &GazeboRosLaser::LaserDisconnect,this), ros::VoidPtr(), &this->laser_queue_);
+    ros::AdvertiseOptions ao =
+      ros::AdvertiseOptions::create<sensor_msgs::LaserScan>(
+      this->topic_name_, 1,
+      boost::bind(&GazeboRosLaser::LaserConnect, this),
+      boost::bind(&GazeboRosLaser::LaserDisconnect, this),
+      ros::VoidPtr(), &this->laser_queue_);
     this->pub_ = this->rosnode_->advertise(ao);
   }
 
@@ -183,8 +182,8 @@ void GazeboRosLaser::LoadThread()
   // sensor generation off by default
   this->parent_ray_sensor_->SetActive(false);
   // start custom queue for laser
-  this->callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosLaser::LaserQueueThread,this ) );
-
+  this->callback_queue_thread_ =
+    boost::thread(boost::bind(&GazeboRosLaser::LaserQueueThread, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,7 +213,8 @@ void GazeboRosLaser::OnNewLaserScans()
     common::Time cur_time = this->world_->GetSimTime();
     if (cur_time - this->last_update_time_ >= this->update_period_)
     {
-      common::Time sensor_update_time = this->parent_sensor_->GetLastUpdateTime();
+      common::Time sensor_update_time =
+        this->parent_sensor_->GetLastUpdateTime();
       this->PutLaserData(sensor_update_time);
       this->last_update_time_ = cur_time;
     }
@@ -256,48 +256,55 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
     this->laser_msg_.header.stamp.nsec = _updateTime.nsec;
 
 
-    double tmp_res_angle = (maxAngle.Radian() - minAngle.Radian())/((double)(rangeCount -1)); // for computing yaw
+    // for computing yaw
+    double tmp_res_angle = (maxAngle.Radian() -
+      minAngle.Radian())/(static_cast<double>(rangeCount -1));
     this->laser_msg_.angle_min = minAngle.Radian();
     this->laser_msg_.angle_max = maxAngle.Radian();
     this->laser_msg_.angle_increment = tmp_res_angle;
-    this->laser_msg_.time_increment  = 0; // instantaneous simulator scan
-    this->laser_msg_.scan_time       = 0; // FIXME: what's this?
+    this->laser_msg_.time_increment  = 0;  // instantaneous simulator scan
+    this->laser_msg_.scan_time       = 0;  // FIXME: what's this?
     this->laser_msg_.range_min = minRange;
     this->laser_msg_.range_max = maxRange;
     this->laser_msg_.ranges.clear();
     this->laser_msg_.intensities.clear();
 
     // Interpolate the range readings from the rays
-    for (i = 0; i<rangeCount; i++)
+    for (i = 0; i < rangeCount; ++i)
     {
-      b = (double) i * (rayCount - 1) / (rangeCount - 1);
-      ja = (int) floor(b);
+      b = static_cast<double>(i * (rayCount - 1) / (rangeCount - 1));
+      ja = static_cast<int>(floor(b));
       jb = std::min(ja + 1, rayCount - 1);
       b = b - floor(b);
 
       assert(ja >= 0 && ja < rayCount);
       assert(jb >= 0 && jb < rayCount);
 
-      ra = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(ja) , maxRange-minRange); // length of ray
-      rb = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(jb) , maxRange-minRange); // length of ray
+      ra = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(ja),
+        maxRange-minRange);  // length of ray
+      rb = std::min(this->parent_ray_sensor_->GetLaserShape()->GetRange(jb),
+        maxRange-minRange);  // length of ray
 
       // Range is linear interpolation if values are close,
       // and min if they are very different
-      //if (fabs(ra - rb) < 0.10)
-        r = (1 - b) * ra + b * rb;
-      //else r = std::min(ra, rb);
+      // if (fabs(ra - rb) < 0.10)
+      r = (1 - b) * ra + b * rb;
+      // else r = std::min(ra, rb);
 
       // Intensity is averaged
-      intensity = 0.5*( this->parent_ray_sensor_->GetLaserShape()->GetRetro(ja)
-                      + this->parent_ray_sensor_->GetLaserShape()->GetRetro(jb));
+      intensity = 0.5*(this->parent_ray_sensor_->GetLaserShape()->GetRetro(ja)
+                     + this->parent_ray_sensor_->GetLaserShape()->GetRetro(jb));
 
       /***************************************************************/
       /*                                                             */
       /*  point scan from laser                                      */
       /*                                                             */
       /***************************************************************/
-      this->laser_msg_.ranges.push_back(std::min(r + minRange + this->GaussianKernel(0,this->gaussian_noise_), maxRange));
-      this->laser_msg_.intensities.push_back(std::max(this->hokuyo_min_intensity_,intensity + this->GaussianKernel(0,this->gaussian_noise_)));
+      this->laser_msg_.ranges.push_back(std::min(r + minRange +
+        this->GaussianKernel(0, this->gaussian_noise_), maxRange));
+      this->laser_msg_.intensities.push_back(
+        std::max(this->hokuyo_min_intensity_,
+                 intensity + this->GaussianKernel(0, this->gaussian_noise_)));
     }
 
     this->parent_ray_sensor_->SetActive(true);
@@ -305,22 +312,28 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
     // send data out via ros message
     if (this->laser_connect_count_ > 0 && this->topic_name_ != "")
         this->pub_.publish(this->laser_msg_);
-
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Utility for adding noise
-double GazeboRosLaser::GaussianKernel(double mu,double sigma)
+double GazeboRosLaser::GaussianKernel(double mu, double sigma)
 {
-  // using Box-Muller transform to generate two independent standard normally disbributed normal variables
-  // see wikipedia
-  double U = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-  double V = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-  double X = sqrt(-2.0 * ::log(U)) * cos( 2.0*M_PI * V);
-  //double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V); // the other indep. normal variable
-  // we'll just use X
+  // using Box-Muller transform to generate two independent standard
+  // normally disbributed normal variables see wikipedia
+
+  // normalized uniform random variable
+  double U = static_cast<double>(rand_r(&this->seed)) /
+             static_cast<double>(RAND_MAX);
+
+  // normalized uniform random variable
+  double V = static_cast<double>(rand_r(&this->seed)) /
+             static_cast<double>(RAND_MAX);
+
+  double X = sqrt(-2.0 * ::log(U)) * cos(2.0*M_PI * V);
+  // double Y = sqrt(-2.0 * ::log(U)) * sin(2.0*M_PI * V);
+
+  // there are 2 indep. vars, we'll just use X
   // scale to our mu and sigma
   X = sigma * X + mu;
   return X;
@@ -337,8 +350,4 @@ void GazeboRosLaser::LaserQueueThread()
     this->laser_queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosLaser)
-
 }

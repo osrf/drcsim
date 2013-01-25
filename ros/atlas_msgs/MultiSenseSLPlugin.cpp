@@ -1,31 +1,19 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- @mainpage
-   Desc: MultiSenseSL plugin for simulating cameras in Gazebo
-   Author: John Hsu
-   Date: 24 Sept 2008
-   SVN info: $Id$
- @htmlinclude manifest.html
- @b MultiSenseSL plugin broadcasts ROS Image messages
- */
+*/
 
 #include "sensor_msgs/Imu.h"
 
@@ -133,9 +121,9 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
           << "  gazebo -s libgazebo_ros_api.so\n";
     return;
   }
-  
+
   this->deferred_load_thread_ = boost::thread(
-    boost::bind( &MultiSenseSL::LoadThread,this ) );
+    boost::bind(&MultiSenseSL::LoadThread, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,9 +145,9 @@ void MultiSenseSL::LoadThread()
   ros::SubscribeOptions set_spindle_speed_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "multisense_sl/set_spindle_speed", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
+    boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetSpindleSpeed),this,_1),
+        &MultiSenseSL::SetSpindleSpeed), this, _1),
     ros::VoidPtr(), &this->queue_);
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
@@ -230,11 +218,11 @@ void MultiSenseSL::LoadThread()
   */
 
   this->lastUpdateTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0; // Hz
+  this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
   this->callback_queue_thread_ = boost::thread(
-    boost::bind( &MultiSenseSL::QueueThread,this ) );
+    boost::bind(&MultiSenseSL::QueueThread, this));
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&MultiSenseSL::UpdateStates, this));
@@ -359,7 +347,7 @@ bool MultiSenseSL::SetSpindleState(std_srvs::Empty::Request &req,
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 {
-  this->spindleSpeed = (double)_msg->data;
+  this->spindleSpeed = static_cast<double>(_msg->data);
   if (this->spindleSpeed > this->spindleMaxRPM * 2.0*M_PI / 60.0)
     this->spindleSpeed = this->spindleMaxRPM * 2.0*M_PI / 60.0;
   else if (this->spindleSpeed < this->spindleMinRPM * 2.0*M_PI / 60.0)
@@ -369,14 +357,14 @@ void MultiSenseSL::SetSpindleSpeed(const std_msgs::Float64::ConstPtr &_msg)
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 {
-  this->spindleOn = (double)_msg->data;
+  this->spindleOn = static_cast<double>(_msg->data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->multiCameraFrameRate = (double)_msg->data;
+  this->multiCameraFrameRate = static_cast<double>(_msg->data);
   this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
 }
 
@@ -384,7 +372,7 @@ void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
 void MultiSenseSL::SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->multiCameraExposureTime = (double)_msg->data;
+  this->multiCameraExposureTime = static_cast<double>(_msg->data);
   gzwarn << "setting camera exposure time in sim not implemented\n";
 }
 
@@ -392,7 +380,7 @@ void MultiSenseSL::SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
 void MultiSenseSL::SetMultiCameraGain(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  this->multiCameraGain = (double)_msg->data;
+  this->multiCameraGain = static_cast<double>(_msg->data);
   gzwarn << "setting camera gain in sim not implemented\n";
 }
 }
