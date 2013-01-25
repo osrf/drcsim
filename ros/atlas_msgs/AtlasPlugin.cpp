@@ -47,6 +47,7 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.clear();
   this->rosQueue.disable();
   this->callbackQueeuThread.join();
+  this->pubQueeuThread.join();
   delete this->rosNode;
 }
 
@@ -208,12 +209,18 @@ void AtlasPlugin::SetJointCommands(
   clock_gettime(0, &tv);
   gazebo::common::Time gtv = tv;
 
+  static common::Time last;
+
   // round trip, JS published by AtlasPlugin, received by pub_joint_command
   // and republished over JC, received by AtlasPlugin
+  if (this->world->GetSimTime() > last)
   ROS_ERROR("now [%f] js pub sim time [%f] receive sim time [%f] diff [%f]",
     gtv.Double(),
     _msg->header.stamp.toSec(), this->world->GetSimTime().Double(),
-    this->world->GetSimTime().Double() - _msg->header.stamp.toSec());
+    (last - this->world->GetSimTime()).Double());
+    //this->world->GetSimTime().Double() - _msg->header.stamp.toSec());
+
+  last = this->world->GetSimTime();
     
   if (_msg->name.size() == this->jointCommands.name.size() &&
       _msg->position.size() == this->jointCommands.position.size() &&
@@ -293,8 +300,15 @@ void AtlasPlugin::DeferredLoad()
 
   // ROS Controller API
   /// brief broadcasts the robot states
-  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-    "atlas/joint_states", 10);
+  ros::AdvertiseOptions pub_joint_states_ao =
+    ros::AdvertiseOptions::create<sensor_msgs::JointState>(
+      "atlas/joint_states", 10,
+      boost::bind(&AtlasPlugin::foo, this),
+      boost::bind(&AtlasPlugin::foo, this),
+      ros::VoidPtr(), &this->rosPubQueue);
+  this->pubJointStates = this->rosNode->advertise(pub_joint_states_ao);
+  // this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+  //   "atlas/joint_states", 10);
 
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
@@ -332,6 +346,9 @@ void AtlasPlugin::DeferredLoad()
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
+
+  this->pubQueeuThread = boost::thread(
+    boost::bind(&AtlasPlugin::RosPubQueueThread, this));
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&AtlasPlugin::UpdateStates, this));
@@ -639,6 +656,20 @@ void AtlasPlugin::RosQueueThread()
   while (this->rosNode->ok())
   {
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
+  }
+}
+
+void AtlasPlugin::foo()
+{
+}
+
+void AtlasPlugin::RosPubQueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosNode->ok())
+  {
+    this->rosPubQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
 }

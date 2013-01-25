@@ -36,7 +36,7 @@ ros::NodeHandle* rosnode;
 
 void queue_thread_()
 {
-  static const double timeout = 0.01;
+  static const double timeout = 0.0001;
 
   while (rosnode->ok())
   {
@@ -50,16 +50,20 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
   clock_gettime(0, &tv);
   gazebo::common::Time gtv = tv;
 
-  ROS_ERROR("now [%f] received[%f] last received[%f] dt[%f]",
-    gtv.Double(),
-    _js->header.stamp.toSec(),
-    last_received_time_.toSec(), 
-    (_js->header.stamp - last_received_time_).toSec());
+  // if (ros::Time::now() > last_time_)
+  //   ROS_ERROR("now [%f] received[%f] last received[%f] dt[%f]",
+  //     gtv.Double(),
+  //     _js->header.stamp.toSec(),
+  //     last_received_time_.toSec(), 
+  //     (ros::Time::now() - last_time_).toSec());
+  //     //(_js->header.stamp - last_received_time_).toSec());
   last_received_time_ = _js->header.stamp;
 
-  // if (ros::Time::now() > last_time_)
+  if (ros::Time::now() > last_time_)
   {
-    ROS_ERROR("received[%f] now[%f] dt[%f]", _js->header.stamp.toSec(),
+    ROS_ERROR("rt[%f] received[%f] now[%f] dt[%f]",
+       gtv.Double(),
+      _js->header.stamp.toSec(),
       ros::Time::now().toSec(), (ros::Time::now() - last_time_).toSec());
 
     osrf_msgs::JointCommands jc;
@@ -150,14 +154,22 @@ int main(int argc, char** argv)
   }
 
   // ros topic subscribtions
-  ros::SubscribeOptions jointStatesSo =
-    ros::SubscribeOptions::create<sensor_msgs::JointState>(
-    "/atlas/joint_states", 20, SetJointStates,
-    ros::VoidPtr(), &ros_queue_);
-  ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
-  //ros::Subscriber subJointStates = rosnode->subscribe("/atlas/joint_states", 1, SetJointStates);
+  // ros::SubscribeOptions jointStatesSo =
+  //   ros::SubscribeOptions::create<sensor_msgs::JointState>(
+  //   "/atlas/joint_states", 20, SetJointStates,
+  //   ros::VoidPtr(), &ros_queue_);
+  // ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
+  ros::Subscriber subJointStates = rosnode->subscribe("/atlas/joint_states", 1000, SetJointStates);
  
   pub_ = rosnode->advertise<osrf_msgs::JointCommands>("/atlas/joint_commands",1, true);
+
+/*
+  while (true)
+  {
+    osrf_msgs::JointCommands jc;
+    pub_.publish(jc); // use publisher
+  }
+*/
 
   ros::spin();
 

@@ -79,10 +79,12 @@ namespace gazebo
 
     /// \brief ROS callback queue thread
     private: void RosQueueThread();
+    private: void RosPubQueueThread();
 
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
     private: void DeferredLoad();
+    private: void foo();
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
@@ -127,7 +129,9 @@ namespace gazebo
     // ROS stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
+    private: ros::CallbackQueue rosPubQueue;
     private: boost::thread callbackQueeuThread;
+    private: boost::thread pubQueeuThread;
     private: ros::Publisher pubStatus;
     private: ros::Publisher pubJointStates;
     private: ros::Publisher pubForceTorqueSensors;
