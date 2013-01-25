@@ -22,6 +22,15 @@ set (CPACK_SOURCE_PACKAGE_FILE_NAME "@PROJECT_NAME@-@DRC_SIM_VERSION_FULL@")
 include (CPack)
 
 set (ROS_DISTRO "fuerte")
+execute_process(COMMAND rosrun rosunit test_results_dir.py
+                RESULT_VARIABLE test_results_error
+                OUTPUT_VARIABLE test_results_stdout
+                ERROR_VARIABLE test_results_stderr
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(test_results_error)
+  message(FATAL_ERROR "Failed to determine output location for ROS tests.")
+endif()
+set(ROS_TEST_RESULTS_DIR ${test_results_stdout})
 
 set (INCLUDE_INSTALL_DIR "include/${PROJECT_NAME}-${DRC_SIM_VERSION}/${PROJECT_NAME}") 
 set (LIB_INSTALL_DIR "lib" CACHE STRING "Installation directory for libraries (relative to CMAKE_INSTALL_PREFIX)") 
