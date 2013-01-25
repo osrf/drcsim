@@ -13,4 +13,9 @@
   <include filename="$(find atlas_description)/urdf/atlas.gazebo" />
   <include filename="$(find atlas_description)/urdf/atlas.transmission" />
   <include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
+
+  <gazebo>
+    <!-- include plugin for snadia hands -->
+    <plugin name="sandia_hand_plugin" filename="libSandiaHandPlugin.so"/>
+  </gazebo>
 </robot>
