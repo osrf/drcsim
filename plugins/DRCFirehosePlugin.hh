@@ -27,6 +27,7 @@
 #ifndef GAZEBO_DRC_FIREHOSE_PLUGIN_HH
 #define GAZEBO_DRC_FIREHOSE_PLUGIN_HH
 
+#include <string>
 #include <boost/thread.hpp>
 
 #include "physics/physics.hh"
@@ -73,7 +74,7 @@ namespace gazebo
     private: void SetInitialConfiguration();
 
     /// Continuously checks DRC firehose coupling pose against spigot pose.
-    /// If sufficient alignment between the two exists, 
+    /// If sufficient alignment between the two exists,
     /// and the relative motion of the two allows for thread initiation,
     /// dynamically create a screw joint constraint between the objects.
     private: bool CheckThreadStart();

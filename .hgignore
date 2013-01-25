@@ -4,3 +4,5 @@ build
 build_*
 Ogre.log
 .DS_Store
+msg_gen
+srv_gen

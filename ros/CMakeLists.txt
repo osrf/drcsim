@@ -1,2 +1,5 @@
-add_subdirectory(drc_robot_utils)
-add_subdirectory(sandia_hand_utils)
+add_subdirectory(atlas_utils)
+add_subdirectory(atlas_description)
+add_subdirectory(irobot_hand_description)
+add_subdirectory(atlas_msgs)
+add_subdirectory(multisense_sl_description)

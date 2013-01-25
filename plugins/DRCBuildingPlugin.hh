@@ -27,6 +27,8 @@
 #ifndef GAZEBO_DRC_BUILDING_PLUGIN_HH
 #define GAZEBO_DRC_BUILDING_PLUGIN_HH
 
+#include <string>
+
 #include <boost/thread.hpp>
 
 #include "physics/physics.hh"

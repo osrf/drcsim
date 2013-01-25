@@ -1,9 +1,9 @@
 set (worlds
      drc_sim_v0.world
-     drc_robot.world
-     drc_robot_irobot_hand.world
-     drc_robot_sandia_hand.world
-     drc_robot_golf_cart_fire_hose.world
+     atlas.world
+     atlas_sandia_hands.world
+     atlas_irobot_hands.world
+     atlas_golf_cart_fire_hose.world
      golf_cart.world
      fire_hose.world
      powerplant.world
