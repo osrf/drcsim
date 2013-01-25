@@ -5,8 +5,12 @@
 #include <boost/thread.hpp>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
+#include <gazebo/common/Time.hh>
 #include "sensor_msgs/JointState.h"
 #include "osrf_msgs/JointCommands.h"
+
+#include <time.h>  // for timespec
+
 
 ros::CallbackQueue ros_queue_;
 ros::Publisher pub_;
@@ -26,7 +30,13 @@ void queue_thread_()
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
-  ROS_ERROR("received[%f] last received[%f] dt[%f]", _js->header.stamp.toSec(),
+  struct timespec tv;
+  clock_gettime(0, &tv);
+  gazebo::common::Time gtv = tv;
+
+  ROS_ERROR("now [%f] received[%f] last received[%f] dt[%f]",
+    gtv.Double(),
+    _js->header.stamp.toSec(),
     last_received_time_.toSec(), 
     (_js->header.stamp - last_received_time_).toSec());
   last_received_time_ = _js->header.stamp;

@@ -208,9 +208,14 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 // Set Joint Commands
 void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
+  struct timespec tv;
+  clock_gettime(0, &tv);
+  gazebo::common::Time gtv = tv;
+
   // round trip, JS published by AtlasPlugin, received by pub_joint_command
   // and republished over JC, received by AtlasPlugin
-  ROS_ERROR(" js pub sim time [%f] receive sim time [%f] diff [%f]",
+  ROS_ERROR("now [%f] js pub sim time [%f] receive sim time [%f] diff [%f]",
+    gtv.Double(),
     _msg->header.stamp.toSec(), this->world->GetSimTime().Double(),
     this->world->GetSimTime().Double() - _msg->header.stamp.toSec());
     
