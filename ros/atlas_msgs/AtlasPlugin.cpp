@@ -208,6 +208,12 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 // Set Joint Commands
 void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
+  // round trip, JS published by AtlasPlugin, received by pub_joint_command
+  // and republished over JC, received by AtlasPlugin
+  ROS_ERROR(" js pub sim time [%f] receive sim time [%f] diff [%f]",
+    _msg->header.stamp.toSec(), this->world->GetSimTime().Double(),
+    this->world->GetSimTime().Double() - _msg->header.stamp.toSec());
+    
   if (_msg->name.size() == this->jointCommands.name.size() &&
       _msg->position.size() == this->jointCommands.position.size() &&
       _msg->velocity.size() == this->jointCommands.velocity.size() &&
@@ -306,7 +312,7 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions jointCommandsSo =
     ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    "atlas/joint_commands", 100,
+    "atlas/joint_commands", 10,
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
   this->subJointCommands=

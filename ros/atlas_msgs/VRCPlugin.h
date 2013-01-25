@@ -463,6 +463,11 @@ namespace gazebo
         control_msgs::FollowJointTrajectoryGoal goal;
 
         // First, the joint names, which apply to all waypoints
+        goal.trajectory.joint_names.push_back("neck_ay"  );
+        goal.trajectory.joint_names.push_back("back_lbz" );
+        goal.trajectory.joint_names.push_back("back_mby" );
+        goal.trajectory.joint_names.push_back("back_ubx" );
+
         goal.trajectory.joint_names.push_back("l_leg_uhz");
         goal.trajectory.joint_names.push_back("l_leg_mhx");
         goal.trajectory.joint_names.push_back("l_leg_lhy");
@@ -491,11 +496,6 @@ namespace gazebo
         goal.trajectory.joint_names.push_back("r_arm_uwy");
         goal.trajectory.joint_names.push_back("r_arm_mwx");
 
-        goal.trajectory.joint_names.push_back("neck_ay"  );
-        goal.trajectory.joint_names.push_back("back_lbz" );
-        goal.trajectory.joint_names.push_back("back_mby" );
-        goal.trajectory.joint_names.push_back("back_ubx" );
-
         // We will have two waypoints in this goal trajectory
         goal.trajectory.points.resize(1);
 
@@ -503,34 +503,34 @@ namespace gazebo
         // Positions
         int ind = 0;
         goal.trajectory.points[ind].positions.resize(28);
-        goal.trajectory.points[ind].positions[0]  =   0.00;
-        goal.trajectory.points[ind].positions[1]  =   0.00;
-        goal.trajectory.points[ind].positions[2]  =   0.00;
-        goal.trajectory.points[ind].positions[3]  =   0.00;
-        goal.trajectory.points[ind].positions[4]  =   0.00;
-        goal.trajectory.points[ind].positions[5]  =   0.00;
+        goal.trajectory.points[ind].positions[0] =   0.00;
+        goal.trajectory.points[ind].positions[1] =   0.00;
+        goal.trajectory.points[ind].positions[2] =   0.00;
+        goal.trajectory.points[ind].positions[3] =   0.00;
 
-        goal.trajectory.points[ind].positions[6]  =   0.00;
-        goal.trajectory.points[ind].positions[7]  =   0.00;
-        goal.trajectory.points[ind].positions[8]  =   0.00;
-        goal.trajectory.points[ind].positions[9]  =   0.00;
+        goal.trajectory.points[ind].positions[4] =   0.00;
+        goal.trajectory.points[ind].positions[5] =   0.00;
+        goal.trajectory.points[ind].positions[6] =   0.00;
+        goal.trajectory.points[ind].positions[7] =   0.00;
+        goal.trajectory.points[ind].positions[8] =   0.00;
+        goal.trajectory.points[ind].positions[9] =   0.00;
+
         goal.trajectory.points[ind].positions[10] =   0.00;
         goal.trajectory.points[ind].positions[11] =   0.00;
-
         goal.trajectory.points[ind].positions[12] =   0.00;
-        goal.trajectory.points[ind].positions[13] =  -1.60;
+        goal.trajectory.points[ind].positions[13] =   0.00;
         goal.trajectory.points[ind].positions[14] =   0.00;
         goal.trajectory.points[ind].positions[15] =   0.00;
-        goal.trajectory.points[ind].positions[16] =   0.00;
-        goal.trajectory.points[ind].positions[17] =   0.00;
 
+        goal.trajectory.points[ind].positions[16] =   0.00;
+        goal.trajectory.points[ind].positions[17] =  -1.60;
         goal.trajectory.points[ind].positions[18] =   0.00;
-        goal.trajectory.points[ind].positions[19] =   1.60;
+        goal.trajectory.points[ind].positions[19] =   0.00;
         goal.trajectory.points[ind].positions[20] =   0.00;
         goal.trajectory.points[ind].positions[21] =   0.00;
-        goal.trajectory.points[ind].positions[22] =   0.00;
-        goal.trajectory.points[ind].positions[23] =   0.00;
 
+        goal.trajectory.points[ind].positions[22] =   0.00;
+        goal.trajectory.points[ind].positions[23] =   1.60;
         goal.trajectory.points[ind].positions[24] =   0.00;
         goal.trajectory.points[ind].positions[25] =   0.00;
         goal.trajectory.points[ind].positions[26] =   0.00;
