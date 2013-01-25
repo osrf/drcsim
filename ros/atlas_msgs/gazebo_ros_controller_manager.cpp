@@ -27,35 +27,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gazebo_ros_controller_manager.h"
 #include <fstream>
 #include <iostream>
 #include <math.h>
 #include <unistd.h>
 #include <set>
+#include <map>
+#include <string>
 
-#include <physics/physics.hh>
-#include <sensors/sensors.hh>
-#include <sdf/sdf.hh>
-#include <common/common.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/sensors/sensors.hh>
+#include <gazebo/sdf/sdf.hh>
+#include <gazebo/common/common.hh>
 
 #include <angles/angles.h>
-#include <urdf/model.h>
-#include <map>
 
-namespace gazebo {
+#include "gazebo_ros_controller_manager.h"
+
+namespace gazebo
+{
+// Register this plugin with the simulator
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosControllerManager)
 
 GazeboRosControllerManager::GazeboRosControllerManager()
 {
 }
 
-
 GazeboRosControllerManager::~GazeboRosControllerManager()
 {
-  // If all previous steps are successful, start the controller manager plugin updates
+  // If all previous steps are successful, start the controller manager
+  // plugin updates
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
 
-  delete this->controller_manager_; 
+  delete this->controller_manager_;
   this->rosnode_->shutdown();
 #ifdef USE_CBQ
   this->controller_manager_queue_.clear();
@@ -72,7 +76,8 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
   }
 }
 
-void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
+void GazeboRosControllerManager::Load(physics::ModelPtr _parent,
+  sdf::ElementPtr _sdf)
 {
   // save pointers
   this->parent_model_ = _parent;
@@ -80,7 +85,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent, sdf::ElementPtr
 
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
-    boost::bind( &GazeboRosControllerManager::LoadThread,this ) );
+    boost::bind(&GazeboRosControllerManager::LoadThread, this));
 }
 
 void GazeboRosControllerManager::LoadThread()
@@ -105,19 +110,23 @@ void GazeboRosControllerManager::LoadThread()
 
   // check update rate against world physics update rate
   // should be equal or higher to guarantee the wrench applied is not "diluted"
-  //if (this->updatePeriod > 0 &&
-  //    (this->world->GetPhysicsEngine()->GetUpdateRate() > 1.0/this->updatePeriod))
-  //  ROS_ERROR("gazebo_ros_controller_manager update rate is less than physics update rate, wrench applied will be diluted (applied intermittently)");
-
+  // if (this->updatePeriod > 0 &&
+  //   (this->world->GetPhysicsEngine()->GetUpdateRate() >
+  //   1.0/this->updatePeriod))
+  //   ROS_ERROR("gazebo_ros_controller_manager update rate is less than"
+  //     " physics update rate, wrench applied will be diluted"
+  //     " (applied intermittently)");
 
   // get parameter name
   this->robotNamespace = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robotNamespace = this->sdf->GetElement("robotNamespace")->GetValueString();
+    this->robotNamespace =
+      this->sdf->GetElement("robotNamespace")->GetValueString();
 
   this->robotParam = "robot_description";
   if (this->sdf->HasElement("robotParam"))
-    this->robotParam = this->sdf->GetElement("robotParam")->GetValueString();
+    this->robotParam =
+      this->sdf->GetElement("robotParam")->GetValueString();
 
   this->robotParam = this->robotNamespace+"/" + this->robotParam;
 
@@ -136,61 +145,81 @@ void GazeboRosControllerManager::LoadThread()
     int argc = 0;
     char** argv = NULL;
     ros::init( argc, argv, "gazebo", ros::init_options::NoSigintHandler);
-    gzwarn << "should start ros::init in simulation by using the system plugin\n";
+    gzwarn << "should start ros::init in simulation by using the"
+           << " system plugin\n";
   }*/
 
   this->rosnode_ = new ros::NodeHandle(this->robotNamespace);
-  ROS_INFO("starting gazebo_ros_controller_manager plugin in ns: %s",this->robotNamespace.c_str());
+  ROS_INFO("starting gazebo_ros_controller_manager plugin in ns: %s",
+    this->robotNamespace.c_str());
 
-  // pr2_etherCAT calls ros::spin(), we'll thread out one spinner here to mimic that
-  this->ros_spinner_thread_ = boost::thread( boost::bind( &GazeboRosControllerManager::ControllerManagerROSThread,this ) );
+  // pr2_etherCAT calls ros::spin(), we'll thread out one spinner
+  // here to mimic that
+  this->ros_spinner_thread_ = boost::thread(
+    boost::bind(&GazeboRosControllerManager::ControllerManagerROSThread, this));
 
   // load a controller manager, initialize hardware_interface
-  this->controller_manager_ = new pr2_controller_manager::ControllerManager(&hardware_interface_,*this->rosnode_);
-  this->hardware_interface_.current_time_ = ros::Time(this->world->GetSimTime().Double());
+  this->controller_manager_ = new pr2_controller_manager::ControllerManager(
+    &hardware_interface_, *this->rosnode_);
+  this->hardware_interface_.current_time_ = ros::Time(
+    this->world->GetSimTime().Double());
+
   // hardcoded to minimum of 1ms on start up
-  if (this->hardware_interface_.current_time_ < ros::Time(0.001)) this->hardware_interface_.current_time_ == ros::Time(0.001);
-  
-  this->rosnode_->param("gazebo/start_robot_calibrated", this->calibration_status_, true);
+  if (this->hardware_interface_.current_time_ < ros::Time(0.001))
+    this->hardware_interface_.current_time_ == ros::Time(0.001);
+
+  this->rosnode_->param("gazebo/start_robot_calibrated",
+    this->calibration_status_, true);
 
   // Read urdf from ros parameter server then
   // setup actuators and mechanism control node.
   // This call will block if ROS is not properly initialized.
   if (!LoadControllerManagerFromURDF())
   {
-    ROS_ERROR("Error parsing URDF in gazebo controller manager plugin, plugin not active.\n");
+    ROS_ERROR("Error parsing URDF in gazebo controller manager plugin,"
+              " plugin not active.\n");
     return;
   }
 
   // Initializes the fake state (for running the transmissions backwards).
-  this->virtual_mechanism_state_ = new pr2_mechanism_model::RobotState(&this->controller_manager_->model_);
+  this->virtual_mechanism_state_ =
+    new pr2_mechanism_model::RobotState(&this->controller_manager_->model_);
 
   // The gazebo joints and mechanism joints should match up.
-  for (unsigned int i = 0; i < this->controller_manager_->state_->joint_states_.size(); ++i)
+  for (unsigned int i = 0;
+       i < this->controller_manager_->state_->joint_states_.size(); ++i)
   {
-    std::string joint_name = this->controller_manager_->state_->joint_states_[i].joint_->name;
+    std::string joint_name =
+      this->controller_manager_->state_->joint_states_[i].joint_->name;
 
     // fill in gazebo joints pointer
-    gazebo::physics::JointPtr joint = this->parent_model_->GetJoint(this->parent_model_->GetName()+"::"+joint_name);
+    gazebo::physics::JointPtr joint =
+      this->parent_model_->GetJoint(this->parent_model_->GetName() +
+      "::" + joint_name);
+
     if (joint)
     {
       this->gazebo_joints_.push_back(joint);
     }
     else
     {
-      ROS_WARN("A Mechanism Controlled joint named [%s] is not found in gazebo model[%s].\n",
+      ROS_WARN("A Mechanism Controlled joint named [%s] is not found"
+        " in gazebo model[%s].\n",
         joint_name.c_str(), this->parent_model_->GetName().c_str());
       this->gazebo_joints_.push_back(gazebo::physics::JointPtr());
     }
   }
-  assert(this->gazebo_joints_.size() == this->virtual_mechanism_state_->joint_states_.size());
+  assert(this->gazebo_joints_.size() ==
+    this->virtual_mechanism_state_->joint_states_.size());
 
 #ifdef USE_CBQ
   // start custom queue for controller manager
-  this->controller_manager_callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosControllerManager::ControllerManagerQueueThread,this ) );
+  this->controller_manager_callback_queue_thread_ = boost::thread(boost::bind(
+    &GazeboRosControllerManager::ControllerManagerQueueThread, this));
 #endif
 
-  // If all previous steps are successful, start the controller manager plugin updates
+  // If all previous steps are successful, start the controller manager
+  // plugin updates
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
       boost::bind(&GazeboRosControllerManager::UpdateControllerForces, this));
 }
@@ -203,22 +232,30 @@ void GazeboRosControllerManager::propagateSimulationToMechanismState()
       continue;
 
     // assuming commanded effort is exactly the measured effort.
-    this->virtual_mechanism_state_->joint_states_[i].measured_effort_ = this->virtual_mechanism_state_->joint_states_[i].commanded_effort_;
+    this->virtual_mechanism_state_->joint_states_[i].measured_effort_ =
+      this->virtual_mechanism_state_->joint_states_[i].commanded_effort_;
 
     // propagate gazebo joint states into virtual_mechanism_state_
     if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT))
     {
       gazebo::physics::JointPtr hj = this->gazebo_joints_[i];
-      this->virtual_mechanism_state_->joint_states_[i].position_ = this->virtual_mechanism_state_->joint_states_[i].position_ +
-                    angles::shortest_angular_distance(this->virtual_mechanism_state_->joint_states_[i].position_,hj->GetAngle(0).Radian());
-      this->virtual_mechanism_state_->joint_states_[i].velocity_ = hj->GetVelocity(0);
+      this->virtual_mechanism_state_->joint_states_[i].position_ =
+        this->virtual_mechanism_state_->joint_states_[i].position_ +
+        angles::shortest_angular_distance(
+        this->virtual_mechanism_state_->joint_states_[i].position_,
+        hj->GetAngle(0).Radian());
+      this->virtual_mechanism_state_->joint_states_[i].velocity_ =
+        hj->GetVelocity(0);
     }
-    else if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT))
+    else if (this->gazebo_joints_[i]->HasType(
+      gazebo::physics::Base::SLIDER_JOINT))
     {
       gazebo::physics::JointPtr sj = this->gazebo_joints_[i];
       {
-        this->virtual_mechanism_state_->joint_states_[i].position_ = sj->GetAngle(0).Radian();
-        this->virtual_mechanism_state_->joint_states_[i].velocity_ = sj->GetVelocity(0);
+        this->virtual_mechanism_state_->joint_states_[i].position_ =
+          sj->GetAngle(0).Radian();
+        this->virtual_mechanism_state_->joint_states_[i].velocity_ =
+          sj->GetVelocity(0);
       }
     }
     else
@@ -235,7 +272,8 @@ void GazeboRosControllerManager::propagateMechanismStateForcesToSimulation()
     if (!this->gazebo_joints_[i])
       continue;
 
-    double effort = this->virtual_mechanism_state_->joint_states_[i].commanded_effort_;
+    double effort =
+      this->virtual_mechanism_state_->joint_states_[i].commanded_effort_;
 
     double damping_coef = 0;
     if (this->controller_manager_->state_ == NULL)
@@ -243,7 +281,8 @@ void GazeboRosControllerManager::propagateMechanismStateForcesToSimulation()
     else
     {
       if (this->controller_manager_->state_->joint_states_[i].joint_->dynamics)
-        damping_coef = this->controller_manager_->state_->joint_states_[i].joint_->dynamics->damping;
+        damping_coef = this->controller_manager_->
+          state_->joint_states_[i].joint_->dynamics->damping;
     }
 
     if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::HINGE_JOINT))
@@ -252,15 +291,16 @@ void GazeboRosControllerManager::propagateMechanismStateForcesToSimulation()
       double current_velocity = hj->GetVelocity(0);
       double damping_force = damping_coef * current_velocity;
       double effort_command = effort - damping_force;
-      hj->SetForce(0,effort_command);
+      hj->SetForce(0, effort_command);
     }
-    else if (this->gazebo_joints_[i]->HasType(gazebo::physics::Base::SLIDER_JOINT))
+    else if (this->gazebo_joints_[i]->HasType(
+      gazebo::physics::Base::SLIDER_JOINT))
     {
       gazebo::physics::JointPtr sj = this->gazebo_joints_[i];
       double current_velocity = sj->GetVelocity(0);
       double damping_force = damping_coef * current_velocity;
       double effort_command = effort-damping_force;
-      sj->SetForce(0,effort_command);
+      sj->SetForce(0, effort_command);
     }
   }
 }
@@ -296,8 +336,8 @@ void GazeboRosControllerManager::UpdateControllerForces()
   //--------------------------------------------------
   //  Update hardware time with sim time
   //--------------------------------------------------
-  this->hardware_interface_.current_time_ = ros::Time(this->world->GetSimTime().Double());
-  //ROS_ERROR("time %d: %d", this->hardware_interface_.current_time_.sec, this->hardware_interface_.current_time_.nsec);
+  this->hardware_interface_.current_time_ =
+    ros::Time(this->world->GetSimTime().Double());
 
   //--------------------------------------------------
   //  Update Mechanism Control
@@ -311,9 +351,9 @@ void GazeboRosControllerManager::UpdateControllerForces()
   {
       this->controller_manager_->update();
   }
-  catch (const char* c)
+  catch(const char* c)
   {
-    if (strcmp(c,"dividebyzero")==0)
+    if (strcmp(c, "dividebyzero") == 0)
       ROS_WARN("pid controller reports divide by zero error");
     else
       ROS_WARN("unknown const char* exception: %s", c);
@@ -338,17 +378,19 @@ std::string GazeboRosControllerManager::GetURDF(std::string _param_name) const
   bool show_info_once = false;
 
   std::string urdf_string;
-  urdf_string.clear(); // make sure it's empty
+  urdf_string.clear();  // not really needed
 
   // search and wait for robot_description on param server
-  while(urdf_string.empty())
+  while (urdf_string.empty())
   {
     std::string search_param_name;
     if (this->rosnode_->searchParam(_param_name, search_param_name))
     {
       if (!show_info_once)
       {
-        ROS_INFO("gazebo controller manager plugin is waiting for model URDF in parameter [%s] on the ROS param server.", search_param_name.c_str());
+        ROS_INFO("gazebo controller manager plugin is waiting for model"
+                 " URDF in parameter [%s] on the ROS param server.",
+                 search_param_name.c_str());
         show_info_once = true;
       }
       this->rosnode_->getParam(search_param_name, urdf_string);
@@ -357,35 +399,37 @@ std::string GazeboRosControllerManager::GetURDF(std::string _param_name) const
     {
       if (!show_info_once)
       {
-        ROS_INFO("gazebo controller manager plugin is waiting for model URDF in parameter [%s] on the ROS param server.", this->robotParam.c_str());
+        ROS_INFO("gazebo controller manager plugin is waiting for model"
+                 " URDF in parameter [%s] on the ROS param server.",
+                 this->robotParam.c_str());
         show_info_once = true;
       }
       this->rosnode_->getParam(_param_name, urdf_string);
     }
     usleep(100000);
   }
-  ROS_INFO("gazebo controller manager got urdf from param server, parsing it...");
+  ROS_INFO("gazebo controller manager got urdf from param server, parsing...");
 
   return urdf_string;
 }
 
 bool GazeboRosControllerManager::LoadControllerManagerFromURDF()
 {
-
   std::string urdf_string = GetURDF(this->robotParam);
 
   // initialize TiXmlDocument doc with a string
   TiXmlDocument doc;
   if (!doc.Parse(urdf_string.c_str()) && doc.Error())
   {
-    ROS_ERROR("Could not load the gazebo controller manager plugin's configuration file: %s\n",
-            urdf_string.c_str());
+    ROS_ERROR("Could not load the gazebo controller manager plugin's"
+              " configuration file: %s\n", urdf_string.c_str());
     return false;
   }
   else
   {
-    //doc.Print();
-    //std::cout << *(doc.RootElement()) << std::endl;
+    // debug
+    // doc.Print();
+    // std::cout << *(doc.RootElement()) << std::endl;
 
     // Pulls out the list of actuators used in the robot configuration.
     struct GetActuators : public TiXmlVisitor
@@ -395,9 +439,11 @@ bool GazeboRosControllerManager::LoadControllerManagerFromURDF()
       {
         if (elt.ValueStr() == std::string("actuator") && elt.Attribute("name"))
           actuators.insert(elt.Attribute("name"));
-        else if (elt.ValueStr() == std::string("rightActuator") && elt.Attribute("name"))
+        else if (elt.ValueStr() ==
+          std::string("rightActuator") && elt.Attribute("name"))
           actuators.insert(elt.Attribute("name"));
-        else if (elt.ValueStr() == std::string("leftActuator") && elt.Attribute("name"))
+        else if (elt.ValueStr() ==
+          std::string("leftActuator") && elt.Attribute("name"))
           actuators.insert(elt.Attribute("name"));
         return true;
       }
@@ -406,10 +452,12 @@ bool GazeboRosControllerManager::LoadControllerManagerFromURDF()
 
     // Places the found actuators into the hardware interface.
     std::set<std::string>::iterator it;
-    for (it = get_actuators.actuators.begin(); it != get_actuators.actuators.end(); ++it)
+    for (it = get_actuators.actuators.begin();
+         it != get_actuators.actuators.end(); ++it)
     {
-      //std::cout << " adding actuator " << (*it) << std::endl;
-      pr2_hardware_interface::Actuator* pr2_actuator = new pr2_hardware_interface::Actuator(*it);
+      // std::cout << " adding actuator " << (*it) << std::endl;
+      pr2_hardware_interface::Actuator* pr2_actuator =
+        new pr2_hardware_interface::Actuator(*it);
       pr2_actuator->state_.is_enabled_ = true;
       this->hardware_interface_.addActuator(pr2_actuator);
     }
@@ -419,13 +467,16 @@ bool GazeboRosControllerManager::LoadControllerManagerFromURDF()
 
     if (this->controller_manager_->state_ == NULL)
     {
-      ROS_ERROR("Mechanism unable to parse robot_description URDF to fill out robot state in controller_manager.");
+      ROS_ERROR("Mechanism unable to parse robot_description URDF"
+                " to fill out robot state in controller_manager.");
       return false;
     }
 
     // set fake calibration states for simulation
-    for (unsigned int i = 0; i < this->controller_manager_->state_->joint_states_.size(); ++i)
-      this->controller_manager_->state_->joint_states_[i].calibrated_ = calibration_status_;
+    for (unsigned int i = 0;
+      i < this->controller_manager_->state_->joint_states_.size(); ++i)
+      this->controller_manager_->state_->joint_states_[i].calibrated_ =
+        calibration_status_;
 
     return true;
   }
@@ -459,8 +510,4 @@ void GazeboRosControllerManager::ControllerManagerROSThread()
     ros::spinOnce();
   }
 }
-
-// Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(GazeboRosControllerManager)
-
-} // namespace gazebo
+}

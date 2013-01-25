@@ -1,29 +1,25 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: Plugin to allow development shortcuts for VRC competition.
- * Author: John Hsu and Steven Peters
- * Date: December 2012
- */
+*/
+
 #ifndef GAZEBO_VRC_PLUGIN_HH
 #define GAZEBO_VRC_PLUGIN_HH
+
+#include <map>
+#include <string>
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -41,12 +37,12 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "gazebo/math/Vector3.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
+#include <gazebo/math/Vector3.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
 
 typedef actionlib::SimpleActionClient<
   control_msgs::FollowJointTrajectoryAction > TrajClient;
@@ -231,7 +227,6 @@ namespace gazebo
       private: ros::Subscriber subMode;
 
       friend class VRCPlugin;
-
     } atlas;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -316,12 +311,11 @@ namespace gazebo
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      public: JointTrajectory() 
+      public: JointTrajectory()
       {
         // tell the action client that we want to spin a thread by default
         this->clientTraj = new TrajClient(
           "/atlas_controller/follow_joint_trajectory", true);
-
       }
 
       /// \brief Destructor, clean up the action client
@@ -346,7 +340,7 @@ namespace gazebo
       /// depending on the desired application.
       public: control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
       {
-        //our goal variable
+        // goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
 
         // First, the joint names, which apply to all waypoints
@@ -378,10 +372,10 @@ namespace gazebo
         goal.trajectory.joint_names.push_back("r_arm_uwy");
         goal.trajectory.joint_names.push_back("r_arm_mwx");
 
-        goal.trajectory.joint_names.push_back("neck_ay"  );
-        goal.trajectory.joint_names.push_back("back_lbz" );
-        goal.trajectory.joint_names.push_back("back_mby" );
-        goal.trajectory.joint_names.push_back("back_ubx" );
+        goal.trajectory.joint_names.push_back("neck_ay");
+        goal.trajectory.joint_names.push_back("back_lbz");
+        goal.trajectory.joint_names.push_back("back_mby");
+        goal.trajectory.joint_names.push_back("back_ubx");
 
         // We will have two waypoints in this goal trajectory
         goal.trajectory.points.resize(1);
@@ -452,14 +446,14 @@ namespace gazebo
         goal.goal_time_tolerance.sec = 10;
         goal.goal_time_tolerance.nsec = 0;
 
-        //we are done; return the goal
+        // we are done; return the goal
         return goal;
       }
 
       /// \brief Generates a simple trajectory for standing configuration.
       public: control_msgs::FollowJointTrajectoryGoal standingConfiguration()
       {
-        //our goal variable
+        // goal variable
         control_msgs::FollowJointTrajectoryGoal goal;
 
         // First, the joint names, which apply to all waypoints
@@ -491,10 +485,10 @@ namespace gazebo
         goal.trajectory.joint_names.push_back("r_arm_uwy");
         goal.trajectory.joint_names.push_back("r_arm_mwx");
 
-        goal.trajectory.joint_names.push_back("neck_ay"  );
-        goal.trajectory.joint_names.push_back("back_lbz" );
-        goal.trajectory.joint_names.push_back("back_mby" );
-        goal.trajectory.joint_names.push_back("back_ubx" );
+        goal.trajectory.joint_names.push_back("neck_ay");
+        goal.trajectory.joint_names.push_back("back_lbz");
+        goal.trajectory.joint_names.push_back("back_mby");
+        goal.trajectory.joint_names.push_back("back_ubx");
 
         // We will have two waypoints in this goal trajectory
         goal.trajectory.points.resize(1);
@@ -565,7 +559,7 @@ namespace gazebo
         goal.goal_time_tolerance.sec = 10;
         goal.goal_time_tolerance.nsec = 0;
 
-        //we are done; return the goal
+        // we are done; return the goal
         return goal;
       }
 
@@ -576,10 +570,9 @@ namespace gazebo
         return this->clientTraj->getState();
       }
 
-      // Action client for the joint trajectory action 
+      // Action client for the joint trajectory action
       // used to trigger the arm movement action
       public: TrajClient* clientTraj;
-
     } jointTrajectoryController;
 
     ////////////////////////////////////////////////////////////////////////////

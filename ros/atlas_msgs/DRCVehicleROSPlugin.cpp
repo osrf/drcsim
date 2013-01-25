@@ -1,28 +1,19 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
- */
+*/
 
 #include <math.h>
 #include "DRCVehicleROSPlugin.h"
@@ -73,7 +64,8 @@ void DRCVehicleROSPlugin::SetKeyState(const std_msgs::Int8::ConstPtr &_msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg)
+void DRCVehicleROSPlugin::SetDirectionState(
+  const std_msgs::Int8::ConstPtr &_msg)
 {
   if (_msg->data == 0)
     this->DRCVehiclePlugin::SetDirectionState(NEUTRAL);
@@ -90,28 +82,28 @@ void DRCVehicleROSPlugin::SetDirectionState(const std_msgs::Int8::ConstPtr &_msg
 void DRCVehicleROSPlugin::SetHandBrakeState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetHandBrakeState( static_cast<double>(_msg->data) );
+  DRCVehiclePlugin::SetHandBrakeState(static_cast<double>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetHandWheelState( static_cast<double>(_msg->data) );
+  DRCVehiclePlugin::SetHandWheelState(static_cast<double>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr
                                                 &_msg)
 {
-  DRCVehiclePlugin::SetGasPedalState( static_cast<double>(_msg->data) );
+  DRCVehiclePlugin::SetGasPedalState(static_cast<double>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetBrakePedalState( static_cast<double>(_msg->data) );
+  DRCVehiclePlugin::SetBrakePedalState(static_cast<double>(_msg->data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,73 +132,73 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
   ros::SubscribeOptions hand_wheel_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     this->model->GetName() + "/hand_wheel/cmd", 100,
-    boost::bind( static_cast<void (DRCVehicleROSPlugin::*)
+    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetHandWheelState),this,_1),
+        &DRCVehicleROSPlugin::SetHandWheelState), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subHandWheelCmd = this->rosNode->subscribe(hand_wheel_cmd_so);
 
   ros::SubscribeOptions hand_brake_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     this->model->GetName() + "/hand_brake/cmd", 100,
-    boost::bind( static_cast<void (DRCVehicleROSPlugin::*)
+    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetHandBrakeState),this,_1),
+        &DRCVehicleROSPlugin::SetHandBrakeState), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subHandBrakeCmd = this->rosNode->subscribe(hand_brake_cmd_so);
 
   ros::SubscribeOptions gas_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     this->model->GetName() + "/gas_pedal/cmd", 100,
-    boost::bind( static_cast<void (DRCVehicleROSPlugin::*)
+    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetGasPedalState),this,_1),
+        &DRCVehicleROSPlugin::SetGasPedalState), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subGasPedalCmd = this->rosNode->subscribe(gas_pedal_cmd_so);
 
   ros::SubscribeOptions brake_pedal_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     this->model->GetName() + "/brake_pedal/cmd", 100,
-    boost::bind( static_cast<void (DRCVehicleROSPlugin::*)
+    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetBrakePedalState),this,_1),
+        &DRCVehicleROSPlugin::SetBrakePedalState), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subBrakePedalCmd = this->rosNode->subscribe(brake_pedal_cmd_so);
 
   ros::SubscribeOptions key_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Int8>(
     this->model->GetName() + "/key/cmd", 100,
-    boost::bind( static_cast<void (DRCVehicleROSPlugin::*)
+    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
       (const std_msgs::Int8::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetKeyState),this,_1),
+        &DRCVehicleROSPlugin::SetKeyState), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subKeyCmd = this->rosNode->subscribe(key_cmd_so);
 
   ros::SubscribeOptions direction_cmd_so =
     ros::SubscribeOptions::create<std_msgs::Int8>(
     this->model->GetName() + "/direction/cmd", 100,
-    boost::bind( static_cast<void (DRCVehicleROSPlugin::*)
+    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
       (const std_msgs::Int8::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetDirectionState),this,_1),
+        &DRCVehicleROSPlugin::SetDirectionState), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subDirectionCmd = this->rosNode->subscribe(direction_cmd_so);
 
   this->pubHandWheelState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/hand_wheel/state",10);
+    this->model->GetName() + "/hand_wheel/state", 10);
   this->pubHandBrakeState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/hand_brake/state",10);
+    this->model->GetName() + "/hand_brake/state", 10);
   this->pubGasPedalState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/gas_pedal/state",10);
+    this->model->GetName() + "/gas_pedal/state", 10);
   this->pubBrakePedalState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/brake_pedal/state",10);
+    this->model->GetName() + "/brake_pedal/state", 10);
   this->pubKeyState = this->rosNode->advertise<std_msgs::Int8>(
-    this->model->GetName() + "/key/state",10);
+    this->model->GetName() + "/key/state", 10);
   this->pubDirectionState = this->rosNode->advertise<std_msgs::Int8>(
-    this->model->GetName() + "/direction/state",10);
+    this->model->GetName() + "/direction/state", 10);
 
   // ros callback queue for processing subscription
   this->callbackQueueThread = boost::thread(
-    boost::bind( &DRCVehicleROSPlugin::QueueThread,this ) );
+    boost::bind(&DRCVehicleROSPlugin::QueueThread, this));
 
   this->ros_publish_connection_ = event::Events::ConnectWorldUpdateStart(
       boost::bind(&DRCVehicleROSPlugin::RosPublishStates, this));
@@ -226,7 +218,7 @@ void DRCVehicleROSPlugin::SetRosPublishRate(double _hz)
   if (_hz > 0.0)
     this->rosPublishPeriod = 1.0/_hz;
   else
-    this->rosPublishPeriod = 0.0;  
+    this->rosPublishPeriod = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
