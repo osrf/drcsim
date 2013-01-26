@@ -1,30 +1,28 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: A dynamic controller plugin that publishes a ROS point cloud or laser scan topic for generic ray sensor.
- * Author: Mihai Emanuel Dolha
- * Date: 29 March 2012
- * SVN: $Id$
- */
+*/
+
 #ifndef GAZEBO_ROS_GPU_LASER_HH
 #define GAZEBO_ROS_GPU_LASER_HH
+
+// system
+#include <string>
+
+// boost stuff
+#include <boost/thread/mutex.hpp>
 
 // ros stuff
 #include <ros/ros.h>
@@ -34,6 +32,9 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
 
+// dynamic reconfigure stuff
+#include <dynamic_reconfigure/server.h>
+
 // ros messages stuff
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/LaserScan.h>
@@ -42,19 +43,13 @@
 #include "image_transport/image_transport.h"
 
 // gazebo stuff
-#include "sdf/interface/Param.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "msgs/MessageTypes.hh"
-#include "common/Time.hh"
-#include "sensors/SensorTypes.hh"
-#include "plugins/GpuRayPlugin.hh"
-
-// dynamic reconfigure stuff
-#include <dynamic_reconfigure/server.h>
-
-// boost stuff
-#include "boost/thread/mutex.hpp"
+#include "gazebo/sdf/interface/Param.hh"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/msgs/MessageTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/sensors/SensorTypes.hh"
+#include "gazebo/plugins/GpuRayPlugin.hh"
 
 namespace gazebo
 {
@@ -79,34 +74,36 @@ namespace gazebo
                    unsigned int _depth, const std::string &_format);
 
     /// \brief Update the controller
-    //protected: virtual void OnNewImageFrame(const unsigned char *_image,
-    //               unsigned int _width, unsigned int _height,
-    //               unsigned int _depth, unsigned int cam);
-    //protected: void PutCameraData(const unsigned char *_src, unsigned int w, unsigned int h, unsigned int d, image_transport::Publisher *pub_);
+    //  protected: virtual void OnNewImageFrame(const unsigned char *_image,
+    //                 unsigned int _width, unsigned int _height,
+    //                 unsigned int _depth, unsigned int cam);
+    //  protected: void PutCameraData(const unsigned char *_src, unsigned int w,
+    //     unsigned int h, unsigned int d, image_transport::Publisher *pub_);
     //
-    /////// \brief ROS image message
-    //protected: image_transport::Publisher image_pub_;
-    //protected: image_transport::Publisher image2_pub_;
-    //protected: image_transport::Publisher image3_pub_;
-    //protected: image_transport::Publisher image4_pub_;
-    //private: image_transport::ImageTransport* itnode_;
-    ///// \brief Keep track of number of connctions
-    //protected: int imageConnectCount;
-    //private: void ImageConnect();
-    //private: void ImageDisconnect();
+    //  ///// \brief ROS image message
+    //  protected: image_transport::Publisher image_pub_;
+    //  protected: image_transport::Publisher image2_pub_;
+    //  protected: image_transport::Publisher image3_pub_;
+    //  protected: image_transport::Publisher image4_pub_;
+    //  private: image_transport::ImageTransport* itnode_;
+    //  /// \brief Keep track of number of connctions
+    //  protected: int imageConnectCount;
+    //  private: void ImageConnect();
+    //  private: void ImageDisconnect();
 
-    protected: void PublishLaserScan(const float *_scan, unsigned int _width);
+    protected: void PublishLaserScan(const float *_scan,
+      unsigned int _width);
 
-    protected: void PublishPointCloud(const float *_scan, unsigned int _width, unsigned int _height);
+    protected: void PublishPointCloud(const float *_scan,
+      unsigned int _width, unsigned int _height);
 
     /// \brief Gaussian noise
     private: double gaussian_noise_;
 
     /// \brief Gaussian noise generator
-    private: double GaussianKernel(double mu,double sigma);
+    private: double GaussianKernel(double mu, double sigma);
 
     /// \brief hack to mimic hokuyo intensity cutoff of 100
-    //private: ParamT<double> *hokuyoMinIntensityP;
     private: double hokuyo_min_intensity_;
 
     /// \brief Keep track of number of connctions for point clouds
@@ -114,7 +111,8 @@ namespace gazebo
     private: void LaserConnect();
     private: void LaserDisconnect();
 
-    /// \brief A pointer to the ROS node.  A node will be instantiated if it does not exist.
+    /// \brief A pointer to the ROS node.  A node will be instantiated
+    /// if it does not exist.
     private: ros::Publisher laser_scan_pub_;
 
     /// \brief PCL point cloud message
@@ -145,7 +143,6 @@ namespace gazebo
     protected: double update_rate_;
     protected: double update_period_;
   };
-
 }
 #endif
 

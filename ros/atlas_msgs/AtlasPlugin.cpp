@@ -1,27 +1,22 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: Plugin for the Atlas robot
- * Author: John Hsu
- * Date: December 2012
- */
+*/
+
+#include <string>
+
 #include "AtlasPlugin.h"
 
 #include "sensor_msgs/Imu.h"
@@ -71,37 +66,37 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->lastImuTime = this->world->GetSimTime();
 
   // get joints
-  this->jointNames.push_back("back_lbz"); 
-  this->jointNames.push_back("back_mby"); 
-  this->jointNames.push_back("back_ubx"); 
-  this->jointNames.push_back("neck_ay"); 
-  this->jointNames.push_back("l_leg_uhz"); 
-  this->jointNames.push_back("l_leg_mhx"); 
-  this->jointNames.push_back("l_leg_lhy"); 
-  this->jointNames.push_back("l_leg_kny"); 
-  this->jointNames.push_back("l_leg_uay"); 
-  this->jointNames.push_back("l_leg_lax"); 
-  this->jointNames.push_back("r_leg_uhz"); 
-  this->jointNames.push_back("r_leg_mhx"); 
-  this->jointNames.push_back("r_leg_lhy"); 
-  this->jointNames.push_back("r_leg_kny"); 
-  this->jointNames.push_back("r_leg_uay"); 
-  this->jointNames.push_back("r_leg_lax"); 
-  this->jointNames.push_back("l_arm_usy"); 
-  this->jointNames.push_back("l_arm_shx"); 
-  this->jointNames.push_back("l_arm_ely"); 
-  this->jointNames.push_back("l_arm_elx"); 
-  this->jointNames.push_back("l_arm_uwy"); 
-  this->jointNames.push_back("l_arm_mwx"); 
-  this->jointNames.push_back("r_arm_usy"); 
-  this->jointNames.push_back("r_arm_shx"); 
-  this->jointNames.push_back("r_arm_ely"); 
-  this->jointNames.push_back("r_arm_elx"); 
-  this->jointNames.push_back("r_arm_uwy"); 
-  this->jointNames.push_back("r_arm_mwx"); 
+  this->jointNames.push_back("back_lbz");
+  this->jointNames.push_back("back_mby");
+  this->jointNames.push_back("back_ubx");
+  this->jointNames.push_back("neck_ay");
+  this->jointNames.push_back("l_leg_uhz");
+  this->jointNames.push_back("l_leg_mhx");
+  this->jointNames.push_back("l_leg_lhy");
+  this->jointNames.push_back("l_leg_kny");
+  this->jointNames.push_back("l_leg_uay");
+  this->jointNames.push_back("l_leg_lax");
+  this->jointNames.push_back("r_leg_uhz");
+  this->jointNames.push_back("r_leg_mhx");
+  this->jointNames.push_back("r_leg_lhy");
+  this->jointNames.push_back("r_leg_kny");
+  this->jointNames.push_back("r_leg_uay");
+  this->jointNames.push_back("r_leg_lax");
+  this->jointNames.push_back("l_arm_usy");
+  this->jointNames.push_back("l_arm_shx");
+  this->jointNames.push_back("l_arm_ely");
+  this->jointNames.push_back("l_arm_elx");
+  this->jointNames.push_back("l_arm_uwy");
+  this->jointNames.push_back("l_arm_mwx");
+  this->jointNames.push_back("r_arm_usy");
+  this->jointNames.push_back("r_arm_shx");
+  this->jointNames.push_back("r_arm_ely");
+  this->jointNames.push_back("r_arm_elx");
+  this->jointNames.push_back("r_arm_uwy");
+  this->jointNames.push_back("r_arm_mwx");
 
   this->joints.resize(this->jointNames.size());
-  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     this->joints[i] = this->model->GetJoint(this->jointNames[i]);
     if (!this->joints[i])
@@ -119,7 +114,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointStates.velocity.resize(this->joints.size());
   this->jointStates.effort.resize(this->joints.size());
 
-  for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+  for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->jointStates.name[i] = this->jointNames[i];
 
   this->jointCommands.name.resize(this->joints.size());
@@ -133,7 +128,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointCommands.i_effort_min.resize(this->joints.size());
   this->jointCommands.i_effort_max.resize(this->joints.size());
 
-  for(unsigned i = 0; i < this->joints.size(); ++i)
+  for (unsigned i = 0; i < this->joints.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
@@ -200,13 +195,14 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
-    boost::bind(&AtlasPlugin::DeferredLoad,this ));
+    boost::bind(&AtlasPlugin::DeferredLoad, this));
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Joint Commands
-void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_msg)
+void AtlasPlugin::SetJointCommands(
+  const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
   if (_msg->name.size() == this->jointCommands.name.size() &&
       _msg->position.size() == this->jointCommands.position.size() &&
@@ -220,7 +216,7 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
       _msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
   {
     /// \todo: make this smarter and skip messages if not specified
-    for(unsigned i = 0; i < this->joints.size(); ++i)
+    for (unsigned i = 0; i < this->joints.size(); ++i)
     {
       // this->jointCommands.name[i] = this->joints[i]->GetScopedName();
       this->jointCommands.position[i] = _msg->position[i];
@@ -236,7 +232,8 @@ void AtlasPlugin::SetJointCommands(const osrf_msgs::JointCommands::ConstPtr &_ms
   }
   else
   {
-    ROS_DEBUG("joint commands message contains different number of joints than expected");
+    ROS_DEBUG("joint commands message contains different number of joints"
+              " than expected");
   }
 }
 
@@ -268,9 +265,9 @@ void AtlasPlugin::DeferredLoad()
     string i_str = string(joint_ns)+"i";
     string d_str = string(joint_ns)+"d";
     string i_clamp_str = string(joint_ns)+"i_clamp";
-    if (!this->rosNode->getParam(p_str, p_val) || 
-        !this->rosNode->getParam(i_str, i_val) || 
-        !this->rosNode->getParam(d_str, d_val) || 
+    if (!this->rosNode->getParam(p_str, p_val) ||
+        !this->rosNode->getParam(i_str, i_val) ||
+        !this->rosNode->getParam(d_str, d_val) ||
         !this->rosNode->getParam(i_clamp_str, i_clamp_val))
     {
       ROS_ERROR("couldn't find a param for %s", joint_ns);
@@ -288,7 +285,8 @@ void AtlasPlugin::DeferredLoad()
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "atlas/joint_states", 10);
 
-  this->pubForceTorqueSensors = this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
+  this->pubForceTorqueSensors =
+    this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
 
   // ros publication / subscription
@@ -311,19 +309,18 @@ void AtlasPlugin::DeferredLoad()
     ros::VoidPtr(), &this->rosQueue);
   this->subJointCommands=
     this->rosNode->subscribe(jointCommandsSo);
- 
+
   // publish imu data
   this->pubImu =
-    this->rosNode->advertise<sensor_msgs::Imu>(
-      "atlas/imu", 10);
+    this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0; // Hz
+  this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
-    boost::bind( &AtlasPlugin::RosQueueThread,this ) );
+    boost::bind(&AtlasPlugin::RosQueueThread, this));
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&AtlasPlugin::UpdateStates, this));
@@ -412,7 +409,8 @@ void AtlasPlugin::UpdateStates()
     }
 
 #if GAZEBO_MINOR_VERSION > 3
-    this->forceTorqueSensorsMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+    this->forceTorqueSensorsMsg.header.stamp =
+      ros::Time(curTime.sec, curTime.nsec);
 
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
@@ -460,7 +458,7 @@ void AtlasPlugin::UpdateStates()
 
     // populate FromRobot from robot
     this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
       this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
       this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
@@ -472,12 +470,12 @@ void AtlasPlugin::UpdateStates()
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     /// update pid with feedforward force
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
       double q_p =
          this->jointCommands.position[i] - this->jointStates.position[i];
 
-      if (!math::equal(dt, 0.0)) 
+      if (!math::equal(dt, 0.0))
         this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
 
       this->errorTerms[i].q_p = q_p;
@@ -491,19 +489,20 @@ void AtlasPlugin::UpdateStates()
         static_cast<double>(this->jointCommands.i_effort_max[i]));
 
       // use gain params to compute force cmd
-      double force = this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
-                     this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
-                     this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+      double force = this->jointCommands.kp_position[i] *
+                     this->errorTerms[i].q_p +
+                     this->jointCommands.kp_velocity[i] *
+                     this->errorTerms[i].qd_p +
+                     this->jointCommands.ki_position[i] *
+                     this->errorTerms[i].q_i +
+                     this->jointCommands.kd_position[i] *
+                     this->errorTerms[i].d_q_p_dt +
                      this->jointCommands.effort[i];
 
       this->joints[i]->SetForce(0, force);
-
     }
-
     this->lastControllerUpdateTime = curTime;
   }
-
 }
 
 void AtlasPlugin::OnLContactUpdate()
@@ -631,5 +630,4 @@ void AtlasPlugin::RosQueueThread()
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
-
 }

@@ -1,27 +1,19 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: Plugin for vehicle control.
- * Author: John Hsu and Steve Peters
- * Date: November 2012
- */
+*/
 
 #include <math.h>
 #include "DRCVehiclePlugin.hh"
@@ -253,7 +245,7 @@ void DRCVehiclePlugin::GetSteeredWheelLimits(math::Angle &_min,
 {
   _max = 0.5 * (this->flWheelSteeringJoint->GetHighStop(0).Radian() +
                 this->frWheelSteeringJoint->GetHighStop(0).Radian());
-  _max = 0.5 * (this->flWheelSteeringJoint->GetLowStop(0).Radian() +
+  _min = 0.5 * (this->flWheelSteeringJoint->GetLowStop(0).Radian() +
                 this->frWheelSteeringJoint->GetLowStop(0).Radian());
 }
 
@@ -549,7 +541,7 @@ void DRCVehiclePlugin::UpdateStates()
     // torque direction.
     double gasPercent = this->GetGasPedalPercent();
     double gasMultiplier = this->GetGasTorqueMultiplier();
-    double flGasTorque=0, frGasTorque=0, blGasTorque=0, brGasTorque=0;
+    double flGasTorque = 0, frGasTorque = 0, blGasTorque = 0, brGasTorque = 0;
     // Apply equal torque at left and right wheels, which is an implicit model
     // of the differential.
     if (abs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)

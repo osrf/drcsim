@@ -1,3 +1,20 @@
+/*
+ * Copyright 2012 Open Source Robotics Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+*/
+
 #include <ros/ros.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
@@ -5,7 +22,6 @@
 
 int main(int argc, char** argv)
 {
-
   ros::init(argc, argv, "pub_joint_trajectory_test");
 
   bool wait = true;
@@ -17,43 +33,24 @@ int main(int argc, char** argv)
   }
 
   ros::NodeHandle rosnode;
-  ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>("joint_trajectory",1, true);
+  ros::Publisher pub_ = rosnode.advertise<trajectory_msgs::JointTrajectory>(
+    "joint_trajectory", 1, true);
 
   trajectory_msgs::JointTrajectory jt;
 
   jt.header.stamp = ros::Time::now();
   jt.header.frame_id = "atlas::pelvis";
 
-  jt.joint_names.push_back("atlas::back_lbz" );
-  jt.joint_names.push_back("atlas::back_mby" );
-  jt.joint_names.push_back("atlas::back_ubx" );
-  jt.joint_names.push_back("atlas::neck_ay"  );
+  jt.joint_names.push_back("atlas::back_lbz");
+  jt.joint_names.push_back("atlas::back_mby");
+  jt.joint_names.push_back("atlas::back_ubx");
+  jt.joint_names.push_back("atlas::neck_ay");
   jt.joint_names.push_back("atlas::l_leg_uhz");
   jt.joint_names.push_back("atlas::l_leg_mhx");
   jt.joint_names.push_back("atlas::l_leg_lhy");
   jt.joint_names.push_back("atlas::l_leg_kny");
   jt.joint_names.push_back("atlas::l_leg_uay");
   jt.joint_names.push_back("atlas::l_leg_lax");
-/*
-  jt.joint_names.push_back("atlas::r_leg_lax");
-  jt.joint_names.push_back("atlas::r_leg_uay");
-  jt.joint_names.push_back("atlas::r_leg_kny");
-  jt.joint_names.push_back("atlas::r_leg_lhy");
-  jt.joint_names.push_back("atlas::r_leg_mhx");
-  jt.joint_names.push_back("atlas::r_leg_uhz");
-  jt.joint_names.push_back("atlas::l_arm_elx");
-  jt.joint_names.push_back("atlas::l_arm_ely");
-  jt.joint_names.push_back("atlas::l_arm_mwx");
-  jt.joint_names.push_back("atlas::l_arm_shx");
-  jt.joint_names.push_back("atlas::l_arm_usy");
-  jt.joint_names.push_back("atlas::l_arm_uwy");
-  jt.joint_names.push_back("atlas::r_arm_elx");
-  jt.joint_names.push_back("atlas::r_arm_ely");
-  jt.joint_names.push_back("atlas::r_arm_mwx");
-  jt.joint_names.push_back("atlas::r_arm_shx");
-  jt.joint_names.push_back("atlas::r_arm_usy");
-  jt.joint_names.push_back("atlas::r_arm_uwy");
-*/
 
   int n = 500;
   double dt = 0.01;
@@ -75,32 +72,13 @@ int main(int argc, char** argv)
     jt.points[i].positions.push_back(x2);
     jt.points[i].positions.push_back(x1);
     jt.points[i].positions.push_back(x1);
-/*
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x2);
-    jt.points[i].positions.push_back(x1);
-    jt.points[i].positions.push_back(x1);
-*/
+
     // set duration
     jt.points[i].time_from_start = ros::Duration(dt);
-    ROS_INFO("test: angles[%d][%f, %f]",n,x1,x2);
+    ROS_DEBUG("test: angles[%d][%f, %f]", n, x1, x2);
   }
 
-  pub_.publish(jt); // use publisher
+  pub_.publish(jt);  // use publisher
   ros::spin();
 
   return 0;
