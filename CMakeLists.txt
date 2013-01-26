@@ -58,7 +58,13 @@ set (BIN_INSTALL_DIR "bin" CACHE STRING "Installation directory for binaries (re
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE "Release" CACHE STRING
     "Choose the type of build, options are: Debug Release RelWithDebInfo" FORCE)
+  message(STATUS "Build type not select: Release selected by default")
 endif (NOT CMAKE_BUILD_TYPE)
+
+# Redefine the RelWithDebInfo flags (we need optimization)
+set (CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2" CACHE INTERNAL
+    "C Flags for release with debug support" FORCE)
+set (CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
 
 # find gazebo
 include (FindPkgConfig)
