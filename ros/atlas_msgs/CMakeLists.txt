@@ -4,14 +4,16 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 set(ENV{ROS_PACKAGE_PATH} ${DRC_SIM_CMAKE_SOURCE_DIR}/ros/atlas_msgs:${ROS_PACKAGE_PATH})
 set(ENV{ROS_PACKAGE_PATH} ${DRC_SIM_CMAKE_SOURCE_DIR}/ros:${ROS_PACKAGE_PATH})
 set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
-message(status "\n\n\n$ENV{ROS_PACKAGE_PATH}\n\n\n")
 
 set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH})
-message(status "\n\n\n PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}\n\n\n")
 
 project(atlas_msgs)
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
+
+# VERY IMPORTANT: Tell CMake not to strip off the RPATH from libs and executables during installation.  This is needed to resolve
+# dependencies on ROS libraries.
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 
 #find gazebo include (FindPkgConfig)
 include (FindPkgConfig)
@@ -20,8 +22,6 @@ if (PKG_CONFIG_FOUND)
 else()
   message(FATAL_ERROR "pkg-config is required; please install it")
 endif()
-
-message(STATUS "\n\n\nGID:  ${GAZEBO_INCLUDE_DIRS}\n\n")
 
 # depends on DRCVehiclePlugin
 include_directories(
