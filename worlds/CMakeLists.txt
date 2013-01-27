@@ -3,6 +3,8 @@ set (worlds
      atlas.world
      atlas_sandia_hands.world
      atlas_irobot_hands.world
+     atlas_drc_vehicle_fire_hose.world
+     drc_vehicle.world
      atlas_golf_cart_fire_hose.world
      golf_cart.world
      fire_hose.world

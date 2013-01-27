@@ -1,4 +1,5 @@
 add_subdirectory(drc_terrain)
+add_subdirectory(drc_vehicle)
 add_subdirectory(fire_hose)
 add_subdirectory(golf_cart)
 add_subdirectory(standpipe)

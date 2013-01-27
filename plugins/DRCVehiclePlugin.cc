@@ -245,7 +245,7 @@ void DRCVehiclePlugin::GetSteeredWheelLimits(math::Angle &_min,
 {
   _max = 0.5 * (this->flWheelSteeringJoint->GetHighStop(0).Radian() +
                 this->frWheelSteeringJoint->GetHighStop(0).Radian());
-  _max = 0.5 * (this->flWheelSteeringJoint->GetLowStop(0).Radian() +
+  _min = 0.5 * (this->flWheelSteeringJoint->GetLowStop(0).Radian() +
                 this->frWheelSteeringJoint->GetLowStop(0).Radian());
 }
 

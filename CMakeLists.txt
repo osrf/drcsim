@@ -6,7 +6,10 @@ include(ExternalProject)
 
 set (DRC_SIM_MAJOR_VERSION 1)
 set (DRC_SIM_MINOR_VERSION 4)
-set (DRC_SIM_PATCH_VERSION 0)
+# The patch version may have been bumped for prerelease purposes; be sure to
+# check drcsim-release/ubuntu/debian/changelog@default to determine what the
+# next patch version should be for a regular release.
+set (DRC_SIM_PATCH_VERSION 1)
 set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
 set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
 message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
@@ -33,7 +36,7 @@ if (NOT ROS_DISTRO)
                   RESULT_VARIABLE rosversion_error
                   ERROR_VARIABLE rosversion_stderr
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(RESULT_VARIABLE)
+  if(rosversion_error)
     message(FATAL_ERROR "`rosversion -d` failed. stdout: ${ROS_DISTRO}.  stderr: ${rosversion_stderr}.")
   endif()
 endif()
