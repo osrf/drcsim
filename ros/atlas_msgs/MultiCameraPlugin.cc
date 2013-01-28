@@ -34,7 +34,8 @@ MultiCameraPlugin::~MultiCameraPlugin()
 }
 
 /////////////////////////////////////////////////
-void MultiCameraPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/)
+void MultiCameraPlugin::Load(sensors::SensorPtr _sensor,
+  sdf::ElementPtr /*_sdf*/)
 {
   if (!_sensor)
     gzerr << "Invalid sensor pointer.\n";
@@ -57,7 +58,7 @@ void MultiCameraPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*
     return;
   }
 
-  for(unsigned int i = 0; i < this->parentSensor->GetCameraCount(); ++i)
+  for (unsigned int i = 0; i < this->parentSensor->GetCameraCount(); ++i)
   {
     this->camera.push_back(this->parentSensor->GetCamera(i));
 
@@ -69,18 +70,20 @@ void MultiCameraPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*
 
     // debug
     std::string cameraName = this->parentSensor->GetCamera(i)->GetName();
-    gzdbg << "cmaera(" << i << ") name [" << cameraName << "]\n";
+    gzdbg << "camera(" << i << ") name [" << cameraName << "]\n";
 
     // FIXME: hardcoded 2 camera support only
     if (cameraName.find("left") != std::string::npos)
     {
       this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
-        boost::bind(&MultiCameraPlugin::OnNewFrameLeft, this, _1, _2, _3, _4, _5)));
+        boost::bind(&MultiCameraPlugin::OnNewFrameLeft,
+        this, _1, _2, _3, _4, _5)));
     }
     else if (cameraName.find("right") != std::string::npos)
     {
       this->newFrameConnection.push_back(this->camera[i]->ConnectNewImageFrame(
-        boost::bind(&MultiCameraPlugin::OnNewFrameRight, this, _1, _2, _3, _4, _5)));
+        boost::bind(&MultiCameraPlugin::OnNewFrameRight,
+        this, _1, _2, _3, _4, _5)));
     }
   }
 

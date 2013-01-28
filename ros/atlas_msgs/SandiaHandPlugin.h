@@ -1,29 +1,27 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: Plugin for the SandiaHand
- * Author: John Hsu
- * Date: December 2012
- */
+*/
+
 #ifndef GAZEBO_SANDIA_HAND_PLUGIN_HH
 #define GAZEBO_SANDIA_HAND_PLUGIN_HH
+
+#include <string>
+#include <vector>
+
+#include <boost/thread/mutex.hpp>
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -38,23 +36,21 @@
 
 #include <boost/thread.hpp>
 
-#include "gazebo/math/Vector3.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/physics/PhysicsTypes.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
-#include "gazebo/common/PID.hh"
-#include "gazebo/sensors/SensorManager.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/sensors/ContactSensor.hh"
-#include "gazebo/sensors/Sensor.hh"
+#include <gazebo/math/Vector3.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/physics/PhysicsTypes.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
+#include <gazebo/common/PID.hh>
+#include <gazebo/sensors/SensorManager.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/sensors/ContactSensor.hh>
+#include <gazebo/sensors/Sensor.hh>
 
-#include "boost/thread/mutex.hpp"
-
-#include "osrf_msgs/JointCommands.h"
-#include "sensor_msgs/JointState.h"
+#include <osrf_msgs/JointCommands.h>
+#include <sensor_msgs/JointState.h>
 
 namespace gazebo
 {
@@ -119,7 +115,7 @@ namespace gazebo
     private: ros::Subscriber subJointCommands[2];
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg,
-      const unsigned jointOffset); // to handle left/right hands
+      const unsigned jointOffset);  // to handle left/right hands
 
     private: std::vector<std::string> jointNames;
     private: physics::Joint_V joints;

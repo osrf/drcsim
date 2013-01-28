@@ -1,36 +1,28 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: A model plugin that plays back joint trajectory messages
- * Author: John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
- */
+*/
+
+#include <string>
+#include <tf/tf.h>
 
 #include "gazebo_ros_joint_trajectory.h"
 
-#include "tf/tf.h"
-
 namespace gazebo
 {
-
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosJointTrajectory);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -58,15 +50,15 @@ GazeboRosJointTrajectory::~GazeboRosJointTrajectory()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosJointTrajectory::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
+void GazeboRosJointTrajectory::Load(physics::ModelPtr _model,
+  sdf::ElementPtr _sdf)
 {
   // save pointers
   this->model_ = _model;
   this->sdf = _sdf;
   this->world_ = this->model_->GetWorld();
 
-
-  //this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0,0,0));
+  // this->world_->GetPhysicsEngine()->SetGravity(math::Vector3(0, 0, 0));
 
   // load parameters
   this->robot_namespace_ = "";
@@ -91,7 +83,8 @@ void GazeboRosJointTrajectory::Load(physics::ModelPtr _model, sdf::ElementPtr _s
 
   if (!this->sdf->HasElement("updateRate"))
   {
-    ROS_INFO("joint trajectory plugin missing <updateRate>, defaults to 0.0 (as fast as possible)");
+    ROS_INFO("joint trajectory plugin missing <updateRate>, defaults"
+             " to 0.0 (as fast as possible)");
     this->update_rate_ = 0;
   }
   else
@@ -101,7 +94,7 @@ void GazeboRosJointTrajectory::Load(physics::ModelPtr _model, sdf::ElementPtr _s
   if (ros::isInitialized())
   {
     this->deferred_load_thread_ = boost::thread(
-      boost::bind( &GazeboRosJointTrajectory::LoadThread,this ) );
+      boost::bind(&GazeboRosJointTrajectory::LoadThread, this));
   }
   else
   {
@@ -123,8 +116,10 @@ void GazeboRosJointTrajectory::LoadThread()
 
   if (this->topic_name_ != "")
   {
-    ros::SubscribeOptions trajectory_so = ros::SubscribeOptions::create<trajectory_msgs::JointTrajectory>(
-      this->topic_name_,100, boost::bind( &GazeboRosJointTrajectory::SetTrajectory,this,_1),
+    ros::SubscribeOptions trajectory_so =
+      ros::SubscribeOptions::create<trajectory_msgs::JointTrajectory>(
+      this->topic_name_, 100, boost::bind(
+      &GazeboRosJointTrajectory::SetTrajectory, this, _1),
       ros::VoidPtr(), &this->queue_);
     this->sub_ = this->rosnode_->subscribe(trajectory_so);
   }
@@ -132,18 +127,21 @@ void GazeboRosJointTrajectory::LoadThread()
 #ifdef ENABLE_SERVICE
   if (this->service_name_ != "")
   {
-    ros::AdvertiseServiceOptions srv_aso = ros::AdvertiseServiceOptions::create<gazebo_msgs::SetJointTrajectory>(
-        this->service_name_,boost::bind(&GazeboRosJointTrajectory::SetTrajectory,this,_1,_2),
-        ros::VoidPtr(), &this->queue_);
+    ros::AdvertiseServiceOptions srv_aso =
+      ros::AdvertiseServiceOptions::create<gazebo_msgs::SetJointTrajectory>(
+      this->service_name_,
+      boost::bind(&GazeboRosJointTrajectory::SetTrajectory, this, _1, _2),
+      ros::VoidPtr(), &this->queue_);
     this->srv_ = this->rosnode_->advertiseService(srv_aso);
   }
 #endif
-  
+
   this->last_time_ = this->world_->GetSimTime();
 
   // start custom queue for joint trajectory plugin ros topics
-  this->callback_queue_thread_ = boost::thread( boost::bind( &GazeboRosJointTrajectory::QueueThread,this ) );
-  
+  this->callback_queue_thread_ =
+    boost::thread(boost::bind(&GazeboRosJointTrajectory::QueueThread, this));
+
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -153,7 +151,8 @@ void GazeboRosJointTrajectory::LoadThread()
 
 ////////////////////////////////////////////////////////////////////////////////
 // set joint trajectory
-void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
+void GazeboRosJointTrajectory::SetTrajectory(
+  const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
 
@@ -161,22 +160,27 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
   this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
 
   this->reference_link_name_ = trajectory->header.frame_id;
-  // do this every time a new joint trajectory is supplied, use header.frame_id as the reference_link_name_
-  if (this->reference_link_name_ != "world" && this->reference_link_name_ != "/map" && this->reference_link_name_ != "map")
+  // do this every time a new joint trajectory is supplied,
+  // use header.frame_id as the reference_link_name_
+  if (this->reference_link_name_ != "world" &&
+      this->reference_link_name_ != "/map" &&
+      this->reference_link_name_ != "map")
   {
-    physics::EntityPtr ent = this->world_->GetEntity(this->reference_link_name_);
+    physics::EntityPtr ent =
+      this->world_->GetEntity(this->reference_link_name_);
     if (ent)
       this->reference_link_ = boost::shared_dynamic_cast<physics::Link>(ent);
     if (!this->reference_link_)
     {
-      ROS_ERROR("ros_joint_trajectory plugin needs a reference link [%s] as frame_id, aborting.\n",
-                this->reference_link_name_.c_str());
+      ROS_ERROR("ros_joint_trajectory plugin needs a reference link [%s] as"
+                " frame_id, aborting.\n", this->reference_link_name_.c_str());
       return;
     }
     else
     {
       this->model_ = this->reference_link_->GetParentModel();
-      ROS_DEBUG("test: update model pose by keeping link [%s] stationary inertially",this->reference_link_->GetName().c_str());
+      ROS_DEBUG("test: update model pose by keeping link [%s] stationary"
+                " inertially", this->reference_link_->GetName().c_str());
     }
   }
 
@@ -216,11 +220,12 @@ void GazeboRosJointTrajectory::SetTrajectory(const trajectory_msgs::JointTraject
     this->physics_engine_enabled_ = this->world_->GetEnablePhysicsEngine();
     this->world_->EnablePhysicsEngine(false);
   }
-
 }
 
 #ifdef ENABLE_SERVICE
-bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajectory::Request& req, const gazebo_msgs::SetJointTrajectory::Response& res)
+bool GazeboRosJointTrajectory::SetTrajectory(
+  const gazebo_msgs::SetJointTrajectory::Request& req,
+  const gazebo_msgs::SetJointTrajectory::Response& res)
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
 
@@ -228,34 +233,44 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
   this->set_model_pose_ = req.set_model_pose;
 
   this->reference_link_name_ = req.joint_trajectory.header.frame_id;
-  // do this every time a new joint_trajectory is supplied, use header.frame_id as the reference_link_name_
-  if (this->reference_link_name_ != "world" && this->reference_link_name_ != "/map" && this->reference_link_name_ != "map")
+  // do this every time a new joint_trajectory is supplied,
+  // use header.frame_id as the reference_link_name_
+  if (this->reference_link_name_ != "world" &&
+      this->reference_link_name_ != "/map" &&
+      this->reference_link_name_ != "map")
   {
-    physics::EntityPtr ent = this->world_->GetEntity(this->reference_link_name_);
+    physics::EntityPtr ent =
+      this->world_->GetEntity(this->reference_link_name_);
     if (ent)
       this->reference_link_ = boost::shared_dynamic_cast<physics::Link>(ent);
     if (!this->reference_link_)
     {
-      ROS_ERROR("ros_joint_trajectory plugin specified a reference link [%s] that does not exist, aborting.\n",
+      ROS_ERROR("ros_joint_trajectory plugin specified a reference link [%s]"
+                " that does not exist, aborting.\n",
                 this->reference_link_name_.c_str());
-      ROS_DEBUG("will set model [%s] configuration, keeping model root link stationary.",this->model_->GetName().c_str());
+      ROS_DEBUG("will set model [%s] configuration, keeping model root link"
+                " stationary.", this->model_->GetName().c_str());
       return false;
     }
     else
-      ROS_DEBUG("test: update model pose by keeping link [%s] stationary inertially",this->reference_link_->GetName().c_str());
+      ROS_DEBUG("test: update model pose by keeping link [%s] stationary"
+                " inertially", this->reference_link_->GetName().c_str());
   }
 
   this->model_ =  this->world_->GetModel(req.model_name);
-  if (!this->model_) // look for it by frame_id name
+  if (!this->model_)  // look for it by frame_id name
   {
     this->model_ = this->reference_link_->GetParentModel();
     if (this->model_)
     {
-      ROS_INFO("found model[%s] by link name specified in frame_id[%s]",this->model_->GetName().c_str(),req.joint_trajectory.header.frame_id.c_str());
+      ROS_INFO("found model[%s] by link name specified in frame_id[%s]",
+        this->model_->GetName().c_str(),
+        req.joint_trajectory.header.frame_id.c_str());
     }
     else
     {
-      ROS_WARN("no model found by link name specified in frame_id[%s],  aborting.",req.joint_trajectory.header.frame_id.c_str());
+      ROS_WARN("no model found by link name specified in frame_id[%s],"
+               "  aborting.", req.joint_trajectory.header.frame_id.c_str());
       return false;
     }
   }
@@ -264,8 +279,9 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
   this->joint_trajectory_ = req.joint_trajectory;
 
   // trajectory start time
-  this->trajectory_start = gazebo::common::Time(req.joint_trajectory.header.stamp.sec,
-                                                req.joint_trajectory.header.stamp.nsec);
+  this->trajectory_start = gazebo::common::Time(
+    req.joint_trajectory.header.stamp.sec,
+    req.joint_trajectory.header.stamp.nsec);
 
   // update the joint_trajectory to play
   this->has_trajectory_ = true;
@@ -286,20 +302,22 @@ bool GazeboRosJointTrajectory::SetTrajectory(const gazebo_msgs::SetJointTrajecto
 // Play the trajectory, update states
 void GazeboRosJointTrajectory::UpdateStates()
 {
-
   boost::mutex::scoped_lock lock(this->update_mutex);
   if (this->has_trajectory_)
   {
     common::Time cur_time = this->world_->GetSimTime();
     // roll out trajectory via set model configuration
-    // gzerr << "i[" << trajectory_index  << "] time " << trajectory_start << " now: " << cur_time << " : "<< "\n";
+    // gzerr << "i[" << trajectory_index  << "] time "
+    //       << trajectory_start << " now: " << cur_time << " : "<< "\n";
     if (cur_time >= this->trajectory_start)
     {
-      // @todo:  consider a while loop until the trajectory "catches up" to the current time?
+      // @todo:  consider a while loop until the trajectory
+      // catches up to the current time
       // gzerr << trajectory_index << " : "  << this->points_.size() << "\n";
       if (this->trajectory_index < this->points_.size())
       {
-        ROS_INFO("time [%f] updating configuration [%d/%lu]",cur_time.Double(),this->trajectory_index,this->points_.size());
+        ROS_INFO("time [%f] updating configuration [%d/%lu]",
+          cur_time.Double(), this->trajectory_index, this->points_.size());
 
         // get reference link pose before updates
         math::Pose reference_pose = this->model_->GetWorldPose();
@@ -308,41 +326,48 @@ void GazeboRosJointTrajectory::UpdateStates()
           reference_pose = this->reference_link_->GetWorldPose();
         }
 
-        // trajectory roll-out based on time:  set model configuration from trajectory message
+        // trajectory roll-out based on time:
+        //  set model configuration from trajectory message
         unsigned int chain_size = this->joints_.size();
-        if (chain_size == this->points_[this->trajectory_index].positions.size())
+        if (chain_size ==
+          this->points_[this->trajectory_index].positions.size())
         {
           for (unsigned int i = 0; i < chain_size; ++i)
           {
             // this is not the most efficient way to set things
             if (this->joints_[i])
-              this->joints_[i]->SetAngle(0, this->points_[this->trajectory_index].positions[i]);
+              this->joints_[i]->SetAngle(0,
+                this->points_[this->trajectory_index].positions[i]);
           }
 
           // set model pose
           if (this->reference_link_)
-            this->model_->SetLinkWorldPose(reference_pose, this->reference_link_);
+            this->model_->SetLinkWorldPose(reference_pose,
+              this->reference_link_);
           else
             this->model_->SetWorldPose(reference_pose);
         }
         else
         {
-          ROS_ERROR("point[%u] in JointTrajectory has different number of joint names[%u] and positions[%lu].",
+          ROS_ERROR("point[%u] in JointTrajectory has different number of"
+                    " joint names[%u] and positions[%lu].",
                     this->trajectory_index, chain_size,
                     this->points_[this->trajectory_index].positions.size());
         }
 
+        // this->world_->SetPaused(is_paused);  // resume original pause-state
+        gazebo::common::Time duration(
+          this->points_[this->trajectory_index].time_from_start.sec,
+          this->points_[this->trajectory_index].time_from_start.nsec);
 
-        //this->world_->SetPaused(is_paused); // resume original pause-state
-        gazebo::common::Time duration(this->points_[this->trajectory_index].time_from_start.sec,
-                                      this->points_[this->trajectory_index].time_from_start.nsec);
-        this->trajectory_start += duration; // reset start time for next trajectory point
-        this->trajectory_index++; // increment to next trajectory point
+        // reset start time for next trajectory point
+        this->trajectory_start += duration;
+        this->trajectory_index++;  // increment to next trajectory point
 
         // save last update time stamp
         this->last_time_ = cur_time;
       }
-      else // no more trajectory points
+      else  // no more trajectory points
       {
         // trajectory finished
         this->reference_link_.reset();
@@ -352,7 +377,6 @@ void GazeboRosJointTrajectory::UpdateStates()
       }
     }
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -365,7 +389,4 @@ void GazeboRosJointTrajectory::QueueThread()
     this->queue_.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-GZ_REGISTER_MODEL_PLUGIN(GazeboRosJointTrajectory);
-
 }

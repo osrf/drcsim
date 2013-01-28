@@ -1,51 +1,43 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2012 Open Source Robotics Foundation
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: ROS laser controller.
- * Author: John Hsu
- * Date: 24 Sept 2007
- * SVN: $Id$
- */
+*/
 
 #ifndef GAZEBO_ROS_LASER_HH
 #define GAZEBO_ROS_LASER_HH
 
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-
-#include "sdf/interface/Param.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "msgs/MessageTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-#include "sensors/SensorTypes.hh"
-#include "plugins/RayPlugin.hh"
+#include <string>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
 #include <sensor_msgs/LaserScan.h>
+
+#include <gazebo/sdf/interface/Param.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/plugins/RayPlugin.hh>
 
 namespace gazebo
 {
@@ -84,26 +76,23 @@ namespace gazebo
 
     /// \brief ros message
     private: sensor_msgs::LaserScan laser_msg_;
-   
+
     /// \brief topic name
     private: std::string topic_name_;
-    //private: ParamT<std::string> *topicNameP;
 
     /// \brief frame transform name, should match link name
     private: std::string frame_name_;
 
     /// \brief Gaussian noise
     private: double gaussian_noise_;
-    //private: ParamT<double> *gaussianNoiseP;
 
     /// \brief Gaussian noise generator
-    private: double GaussianKernel(double mu,double sigma);
+    private: double GaussianKernel(double mu, double sigma);
 
-    /// \brief A mutex to lock access to fields that are used in message callbacks
+    /// \brief mutex to lock access to fields that are used in message callbacks
     private: boost::mutex lock_;
 
     /// \brief hack to mimic hokuyo intensity cutoff of 100
-    //private: ParamT<double> *hokuyoMinIntensityP;
     private: double hokuyo_min_intensity_;
 
     /// update rate of this sensor
@@ -122,9 +111,7 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
+    private: unsigned int seed;
   };
-
 }
-
 #endif
-
