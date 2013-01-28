@@ -10,9 +10,10 @@ ExternalProject_Add(atlas_msgs
                     PATCH_COMMAND true
                     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/atlas_msgs
                     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/atlas_msgs
-                    BUILD_COMMAND env ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j4
+                    BUILD_COMMAND env ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j4
                     CMAKE_ARGS
                       -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}
+                      -DROS_ROOT=$ENV{ROS_ROOT}
                       -DROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}
                       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
                       -DDRC_SIM_PROJECT_NAME=${PROJECT_NAME}
