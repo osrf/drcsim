@@ -41,7 +41,7 @@ void queue_thread_()
   while (rosnode->ok())
   {
     ros_queue_.callAvailable(ros::WallDuration(timeout));
-    usleep(1000);
+    usleep(100);
   }
 }
 
@@ -63,11 +63,12 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 
   if (ros::Time::now() > last_time_)
   {
-    ROS_ERROR("rt[%f] received[%f] now[%f] dt[%f] drt[%f]",
-       gtv.Double(),
-      _js->header.stamp.toSec(),
-      ros::Time::now().toSec(), (ros::Time::now() - last_time_).toSec(),
-      (gtv - last_gtv).Double());
+    ROS_ERROR("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]",
+       gtv.Double()*1000.0,
+      _js->header.stamp.toSec()*1000.0,
+      ros::Time::now().toSec()*1000.0,
+      (ros::Time::now() - last_time_).toSec()*1000.0,
+      (gtv - last_gtv).Double()*1000.0);
     last_gtv = gtv;
 
     osrf_msgs::JointCommands jc;
@@ -115,15 +116,8 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
     jc.i_effort_min.resize(n);
     jc.i_effort_max.resize(n);
 
-    double dt = 1.0;
-    double rps = 0.05;
-
     for (int i = 0; i < n; i++)
     {
-      double theta = rps*2.0*M_PI*i*dt;
-      double x1 = -0.5*sin(2*theta);
-      double x2 =  0.5*sin(1*theta);
-
       jc.position[i]     = ros::Time::now().toSec();
       jc.velocity[i]     = 0;
       jc.effort[i]       = 0;

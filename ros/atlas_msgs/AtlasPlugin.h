@@ -48,6 +48,7 @@
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ContactSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
+#include <gazebo/common/Timer.hh>
 
 #include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/ForceTorqueSensors.h>

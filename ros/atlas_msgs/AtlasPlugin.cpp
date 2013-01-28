@@ -363,16 +363,21 @@ void AtlasPlugin::DeferredLoad()
 
 void AtlasPlugin::UpdateStates()
 {
+  common::Timer timer;
+  common::Timer timer1;
+  timer.Start();
+  timer1.Start();
+
   common::Time curTime = this->world->GetSimTime();
 
   static gazebo::common::Time last_gtv;
   struct timespec tv;
   clock_gettime(0, &tv);
   gazebo::common::Time gtv = tv;
-  gzerr << "cur sim Time[" << curTime
-        << "] dt[" << curTime - lastControllerUpdateTime
-        << "] rt[" << gtv.Double()
-        << "] drt[" << (gtv - last_gtv).Double()
+  gzerr << "cur sim Time[" << curTime.Double()*1000.0
+        << "] dt[" << (curTime - lastControllerUpdateTime).Double()*1000.0
+        << "] rt[" << gtv.Double()*1000.0
+        << "] drt[" << (gtv - last_gtv).Double()*1000.0
         << "]\n";
   last_gtv = gtv;
 
@@ -394,6 +399,7 @@ void AtlasPlugin::UpdateStates()
 
   if (curTime > this->lastControllerUpdateTime)
   {
+
     // get imu data from imu link
     if (this->imuLink && curTime > this->lastImuTime)
     {
@@ -446,6 +452,8 @@ void AtlasPlugin::UpdateStates()
 
       // update time
       this->lastImuTime = curTime.Double();
+      gzerr << "  AP imu [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+      timer.Start();
     }
 
 #if GAZEBO_MINOR_VERSION > 3
@@ -494,6 +502,9 @@ void AtlasPlugin::UpdateStates()
       this->forceTorqueSensorsMsg.r_hand.torque.z = wrench.body1Torque.z;
     }
     this->pubForceTorqueSensors.publish(this->forceTorqueSensorsMsg);
+
+    gzerr << "  AP FT [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+    timer.Start();
 #endif
 
     // populate FromRobot from robot
@@ -506,6 +517,9 @@ void AtlasPlugin::UpdateStates()
       this->jointStates.effort[i] = this->joints[i]->GetForce(0);
     }
     this->pubJointStates.publish(this->jointStates);
+
+    gzerr << "  AP pub JS [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+    timer.Start();
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
@@ -542,7 +556,11 @@ void AtlasPlugin::UpdateStates()
       this->joints[i]->SetForce(0, force);
     }
     this->lastControllerUpdateTime = curTime;
+
+    gzerr << "  AP Control [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+    timer.Start();
   }
+  gzerr << "AtlasPlugin::UpdateStates [" << timer1.GetElapsed().Double()*1000.0 << "]\n";
 }
 
 void AtlasPlugin::OnLContactUpdate()
@@ -682,7 +700,7 @@ void AtlasPlugin::RosPubQueueThread()
   while (this->rosNode->ok())
   {
     this->rosPubQueue.callAvailable(ros::WallDuration(timeout));
-    usleep(1000);
+    usleep(100);
   }
 }
 }
