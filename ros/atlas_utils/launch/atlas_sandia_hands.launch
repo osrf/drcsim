@@ -13,14 +13,5 @@
   <node pkg="sandia_hand_teleop" type="simple_grasp.py" name="simple_grasp_left"  ns="sandia_hands/l_hand"/>
   <node pkg="sandia_hand_teleop" type="simple_grasp.py" name="simple_grasp_right" ns="sandia_hands/r_hand"/>
 
-  <node pkg="robot_state_publisher" type="state_publisher" name="sandia_hands_l_hand_robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/sandia_hands/l_hand/joint_states" />
-  </node>
-  <node pkg="robot_state_publisher" type="state_publisher" name="sandia_hands_r_hand_robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/sandia_hands/r_hand/joint_states" />
-  </node>
-
   <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
 </launch>
