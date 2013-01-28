@@ -364,6 +364,18 @@ void AtlasPlugin::DeferredLoad()
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
+
+  static gazebo::common::Time last_gtv;
+  struct timespec tv;
+  clock_gettime(0, &tv);
+  gazebo::common::Time gtv = tv;
+  gzerr << "cur sim Time[" << curTime
+        << "] dt[" << curTime - lastControllerUpdateTime
+        << "] rt[" << gtv.Double()
+        << "] drt[" << (gtv - last_gtv).Double()
+        << "]\n";
+  last_gtv = gtv;
+
   /// @todo:  robot internals
   /// self diagnostics, damages, etc.
 
@@ -670,6 +682,7 @@ void AtlasPlugin::RosPubQueueThread()
   while (this->rosNode->ok())
   {
     this->rosPubQueue.callAvailable(ros::WallDuration(timeout));
+    usleep(1000);
   }
 }
 }

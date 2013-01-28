@@ -41,11 +41,13 @@ void queue_thread_()
   while (rosnode->ok())
   {
     ros_queue_.callAvailable(ros::WallDuration(timeout));
+    usleep(1000);
   }
 }
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
+  static gazebo::common::Time last_gtv;
   struct timespec tv;
   clock_gettime(0, &tv);
   gazebo::common::Time gtv = tv;
@@ -61,10 +63,12 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 
   if (ros::Time::now() > last_time_)
   {
-    ROS_ERROR("rt[%f] received[%f] now[%f] dt[%f]",
+    ROS_ERROR("rt[%f] received[%f] now[%f] dt[%f] drt[%f]",
        gtv.Double(),
       _js->header.stamp.toSec(),
-      ros::Time::now().toSec(), (ros::Time::now() - last_time_).toSec());
+      ros::Time::now().toSec(), (ros::Time::now() - last_time_).toSec(),
+      (gtv - last_gtv).Double());
+    last_gtv = gtv;
 
     osrf_msgs::JointCommands jc;
 
