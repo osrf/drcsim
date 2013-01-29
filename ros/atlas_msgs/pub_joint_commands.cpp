@@ -157,7 +157,7 @@ int main(int argc, char** argv)
   // ros topic subscribtions
   ros::SubscribeOptions jointStatesSo =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
-    "/atlas/joint_states", 100, SetJointStates,
+    "/atlas/joint_states", 1, SetJointStates,
     ros::VoidPtr(), &ros_queue_);
   jointStatesSo.transport_hints = ros::TransportHints().unreliable();
   ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
