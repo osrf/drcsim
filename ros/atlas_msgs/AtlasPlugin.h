@@ -51,6 +51,7 @@
 
 #include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
+#include <atlas_msgs/ControllerStatistics.h>
 #include <sensor_msgs/JointState.h>
 
 namespace gazebo
@@ -93,7 +94,7 @@ namespace gazebo
     private: event::ConnectionPtr lContactUpdateConnection;
 
     /// Throttle update rate
-    private: double lastStatusTime;
+    private: common::Time lastControllerStatisticsTime;
     private: double updateRate;
 
     // Contact sensors
@@ -128,7 +129,7 @@ namespace gazebo
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
-    private: ros::Publisher pubStatus;
+    private: ros::Publisher pubControllerStatistics;
     private: ros::Publisher pubJointStates;
     private: ros::Publisher pubForceTorqueSensors;
     private: math::Vector3 lFootForce;
@@ -158,6 +159,16 @@ namespace gazebo
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;
+
+    // controls message age measure
+    private: atlas_msgs::ControllerStatistics controllerStatistics;
+    private: std::vector<double> jointCommandsAgeBuffer;
+    private: std::vector<double> jointCommandsAgeDelta2Buffer;
+    private: unsigned int jointCommandsAgeBufferIndex;
+    private: double jointCommandsAgeBufferDuration;
+    private: double jointCommandsAgeMean;
+    private: double jointCommandsAgeVariance;
+    private: double jointCommandsAge;
   };
 /** \} */
 /// @}
