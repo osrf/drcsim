@@ -55,7 +55,7 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 
   clock_gettime(0, &tv);
   wall_time = tv;
-  //printf("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]\n",
+  // printf("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]\n",
   // printf("marker %f, %f, %f, %f, %f %f\n",
   //   wall_time.Double()*1000.0,
   //   _js->header.stamp.toSec()*1000.0,
@@ -74,10 +74,10 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
     jc.header.stamp = _js->header.stamp;  // for testing round trip time
     // jc.header.stamp = ros::Time::now();
 
-    jc.name.push_back("atlas::back_lbz" );
-    jc.name.push_back("atlas::back_mby" );
-    jc.name.push_back("atlas::back_ubx" );
-    jc.name.push_back("atlas::neck_ay"  );
+    jc.name.push_back("atlas::back_lbz");
+    jc.name.push_back("atlas::back_mby");
+    jc.name.push_back("atlas::back_ubx");
+    jc.name.push_back("atlas::neck_ay");
     jc.name.push_back("atlas::l_leg_uhz");
     jc.name.push_back("atlas::l_leg_mhx");
     jc.name.push_back("atlas::l_leg_lhy");
@@ -133,7 +133,6 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 
 int main(int argc, char** argv)
 {
-
   ros::init(argc, argv, "pub_joint_command_test");
 
   rosnode = new ros::NodeHandle();
@@ -163,7 +162,7 @@ int main(int argc, char** argv)
 
   pub_joint_commands_ =
     rosnode->advertise<osrf_msgs::JointCommands>(
-    "/atlas/joint_commands",1, true);
+    "/atlas/joint_commands", 1, true);
 
   ros::spin();
 
