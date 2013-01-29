@@ -10,7 +10,9 @@
   <url>http://ros.org/wiki/atlas_utils</url>
   <depend package="robot_state_publisher"/>
   <depend package="joint_state_publisher"/>
+  <depend package="urdf"/>
   <depend package="xacro"/>
   <depend package="robot_mechanism_controllers"/>
+  <depend package="atlas_description"/>
 
 </package>

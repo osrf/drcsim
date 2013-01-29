@@ -16,9 +16,9 @@
   </node>
 
   <!-- Controllers that come up started -->
-  <rosparam command="load" file="$(find atlas)/ros/arm_controllers.yaml" />
-  <rosparam command="load" file="$(find atlas)/ros/leg_controllers.yaml" />
-  <rosparam command="load" file="$(find atlas)/ros/torso_position_controllers.yaml" />
+  <rosparam command="load" file="$(find atlas_utils)/config/arm_controllers.yaml" />
+  <rosparam command="load" file="$(find atlas_utils)/config/leg_controllers.yaml" />
+  <rosparam command="load" file="$(find atlas_utils)/config/torso_position_controllers.yaml" />
 
   <node name="atlas_arm_controllers_spawner"
         pkg="pr2_controller_manager" type="spawner" output="screen"
