@@ -61,11 +61,6 @@ if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build type not select: Release selected by default")
 endif (NOT CMAKE_BUILD_TYPE)
 
-# Redefine the RelWithDebInfo flags (we need optimization)
-set (CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2" CACHE INTERNAL
-    "C Flags for release with debug support" FORCE)
-set (CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
-
 # find gazebo
 include (FindPkgConfig)
 if (PKG_CONFIG_FOUND)
