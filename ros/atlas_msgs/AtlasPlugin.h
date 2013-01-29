@@ -80,7 +80,6 @@ namespace gazebo
 
     /// \brief ROS callback queue thread
     private: void RosQueueThread();
-    private: void RosPubQueueThread();
 
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
@@ -130,7 +129,6 @@ namespace gazebo
     // ROS stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
-    private: ros::CallbackQueue rosPubQueue;
     private: boost::thread callbackQueeuThread;
     private: boost::thread pubQueeuThread;
     private: ros::Publisher pubStatus;
@@ -159,6 +157,7 @@ namespace gazebo
 
     private: osrf_msgs::JointCommands jointCommands;
     private: sensor_msgs::JointState jointStates;
+    private: boost::mutex mutex;
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;

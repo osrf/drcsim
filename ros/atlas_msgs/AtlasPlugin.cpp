@@ -205,23 +205,30 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
+  boost::mutex::scoped_lock lock(this->mutex);
   struct timespec tv;
   clock_gettime(0, &tv);
   gazebo::common::Time gtv = tv;
+  static gazebo::common::Time gtv_last;
 
   static common::Time last;
 
   // round trip, JS published by AtlasPlugin, received by pub_joint_command
   // and republished over JC, received by AtlasPlugin
-  if (this->world->GetSimTime() > last)
-  ROS_ERROR("now [%f] js pub sim time [%f] receive sim time [%f] diff [%f]",
-    gtv.Double(),
-    _msg->header.stamp.toSec(), this->world->GetSimTime().Double(),
-    (last - this->world->GetSimTime()).Double());
-    //this->world->GetSimTime().Double() - _msg->header.stamp.toSec());
+  //if (this->world->GetSimTime() > last)
+  printf("Receive JC: rt [%f] js pub sim time [%f] djst[%f] dst[%f] drt[%f]\n",
+
+  static_cast<double>(gtv.nsec) / 1000000.0,
+  static_cast<double>(_msg->header.stamp.nsec) / 1000000.0,
+  (this->world->GetSimTime().Double() - _msg->header.stamp.toSec())*1000.0,
+  (this->world->GetSimTime() - last).Double()*1000.0,
+  (gtv - gtv_last).Double()*1000.0);
+  gtv_last = gtv;
 
   last = this->world->GetSimTime();
     
+  this->jointCommands.header.stamp = _msg->header.stamp;
+
   if (_msg->name.size() == this->jointCommands.name.size() &&
       _msg->position.size() == this->jointCommands.position.size() &&
       _msg->velocity.size() == this->jointCommands.velocity.size() &&
@@ -300,15 +307,8 @@ void AtlasPlugin::DeferredLoad()
 
   // ROS Controller API
   /// brief broadcasts the robot states
-  ros::AdvertiseOptions pub_joint_states_ao =
-    ros::AdvertiseOptions::create<sensor_msgs::JointState>(
-      "atlas/joint_states", 10,
-      boost::bind(&AtlasPlugin::foo, this),
-      boost::bind(&AtlasPlugin::foo, this),
-      ros::VoidPtr(), &this->rosPubQueue);
-  this->pubJointStates = this->rosNode->advertise(pub_joint_states_ao);
-  // this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-  //   "atlas/joint_states", 10);
+  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+    "atlas/joint_states", 1);
 
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
@@ -329,9 +329,10 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions jointCommandsSo =
     ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    "atlas/joint_commands", 10,
+    "atlas/joint_commands", 1,
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
+  jointCommandsSo.transport_hints = ros::TransportHints().unreliable();
   this->subJointCommands=
     this->rosNode->subscribe(jointCommandsSo);
 
@@ -346,9 +347,6 @@ void AtlasPlugin::DeferredLoad()
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
-
-  this->pubQueeuThread = boost::thread(
-    boost::bind(&AtlasPlugin::RosPubQueueThread, this));
 
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
      boost::bind(&AtlasPlugin::UpdateStates, this));
@@ -374,11 +372,13 @@ void AtlasPlugin::UpdateStates()
   struct timespec tv;
   clock_gettime(0, &tv);
   gazebo::common::Time gtv = tv;
-  gzerr << "cur sim Time[" << curTime.Double()*1000.0
-        << "] dt[" << (curTime - lastControllerUpdateTime).Double()*1000.0
-        << "] rt[" << gtv.Double()*1000.0
-        << "] drt[" << (gtv - last_gtv).Double()*1000.0
-        << "]\n";
+  printf("  AP::UpdateStates Start:  sim t[%f] dt[%f] rt[%f] drt[%f]\n",
+    curTime.Double()*1000.0,
+    (curTime - lastControllerUpdateTime).Double()*1000.0,
+    gtv.Double()*1000.0,
+    (gtv - last_gtv).Double()*1000.0);
+
+
   last_gtv = gtv;
 
   /// @todo:  robot internals
@@ -452,7 +452,7 @@ void AtlasPlugin::UpdateStates()
 
       // update time
       this->lastImuTime = curTime.Double();
-      gzerr << "  AP imu [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+      printf("  AP imu [%f]\n", timer.GetElapsed().Double()*1000.0);
       timer.Start();
     }
 
@@ -503,7 +503,7 @@ void AtlasPlugin::UpdateStates()
     }
     this->pubForceTorqueSensors.publish(this->forceTorqueSensorsMsg);
 
-    gzerr << "  AP FT [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+    printf("  AP FT [%f]\n", timer.GetElapsed().Double()*1000.0);
     timer.Start();
 #endif
 
@@ -518,49 +518,64 @@ void AtlasPlugin::UpdateStates()
     }
     this->pubJointStates.publish(this->jointStates);
 
-    gzerr << "  AP pub JS [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+    clock_gettime(0, &tv);
+    gazebo::common::Time gtv = tv;
+    static gazebo::common::Time gtv_pjs_last;
+    printf("  AP pub JS [%f] rt[%f] dt[%f]\n",
+      timer.GetElapsed().Double()*1000.0,
+      static_cast<double>(gtv.nsec) / 1000000.0,
+      static_cast<double>((gtv - gtv_pjs_last).nsec) / 1000000.0 );
+    gtv_pjs_last = gtv;
     timer.Start();
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
-    /// update pid with feedforward force
-    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      double q_p =
-         this->jointCommands.position[i] - this->jointStates.position[i];
+      boost::mutex::scoped_lock lock(this->mutex);
 
-      if (!math::equal(dt, 0.0))
-        this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
+      printf("abcdef %f %f\n",
+        curTime.Double()*1000.0,
+        (curTime.Double() - this->jointCommands.header.stamp.toSec())*1000.0);
 
-      this->errorTerms[i].q_p = q_p;
+      /// update pid with feedforward force
+      for (unsigned int i = 0; i < this->joints.size(); ++i)
+      {
+        double q_p =
+           this->jointCommands.position[i] - this->jointStates.position[i];
 
-      this->errorTerms[i].qd_p =
-         this->jointCommands.velocity[i] - this->jointStates.velocity[i];
+        if (!math::equal(dt, 0.0))
+          this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
 
-      this->errorTerms[i].q_i = math::clamp(
-        this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-        static_cast<double>(this->jointCommands.i_effort_min[i]),
-        static_cast<double>(this->jointCommands.i_effort_max[i]));
+        this->errorTerms[i].q_p = q_p;
 
-      // use gain params to compute force cmd
-      double force = this->jointCommands.kp_position[i] *
-                     this->errorTerms[i].q_p +
-                     this->jointCommands.kp_velocity[i] *
-                     this->errorTerms[i].qd_p +
-                     this->jointCommands.ki_position[i] *
-                     this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] *
-                     this->errorTerms[i].d_q_p_dt +
-                     this->jointCommands.effort[i];
+        this->errorTerms[i].qd_p =
+           this->jointCommands.velocity[i] - this->jointStates.velocity[i];
 
-      this->joints[i]->SetForce(0, force);
+        this->errorTerms[i].q_i = math::clamp(
+          this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
+
+        // use gain params to compute force cmd
+        double force = this->jointCommands.kp_position[i] *
+                       this->errorTerms[i].q_p +
+                       this->jointCommands.kp_velocity[i] *
+                       this->errorTerms[i].qd_p +
+                       this->jointCommands.ki_position[i] *
+                       this->errorTerms[i].q_i +
+                       this->jointCommands.kd_position[i] *
+                       this->errorTerms[i].d_q_p_dt +
+                       this->jointCommands.effort[i];
+
+        this->joints[i]->SetForce(0, force);
+      }
     }
     this->lastControllerUpdateTime = curTime;
 
-    gzerr << "  AP Control [" << timer.GetElapsed().Double()*1000.0 << "]\n";
+    printf("  AP Control [%f]\n", timer.GetElapsed().Double()*1000.0);
     timer.Start();
   }
-  gzerr << "AtlasPlugin::UpdateStates [" << timer1.GetElapsed().Double()*1000.0 << "]\n";
+  printf("AtlasPlugin::UpdateStates [%f]\n", timer1.GetElapsed().Double()*1000.0);
 }
 
 void AtlasPlugin::OnLContactUpdate()
@@ -688,19 +703,5 @@ void AtlasPlugin::RosQueueThread()
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
-
-void AtlasPlugin::foo()
-{
 }
 
-void AtlasPlugin::RosPubQueueThread()
-{
-  static const double timeout = 0.01;
-
-  while (this->rosNode->ok())
-  {
-    this->rosPubQueue.callAvailable(ros::WallDuration(timeout));
-    usleep(100);
-  }
-}
-}
