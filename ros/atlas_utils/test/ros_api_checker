@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import unittest
+import rostest
+import subprocess
+import sys
+import time
+import re
+
+class Tester(unittest.TestCase):
+
+    def setUp(self):
+        self.argv = sys.argv
+        self.skip = False
+        try:
+            import yaml
+        except:
+            self.skip('Python yaml module not installed; skipping tests. On Ubuntu: sudo apt-get install python-yaml')
+        # Wait for a bit to let Gazebo come up
+        time.sleep(5.0)
+
+    def test_api(self):
+        self.assertTrue(len(self.argv) > 2, msg='Not enough args')
+        topics = self._load(self.argv[1:])
+        for t in topics:
+            self._test_topic(t)
+    
+    def _test_topic(self, t):
+        cmd = ['rostopic', 'info', t['topic']]
+        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = po.communicate()
+        self.assertEqual(po.returncode, 0, 'rostopic failed. stdout: %s stderr: %s'%(out, err))
+
+    def _parse_rostopic(self, out):
+        # Should probably do this through a library API instead...
+        outsplit = out.split('\n')
+        assertTrue(len(outsplit) >= 5)
+        type_re = re.compile('\w*Type: (.*)')
+        m = type_re.match(outsplit[0])
+        assertEqual(len(m.groups), 1)
+        assertEqual(m.groups
+       
+        for l in out.split('\n'):
+            if
+    
+    def _load(self, files):
+        import yaml
+        topics = []
+        for f in files:
+            # Ignore args passed in by rostest
+            if f[:2] == '--' or f[:2] == '__':
+                continue
+            # Let parsing exceptions leak out; they'll be marked as test errors
+            y = yaml.load(open(f))
+            self.assertIn('topics', y)
+            for t in y['topics']:
+                self.assertIn('topic', t)
+                self.assertIn('type', t)
+                self.assertIn('num_publishers', t)
+                self.assertIn('num_subscribers', t)
+                topics.append(t)
+        return topics
+
+if __name__ == '__main__':
+    rostest.run('atlas_utils', 'api_check', Tester, sys.argv)
