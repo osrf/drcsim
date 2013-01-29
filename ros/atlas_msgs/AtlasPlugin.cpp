@@ -28,7 +28,6 @@ namespace gazebo
 GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 
 ////////////////////////////////////////////////////////////////////////////////
-// Constructor
 AtlasPlugin::AtlasPlugin()
 {
   this->lFootForce = 0;
@@ -39,7 +38,6 @@ AtlasPlugin::AtlasPlugin()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Destructor
 AtlasPlugin::~AtlasPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
@@ -52,7 +50,6 @@ AtlasPlugin::~AtlasPlugin()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Load the controller
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
@@ -156,6 +153,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->imuReferencePose = this->imuLink->GetWorldPose();
   this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
     this->imuLink->GetWorldLinearVel());
+
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
 
   // Get force torque joints
@@ -201,69 +199,87 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Set Joint Commands
 void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
-  struct timespec tv;
-  clock_gettime(0, &tv);
-  gazebo::common::Time gtv = tv;
-  static gazebo::common::Time gtv_last;
 
-  static common::Time last;
-
-  // round trip, JS published by AtlasPlugin, received by pub_joint_command
-  // and republished over JC, received by AtlasPlugin
-  //if (this->world->GetSimTime() > last)
-  printf("Receive JC: rt [%f] js pub sim time [%f] djst[%f] dst[%f] drt[%f]\n",
-
-  static_cast<double>(gtv.nsec) / 1000000.0,
-  static_cast<double>(_msg->header.stamp.nsec) / 1000000.0,
-  (this->world->GetSimTime().Double() - _msg->header.stamp.toSec())*1000.0,
-  (this->world->GetSimTime() - last).Double()*1000.0,
-  (gtv - gtv_last).Double()*1000.0);
-  gtv_last = gtv;
-
-  last = this->world->GetSimTime();
-    
   this->jointCommands.header.stamp = _msg->header.stamp;
 
-  if (_msg->name.size() == this->jointCommands.name.size() &&
-      _msg->position.size() == this->jointCommands.position.size() &&
-      _msg->velocity.size() == this->jointCommands.velocity.size() &&
-      _msg->effort.size() == this->jointCommands.effort.size() &&
-      _msg->kp_position.size() == this->jointCommands.kp_position.size() &&
-      _msg->ki_position.size() == this->jointCommands.ki_position.size() &&
-      _msg->kd_position.size() == this->jointCommands.kd_position.size() &&
-      _msg->kp_velocity.size() == this->jointCommands.kp_velocity.size() &&
-      _msg->i_effort_min.size() == this->jointCommands.i_effort_min.size() &&
-      _msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-  {
-    /// \todo: make this smarter and skip messages if not specified
-    for (unsigned i = 0; i < this->joints.size(); ++i)
-    {
-      // this->jointCommands.name[i] = this->joints[i]->GetScopedName();
-      this->jointCommands.position[i] = _msg->position[i];
-      this->jointCommands.velocity[i] = _msg->velocity[i];
-      this->jointCommands.effort[i] = _msg->effort[i];
-      this->jointCommands.kp_position[i] = _msg->kp_position[i];
-      this->jointCommands.ki_position[i] = _msg->ki_position[i];
-      this->jointCommands.kd_position[i] = _msg->kd_position[i];
-      this->jointCommands.kp_velocity[i] = _msg->kp_velocity[i];
-      this->jointCommands.i_effort_min[i] = _msg->i_effort_min[i];
-      this->jointCommands.i_effort_max[i] = _msg->i_effort_max[i];
-    }
-  }
+  if (_msg->position.size() == this->jointCommands.position.size())
+    memcpy(&this->jointCommands.position,
+           &_msg->position, sizeof(_msg->position));
   else
-  {
-    ROS_DEBUG("joint commands message contains different number of joints"
-              " than expected");
-  }
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements position[%ld] than expected[%ld]",
+      _msg->position.size(), this->jointCommands.position.size());
+
+  if (_msg->velocity.size() == this->jointCommands.velocity.size())
+    memcpy(&this->jointCommands.velocity,
+           &_msg->velocity, sizeof(_msg->velocity));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements velocity[%ld] than expected[%ld]",
+      _msg->velocity.size(), this->jointCommands.velocity.size());
+
+  if (_msg->effort.size() == this->jointCommands.effort.size())
+    memcpy(&this->jointCommands.effort,
+           &_msg->effort, sizeof(_msg->effort));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements effort[%ld] than expected[%ld]",
+      _msg->effort.size(), this->jointCommands.effort.size());
+
+  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
+    memcpy(&this->jointCommands.kp_position,
+           &_msg->kp_position, sizeof(_msg->kp_position));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_position[%ld] than expected[%ld]",
+      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+
+  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
+    memcpy(&this->jointCommands.ki_position,
+           &_msg->ki_position, sizeof(_msg->ki_position));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements ki_position[%ld] than expected[%ld]",
+      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+
+  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
+    memcpy(&this->jointCommands.kd_position,
+           &_msg->kd_position, sizeof(_msg->kd_position));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kd_position[%ld] than expected[%ld]",
+      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+
+  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    memcpy(&this->jointCommands.kp_velocity,
+           &_msg->kp_velocity, sizeof(_msg->kp_velocity));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_velocity[%ld] than expected[%ld]",
+      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+
+  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    memcpy(&this->jointCommands.i_effort_min,
+           &_msg->i_effort_min, sizeof(_msg->i_effort_min));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_min[%ld] than expected[%ld]",
+      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+
+  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    memcpy(&this->jointCommands.i_effort_max,
+           &_msg->i_effort_max, sizeof(_msg->i_effort_max));
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_max[%ld] than expected[%ld]",
+      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Load the controller
 void AtlasPlugin::DeferredLoad()
 {
   // initialize ros
@@ -271,7 +287,7 @@ void AtlasPlugin::DeferredLoad()
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_api.so\n";
+          << "  gazebo -s libgazebo_ros_aki.so\n";
     return;
   }
 
@@ -361,29 +377,10 @@ void AtlasPlugin::DeferredLoad()
 
 void AtlasPlugin::UpdateStates()
 {
-  common::Timer timer;
-  common::Timer timer1;
-  timer.Start();
-  timer1.Start();
-
   common::Time curTime = this->world->GetSimTime();
-
-  static gazebo::common::Time last_gtv;
-  struct timespec tv;
-  clock_gettime(0, &tv);
-  gazebo::common::Time gtv = tv;
-  printf("  AP::UpdateStates Start:  sim t[%f] dt[%f] rt[%f] drt[%f]\n",
-    curTime.Double()*1000.0,
-    (curTime - lastControllerUpdateTime).Double()*1000.0,
-    gtv.Double()*1000.0,
-    (gtv - last_gtv).Double()*1000.0);
-
-
-  last_gtv = gtv;
 
   /// @todo:  robot internals
   /// self diagnostics, damages, etc.
-
   if (this->pubStatus.getNumSubscribers() > 0)
   {
     double cur_time = this->world->GetSimTime().Double();
@@ -399,7 +396,6 @@ void AtlasPlugin::UpdateStates()
 
   if (curTime > this->lastControllerUpdateTime)
   {
-
     // get imu data from imu link
     if (this->imuLink && curTime > this->lastImuTime)
     {
@@ -452,8 +448,6 @@ void AtlasPlugin::UpdateStates()
 
       // update time
       this->lastImuTime = curTime.Double();
-      printf("  AP imu [%f]\n", timer.GetElapsed().Double()*1000.0);
-      timer.Start();
     }
 
 #if GAZEBO_MINOR_VERSION > 3
@@ -502,9 +496,6 @@ void AtlasPlugin::UpdateStates()
       this->forceTorqueSensorsMsg.r_hand.torque.z = wrench.body1Torque.z;
     }
     this->pubForceTorqueSensors.publish(this->forceTorqueSensorsMsg);
-
-    printf("  AP FT [%f]\n", timer.GetElapsed().Double()*1000.0);
-    timer.Start();
 #endif
 
     // populate FromRobot from robot
@@ -518,24 +509,10 @@ void AtlasPlugin::UpdateStates()
     }
     this->pubJointStates.publish(this->jointStates);
 
-    clock_gettime(0, &tv);
-    gazebo::common::Time gtv = tv;
-    static gazebo::common::Time gtv_pjs_last;
-    printf("  AP pub JS [%f] rt[%f] dt[%f]\n",
-      timer.GetElapsed().Double()*1000.0,
-      static_cast<double>(gtv.nsec) / 1000000.0,
-      static_cast<double>((gtv - gtv_pjs_last).nsec) / 1000000.0 );
-    gtv_pjs_last = gtv;
-    timer.Start();
-
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     {
       boost::mutex::scoped_lock lock(this->mutex);
-
-      printf("abcdef %f %f\n",
-        curTime.Double()*1000.0,
-        (curTime.Double() - this->jointCommands.header.stamp.toSec())*1000.0);
 
       /// update pid with feedforward force
       for (unsigned int i = 0; i < this->joints.size(); ++i)
@@ -571,11 +548,7 @@ void AtlasPlugin::UpdateStates()
       }
     }
     this->lastControllerUpdateTime = curTime;
-
-    printf("  AP Control [%f]\n", timer.GetElapsed().Double()*1000.0);
-    timer.Start();
   }
-  printf("AtlasPlugin::UpdateStates [%f]\n", timer1.GetElapsed().Double()*1000.0);
 }
 
 void AtlasPlugin::OnLContactUpdate()

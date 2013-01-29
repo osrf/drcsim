@@ -31,9 +31,10 @@
 
 
 ros::CallbackQueue ros_queue_;
-ros::Publisher pub_;
-ros::Time last_time_;
-ros::Time last_received_time_;
+ros::Publisher pub_joint_commands_;
+ros::Time last_ros_time_;
+ros::Time last_header_time_;
+gazebo::common::Time last_wall_time_;
 ros::NodeHandle* rosnode;
 
 void queue_thread_()
@@ -49,35 +50,28 @@ void queue_thread_()
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
-  static gazebo::common::Time last_gtv;
   struct timespec tv;
-  gazebo::common::Time gtv;
+  gazebo::common::Time wall_time;
 
-  // if (ros::Time::now() > last_time_)
-  //   ROS_ERROR("now [%f] received[%f] last received[%f] dt[%f]",
-  //     gtv.Double(),
-  //     _js->header.stamp.toSec(),
-  //     last_received_time_.toSec(), 
-  //     (ros::Time::now() - last_time_).toSec());
-
-  clock_gettime(0, &tv); gtv = tv;
+  clock_gettime(0, &tv);
+  wall_time = tv;
   //printf("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]\n",
-  printf("marker %f, %f, %f, %f, %f %f\n",
-    gtv.Double()*1000.0,
-    _js->header.stamp.toSec()*1000.0,
-    ros::Time::now().toSec()*1000.0,
-    (ros::Time::now() - last_time_).toSec()*1000.0,
-    (gtv - last_gtv).Double()*1000.0,
-    (_js->header.stamp - last_received_time_).toSec()*1000.0);
+  // printf("marker %f, %f, %f, %f, %f %f\n",
+  //   wall_time.Double()*1000.0,
+  //   _js->header.stamp.toSec()*1000.0,
+  //   ros::Time::now().toSec()*1000.0,
+  //   (ros::Time::now() - last_ros_time_).toSec()*1000.0,
+  //   (wall_time - last_wall_time_.Double()*1000.0,
+  //   (_js->header.stamp - last_header_time_).toSec()*1000.0);
 
-  last_received_time_ = _js->header.stamp;
-  last_time_ = ros::Time::now();
-  last_gtv = gtv;
+  last_header_time_ = _js->header.stamp;
+  last_ros_time_ = ros::Time::now();
+  last_wall_time_ = wall_time;
 
   {
     osrf_msgs::JointCommands jc;
 
-    jc.header.stamp = _js->header.stamp;  // for testing
+    jc.header.stamp = _js->header.stamp;  // for testing round trip time
     // jc.header.stamp = ros::Time::now();
 
     jc.name.push_back("atlas::back_lbz" );
@@ -133,7 +127,7 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
       jc.i_effort_max[i] = 0;
     }
 
-    pub_.publish(jc); // use publisher
+    pub_joint_commands_.publish(jc);
   }
 }
 
@@ -149,33 +143,27 @@ int main(int argc, char** argv)
   bool wait = true;
   while (wait)
   {
-    last_time_ = ros::Time::now();
-    if (last_time_.toSec() > 0)
+    last_ros_time_ = ros::Time::now();
+    if (last_ros_time_.toSec() > 0)
       wait = false;
   }
 
   // ros topic subscribtions
   ros::SubscribeOptions jointStatesSo =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
-    "/atlas/joint_states", 100, SetJointStates,
+    "/atlas/joint_states", 1, SetJointStates,
     ros::VoidPtr(), &ros_queue_);
+
+  // Import:  publish over udp, tcp incurrs heavy delays
   jointStatesSo.transport_hints = ros::TransportHints().unreliable();
+
   ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
-/*
-  ros::Subscriber subJointStates = rosnode->subscribe("/atlas/joint_states", 1000, SetJointStates);
-*/
+  // ros::Subscriber subJointStates =
+  //   rosnode->subscribe("/atlas/joint_states", 1000, SetJointStates);
 
-  pub_ = rosnode->advertise<osrf_msgs::JointCommands>("/atlas/joint_commands",1, true);
-
-/*
-  while (true)
-  {
-    osrf_msgs::JointCommands jc;
-    jc.header.stamp = ros::Time::now();
-    pub_.publish(jc); // use publisher
-    usleep(500);
-  }
-*/
+  pub_joint_commands_ =
+    rosnode->advertise<osrf_msgs::JointCommands>(
+    "/atlas/joint_commands",1, true);
 
   ros::spin();
 
