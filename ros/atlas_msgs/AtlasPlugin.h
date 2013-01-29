@@ -48,7 +48,6 @@
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ContactSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
-#include <gazebo/common/Timer.hh>
 
 #include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
@@ -84,7 +83,6 @@ namespace gazebo
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
     private: void DeferredLoad();
-    private: void foo();
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
@@ -130,7 +128,6 @@ namespace gazebo
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
-    private: boost::thread pubQueeuThread;
     private: ros::Publisher pubStatus;
     private: ros::Publisher pubJointStates;
     private: ros::Publisher pubForceTorqueSensors;

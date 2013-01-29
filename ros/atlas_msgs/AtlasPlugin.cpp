@@ -45,7 +45,6 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.clear();
   this->rosQueue.disable();
   this->callbackQueeuThread.join();
-  this->pubQueeuThread.join();
   delete this->rosNode;
 }
 
@@ -287,7 +286,7 @@ void AtlasPlugin::DeferredLoad()
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_aki.so\n";
+          << "  gazebo -s libgazebo_ros_api.so\n";
     return;
   }
 
@@ -348,7 +347,10 @@ void AtlasPlugin::DeferredLoad()
     "atlas/joint_commands", 1,
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
+
+  // important, tcp introduces significant lag, using udp blaster
   jointCommandsSo.transport_hints = ros::TransportHints().unreliable();
+
   this->subJointCommands=
     this->rosNode->subscribe(jointCommandsSo);
 

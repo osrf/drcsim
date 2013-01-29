@@ -45,7 +45,7 @@
     </include>
 
     <include>
-      <uri>model://atlas_sandia_hands</uri>
+      <uri>model://atlas</uri>
       <pose>-2 1.0 0.93 0 0 0</pose>
     </include>
 
