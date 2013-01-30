@@ -564,14 +564,18 @@ void DRCVehiclePlugin::UpdateStates()
     double flGasTorque = 0, frGasTorque = 0, blGasTorque = 0, brGasTorque = 0;
     // Apply equal torque at left and right wheels, which is an implicit model
     // of the differential.
-    if (abs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
+    if ( (abs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
+      && (abs(this->frWheelState * this->frWheelRadius) < this->maxSpeed))
+    {
       flGasTorque = gasPercent*this->frontTorque * gasMultiplier;
-    if (abs(this->frWheelState * this->frWheelRadius) < this->maxSpeed)
       frGasTorque = gasPercent*this->frontTorque * gasMultiplier;
-    if (abs(this->blWheelState * this->blWheelRadius) < this->maxSpeed)
+    }
+    if ( (abs(this->blWheelState * this->blWheelRadius) < this->maxSpeed)
+      && (abs(this->brWheelState * this->brWheelRadius) < this->maxSpeed))
+    {
       blGasTorque = gasPercent*this->backTorque * gasMultiplier;
-    if (abs(this->brWheelState * this->brWheelRadius) < this->maxSpeed)
       brGasTorque = gasPercent*this->backTorque * gasMultiplier;
+    }
 
     // Brake pedal, hand-brake torque.
     // Compute percents and add together, saturating at 100%
