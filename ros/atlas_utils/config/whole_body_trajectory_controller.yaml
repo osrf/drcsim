@@ -1,4 +1,5 @@
 atlas_controller:
+  statistics_time_window_size: 1.0
   type: "robot_mechanism_controllers/JointTrajectoryActionController"
   joints:
     - l_leg_uhz

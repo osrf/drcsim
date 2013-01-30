@@ -14,32 +14,77 @@
  * limitations under the License.
  *
 */
+#include <math.h>
 #include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/subscribe_options.h>
+#include <boost/thread.hpp>
+#include <boost/algorithm/string.hpp>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
-#include <math.h>
-#include "osrf_msgs/JointCommands.h"
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Timer.hh>
+#include <gazebo/common/Console.hh>
+#include <sensor_msgs/JointState.h>
+#include <osrf_msgs/JointCommands.h>
+
+#include <time.h>  // for timespec
+
+
+ros::Publisher pub_joint_commands_;
+ros::Time last_ros_time_;
+ros::Time last_header_time_;
+gazebo::common::Time last_wall_time_;
+ros::NodeHandle* rosnode;
+osrf_msgs::JointCommands jc;
+
+void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
+{
+  struct timespec tv;
+  gazebo::common::Time wall_time;
+
+  clock_gettime(0, &tv);
+  wall_time = tv;
+  // printf("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]\n",
+  // printf("marker %f, %f, %f, %f, %f %f\n",
+  //   wall_time.Double()*1000.0,
+  //   _js->header.stamp.toSec()*1000.0,
+  //   ros::Time::now().toSec()*1000.0,
+  //   (ros::Time::now() - last_ros_time_).toSec()*1000.0,
+  //   (wall_time - last_wall_time_.Double()*1000.0,
+  //   (_js->header.stamp - last_header_time_).toSec()*1000.0);
+
+  last_header_time_ = _js->header.stamp;
+  last_ros_time_ = ros::Time::now();
+  last_wall_time_ = wall_time;
+
+  {
+
+    jc.header.stamp = _js->header.stamp;  // for testing round trip time
+    // jc.header.stamp = ros::Time::now();
+
+    for (unsigned int i = 0; i < jc.name.size(); i++)
+    {
+      jc.position[i]     = 0.7* cos(ros::Time::now().toSec());
+    }
+
+    pub_joint_commands_.publish(jc);
+  }
+}
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "pub_joint_trajectory_test");
+  ros::init(argc, argv, "pub_joint_command_test");
 
-  ros::NodeHandle rosnode;
+  rosnode = new ros::NodeHandle();
 
   bool wait = true;
   while (wait)
   {
-    ros::Time t = ros::Time::now();
-    if (t.toSec() > 0)
+    last_ros_time_ = ros::Time::now();
+    if (last_ros_time_.toSec() > 0)
       wait = false;
   }
-
-  ros::Publisher pub_ = rosnode.advertise<osrf_msgs::JointCommands>(
-    "/atlas/joint_commands", 1, true);
-
-  osrf_msgs::JointCommands jc;
-
-  jc.header.stamp = ros::Time::now();
 
   jc.name.push_back("atlas::back_lbz");
   jc.name.push_back("atlas::back_mby");
@@ -70,7 +115,7 @@ int main(int argc, char** argv)
   jc.name.push_back("atlas::r_arm_usy");
   jc.name.push_back("atlas::r_arm_uwy");
 
-  int n = jc.name.size();
+  unsigned int n = jc.name.size();
   jc.position.resize(n);
   jc.velocity.resize(n);
   jc.effort.resize(n);
@@ -81,20 +126,58 @@ int main(int argc, char** argv)
   jc.i_effort_min.resize(n);
   jc.i_effort_max.resize(n);
 
-  for (int i = 0; i < n; i++)
+  for (unsigned int i = 0; i < n; i++)
   {
-    jc.position[i]     = ros::Time::now().toSec();
+    std::vector<std::string> pieces;
+    boost::split(pieces, jc.name[i], boost::is_any_of(":"));
+
+    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/p",
+      jc.kp_position[i]);
+
+    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i",
+      jc.ki_position[i]);
+
+    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/d",
+      jc.kd_position[i]);
+
+    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
+      jc.i_effort_min[i]);
+    jc.i_effort_min[i] = -jc.i_effort_min[i];
+
+    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
+      jc.i_effort_max[i]);
+      
+    // turn off integral and derivative gains
+    jc.ki_position[i] *= 0.0;
+    jc.kd_position[i] *= 0.0;
+
     jc.velocity[i]     = 0;
     jc.effort[i]       = 0;
-    jc.kp_position[i]  = 1;
-    jc.ki_position[i]  = 0;
-    jc.kd_position[i]  = 0;
     jc.kp_velocity[i]  = 0;
-    jc.i_effort_min[i] = 0;
-    jc.i_effort_max[i] = 0;
   }
 
-  pub_.publish(jc);
+  // ros topic subscribtions
+  ros::SubscribeOptions jointStatesSo =
+    ros::SubscribeOptions::create<sensor_msgs::JointState>(
+    "/atlas/joint_states", 1, SetJointStates,
+    ros::VoidPtr(), rosnode->getCallbackQueue());
+
+  // Because TCP causes bursty communication with high jitter,
+  // declare a preference on UDP connections for receiving
+  // joint states, which we want to get at a high rate.
+  // Note that we'll still accept TCP connections for this topic
+  // (e.g., from rospy nodes, which don't support UDP);
+  // we just prefer UDP.
+  jointStatesSo.transport_hints = ros::TransportHints().unreliable();
+
+  ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
+  // ros::Subscriber subJointStates =
+  //   rosnode->subscribe("/atlas/joint_states", 1000, SetJointStates);
+
+  pub_joint_commands_ =
+    rosnode->advertise<osrf_msgs::JointCommands>(
+    "/atlas/joint_commands", 1, true);
+
   ros::spin();
 
   return 0;

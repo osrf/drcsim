@@ -28,7 +28,6 @@ namespace gazebo
 GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 
 ////////////////////////////////////////////////////////////////////////////////
-// Constructor
 AtlasPlugin::AtlasPlugin()
 {
   this->lFootForce = 0;
@@ -39,7 +38,6 @@ AtlasPlugin::AtlasPlugin()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Destructor
 AtlasPlugin::~AtlasPlugin()
 {
   event::Events::DisconnectWorldUpdateStart(this->updateConnection);
@@ -51,7 +49,6 @@ AtlasPlugin::~AtlasPlugin()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Load the controller
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
@@ -155,6 +152,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->imuReferencePose = this->imuLink->GetWorldPose();
   this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
     this->imuLink->GetWorldLinearVel());
+
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
 
   // Get force torque joints
@@ -200,45 +198,87 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Set Joint Commands
 void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
-  if (_msg->name.size() == this->jointCommands.name.size() &&
-      _msg->position.size() == this->jointCommands.position.size() &&
-      _msg->velocity.size() == this->jointCommands.velocity.size() &&
-      _msg->effort.size() == this->jointCommands.effort.size() &&
-      _msg->kp_position.size() == this->jointCommands.kp_position.size() &&
-      _msg->ki_position.size() == this->jointCommands.ki_position.size() &&
-      _msg->kd_position.size() == this->jointCommands.kd_position.size() &&
-      _msg->kp_velocity.size() == this->jointCommands.kp_velocity.size() &&
-      _msg->i_effort_min.size() == this->jointCommands.i_effort_min.size() &&
-      _msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-  {
-    /// \todo: make this smarter and skip messages if not specified
-    for (unsigned i = 0; i < this->joints.size(); ++i)
-    {
-      // this->jointCommands.name[i] = this->joints[i]->GetScopedName();
-      this->jointCommands.position[i] = _msg->position[i];
-      this->jointCommands.velocity[i] = _msg->velocity[i];
-      this->jointCommands.effort[i] = _msg->effort[i];
-      this->jointCommands.kp_position[i] = _msg->kp_position[i];
-      this->jointCommands.ki_position[i] = _msg->ki_position[i];
-      this->jointCommands.kd_position[i] = _msg->kd_position[i];
-      this->jointCommands.kp_velocity[i] = _msg->kp_velocity[i];
-      this->jointCommands.i_effort_min[i] = _msg->i_effort_min[i];
-      this->jointCommands.i_effort_max[i] = _msg->i_effort_max[i];
-    }
-  }
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  this->jointCommands.header.stamp = _msg->header.stamp;
+
+  if (_msg->position.size() == this->jointCommands.position.size())
+    std::copy(_msg->position.begin(), _msg->position.end(),
+      this->jointCommands.position.begin());
   else
-  {
-    ROS_DEBUG("joint commands message contains different number of joints"
-              " than expected");
-  }
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements position[%ld] than expected[%ld]",
+      _msg->position.size(), this->jointCommands.position.size());
+
+  if (_msg->velocity.size() == this->jointCommands.velocity.size())
+    std::copy(_msg->velocity.begin(), _msg->velocity.end(),
+      this->jointCommands.velocity.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements velocity[%ld] than expected[%ld]",
+      _msg->velocity.size(), this->jointCommands.velocity.size());
+
+  if (_msg->effort.size() == this->jointCommands.effort.size())
+    std::copy(_msg->effort.begin(), _msg->effort.end(),
+      this->jointCommands.effort.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements effort[%ld] than expected[%ld]",
+      _msg->effort.size(), this->jointCommands.effort.size());
+
+  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+      this->jointCommands.kp_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_position[%ld] than expected[%ld]",
+      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+
+  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+      this->jointCommands.ki_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements ki_position[%ld] than expected[%ld]",
+      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+
+  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+      this->jointCommands.kd_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kd_position[%ld] than expected[%ld]",
+      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+
+  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+      this->jointCommands.kp_velocity.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_velocity[%ld] than expected[%ld]",
+      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+
+  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+      this->jointCommands.i_effort_min.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_min[%ld] than expected[%ld]",
+      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+
+  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+      this->jointCommands.i_effort_max.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_max[%ld] than expected[%ld]",
+      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Load the controller
 void AtlasPlugin::DeferredLoad()
 {
   // initialize ros
@@ -280,18 +320,47 @@ void AtlasPlugin::DeferredLoad()
     this->jointCommands.i_effort_max[joint] =  i_clamp_val;
   }
 
+  // Get window size from ros parameter server (seconds)
+  if (!this->rosNode->getParam(
+    "atlas_controller/statistics_time_window_size",
+    this->jointCommandsAgeBufferDuration))
+  {
+    this->jointCommandsAgeBufferDuration = 1.0;
+    ROS_INFO("controller statistics window size not specified in"
+             " ros parameter server, defaulting to %f sec.",
+             this->jointCommandsAgeBufferDuration);
+  }
+  double stepSize = this->world->GetPhysicsEngine()->GetStepTime();
+  if (math::equal(stepSize, 0.0))
+  {
+    stepSize = 0.001;
+    ROS_WARN("simulation step size is zero, something is wrong,"
+              "  Defaulting to step size of %f sec.", stepSize);
+  }
+  // document this from
+  // http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+  // Online algorithm
+  // where Delta2 buffer contains delta*(x - mean) line from code block
+  unsigned int bufferSize = this->jointCommandsAgeBufferDuration / stepSize;
+  this->jointCommandsAgeBuffer.resize(bufferSize);
+  this->jointCommandsAgeDelta2Buffer.resize(bufferSize);
+  this->jointCommandsAgeBufferIndex = 0;
+  this->jointCommandsAgeMean = 0.0;
+  this->jointCommandsAgeVariance = 0.0;
+
   // ROS Controller API
   /// brief broadcasts the robot states
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-    "atlas/joint_states", 10);
+    "atlas/joint_states", 1);
 
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
 
   // ros publication / subscription
-  this->pubStatus =
-    this->rosNode->advertise<std_msgs::String>("atlas/status", 10);
+  this->pubControllerStatistics =
+    this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
+    "atlas/controller_statistics", 10);
 
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
@@ -304,9 +373,18 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions jointCommandsSo =
     ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    "atlas/joint_commands", 100,
+    "atlas/joint_commands", 1,
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
+
+  // Because TCP causes bursty communication with high jitter,
+  // declare a preference on UDP connections for receiving
+  // joint commands, which we want to get at a high rate.
+  // Note that we'll still accept TCP connections for this topic
+  // (e.g., from rospy nodes, which don't support UDP);
+  // we just prefer UDP.
+  jointCommandsSo.transport_hints = ros::TransportHints().unreliable();
+
   this->subJointCommands=
     this->rosNode->subscribe(jointCommandsSo);
 
@@ -315,7 +393,7 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
 
   // initialize status pub time
-  this->lastStatusTime = this->world->GetSimTime().Double();
+  this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
   this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
@@ -336,21 +414,6 @@ void AtlasPlugin::DeferredLoad()
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
-  /// @todo:  robot internals
-  /// self diagnostics, damages, etc.
-
-  if (this->pubStatus.getNumSubscribers() > 0)
-  {
-    double cur_time = this->world->GetSimTime().Double();
-
-    if (cur_time - this->lastStatusTime >= 1.0/this->updateRate)
-    {
-      this->lastStatusTime = cur_time;
-      std_msgs::String msg;
-      msg.data = "ok";
-      this->pubStatus.publish(msg);
-    }
-  }
 
   if (curTime > this->lastControllerUpdateTime)
   {
@@ -469,40 +532,102 @@ void AtlasPlugin::UpdateStates()
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
-    /// update pid with feedforward force
-    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      double q_p =
-         this->jointCommands.position[i] - this->jointStates.position[i];
+      boost::mutex::scoped_lock lock(this->mutex);
+      {
+        // Keep track of age of jointCommands age in seconds.
+        // Note the value is invalid as a moving window average age
+        // until the buffer is full.
+        this->jointCommandsAge = curTime.Double() -
+          this->jointCommands.header.stamp.toSec();
 
-      if (!math::equal(dt, 0.0))
-        this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
+        double weightedJointCommandsAge = this->jointCommandsAge
+          / this->jointCommandsAgeBuffer.size();
 
-      this->errorTerms[i].q_p = q_p;
+        // for variance calculation, save delta before average is updated.
+        double delta = this->jointCommandsAge - this->jointCommandsAgeMean;
 
-      this->errorTerms[i].qd_p =
-         this->jointCommands.velocity[i] - this->jointStates.velocity[i];
+        // update average
+        this->jointCommandsAgeMean += weightedJointCommandsAge;
+        this->jointCommandsAgeMean -=
+          this->jointCommandsAgeBuffer[this->jointCommandsAgeBufferIndex];
 
-      this->errorTerms[i].q_i = math::clamp(
-        this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-        static_cast<double>(this->jointCommands.i_effort_min[i]),
-        static_cast<double>(this->jointCommands.i_effort_max[i]));
+        // update variance with new average
+        double delta2 = delta *
+          (this->jointCommandsAge - this->jointCommandsAgeMean);
+        this->jointCommandsAgeVariance += delta2;
+        this->jointCommandsAgeVariance -= 
+          this->jointCommandsAgeDelta2Buffer[
+          this->jointCommandsAgeBufferIndex];
 
-      // use gain params to compute force cmd
-      double force = this->jointCommands.kp_position[i] *
-                     this->errorTerms[i].q_p +
-                     this->jointCommands.kp_velocity[i] *
-                     this->errorTerms[i].qd_p +
-                     this->jointCommands.ki_position[i] *
-                     this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] *
-                     this->errorTerms[i].d_q_p_dt +
-                     this->jointCommands.effort[i];
+        // save weighted average in window
+        this->jointCommandsAgeBuffer[this->jointCommandsAgeBufferIndex] =
+          weightedJointCommandsAge;
 
-      this->joints[i]->SetForce(0, force);
+        // save delta buffer for incremental variance calculation
+        this->jointCommandsAgeDelta2Buffer[
+          this->jointCommandsAgeBufferIndex] = delta2;
+
+        this->jointCommandsAgeBufferIndex =
+         (this->jointCommandsAgeBufferIndex + 1) %
+         this->jointCommandsAgeBuffer.size();
+      }
+
+      /// update pid with feedforward force
+      for (unsigned int i = 0; i < this->joints.size(); ++i)
+      {
+        double q_p =
+           this->jointCommands.position[i] - this->jointStates.position[i];
+
+        if (!math::equal(dt, 0.0))
+          this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
+
+        this->errorTerms[i].q_p = q_p;
+
+        this->errorTerms[i].qd_p =
+           this->jointCommands.velocity[i] - this->jointStates.velocity[i];
+
+        this->errorTerms[i].q_i = math::clamp(
+          this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
+
+        // use gain params to compute force cmd
+        double force = this->jointCommands.kp_position[i] *
+                       this->errorTerms[i].q_p +
+                       this->jointCommands.kp_velocity[i] *
+                       this->errorTerms[i].qd_p +
+                       this->jointCommands.ki_position[i] *
+                       this->errorTerms[i].q_i +
+                       this->jointCommands.kd_position[i] *
+                       this->errorTerms[i].d_q_p_dt +
+                       this->jointCommands.effort[i];
+
+        this->joints[i]->SetForce(0, force);
+      }
     }
     this->lastControllerUpdateTime = curTime;
+
+    /// controller statistics diagnostics, damages, etc.
+    if (this->pubControllerStatistics.getNumSubscribers() > 0)
+    {
+      if ((curTime - this->lastControllerStatisticsTime).Double() >=
+        1.0/this->updateRate)
+      {
+        atlas_msgs::ControllerStatistics msg;
+        msg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+        msg.command_age = this->jointCommandsAge;
+        msg.command_age_mean = this->jointCommandsAgeMean;
+        msg.command_age_variance = this->jointCommandsAgeVariance /
+          (this->jointCommandsAgeBuffer.size() - 1);
+        msg.command_age_window_size = this->jointCommandsAgeBufferDuration;
+
+        this->pubControllerStatistics.publish(msg);
+        this->lastControllerStatisticsTime = curTime;
+      }
+    }
   }
+
 }
 
 void AtlasPlugin::OnLContactUpdate()
@@ -631,3 +756,4 @@ void AtlasPlugin::RosQueueThread()
   }
 }
 }
+
