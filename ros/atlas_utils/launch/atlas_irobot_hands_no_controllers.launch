@@ -11,7 +11,7 @@
   <param name="robot_description" textfile="$(find atlas_irobot_hands)/atlas_irobot_hands.urdf"/>
 
   <!-- static transform publisher -->
-  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0 0.05991527603 0 -0.01415 pelvis imu_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0.05991527603 0 -0.01415 0 0 0 pelvis imu_link 100" />
   <node pkg="tf" type="static_transform_publisher" name="left_base_link_broadcaster" args="0 0.05 0 1.57079 0 3.14159 l_hand left_base_link 100" />
   <node pkg="tf" type="static_transform_publisher" name="right_base_link_broadcaster" args="0 -0.05 0 1.57079 0 0 r_hand right_base_link 100" />
 

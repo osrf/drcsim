@@ -11,7 +11,7 @@
   <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
   
   <!-- static transform publisher -->
-  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0 0.05991527603 0 -0.01415 pelvis imu_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0.05991527603 0 -0.01415 0 0 0 pelvis imu_link 100" />
 
 </launch>
   
