@@ -383,10 +383,6 @@ namespace gazebo
 
           this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
             "/i_clamp", this->jc.i_effort_max[i]);
-            
-          // turn off integral and derivative gains
-          this->jc.ki_position[i] *= 0.0;
-          this->jc.kd_position[i] *= 0.0;
 
           this->jc.velocity[i]     = 0;
           this->jc.effort[i]       = 0;
@@ -426,29 +422,29 @@ namespace gazebo
         this->jc.position[1]  =   0.00;
         this->jc.position[2]  =   0.00;
         this->jc.position[3]  =   0.00;
-        this->jc.position[4]  =   0.00;
+        this->jc.position[4]  =   0.45;
         this->jc.position[5]  =   0.00;
-        this->jc.position[6]  =  -1.70;
-        this->jc.position[7]  =   1.80;
+        this->jc.position[6]  =  -1.60;
+        this->jc.position[7]  =   1.60;
         this->jc.position[8]  =  -0.10;
         this->jc.position[9]  =   0.00;
-        this->jc.position[10] =   0.00;
+        this->jc.position[10] =  -0.45;
         this->jc.position[11] =   0.00;
-        this->jc.position[12] =  -1.70;
-        this->jc.position[13] =   1.80;
+        this->jc.position[12] =  -1.60;
+        this->jc.position[13] =   1.60;
         this->jc.position[14] =  -0.10;
         this->jc.position[15] =   0.00;
-        this->jc.position[16] =  -1.60;
-        this->jc.position[17] =  -1.60;
-        this->jc.position[18] =   0.00;
-        this->jc.position[19] =   0.00;
-        this->jc.position[20] =   0.00;
+        this->jc.position[16] =   0.00;
+        this->jc.position[17] =   0.00;
+        this->jc.position[18] =   1.50;
+        this->jc.position[19] =   1.50;
+        this->jc.position[20] =  -3.00;
         this->jc.position[21] =   0.00;
-        this->jc.position[22] =  -1.60;
-        this->jc.position[23] =   1.60;
-        this->jc.position[24] =   0.00;
-        this->jc.position[25] =   0.00;
-        this->jc.position[26] =   0.00;
+        this->jc.position[22] =   0.00;
+        this->jc.position[23] =   0.00;
+        this->jc.position[24] =   1.50;
+        this->jc.position[25] =  -1.50;
+        this->jc.position[26] =  -3.00;
         this->jc.position[27] =   0.00;
 
         // set joint positions

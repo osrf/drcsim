@@ -315,7 +315,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+  // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+  this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 2.02),
                                               math::Quaternion());
 
   // set robot configuration
@@ -342,7 +343,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   usleep(1000000);
   ROS_INFO("set configuration done");
 
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
+  // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
+  this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 1.26),
                                               math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
