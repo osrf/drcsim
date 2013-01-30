@@ -206,72 +206,72 @@ void AtlasPlugin::SetJointCommands(
   this->jointCommands.header.stamp = _msg->header.stamp;
 
   if (_msg->position.size() == this->jointCommands.position.size())
-    memcpy(&this->jointCommands.position,
-           &_msg->position, sizeof(_msg->position));
+    std::copy(_msg->position.begin(), _msg->position.end(),
+      this->jointCommands.position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements position[%ld] than expected[%ld]",
       _msg->position.size(), this->jointCommands.position.size());
 
   if (_msg->velocity.size() == this->jointCommands.velocity.size())
-    memcpy(&this->jointCommands.velocity,
-           &_msg->velocity, sizeof(_msg->velocity));
+    std::copy(_msg->velocity.begin(), _msg->velocity.begin(),
+      this->jointCommands.velocity.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
       _msg->velocity.size(), this->jointCommands.velocity.size());
 
   if (_msg->effort.size() == this->jointCommands.effort.size())
-    memcpy(&this->jointCommands.effort,
-           &_msg->effort, sizeof(_msg->effort));
+    std::copy(_msg->effort.begin(), _msg->effort.begin(),
+      this->jointCommands.effort.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements effort[%ld] than expected[%ld]",
       _msg->effort.size(), this->jointCommands.effort.size());
 
   if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
-    memcpy(&this->jointCommands.kp_position,
-           &_msg->kp_position, sizeof(_msg->kp_position));
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.begin(),
+      this->jointCommands.kp_position.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg->kp_position.size(), this->jointCommands.kp_position.size());
 
   if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
-    memcpy(&this->jointCommands.ki_position,
-           &_msg->ki_position, sizeof(_msg->ki_position));
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.begin(),
+      this->jointCommands.ki_position.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg->ki_position.size(), this->jointCommands.ki_position.size());
 
   if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
-    memcpy(&this->jointCommands.kd_position,
-           &_msg->kd_position, sizeof(_msg->kd_position));
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.begin(),
+      this->jointCommands.kd_position.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg->kd_position.size(), this->jointCommands.kd_position.size());
 
   if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
-    memcpy(&this->jointCommands.kp_velocity,
-           &_msg->kp_velocity, sizeof(_msg->kp_velocity));
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.begin(),
+      this->jointCommands.kp_velocity.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
 
   if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
-    memcpy(&this->jointCommands.i_effort_min,
-           &_msg->i_effort_min, sizeof(_msg->i_effort_min));
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.begin(),
+      this->jointCommands.i_effort_min.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
       _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
 
   if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-    memcpy(&this->jointCommands.i_effort_max,
-           &_msg->i_effort_max, sizeof(_msg->i_effort_max));
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.begin(),
+      this->jointCommands.i_effort_max.end());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
@@ -377,7 +377,12 @@ void AtlasPlugin::DeferredLoad()
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
 
-  // important, tcp introduces significant lag, using udp blaster
+  // Because TCP causes bursty communication with high jitter,
+  // declare a preference on UDP connections for receiving
+  // joint commands, which we want to get at a high rate.
+  // Note that we'll still accept TCP connections for this topic
+  // (e.g., from rospy nodes, which don't support UDP);
+  // we just prefer UDP.
   jointCommandsSo.transport_hints = ros::TransportHints().unreliable();
 
   this->subJointCommands=

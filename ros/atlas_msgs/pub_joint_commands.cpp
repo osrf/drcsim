@@ -30,23 +30,11 @@
 #include <time.h>  // for timespec
 
 
-ros::CallbackQueue ros_queue_;
 ros::Publisher pub_joint_commands_;
 ros::Time last_ros_time_;
 ros::Time last_header_time_;
 gazebo::common::Time last_wall_time_;
 ros::NodeHandle* rosnode;
-
-void queue_thread_()
-{
-  static const double timeout = 0.0005;
-
-  while (rosnode->ok())
-  {
-    ros_queue_.callAvailable(ros::WallDuration(timeout));
-    usleep(100);
-  }
-}
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
@@ -137,8 +125,6 @@ int main(int argc, char** argv)
 
   rosnode = new ros::NodeHandle();
 
-  boost::thread callbackQueeuThread = boost::thread(queue_thread_);
-
   bool wait = true;
   while (wait)
   {
@@ -151,9 +137,14 @@ int main(int argc, char** argv)
   ros::SubscribeOptions jointStatesSo =
     ros::SubscribeOptions::create<sensor_msgs::JointState>(
     "/atlas/joint_states", 1, SetJointStates,
-    ros::VoidPtr(), &ros_queue_);
+    ros::VoidPtr(), rosnode->getCallbackQueue());
 
-  // Import:  publish over udp, tcp incurrs heavy delays
+  // Because TCP causes bursty communication with high jitter,
+  // declare a preference on UDP connections for receiving
+  // joint states, which we want to get at a high rate.
+  // Note that we'll still accept TCP connections for this topic
+  // (e.g., from rospy nodes, which don't support UDP);
+  // we just prefer UDP.
   jointStatesSo.transport_hints = ros::TransportHints().unreliable();
 
   ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
