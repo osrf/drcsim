@@ -30,9 +30,7 @@
 #include <std_msgs/String.h>
 #include <sensor_msgs/JointState.h>
 
-#include <control_msgs/FollowJointTrajectoryAction.h>
-#include <control_msgs/JointTolerance.h>
-#include <actionlib/client/simple_action_client.h>
+#include <osrf_msgs/JointCommands.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -44,8 +42,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 
-typedef actionlib::SimpleActionClient<
-  control_msgs::FollowJointTrajectoryAction > TrajClient;
 namespace gazebo
 {
   class VRCPlugin : public WorldPlugin
@@ -307,273 +303,154 @@ namespace gazebo
     //   Joint Trajectory Controller                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    private: class JointTrajectory
+    private: class JointCommandsController
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      public: JointTrajectory()
+      public: JointCommandsController()
       {
-        // tell the action client that we want to spin a thread by default
-        this->clientTraj = new TrajClient(
-          "/atlas_controller/follow_joint_trajectory", true);
-      }
+        jc.name.push_back("atlas::back_lbz");
+        jc.name.push_back("atlas::back_mby");
+        jc.name.push_back("atlas::back_ubx");
+        jc.name.push_back("atlas::neck_ay");
+        jc.name.push_back("atlas::l_leg_uhz");
+        jc.name.push_back("atlas::l_leg_mhx");
+        jc.name.push_back("atlas::l_leg_lhy");
+        jc.name.push_back("atlas::l_leg_kny");
+        jc.name.push_back("atlas::l_leg_uay");
+        jc.name.push_back("atlas::l_leg_lax");
+        jc.name.push_back("atlas::r_leg_lax");
+        jc.name.push_back("atlas::r_leg_uay");
+        jc.name.push_back("atlas::r_leg_kny");
+        jc.name.push_back("atlas::r_leg_lhy");
+        jc.name.push_back("atlas::r_leg_mhx");
+        jc.name.push_back("atlas::r_leg_uhz");
+        jc.name.push_back("atlas::l_arm_elx");
+        jc.name.push_back("atlas::l_arm_ely");
+        jc.name.push_back("atlas::l_arm_mwx");
+        jc.name.push_back("atlas::l_arm_shx");
+        jc.name.push_back("atlas::l_arm_usy");
+        jc.name.push_back("atlas::l_arm_uwy");
+        jc.name.push_back("atlas::r_arm_elx");
+        jc.name.push_back("atlas::r_arm_ely");
+        jc.name.push_back("atlas::r_arm_mwx");
+        jc.name.push_back("atlas::r_arm_shx");
+        jc.name.push_back("atlas::r_arm_usy");
+        jc.name.push_back("atlas::r_arm_uwy");
 
-      /// \brief Destructor, clean up the action client
-      public: ~JointTrajectory()
-      {
-        delete this->clientTraj;
-      }
+        unsigned int n = jc.name.size();
+        jc.position.resize(n);
+        jc.velocity.resize(n);
+        jc.effort.resize(n);
+        jc.kp_position.resize(n);
+        jc.ki_position.resize(n);
+        jc.kd_position.resize(n);
+        jc.kp_velocity.resize(n);
+        jc.i_effort_min.resize(n);
+        jc.i_effort_max.resize(n);
 
-      /// \brief Sends the command to start a given trajectory
-      public: void sendTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
-      {
-        // When to start the trajectory: 1s from now
-        _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
-
-        this->clientTraj->sendGoal(_goal);
-      }
-
-      /// \brief Generates a simple trajectory
-      /// Note that this trajectory contains two waypoints, joined together
-      /// as a single trajectory. Alternatively, each of these waypoints could
-      /// be in its own trajectory - a trajectory can have one or more waypoints
-      /// depending on the desired application.
-      public: control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
-      {
-        // goal variable
-        control_msgs::FollowJointTrajectoryGoal goal;
-
-        // First, the joint names, which apply to all waypoints
-        goal.trajectory.joint_names.push_back("l_leg_uhz");
-        goal.trajectory.joint_names.push_back("l_leg_mhx");
-        goal.trajectory.joint_names.push_back("l_leg_lhy");
-        goal.trajectory.joint_names.push_back("l_leg_kny");
-        goal.trajectory.joint_names.push_back("l_leg_uay");
-        goal.trajectory.joint_names.push_back("l_leg_lax");
-
-        goal.trajectory.joint_names.push_back("r_leg_uhz");
-        goal.trajectory.joint_names.push_back("r_leg_mhx");
-        goal.trajectory.joint_names.push_back("r_leg_lhy");
-        goal.trajectory.joint_names.push_back("r_leg_kny");
-        goal.trajectory.joint_names.push_back("r_leg_uay");
-        goal.trajectory.joint_names.push_back("r_leg_lax");
-
-        goal.trajectory.joint_names.push_back("l_arm_usy");
-        goal.trajectory.joint_names.push_back("l_arm_shx");
-        goal.trajectory.joint_names.push_back("l_arm_ely");
-        goal.trajectory.joint_names.push_back("l_arm_elx");
-        goal.trajectory.joint_names.push_back("l_arm_uwy");
-        goal.trajectory.joint_names.push_back("l_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("r_arm_usy");
-        goal.trajectory.joint_names.push_back("r_arm_shx");
-        goal.trajectory.joint_names.push_back("r_arm_ely");
-        goal.trajectory.joint_names.push_back("r_arm_elx");
-        goal.trajectory.joint_names.push_back("r_arm_uwy");
-        goal.trajectory.joint_names.push_back("r_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("neck_ay");
-        goal.trajectory.joint_names.push_back("back_lbz");
-        goal.trajectory.joint_names.push_back("back_mby");
-        goal.trajectory.joint_names.push_back("back_ubx");
-
-        // We will have two waypoints in this goal trajectory
-        goal.trajectory.points.resize(1);
-
-        // First trajectory point
-        // Positions
-        int ind = 0;
-        goal.trajectory.points[ind].positions.resize(28);
-        goal.trajectory.points[ind].positions[0]  =   0.00;
-        goal.trajectory.points[ind].positions[1]  =   0.00;
-        goal.trajectory.points[ind].positions[2]  =  -1.70;
-        goal.trajectory.points[ind].positions[3]  =   1.80;
-        goal.trajectory.points[ind].positions[4]  =  -0.10;
-        goal.trajectory.points[ind].positions[5]  =   0.00;
-
-        goal.trajectory.points[ind].positions[6]  =   0.00;
-        goal.trajectory.points[ind].positions[7]  =   0.00;
-        goal.trajectory.points[ind].positions[8]  =  -1.70;
-        goal.trajectory.points[ind].positions[9]  =   1.80;
-        goal.trajectory.points[ind].positions[10] =  -0.10;
-        goal.trajectory.points[ind].positions[11] =   0.00;
-
-        goal.trajectory.points[ind].positions[12] =  -1.60;
-        goal.trajectory.points[ind].positions[13] =  -1.60;
-        goal.trajectory.points[ind].positions[14] =   0.00;
-        goal.trajectory.points[ind].positions[15] =   0.00;
-        goal.trajectory.points[ind].positions[16] =   0.00;
-        goal.trajectory.points[ind].positions[17] =   0.00;
-
-        goal.trajectory.points[ind].positions[18] =  -1.60;
-        goal.trajectory.points[ind].positions[19] =   1.60;
-        goal.trajectory.points[ind].positions[20] =   0.00;
-        goal.trajectory.points[ind].positions[21] =   0.00;
-        goal.trajectory.points[ind].positions[22] =   0.00;
-        goal.trajectory.points[ind].positions[23] =   0.00;
-
-        goal.trajectory.points[ind].positions[24] =   0.00;
-        goal.trajectory.points[ind].positions[25] =   0.00;
-        goal.trajectory.points[ind].positions[26] =   0.00;
-        goal.trajectory.points[ind].positions[27] =   0.00;
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
+        for (unsigned int i = 0; i < n; i++)
         {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
+          std::vector<std::string> pieces;
+          boost::split(pieces, jc.name[i], boost::is_any_of(":"));
+
+          rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/p",
+            jc.kp_position[i]);
+
+          rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i",
+            jc.ki_position[i]);
+
+          rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/d",
+            jc.kd_position[i]);
+
+          rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
+            jc.i_effort_min[i]);
+          jc.i_effort_min[i] = -jc.i_effort_min[i];
+
+          rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
+            jc.i_effort_max[i]);
+            
+          // turn off integral and derivative gains
+          jc.ki_position[i] *= 0.0;
+          jc.kd_position[i] *= 0.0;
+
+          jc.velocity[i]     = 0;
+          jc.effort[i]       = 0;
+          jc.kp_velocity[i]  = 0;
         }
-        // To be reached 1 second after starting along the trajectory
-        goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
-
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
-        {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
-        }
-
-        // tolerances
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 1000;
-          jt.velocity = 1000;
-          jt.acceleration = 1000;
-          goal.goal_tolerance.push_back(jt);
-        }
-
-        goal.goal_time_tolerance.sec = 10;
-        goal.goal_time_tolerance.nsec = 0;
-
-        // we are done; return the goal
-        return goal;
       }
 
-      /// \brief Generates a simple trajectory for standing configuration.
-      public: control_msgs::FollowJointTrajectoryGoal standingConfiguration()
+      /// \brief Destructor
+      public: ~JointCommandsController()
       {
-        // goal variable
-        control_msgs::FollowJointTrajectoryGoal goal;
+      }
 
-        // First, the joint names, which apply to all waypoints
-        goal.trajectory.joint_names.push_back("l_leg_uhz");
-        goal.trajectory.joint_names.push_back("l_leg_mhx");
-        goal.trajectory.joint_names.push_back("l_leg_lhy");
-        goal.trajectory.joint_names.push_back("l_leg_kny");
-        goal.trajectory.joint_names.push_back("l_leg_uay");
-        goal.trajectory.joint_names.push_back("l_leg_lax");
-
-        goal.trajectory.joint_names.push_back("r_leg_uhz");
-        goal.trajectory.joint_names.push_back("r_leg_mhx");
-        goal.trajectory.joint_names.push_back("r_leg_lhy");
-        goal.trajectory.joint_names.push_back("r_leg_kny");
-        goal.trajectory.joint_names.push_back("r_leg_uay");
-        goal.trajectory.joint_names.push_back("r_leg_lax");
-
-        goal.trajectory.joint_names.push_back("l_arm_usy");
-        goal.trajectory.joint_names.push_back("l_arm_shx");
-        goal.trajectory.joint_names.push_back("l_arm_ely");
-        goal.trajectory.joint_names.push_back("l_arm_elx");
-        goal.trajectory.joint_names.push_back("l_arm_uwy");
-        goal.trajectory.joint_names.push_back("l_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("r_arm_usy");
-        goal.trajectory.joint_names.push_back("r_arm_shx");
-        goal.trajectory.joint_names.push_back("r_arm_ely");
-        goal.trajectory.joint_names.push_back("r_arm_elx");
-        goal.trajectory.joint_names.push_back("r_arm_uwy");
-        goal.trajectory.joint_names.push_back("r_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("neck_ay");
-        goal.trajectory.joint_names.push_back("back_lbz");
-        goal.trajectory.joint_names.push_back("back_mby");
-        goal.trajectory.joint_names.push_back("back_ubx");
-
-        // We will have two waypoints in this goal trajectory
-        goal.trajectory.points.resize(1);
-
-        // First trajectory point
-        // Positions
-        int ind = 0;
-        goal.trajectory.points[ind].positions.resize(28);
+      {
+        // seated configuration
         goal.trajectory.points[ind].positions[0]  =   0.00;
         goal.trajectory.points[ind].positions[1]  =   0.00;
         goal.trajectory.points[ind].positions[2]  =   0.00;
         goal.trajectory.points[ind].positions[3]  =   0.00;
         goal.trajectory.points[ind].positions[4]  =   0.00;
         goal.trajectory.points[ind].positions[5]  =   0.00;
+        goal.trajectory.points[ind].positions[6]  =  -1.70;
+        goal.trajectory.points[ind].positions[7]  =   1.80;
+        goal.trajectory.points[ind].positions[8]  =  -0.10;
+        goal.trajectory.points[ind].positions[9]  =   0.00;
+        goal.trajectory.points[ind].positions[10] =   0.00;
+        goal.trajectory.points[ind].positions[11] =   0.00;
+        goal.trajectory.points[ind].positions[12] =  -1.70;
+        goal.trajectory.points[ind].positions[13] =   1.80;
+        goal.trajectory.points[ind].positions[14] =  -0.10;
+        goal.trajectory.points[ind].positions[15] =   0.00;
+        goal.trajectory.points[ind].positions[16] =  -1.60;
+        goal.trajectory.points[ind].positions[17] =  -1.60;
+        goal.trajectory.points[ind].positions[18] =   0.00;
+        goal.trajectory.points[ind].positions[19] =   0.00;
+        goal.trajectory.points[ind].positions[20] =   0.00;
+        goal.trajectory.points[ind].positions[21] =   0.00;
+        goal.trajectory.points[ind].positions[22] =  -1.60;
+        goal.trajectory.points[ind].positions[23] =   1.60;
+        goal.trajectory.points[ind].positions[24] =   0.00;
+        goal.trajectory.points[ind].positions[25] =   0.00;
+        goal.trajectory.points[ind].positions[26] =   0.00;
+        goal.trajectory.points[ind].positions[27] =   0.00;
+      }
 
+      {
+        // standing configuration
+        goal.trajectory.points[ind].positions[0]  =   0.00;
+        goal.trajectory.points[ind].positions[1]  =   0.00;
+        goal.trajectory.points[ind].positions[2]  =   0.00;
+        goal.trajectory.points[ind].positions[3]  =   0.00;
+        goal.trajectory.points[ind].positions[4]  =   0.00;
+        goal.trajectory.points[ind].positions[5]  =   0.00;
         goal.trajectory.points[ind].positions[6]  =   0.00;
         goal.trajectory.points[ind].positions[7]  =   0.00;
         goal.trajectory.points[ind].positions[8]  =   0.00;
         goal.trajectory.points[ind].positions[9]  =   0.00;
         goal.trajectory.points[ind].positions[10] =   0.00;
         goal.trajectory.points[ind].positions[11] =   0.00;
-
         goal.trajectory.points[ind].positions[12] =   0.00;
-        goal.trajectory.points[ind].positions[13] =  -1.60;
+        goal.trajectory.points[ind].positions[13] =   0.00;
         goal.trajectory.points[ind].positions[14] =   0.00;
         goal.trajectory.points[ind].positions[15] =   0.00;
         goal.trajectory.points[ind].positions[16] =   0.00;
-        goal.trajectory.points[ind].positions[17] =   0.00;
-
+        goal.trajectory.points[ind].positions[17] =  -1.60;
         goal.trajectory.points[ind].positions[18] =   0.00;
-        goal.trajectory.points[ind].positions[19] =   1.60;
+        goal.trajectory.points[ind].positions[19] =   0.00;
         goal.trajectory.points[ind].positions[20] =   0.00;
         goal.trajectory.points[ind].positions[21] =   0.00;
         goal.trajectory.points[ind].positions[22] =   0.00;
-        goal.trajectory.points[ind].positions[23] =   0.00;
-
+        goal.trajectory.points[ind].positions[23] =   1.60;
         goal.trajectory.points[ind].positions[24] =   0.00;
         goal.trajectory.points[ind].positions[25] =   0.00;
         goal.trajectory.points[ind].positions[26] =   0.00;
         goal.trajectory.points[ind].positions[27] =   0.00;
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
-        {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
-        }
-        // To be reached 1 second after starting along the trajectory
-        goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
-
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
-        {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
-        }
-
-        // tolerances
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 1000;
-          jt.velocity = 1000;
-          jt.acceleration = 1000;
-          goal.goal_tolerance.push_back(jt);
-        }
-
-        goal.goal_time_tolerance.sec = 10;
-        goal.goal_time_tolerance.nsec = 0;
-
-        // we are done; return the goal
-        return goal;
       }
 
-      /// \brief Get state of the simple action client
-      /// \return the current state of the action
-      public: actionlib::SimpleClientGoalState getState()
-      {
-        return this->clientTraj->getState();
-      }
-
-      // Action client for the joint trajectory action
-      // used to trigger the arm movement action
-      public: TrajClient* clientTraj;
-    } jointTrajectoryController;
+      public: osrf_msgs::JointCommands jc;
+    } jointCommandsController;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //

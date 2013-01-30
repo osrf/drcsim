@@ -334,51 +334,19 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
-/*
-  std::map<std::string, double> jointPositions;
-  jointPositions["atlas::back_lbz" ] =  0.00;
-  jointPositions["atlas::back_mby" ] =  0.00;
-  jointPositions["atlas::back_ubx" ] =  0.00;
-  jointPositions["atlas::neck_ay"  ] =  0.00;
-  jointPositions["atlas::l_leg_uhz"] =  0.00;
-  jointPositions["atlas::l_leg_mhx"] =  0.00;
-  jointPositions["atlas::l_leg_lhy"] = -1.80;
-  jointPositions["atlas::l_leg_kny"] =  1.80;
-  jointPositions["atlas::l_leg_uay"] =  0.00;
-  jointPositions["atlas::l_leg_lax"] =  0.00;
-  jointPositions["atlas::r_leg_uhz"] =  0.00;
-  jointPositions["atlas::r_leg_mhx"] =  0.00;
-  jointPositions["atlas::r_leg_lhy"] = -1.80;
-  jointPositions["atlas::r_leg_kny"] =  1.80;
-  jointPositions["atlas::r_leg_uay"] =  0.00;
-  jointPositions["atlas::r_leg_lax"] =  0.00;
-  jointPositions["atlas::l_arm_elx"] =  0.00;
-  jointPositions["atlas::l_arm_ely"] =  0.00;
-  jointPositions["atlas::l_arm_mwx"] =  0.00;
-  jointPositions["atlas::l_arm_shx"] =  0.00;
-  jointPositions["atlas::l_arm_usy"] = -1.60;
-  jointPositions["atlas::l_arm_uwy"] =  0.00;
-  jointPositions["atlas::r_arm_elx"] =  0.00;
-  jointPositions["atlas::r_arm_ely"] =  0.00;
-  jointPositions["atlas::r_arm_mwx"] =  0.00;
-  jointPositions["atlas::r_arm_shx"] =  0.00;
-  jointPositions["atlas::r_arm_usy"] =  1.60;
-  jointPositions["atlas::r_arm_uwy"] =  0.00;
-  this->atlas.model->SetJointPositions(jointPositions);
-*/
 
   // wait for action server to come up
-  while (!this->jointTrajectoryController.clientTraj->waitForServer(
+  while (!this->jointCommandsController.clientTraj->waitForServer(
     ros::Duration(1.0)))
   {
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
-  this->jointTrajectoryController.sendTrajectory(
-    this->jointTrajectoryController.seatingConfiguration());
+  this->jointCommandsController.sendTrajectory(
+    this->jointCommandsController.seatingConfiguration());
 
   // Wait for trajectory completion
-  while (!jointTrajectoryController.getState().isDone() && ros::ok())
+  while (!jointCommandsController.getState().isDone() && ros::ok())
   {
     ros::spinOnce();
     usleep(50000);
@@ -445,17 +413,17 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        0.0, 0.0);
 
   // wait for action server to come up
-  while (!this->jointTrajectoryController.clientTraj->waitForServer(
+  while (!this->jointCommandsController.clientTraj->waitForServer(
     ros::Duration(1.0)))
   {
     ROS_INFO("Waiting for the joint_trajectory_action server");
   }
 
-  this->jointTrajectoryController.sendTrajectory(
-    this->jointTrajectoryController.standingConfiguration());
+  this->jointCommandsController.sendTrajectory(
+    this->jointCommandsController.standingConfiguration());
 
   // Wait for trajectory completion
-  while (!jointTrajectoryController.getState().isDone() && ros::ok())
+  while (!jointCommandsController.getState().isDone() && ros::ok())
   {
     ros::spinOnce();
     usleep(50000);
