@@ -16,11 +16,11 @@
 */
 
 #include <math.h>
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/Base.hh>
+#include <gazebo/physics/CylinderShape.hh>
+#include <gazebo/physics/SphereShape.hh>
 #include "DRCVehiclePlugin.hh"
-#include "gazebo/common/common.hh"
-#include "gazebo/physics/Base.hh"
-#include "gazebo/physics/CylinderShape.hh"
-#include "gazebo/physics/SphereShape.hh"
 
 namespace gazebo
 {
@@ -350,42 +350,62 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   std::string gasPedalJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("gas_pedal");
   this->gasPedalJoint = this->model->GetJoint(gasPedalJointName);
+  if (!this->gasPedalJoint)
+    gzthrow("could not find gas pedal joint\n");
 
   std::string brakePedalJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("brake_pedal");
   this->brakePedalJoint = this->model->GetJoint(brakePedalJointName);
+  if (!this->brakePedalJoint)
+    gzthrow("could not find brake pedal joint\n");
 
   std::string handWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("steering_wheel");
   this->handWheelJoint = this->model->GetJoint(handWheelJointName);
+  if (!this->handWheelJoint)
+    gzthrow("could not find steering wheel joint\n");
 
   std::string handBrakeJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("hand_brake");
   this->handBrakeJoint = this->model->GetJoint(handBrakeJointName);
+  if (!this->handBrakeJoint)
+    gzthrow("could not find hand brake joint\n");
 
   std::string flWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("front_left_wheel");
   this->flWheelJoint = this->model->GetJoint(flWheelJointName);
+  if (!this->flWheelJoint)
+    gzthrow("could not find front left wheel joint\n");
 
   std::string frWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("front_right_wheel");
   this->frWheelJoint = this->model->GetJoint(frWheelJointName);
+  if (!this->frWheelJoint)
+    gzthrow("could not find front right wheel joint\n");
 
   std::string blWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("back_left_wheel");
   this->blWheelJoint = this->model->GetJoint(blWheelJointName);
+  if (!this->blWheelJoint)
+    gzthrow("could not find back left wheel joint\n");
 
   std::string brWheelJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("back_right_wheel");
   this->brWheelJoint = this->model->GetJoint(brWheelJointName);
+  if (!this->brWheelJoint)
+    gzthrow("could not find back right wheel joint\n");
 
   std::string flWheelSteeringJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("front_left_wheel_steering");
   this->flWheelSteeringJoint = this->model->GetJoint(flWheelSteeringJointName);
+  if (!this->flWheelSteeringJoint)
+    gzthrow("could not find front left steering joint\n");
 
   std::string frWheelSteeringJointName = this->model->GetName() + "::"
     + _sdf->GetValueString("front_right_wheel_steering");
   this->frWheelSteeringJoint = this->model->GetJoint(frWheelSteeringJointName);
+  if (!this->frWheelSteeringJoint)
+    gzthrow("could not find front right steering joint\n");
 
   this->gasPedalHigh  = this->gasPedalJoint->GetHighStop(0).Radian();
   this->gasPedalLow   = this->gasPedalJoint->GetLowStop(0).Radian();
@@ -608,6 +628,8 @@ double DRCVehiclePlugin::Saturate(double _data, double _min, double _max)
 // the function returns zero otherwise
 double DRCVehiclePlugin::get_collision_radius(physics::CollisionPtr _coll)
 {
+  if (!_coll || !(_coll->GetShape()))
+    return 0;
   if (_coll->GetShape()->HasType(gazebo::physics::Base::CYLINDER_SHAPE))
   {
     physics::CylinderShape *cyl =
@@ -626,6 +648,8 @@ double DRCVehiclePlugin::get_collision_radius(physics::CollisionPtr _coll)
 math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
                                                        unsigned int id)
 {
+  if (!_link || !(_link->GetCollision(id)))
+    return math::Vector3::Zero;
   math::Pose pose = _link->GetCollision(id)->GetWorldPose();
   return pose.pos;
 }
