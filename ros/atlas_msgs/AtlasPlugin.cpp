@@ -576,8 +576,13 @@ void AtlasPlugin::UpdateStates()
       /// update pid with feedforward force
       for (unsigned int i = 0; i < this->joints.size(); ++i)
       {
-        double q_p =
-           this->jointCommands.position[i] - this->jointStates.position[i];
+        // truncate joint position within range of motion
+        double positionTarget = math::clamp(
+          this->jointCommands.position[i],
+          this->joints[i]->GetLowStop(0).Radian(),
+          this->joints[i]->GetHighStop(0).Radian());
+
+        double q_p = positionTarget - this->jointStates.position[i];
 
         if (!math::equal(dt, 0.0))
           this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
@@ -587,21 +592,21 @@ void AtlasPlugin::UpdateStates()
         this->errorTerms[i].qd_p =
            this->jointCommands.velocity[i] - this->jointStates.velocity[i];
 
-        this->errorTerms[i].q_i = math::clamp(
-          this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-          static_cast<double>(this->jointCommands.i_effort_min[i]),
-          static_cast<double>(this->jointCommands.i_effort_max[i]));
+        if (!math::equal(this->jointCommands.ki_position[i], 0.0))
+          this->errorTerms[i].q_i = math::clamp(
+            this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
+            static_cast<double>(this->jointCommands.i_effort_min[i]) /
+            this->jointCommands.ki_position[i],
+            static_cast<double>(this->jointCommands.i_effort_max[i]) /
+            this->jointCommands.ki_position[i]);
 
         // use gain params to compute force cmd
-        double force = this->jointCommands.kp_position[i] *
-                       this->errorTerms[i].q_p +
-                       this->jointCommands.kp_velocity[i] *
-                       this->errorTerms[i].qd_p +
-                       this->jointCommands.ki_position[i] *
-                       this->errorTerms[i].q_i +
-                       this->jointCommands.kd_position[i] *
-                       this->errorTerms[i].d_q_p_dt +
-                       this->jointCommands.effort[i];
+        double force =
+          this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
+          this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
+          this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+          this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
+          this->jointCommands.effort[i];
 
         this->joints[i]->SetForce(0, force);
       }

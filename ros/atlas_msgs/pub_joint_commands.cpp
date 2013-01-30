@@ -32,41 +32,18 @@
 
 
 ros::Publisher pub_joint_commands_;
-ros::Time last_ros_time_;
-ros::Time last_header_time_;
-gazebo::common::Time last_wall_time_;
-ros::NodeHandle* rosnode;
 osrf_msgs::JointCommands jc;
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
-  struct timespec tv;
-  gazebo::common::Time wall_time;
-
-  clock_gettime(0, &tv);
-  wall_time = tv;
-  // printf("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]\n",
-  // printf("marker %f, %f, %f, %f, %f %f\n",
-  //   wall_time.Double()*1000.0,
-  //   _js->header.stamp.toSec()*1000.0,
-  //   ros::Time::now().toSec()*1000.0,
-  //   (ros::Time::now() - last_ros_time_).toSec()*1000.0,
-  //   (wall_time - last_wall_time_.Double()*1000.0,
-  //   (_js->header.stamp - last_header_time_).toSec()*1000.0);
-
-  last_header_time_ = _js->header.stamp;
-  last_ros_time_ = ros::Time::now();
-  last_wall_time_ = wall_time;
-
+  static ros::Time startTime = ros::Time::now();
   {
+    // for testing round trip time
+    jc.header.stamp = _js->header.stamp;
 
-    jc.header.stamp = _js->header.stamp;  // for testing round trip time
-    // jc.header.stamp = ros::Time::now();
-
+    // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jc.name.size(); i++)
-    {
-      jc.position[i]     = 0.7* cos(ros::Time::now().toSec());
-    }
+      jc.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
 
     pub_joint_commands_.publish(jc);
   }
@@ -76,8 +53,9 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "pub_joint_command_test");
 
-  rosnode = new ros::NodeHandle();
+  ros::NodeHandle* rosnode = new ros::NodeHandle();
 
+  ros::Time last_ros_time_;
   bool wait = true;
   while (wait)
   {
@@ -148,10 +126,6 @@ int main(int argc, char** argv)
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
       jc.i_effort_max[i]);
       
-    // turn off integral and derivative gains
-    jc.ki_position[i] *= 0.0;
-    jc.kd_position[i] *= 0.0;
-
     jc.velocity[i]     = 0;
     jc.effort[i]       = 0;
     jc.kp_velocity[i]  = 0;
