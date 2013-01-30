@@ -318,6 +318,10 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
                                               math::Quaternion());
 
+  // set robot configuration
+  this->jointCommandsController.SetSeatingConfiguration(this->atlas.model);
+  ros::spinOnce();
+
   this->atlas.model->SetLinkWorldPose(pose +
     this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
     this->atlas.pinLink);
@@ -335,22 +339,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
 
-  // wait for action server to come up
-  while (!this->jointCommandsController.clientTraj->waitForServer(
-    ros::Duration(1.0)))
-  {
-    ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
-
-  this->jointCommandsController.sendTrajectory(
-    this->jointCommandsController.seatingConfiguration());
-
-  // Wait for trajectory completion
-  while (!jointCommandsController.getState().isDone() && ros::ok())
-  {
-    ros::spinOnce();
-    usleep(50000);
-  }
+  usleep(1000000);
   ROS_INFO("set configuration done");
 
   this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
@@ -402,6 +391,10 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
     this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
     this->atlas.pinLink);
 
+  // set robot configuration
+  this->jointCommandsController.SetStandingConfiguration(this->atlas.model);
+  ros::spinOnce();
+
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
                                        this->drcVehicle.model,
@@ -412,22 +405,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
 
-  // wait for action server to come up
-  while (!this->jointCommandsController.clientTraj->waitForServer(
-    ros::Duration(1.0)))
-  {
-    ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
-
-  this->jointCommandsController.sendTrajectory(
-    this->jointCommandsController.standingConfiguration());
-
-  // Wait for trajectory completion
-  while (!jointCommandsController.getState().isDone() && ros::ok())
-  {
-    ros::spinOnce();
-    usleep(50000);
-  }
+  usleep(1000000);
   ROS_INFO("set configuration done");
 
   if (this->vehicleRobotJoint)
@@ -828,9 +806,15 @@ void VRCPlugin::LoadRobotROSAPI()
 
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-  &/* _cmd */)
+  &_cmd)
 {
   // This function is planned but not yet implemented.
   ROS_ERROR("The atlas/configuration handler is not implemented.\n");
+/*
+  for (unsigned int i = 0; i < _cmd->name.size(); ++i)
+  {
+    this->atlas.model->SetJointPositions();
+  }
+*/
 }
 }

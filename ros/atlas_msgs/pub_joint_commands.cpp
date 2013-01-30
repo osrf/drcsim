@@ -86,6 +86,7 @@ int main(int argc, char** argv)
       wait = false;
   }
 
+  // must match those inside AtlasPlugin
   jc.name.push_back("atlas::back_lbz");
   jc.name.push_back("atlas::back_mby");
   jc.name.push_back("atlas::back_ubx");
@@ -96,24 +97,24 @@ int main(int argc, char** argv)
   jc.name.push_back("atlas::l_leg_kny");
   jc.name.push_back("atlas::l_leg_uay");
   jc.name.push_back("atlas::l_leg_lax");
-  jc.name.push_back("atlas::r_leg_lax");
-  jc.name.push_back("atlas::r_leg_uay");
-  jc.name.push_back("atlas::r_leg_kny");
-  jc.name.push_back("atlas::r_leg_lhy");
-  jc.name.push_back("atlas::r_leg_mhx");
   jc.name.push_back("atlas::r_leg_uhz");
-  jc.name.push_back("atlas::l_arm_elx");
-  jc.name.push_back("atlas::l_arm_ely");
-  jc.name.push_back("atlas::l_arm_mwx");
-  jc.name.push_back("atlas::l_arm_shx");
+  jc.name.push_back("atlas::r_leg_mhx");
+  jc.name.push_back("atlas::r_leg_lhy");
+  jc.name.push_back("atlas::r_leg_kny");
+  jc.name.push_back("atlas::r_leg_uay");
+  jc.name.push_back("atlas::r_leg_lax");
   jc.name.push_back("atlas::l_arm_usy");
+  jc.name.push_back("atlas::l_arm_shx");
+  jc.name.push_back("atlas::l_arm_ely");
+  jc.name.push_back("atlas::l_arm_elx");
   jc.name.push_back("atlas::l_arm_uwy");
-  jc.name.push_back("atlas::r_arm_elx");
-  jc.name.push_back("atlas::r_arm_ely");
-  jc.name.push_back("atlas::r_arm_mwx");
-  jc.name.push_back("atlas::r_arm_shx");
+  jc.name.push_back("atlas::l_arm_mwx");
   jc.name.push_back("atlas::r_arm_usy");
+  jc.name.push_back("atlas::r_arm_shx");
+  jc.name.push_back("atlas::r_arm_ely");
+  jc.name.push_back("atlas::r_arm_elx");
   jc.name.push_back("atlas::r_arm_uwy");
+  jc.name.push_back("atlas::r_arm_mwx");
 
   unsigned int n = jc.name.size();
   jc.position.resize(n);
