@@ -320,6 +320,34 @@ void AtlasPlugin::DeferredLoad()
     this->jointCommands.i_effort_max[joint] =  i_clamp_val;
   }
 
+  // Get window size from ros parameter server (seconds)
+  if (!this->rosNode->getParam(
+    "atlas_controller/statistics_time_window_size",
+    this->jointCommandsAgeBufferDuration))
+  {
+    this->jointCommandsAgeBufferDuration = 1.0;
+    ROS_INFO("controller statistics window size not specified in"
+             " ros parameter server, defaulting to %f sec.",
+             this->jointCommandsAgeBufferDuration);
+  }
+  double stepSize = this->world->GetPhysicsEngine()->GetStepTime();
+  if (math::equal(stepSize, 0.0))
+  {
+    stepSize = 0.001;
+    ROS_WARN("simulation step size is zero, something is wrong,"
+              "  Defaulting to step size of %f sec.", stepSize);
+  }
+  // document this from
+  // http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+  // Online algorithm
+  // where Delta2 buffer contains delta*(x - mean) line from code block
+  unsigned int bufferSize = this->jointCommandsAgeBufferDuration / stepSize;
+  this->jointCommandsAgeBuffer.resize(bufferSize);
+  this->jointCommandsAgeDelta2Buffer.resize(bufferSize);
+  this->jointCommandsAgeBufferIndex = 0;
+  this->jointCommandsAgeMean = 0.0;
+  this->jointCommandsAgeVariance = 0.0;
+
   // ROS Controller API
   /// brief broadcasts the robot states
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
@@ -330,8 +358,9 @@ void AtlasPlugin::DeferredLoad()
     "atlas/force_torque_sensors", 10);
 
   // ros publication / subscription
-  this->pubStatus =
-    this->rosNode->advertise<std_msgs::String>("atlas/status", 10);
+  this->pubControllerStatistics =
+    this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
+    "atlas/controller_statistics", 10);
 
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
@@ -364,7 +393,7 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
 
   // initialize status pub time
-  this->lastStatusTime = this->world->GetSimTime().Double();
+  this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
   this->updateRate = 1.0;
 
   // ros callback queue for processing subscription
@@ -385,21 +414,6 @@ void AtlasPlugin::DeferredLoad()
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
-
-  /// @todo:  robot internals
-  /// self diagnostics, damages, etc.
-  if (this->pubStatus.getNumSubscribers() > 0)
-  {
-    double cur_time = this->world->GetSimTime().Double();
-
-    if (cur_time - this->lastStatusTime >= 1.0/this->updateRate)
-    {
-      this->lastStatusTime = cur_time;
-      std_msgs::String msg;
-      msg.data = "ok";
-      this->pubStatus.publish(msg);
-    }
-  }
 
   if (curTime > this->lastControllerUpdateTime)
   {
@@ -520,6 +534,44 @@ void AtlasPlugin::UpdateStates()
 
     {
       boost::mutex::scoped_lock lock(this->mutex);
+      {
+        // Keep track of age of jointCommands age in seconds.
+        // Note the value is invalid as a moving window average age
+        // until the buffer is full.
+        this->jointCommandsAge = curTime.Double() -
+          this->jointCommands.header.stamp.toSec();
+
+        double weightedJointCommandsAge = this->jointCommandsAge
+          / this->jointCommandsAgeBuffer.size();
+
+        // for variance calculation, save delta before average is updated.
+        double delta = this->jointCommandsAge - this->jointCommandsAgeMean;
+
+        // update average
+        this->jointCommandsAgeMean += weightedJointCommandsAge;
+        this->jointCommandsAgeMean -=
+          this->jointCommandsAgeBuffer[this->jointCommandsAgeBufferIndex];
+
+        // update variance with new average
+        double delta2 = delta *
+          (this->jointCommandsAge - this->jointCommandsAgeMean);
+        this->jointCommandsAgeVariance += delta2;
+        this->jointCommandsAgeVariance -= 
+          this->jointCommandsAgeDelta2Buffer[
+          this->jointCommandsAgeBufferIndex];
+
+        // save weighted average in window
+        this->jointCommandsAgeBuffer[this->jointCommandsAgeBufferIndex] =
+          weightedJointCommandsAge;
+
+        // save delta buffer for incremental variance calculation
+        this->jointCommandsAgeDelta2Buffer[
+          this->jointCommandsAgeBufferIndex] = delta2;
+
+        this->jointCommandsAgeBufferIndex =
+         (this->jointCommandsAgeBufferIndex + 1) %
+         this->jointCommandsAgeBuffer.size();
+      }
 
       /// update pid with feedforward force
       for (unsigned int i = 0; i < this->joints.size(); ++i)
@@ -555,7 +607,27 @@ void AtlasPlugin::UpdateStates()
       }
     }
     this->lastControllerUpdateTime = curTime;
+
+    /// controller statistics diagnostics, damages, etc.
+    if (this->pubControllerStatistics.getNumSubscribers() > 0)
+    {
+      if ((curTime - this->lastControllerStatisticsTime).Double() >=
+        1.0/this->updateRate)
+      {
+        atlas_msgs::ControllerStatistics msg;
+        msg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+        msg.command_age = this->jointCommandsAge;
+        msg.command_age_mean = this->jointCommandsAgeMean;
+        msg.command_age_variance = this->jointCommandsAgeVariance /
+          (this->jointCommandsAgeBuffer.size() - 1);
+        msg.command_age_window_size = this->jointCommandsAgeBufferDuration;
+
+        this->pubControllerStatistics.publish(msg);
+        this->lastControllerStatisticsTime = curTime;
+      }
+    }
   }
+
 }
 
 void AtlasPlugin::OnLContactUpdate()
