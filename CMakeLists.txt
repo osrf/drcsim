@@ -56,10 +56,10 @@ set (BIN_INSTALL_DIR "bin" CACHE STRING "Installation directory for binaries (re
 #####################################
 # Set the default build type
 if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE "RELEASE" CACHE STRING 
-    "Choose the type of build, options are: debug release profile check" FORCE)
+  set (CMAKE_BUILD_TYPE "Release" CACHE STRING
+    "Choose the type of build, options are: Debug Release RelWithDebInfo" FORCE)
+  message(STATUS "Build type not selected: Release selected by default")
 endif (NOT CMAKE_BUILD_TYPE)
-string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
 
 # find gazebo
 include (FindPkgConfig)
