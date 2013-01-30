@@ -214,64 +214,64 @@ void AtlasPlugin::SetJointCommands(
       _msg->position.size(), this->jointCommands.position.size());
 
   if (_msg->velocity.size() == this->jointCommands.velocity.size())
-    std::copy(_msg->velocity.begin(), _msg->velocity.begin(),
-      this->jointCommands.velocity.end());
+    std::copy(_msg->velocity.begin(), _msg->velocity.end(),
+      this->jointCommands.velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
       _msg->velocity.size(), this->jointCommands.velocity.size());
 
   if (_msg->effort.size() == this->jointCommands.effort.size())
-    std::copy(_msg->effort.begin(), _msg->effort.begin(),
-      this->jointCommands.effort.end());
+    std::copy(_msg->effort.begin(), _msg->effort.end(),
+      this->jointCommands.effort.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements effort[%ld] than expected[%ld]",
       _msg->effort.size(), this->jointCommands.effort.size());
 
   if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
-    std::copy(_msg->kp_position.begin(), _msg->kp_position.begin(),
-      this->jointCommands.kp_position.end());
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+      this->jointCommands.kp_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg->kp_position.size(), this->jointCommands.kp_position.size());
 
   if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
-    std::copy(_msg->ki_position.begin(), _msg->ki_position.begin(),
-      this->jointCommands.ki_position.end());
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+      this->jointCommands.ki_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg->ki_position.size(), this->jointCommands.ki_position.size());
 
   if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
-    std::copy(_msg->kd_position.begin(), _msg->kd_position.begin(),
-      this->jointCommands.kd_position.end());
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+      this->jointCommands.kd_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg->kd_position.size(), this->jointCommands.kd_position.size());
 
   if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
-    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.begin(),
-      this->jointCommands.kp_velocity.end());
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+      this->jointCommands.kp_velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
 
   if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
-    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.begin(),
-      this->jointCommands.i_effort_min.end());
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+      this->jointCommands.i_effort_min.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
       _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
 
   if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.begin(),
-      this->jointCommands.i_effort_max.end());
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+      this->jointCommands.i_effort_max.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
