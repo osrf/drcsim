@@ -19,6 +19,7 @@
 #include <ros/callback_queue.h>
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
+#include <boost/algorithm/string.hpp>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
 #include <gazebo/common/Time.hh>
@@ -104,15 +105,33 @@ void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 
     for (int i = 0; i < n; i++)
     {
-      jc.position[i]     = ros::Time::now().toSec();
+      std::vector<std::string> pieces;
+      boost::split(pieces, jc.name[i], boost::is_any_of(":"));
+
+      rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/p",
+        jc.kp_position[i]);
+
+      rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i",
+        jc.ki_position[i]);
+
+      rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/d",
+        jc.kd_position[i]);
+
+      rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
+        jc.i_effort_min[i]);
+      jc.i_effort_min[i] = -jc.i_effort_min[i];
+
+      rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
+        jc.i_effort_max[i]);
+      
+      // turn off integral and derivative gains
+      jc.ki_position[i] *= 0.0;
+      jc.kd_position[i] *= 0.0;
+
+      jc.position[i]     = 0.7* cos(ros::Time::now().toSec());
       jc.velocity[i]     = 0;
       jc.effort[i]       = 0;
-      jc.kp_position[i]  = 0;
-      jc.ki_position[i]  = 0;
-      jc.kd_position[i]  = 0;
       jc.kp_velocity[i]  = 0;
-      jc.i_effort_min[i] = 0;
-      jc.i_effort_max[i] = 0;
     }
 
     pub_joint_commands_.publish(jc);
