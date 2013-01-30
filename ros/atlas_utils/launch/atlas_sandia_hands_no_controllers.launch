@@ -18,6 +18,20 @@
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/sandia_hands/r_hand/joint_states" />
   </node>
+
+  <!-- static transform publisher -->
+  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0.05991527603 0 -0.01415 0 0 0 pelvis imu_link 100" />
+
+  <!-- left_f0_base joint
+  <node pkg="tf" type="static_transform_publisher" name="left_palm_broadcaster" args="0 0.1 0 1.57079 0 1.57079 l_hand left_palm 100" />
+  <node pkg="tf" type="static_transform_publisher" name="left_f0_base_broadcaster" args="0.14 0 0 0 0 -0.3 left_palm left_f0_base 100" />
+  -->
+
+  <!-- right_f0_base joint
+  <node pkg="tf" type="static_transform_publisher" name="right_palm_broadcaster" args="0 -0.1 0 -1.57079 0 -1.57079 r_hand right_palm 100" />
+  <node pkg="tf" type="static_transform_publisher" name="right_f0_base_broadcaster" args="0.14 0 0 0 0 0.3 right_palm right_f0_base 100" />
+  -->
+
 </launch>
   
 
