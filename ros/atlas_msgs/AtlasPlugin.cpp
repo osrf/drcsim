@@ -34,6 +34,9 @@ AtlasPlugin::AtlasPlugin()
   this->lFootTorque = 0;
   this->rFootForce = 0;
   this->rFootTorque = 0;
+  // the parent link of the imu_sensor ends up being pelvis after
+  // fixed joint reduction.  Offset of the imu_link is lumped into
+  // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "pelvis";
 }
 
