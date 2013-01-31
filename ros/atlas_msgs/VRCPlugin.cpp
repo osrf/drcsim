@@ -315,7 +315,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
-  // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+  // hardcoded offset of the robot when it's seated in the vehicle driver seat.
   this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 2.02),
                                               math::Quaternion());
 
@@ -340,12 +340,13 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
 
-  usleep(1000000);
+  // give some time for controllers to settle
+  // \todo: use joint state subscriber to check if goal is obtained
+  gazebo::common::Time::MSleep(1000);
   ROS_INFO("set configuration done");
 
   // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 1.26),
-                                              math::Quaternion());
+  this->atlas.vehicleRelPose = math::Pose(-0.06, 0.3, 1.26, 0, 0, 0);
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
@@ -383,8 +384,8 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
-                                              math::Quaternion());
+  // hardcoded offset of the robot when it's standing next to the vehicle.
+  this->atlas.vehicleRelPose = math::Pose(0.52, 1.7, 1.20, 0, 0, 0);
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
@@ -407,7 +408,9 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
 
-  usleep(1000000);
+  // give some time for controllers to settle
+  // \todo: use joint state subscriber to check if goal is obtained
+  gazebo::common::Time::MSleep(1000);
   ROS_INFO("set configuration done");
 
   if (this->vehicleRobotJoint)

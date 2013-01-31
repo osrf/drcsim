@@ -307,13 +307,13 @@ namespace gazebo
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      public: JointCommandsController()
+      private: JointCommandsController()
       {
         // initialize ros
         if (!ros::isInitialized())
         {
           gzerr << "Not loading JointCommandsController since ROS hasn't been "
-                << "properly initialized.  Try starting gazebo with"
+                << "properly initialized.  Try starting Gazebo with"
                 << " ros plugin:\n"
                 << "  gazebo -s libgazebo_ros_api_plugin.so\n";
           return;
@@ -393,28 +393,33 @@ namespace gazebo
           this->rosNode->advertise<osrf_msgs::JointCommands>(
           "/atlas/joint_commands", 1, true);
 
-        ros::SubscribeOptions joint_states_so =
+        ros::SubscribeOptions jointStatesSo =
           ros::SubscribeOptions::create<sensor_msgs::JointState>(
           "/atlas/joint_states", 1,
           boost::bind(&JointCommandsController::GetJointStates, this, _1),
           ros::VoidPtr(), this->rosNode->getCallbackQueue());
         this->subJointStates =
-          this->rosNode->subscribe(joint_states_so);
+          this->rosNode->subscribe(jointStatesSo);
       }
 
       /// \brief Destructor
-      public: ~JointCommandsController()
+      private: ~JointCommandsController()
       {
         this->rosNode->shutdown();
         delete this->rosNode;
       }
 
-      public: void GetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
+      /// \brief subscriber to joint_states of the atlas robot
+      private: void GetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
       {
-        
+        /// \todo: implement joint state monitoring when setting configuration
       }
 
-      public: void SetSeatingConfiguration(physics::ModelPtr atlasModel)
+      /// \brief sitting configuration of the robot when it enters
+      /// the vehicle.
+      /// \param[in] added pose offset when the robot is attached in the
+      /// seating position.
+      private: void SetSeatingConfiguration(physics::ModelPtr atlasModel)
       {
         // seated configuration
         this->jc.header.stamp = ros::Time::now();
@@ -459,7 +464,11 @@ namespace gazebo
         this->pubJointCommands.publish(jc);
       }
 
-      public: void SetStandingConfiguration(physics::ModelPtr atlasModel)
+      /// \brief standing configuration of the robot when it exits
+      /// the vehicle.
+      /// \param[in] added pose offset when the robot is set down next
+      /// to the vehicle.
+      private: void SetStandingConfiguration(physics::ModelPtr atlasModel)
       {
         // standing configuration
         this->jc.header.stamp = ros::Time::now();
@@ -504,10 +513,17 @@ namespace gazebo
         this->pubJointCommands.publish(jc);
       }
 
+      /// \brief subscriber to joint_states
       private: ros::Subscriber subJointStates;
+
+      /// \brief publisher of joint_commands
       private: ros::Publisher pubJointCommands;
+
+      /// \brief ros node handle
       private: ros::NodeHandle* rosNode;
-      public: osrf_msgs::JointCommands jc;
+
+      /// \brief local copy of JointCommands message
+      private: osrf_msgs::JointCommands jc;
 
       friend class VRCPlugin;
     } jointCommandsController;
