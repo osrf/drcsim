@@ -432,6 +432,7 @@ void AtlasPlugin::UpdateStates()
     // get imu data from imu link
     if (this->imuLink && curTime > this->lastImuTime)
     {
+      double dt = (curTime - this->lastImuTime).Double();
       // Get imuLnk Pose/Orientation
       math::Pose parentEntityPose = this->imuLink->GetWorldPose();
       math::Pose imuLinkPose = this->imuOffsetPose + parentEntityPose;
@@ -464,7 +465,7 @@ void AtlasPlugin::UpdateStates()
 
       // compute acceleration
       {
-        math::Vector3 accel = imuLinearVel - this->imuLastLinearVel;
+        math::Vector3 accel = (imuLinearVel - this->imuLastLinearVel)/dt;
         double imuDdx = accel.x;
         double imuDdy = accel.y;
         double imuDdz = accel.z;
