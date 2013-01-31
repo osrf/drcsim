@@ -9,7 +9,7 @@ set (DRC_SIM_MINOR_VERSION 0)
 # The patch version may have been bumped for prerelease purposes; be sure to
 # check drcsim-release/ubuntu/debian/changelog@default to determine what the
 # next patch version should be for a regular release.
-set (DRC_SIM_PATCH_VERSION 0)
+set (DRC_SIM_PATCH_VERSION 2)
 set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
 set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
 message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
@@ -56,10 +56,10 @@ set (BIN_INSTALL_DIR "bin" CACHE STRING "Installation directory for binaries (re
 #####################################
 # Set the default build type
 if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE "RELEASE" CACHE STRING 
-    "Choose the type of build, options are: debug release profile check" FORCE)
+  set (CMAKE_BUILD_TYPE "Release" CACHE STRING
+    "Choose the type of build, options are: Debug Release RelWithDebInfo" FORCE)
+  message(STATUS "Build type not selected: Release selected by default")
 endif (NOT CMAKE_BUILD_TYPE)
-string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
 
 # find gazebo
 include (FindPkgConfig)

@@ -4,11 +4,6 @@
     <actuator name="hokuyo_motor"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
-  <transmission name="imu_trans" type="pr2_mechanism_model/SimpleTransmission">
-    <joint name="imu_joint"/>
-    <actuator name="imu_motor"/>
-    <mechanicalReduction>1</mechanicalReduction>
-  </transmission>
   <transmission name="back_lbz_trans" type="pr2_mechanism_model/SimpleTransmission">
     <joint name="back_lbz"/>
     <actuator name="back_lbz_motor"/>

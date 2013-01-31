@@ -1764,7 +1764,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   void GazeboRosApiPlugin::spin()
   {
     // todo: make a wait loop that does not provide extra ros::spin()
-    ros::Rate r(10);
+    ros::Rate r(1000);
     while (ros::ok())
     {
       ros::spinOnce();
@@ -2112,7 +2112,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     physics_reconfigure_srv.setCallback(physics_reconfigure_f);
 
     ROS_INFO("Starting to spin physics dynamic reconfigure node...");
-    ros::Rate r(10);
+    ros::Rate r(1000);
     while (ros::ok())
     {
       ros::spinOnce();
