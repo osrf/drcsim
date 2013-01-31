@@ -20,7 +20,6 @@
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
-#include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/Timer.hh>
