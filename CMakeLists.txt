@@ -9,7 +9,7 @@ set (DRC_SIM_MINOR_VERSION 0)
 # The patch version may have been bumped for prerelease purposes; be sure to
 # check drcsim-release/ubuntu/debian/changelog@default to determine what the
 # next patch version should be for a regular release.
-set (DRC_SIM_PATCH_VERSION 1)
+set (DRC_SIM_PATCH_VERSION 2)
 set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
 set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
 message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
