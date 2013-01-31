@@ -14,38 +14,33 @@
  * limitations under the License.
  *
 */
+#include <string>
+#include <vector>
 #include <math.h>
 #include <ros/ros.h>
-#include <ros/callback_queue.h>
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
-#include <trajectory_msgs/JointTrajectory.h>
-#include <gazebo/math/Quaternion.hh>
 #include <gazebo/common/Time.hh>
-#include <gazebo/common/Timer.hh>
-#include <gazebo/common/Console.hh>
 #include <sensor_msgs/JointState.h>
 #include <osrf_msgs/JointCommands.h>
 
-#include <time.h>  // for timespec
-
-
 ros::Publisher pub_joint_commands_;
-osrf_msgs::JointCommands jc;
+osrf_msgs::JointCommands jointCommands;
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
   static ros::Time startTime = ros::Time::now();
   {
     // for testing round trip time
-    jc.header.stamp = _js->header.stamp;
+    jointCommands.header.stamp = _js->header.stamp;
 
     // assign arbitrary joint angle targets
-    for (unsigned int i = 0; i < jc.name.size(); i++)
-      jc.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
+    for (unsigned int i = 0; i < jointCommands.name.size(); i++)
+      jointCommands.position[i] =
+        3.2* sin((ros::Time::now() - startTime).toSec());
 
-    pub_joint_commands_.publish(jc);
+    pub_joint_commands_.publish(jointCommands);
   }
 }
 
@@ -65,70 +60,70 @@ int main(int argc, char** argv)
   }
 
   // must match those inside AtlasPlugin
-  jc.name.push_back("atlas::back_lbz");
-  jc.name.push_back("atlas::back_mby");
-  jc.name.push_back("atlas::back_ubx");
-  jc.name.push_back("atlas::neck_ay");
-  jc.name.push_back("atlas::l_leg_uhz");
-  jc.name.push_back("atlas::l_leg_mhx");
-  jc.name.push_back("atlas::l_leg_lhy");
-  jc.name.push_back("atlas::l_leg_kny");
-  jc.name.push_back("atlas::l_leg_uay");
-  jc.name.push_back("atlas::l_leg_lax");
-  jc.name.push_back("atlas::r_leg_uhz");
-  jc.name.push_back("atlas::r_leg_mhx");
-  jc.name.push_back("atlas::r_leg_lhy");
-  jc.name.push_back("atlas::r_leg_kny");
-  jc.name.push_back("atlas::r_leg_uay");
-  jc.name.push_back("atlas::r_leg_lax");
-  jc.name.push_back("atlas::l_arm_usy");
-  jc.name.push_back("atlas::l_arm_shx");
-  jc.name.push_back("atlas::l_arm_ely");
-  jc.name.push_back("atlas::l_arm_elx");
-  jc.name.push_back("atlas::l_arm_uwy");
-  jc.name.push_back("atlas::l_arm_mwx");
-  jc.name.push_back("atlas::r_arm_usy");
-  jc.name.push_back("atlas::r_arm_shx");
-  jc.name.push_back("atlas::r_arm_ely");
-  jc.name.push_back("atlas::r_arm_elx");
-  jc.name.push_back("atlas::r_arm_uwy");
-  jc.name.push_back("atlas::r_arm_mwx");
+  jointCommands.name.push_back("atlas::back_lbz");
+  jointCommands.name.push_back("atlas::back_mby");
+  jointCommands.name.push_back("atlas::back_ubx");
+  jointCommands.name.push_back("atlas::neck_ay");
+  jointCommands.name.push_back("atlas::l_leg_uhz");
+  jointCommands.name.push_back("atlas::l_leg_mhx");
+  jointCommands.name.push_back("atlas::l_leg_lhy");
+  jointCommands.name.push_back("atlas::l_leg_kny");
+  jointCommands.name.push_back("atlas::l_leg_uay");
+  jointCommands.name.push_back("atlas::l_leg_lax");
+  jointCommands.name.push_back("atlas::r_leg_uhz");
+  jointCommands.name.push_back("atlas::r_leg_mhx");
+  jointCommands.name.push_back("atlas::r_leg_lhy");
+  jointCommands.name.push_back("atlas::r_leg_kny");
+  jointCommands.name.push_back("atlas::r_leg_uay");
+  jointCommands.name.push_back("atlas::r_leg_lax");
+  jointCommands.name.push_back("atlas::l_arm_usy");
+  jointCommands.name.push_back("atlas::l_arm_shx");
+  jointCommands.name.push_back("atlas::l_arm_ely");
+  jointCommands.name.push_back("atlas::l_arm_elx");
+  jointCommands.name.push_back("atlas::l_arm_uwy");
+  jointCommands.name.push_back("atlas::l_arm_mwx");
+  jointCommands.name.push_back("atlas::r_arm_usy");
+  jointCommands.name.push_back("atlas::r_arm_shx");
+  jointCommands.name.push_back("atlas::r_arm_ely");
+  jointCommands.name.push_back("atlas::r_arm_elx");
+  jointCommands.name.push_back("atlas::r_arm_uwy");
+  jointCommands.name.push_back("atlas::r_arm_mwx");
 
-  unsigned int n = jc.name.size();
-  jc.position.resize(n);
-  jc.velocity.resize(n);
-  jc.effort.resize(n);
-  jc.kp_position.resize(n);
-  jc.ki_position.resize(n);
-  jc.kd_position.resize(n);
-  jc.kp_velocity.resize(n);
-  jc.i_effort_min.resize(n);
-  jc.i_effort_max.resize(n);
+  unsigned int n = jointCommands.name.size();
+  jointCommands.position.resize(n);
+  jointCommands.velocity.resize(n);
+  jointCommands.effort.resize(n);
+  jointCommands.kp_position.resize(n);
+  jointCommands.ki_position.resize(n);
+  jointCommands.kd_position.resize(n);
+  jointCommands.kp_velocity.resize(n);
+  jointCommands.i_effort_min.resize(n);
+  jointCommands.i_effort_max.resize(n);
 
   for (unsigned int i = 0; i < n; i++)
   {
     std::vector<std::string> pieces;
-    boost::split(pieces, jc.name[i], boost::is_any_of(":"));
+    boost::split(pieces, jointCommands.name[i], boost::is_any_of(":"));
 
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/p",
-      jc.kp_position[i]);
+      jointCommands.kp_position[i]);
 
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i",
-      jc.ki_position[i]);
+      jointCommands.ki_position[i]);
 
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/d",
-      jc.kd_position[i]);
+      jointCommands.kd_position[i]);
 
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
-      jc.i_effort_min[i]);
-    jc.i_effort_min[i] = -jc.i_effort_min[i];
+      jointCommands.i_effort_min[i]);
+    jointCommands.i_effort_min[i] = -jointCommands.i_effort_min[i];
 
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
-      jc.i_effort_max[i]);
-      
-    jc.velocity[i]     = 0;
-    jc.effort[i]       = 0;
-    jc.kp_velocity[i]  = 0;
+      jointCommands.i_effort_max[i]);
+
+    jointCommands.velocity[i]     = 0;
+    jointCommands.effort[i]       = 0;
+    jointCommands.kp_velocity[i]  = 0;
   }
 
   // ros topic subscribtions

@@ -20,6 +20,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
