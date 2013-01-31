@@ -47,6 +47,7 @@
 #include <gazebo/sensors/SensorManager.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ContactSensor.hh>
+#include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
 
 #include <osrf_msgs/JointCommands.h>
@@ -85,6 +86,10 @@ namespace gazebo
     /// with anything that might be blocking.
     private: void DeferredLoad();
 
+    /// \brief: sets controller mode, turn things on / off for now
+    /// \param[in] _str string containing possible mode settings [on|off]
+    private: void SetControllerMode(const std_msgs::String::ConstPtr &_str);
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
@@ -114,7 +119,9 @@ namespace gazebo
     private: atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
 
     // IMU sensor
+    private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
+    private: math::Pose imuOffsetPose;
     private: physics::LinkPtr imuLink;
     private: common::Time lastImuTime;
     private: math::Pose imuReferencePose;
@@ -137,9 +144,12 @@ namespace gazebo
     private: math::Vector3 rFootForce;
     private: math::Vector3 rFootTorque;
 
+    private: ros::Subscriber subControllerMode;
     private: ros::Subscriber subJointCommands;
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
+
+    private: bool controllerActive;
 
     private: std::vector<std::string> jointNames;
     private: physics::Joint_V joints;
@@ -170,7 +180,5 @@ namespace gazebo
     private: double jointCommandsAgeVariance;
     private: double jointCommandsAge;
   };
-/** \} */
-/// @}
 }
 #endif
