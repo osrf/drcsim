@@ -7,9 +7,9 @@
 # compile using xacro
 
 if (HAVE_SANDIA_HAND)
-  set (model_basenames atlas atlas_irobot_hands atlas_sandia_hands)
+  set (model_basenames atlas_description atlas_irobot_hands atlas_sandia_hands)
 else()
-  set (model_basenames atlas atlas_irobot_hands)
+  set (model_basenames atlas_description atlas_irobot_hands)
 endif()
 
 
@@ -26,18 +26,12 @@ foreach(model_basename ${model_basenames})
     DEPENDS gazebo_manifest_generator.sh)
   add_custom_target(${model_basename}_manifest ALL DEPENDS ${model_basename}.manifest.xml)
     
-  install(FILES ${model_basename}.urdf.xacro
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
+  #install(FILES ${model_basename}.urdf.xacro
+  #        DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.manifest.xml
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME manifest.xml)
 endforeach()
-
-#set (files
-#  atlas_sandia_hand.model.xacro
-#  atlas.model.xacro
-#)
-#install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/robots/)
 
