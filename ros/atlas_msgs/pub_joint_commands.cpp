@@ -16,19 +16,12 @@
 */
 #include <math.h>
 #include <ros/ros.h>
-#include <ros/callback_queue.h>
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
-#include <gazebo/math/Quaternion.hh>
 #include <gazebo/common/Time.hh>
-#include <gazebo/common/Timer.hh>
-#include <gazebo/common/Console.hh>
 #include <sensor_msgs/JointState.h>
 #include <osrf_msgs/JointCommands.h>
-
-#include <time.h>  // for timespec
-
 
 ros::Publisher pub_joint_commands_;
 osrf_msgs::JointCommands jc;
@@ -142,7 +135,8 @@ int main(int argc, char** argv)
   // Note that we'll still accept TCP connections for this topic
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
-  jointStatesSo.transport_hints = ros::TransportHints().unreliable();
+  jointStatesSo.transport_hints =
+    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
   ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
   // ros::Subscriber subJointStates =
