@@ -439,6 +439,8 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 // remove a joint
 void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
 {
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
   if (_joint)
   {
     // reenable collision between the link pair
@@ -452,6 +454,7 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
     _joint->Detach();
     _joint.reset();
   }
+  this->world->SetPaused(paused);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
