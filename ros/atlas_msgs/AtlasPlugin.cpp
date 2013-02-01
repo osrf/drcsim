@@ -34,7 +34,10 @@ AtlasPlugin::AtlasPlugin()
   this->lFootTorque = 0;
   this->rFootForce = 0;
   this->rFootTorque = 0;
-  this->imuLinkName = "imu_link";
+  // the parent link of the imu_sensor ends up being pelvis after
+  // fixed joint reduction.  Offset of the imu_link is lumped into
+  // the <pose> tag in the imu_senosr block.
+  this->imuLinkName = "pelvis";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,13 +151,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   if (!this->imuLink)
     gzerr << this->imuLinkName << " not found\n";
 
-  // initialize imu reference pose
-  this->imuReferencePose = this->imuLink->GetWorldPose();
-  this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
-    this->imuLink->GetWorldLinearVel());
-
-  // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
-
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint("l_arm_mwx");
   if (!this->lWristJoint)
@@ -173,6 +169,15 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     gzerr << "left ankle joint (l_leg_lax) not found\n";
 
   // Get sensors
+  this->imuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->model->GetScopedName()
+        + "::pelvis::"
+        "imu_sensor"));
+  if (!this->imuSensor)
+    gzerr << "imu_sensor not found\n" << "\n";
+
   this->rFootContactSensor =
     boost::shared_dynamic_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
@@ -190,6 +195,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
         "l_foot_contact_sensor"));
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
+
+  // initialize imu reference pose
+  this->imuOffsetPose = this->imuSensor->GetPose();
+  this->imuReferencePose = this->imuOffsetPose + this->imuLink->GetWorldPose();
+  this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
+    this->imuLink->GetWorldLinearVel());
+  // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
@@ -383,7 +395,8 @@ void AtlasPlugin::DeferredLoad()
   // Note that we'll still accept TCP connections for this topic
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
-  jointCommandsSo.transport_hints = ros::TransportHints().unreliable();
+  jointCommandsSo.transport_hints =
+    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
   this->subJointCommands=
     this->rosNode->subscribe(jointCommandsSo);
@@ -420,10 +433,22 @@ void AtlasPlugin::UpdateStates()
     // get imu data from imu link
     if (this->imuLink && curTime > this->lastImuTime)
     {
+      double dt = (curTime - this->lastImuTime).Double();
       // Get imuLnk Pose/Orientation
-      math::Pose imuPose = this->imuLink->GetWorldPose();
-      math::Vector3 imuLinearVel = imuPose.rot.RotateVector(
-        this->imuLink->GetWorldLinearVel());
+      math::Pose parentEntityPose = this->imuLink->GetWorldPose();
+      math::Pose imuLinkPose = this->imuOffsetPose + parentEntityPose;
+
+      // calculate imu's linear velocity in imu frame
+      math::Vector3 imuAngularVelParentFrame =
+        parentEntityPose.rot.GetInverse().RotateVector(
+        this->imuLink->GetWorldAngularVel());
+      math::Vector3 imuLinearVelParentFrame =
+        parentEntityPose.rot.GetInverse().RotateVector(
+        this->imuLink->GetWorldLinearVel()) +
+        this->imuOffsetPose.pos.Cross(imuAngularVelParentFrame);
+      math::Vector3 imuLinearVel =
+        this->imuOffsetPose.rot.GetInverse().RotateVector(
+          imuLinearVelParentFrame);
 
       sensor_msgs::Imu imuMsg;
       imuMsg.header.frame_id = this->imuLinkName;
@@ -432,7 +457,7 @@ void AtlasPlugin::UpdateStates()
       // compute angular rates
       {
         // get world twist and convert to local frame
-        math::Vector3 wLocal = imuPose.rot.RotateVector(
+        math::Vector3 wLocal = imuLinkPose.rot.GetInverse().RotateVector(
           this->imuLink->GetWorldAngularVel());
         imuMsg.angular_velocity.x = wLocal.x;
         imuMsg.angular_velocity.y = wLocal.y;
@@ -441,7 +466,7 @@ void AtlasPlugin::UpdateStates()
 
       // compute acceleration
       {
-        math::Vector3 accel = imuLinearVel - this->imuLastLinearVel;
+        math::Vector3 accel = (imuLinearVel - this->imuLastLinearVel)/dt;
         double imuDdx = accel.x;
         double imuDdy = accel.y;
         double imuDdz = accel.z;
@@ -457,7 +482,7 @@ void AtlasPlugin::UpdateStates()
       {
         // Get IMU rotation relative to Initial IMU Reference Pose
         math::Quaternion imuRot =
-          imuPose.rot * this->imuReferencePose.rot.GetInverse();
+          imuLinkPose.rot * this->imuReferencePose.rot.GetInverse();
 
         imuMsg.orientation.x = imuRot.x;
         imuMsg.orientation.y = imuRot.y;
