@@ -142,7 +142,8 @@ int main(int argc, char** argv)
   // Note that we'll still accept TCP connections for this topic
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
-  jointStatesSo.transport_hints = ros::TransportHints().unreliable().reliable();
+  jointStatesSo.transport_hints =
+    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
   ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
   // ros::Subscriber subJointStates =
