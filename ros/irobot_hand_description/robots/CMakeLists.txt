@@ -1,5 +1,5 @@
 # compile using xacro
-set (model_basenames irobot_hand_on_box)
+set (model_basenames irobot_hand_description irobot_hand_on_box)
 foreach(model_basename ${model_basenames})
   add_custom_command(
     OUTPUT ${model_basename}.urdf
@@ -13,8 +13,8 @@ foreach(model_basename ${model_basenames})
     DEPENDS gazebo_manifest_generator.sh)
   add_custom_target(${model_basename}_manifest ALL DEPENDS ${model_basename}.manifest.xml)
     
-  install(FILES ${model_basename}.urdf.xacro
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
+  #install(FILES ${model_basename}.urdf.xacro
+  #        DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.manifest.xml

@@ -1,4 +1,3 @@
-add_subdirectory(irobot_hand)
 set (files
   manifest.xml
 )
