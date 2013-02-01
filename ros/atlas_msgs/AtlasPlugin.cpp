@@ -395,7 +395,8 @@ void AtlasPlugin::DeferredLoad()
   // Note that we'll still accept TCP connections for this topic
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
-  jointCommandsSo.transport_hints = ros::TransportHints().unreliable().reliable();
+  jointCommandsSo.transport_hints =
+    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
   this->subJointCommands=
     this->rosNode->subscribe(jointCommandsSo);
