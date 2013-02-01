@@ -156,9 +156,6 @@ void GazeboRosJointTrajectory::SetTrajectory(
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
 
-  // resume physics update
-  this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
-
   this->reference_link_name_ = trajectory->header.frame_id;
   // do this every time a new joint trajectory is supplied,
   // use header.frame_id as the reference_link_name_
