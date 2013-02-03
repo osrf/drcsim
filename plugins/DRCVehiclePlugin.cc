@@ -286,7 +286,7 @@ double DRCVehiclePlugin::GetGasPedalPercent()
 {
   double min, max;
   this->GetGasPedalLimits(min, max);
-  return (this->gasPedalState - min) / (max-min);
+  return this->Saturate((this->gasPedalState - min) / (max-min), 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +294,7 @@ double DRCVehiclePlugin::GetBrakePedalPercent()
 {
   double min, max;
   this->GetBrakePedalLimits(min, max);
-  return (this->brakePedalState - min) / (max-min);
+  return this->Saturate((this->brakePedalState - min) / (max-min), 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ double DRCVehiclePlugin::GetHandBrakePercent()
 {
   double min, max;
   this->GetHandBrakeLimits(min, max);
-  return (this->handBrakeState - min) / (max-min);
+  return this->Saturate((this->handBrakeState - min) / (max-min), 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -581,23 +581,25 @@ void DRCVehiclePlugin::UpdateStates()
     // Compute percents and add together, saturating at 100%
     double brakePercent = this->GetBrakePedalPercent()
       + this->GetHandBrakePercent();
-    if (brakePercent > 1) brakePercent = 1;
+    brakePercent = this->Saturate(brakePercent, 0, 1);
     // Map brake torques to individual wheels.
     // Apply brake torque in opposition to wheel spin direction.
     double flBrakeTorque, frBrakeTorque, blBrakeTorque, brBrakeTorque;
-    flBrakeTorque = -copysign(brakePercent*this->frontBrakeTorque,
-      this->flWheelState);
-    frBrakeTorque = -copysign(brakePercent*this->frontBrakeTorque,
-      this->frWheelState);
-    blBrakeTorque = -copysign(brakePercent*this->backBrakeTorque,
-      this->blWheelState);
-    brBrakeTorque = -copysign(brakePercent*this->backBrakeTorque,
-      this->brWheelState);
+    // Below the smoothing speed in rad/s, reduce applied brake torque
+    double smoothingSpeed = 0.5;
+    flBrakeTorque = -brakePercent*this->frontBrakeTorque *
+      this->Saturate(this->flWheelState / smoothingSpeed, -1, 1);
+    frBrakeTorque = -brakePercent*this->frontBrakeTorque *
+      this->Saturate(this->frWheelState / smoothingSpeed, -1, 1);
+    blBrakeTorque = -brakePercent*this->backBrakeTorque *
+      this->Saturate(this->blWheelState / smoothingSpeed, -1, 1);
+    brBrakeTorque = -brakePercent*this->backBrakeTorque *
+      this->Saturate(this->brWheelState / smoothingSpeed, -1, 1);
 
-    this->flWheelJoint->SetForce(0, flGasTorque + flBrakeTorque);
-    this->frWheelJoint->SetForce(0, frGasTorque + frBrakeTorque);
-    this->blWheelJoint->SetForce(0, blGasTorque + blBrakeTorque);
-    this->brWheelJoint->SetForce(0, brGasTorque + brBrakeTorque);
+    this->flWheelJoint->AddForce(0, flGasTorque + flBrakeTorque);
+    this->frWheelJoint->AddForce(0, frGasTorque + frBrakeTorque);
+    this->blWheelJoint->AddForce(0, blGasTorque + blBrakeTorque);
+    this->brWheelJoint->AddForce(0, brGasTorque + brBrakeTorque);
 
     // gzerr << "steer [" << this->handWheelState
     //       << "] range [" << this->handWheelRange
