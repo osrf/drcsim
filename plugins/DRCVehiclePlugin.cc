@@ -204,7 +204,7 @@ void DRCVehiclePlugin::UpdateHandWheelRatio()
                          this->frWheelSteeringJoint->GetHighStop(0).Radian());
   double low = std::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
                         this->frWheelSteeringJoint->GetLowStop(0).Radian());
-  this->tireAngleRange = std::min(abs(high), abs(low));
+  this->tireAngleRange = std::min(fabs(high), fabs(low));
 
   // Compute the angle ratio between the steering wheel and the tires
   this->steeringRatio = this->tireAngleRange / this->handWheelRange;
@@ -564,14 +564,14 @@ void DRCVehiclePlugin::UpdateStates()
     double flGasTorque = 0, frGasTorque = 0, blGasTorque = 0, brGasTorque = 0;
     // Apply equal torque at left and right wheels, which is an implicit model
     // of the differential.
-    if ( (abs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
-      && (abs(this->frWheelState * this->frWheelRadius) < this->maxSpeed))
+    if ( (fabs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
+      && (fabs(this->frWheelState * this->frWheelRadius) < this->maxSpeed))
     {
       flGasTorque = gasPercent*this->frontTorque * gasMultiplier;
       frGasTorque = gasPercent*this->frontTorque * gasMultiplier;
     }
-    if ( (abs(this->blWheelState * this->blWheelRadius) < this->maxSpeed)
-      && (abs(this->brWheelState * this->brWheelRadius) < this->maxSpeed))
+    if ( (fabs(this->blWheelState * this->blWheelRadius) < this->maxSpeed)
+      && (fabs(this->brWheelState * this->brWheelRadius) < this->maxSpeed))
     {
       blGasTorque = gasPercent*this->backTorque * gasMultiplier;
       brGasTorque = gasPercent*this->backTorque * gasMultiplier;
