@@ -137,7 +137,7 @@ void DRCVehiclePlugin::SetHandBrakeState(double _position)
 {
   double min, max;
   this->GetHandBrakeLimits(min, max);
-  this->handBrakeCmd = this->Saturate(_position, min, max);
+  this->handBrakeCmd = math::clamp(_position, min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ void DRCVehiclePlugin::SetHandWheelState(double _position)
 {
   math::Angle min, max;
   this->GetHandWheelLimits(min, max);
-  this->handWheelCmd = this->Saturate(_position, min.Radian(), max.Radian());
+  this->handWheelCmd = math::clamp(_position, min.Radian(), max.Radian());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +254,7 @@ void DRCVehiclePlugin::SetGasPedalState(double _position)
 {
   double min, max;
   this->GetGasPedalLimits(min, max);
-  this->gasPedalCmd = this->Saturate(_position, min, max);
+  this->gasPedalCmd = math::clamp(_position, min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,7 +286,7 @@ double DRCVehiclePlugin::GetGasPedalPercent()
 {
   double min, max;
   this->GetGasPedalLimits(min, max);
-  return this->Saturate((this->gasPedalState - min) / (max-min), 0, 1);
+  return math::clamp((this->gasPedalState - min) / (max-min), 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +294,7 @@ double DRCVehiclePlugin::GetBrakePedalPercent()
 {
   double min, max;
   this->GetBrakePedalLimits(min, max);
-  return this->Saturate((this->brakePedalState - min) / (max-min), 0, 1);
+  return math::clamp((this->brakePedalState - min) / (max-min), 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ double DRCVehiclePlugin::GetHandBrakePercent()
 {
   double min, max;
   this->GetHandBrakeLimits(min, max);
-  return this->Saturate((this->handBrakeState - min) / (max-min), 0, 1);
+  return math::clamp((this->handBrakeState - min) / (max-min), 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ void DRCVehiclePlugin::SetBrakePedalState(double _position)
 {
   double min, max;
   this->GetBrakePedalLimits(min, max);
-  this->brakePedalCmd = this->Saturate(_position, min, max);
+  this->brakePedalCmd = math::clamp(_position, min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -581,20 +581,20 @@ void DRCVehiclePlugin::UpdateStates()
     // Compute percents and add together, saturating at 100%
     double brakePercent = this->GetBrakePedalPercent()
       + this->GetHandBrakePercent();
-    brakePercent = this->Saturate(brakePercent, 0, 1);
+    brakePercent = math::clamp(brakePercent, 0, 1);
     // Map brake torques to individual wheels.
     // Apply brake torque in opposition to wheel spin direction.
     double flBrakeTorque, frBrakeTorque, blBrakeTorque, brBrakeTorque;
     // Below the smoothing speed in rad/s, reduce applied brake torque
     double smoothingSpeed = 0.5;
     flBrakeTorque = -brakePercent*this->frontBrakeTorque *
-      this->Saturate(this->flWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->flWheelState / smoothingSpeed, -1, 1);
     frBrakeTorque = -brakePercent*this->frontBrakeTorque *
-      this->Saturate(this->frWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->frWheelState / smoothingSpeed, -1, 1);
     blBrakeTorque = -brakePercent*this->backBrakeTorque *
-      this->Saturate(this->blWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->blWheelState / smoothingSpeed, -1, 1);
     brBrakeTorque = -brakePercent*this->backBrakeTorque *
-      this->Saturate(this->brWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->brWheelState / smoothingSpeed, -1, 1);
 
     this->flWheelJoint->AddForce(0, flGasTorque + flBrakeTorque);
     this->frWheelJoint->AddForce(0, frGasTorque + frBrakeTorque);
@@ -618,16 +618,6 @@ void DRCVehiclePlugin::UpdateStates()
     // has time been reset?
     this->lastTime = curTime;
   }
-}
-
-// limit _data to _min and _max
-double DRCVehiclePlugin::Saturate(double _data, double _min, double _max)
-{
-  if (_data < _min)
-    return _min;
-  if (_data > _max)
-    return _max;
-  return _data;
 }
 
 // function that extracts the radius of a cylinder or sphere collision shape

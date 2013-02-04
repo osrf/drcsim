@@ -224,7 +224,6 @@ namespace gazebo
     public: void Init();
 
     private: double GetGasTorqueMultiplier();
-    private: double Saturate(double _data, double _min, double _max);
     private: double get_collision_radius(physics::CollisionPtr _collision);
     private: math::Vector3 get_collision_position(physics::LinkPtr _link,
                                                   unsigned int id);
