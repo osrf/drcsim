@@ -322,7 +322,7 @@ void AtlasPlugin::DeferredLoad()
         !this->rosNode->getParam(d_str, d_val) ||
         !this->rosNode->getParam(i_clamp_str, i_clamp_val))
     {
-      ROS_ERROR("couldn't find a param for %s", joint_ns);
+      ROS_WARN("AtlasPlugin couldn't find a param for %s, setting to 0.", joint_ns);
       continue;
     }
     this->jointCommands.kp_position[joint]  =  p_val;

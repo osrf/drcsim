@@ -53,6 +53,12 @@ rosbuild_add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
 rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
 target_link_libraries(pub_joint_commands ${GAZEBO_LIBRARIES})
 
+# reimplement controller manager node using the new JointCommands API
+rosbuild_add_library(atlas_ros_controller_manager atlas_ros_controller_manager.cpp)
+target_link_libraries(atlas_ros_controller_manager)
+rosbuild_add_executable(atlas_control atlas_control.cpp)
+target_link_libraries(atlas_control atlas_ros_controller_manager)
+
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)
 target_link_libraries(gazebo_ros_camera_utils CameraPlugin)
@@ -89,6 +95,6 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands 
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands atlas_control atlas_ros_controller_manager
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
