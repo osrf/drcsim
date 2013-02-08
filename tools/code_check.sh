@@ -16,14 +16,14 @@ fi
 
 #cppcheck
 if [ $xmlout -eq 1 ]; then
-  (cppcheck --enable=all -q --xml `find ./plugins ./ros ./prototyping -name "*.cc"` --check-config) 2> $xmldir/cppcheck.xml
+  (cppcheck --enable=all -q --xml `find ./plugins ./ros -name "*.cc"` --check-config) 2> $xmldir/cppcheck.xml
 else
-  cppcheck --enable=all -q `find ./plugins ./ros ./prototyping -name "*.cc"` --check-config
+  cppcheck --enable=all -q `find ./plugins ./ros -name "*.cc"` --check-config
 fi
 
 # cpplint
 if [ $xmlout -eq 1 ]; then
-  (find ./plugins ./ros ./prototyping -print0 -name "*.cc" -o -name "*.hh" -o -name "*.c" -o -name "*.h" | xargs -0 python tools/cpplint.py 2>&1) | python tools/cpplint_to_cppcheckxml.py 2> $xmldir/cpplint.xml
+  (find ./plugins ./ros -print0 -name "*.cc" -o -name "*.hh" -o -name "*.c" -o -name "*.h" | xargs -0 python tools/cpplint.py 2>&1) | python tools/cpplint_to_cppcheckxml.py 2> $xmldir/cpplint.xml
 else
-  find ./plugins ./ros ./prototyping -print0 -name "*.cc" -o -name "*.hh" -o -name "*.c" -o -name "*.h" | xargs -0 python tools/cpplint.py 2>&1
+  find ./plugins ./ros -print0 -name "*.cc" -o -name "*.hh" -o -name "*.c" -o -name "*.h" | xargs -0 python tools/cpplint.py 2>&1
 fi
