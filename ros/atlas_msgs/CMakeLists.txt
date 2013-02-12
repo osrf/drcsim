@@ -48,6 +48,8 @@ rosbuild_add_boost_directories()
 rosbuild_add_library(gazebo_ros_controller_manager gazebo_ros_controller_manager.cpp)
 rosbuild_link_boost(gazebo_ros_controller_manager thread)
 
+rosbuild_add_library(gazebo_ros_bumper gazebo_ros_bumper.cpp)
+
 # needs roscpp, trajectory_msgs
 rosbuild_add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
 rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
