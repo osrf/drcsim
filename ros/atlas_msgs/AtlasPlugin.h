@@ -51,6 +51,7 @@
 #include <gazebo/sensors/Sensor.hh>
 
 #include <osrf_msgs/JointCommands.h>
+#include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
 #include <sensor_msgs/JointState.h>
@@ -82,6 +83,8 @@ namespace gazebo
     /// \brief ROS callback queue thread
     private: void RosQueueThread();
 
+    private: bool ResetControls(atlas_msgs::ResetControls::Request &_req,
+      atlas_msgs::ResetControls::Response &_res);
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
     private: void DeferredLoad();
@@ -143,6 +146,8 @@ namespace gazebo
     private: ros::Subscriber subJointCommands;
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
+    private: void UpdateJointCommands(
+      const osrf_msgs::JointCommands &_msg);
 
     private: std::vector<std::string> jointNames;
     private: physics::Joint_V joints;
@@ -159,6 +164,7 @@ namespace gazebo
     private: osrf_msgs::JointCommands jointCommands;
     private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
+    private: ros::ServiceServer resetControlsService;
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;
