@@ -33,6 +33,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int32MultiArray.h>
 #include <sensor_msgs/JointState.h>
 
 #include <std_srvs/Empty.h>
@@ -99,6 +100,10 @@ namespace gazebo
     private: ros::Subscriber set_multi_camera_frame_rate_sub_;
     private: void SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                          &_msg);
+
+    private: ros::Subscriber set_multi_camera_resolution_sub_;
+    private: void SetMultiCameraResolution(
+      const std_msgs::Int32MultiArray::ConstPtr &_msg);
 
     private: ros::Subscriber set_multi_camera_exposure_time_sub_;
     private: void SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr

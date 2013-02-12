@@ -15,11 +15,12 @@
  *
 */
 
-#include "sensor_msgs/Imu.h"
+#include <gazebo/physics/PhysicsTypes.hh>
+#include <gazebo/rendering/Camera.hh>
+#include <sensor_msgs/Imu.h>
 
 #include "MultiSenseSLPlugin.h"
 
-#include "gazebo/physics/PhysicsTypes.hh"
 
 namespace gazebo
 {
@@ -152,6 +153,26 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
+  ros::SubscribeOptions set_multi_camera_frame_rate_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/set_camera_frame_rate", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraFrameRate), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_frame_rate_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
+
+  ros::SubscribeOptions set_multi_camera_resolution_so =
+    ros::SubscribeOptions::create<std_msgs::Int32MultiArray>(
+    "multisense_sl/set_camera_resolution", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Int32MultiArray::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraResolution), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_resolution_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_resolution_so);
+
   /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
@@ -162,16 +183,6 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_spindle_state_sub_ =
     this->rosnode_->subscribe(set_spindle_state_so);
-
-  ros::SubscribeOptions set_multi_camera_frame_rate_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_camera_frame_rate", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetMultiCameraFrameRate),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_multi_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
 
   ros::SubscribeOptions set_multi_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -366,6 +377,25 @@ void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
 {
   this->multiCameraFrameRate = static_cast<double>(_msg->data);
   this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void MultiSenseSL::SetMultiCameraResolution(
+  const std_msgs::Int32MultiArray::ConstPtr &_msg)
+{
+  if (_msg->data.size() != 2 || _msg->data[0] <= 0 || _msg->data[1] <= 0)
+  {
+    ROS_ERROR("message to set /multisense_sl/set_camera_resolution must"
+              " contain an array of 2 positive integers");
+    return;
+  }
+  for (unsigned int i = 0; i < this->multiCameraSensor->GetCameraCount(); ++i)
+  {
+    this->multiCameraSensor->GetCamera(i)->SetImageWidth(
+      static_cast<unsigned int>(_msg->data[0]));
+    this->multiCameraSensor->GetCamera(i)->SetImageHeight(
+      static_cast<unsigned int>(_msg->data[1]));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
