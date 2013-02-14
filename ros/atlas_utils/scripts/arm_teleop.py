@@ -20,7 +20,20 @@ class ArmTeleop():
         self.joint_state = None
 
         # Prepare a message structure that we'll reuse
-        self.atlasJointNames = [ 'atlas::back_lbz', 'atlas::back_mby', 'atlas::back_ubx', 'atlas::neck_ay', 'atlas::l_leg_uhz', 'atlas::l_leg_mhx', 'atlas::l_leg_lhy', 'atlas::l_leg_kny', 'atlas::l_leg_uay', 'atlas::l_leg_lax', 'atlas::r_leg_uhz', 'atlas::r_leg_mhx', 'atlas::r_leg_lhy', 'atlas::r_leg_kny', 'atlas::r_leg_uay', 'atlas::r_leg_lax', 'atlas::l_arm_usy', 'atlas::l_arm_shx', 'atlas::l_arm_ely', 'atlas::l_arm_elx', 'atlas::l_arm_uwy', 'atlas::l_arm_mwx', 'atlas::r_arm_usy', 'atlas::r_arm_shx', 'atlas::r_arm_ely', 'atlas::r_arm_elx', 'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
+        self.atlasJointNames = [ 'atlas::back_lbz', 'atlas::back_mby',
+                                 'atlas::back_ubx', 'atlas::neck_ay',
+                                 'atlas::l_leg_uhz', 'atlas::l_leg_mhx',
+                                 'atlas::l_leg_lhy', 'atlas::l_leg_kny',
+                                 'atlas::l_leg_uay', 'atlas::l_leg_lax',
+                                 'atlas::r_leg_uhz', 'atlas::r_leg_mhx',
+                                 'atlas::r_leg_lhy', 'atlas::r_leg_kny',
+                                 'atlas::r_leg_uay', 'atlas::r_leg_lax',
+                                 'atlas::l_arm_usy', 'atlas::l_arm_shx',
+                                 'atlas::l_arm_ely', 'atlas::l_arm_elx',
+                                 'atlas::l_arm_uwy', 'atlas::l_arm_mwx',
+                                 'atlas::r_arm_usy', 'atlas::r_arm_shx',
+                                 'atlas::r_arm_ely', 'atlas::r_arm_elx',
+                                 'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
 
         if len(argv) != 2:
             self.usage()
@@ -86,7 +99,7 @@ class ArmTeleop():
         n = len(self.joint_command.name)
         self.joint_command.velocity = [0.0] * n
         self.joint_command.effort = [0.0] * n
-        for i in range(0, self.num_joints):
+        for i in range(self.num_joints):
             position = self.joint_min + ((msg.axes[i] - self.joy_axis_min)/(self.joy_axis_max - self.joy_axis_min)) * (self.joint_max - self.joint_min)
             if self.idx_offset1 != None:
                 self.joint_command.position[self.idx_offset1 + i] = position
