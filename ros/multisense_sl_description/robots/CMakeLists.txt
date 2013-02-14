@@ -27,5 +27,8 @@ foreach(model_basename ${model_basenames})
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.manifest.xml
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
+          RENAME model.config)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${model_basename}.rosmanifest.xml
+          DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME manifest.xml)
 endforeach()
