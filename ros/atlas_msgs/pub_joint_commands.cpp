@@ -20,7 +20,6 @@
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
-#include <trajectory_msgs/JointTrajectory.h>
 #include <gazebo/math/Quaternion.hh>
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/Timer.hh>
@@ -32,41 +31,18 @@
 
 
 ros::Publisher pub_joint_commands_;
-ros::Time last_ros_time_;
-ros::Time last_header_time_;
-gazebo::common::Time last_wall_time_;
-ros::NodeHandle* rosnode;
 osrf_msgs::JointCommands jc;
 
 void SetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
 {
-  struct timespec tv;
-  gazebo::common::Time wall_time;
-
-  clock_gettime(0, &tv);
-  wall_time = tv;
-  // printf("rt[%f] jst[%f] st[%f] dst[%f] drt[%f]\n",
-  // printf("marker %f, %f, %f, %f, %f %f\n",
-  //   wall_time.Double()*1000.0,
-  //   _js->header.stamp.toSec()*1000.0,
-  //   ros::Time::now().toSec()*1000.0,
-  //   (ros::Time::now() - last_ros_time_).toSec()*1000.0,
-  //   (wall_time - last_wall_time_.Double()*1000.0,
-  //   (_js->header.stamp - last_header_time_).toSec()*1000.0);
-
-  last_header_time_ = _js->header.stamp;
-  last_ros_time_ = ros::Time::now();
-  last_wall_time_ = wall_time;
-
+  static ros::Time startTime = ros::Time::now();
   {
+    // for testing round trip time
+    jc.header.stamp = _js->header.stamp;
 
-    jc.header.stamp = _js->header.stamp;  // for testing round trip time
-    // jc.header.stamp = ros::Time::now();
-
+    // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jc.name.size(); i++)
-    {
-      jc.position[i]     = 0.7* cos(ros::Time::now().toSec());
-    }
+      jc.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
 
     pub_joint_commands_.publish(jc);
   }
@@ -76,8 +52,9 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "pub_joint_command_test");
 
-  rosnode = new ros::NodeHandle();
+  ros::NodeHandle* rosnode = new ros::NodeHandle();
 
+  ros::Time last_ros_time_;
   bool wait = true;
   while (wait)
   {
@@ -86,6 +63,7 @@ int main(int argc, char** argv)
       wait = false;
   }
 
+  // must match those inside AtlasPlugin
   jc.name.push_back("atlas::back_lbz");
   jc.name.push_back("atlas::back_mby");
   jc.name.push_back("atlas::back_ubx");
@@ -96,24 +74,24 @@ int main(int argc, char** argv)
   jc.name.push_back("atlas::l_leg_kny");
   jc.name.push_back("atlas::l_leg_uay");
   jc.name.push_back("atlas::l_leg_lax");
-  jc.name.push_back("atlas::r_leg_lax");
-  jc.name.push_back("atlas::r_leg_uay");
-  jc.name.push_back("atlas::r_leg_kny");
-  jc.name.push_back("atlas::r_leg_lhy");
-  jc.name.push_back("atlas::r_leg_mhx");
   jc.name.push_back("atlas::r_leg_uhz");
-  jc.name.push_back("atlas::l_arm_elx");
-  jc.name.push_back("atlas::l_arm_ely");
-  jc.name.push_back("atlas::l_arm_mwx");
-  jc.name.push_back("atlas::l_arm_shx");
+  jc.name.push_back("atlas::r_leg_mhx");
+  jc.name.push_back("atlas::r_leg_lhy");
+  jc.name.push_back("atlas::r_leg_kny");
+  jc.name.push_back("atlas::r_leg_uay");
+  jc.name.push_back("atlas::r_leg_lax");
   jc.name.push_back("atlas::l_arm_usy");
+  jc.name.push_back("atlas::l_arm_shx");
+  jc.name.push_back("atlas::l_arm_ely");
+  jc.name.push_back("atlas::l_arm_elx");
   jc.name.push_back("atlas::l_arm_uwy");
-  jc.name.push_back("atlas::r_arm_elx");
-  jc.name.push_back("atlas::r_arm_ely");
-  jc.name.push_back("atlas::r_arm_mwx");
-  jc.name.push_back("atlas::r_arm_shx");
+  jc.name.push_back("atlas::l_arm_mwx");
   jc.name.push_back("atlas::r_arm_usy");
+  jc.name.push_back("atlas::r_arm_shx");
+  jc.name.push_back("atlas::r_arm_ely");
+  jc.name.push_back("atlas::r_arm_elx");
   jc.name.push_back("atlas::r_arm_uwy");
+  jc.name.push_back("atlas::r_arm_mwx");
 
   unsigned int n = jc.name.size();
   jc.position.resize(n);
@@ -147,10 +125,6 @@ int main(int argc, char** argv)
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
       jc.i_effort_max[i]);
       
-    // turn off integral and derivative gains
-    jc.ki_position[i] *= 0.0;
-    jc.kd_position[i] *= 0.0;
-
     jc.velocity[i]     = 0;
     jc.effort[i]       = 0;
     jc.kp_velocity[i]  = 0;
@@ -168,7 +142,8 @@ int main(int argc, char** argv)
   // Note that we'll still accept TCP connections for this topic
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
-  jointStatesSo.transport_hints = ros::TransportHints().unreliable();
+  jointStatesSo.transport_hints =
+    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
   ros::Subscriber subJointStates = rosnode->subscribe(jointStatesSo);
   // ros::Subscriber subJointStates =

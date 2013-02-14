@@ -35,14 +35,14 @@ atlas_controller:
     l_leg_mhx: {p:   100.0, d:   1.0, i:   0.0, i_clamp:    0.0}
     l_leg_lhy: {p:  2000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
     l_leg_kny: {p:  1000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
-    l_leg_uay: {p:   900.0, d:   8.0, i:   0.0, i_clamp:    0.0}
-    l_leg_lax: {p:   300.0, d:   2.0, i:   0.0, i_clamp:    0.0}
+    l_leg_uay: {p:   900.0, d:   2.0, i:   0.0, i_clamp:    0.0}
+    l_leg_lax: {p:   300.0, d:   1.0, i:   0.0, i_clamp:    0.0}
     r_leg_uhz: {p:     5.0, d:  0.01, i:   0.0, i_clamp:    0.0}
     r_leg_mhx: {p:   100.0, d:   1.0, i:   0.0, i_clamp:    0.0}
     r_leg_lhy: {p:  2000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
     r_leg_kny: {p:  1000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
-    r_leg_uay: {p:   900.0, d:   8.0, i:   0.0, i_clamp:    0.0}
-    r_leg_lax: {p:   300.0, d:   2.0, i:   0.0, i_clamp:    0.0}
+    r_leg_uay: {p:   900.0, d:   2.0, i:   0.0, i_clamp:    0.0}
+    r_leg_lax: {p:   300.0, d:   1.0, i:   0.0, i_clamp:    0.0}
     l_arm_usy: {p:  2000.0, d:   3.0, i:   0.0, i_clamp:    0.0}
     l_arm_shx: {p:  1000.0, d:  20.0, i:   0.0, i_clamp:    0.0}
     l_arm_ely: {p:   200.0, d:   3.0, i:   0.0, i_clamp:    0.0}
