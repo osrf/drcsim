@@ -315,15 +315,33 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 2),
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+
+  // hardcoded offset of the robot when it's seated in the vehicle driver seat.
+  this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 2.02),
                                               math::Quaternion());
+
+  // turn physics off while manipulating things
+  bool physics = this->world->GetEnablePhysicsEngine();
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
+  this->world->EnablePhysicsEngine(false);
+
+  // set robot configuration
+  this->jointCommandsController.SetSeatingConfiguration(this->atlas.model);
+  ros::spinOnce();
+  // give some time for controllers to settle
+  // \todo: use joint state subscriber to check if goal is obtained
+  gazebo::common::Time::MSleep(1000);
+  ROS_INFO("set robot configuration done");
+
+  this->world->EnablePhysicsEngine(physics);
+  this->world->SetPaused(paused);
 
   this->atlas.model->SetLinkWorldPose(pose +
     this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
     this->atlas.pinLink);
-
-  if (this->vehicleRobotJoint)
-    this->RemoveJoint(this->vehicleRobotJoint);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
@@ -334,59 +352,9 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
-/*
-  std::map<std::string, double> jointPositions;
-  jointPositions["atlas::back_lbz" ] =  0.00;
-  jointPositions["atlas::back_mby" ] =  0.00;
-  jointPositions["atlas::back_ubx" ] =  0.00;
-  jointPositions["atlas::neck_ay"  ] =  0.00;
-  jointPositions["atlas::l_leg_uhz"] =  0.00;
-  jointPositions["atlas::l_leg_mhx"] =  0.00;
-  jointPositions["atlas::l_leg_lhy"] = -1.80;
-  jointPositions["atlas::l_leg_kny"] =  1.80;
-  jointPositions["atlas::l_leg_uay"] =  0.00;
-  jointPositions["atlas::l_leg_lax"] =  0.00;
-  jointPositions["atlas::r_leg_uhz"] =  0.00;
-  jointPositions["atlas::r_leg_mhx"] =  0.00;
-  jointPositions["atlas::r_leg_lhy"] = -1.80;
-  jointPositions["atlas::r_leg_kny"] =  1.80;
-  jointPositions["atlas::r_leg_uay"] =  0.00;
-  jointPositions["atlas::r_leg_lax"] =  0.00;
-  jointPositions["atlas::l_arm_elx"] =  0.00;
-  jointPositions["atlas::l_arm_ely"] =  0.00;
-  jointPositions["atlas::l_arm_mwx"] =  0.00;
-  jointPositions["atlas::l_arm_shx"] =  0.00;
-  jointPositions["atlas::l_arm_usy"] = -1.60;
-  jointPositions["atlas::l_arm_uwy"] =  0.00;
-  jointPositions["atlas::r_arm_elx"] =  0.00;
-  jointPositions["atlas::r_arm_ely"] =  0.00;
-  jointPositions["atlas::r_arm_mwx"] =  0.00;
-  jointPositions["atlas::r_arm_shx"] =  0.00;
-  jointPositions["atlas::r_arm_usy"] =  1.60;
-  jointPositions["atlas::r_arm_uwy"] =  0.00;
-  this->atlas.model->SetJointPositions(jointPositions);
-*/
 
-  // wait for action server to come up
-  while (!this->jointTrajectoryController.clientTraj->waitForServer(
-    ros::Duration(1.0)))
-  {
-    ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
-
-  this->jointTrajectoryController.sendTrajectory(
-    this->jointTrajectoryController.seatingConfiguration());
-
-  // Wait for trajectory completion
-  while (!jointTrajectoryController.getState().isDone() && ros::ok())
-  {
-    ros::spinOnce();
-    usleep(50000);
-  }
-  ROS_INFO("set configuration done");
-
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
-                                              math::Quaternion());
+  // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
+  this->atlas.vehicleRelPose = math::Pose(-0.06, 0.3, 1.26, 0, 0, 0);
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
@@ -424,12 +392,29 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 1.7, 1.20),
-                                              math::Quaternion());
-
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
+  // hardcoded offset of the robot when it's standing next to the vehicle.
+  this->atlas.vehicleRelPose = math::Pose(0.52, 1.7, 1.20, 0, 0, 0);
+
+  // turn physics off while manipulating things
+  bool physics = this->world->GetEnablePhysicsEngine();
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
+  this->world->EnablePhysicsEngine(false);
+  // set robot configuration
+  this->jointCommandsController.SetStandingConfiguration(this->atlas.model);
+  ros::spinOnce();
+  // give some time for controllers to settle
+  // \todo: use joint state subscriber to check if goal is obtained
+  gazebo::common::Time::MSleep(1000);
+  ROS_INFO("set configuration done");
+
+  this->world->EnablePhysicsEngine(physics);
+  this->world->SetPaused(paused);
+
+  // move model to new pose
   this->atlas.model->SetLinkWorldPose(pose +
     this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
     this->atlas.pinLink);
@@ -443,24 +428,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
-
-  // wait for action server to come up
-  while (!this->jointTrajectoryController.clientTraj->waitForServer(
-    ros::Duration(1.0)))
-  {
-    ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
-
-  this->jointTrajectoryController.sendTrajectory(
-    this->jointTrajectoryController.standingConfiguration());
-
-  // Wait for trajectory completion
-  while (!jointTrajectoryController.getState().isDone() && ros::ok())
-  {
-    ros::spinOnce();
-    usleep(50000);
-  }
-  ROS_INFO("set configuration done");
+  gazebo::common::Time::MSleep(5000);
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
@@ -471,6 +439,8 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 // remove a joint
 void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
 {
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
   if (_joint)
   {
     // reenable collision between the link pair
@@ -484,6 +454,7 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
     _joint->Detach();
     _joint.reset();
   }
+  this->world->SetPaused(paused);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -860,9 +831,15 @@ void VRCPlugin::LoadRobotROSAPI()
 
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
-  &/* _cmd */)
+  &_cmd)
 {
   // This function is planned but not yet implemented.
   ROS_ERROR("The atlas/configuration handler is not implemented.\n");
+/*
+  for (unsigned int i = 0; i < _cmd->name.size(); ++i)
+  {
+    this->atlas.model->SetJointPositions();
+  }
+*/
 }
 }
