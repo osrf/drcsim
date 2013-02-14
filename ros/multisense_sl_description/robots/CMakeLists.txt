@@ -28,8 +28,8 @@ foreach(model_basename ${model_basenames})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.model.config
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME model.config)
-  # backwards compatibility
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.model.config
+  # ROS compatibility
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${model_basename}.rosmanifest.xml
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME manifest.xml)
 endforeach()
