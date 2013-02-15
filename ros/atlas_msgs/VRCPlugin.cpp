@@ -170,6 +170,20 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       links[i]->SetGravityMode(false);
     }
   }
+  else if (_str == "pinned_with_gravity")
+  {
+    // pinning robot, and turning off effect of gravity
+    if (!this->atlas.pinJoint)
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
+                                        physics::LinkPtr(),
+                                        this->atlas.pinLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+  }
   else if (_str == "nominal")
   {
     // reinitialize pinning
