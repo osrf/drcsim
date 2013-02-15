@@ -302,9 +302,27 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 0 0" xyz="-0.0179 0.02085 -0.21"/>
+          <origin rpy="0 0 0" xyz="-0.0179 0.02085 -0.13"/>
           <geometry>
-            <box size="0.2 0.1865 0.26"/>
+            <cylinder radius="0.1" length="0.10"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 -0.3 0" xyz="-0.03 0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0.3 0" xyz="-0.005 0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="-0.25 0 0" xyz="-0.02 0.03 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
           </geometry>
         </collision>
     </link>
@@ -706,9 +724,27 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 0 0" xyz="-0.0179 -0.02085 -0.21"/>
+          <origin rpy="0 0 0" xyz="-0.0179 -0.02085 -0.13"/>
           <geometry>
-            <box size="0.2 0.1865 0.26"/>
+            <cylinder radius="0.1" length="0.10"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 -0.3 0" xyz="-0.03 -0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0.3 0" xyz="-0.005 -0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0.25 0 0" xyz="-0.02 -0.03 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
           </geometry>
         </collision>
     </link>
