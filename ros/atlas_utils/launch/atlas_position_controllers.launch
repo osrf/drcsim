@@ -26,6 +26,8 @@
   <!-- Position Controllers -->
   <rosparam file="$(find atlas_utils)/config/position_controllers.yaml" command="load" />
 
+  <!-- TODO: split atlas_control executable and atlas_ros_controller_manager plugin
+       into separate atlas_plugins pacakge, and update launch files for it -->
   <!-- finger controllers omitted
   <rosparam file="$(find sandia_hand_left)/ros/position_controllers.yaml" command="load" />
   <rosparam file="$(find sandia_hand_right)/ros/position_controllers.yaml" command="load" />
