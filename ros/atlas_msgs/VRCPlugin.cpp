@@ -102,7 +102,7 @@ void VRCPlugin::DeferredLoad()
     ROS_INFO("Start robot with gravity turned off and harnessed.");
     if (math::equal(this->atlas.startupHarnessDuration, 0.0))
       ROS_INFO("Atlas will stay pinned.");
-    if (math::equal(this->atlas.startupHarnessDuration, 0.0))
+    else
       ROS_INFO("Resume to nominal mode after %f seconds.",
         this->atlas.startupHarnessDuration);
   }
