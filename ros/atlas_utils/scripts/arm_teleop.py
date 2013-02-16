@@ -12,6 +12,9 @@ from osrf_msgs.msg import JointCommands
 
 USAGE = 'arm_teleop.py {l|r|lr}'
 
+# Scene button comes last
+SCENE_BUTTON_INDEX = -1
+
 class ArmTeleop():
 
     def __init__(self, argv):
@@ -35,7 +38,7 @@ class ArmTeleop():
                                  'atlas::r_arm_ely', 'atlas::r_arm_elx',
                                  'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
 
-        if len(argv) != 2:
+        if len(argv) < 2 or len(argv) > 3:
             self.usage()
 
         # Depending on which arm we're controlling, note the index into the
@@ -53,6 +56,10 @@ class ArmTeleop():
         else:
             self.usage()
 
+        # If specified, we'll only do anything when the scene number matches
+        self.scene = None
+        if len(argv) == 3:
+            self.scene = int(argv[2])
 
         # This stuff (and much else) belongs in a config file
         self.joy_axis_min = 0.0
@@ -91,6 +98,10 @@ class ArmTeleop():
         self.joint_state = msg
 
     def joy_cb(self, msg):
+        if (self.scene is not None and 
+            msg.buttons[SCENE_BUTTON_INDEX] != self.scene):
+            return
+
         # Copy back the latest position state for joints we're not controlling; will drift
         if not self.joint_state:
             return

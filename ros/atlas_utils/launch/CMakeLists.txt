@@ -13,6 +13,7 @@ set (files
   atlas_irobot_hands_no_controllers.launch
   drc_sim_v0.launch
   drc_trajectory_controllers.launch
+  atlas_arm_slider_teleop.launch
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/launch/)
 
