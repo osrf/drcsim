@@ -4,7 +4,7 @@
   <arg name="gzworld" default="atlas.world"/>
   <param name="/use_sim_time" type="bool" value="true"/>
 
-  <param name="/atlas/time_to_unpin" type="double" value="10.5"/>
+  <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
 
   <!-- start gazebo with the Atlas -->
   <node name="gazebo" pkg="atlas_utils" type="run_$(arg gzname)" args="$(arg gzworld)" output="screen" />
