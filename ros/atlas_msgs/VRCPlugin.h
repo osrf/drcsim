@@ -456,9 +456,8 @@ namespace gazebo
         // set joint positions
         std::map<std::string, double> jps;
         for (unsigned int i = 0; i < this->jc.name.size(); ++i)
-        {
           jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
-        }
+
         atlasModel->SetJointPositions(jps);
 
         // publish JointCommands
@@ -505,9 +504,8 @@ namespace gazebo
         // set joint positions
         std::map<std::string, double> jps;
         for (unsigned int i = 0; i < this->jc.name.size(); ++i)
-        {
           jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
-        }
+
         atlasModel->SetJointPositions(jps);
 
         // publish JointCommands

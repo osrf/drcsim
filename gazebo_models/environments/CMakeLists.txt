@@ -5,6 +5,6 @@ add_subdirectory(golf_cart)
 add_subdirectory(standpipe)
 add_subdirectory(powerplant)
 set (files 
-  manifest.xml
+  database.config
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/gazebo_models/environments/)
