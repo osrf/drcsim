@@ -1,8 +1,8 @@
 set(MODEL_NAME platform_2)
 
 set (files 
-  manifest.xml
-  model-1_3.sdf
+  model.config
+  model.sdf
 )
 
 add_subdirectory(meshes)

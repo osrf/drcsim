@@ -82,6 +82,12 @@
               <size>0.2 6 1.0</size>
             </box>
           </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/drc_qual.material</uri>
+              <name>DRCQual/WarningWall</name>
+            </script>
+          </material>
         </visual>
 
         <collision name="left_collision">
@@ -99,6 +105,12 @@
               <size>3 0.2 1.0</size>
             </box>
           </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/drc_qual.material</uri>
+              <name>DRCQual/WarningWall</name>
+            </script>
+          </material>
         </visual>
 
         <collision name="right_collision">
@@ -116,6 +128,12 @@
               <size>3 0.2 1.0</size>
             </box>
           </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/drc_qual.material</uri>
+              <name>DRCQual/WarningWall</name>
+            </script>
+          </material>
         </visual>
 
       </link>
@@ -216,7 +234,6 @@
         </coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
-
 
   </world>
 </sdf>

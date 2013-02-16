@@ -1,4 +1,4 @@
-set(MODEL_NAME platform_1)
+set(MODEL_NAME platform_3)
 set (files 
   model.config
   model.sdf
