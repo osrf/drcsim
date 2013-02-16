@@ -1,5 +1,3 @@
-<!-- This manifest.xml is here because xacro needs to find this package in the
-source tree.  This file is not installed. -->
 <package>
   <description brief="multisense_sl_description">The Carnegie Robotics MultiSense-SL sensor head.</description>
   <author>Stephen Brawner, John Hsu</author>
