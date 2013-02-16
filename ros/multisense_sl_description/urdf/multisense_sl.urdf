@@ -214,7 +214,7 @@
       </camera>
       <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
         <alwaysOn>true</alwaysOn>
-        <updateRate>15.0</updateRate>
+        <updateRate>0.0</updateRate>
         <cameraName>multisense_sl/camera</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
