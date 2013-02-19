@@ -864,7 +864,7 @@ void AtlasPlugin::UpdateStates()
         // AtlasSimInterface: fill in fromRobot efforts.
         // FIXME: Is this used by the controller?  i.e. should this happen
         // before process_control_input?
-        this->fromRobot.j[i].effort = force;
+        this->fromRobot.j[i].f = force;
       }
     }
 
