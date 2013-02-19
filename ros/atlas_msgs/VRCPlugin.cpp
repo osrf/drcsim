@@ -150,6 +150,33 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
   }
+  else if (_str == "harnessed")
+  {
+    // pinning robot, and turning off effect of gravity
+    if (!this->atlas.pinJoint)
+    {
+      math::Pose pose;
+      // slightly above ground
+      pose.pos = math::Vector3(0, 0, 1.0);
+      pose.rot.SetFromEuler(0, 0, 0);
+      this->atlas.model->SetWorldPose(pose);
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
+                                        physics::LinkPtr(),
+                                        this->atlas.pinLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
+    }
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
+  }
   else if (_str == "pinned")
   {
     // pinning robot, and turning off effect of gravity
