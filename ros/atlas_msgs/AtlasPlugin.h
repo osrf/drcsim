@@ -152,6 +152,9 @@ namespace gazebo
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
+    private: void LoadPIDGainsFromParameter();
+    private: void ZeroJointCommands();
+
     private: std::vector<std::string> jointNames;
 
     // JointController: pointer to a copy of the joint controller in gazebo

@@ -142,6 +142,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   this->errorTerms.resize(this->joints.size());
+  for (unsigned i = 0; i < this->joints.size(); ++i)
+  {
+    this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].d_q_p_dt = 0;
+    this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].qd_p = 0;
+  }
 
   this->jointStates.name.resize(this->joints.size());
   this->jointStates.position.resize(this->joints.size());
@@ -162,23 +169,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointCommands.i_effort_min.resize(this->joints.size());
   this->jointCommands.i_effort_max.resize(this->joints.size());
 
-  for (unsigned i = 0; i < this->joints.size(); ++i)
-  {
-    this->errorTerms[i].q_p = 0;
-    this->errorTerms[i].d_q_p_dt = 0;
-    this->errorTerms[i].q_i = 0;
-    this->errorTerms[i].qd_p = 0;
-    this->jointCommands.name[i] = this->joints[i]->GetScopedName();
-    this->jointCommands.position[i] = 0;
-    this->jointCommands.velocity[i] = 0;
-    this->jointCommands.effort[i] = 0;
-    this->jointCommands.kp_position[i] = 0;
-    this->jointCommands.ki_position[i] = 0;
-    this->jointCommands.kd_position[i] = 0;
-    this->jointCommands.kp_velocity[i] = 0;
-    this->jointCommands.i_effort_min[i] = 0;
-    this->jointCommands.i_effort_max[i] = 0;
-  }
+  this->ZeroJointCommands();
 
   // AtlasSimInterface:  initialize toRobot
   this->toRobot.timestamp = 1.0e9 * this->world->GetSimTime().nsec
@@ -416,31 +407,7 @@ void AtlasPlugin::DeferredLoad()
   this->rosNode = new ros::NodeHandle("");
 
   // pull down controller parameters
-  for (unsigned int joint = 0; joint < this->joints.size(); ++joint)
-  {
-    char joint_ns[200] = "";
-    snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
-             this->joints[joint]->GetName().c_str());
-    // this is so ugly
-    double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
-    string p_str = string(joint_ns)+"p";
-    string i_str = string(joint_ns)+"i";
-    string d_str = string(joint_ns)+"d";
-    string i_clamp_str = string(joint_ns)+"i_clamp";
-    if (!this->rosNode->getParam(p_str, p_val) ||
-        !this->rosNode->getParam(i_str, i_val) ||
-        !this->rosNode->getParam(d_str, d_val) ||
-        !this->rosNode->getParam(i_clamp_str, i_clamp_val))
-    {
-      ROS_ERROR("couldn't find a param for %s", joint_ns);
-      continue;
-    }
-    this->jointCommands.kp_position[joint]  =  p_val;
-    this->jointCommands.ki_position[joint]  =  i_val;
-    this->jointCommands.kd_position[joint]  =  d_val;
-    this->jointCommands.i_effort_min[joint] = -i_clamp_val;
-    this->jointCommands.i_effort_max[joint] =  i_clamp_val;
-  }
+  this->LoadPIDGainsFromParameter();
 
   // Get window size from ros parameter server (seconds)
   if (!this->rosNode->getParam(
@@ -571,6 +538,7 @@ void AtlasPlugin::UpdateStates()
   // After 12 seconds of simulation time, it allows for user mode commands.
   if (this->fromRobot.t < 12.0)
   {
+    this->ZeroJointCommands();
     if (this->fromRobot.t > 10.2)  // let it hit floor before changing.
       this->atlasSimInterface->set_desired_behavior("stand");
     else if (this->fromRobot.t > 2.0)
@@ -686,7 +654,6 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.pelvis_velocity.n[2] = vel.z;
     }
 
-#if GAZEBO_MINOR_VERSION > 3
     this->forceTorqueSensorsMsg.header.stamp =
       ros::Time(curTime.sec, curTime.nsec);
 
@@ -758,7 +725,6 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
     }
     this->pubForceTorqueSensors.publish(this->forceTorqueSensorsMsg);
-#endif
 
     // populate jointStates from robot
     this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
@@ -891,7 +857,6 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
-
 }
 
 void AtlasPlugin::OnLContactUpdate()
@@ -1007,6 +972,53 @@ void AtlasPlugin::OnRContactUpdate()
     msg.torque.y = this->rFootTorque.y;
     msg.torque.z = this->rFootTorque.z;
     this->pubRFootContact.publish(msg);
+  }
+}
+
+void AtlasPlugin::ZeroJointCommands()
+{
+  for (unsigned i = 0; i < this->jointCommands.name.size(); ++i)
+  {
+    this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+    this->jointCommands.position[i] = 0;
+    this->jointCommands.velocity[i] = 0;
+    this->jointCommands.effort[i] = 0;
+    this->jointCommands.kp_position[i] = 0;
+    this->jointCommands.ki_position[i] = 0;
+    this->jointCommands.kd_position[i] = 0;
+    this->jointCommands.kp_velocity[i] = 0;
+    this->jointCommands.i_effort_min[i] = 0;
+    this->jointCommands.i_effort_max[i] = 0;
+  }
+}
+
+void AtlasPlugin::LoadPIDGainsFromParameter()
+{
+  // pull down controller parameters
+  for (unsigned int joint = 0; joint < this->joints.size(); ++joint)
+  {
+    char joint_ns[200] = "";
+    snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
+             this->joints[joint]->GetName().c_str());
+    // this is so ugly
+    double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
+    string p_str = string(joint_ns)+"p";
+    string i_str = string(joint_ns)+"i";
+    string d_str = string(joint_ns)+"d";
+    string i_clamp_str = string(joint_ns)+"i_clamp";
+    if (!this->rosNode->getParam(p_str, p_val) ||
+        !this->rosNode->getParam(i_str, i_val) ||
+        !this->rosNode->getParam(d_str, d_val) ||
+        !this->rosNode->getParam(i_clamp_str, i_clamp_val))
+    {
+      ROS_ERROR("couldn't find a param for %s", joint_ns);
+      continue;
+    }
+    this->jointCommands.kp_position[joint]  =  p_val;
+    this->jointCommands.ki_position[joint]  =  i_val;
+    this->jointCommands.kd_position[joint]  =  d_val;
+    this->jointCommands.i_effort_min[joint] = -i_clamp_val;
+    this->jointCommands.i_effort_max[joint] =  i_clamp_val;
   }
 }
 
