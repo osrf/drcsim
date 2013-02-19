@@ -100,7 +100,11 @@ void VRCPlugin::DeferredLoad()
     this->SetRobotMode("pinned");
     this->atlas.startupHarness = true;
     ROS_INFO("Start robot with gravity turned off and harnessed.");
-    ROS_INFO("Resume to nominal mode after 10 seconds.");
+    if (math::equal(this->atlas.startupHarnessDuration, 0.0))
+      ROS_INFO("Atlas will stay pinned.");
+    else
+      ROS_INFO("Resume to nominal mode after %f seconds.",
+        this->atlas.startupHarnessDuration);
   }
 
   // ros callback queue for processing subscription
@@ -499,8 +503,9 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
 
-  if (this->atlas.isInitialized &&
-      this->atlas.startupHarness && curTime > 10)
+  if (this->atlas.startupHarness && this->atlas.isInitialized &&
+      !math::equal(atlas.startupHarnessDuration, 0.0) &&
+      curTime > atlas.startupHarnessDuration)
   {
     this->SetRobotMode("nominal");
     this->atlas.startupHarness = false;
@@ -711,6 +716,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   this->isInitialized = false;
+  this->startupHarnessDuration = 10;
 
   // load parameters
   if (_sdf->HasElement("atlas") &&
@@ -794,6 +800,13 @@ void VRCPlugin::LoadVRCROSAPI()
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadRobotROSAPI()
 {
+  if (!this->rosNode->getParam("atlas/time_to_unpin",
+    atlas.startupHarnessDuration))
+  {
+    ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
+             " %f seconds", atlas.startupHarnessDuration);
+  }
+
   // ros subscription
   std::string trajectory_topic_name = "atlas/cmd_vel";
   ros::SubscribeOptions trajectory_so =
