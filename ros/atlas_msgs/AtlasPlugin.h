@@ -184,8 +184,10 @@ namespace gazebo
     private: boost::mutex mutex;
 
     // AtlasSimInterface:  Controls ros interface
-    private: ros::Subscriber sub_robot_mode_;
+    private: ros::Subscriber subAtlasControlMode;
     private: void OnRobotMode(const std_msgs::String::ConstPtr &_to);
+    private: bool startWalkingController;
+    private: double startWalkingControllerTime;
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;

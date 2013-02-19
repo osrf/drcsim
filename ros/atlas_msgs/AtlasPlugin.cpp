@@ -45,6 +45,8 @@ AtlasPlugin::AtlasPlugin()
 
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
+  this->startWalkingController = false;
+  this->startWalkingControllerTime = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -490,13 +492,12 @@ void AtlasPlugin::DeferredLoad()
   // subscribe to a control_mode string message, current valid commands are:
   //   walk, stand, safety, stand-prep, none
   // the command is passed to the AtlasSimInterface library.
-  std::string robot_mode_topic_name = "atlas/control_mode";
-  ros::SubscribeOptions robot_mode_so =
+  ros::SubscribeOptions atlasControlModeSo =
     ros::SubscribeOptions::create<std_msgs::String>(
-    robot_mode_topic_name, 100,
+    "atlas/control_mode", 100,
     boost::bind(&AtlasPlugin::OnRobotMode, this, _1),
     ros::VoidPtr(), &this->rosQueue);
-  this->sub_robot_mode_ = this->rosNode->subscribe(robot_mode_so);
+  this->subAtlasControlMode = this->rosNode->subscribe(atlasControlModeSo);
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
@@ -521,11 +522,25 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
   // simple state machine here to do something
   if (_mode->data == "walk" || _mode->data == "stand" ||
-      _mode->data == "safety" || _mode->data == "stand-prep" ||
-      _mode->data == "none")
+      _mode->data == "safety" || _mode->data == "stand-prep")
+  {
+    // start AtlasSimLibrary controller
+    this->startWalkingController = true;
+    this->startWalkingControllerTime = this->world->GetSimTime().Double();
     this->atlasSimInterface->set_desired_behavior(_mode->data);
+    this->ZeroJointCommands();
+  }
+  else if (_mode->data == "none")
+  {
+    // revert to PID control
+    this->LoadPIDGainsFromParameter();
+    this->startWalkingController = false;
+    this->atlasSimInterface->set_desired_behavior(_mode->data);
+  }
   else
+  {
     ROS_WARN("Unknown robot mode [%s]", _mode->data.c_str());
+  }
 }
 
 void AtlasPlugin::UpdateStates()
@@ -536,14 +551,15 @@ void AtlasPlugin::UpdateStates()
   // Robot starts out in stand-prep as it is dropped from harness.
   // Switches to stand mode once it stabilizes.
   // After 12 seconds of simulation time, it allows for user mode commands.
-  if (this->fromRobot.t < 12.0)
+  if (this->startWalkingController &&
+      curTime < this->startWalkingControllerTime + 6.0)
   {
-    this->ZeroJointCommands();
-    if (this->fromRobot.t > 10.2)  // let it hit floor before changing.
+    // let it hit floor before changing.
+    if (curTime > this->startWalkingControllerTime + 4.0)
       this->atlasSimInterface->set_desired_behavior("stand");
-    else if (this->fromRobot.t > 2.0)
+    else if (curTime > this->startWalkingControllerTime + 2.0)
       this->atlasSimInterface->set_desired_behavior("stand-prep");
-    else if (this->fromRobot.t > 1.0)
+    else if (curTime > this->startWalkingControllerTime + 1.0)
       this->atlasSimInterface->set_desired_behavior("safety");
   }
 
@@ -736,9 +752,10 @@ void AtlasPlugin::UpdateStates()
     }
 
     // AtlasSimInterface:
-    // process data fromRobot to create output data toRobot
-    this->errorCode = this->atlasSimInterface->process_control_input(
-      this->fromRobot, this->toRobot);
+    if (this->startWalkingController)
+      // process data fromRobot to create output data toRobot
+      this->errorCode = this->atlasSimInterface->process_control_input(
+        this->fromRobot, this->toRobot);
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
