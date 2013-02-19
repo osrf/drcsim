@@ -323,9 +323,6 @@ void GazeboRosCameraUtils::ImageDisconnect()
 // Initialize the controller
 void GazeboRosCameraUtils::Init()
 {
-  // set parent sensor update rate
-  this->parentSensor_->SetUpdateRate(this->update_rate_);
-
   // prepare to throttle this plugin at the same rate
   // ideally, we should invoke a plugin update when the sensor updates,
   // have to think about how to do that properly later
