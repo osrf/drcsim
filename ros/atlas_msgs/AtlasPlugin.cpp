@@ -16,6 +16,7 @@
 */
 
 #include <string>
+#include <algorithm>
 
 #include "AtlasPlugin.h"
 
@@ -581,7 +582,7 @@ void AtlasPlugin::UpdateStates()
         double delta2 = delta *
           (this->jointCommandsAge - this->jointCommandsAgeMean);
         this->jointCommandsAgeVariance += delta2;
-        this->jointCommandsAgeVariance -= 
+        this->jointCommandsAgeVariance -=
           this->jointCommandsAgeDelta2Buffer[
           this->jointCommandsAgeBufferIndex];
 
@@ -657,7 +658,6 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
-
 }
 
 void AtlasPlugin::OnLContactUpdate()
