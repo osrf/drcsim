@@ -521,14 +521,20 @@ void AtlasPlugin::DeferredLoad()
 void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
   // simple state machine here to do something
-  if (_mode->data == "walk" || _mode->data == "stand" ||
-      _mode->data == "safety" || _mode->data == "stand-prep")
+  if (_mode->data == "stand" || _mode->data == "safety" ||
+      _mode->data == "stand-prep")
   {
     // start AtlasSimLibrary controller
     this->startWalkingController = true;
     this->startWalkingControllerTime = this->world->GetSimTime().Double();
     this->atlasSimInterface->set_desired_behavior(_mode->data);
     this->ZeroJointCommands();
+  }
+  if (_mode->data == "walk")
+  {
+    // start AtlasSimLibrary controller
+    this->startWalkingController = true;
+    this->atlasSimInterface->set_desired_behavior(_mode->data);
   }
   else if (_mode->data == "none")
   {
@@ -552,10 +558,10 @@ void AtlasPlugin::UpdateStates()
   // Switches to stand mode once it stabilizes.
   // After 12 seconds of simulation time, it allows for user mode commands.
   if (this->startWalkingController &&
-      curTime < this->startWalkingControllerTime + 6.0)
+      curTime < this->startWalkingControllerTime + 12.0)
   {
     // let it hit floor before changing.
-    if (curTime > this->startWalkingControllerTime + 4.0)
+    if (curTime > this->startWalkingControllerTime + 10.0)
       this->atlasSimInterface->set_desired_behavior("stand");
     else if (curTime > this->startWalkingControllerTime + 2.0)
       this->atlasSimInterface->set_desired_behavior("stand-prep");
@@ -573,7 +579,7 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.t = curTime.Double();
       this->fromRobot.j[i].q = this->joints[i]->GetAngle(0).Radian();
       this->fromRobot.j[i].qd = this->joints[i]->GetVelocity(0);
-      // wait to fill in this->fromRobot.j[i].effort later
+      // wait to fill in this->fromRobot.j[i].f later
     }
 
     // get imu data from imu link
