@@ -186,8 +186,7 @@ namespace gazebo
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
     private: void OnRobotMode(const std_msgs::String::ConstPtr &_to);
-    private: bool startWalkingController;
-    private: double startWalkingControllerTime;
+    private: bool usingWalkingController;
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
