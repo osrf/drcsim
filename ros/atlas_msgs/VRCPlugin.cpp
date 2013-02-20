@@ -157,7 +157,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     {
       math::Pose pose;
       // slightly above ground
-      pose.pos = math::Vector3(0, 0, 1.0);
+      pose.pos = math::Vector3(0, 0, 0.97);
       pose.rot.SetFromEuler(0, 0, 0);
       this->atlas.model->SetWorldPose(pose);
       this->atlas.pinJoint = this->AddJoint(this->world,
