@@ -265,9 +265,18 @@ void GazeboRosCameraUtils::LoadThread()
 
   // camera info publish rate will be synchronized to image sensor
   // publish rates.
-  this->camera_info_pub_ =
-    this->rosnode_->advertise<sensor_msgs::CameraInfo>(
-    this->camera_info_topic_name_, 1);
+  // If someone connects to camera_info, sensor will be activated
+  // and camera_info will be published alongside image_raw with the
+  // same timestamps.  This incurrs additional computational cost when
+  // there are subscribers to camera_info, but better mimics behavior
+  // of image_pipeline.
+  ros::AdvertiseOptions cio =
+    ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
+    this->camera_info_topic_name_, 1,
+    boost::bind(&GazeboRosCameraUtils::ImageConnect, this),
+    boost::bind(&GazeboRosCameraUtils::ImageDisconnect, this),
+    ros::VoidPtr(), &this->camera_queue_);
+  this->camera_info_pub_ = this->rosnode_->advertise(cio);
 
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -435,16 +444,16 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src,
 
 void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
 {
-  boost::mutex::scoped_lock lock(this->lock_);
-
-  // copy data into image
-  this->image_msg_.header.frame_id = this->frame_name_;
-  this->image_msg_.header.stamp.sec = this->sensor_update_time_.sec;
-  this->image_msg_.header.stamp.nsec = this->sensor_update_time_.nsec;
-
   /// don't bother if there are no subscribers
-  if (this->image_connect_count_ > 0)
+  if (this->image_pub_.getNumSubscribers() > 0)
   {
+    boost::mutex::scoped_lock lock(this->lock_);
+
+    // copy data into image
+    this->image_msg_.header.frame_id = this->frame_name_;
+    this->image_msg_.header.stamp.sec = this->sensor_update_time_.sec;
+    this->image_msg_.header.stamp.nsec = this->sensor_update_time_.nsec;
+
     // copy from src to image_msg_
     fillImage(this->image_msg_, this->type_, this->height_, this->width_,
         this->skip_*this->width_, reinterpret_cast<const void*>(_src));
@@ -453,8 +462,6 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
     this->image_pub_.publish(this->image_msg_);
   }
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Put camera_ data to the interface
@@ -546,9 +553,6 @@ void GazeboRosCameraUtils::CameraQueueThread()
 
   while (this->rosnode_->ok())
   {
-    /// publish CameraInfo
-    this->PublishCameraInfo();
-
     /// take care of callback queue
     this->camera_queue_.callAvailable(ros::WallDuration(timeout));
   }
