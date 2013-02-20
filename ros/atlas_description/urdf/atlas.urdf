@@ -245,7 +245,7 @@
                 <mesh filename="package://atlas/meshes/ltorso.stl" scale="1 1 1" />
             </geometry>
         </collision>
-    </link>sdf
+    </link>
     <link name="mtorso">
         <inertial>
             <mass value="0.55" />
