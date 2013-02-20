@@ -29,7 +29,7 @@ TestROSPlugin::TestROSPlugin()
 // Destructor
 TestROSPlugin::~TestROSPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateBegin(this->update_connection_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ void TestROSPlugin::Load(physics::ModelPtr _parent,
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&TestROSPlugin::UpdateStates, this));
 }
 
