@@ -44,7 +44,7 @@ AtlasPlugin::AtlasPlugin()
 ////////////////////////////////////////////////////////////////////////////////
 AtlasPlugin::~AtlasPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -416,7 +416,7 @@ void AtlasPlugin::DeferredLoad()
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
 
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&AtlasPlugin::UpdateStates, this));
 
   // on contact
