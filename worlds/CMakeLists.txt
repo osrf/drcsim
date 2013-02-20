@@ -10,5 +10,10 @@ set (worlds
      golf_cart.world
      fire_hose.world
      powerplant.world
+     qual_task_1.world
+     qual_task_2.world
+     qual_task_3.world
+     qual_task_4.world
     )
+
 install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/worlds/)
