@@ -1,5 +1,4 @@
-set(MODEL_NAME drc_terrain)
-add_subdirectory(materials)
+set(MODEL_NAME drc_vehicle)
 set (files 
   model.sdf
   model.config

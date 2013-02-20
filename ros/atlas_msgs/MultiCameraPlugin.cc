@@ -70,7 +70,7 @@ void MultiCameraPlugin::Load(sensors::SensorPtr _sensor,
 
     // debug
     std::string cameraName = this->parentSensor->GetCamera(i)->GetName();
-    gzdbg << "cmaera(" << i << ") name [" << cameraName << "]\n";
+    gzdbg << "camera(" << i << ") name [" << cameraName << "]\n";
 
     // FIXME: hardcoded 2 camera support only
     if (cameraName.find("left") != std::string::npos)

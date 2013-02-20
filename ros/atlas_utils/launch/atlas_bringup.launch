@@ -2,30 +2,18 @@
   <!-- Use sim time -->
   <param name="/use_sim_time" type="bool" value="true"/>
 
-  <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
-
   <!-- Controller Manager -->
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />
 
-  <!-- joint states to tf
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="atlas_robot_state_publisher">
+  <!-- joint states to tf -->
+  <node pkg="robot_state_publisher" type="state_publisher" name="atlas_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/atlas/joint_states" />
   </node>
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="multisense_sl_robot_state_publisher">
+  <node pkg="robot_state_publisher" type="state_publisher" name="multisense_sl_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/multisense_sl/joint_states" />
   </node>
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="sandia_hands_l_hand_robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/sandia_hands/l_hand/joint_states" />
-  </node>
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="sandia_hands_r_hand_robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/sandia_hands/r_hand/joint_states" />
-  </node>
-  -->
 
   <!-- Fake Calibration -->
   <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"

@@ -100,7 +100,7 @@ void GazeboRosJointTrajectory::Load(physics::ModelPtr _model,
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_api.so\n";
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
   }
 }
 
@@ -155,9 +155,6 @@ void GazeboRosJointTrajectory::SetTrajectory(
   const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
-
-  // resume physics update
-  this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
 
   this->reference_link_name_ = trajectory->header.frame_id;
   // do this every time a new joint trajectory is supplied,
