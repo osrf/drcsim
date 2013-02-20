@@ -222,6 +222,7 @@ void GazeboRosControllerManager::LoadThread()
   // plugin updates
   this->updateConnection = event::Events::ConnectWorldUpdateStart(
       boost::bind(&GazeboRosControllerManager::UpdateControllerForces, this));
+  ROS_INFO("gazebo controller manager load complete."
 }
 
 void GazeboRosControllerManager::propagateSimulationToMechanismState()
