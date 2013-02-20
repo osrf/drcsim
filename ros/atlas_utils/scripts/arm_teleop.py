@@ -38,7 +38,7 @@ class ArmTeleop():
                                  'atlas::r_arm_ely', 'atlas::r_arm_elx',
                                  'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
 
-        if len(argv) < 2 or len(argv) > 3:
+        if len(argv) < 2 or len(argv) > 4:
             self.usage()
 
         # Depending on which arm we're controlling, note the index into the
@@ -57,9 +57,12 @@ class ArmTeleop():
             self.usage()
 
         # If specified, we'll only do anything when the scene number matches
-        self.scene = None
-        if len(argv) == 3:
-            self.scene = int(argv[2])
+        self.scene1 = None
+        self.scene2 = None
+        if len(argv) >= 3:
+            self.scene1 = int(argv[2])
+        if len(argv) == 4:
+            self.scene2 = int(argv[3])
 
         # This stuff (and much else) belongs in a config file
         self.joy_axis_min = 0.0
@@ -98,8 +101,11 @@ class ArmTeleop():
         self.joint_state = msg
 
     def joy_cb(self, msg):
-        if (self.scene is not None and 
-            msg.buttons[SCENE_BUTTON_INDEX] != self.scene):
+        scene1_match = (self.scene1 is None or
+                        msg.buttons[SCENE_BUTTON_INDEX] == self.scene1)
+        scene2_match = (self.scene2 is None or
+                        msg.buttons[SCENE_BUTTON_INDEX] == self.scene2)
+        if not scene1_match and not scene2_match:
             return
 
         # Copy back the latest position state for joints we're not controlling; will drift
@@ -112,9 +118,9 @@ class ArmTeleop():
         self.joint_command.effort = [0.0] * n
         for i in range(self.num_joints):
             position = self.joint_min + ((msg.axes[i] - self.joy_axis_min)/(self.joy_axis_max - self.joy_axis_min)) * (self.joint_max - self.joint_min)
-            if self.idx_offset1 != None:
+            if self.idx_offset1 != None and scene1_match:
                 self.joint_command.position[self.idx_offset1 + i] = position
-            if self.idx_offset2 != None:
+            if self.idx_offset2 != None and scene2_match:
                 self.joint_command.position[self.idx_offset2 + i] = position
         self.joint_command.header.stamp = rospy.Time.now()
         self.pub.publish(self.joint_command)
