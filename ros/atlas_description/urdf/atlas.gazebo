@@ -62,6 +62,9 @@
   <gazebo reference="r_leg_lax">
     <provideFeedback>1</provideFeedback>
   </gazebo>
+  <gazebo reference="pelvis">
+    <dampingFactor>0.05</dampingFactor>
+  </gazebo>
   <gazebo reference="r_foot">
     <mu1>10.0</mu1>
     <mu2>10.0</mu2>
