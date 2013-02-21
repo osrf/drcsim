@@ -129,6 +129,55 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     }
   }
 
+  // get mass ratios across joints
+  {
+    physics::Joint_V joints1 = this->model->GetJoints();
+    for (physics::Joint_V::iterator ji = joints1.begin(); ji != joints1.end();
+         ++ji)
+    {
+      physics::JointPtr j = *ji;
+      physics::LinkPtr p = j->GetParent();
+      physics::LinkPtr c = j->GetChild();
+      math::Vector3 axis = j->GetGlobalAxis(0);
+      if (p && c)
+      {
+        physics::InertialPtr pi = p->GetInertial();
+        physics::InertialPtr ci = c->GetInertial();
+        math::Matrix3 pm(
+         pi->GetIXX(), pi->GetIXY(), pi->GetIXZ(),
+         pi->GetIXY(), pi->GetIYY(), pi->GetIYZ(),
+         pi->GetIXZ(), pi->GetIYZ(), pi->GetIZZ());
+        math::Matrix3 cm(
+         ci->GetIXX(), ci->GetIXY(), ci->GetIXZ(),
+         ci->GetIXY(), ci->GetIYY(), ci->GetIYZ(),
+         ci->GetIXZ(), ci->GetIYZ(), ci->GetIZZ());
+        // matrix times axis
+        math::Vector3 pia(
+          pm[0][0] * axis.x + pm[0][1] * axis.y + pm[0][2] * axis.z,
+          pm[1][0] * axis.x + pm[1][1] * axis.y + pm[1][2] * axis.z,
+          pm[2][0] * axis.x + pm[2][1] * axis.y + pm[2][2] * axis.z);
+        math::Vector3 cia(
+          cm[0][0] * axis.x + cm[0][1] * axis.y + cm[0][2] * axis.z,
+          cm[1][0] * axis.x + cm[1][1] * axis.y + cm[1][2] * axis.z,
+          cm[2][0] * axis.x + cm[2][1] * axis.y + cm[2][2] * axis.z);
+        double piam = pia.GetLength();
+        double ciam = cia.GetLength();
+        double ratio;
+        if (piam > ciam)
+          ratio = piam/ciam;
+        else
+          ratio = ciam/piam;
+        gzerr << j->GetName()
+              << ", " << p->GetName()
+              << ", " << c->GetName()
+              << ", axis[" << axis
+              << "], Ip[" << piam
+              << "], Ic[" << ciam
+              << "], ratio[" << ratio << "]\n";
+      }
+    }
+  }
+
   // JointController: Publish messages to reset joint controller gains
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
