@@ -36,7 +36,7 @@ VRCPlugin::VRCPlugin()
 // Destructor
 VRCPlugin::~VRCPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -114,7 +114,7 @@ void VRCPlugin::DeferredLoad()
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&VRCPlugin::UpdateStates, this));
 }
 

@@ -16,6 +16,7 @@
 */
 
 #include <string>
+#include <algorithm>
 
 #include <gazebo/transport/Node.hh>
 
@@ -51,7 +52,7 @@ AtlasPlugin::AtlasPlugin()
 ////////////////////////////////////////////////////////////////////////////////
 AtlasPlugin::~AtlasPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -452,13 +453,15 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10);
 
+  // these topics are used for debugging only
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/l_foot_contact", 10);
+      "atlas/debug/l_foot_contact", 10);
 
+  // these topics are used for debugging only
   this->pubRFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/r_foot_contact", 10);
+      "atlas/debug/r_foot_contact", 10);
 
   // ros topic subscribtions
   ros::SubscribeOptions jointCommandsSo =
@@ -485,7 +488,7 @@ void AtlasPlugin::DeferredLoad()
 
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0;
+  this->statsUpdateRate = 1.0;
 
   // AtlasSimInterface:
   // subscribe to a control_mode string message, current valid commands are:
@@ -502,7 +505,7 @@ void AtlasPlugin::DeferredLoad()
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
 
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&AtlasPlugin::UpdateStates, this));
 
   // on contact
@@ -772,7 +775,7 @@ void AtlasPlugin::UpdateStates()
         double delta2 = delta *
           (this->jointCommandsAge - this->jointCommandsAgeMean);
         this->jointCommandsAgeVariance += delta2;
-        this->jointCommandsAgeVariance -= 
+        this->jointCommandsAgeVariance -=
           this->jointCommandsAgeDelta2Buffer[
           this->jointCommandsAgeBufferIndex];
 
@@ -848,7 +851,7 @@ void AtlasPlugin::UpdateStates()
     if (this->pubControllerStatistics.getNumSubscribers() > 0)
     {
       if ((curTime - this->lastControllerStatisticsTime).Double() >=
-        1.0/this->updateRate)
+        1.0/this->statsUpdateRate)
       {
         atlas_msgs::ControllerStatistics msg;
         msg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
@@ -911,16 +914,15 @@ void AtlasPlugin::OnLContactUpdate()
     double e = 0.99;
     this->lFootForce = this->lFootForce * e + fTotal * (1.0 - e);
     this->lFootTorque = this->lFootTorque * e + tTotal * (1.0 - e);
-
-    geometry_msgs::Wrench msg;
-    msg.force.x = this->lFootForce.x;
-    msg.force.y = this->lFootForce.y;
-    msg.force.z = this->lFootForce.z;
-    msg.torque.x = this->lFootTorque.x;
-    msg.torque.y = this->lFootTorque.y;
-    msg.torque.z = this->lFootTorque.z;
-    this->pubLFootContact.publish(msg);
   }
+  geometry_msgs::Wrench msg;
+  msg.force.x = this->lFootForce.x;
+  msg.force.y = this->lFootForce.y;
+  msg.force.z = this->lFootForce.z;
+  msg.torque.x = this->lFootTorque.x;
+  msg.torque.y = this->lFootTorque.y;
+  msg.torque.z = this->lFootTorque.z;
+  this->pubLFootContact.publish(msg);
 }
 
 void AtlasPlugin::OnRContactUpdate()
@@ -929,9 +931,12 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
-
+  // GetContacts returns all contacts on the collision body
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
+    // loop through all contact pairs to sum the total force
+    // on collision1
+
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
     // gzerr << " t[" << this->world->GetSimTime()
@@ -947,6 +952,8 @@ void AtlasPlugin::OnRContactUpdate()
     math::Vector3 tTotal;
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
+      // loop through all contacts between collision1 and collision2
+
       // gzerr << j << "  Position:"
       //       << contacts.contact(i).position(j).x() << " "
       //       << contacts.contact(i).position(j).y() << " "
@@ -969,16 +976,15 @@ void AtlasPlugin::OnRContactUpdate()
     double e = 0.99;
     this->rFootForce = this->rFootForce * e + fTotal * (1.0 - e);
     this->rFootTorque = this->rFootTorque * e + tTotal * (1.0 - e);
-
-    geometry_msgs::Wrench msg;
-    msg.force.x = this->rFootForce.x;
-    msg.force.y = this->rFootForce.y;
-    msg.force.z = this->rFootForce.z;
-    msg.torque.x = this->rFootTorque.x;
-    msg.torque.y = this->rFootTorque.y;
-    msg.torque.z = this->rFootTorque.z;
-    this->pubRFootContact.publish(msg);
   }
+  geometry_msgs::Wrench msg;
+  msg.force.x = this->rFootForce.x;
+  msg.force.y = this->rFootForce.y;
+  msg.force.z = this->rFootForce.z;
+  msg.torque.x = this->rFootTorque.x;
+  msg.torque.y = this->rFootTorque.y;
+  msg.torque.z = this->rFootTorque.z;
+  this->pubRFootContact.publish(msg);
 }
 
 void AtlasPlugin::ZeroJointCommands()
