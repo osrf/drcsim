@@ -113,7 +113,7 @@ void GazeboRosBumper::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosBumper::UpdateChild, this));
 }
 
