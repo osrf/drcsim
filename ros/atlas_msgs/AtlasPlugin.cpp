@@ -669,46 +669,56 @@ void AtlasPlugin::OnLContactUpdate()
   contacts = this->lFootContactSensor->GetContacts();
 
 
-  for (int i = 0; i < contacts.contact_size(); ++i)
+  if (contacts.contact_size() > 0)
   {
-    // gzerr << "Collision between[" << contacts.contact(i).collision1()
-    //           << "] and [" << contacts.contact(i).collision2() << "]\n";
-    // gzerr << " t[" << this->world->GetSimTime()
-    //       << "] i[" << i
-    //       << "] s[" << contacts.contact(i).time().sec()
-    //       << "] n[" << contacts.contact(i).time().nsec()
-    //       << "] size[" << contacts.contact(i).position_size()
-    //       << "]\n";
-
-    // common::Time contactTime(contacts.contact(i).time().sec(),
-    //                          contacts.contact(i).time().nsec());
-    math::Vector3 fTotal;
-    math::Vector3 tTotal;
-    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
+    for (int i = 0; i < contacts.contact_size(); ++i)
     {
-      // gzerr << j << "  Position:"
-      //       << contacts.contact(i).position(j).x() << " "
-      //       << contacts.contact(i).position(j).y() << " "
-      //       << contacts.contact(i).position(j).z() << "\n";
-      // gzerr << "   Normal:"
-      //       << contacts.contact(i).normal(j).x() << " "
-      //       << contacts.contact(i).normal(j).y() << " "
-      //       << contacts.contact(i).normal(j).z() << "\n";
-      // gzerr << "   Depth:" << contacts.contact(i).depth(j) << "\n";
-      fTotal += math::Vector3(
-                            contacts.contact(i).wrench(j).body_1_force().x(),
-                            contacts.contact(i).wrench(j).body_1_force().y(),
-                            contacts.contact(i).wrench(j).body_1_force().z());
-      tTotal += math::Vector3(
-                            contacts.contact(i).wrench(j).body_1_torque().x(),
-                            contacts.contact(i).wrench(j).body_1_torque().y(),
-                            contacts.contact(i).wrench(j).body_1_torque().z());
+      // gzerr << "Collision between[" << contacts.contact(i).collision1()
+      //           << "] and [" << contacts.contact(i).collision2() << "]\n";
+      // gzerr << " t[" << this->world->GetSimTime()
+      //       << "] i[" << i
+      //       << "] s[" << contacts.contact(i).time().sec()
+      //       << "] n[" << contacts.contact(i).time().nsec()
+      //       << "] size[" << contacts.contact(i).position_size()
+      //       << "]\n";
+
+      // common::Time contactTime(contacts.contact(i).time().sec(),
+      //                          contacts.contact(i).time().nsec());
+      math::Vector3 fTotal;
+      math::Vector3 tTotal;
+      for (int j = 0; j < contacts.contact(i).position_size(); ++j)
+      {
+        // gzerr << j << "  Position:"
+        //       << contacts.contact(i).position(j).x() << " "
+        //       << contacts.contact(i).position(j).y() << " "
+        //       << contacts.contact(i).position(j).z() << "\n";
+        // gzerr << "   Normal:"
+        //       << contacts.contact(i).normal(j).x() << " "
+        //       << contacts.contact(i).normal(j).y() << " "
+        //       << contacts.contact(i).normal(j).z() << "\n";
+        // gzerr << "   Depth:" << contacts.contact(i).depth(j) << "\n";
+        fTotal += math::Vector3(
+                              contacts.contact(i).wrench(j).body_1_force().x(),
+                              contacts.contact(i).wrench(j).body_1_force().y(),
+                              contacts.contact(i).wrench(j).body_1_force().z());
+        tTotal += math::Vector3(
+                              contacts.contact(i).wrench(j).body_1_torque().x(),
+                              contacts.contact(i).wrench(j).body_1_torque().y(),
+                              contacts.contact(i).wrench(j).body_1_torque().z());
+      }
+      // low pass filter over time
+      double e = 0.99;
+      this->lFootForce = this->lFootForce * e + fTotal * (1.0 - e);
+      this->lFootTorque = this->lFootTorque * e + tTotal * (1.0 - e);
     }
-    // low pass filter over time
-    double e = 0.99;
-    this->lFootForce = this->lFootForce * e + fTotal * (1.0 - e);
-    this->lFootTorque = this->lFootTorque * e + tTotal * (1.0 - e);
   }
+  else
+  {
+    // clear force torque values if no contact
+    this->lFootForce = 0;
+    this->lFootTorque = 0;
+  }
+
   geometry_msgs::Wrench msg;
   msg.force.x = this->lFootForce.x;
   msg.force.y = this->lFootForce.y;
@@ -725,52 +735,62 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
-  // GetContacts returns all contacts on the collision body
-  for (int i = 0; i < contacts.contact_size(); ++i)
+  if (contacts.contact_size() > 0)
   {
-    // loop through all contact pairs to sum the total force
-    // on collision1
-
-    // gzerr << "Collision between[" << contacts.contact(i).collision1()
-    //           << "] and [" << contacts.contact(i).collision2() << "]\n";
-    // gzerr << " t[" << this->world->GetSimTime()
-    //       << "] i[" << i
-    //       << "] s[" << contacts.contact(i).time().sec()
-    //       << "] n[" << contacts.contact(i).time().nsec()
-    //       << "] size[" << contacts.contact(i).position_size()
-    //       << "]\n";
-
-    // common::Time contactTime(contacts.contact(i).time().sec(),
-    //                          contacts.contact(i).time().nsec());
-    math::Vector3 fTotal;
-    math::Vector3 tTotal;
-    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
+    // GetContacts returns all contacts on the collision body
+    for (int i = 0; i < contacts.contact_size(); ++i)
     {
-      // loop through all contacts between collision1 and collision2
+      // loop through all contact pairs to sum the total force
+      // on collision1
 
-      // gzerr << j << "  Position:"
-      //       << contacts.contact(i).position(j).x() << " "
-      //       << contacts.contact(i).position(j).y() << " "
-      //       << contacts.contact(i).position(j).z() << "\n";
-      // gzerr << "   Normal:"
-      //       << contacts.contact(i).normal(j).x() << " "
-      //       << contacts.contact(i).normal(j).y() << " "
-      //       << contacts.contact(i).normal(j).z() << "\n";
-      // gzerr << "   Depth:" << contacts.contact(i).depth(j) << "\n";
-      fTotal += math::Vector3(
-                            contacts.contact(i).wrench(j).body_1_force().x(),
-                            contacts.contact(i).wrench(j).body_1_force().y(),
-                            contacts.contact(i).wrench(j).body_1_force().z());
-      tTotal += math::Vector3(
-                            contacts.contact(i).wrench(j).body_1_torque().x(),
-                            contacts.contact(i).wrench(j).body_1_torque().y(),
-                            contacts.contact(i).wrench(j).body_1_torque().z());
+      // gzerr << "Collision between[" << contacts.contact(i).collision1()
+      //           << "] and [" << contacts.contact(i).collision2() << "]\n";
+      // gzerr << " t[" << this->world->GetSimTime()
+      //       << "] i[" << i
+      //       << "] s[" << contacts.contact(i).time().sec()
+      //       << "] n[" << contacts.contact(i).time().nsec()
+      //       << "] size[" << contacts.contact(i).position_size()
+      //       << "]\n";
+
+      // common::Time contactTime(contacts.contact(i).time().sec(),
+      //                          contacts.contact(i).time().nsec());
+      math::Vector3 fTotal;
+      math::Vector3 tTotal;
+      for (int j = 0; j < contacts.contact(i).position_size(); ++j)
+      {
+        // loop through all contacts between collision1 and collision2
+
+        // gzerr << j << "  Position:"
+        //       << contacts.contact(i).position(j).x() << " "
+        //       << contacts.contact(i).position(j).y() << " "
+        //       << contacts.contact(i).position(j).z() << "\n";
+        // gzerr << "   Normal:"
+        //       << contacts.contact(i).normal(j).x() << " "
+        //       << contacts.contact(i).normal(j).y() << " "
+        //       << contacts.contact(i).normal(j).z() << "\n";
+        // gzerr << "   Depth:" << contacts.contact(i).depth(j) << "\n";
+        fTotal += math::Vector3(
+                              contacts.contact(i).wrench(j).body_1_force().x(),
+                              contacts.contact(i).wrench(j).body_1_force().y(),
+                              contacts.contact(i).wrench(j).body_1_force().z());
+        tTotal += math::Vector3(
+                              contacts.contact(i).wrench(j).body_1_torque().x(),
+                              contacts.contact(i).wrench(j).body_1_torque().y(),
+                              contacts.contact(i).wrench(j).body_1_torque().z());
+      }
+      // low pass filter over time
+      double e = 0.99;
+      this->rFootForce = this->rFootForce * e + fTotal * (1.0 - e);
+      this->rFootTorque = this->rFootTorque * e + tTotal * (1.0 - e);
     }
-    // low pass filter over time
-    double e = 0.99;
-    this->rFootForce = this->rFootForce * e + fTotal * (1.0 - e);
-    this->rFootTorque = this->rFootTorque * e + tTotal * (1.0 - e);
   }
+  else
+  {
+    // clear force torque values if no contact
+    this->rFootForce = 0;
+    this->rFootTorque = 0;
+  }
+
   geometry_msgs::Wrench msg;
   msg.force.x = this->rFootForce.x;
   msg.force.y = this->rFootForce.y;
