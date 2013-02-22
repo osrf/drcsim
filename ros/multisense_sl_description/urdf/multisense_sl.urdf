@@ -177,17 +177,17 @@
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
     <sensor type="multicamera" name="stereo_camera">
-      <!-- update rate based on spec sheet for 2mp 15fps -->
-      <update_rate>15.0</update_rate>
+      <!-- update rate based on spec sheet for 2mp (2048*1088) 15 fps -->
+      <!-- update rate based on spec sheet for 1mp (1536*816) 30 fps -->
+      <!-- update rate based on spec sheet for 1mp (1024*544) 60 fps -->
+      <!-- update rate based on spec sheet for 1mp (640*480) 70 fps -->
+      <update_rate>30.0</update_rate>
       <camera name="left">
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
-        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
-        <!-- robot also capable of 1024 x 544 resolution -->
-        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>1024</width>
-          <height>544</height>
+          <width>1536</width>
+          <height>816</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -198,13 +198,10 @@
       <camera name="right">
         <pose>0 -0.07 0 0 0 0</pose>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
-        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
-        <!-- robot also capable of 1024 x 544 resolution -->
-        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>1024</width>
-          <height>544</height>
+          <width>1536</width>
+          <height>816</height>
           <format>R8G8B8</format>
         </image>
         <clip>
