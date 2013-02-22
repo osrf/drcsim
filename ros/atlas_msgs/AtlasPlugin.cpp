@@ -550,10 +550,8 @@ void AtlasPlugin::UpdateStates()
     {
       this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
       this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
-      // better to us e GetForceTorque dot joint axis ??
-      this->jointStates.effort[i] = this->joints[i]->GetForce(0);
+      // but wait on publish until we've determined the force to apply
     }
-    this->pubJointStates.publish(this->jointStates);
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
@@ -634,9 +632,13 @@ void AtlasPlugin::UpdateStates()
           this->jointCommands.effort[i];
 
         this->joints[i]->SetForce(0, force);
+
+        this->jointStates.effort[i] = force;
       }
     }
     this->lastControllerUpdateTime = curTime;
+
+    this->pubJointStates.publish(this->jointStates);
 
     /// controller statistics diagnostics, damages, etc.
     if (this->pubControllerStatistics.getNumSubscribers() > 0)
