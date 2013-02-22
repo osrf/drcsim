@@ -86,14 +86,7 @@ void GazeboRosMultiCamera::OnNewFrameLeft(const unsigned char *_image,
   GazeboRosCameraUtils* util = this->utils[0];
   util->sensor_update_time_ = util->parentSensor_->GetLastUpdateTime();
 
-  if (!util->parentSensor_->IsActive())
-  {
-    gzdbg << "should not be in here, somnething may be wrong on startup."
-          << "  Sensor::SetActive has been called, so rendering::Camera"
-          << " is actively publishing images, but"
-          << " MultiCameraSensor::IsActive() returns false.\n";
-  }
-  else
+  if (util->parentSensor_->IsActive())
   {
     common::Time cur_time = util->world_->GetSimTime();
     if (cur_time - util->last_update_time_ >= util->update_period_)
@@ -114,14 +107,7 @@ void GazeboRosMultiCamera::OnNewFrameRight(const unsigned char *_image,
   GazeboRosCameraUtils* util = this->utils[1];
   util->sensor_update_time_ = util->parentSensor_->GetLastUpdateTime();
 
-  if (!util->parentSensor_->IsActive())
-  {
-    gzdbg << "should not be in here, somnething may be wrong on startup."
-          << "  Sensor::SetActive has been called, so rendering::Camera"
-          << " is actively publishing images, but"
-          << " MultiCameraSensor::IsActive() returns false.\n";
-  }
-  else
+  if (util->parentSensor_->IsActive())
   {
     common::Time cur_time = util->world_->GetSimTime();
     if (cur_time - util->last_update_time_ >= util->update_period_)
