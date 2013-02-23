@@ -54,6 +54,7 @@
 #include <gazebo/sensors/Sensor.hh>
 
 #include <osrf_msgs/JointCommands.h>
+#include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
 #include <sensor_msgs/JointState.h>
@@ -116,6 +117,10 @@ namespace gazebo
     private: physics::JointPtr lWristJoint;
 
     private: atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
+
+    // publish imu, foot wrist force torque sensor, joint states together
+    private: atlas_msgs::AtlasState fromRobotMsg;
+    private: ros::Publisher pubFromRobot;
 
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
