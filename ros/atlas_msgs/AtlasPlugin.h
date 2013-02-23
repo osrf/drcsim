@@ -120,11 +120,7 @@ namespace gazebo
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
-    private: math::Pose imuOffsetPose;
     private: physics::LinkPtr imuLink;
-    private: common::Time lastImuTime;
-    private: math::Pose imuReferencePose;
-    private: math::Vector3 imuLastLinearVel;
     private: ros::Publisher pubImu;
 
     // AtlasSimInterface: internal debugging only
