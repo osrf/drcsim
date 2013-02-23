@@ -36,6 +36,9 @@
 
 #include <boost/thread.hpp>
 
+// AtlasSimInterface: header
+#include "AtlasSimInterface.h"
+
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/physics/PhysicsTypes.hh>
@@ -124,6 +127,11 @@ namespace gazebo
     private: math::Vector3 imuLastLinearVel;
     private: ros::Publisher pubImu;
 
+    // AtlasSimInterface: internal debugging only
+    // Pelvis position and velocity
+    private: std::string pelvisLinkName;
+    private: physics::LinkPtr pelvisLink;
+
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
@@ -144,7 +152,22 @@ namespace gazebo
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
+    private: void LoadPIDGainsFromParameter();
+    private: void ZeroJointCommands();
+
     private: std::vector<std::string> jointNames;
+
+    // JointController: pointer to a copy of the joint controller in gazebo
+    private: physics::JointControllerPtr jointController;
+    private: transport::NodePtr node;
+    private: transport::PublisherPtr jointCmdPub;
+
+    // AtlasSimInterface:
+    private: AtlasControlDataToRobot toRobot;
+    private: AtlasControlDataFromRobot fromRobot;
+    private: AtlasErrorCode errorCode;
+    private: AtlasSimInterface* atlasSimInterface;
+
     private: physics::Joint_V joints;
     private: class ErrorTerms
       {
@@ -160,7 +183,12 @@ namespace gazebo
     private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
 
-    // Controls stuff
+    // AtlasSimInterface:  Controls ros interface
+    private: ros::Subscriber subAtlasControlMode;
+    private: void OnRobotMode(const std_msgs::String::ConstPtr &_to);
+    private: bool usingWalkingController;
+
+    /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
 
     // controls message age measure
