@@ -304,7 +304,7 @@
   </gazebo>
 
   <!-- imu link -->
-  <link name="imu_link">
+  <link name="head_imu_link">
     <inertial>
       <mass value="0.1"/>
       <origin xyz="0 0 0"/>
@@ -323,14 +323,15 @@
       </geometry>
     </visual>
   </link>
-  <joint name="imu_joint" type="fixed">
+  <joint name="head_imu_joint" type="fixed">
     <parent link="head"/>
-    <child link="imu_link"/>
-    <origin xyz="0.05991527603 0 -0.01415" rpy="0 0 0"/>
+    <child link="head_imu_link"/>
+    <!-- putting it at the same z-level as the stereo -->
+    <origin xyz="-0.0475 0.035 0.0" rpy="0 0 0"/>
   </joint>
-  <gazebo reference="imu_link">
+  <gazebo reference="head_imu_link">
     <!-- this is expected to be reparented to head with appropriate offset
-         when imu_link is reduced by fixed joint reduction -->
+         when head_imu_link is reduced by fixed joint reduction -->
     <!-- todo: this is working with gazebo 1.4, need to write a unit test -->
     <sensor name="imu_sensor" type="imu">
       <always_on>1</always_on>
