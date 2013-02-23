@@ -103,6 +103,7 @@ configure_file(${CMAKE_SOURCE_DIR}/cmake/setup-unversioned.sh.in ${PROJECT_BINAR
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/unversioned/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
 
 add_subdirectory(gazebo_models)
+add_subdirectory(media)
 add_subdirectory(plugins)
 add_subdirectory(ros)
 add_subdirectory(worlds)
