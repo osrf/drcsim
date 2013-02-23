@@ -57,7 +57,7 @@ GazeboRosControllerManager::~GazeboRosControllerManager()
 {
   // If all previous steps are successful, start the controller manager
   // plugin updates
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
 
   delete this->controller_manager_;
   this->rosnode_->shutdown();
@@ -220,7 +220,7 @@ void GazeboRosControllerManager::LoadThread()
 
   // If all previous steps are successful, start the controller manager
   // plugin updates
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosControllerManager::UpdateControllerForces, this));
 }
 

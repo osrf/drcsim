@@ -23,12 +23,6 @@
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
-    <collision group="default">
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <box size="0.01 0.01 0.01"/>
-      </geometry>
-    </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -84,4 +78,29 @@
       <updateRate>100.0</updateRate>
     </plugin>
   </gazebo>
+
+  <!-- foot contact sensors -->
+  <gazebo reference="r_foot">
+    <!-- contact sensor -->
+    <sensor type="contact" name="r_foot_contact_sensor">
+      <update_rate>1000.0</update_rate>
+      <always_on>1</always_on>
+      <contact>
+        <collision>r_foot_collision</collision>
+        <topic>/r_foot_contact</topic>
+      </contact>
+    </sensor>
+  </gazebo>
+  <gazebo reference="l_foot">
+    <!-- contact sensor -->
+    <sensor type="contact" name="l_foot_contact_sensor">
+      <update_rate>1000.0</update_rate>
+      <always_on>1</always_on>
+      <contact>
+        <collision>l_foot_collision</collision>
+        <topic>/l_foot_contact</topic>
+      </contact>
+    </sensor>
+  </gazebo>
+
 </robot>
