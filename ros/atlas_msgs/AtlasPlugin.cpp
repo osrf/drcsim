@@ -143,13 +143,17 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   this->errorTerms.resize(this->joints.size());
-  for (unsigned i = 0; i < this->joints.size(); ++i)
+  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
     this->errorTerms[i].q_i = 0;
     this->errorTerms[i].qd_p = 0;
   }
+
+  this->effortLimit.resize(this->jointNames.size());
+  for (unsigned i = 0; i < this->effortLimit.size(); ++i)
+    this->effortLimit[i] = this->joints[i]->GetEffortLimit(0);
 
   this->jointStates.name.resize(this->joints.size());
   this->jointStates.position.resize(this->joints.size());
@@ -824,6 +828,19 @@ void AtlasPlugin::UpdateStates()
           this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
           this->jointCommands.effort[i];
 
+        double forceClamped = math::clamp(force, -this->effortLimit[i],
+          this->effortLimit[i]);
+        double intTieBack = forceClamped - force;
+
+        if (!math::equal(intTieBack, 0.0))
+        {
+          // Apply integral tie-back, recalculate integral term
+          this->errorTerms[i].q_i = intTieBack /
+            this->jointCommands.ki_position[i];
+          // Clamp force and
+          force = forceClamped;
+          
+        }
 
         // AtlasSimInterface:  add controller force to overall control torque.
         force += this->toRobot.j[i].f_d;

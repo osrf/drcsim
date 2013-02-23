@@ -169,6 +169,8 @@ namespace gazebo
     private: AtlasSimInterface* atlasSimInterface;
 
     private: physics::Joint_V joints;
+    private: std::vector<double> effortLimit;
+
     private: class ErrorTerms
       {
         double q_p;
