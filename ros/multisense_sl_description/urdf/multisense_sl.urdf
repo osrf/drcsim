@@ -177,17 +177,14 @@
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
     <sensor type="multicamera" name="stereo_camera">
-      <!-- update rate based on spec sheet for 2mp (2048*1088) 15 fps -->
-      <!-- update rate based on spec sheet for 1mp (1536*816) 30 fps -->
-      <!-- update rate based on spec sheet for 1mp (1024*544) 60 fps -->
-      <!-- update rate based on spec sheet for 1mp (640*480) 70 fps -->
+      <!-- see MultiSenseSLPlugin.h for available modes -->
       <update_rate>30.0</update_rate>
       <camera name="left">
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>1536</width>
-          <height>816</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -200,8 +197,8 @@
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>1536</width>
-          <height>816</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>

@@ -278,6 +278,7 @@ void GazeboRosCameraUtils::LoadThread()
     ros::VoidPtr(), &this->camera_queue_);
   this->camera_info_pub_ = this->rosnode_->advertise(cio);
 
+  /* disabling fov and rate setting for each camera
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
         "set_hfov", 1,
@@ -291,6 +292,7 @@ void GazeboRosCameraUtils::LoadThread()
         boost::bind(&GazeboRosCameraUtils::SetUpdateRate, this, _1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
+  */
 
   this->Init();
 }

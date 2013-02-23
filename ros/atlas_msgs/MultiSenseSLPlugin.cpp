@@ -15,11 +15,12 @@
  *
 */
 
-#include "sensor_msgs/Imu.h"
+#include <gazebo/physics/PhysicsTypes.hh>
+#include <gazebo/rendering/Camera.hh>
+#include <sensor_msgs/Imu.h>
 
 #include "MultiSenseSLPlugin.h"
 
-#include "gazebo/physics/PhysicsTypes.hh"
 
 namespace gazebo
 {
@@ -35,10 +36,10 @@ MultiSenseSL::MultiSenseSL()
   this->spindleSpeed = 0;
   this->spindleMaxRPM = 50.0;
   this->spindleMinRPM = 0;
-  this->multiCameraFrameRate = 25.0;
   this->multiCameraExposureTime = 0.001;
   this->multiCameraGain = 1.0;
   this->imuLinkName = "head";
+  this->imagerMode = 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +109,9 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->multiCameraSensor)
     gzerr << "multicamera sensor not found\n";
 
+  // get default frame rate
+  this->multiCameraFrameRate = this->multiCameraSensor->GetUpdateRate();
+
   this->laserSensor =
     boost::shared_dynamic_cast<sensors::RaySensor>(
     sensors::SensorManager::Instance()->GetSensor("head_hokuyo_sensor"));
@@ -152,6 +156,28 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
+  ros::SubscribeOptions set_multi_camera_frame_rate_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/set_camera_frame_rate", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraFrameRate), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_frame_rate_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
+
+  /* FIXME currently this causes simulation to crash,
+  ros::SubscribeOptions set_multi_camera_resolution_so =
+    ros::SubscribeOptions::create<std_msgs::Int32>(
+    "multisense_sl/set_camera_resolution_mode", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Int32::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraResolution), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_resolution_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_resolution_so);
+  */
+
   /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
@@ -162,16 +188,6 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_spindle_state_sub_ =
     this->rosnode_->subscribe(set_spindle_state_so);
-
-  ros::SubscribeOptions set_multi_camera_frame_rate_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_camera_frame_rate", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetMultiCameraFrameRate),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_multi_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
 
   ros::SubscribeOptions set_multi_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -364,8 +380,125 @@ void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
+  // limit frame rate to what is capable
   this->multiCameraFrameRate = static_cast<double>(_msg->data);
+
+  // FIXME: Hardcoded lower limit on all resolution
+  if (this->multiCameraFrameRate < 1.0)
+  {
+    ROS_INFO("Camera rate cannot be below 1Hz at any resolution\n");
+    this->multiCameraFrameRate = 1.0;
+  }
+
+  // FIXME: Hardcoded upper limit.  Need to switch rates between modes.
+  if (this->imagerMode == 0)
+  {
+    if (this->multiCameraFrameRate > 15.0)
+    {
+      ROS_INFO("Camera rate cannot be above 15Hz at this resolution\n");
+      this->multiCameraFrameRate = 15.0;
+    }
+  }
+  else if (this->imagerMode == 1)
+  {
+    if (this->multiCameraFrameRate > 30.0)
+    {
+      ROS_INFO("Camera rate cannot be above 30Hz at this resolution\n");
+      this->multiCameraFrameRate = 30.0;
+    }
+  }
+  else if (this->imagerMode == 2)
+  {
+    if (this->multiCameraFrameRate > 60.0)
+    {
+      ROS_INFO("Camera rate cannot be above 60Hz at this resolution\n");
+      this->multiCameraFrameRate = 60.0;
+    }
+  }
+  else if (this->imagerMode == 3)
+  {
+    if (this->multiCameraFrameRate > 70.0)
+    {
+      ROS_INFO("Camera rate cannot be above 70Hz at this resolution\n");
+      this->multiCameraFrameRate = 70.0;
+    }
+  }
+  else
+  {
+    ROS_ERROR("MultiSense SL internal state error (%d)", this->imagerMode);
+  }
+
   this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void MultiSenseSL::SetMultiCameraResolution(
+  const std_msgs::Int32::ConstPtr &_msg)
+{
+  /// see MultiSenseSLPlugin.h for available modes
+  if (_msg->data < 0 || _msg->data > 3)
+  {
+    ROS_WARN("/multisense_sl/set_camera_resolution_mode must"
+              " be between 0 - 3:\n"
+              "  0 - 2MP (2048*1088) @ up to 15 fps\n"
+              "  1 - 1MP (2048*544) @ up to 30 fps\n"
+              "  2 - 0.5MP (1024*544) @ up to 60 fps (default)\n"
+              "  3 - VGA (640*480) @ up to 70 fps\n");
+    return;
+  }
+
+  this->imagerMode = _msg->data;
+
+  unsigned int width = 640;
+  unsigned int height = 480;
+  if (this->imagerMode == 0)
+  {
+    width = 2048;
+    height = 1088;
+    if (this->multiCameraFrameRate > 15)
+    {
+      ROS_INFO("Reducing frame rate to 15Hz.");
+      this->multiCameraFrameRate = 15.0;
+    }
+  }
+  else if (this->imagerMode == 1)
+  {
+    width = 2048;
+    height = 544;
+    if (this->multiCameraFrameRate > 30)
+    {
+      ROS_INFO("Reducing frame rate to 30Hz.");
+      this->multiCameraFrameRate = 30.0;
+    }
+  }
+  else if (this->imagerMode == 2)
+  {
+    width = 1024;
+    height = 544;
+    if (this->multiCameraFrameRate > 60)
+    {
+      ROS_INFO("Reducing frame rate to 60Hz.");
+      this->multiCameraFrameRate = 60.0;
+    }
+  }
+  else if (this->imagerMode == 3)
+  {
+    width = 640;
+    height = 480;
+    if (this->multiCameraFrameRate > 70)
+    {
+      ROS_INFO("Reducing frame rate to 70Hz.");
+      this->multiCameraFrameRate = 70.0;
+    }
+  }
+
+  this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
+
+  for (unsigned int i = 0; i < this->multiCameraSensor->GetCameraCount(); ++i)
+  {
+    this->multiCameraSensor->GetCamera(i)->SetImageWidth(width);
+    this->multiCameraSensor->GetCamera(i)->SetImageHeight(height);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
