@@ -158,7 +158,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_multi_camera_frame_rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_camera_frame_rate", 100,
+    "multisense_sl/fps", 100,
     boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraFrameRate), this, _1),
