@@ -83,7 +83,7 @@ rosbuild_add_library(gazebo_ros_p3d gazebo_ros_p3d.cpp)
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
 rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
-target_link_libraries(AtlasPlugin AtlasSimInterface)
+target_link_libraries(AtlasPlugin ../plugins/AtlasSimInterface_1.0.3/lib64/libAtlasSimInterface.so)
 
 # needs actionlib, control_msgs
 rosbuild_add_library(VRCPlugin VRCPlugin.cpp)
