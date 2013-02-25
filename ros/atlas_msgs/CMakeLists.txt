@@ -35,7 +35,7 @@ link_directories(
   ${PLUGIN_LINK_DIRECTORIES}
   ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64
   ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.3
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64
+  ${CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64
 )
 
 #set the default path for built executables to the "bin" directory
@@ -92,7 +92,7 @@ target_link_libraries(AtlasPlugin AtlasSimInterface)
 message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
 message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64")
 message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.3")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64")
+message(DEBUG "  ${CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64")
 add_custom_command(OUTPUT output.x
                    COMMAND find ../..
                    COMMAND pwd
