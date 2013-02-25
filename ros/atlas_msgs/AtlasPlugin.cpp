@@ -669,6 +669,8 @@ void AtlasPlugin::OnLContactUpdate()
   contacts = this->lFootContactSensor->GetContacts();
 
 
+  math::Vector3 fTotal;
+  math::Vector3 tTotal;
   if (contacts.contact_size() > 0)
   {
     for (int i = 0; i < contacts.contact_size(); ++i)
@@ -684,8 +686,6 @@ void AtlasPlugin::OnLContactUpdate()
 
       // common::Time contactTime(contacts.contact(i).time().sec(),
       //                          contacts.contact(i).time().nsec());
-      math::Vector3 fTotal;
-      math::Vector3 tTotal;
       for (int j = 0; j < contacts.contact(i).position_size(); ++j)
       {
         // gzerr << j << "  Position:"
@@ -708,8 +708,8 @@ void AtlasPlugin::OnLContactUpdate()
       }
       // low pass filter over time
       double e = 0.99;
-      this->lFootForce = this->lFootForce * e + fTotal * (1.0 - e);
-      this->lFootTorque = this->lFootTorque * e + tTotal * (1.0 - e);
+      this->lFootForce = fTotal;
+      this->lFootTorque = tTotal;
     }
   }
   else
@@ -735,6 +735,8 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
+  math::Vector3 fTotal;
+  math::Vector3 tTotal;
   if (contacts.contact_size() > 0)
   {
     // GetContacts returns all contacts on the collision body
@@ -754,8 +756,6 @@ void AtlasPlugin::OnRContactUpdate()
 
       // common::Time contactTime(contacts.contact(i).time().sec(),
       //                          contacts.contact(i).time().nsec());
-      math::Vector3 fTotal;
-      math::Vector3 tTotal;
       for (int j = 0; j < contacts.contact(i).position_size(); ++j)
       {
         // loop through all contacts between collision1 and collision2
@@ -780,8 +780,8 @@ void AtlasPlugin::OnRContactUpdate()
       }
       // low pass filter over time
       double e = 0.99;
-      this->rFootForce = this->rFootForce * e + fTotal * (1.0 - e);
-      this->rFootTorque = this->rFootTorque * e + tTotal * (1.0 - e);
+      this->rFootForce = fTotal;
+      this->rFootTorque = tTotal;
     }
   }
   else
