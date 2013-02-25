@@ -35,7 +35,7 @@ link_directories(
   ${PLUGIN_LINK_DIRECTORIES}
   ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64
   ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.3
-  ../plugins/AtlasSimInterface_1.0.3/lib64
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64
 )
 
 #set the default path for built executables to the "bin" directory
@@ -83,7 +83,7 @@ rosbuild_add_library(gazebo_ros_p3d gazebo_ros_p3d.cpp)
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
 rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
-target_link_libraries(AtlasPlugin ../plugins/AtlasSimInterface_1.0.3/lib64/libAtlasSimInterface.so)
+target_link_libraries(AtlasPlugin AtlasSimInterface)
 
 # needs actionlib, control_msgs
 rosbuild_add_library(VRCPlugin VRCPlugin.cpp)
