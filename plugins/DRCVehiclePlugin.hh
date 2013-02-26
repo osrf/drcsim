@@ -257,6 +257,8 @@ namespace gazebo
     protected: double brakePedalCmd;
     protected: double handWheelCmd;
     protected: double handBrakeCmd;
+    protected: double brakePedalUpperDeadBand;
+    protected: double brakePedalLowerDeadBand;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
