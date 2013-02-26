@@ -410,7 +410,22 @@ void AtlasPlugin::DeferredLoad()
 
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
-  this->statsUpdateRate = 1.0;
+
+  // controller statistics update rate defaults to 1kHz,
+  // read from ros param if available
+  double rate;
+  if (this->rosNode->getParam("atlas/controller_statistics/update_rate",
+    rate))
+  {
+    rate = math::clamp(rate, 1.0, 10000.0);
+    ROS_INFO("AtlasPlugin controller statistics %f kHz", rate);
+    this->statsUpdateRate = rate;
+  }
+  else
+  {
+    ROS_INFO("AtlasPlugin default controller statistics 1kHz");
+    this->statsUpdateRate = 1000.0;
+  }
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
@@ -707,7 +722,6 @@ void AtlasPlugin::OnLContactUpdate()
                               contacts.contact(i).wrench(j).body_1_torque().z());
       }
       // low pass filter over time
-      double e = 0.99;
       this->lFootForce = fTotal;
       this->lFootTorque = tTotal;
     }
@@ -779,7 +793,6 @@ void AtlasPlugin::OnRContactUpdate()
                               contacts.contact(i).wrench(j).body_1_torque().z());
       }
       // low pass filter over time
-      double e = 0.99;
       this->rFootForce = fTotal;
       this->rFootTorque = tTotal;
     }
