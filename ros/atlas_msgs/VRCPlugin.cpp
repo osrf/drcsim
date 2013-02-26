@@ -238,13 +238,12 @@ void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
+                     _pose->orientation.y, _pose->orientation.z);
+  q.Normalize();
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
-                                _pose->position.z),
-                  math::Quaternion(_pose->orientation.w,
-                                   _pose->orientation.x,
-                                   _pose->orientation.y,
-                                   _pose->orientation.z));
+                                _pose->position.z), q);
   this->atlas.model->SetWorldPose(pose);
 }
 

@@ -73,7 +73,7 @@
 
     <include>
       <uri>model://cordless_drill</uri>
-      <pose>0.51 0.2 0.922 0 0 3.1415</pose>
+      <pose>0.51 0.2 1.013 0 0 3.1415</pose>
     </include>
 
     <!--
