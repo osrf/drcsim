@@ -44,7 +44,7 @@ MultiSenseSL::MultiSenseSL()
 ////////////////////////////////////////////////////////////////////////////////
 MultiSenseSL::~MultiSenseSL()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosnode_->shutdown();
   this->queue_.clear();
   this->queue_.disable();
@@ -224,7 +224,7 @@ void MultiSenseSL::LoadThread()
   this->callback_queue_thread_ = boost::thread(
     boost::bind(&MultiSenseSL::QueueThread, this));
 
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&MultiSenseSL::UpdateStates, this));
 }
 

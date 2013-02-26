@@ -39,7 +39,7 @@ GazeboRosJointTrajectory::GazeboRosJointTrajectory()
 // Destructor
 GazeboRosJointTrajectory::~GazeboRosJointTrajectory()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateBegin(this->update_connection_);
   // Finalize the controller
   this->rosnode_->shutdown();
   this->queue_.clear();
@@ -145,7 +145,7 @@ void GazeboRosJointTrajectory::LoadThread()
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosJointTrajectory::UpdateStates, this));
 }
 
@@ -155,9 +155,6 @@ void GazeboRosJointTrajectory::SetTrajectory(
   const trajectory_msgs::JointTrajectory::ConstPtr& trajectory)
 {
   boost::mutex::scoped_lock lock(this->update_mutex);
-
-  // resume physics update
-  this->world_->EnablePhysicsEngine(this->physics_engine_enabled_);
 
   this->reference_link_name_ = trajectory->header.frame_id;
   // do this every time a new joint trajectory is supplied,

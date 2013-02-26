@@ -18,6 +18,7 @@
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/sandia_hands/r_hand/joint_states" />
   </node>
+
 </launch>
   
 

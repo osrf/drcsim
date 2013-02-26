@@ -47,6 +47,7 @@
 #include <gazebo/sensors/SensorManager.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ContactSensor.hh>
+#include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
 
 #include <osrf_msgs/JointCommands.h>
@@ -114,7 +115,9 @@ namespace gazebo
     private: atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
 
     // IMU sensor
+    private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
+    private: math::Pose imuOffsetPose;
     private: physics::LinkPtr imuLink;
     private: common::Time lastImuTime;
     private: math::Pose imuReferencePose;
@@ -170,7 +173,5 @@ namespace gazebo
     private: double jointCommandsAgeVariance;
     private: double jointCommandsAge;
   };
-/** \} */
-/// @}
 }
 #endif

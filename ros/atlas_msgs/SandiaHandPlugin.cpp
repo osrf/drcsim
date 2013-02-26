@@ -38,7 +38,7 @@ SandiaHandPlugin::SandiaHandPlugin()
 // Destructor
 SandiaHandPlugin::~SandiaHandPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -309,7 +309,7 @@ void SandiaHandPlugin::DeferredLoad()
   this->callbackQueeuThread = boost::thread(
     boost::bind(&SandiaHandPlugin::RosQueueThread, this));
 
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&SandiaHandPlugin::UpdateStates, this));
 }
 
