@@ -58,7 +58,7 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.disable();
   this->callbackQueeuThread.join();
   delete this->rosNode;
-  // initialize behavior library
+  // shutdown behavior library
   destroy_atlas_sim_interface();
 }
 
