@@ -217,6 +217,8 @@ namespace gazebo
       /// \brief flag for successful initialization of atlas
       private: bool isInitialized;
 
+      private: double startupHarnessDuration;
+
       private: ros::Subscriber subTrajectory;
       private: ros::Subscriber subPose;
       private: ros::Subscriber subConfiguration;
