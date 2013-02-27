@@ -40,6 +40,8 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->brWheelCmd = 0;
   this->flWheelSteeringCmd = 0;
   this->frWheelSteeringCmd = 0;
+  this->brakePedalUpperDeadBand = 0.05;
+  this->brakePedalLowerDeadBand = 0.05;
 
   /// \TODO: get this from model
   this->wheelRadius = 0.1;
@@ -286,7 +288,7 @@ double DRCVehiclePlugin::GetGasPedalPercent()
 {
   double min, max;
   this->GetGasPedalLimits(min, max);
-  return (this->gasPedalState - min) / (max-min);
+  return math::clamp((this->gasPedalState - min) / (max-min), 0.0, 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +296,9 @@ double DRCVehiclePlugin::GetBrakePedalPercent()
 {
   double min, max;
   this->GetBrakePedalLimits(min, max);
-  return (this->brakePedalState - min) / (max-min);
+  max -= this->brakePedalUpperDeadBand * (max - min);
+  min += this->brakePedalLowerDeadBand * (max - min);
+  return math::clamp((this->brakePedalState - min) / (max-min), 0.0, 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +398,27 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
   this->brakePedalRange   = this->brakePedalHigh - this->brakePedalLow;
 
+  // simulate braking using joint stops
+  // set joint limit to 0, and set stop_cfm, stop_erp
+  this->flWheelJoint->SetHighStop(0, 0);
+  this->frWheelJoint->SetHighStop(0, 0);
+  this->blWheelJoint->SetHighStop(0, 0);
+  this->brWheelJoint->SetHighStop(0, 0);
+
+  this->flWheelJoint->SetLowStop(0, 0);
+  this->frWheelJoint->SetLowStop(0, 0);
+  this->blWheelJoint->SetLowStop(0, 0);
+  this->brWheelJoint->SetLowStop(0, 0);
+
+  this->flWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+  this->frWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+  this->blWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+  this->brWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+
+  this->flWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+  this->frWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+  this->blWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+  this->brWheelJoint->SetAttribute("stop_erp", 0, 0.0);
 
   // get some vehicle parameters
   this->frontTorque = _sdf->GetValueDouble("front_torque");
@@ -555,36 +580,68 @@ void DRCVehiclePlugin::UpdateStates()
 
     // Brake pedal, hand-brake torque.
     // Compute percents and add together, saturating at 100%
-    double brakePercent = this->GetBrakePedalPercent()
-      + this->GetHandBrakePercent();
-    if (brakePercent > 1) brakePercent = 1;
+    double brakePercent = std::max(this->GetBrakePedalPercent(),
+                                   this->GetHandBrakePercent());
+
     // Map brake torques to individual wheels.
     // Apply brake torque in opposition to wheel spin direction.
     double flBrakeTorque, frBrakeTorque, blBrakeTorque, brBrakeTorque;
-    flBrakeTorque = -copysign(brakePercent*this->frontBrakeTorque,
-      this->flWheelState);
-    frBrakeTorque = -copysign(brakePercent*this->frontBrakeTorque,
-      this->frWheelState);
-    blBrakeTorque = -copysign(brakePercent*this->backBrakeTorque,
-      this->blWheelState);
-    brBrakeTorque = -copysign(brakePercent*this->backBrakeTorque,
-      this->brWheelState);
+    flBrakeTorque = brakePercent*this->frontBrakeTorque;
+    frBrakeTorque = brakePercent*this->frontBrakeTorque;
+    blBrakeTorque = brakePercent*this->backBrakeTorque;
+    brBrakeTorque = brakePercent*this->backBrakeTorque;
 
-    this->flWheelJoint->SetForce(0, flGasTorque + flBrakeTorque);
-    this->frWheelJoint->SetForce(0, frGasTorque + frBrakeTorque);
-    this->blWheelJoint->SetForce(0, blGasTorque + blBrakeTorque);
-    this->brWheelJoint->SetForce(0, brGasTorque + brBrakeTorque);
+    // this->flWheelJoint->SetAttribute("fmax", 0, 0.001 + flBrakeTorque);
+    // this->frWheelJoint->SetAttribute("fmax", 0, 0.001 + frBrakeTorque);
+    // this->blWheelJoint->SetAttribute("fmax", 0, 0.001 + blBrakeTorque);
+    // this->brWheelJoint->SetAttribute("fmax", 0, 0.001 + brBrakeTorque);
 
-    // gzerr << "steer [" << this->handWheelState
-    //       << "] range [" << this->handWheelRange
-    //       << "] l [" << linVel
-    //       << "] a [" << angVel
-    //       << "] gas [" << this->gasPedalState
-    //       << "] gas [" << gasCmd
-    //       << "] brake [" << this->brakePedalState
-    //       << "] brake [" << brakeCmd
-    //       << "] bl gas [" << blGasTorque
-    //       << "] bl brake [" << blBrakeTorque << "]\n";
+    // \TODO:  tweak *BrakeCFM to simulate equivalent braking force.
+    // For now, this is 0 when fully braked, and 1 when brake is off.
+    // but we could probably increase the upper limit and change scaling
+    // to make effective braking force some linear function of the brake
+    // pedal position.
+    double flBrakeCFM = 1.0 - brakePercent;
+    double frBrakeCFM = 1.0 - brakePercent;
+    double blBrakeCFM = 1.0 - brakePercent;
+    double brBrakeCFM = 1.0 - brakePercent;
+    this->flWheelJoint->SetAttribute("stop_cfm", 0, flBrakeCFM);
+    this->frWheelJoint->SetAttribute("stop_cfm", 0, frBrakeCFM);
+    this->blWheelJoint->SetAttribute("stop_cfm", 0, blBrakeCFM);
+    this->brWheelJoint->SetAttribute("stop_cfm", 0, brBrakeCFM);
+
+    // \TODO:  optional:  to really hold the wheels in place, we can
+    // get current joint position, set both high and low stops to it
+    // and make stop_erp non-zero.
+    // this->flWheelJoint->SetHighStop(0, 0.001);
+    // this->frWheelJoint->SetHighStop(0, 0.001);
+    // this->blWheelJoint->SetHighStop(0, 0.001);
+    // this->brWheelJoint->SetHighStop(0, 0.001);
+    // this->flWheelJoint->SetLowStop(0, -0.001);
+    // this->frWheelJoint->SetLowStop(0, -0.001);
+    // this->blWheelJoint->SetLowStop(0, -0.001);
+    // this->brWheelJoint->SetLowStop(0, -0.001);
+    // this->flWheelJoint->SetAttribute("stop_erp", 0, 0.2);
+    // this->frWheelJoint->SetAttribute("stop_erp", 0, 0.2);
+    // this->blWheelJoint->SetAttribute("stop_erp", 0, 0.2);
+    // this->brWheelJoint->SetAttribute("stop_erp", 0, 0.2);
+
+    this->flWheelJoint->SetForce(0, flGasTorque);
+    this->frWheelJoint->SetForce(0, frGasTorque);
+    this->blWheelJoint->SetForce(0, blGasTorque);
+    this->brWheelJoint->SetForce(0, brGasTorque);
+
+    gzerr << "steer [" << this->handWheelState
+          << "] range [" << this->handWheelRange
+          << "] l [" << linVel
+          << "] a [" << angVel
+          << "] gas [" << this->gasPedalState
+          << "] gas [" << gasCmd
+          << "] brake [" << this->brakePedalState
+          << "] brake% [" << brakePercent
+          << "] brake [" << brakeCmd
+          << "] bl gas [" << blGasTorque
+          << "] bl brake [" << blBrakeTorque << "]\n";
     this->lastTime = curTime;
   }
   else if (dt < 0)
