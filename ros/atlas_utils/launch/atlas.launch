@@ -10,7 +10,7 @@
   </include>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
+  <param name="robot_description" textfile="$(find atlas_description)/atlas_description.urdf"/>
   
   <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
 </launch>
