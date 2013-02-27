@@ -83,9 +83,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // initialize update time
   this->lastControllerUpdateTime = this->world->GetSimTime();
 
-  // initialize imu
-  this->lastImuTime = this->world->GetSimTime();
-
   // get joints
   this->jointNames.push_back("back_lbz");
   this->jointNames.push_back("back_mby");
@@ -297,13 +294,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
         "l_foot_contact_sensor"));
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
-
-  // initialize imu reference pose
-  this->imuOffsetPose = this->imuSensor->GetPose();
-  this->imuReferencePose = this->imuOffsetPose + this->imuLink->GetWorldPose();
-  this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
-    this->imuLink->GetWorldLinearVel());
-  // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
@@ -566,34 +556,15 @@ void AtlasPlugin::UpdateStates()
     }
 
     // get imu data from imu link
-    if (this->imuLink && curTime > this->lastImuTime)
+    if (this->imuSensor)
     {
-      double dt = (curTime - this->lastImuTime).Double();
-      // Get imuLnk Pose/Orientation
-      math::Pose parentEntityPose = this->imuLink->GetWorldPose();
-      math::Pose imuLinkPose = this->imuOffsetPose + parentEntityPose;
-
-      // calculate imu's linear velocity in imu frame
-      math::Vector3 imuAngularVelParentFrame =
-        parentEntityPose.rot.GetInverse().RotateVector(
-        this->imuLink->GetWorldAngularVel());
-      math::Vector3 imuLinearVelParentFrame =
-        parentEntityPose.rot.GetInverse().RotateVector(
-        this->imuLink->GetWorldLinearVel()) +
-        this->imuOffsetPose.pos.Cross(imuAngularVelParentFrame);
-      math::Vector3 imuLinearVel =
-        this->imuOffsetPose.rot.GetInverse().RotateVector(
-          imuLinearVelParentFrame);
-
       sensor_msgs::Imu imuMsg;
       imuMsg.header.frame_id = this->imuLinkName;
       imuMsg.header.stamp = ros::Time(curTime.Double());
 
       // compute angular rates
       {
-        // get world twist and convert to local frame
-        math::Vector3 wLocal = imuLinkPose.rot.GetInverse().RotateVector(
-          this->imuLink->GetWorldAngularVel());
+        math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
         imuMsg.angular_velocity.x = wLocal.x;
         imuMsg.angular_velocity.y = wLocal.y;
         imuMsg.angular_velocity.z = wLocal.z;
@@ -606,8 +577,7 @@ void AtlasPlugin::UpdateStates()
 
       // compute acceleration
       {
-        math::Vector3 accel = (imuLinearVel - this->imuLastLinearVel)/dt;
-
+        math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
         imuMsg.linear_acceleration.x = accel.x;
         imuMsg.linear_acceleration.y = accel.y;
         imuMsg.linear_acceleration.z = accel.z;
@@ -616,16 +586,12 @@ void AtlasPlugin::UpdateStates()
         this->fromRobot.imu.linear_acceleration.n[0] = accel.x;
         this->fromRobot.imu.linear_acceleration.n[1] = accel.y;
         this->fromRobot.imu.linear_acceleration.n[2] = accel.z;
-
-        this->imuLastLinearVel = imuLinearVel;
       }
 
       // compute orientation
       {
-        // Get IMU rotation relative to Initial IMU Reference Pose
         math::Quaternion imuRot =
-          imuLinkPose.rot * this->imuReferencePose.rot.GetInverse();
-
+          this->imuSensor->GetOrientation();
         imuMsg.orientation.x = imuRot.x;
         imuMsg.orientation.y = imuRot.y;
         imuMsg.orientation.z = imuRot.z;
@@ -639,13 +605,10 @@ void AtlasPlugin::UpdateStates()
       }
 
       this->pubImu.publish(imuMsg);
-
-      // update time
-      this->lastImuTime = curTime.Double();
     }
 
     // AtlasSimInterface: pelvis pose/twist for internal debugging only.
-    if (this->pelvisLink && curTime > this->lastImuTime)
+    if (this->pelvisLink)
     {
       math::Pose pose = this->pelvisLink->GetWorldPose();
       math::Vector3 vel = this->pelvisLink->GetWorldLinearVel();
