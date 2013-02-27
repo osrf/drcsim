@@ -988,9 +988,9 @@ void AtlasPlugin::OnRContactUpdate()
   msg.force.x = fTotal.x;
   msg.force.y = fTotal.y;
   msg.force.z = fTotal.z;
-  msg.torque.x = rTotal.x;
-  msg.torque.y = rTotal.y;
-  msg.torque.z = rTotal.z;
+  msg.torque.x = tTotal.x;
+  msg.torque.y = tTotal.y;
+  msg.torque.z = tTotal.z;
   this->pubRFootContact.publish(msg);
 }
 
