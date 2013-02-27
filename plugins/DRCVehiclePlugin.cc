@@ -27,6 +27,7 @@ namespace gazebo
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 DRCVehiclePlugin::DRCVehiclePlugin()
+  : jointDeadbandPercent(0.02)
 {
   this->keyState = ON;
   this->directionState = FORWARD;
@@ -153,8 +154,8 @@ void DRCVehiclePlugin::SetHandBrakeLimits(double &_min, double &_max)
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::GetHandBrakeLimits(double &_min, double &_max)
 {
-  _max = this->handBrakeJoint->GetHighStop(0).Radian();
-  _min = this->handBrakeJoint->GetLowStop(0).Radian();
+  _max = this->handBrakeHigh;
+  _min = this->handBrakeLow;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,8 +271,8 @@ void DRCVehiclePlugin::SetGasPedalLimits(double _min, double _max)
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::GetGasPedalLimits(double &_min, double &_max)
 {
-  _max = this->gasPedalJoint->GetHighStop(0).Radian();
-  _min = this->gasPedalJoint->GetLowStop(0).Radian();
+  _max = this->gasPedalHigh;
+  _min = this->gasPedalLow;
 }
 
 /// Returns the gas pedal position in meters.
@@ -286,7 +287,7 @@ double DRCVehiclePlugin::GetGasPedalPercent()
 {
   double min, max;
   this->GetGasPedalLimits(min, max);
-  return math::clamp((this->gasPedalState - min) / (max-min), 0, 1);
+  return math::clamp((this->gasPedalState - min) / (max-min), 0.0, 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +295,7 @@ double DRCVehiclePlugin::GetBrakePedalPercent()
 {
   double min, max;
   this->GetBrakePedalLimits(min, max);
-  return math::clamp((this->brakePedalState - min) / (max-min), 0, 1);
+  return math::clamp((this->brakePedalState - min) / (max-min), 0.0, 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +303,7 @@ double DRCVehiclePlugin::GetHandBrakePercent()
 {
   double min, max;
   this->GetHandBrakeLimits(min, max);
-  return math::clamp((this->handBrakeState - min) / (max-min), 0, 1);
+  return math::clamp((this->handBrakeState - min) / (max-min), 0.0, 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,8 +327,8 @@ void DRCVehiclePlugin::SetBrakePedalLimits(double _min, double _max)
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehiclePlugin::GetBrakePedalLimits(double &_min, double &_max)
 {
-  _max = this->brakePedalJoint->GetHighStop(0).Radian();
-  _min = this->brakePedalJoint->GetLowStop(0).Radian();
+  _max = this->brakePedalHigh;
+  _min = this->brakePedalLow;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -407,13 +408,36 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   if (!this->frWheelSteeringJoint)
     gzthrow("could not find front right steering joint\n");
 
+  // Put some deadband at the end of range for gas and brake pedals
+  // and hand brake
+  double jointCenter;
   this->gasPedalHigh  = this->gasPedalJoint->GetHighStop(0).Radian();
   this->gasPedalLow   = this->gasPedalJoint->GetLowStop(0).Radian();
+  jointCenter = (this->gasPedalHigh + this->gasPedalLow) / 2.0;
+  this->gasPedalHigh = jointCenter +
+    (1 - this->jointDeadbandPercent) * (this->gasPedalHigh - jointCenter);
+  this->gasPedalLow = jointCenter +
+    (1 - this->jointDeadbandPercent) * (this->gasPedalLow - jointCenter);
   this->gasPedalRange   = this->gasPedalHigh - this->gasPedalLow;
+
   this->brakePedalHigh  = this->brakePedalJoint->GetHighStop(0).Radian();
   this->brakePedalLow   = this->brakePedalJoint->GetLowStop(0).Radian();
+  jointCenter = (this->brakePedalHigh + this->brakePedalLow) / 2.0;
+  this->brakePedalHigh = jointCenter +
+    (1 - this->jointDeadbandPercent) * (this->brakePedalHigh - jointCenter);
+  this->brakePedalLow = jointCenter +
+    (1 - this->jointDeadbandPercent) * (this->brakePedalLow - jointCenter);
   this->brakePedalRange   = this->brakePedalHigh - this->brakePedalLow;
 
+  this->handBrakeHigh  = this->handBrakeJoint->GetHighStop(0).Radian();
+  this->handBrakeLow   = this->handBrakeJoint->GetLowStop(0).Radian();
+
+  jointCenter = (this->handBrakeHigh + this->handBrakeLow) / 2.0;
+  this->handBrakeHigh = jointCenter +
+    (1 - this->jointDeadbandPercent) * (this->handBrakeHigh - jointCenter);
+  this->handBrakeLow = jointCenter +
+    (1 - this->jointDeadbandPercent) * (this->handBrakeLow - jointCenter);
+  this->handBrakeRange   = this->handBrakeHigh - this->handBrakeLow;
 
   // get some vehicle parameters
   this->frontTorque = _sdf->GetValueDouble("front_torque");
@@ -581,25 +605,25 @@ void DRCVehiclePlugin::UpdateStates()
     // Compute percents and add together, saturating at 100%
     double brakePercent = this->GetBrakePedalPercent()
       + this->GetHandBrakePercent();
-    brakePercent = math::clamp(brakePercent, 0, 1);
+    brakePercent = math::clamp(brakePercent, 0.0, 1.0);
     // Map brake torques to individual wheels.
     // Apply brake torque in opposition to wheel spin direction.
     double flBrakeTorque, frBrakeTorque, blBrakeTorque, brBrakeTorque;
     // Below the smoothing speed in rad/s, reduce applied brake torque
     double smoothingSpeed = 0.5;
     flBrakeTorque = -brakePercent*this->frontBrakeTorque *
-      math::clamp(this->flWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->flWheelState / smoothingSpeed, -1.0, 1.0);
     frBrakeTorque = -brakePercent*this->frontBrakeTorque *
-      math::clamp(this->frWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->frWheelState / smoothingSpeed, -1.0, 1.0);
     blBrakeTorque = -brakePercent*this->backBrakeTorque *
-      math::clamp(this->blWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->blWheelState / smoothingSpeed, -1.0, 1.0);
     brBrakeTorque = -brakePercent*this->backBrakeTorque *
-      math::clamp(this->brWheelState / smoothingSpeed, -1, 1);
+      math::clamp(this->brWheelState / smoothingSpeed, -1.0, 1.0);
 
-    this->flWheelJoint->AddForce(0, flGasTorque + flBrakeTorque);
-    this->frWheelJoint->AddForce(0, frGasTorque + frBrakeTorque);
-    this->blWheelJoint->AddForce(0, blGasTorque + blBrakeTorque);
-    this->brWheelJoint->AddForce(0, brGasTorque + brBrakeTorque);
+    this->flWheelJoint->SetForce(0, flGasTorque + flBrakeTorque);
+    this->frWheelJoint->SetForce(0, frGasTorque + frBrakeTorque);
+    this->blWheelJoint->SetForce(0, blGasTorque + blBrakeTorque);
+    this->brWheelJoint->SetForce(0, brGasTorque + brBrakeTorque);
 
     // gzerr << "steer [" << this->handWheelState
     //       << "] range [" << this->handWheelRange

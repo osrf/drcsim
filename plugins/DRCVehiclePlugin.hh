@@ -238,6 +238,7 @@ namespace gazebo
     private: physics::JointPtr brWheelJoint;
     private: physics::JointPtr flWheelSteeringJoint;
     private: physics::JointPtr frWheelSteeringJoint;
+    private: const double jointDeadbandPercent;
 
     private: double frontTorque;
     private: double backTorque;
