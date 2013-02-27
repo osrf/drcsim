@@ -491,9 +491,9 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   // initialize controllers for car
   /// \TODO: move PID parameters into SDF
-  this->gasPedalPID.Init(200, 0, 3, 10, -10,
+  this->gasPedalPID.Init(800, 0, 3, 50, -50,
                          this->pedalForce, -this->pedalForce);
-  this->brakePedalPID.Init(200, 0, 3, 10, -10,
+  this->brakePedalPID.Init(800, 0, 3, 50, -50,
                          this->pedalForce, -this->pedalForce);
   this->handWheelPID.Init(200, 0, 30.0, 5.0, -5.0,
                          this->handWheelForce, -this->handWheelForce);
