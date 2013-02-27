@@ -156,6 +156,9 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "harnessed")
   {
+    bool paused = this->world->IsPaused();
+    this->world->SetPaused(true);
+
     // turning off effect of gravity
     physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
@@ -170,17 +173,26 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // raise robot, find gorund height, set it down and upright it, then pin it
     {
       math::Pose atlasPose = this->atlas.pinLink->GetWorldPose();
-      atlasPose.pos.z += 100;  // raise point up high for next call
+      atlasPose.pos.z += 50;  // raise point up high for next call
 
       // move robot out of the way
       this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
 
       atlasPose.pos.z -= 2;  // start ray trace below robot itself
 
+      gzdbg << atlasPose.pos << "\n";
+
       physics::EntityPtr objectBelow =
         this->world->GetEntityBelowPoint(atlasPose.pos);
       math::Box groundBB = objectBelow->GetBoundingBox();
       double groundHeight = groundBB.max.z;
+
+      gzdbg << objectBelow->GetName() << "\n";
+      gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
+      gzdbg << groundHeight << "\n";
+      gzdbg << groundBB.max.z << "\n";
+      gzdbg << groundBB.min.z << "\n";
+
       // slightly above ground and upright
       atlasPose.pos.z = groundHeight + 1.11;
       atlasPose.rot.SetFromEuler(0, 0, 0);
@@ -196,6 +208,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                         0.0, 0.0);
     }
     this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+    this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
   {
