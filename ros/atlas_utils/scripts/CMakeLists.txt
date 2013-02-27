@@ -1,5 +1,6 @@
 set (files
   run_gazebo
+  run_gazebo_paused
   run_gzserver
   reset_pose.py
   nanokontrol.py
