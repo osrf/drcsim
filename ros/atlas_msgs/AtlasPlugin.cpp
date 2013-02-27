@@ -116,6 +116,39 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointNames.push_back("r_arm_uwy");
   this->jointNames.push_back("r_arm_mwx");
 
+  this->jointIndexMap["back_lbz"]   =  0;
+  this->jointIndexMap["back_mby"]   =  1;
+  this->jointIndexMap["back_ubx"]   =  2;
+  this->jointIndexMap["neck_ay"]    =  3;
+  this->jointIndexMap["l_leg_uhz"]  =  4;
+  this->jointIndexMap["l_leg_mhx"]  =  5;
+  this->jointIndexMap["l_leg_lhy"]  =  6;
+  this->jointIndexMap["l_leg_kny"]  =  7;
+  this->jointIndexMap["l_leg_uay"]  =  8;
+  this->jointIndexMap["l_leg_lax"]  =  9;
+  this->jointIndexMap["r_leg_uhz"]  = 10;
+  this->jointIndexMap["r_leg_mhx"]  = 11;
+  this->jointIndexMap["r_leg_lhy"]  = 12;
+  this->jointIndexMap["r_leg_kny"]  = 13;
+  this->jointIndexMap["r_leg_uay"]  = 14;
+  this->jointIndexMap["r_leg_lax"]  = 15;
+  this->jointIndexMap["l_arm_usy"]  = 16;
+  this->jointIndexMap["l_arm_shx"]  = 17;
+  this->jointIndexMap["l_arm_ely"]  = 18;
+  this->jointIndexMap["l_arm_elx"]  = 19;
+  this->jointIndexMap["l_arm_uwy"]  = 20;
+  this->jointIndexMap["l_arm_mwx"]  = 21;
+  this->jointIndexMap["r_arm_usy"]  = 22;
+  this->jointIndexMap["r_arm_shx"]  = 23;
+  this->jointIndexMap["r_arm_ely"]  = 24;
+  this->jointIndexMap["r_arm_elx"]  = 25;
+  this->jointIndexMap["r_arm_uwy"]  = 26;
+  this->jointIndexMap["r_arm_mwx"]  = 27;
+
+  this->jointCommandsLen = this->jointNames.size();
+
+  this->jointCommandsIndex.resize(this->jointCommandsLen);
+
   this->joints.resize(this->jointNames.size());
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
@@ -322,81 +355,135 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
+  // if JointCommands::name array is empty, we expect default number of joints
+  // otherwise, the names are used to map the joint commands to robot joints.
+
   boost::mutex::scoped_lock lock(this->mutex);
 
   this->jointCommands.header.stamp = _msg->header.stamp;
 
-  if (_msg->position.size() == this->jointCommands.position.size())
+  this->jointCommandsLen = _msg->name.size();
+  if (this->jointCommandsLen > this->jointNames.size())
+  {
+    ROS_ERROR("/atlas/joint_commands name array too long (%d > %d)",
+      this->jointCommandsLen, this->jointNames.size());
+  }
+
+  // Next:
+  // if jointCommandsLen == 0 : use default ordering
+  // if jointCommandsLen > 0 : create index mapping array to joint index
+
+  // potentially very costly loop
+  for (unsigned int i = 0; i < this->jointCommandsLen; ++i)
+  {
+    // this->jointIndexMap[_msg->name[i].c_str()] = i;
+    std::map<std::string, unsigned int>::iterator ji =
+      this->jointIndexMap.find(_msg->name[i]);
+    if (ji == std::map::end)
+      this->jointCommandsIndex[i] = -1;  // bad name, no match
+    else
+      this->jointCommandsIndex[i] = this->jointIndexMap.find(_msg->name[i]);
+  }
+
+  bool useDefaultOrdering = this->jointCommandsLen == 0;
+
+  if (useDefaultOrdering)
+  {
+    this->positionLen = this->jointCommands.position.size();
+    this->velocityLen = this->jointCommands.velocity.size();
+    this->effortLen = this->jointCommands.effort.size();
+    this->kp_positionLen = this->jointCommands.kp_position.size();
+    this->ki_positionLen = this->jointCommands.ki_position.size();
+    this->kd_positionLen = this->jointCommands.kd_position.size();
+    this->kp_velocityLen = this->jointCommands.kp_velocity.size();
+    this->i_effort_minLen = this->jointCommands.i_effort_min.size();
+    this->i_effort_maxLen = this->jointCommands.i_effort_max.size();
+  }
+  else
+  if (useDefaultOrdering)
+  {
+    this->positionLen = this->jointCommandsLen;
+    this->velocityLen = this->jointCommandsLen;
+    this->effortLen = this->jointCommandsLen;
+    this->kp_positionLen = this->jointCommandsLen;
+    this->ki_positionLen = this->jointCommandsLen;
+    this->kd_positionLen = this->jointCommandsLen;
+    this->kp_velocityLen = this->jointCommandsLen;
+    this->i_effort_minLen = this->jointCommandsLen;
+    this->i_effort_maxLen = this->jointCommandsLen;
+  }
+
+  if (_msg->position.size() == this->positionLen)
     std::copy(_msg->position.begin(), _msg->position.end(),
       this->jointCommands.position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements position[%ld] than expected[%ld]",
-      _msg->position.size(), this->jointCommands.position.size());
+      " elements position[%ld] than expected[%d]",
+      _msg->position.size(), this->positionLen);
 
-  if (_msg->velocity.size() == this->jointCommands.velocity.size())
+  if (_msg->velocity.size() == this->velocityLen)
     std::copy(_msg->velocity.begin(), _msg->velocity.end(),
       this->jointCommands.velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements velocity[%ld] than expected[%ld]",
-      _msg->velocity.size(), this->jointCommands.velocity.size());
+      " elements velocity[%ld] than expected[%d]",
+      _msg->velocity.size(), this->velocityLen);
 
-  if (_msg->effort.size() == this->jointCommands.effort.size())
+  if (_msg->effort.size() == this->effortLen)
     std::copy(_msg->effort.begin(), _msg->effort.end(),
       this->jointCommands.effort.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements effort[%ld] than expected[%ld]",
-      _msg->effort.size(), this->jointCommands.effort.size());
+      " elements effort[%ld] than expected[%d]",
+      _msg->effort.size(), this->effortLen);
 
-  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
+  if (_msg->kp_position.size() == this->kp_positionLen)
     std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->jointCommands.kp_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements kp_position[%ld] than expected[%ld]",
-      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+      " elements kp_position[%ld] than expected[%d]",
+      _msg->kp_position.size(), this->kp_positionLen);
 
-  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
+  if (_msg->ki_position.size() == this->ki_positionLen)
     std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->jointCommands.ki_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements ki_position[%ld] than expected[%ld]",
-      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+      " elements ki_position[%ld] than expected[%d]",
+      _msg->ki_position.size(), this->ki_positionLen);
 
-  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
+  if (_msg->kd_position.size() == this->kd_positionLen)
     std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->jointCommands.kd_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements kd_position[%ld] than expected[%ld]",
-      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+      " elements kd_position[%ld] than expected[%d]",
+      _msg->kd_position.size(), this->kd_positionLen);
 
-  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
+  if (_msg->kp_velocity.size() == this->kp_velocityLen)
     std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->jointCommands.kp_velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements kp_velocity[%ld] than expected[%ld]",
-      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+      " elements kp_velocity[%ld] than expected[%d]",
+      _msg->kp_velocity.size(), this->kp_velocityLen);
 
-  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
+  if (_msg->i_effort_min.size() == this->i_effort_minLen)
     std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
       this->jointCommands.i_effort_min.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements i_effort_min[%ld] than expected[%ld]",
-      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+      " elements i_effort_min[%ld] than expected[%d]",
+      _msg->i_effort_min.size(), this->i_effort_minLen);
 
-  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+  if (_msg->i_effort_max.size() == this->i_effort_maxLen)
     std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
       this->jointCommands.i_effort_max.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
-      " elements i_effort_max[%ld] than expected[%ld]",
-      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
+      " elements i_effort_max[%ld] than expected[%d]",
+      _msg->i_effort_max.size(), this->i_effort_maxLen);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -845,54 +932,67 @@ void AtlasPlugin::UpdateStates()
          this->jointCommandsAgeBuffer.size();
       }
 
-      /// update pid with feedforward force
-      for (unsigned int i = 0; i < this->joints.size(); ++i)
+      if (this->jointCommandsLen != 28)
       {
-        // truncate joint position within range of motion
-        double positionTarget = math::clamp(
-          this->jointCommands.position[i],
-          this->joints[i]->GetLowStop(0).Radian(),
-          this->joints[i]->GetHighStop(0).Radian());
+        // a list of names provided
+        for (unsigned int i = 0; i < this->jointCommandsLen; ++i)
+        {
+          // do something clever with this->jointCommandsIndex[i]
+          // to set jointCommands.position[], et. al.
+        }
 
-        double q_p = positionTarget - this->jointStates.position[i];
+      }
+      else
+      {
+        /// update pid with feedforward force
+        for (unsigned int i = 0; i < this->joints.size(); ++i)
+        {
+          // truncate joint position within range of motion
+          double positionTarget = math::clamp(
+            this->jointCommands.position[i],
+            this->joints[i]->GetLowStop(0).Radian(),
+            this->joints[i]->GetHighStop(0).Radian());
 
-        if (!math::equal(dt, 0.0))
-          this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
+          double q_p = positionTarget - this->jointStates.position[i];
 
-        this->errorTerms[i].q_p = q_p;
+          if (!math::equal(dt, 0.0))
+            this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
 
-        this->errorTerms[i].qd_p =
-           this->jointCommands.velocity[i] - this->jointStates.velocity[i];
+          this->errorTerms[i].q_p = q_p;
 
-        if (!math::equal(this->jointCommands.ki_position[i], 0.0))
-          this->errorTerms[i].q_i = math::clamp(
-            this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-            static_cast<double>(this->jointCommands.i_effort_min[i]) /
-            this->jointCommands.ki_position[i],
-            static_cast<double>(this->jointCommands.i_effort_max[i]) /
-            this->jointCommands.ki_position[i]);
+          this->errorTerms[i].qd_p =
+             this->jointCommands.velocity[i] - this->jointStates.velocity[i];
 
-        // use gain params to compute force cmd
-        double force =
-          this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
-          this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
-          this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-          this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
-          this->jointCommands.effort[i];
+          if (!math::equal(this->jointCommands.ki_position[i], 0.0))
+            this->errorTerms[i].q_i = math::clamp(
+              this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
+              static_cast<double>(this->jointCommands.i_effort_min[i]) /
+              this->jointCommands.ki_position[i],
+              static_cast<double>(this->jointCommands.i_effort_max[i]) /
+              this->jointCommands.ki_position[i]);
+
+          // use gain params to compute force cmd
+          double force =
+            this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
+            this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
+            this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+            this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
+            this->jointCommands.effort[i];
 
 
-        // AtlasSimInterface:  add controller force to overall control torque.
-        force += this->toRobot.j[i].f_d;
+          // AtlasSimInterface:  add controller force to overall control torque.
+          force += this->toRobot.j[i].f_d;
 
-        this->joints[i]->SetForce(0, force);
+          this->joints[i]->SetForce(0, force);
 
-        // fill in jointState efforts
-        this->jointStates.effort[i] = force;
+          // fill in jointState efforts
+          this->jointStates.effort[i] = force;
 
-        // AtlasSimInterface: fill in fromRobot efforts.
-        // FIXME: Is this used by the controller?  i.e. should this happen
-        // before process_control_input?
-        this->fromRobot.j[i].f = force;
+          // AtlasSimInterface: fill in fromRobot efforts.
+          // FIXME: Is this used by the controller?  i.e. should this happen
+          // before process_control_input?
+          this->fromRobot.j[i].f = force;
+        }
       }
     }
 

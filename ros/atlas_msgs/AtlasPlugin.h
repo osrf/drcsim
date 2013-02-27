@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/thread/mutex.hpp>
 
@@ -161,6 +162,7 @@ namespace gazebo
     private: void ZeroJointCommands();
 
     private: std::vector<std::string> jointNames;
+    private: std::map<std::string, unsigned int> jointIndexMap;
 
     // JointController: pointer to a copy of the joint controller in gazebo
     private: physics::JointControllerPtr jointController;
@@ -185,6 +187,8 @@ namespace gazebo
     private: std::vector<ErrorTerms> errorTerms;
 
     private: osrf_msgs::JointCommands jointCommands;
+    private: unsigned int jointCommandsLen;
+    private: std::vector<int> jointCommandsIndex;
     private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
 
@@ -205,6 +209,16 @@ namespace gazebo
     private: double jointCommandsAgeMean;
     private: double jointCommandsAgeVariance;
     private: double jointCommandsAge;
+
+    private: unsigned int positionLen;
+    private: unsigned int veloccityLen;
+    private: unsigned int effortLen;
+    private: unsigned int kp_positionLen;
+    private: unsigned int ki_positionLen;
+    private: unsigned int kd_positionLen;
+    private: unsigned int kp_velocityLen;
+    private: unsigned int i_effort_minLen;
+    private: unsigned int i_effort_maxLen;
   };
 }
 #endif
