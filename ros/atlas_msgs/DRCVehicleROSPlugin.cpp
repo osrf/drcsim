@@ -79,10 +79,14 @@ void DRCVehicleROSPlugin::SetDirectionState(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetHandBrakeState(const std_msgs::Float64::ConstPtr
+void DRCVehicleROSPlugin::SetHandBrakePercent(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetHandBrakeState(static_cast<double>(_msg->data));
+  double min, max, percent, cmd;
+  percent = math::clamp(static_cast<double>(_msg->data), -1.0, 1.0);
+  DRCVehiclePlugin::GetHandBrakeLimits(min, max);
+  cmd = min + percent * (max - min);
+  DRCVehiclePlugin::SetHandBrakeState(cmd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,17 +97,25 @@ void DRCVehicleROSPlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr
+void DRCVehicleROSPlugin::SetGasPedalPercent(const std_msgs::Float64::ConstPtr
                                                 &_msg)
 {
-  DRCVehiclePlugin::SetGasPedalState(static_cast<double>(_msg->data));
+  double min, max, percent, cmd;
+  percent = math::clamp(static_cast<double>(_msg->data), -1.0, 1.0);
+  DRCVehiclePlugin::GetGasPedalLimits(min, max);
+  cmd = min + percent * (max - min);
+  DRCVehiclePlugin::SetGasPedalState(cmd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
+void DRCVehicleROSPlugin::SetBrakePedalPercent(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetBrakePedalState(static_cast<double>(_msg->data));
+  double min, max, percent, cmd;
+  percent = math::clamp(static_cast<double>(_msg->data), -1.0, 1.0);
+  DRCVehiclePlugin::GetBrakePedalLimits(min, max);
+  cmd = min + percent * (max - min);
+  DRCVehiclePlugin::SetBrakePedalState(cmd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +165,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
     this->model->GetName() + "/hand_brake/cmd", 100,
     boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&) >(
-        &DRCVehicleROSPlugin::SetHandBrakeState), this, _1),
+        &DRCVehicleROSPlugin::SetHandBrakePercent), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subHandBrakeCmd = this->rosNode->subscribe(hand_brake_cmd_so);
 
@@ -162,7 +174,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
     this->model->GetName() + "/gas_pedal/cmd", 100,
     boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&) >(
-        &DRCVehicleROSPlugin::SetGasPedalState), this, _1),
+        &DRCVehicleROSPlugin::SetGasPedalPercent), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subGasPedalCmd = this->rosNode->subscribe(gas_pedal_cmd_so);
 
@@ -171,7 +183,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
     this->model->GetName() + "/brake_pedal/cmd", 100,
     boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
       (const std_msgs::Float64::ConstPtr&) >(
-        &DRCVehicleROSPlugin::SetBrakePedalState), this, _1),
+        &DRCVehicleROSPlugin::SetBrakePedalPercent), this, _1),
     ros::VoidPtr(), &this->queue);
   this->subBrakePedalCmd = this->rosNode->subscribe(brake_pedal_cmd_so);
 
