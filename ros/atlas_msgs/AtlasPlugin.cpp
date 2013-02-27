@@ -886,8 +886,8 @@ void AtlasPlugin::OnLContactUpdate()
   contacts = this->lFootContactSensor->GetContacts();
 
 
-  math::Vector3 fTotal = 0;
-  math::Vector3 tTotal = 0;
+  math::Vector3 fTotal;
+  math::Vector3 tTotal;
 
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
@@ -940,8 +940,8 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
-  math::Vector3 fTotal = 0;
-  math::Vector3 tTotal = 0;
+  math::Vector3 fTotal;
+  math::Vector3 tTotal;
 
   // GetContacts returns all contacts on the collision body
   for (int i = 0; i < contacts.contact_size(); ++i)
