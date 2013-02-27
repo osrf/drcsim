@@ -143,10 +143,6 @@ namespace gazebo
     private: ros::Publisher pubControllerStatistics;
     private: ros::Publisher pubJointStates;
     private: ros::Publisher pubForceTorqueSensors;
-    private: math::Vector3 lFootForce;
-    private: math::Vector3 lFootTorque;
-    private: math::Vector3 rFootForce;
-    private: math::Vector3 rFootTorque;
 
     private: ros::Subscriber subJointCommands;
     private: void SetJointCommands(
