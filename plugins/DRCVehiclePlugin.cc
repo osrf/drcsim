@@ -57,7 +57,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
 // Destructor
 DRCVehiclePlugin::~DRCVehiclePlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -463,7 +463,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&DRCVehiclePlugin::UpdateStates, this));
 
   this->lastTime = this->world->GetSimTime();
