@@ -6,10 +6,13 @@
   <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
 
   <!-- start gazebo with the Atlas -->
-  <include file="$(find atlas_utils)/launch/atlas_sandia_hands_no_controllers.launch">
+  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
+
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find atlas_sandia_hands)/atlas_sandia_hands.urdf"/>
 
   <rosparam file="$(find sandia_hand_description)/config/sandia_hand_gazebo_gains.yaml" ns="sandia_hands"/>
   
