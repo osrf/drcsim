@@ -1,11 +1,16 @@
 <launch>
 
   <arg name="gzname" default="gazebo"/>
+  <arg name="gzworld" default="atlas_irobot_hands.world"/>
 
   <!-- start gazebo with the Atlas -->
-  <include file="$(find atlas_utils)/launch/atlas_irobot_hands_no_controllers.launch">
+  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
+    <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
+
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find atlas_irobot_hands)/atlas_irobot_hands.urdf"/>
 
   <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
 </launch>
