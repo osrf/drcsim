@@ -113,8 +113,6 @@ namespace gazebo
     // subscribe to world stats
     private: transport::NodePtr node_;
     private: common::Time sim_time_;
-    public: void OnStats(
-      const boost::shared_ptr<msgs::WorldStatistics const> &_msg);
   };
 }
 #endif
