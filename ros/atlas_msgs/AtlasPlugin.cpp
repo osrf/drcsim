@@ -15,6 +15,7 @@
  *
 */
 
+#include <algorithm>
 #include <string>
 
 #include "AtlasPlugin.h"
@@ -437,7 +438,6 @@ void AtlasPlugin::DeferredLoad()
         ros::VoidPtr(), &this->rosQueue);
   this->resetControlsService = this->rosNode->advertiseService(
     resetControlsAso);
-
 }
 
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
@@ -615,7 +615,7 @@ void AtlasPlugin::UpdateStates()
         double delta2 = delta *
           (this->jointCommandsAge - this->jointCommandsAgeMean);
         this->jointCommandsAgeVariance += delta2;
-        this->jointCommandsAgeVariance -= 
+        this->jointCommandsAgeVariance -=
           this->jointCommandsAgeDelta2Buffer[
           this->jointCommandsAgeBufferIndex];
 
@@ -695,7 +695,6 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
-
 }
 
 void AtlasPlugin::OnLContactUpdate()
