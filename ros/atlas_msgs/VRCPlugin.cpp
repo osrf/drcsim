@@ -156,14 +156,35 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "harnessed")
   {
-    // pinning robot, and turning off effect of gravity
-    if (!this->atlas.pinJoint)
+    // turning off effect of gravity
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
     {
-      math::Pose pose;
-      // slightly above ground
-      pose.pos = math::Vector3(0, 0, 1.11);
-      pose.rot.SetFromEuler(0, 0, 0);
-      this->atlas.model->SetLinkWorldPose(pose, this->atlas.pinLink);
+      links[i]->SetGravityMode(false);
+    }
+
+    // remove pin
+    if (this->atlas.pinJoint)
+      this->RemoveJoint(this->atlas.pinJoint);
+
+    // raise robot, find gorund height, set it down and upright it, then pin it
+    {
+      math::Pose atlasPose = this->atlas.pinLink->GetWorldPose();
+      atlasPose.pos.z += 100;  // raise point up high for next call
+
+      // move robot out of the way
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+      atlasPose.pos.z -= 2;  // start ray trace below robot itself
+
+      physics::EntityPtr objectBelow =
+        this->world->GetEntityBelowPoint(atlasPose.pos);
+      math::Box groundBB = objectBelow->GetBoundingBox();
+      double groundHeight = groundBB.max.z;
+      // slightly above ground and upright
+      atlasPose.pos.z = groundHeight + 1.11;
+      atlasPose.rot.SetFromEuler(0, 0, 0);
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
 
       this->atlas.pinJoint = this->AddJoint(this->world,
                                         this->atlas.model,
@@ -175,12 +196,6 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                         0.0, 0.0);
     }
     this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
   }
   else if (_str == "pinned")
   {
