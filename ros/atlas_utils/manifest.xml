@@ -14,5 +14,6 @@
   <depend package="xacro"/>
   <depend package="robot_mechanism_controllers"/>
   <depend package="atlas_description"/>
+  <depend package="osrf_msgs"/>
 
 </package>
