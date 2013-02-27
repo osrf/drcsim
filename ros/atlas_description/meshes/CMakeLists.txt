@@ -60,4 +60,4 @@ set (files
   r_uleg.stl
   utorso.stl
 )
-install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/atlas_description/meshes/)
+install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/atlas/meshes/)
