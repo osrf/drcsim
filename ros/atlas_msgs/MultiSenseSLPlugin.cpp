@@ -38,7 +38,7 @@ MultiSenseSL::MultiSenseSL()
   this->multiCameraFrameRate = 25.0;
   this->multiCameraExposureTime = 0.001;
   this->multiCameraGain = 1.0;
-  // the parent link of the imu_sensor ends up being pelvis after
+  // the parent link of the head_imu_sensor ends up being head after
   // fixed joint reduction.  Offset of the imu_link is lumped into
   // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "head";
