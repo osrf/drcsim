@@ -793,10 +793,11 @@ void AtlasPlugin::UpdateStates()
       for (unsigned int i = 0; i < this->joints.size(); ++i)
       {
         // truncate joint position within range of motion
+        // FIXME: get upperLimit[i] etc.
         double positionTarget = math::clamp(
           this->jointCommands.position[i],
-          this->joints[i]->GetLowStop(0).Radian(),
-          this->joints[i]->GetHighStop(0).Radian());
+          this->joints[i]->GetLowerLimit(0).Radian(),
+          this->joints[i]->GetUpperLimit(0).Radian());
 
         double q_p = positionTarget - this->jointStates.position[i];
 
