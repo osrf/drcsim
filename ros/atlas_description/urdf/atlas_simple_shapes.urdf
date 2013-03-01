@@ -790,7 +790,7 @@
         <axis xyz="0 0 1" />
         <parent link="pelvis" />
         <child link="ltorso" />
-        <dynamics damping="1000" friction="0" />
+        <dynamics damping="10000" friction="0" />
         <limit effort="124.016" velocity="12" lower="-0.610865" upper="0.610865" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.6109" soft_upper_limit="10.6109" />
     </joint>
@@ -799,7 +799,7 @@
         <axis xyz="0 1 0" />
         <parent link="ltorso" />
         <child link="mtorso" />
-        <dynamics damping="1000.0" friction="0" />
+        <dynamics damping="5000.0" friction="0" />
         <limit effort="206.843" velocity="12" lower="-1.2" upper="1.28" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.2" soft_upper_limit="11.28" />
     </joint>
@@ -808,7 +808,7 @@
         <axis xyz="1 0 0" />
         <parent link="mtorso" />
         <child link="utorso" />
-        <dynamics damping="1000" friction="0" />
+        <dynamics damping="5000" friction="0" />
         <limit effort="94.91" velocity="12" lower="-0.790809" upper="0.790809" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.7908" soft_upper_limit="10.7908" />
     </joint>
