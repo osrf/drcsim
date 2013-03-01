@@ -57,15 +57,15 @@
     <provideFeedback>1</provideFeedback>
   </gazebo>
   <gazebo reference="r_foot">
-    <mu1>10.0</mu1>
-    <mu2>10.0</mu2>
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
     <fdir1>1 0 0</fdir1>
     <maxVel>1.0</maxVel>
     <minDepth>0.003</minDepth>
   </gazebo>
   <gazebo reference="l_foot">
-    <mu1>10.0</mu1>
-    <mu2>10.0</mu2>
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
     <fdir1>1 0 0</fdir1>
     <maxVel>1.0</maxVel>
     <minDepth>0.003</minDepth>

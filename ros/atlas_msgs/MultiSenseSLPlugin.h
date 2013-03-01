@@ -33,6 +33,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
 #include <sensor_msgs/JointState.h>
 
 #include <std_srvs/Empty.h>
@@ -99,6 +100,17 @@ namespace gazebo
     private: void SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                          &_msg);
 
+    private: ros::Subscriber set_multi_camera_resolution_sub_;
+
+    /// \brief camera resolution modes
+    /// available modes are:
+    ///  0 - 2MP (2048*1088) @ up to 15 fps
+    ///  1 - 1MP (1536*816) @ up to 30 fps
+    ///  2 - 0.5MP (1024*544) @ up to 60 fps (default)
+    ///  3 - VGA (640*480) @ up to 70 fps
+    private: void SetMultiCameraResolution(
+      const std_msgs::Int32::ConstPtr &_msg);
+
     private: ros::Subscriber set_multi_camera_exposure_time_sub_;
     private: void SetMultiCameraExposureTime(const std_msgs::Float64::ConstPtr
                                             &_msg);
@@ -131,6 +143,7 @@ namespace gazebo
     private: double multiCameraFrameRate;
     private: double multiCameraExposureTime;
     private: double multiCameraGain;
+    private: int imagerMode;
 
     // laser sensor control
     private: sensors::RaySensorPtr laserSensor;

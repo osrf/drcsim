@@ -14,6 +14,8 @@
  * limitations under the License.
  *
 */
+#include <string>
+#include <vector>
 #include <math.h>
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
@@ -116,7 +118,7 @@ int main(int argc, char** argv)
 
     rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp",
       jc.i_effort_max[i]);
-      
+
     jc.velocity[i]     = 0;
     jc.effort[i]       = 0;
     jc.kp_velocity[i]  = 0;

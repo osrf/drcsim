@@ -40,16 +40,16 @@
 #include <sensor_msgs/LaserScan.h>
 
 #include <sensor_msgs/Image.h>
-#include "image_transport/image_transport.h"
+#include <image_transport/image_transport.h>
 
 // gazebo stuff
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/msgs/MessageTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/plugins/GpuRayPlugin.hh"
+#include <gazebo/sdf/interface/Param.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/plugins/GpuRayPlugin.hh>
 
 namespace gazebo
 {
@@ -97,51 +97,52 @@ namespace gazebo
     protected: void PublishPointCloud(const float *_scan,
       unsigned int _width, unsigned int _height);
 
+    /// \brief Sets sensor update rate (not the plugin update rate).
+    private: void GazeboRosGpuLaser::SetUpdateRate(double _rate);
+
     /// \brief Gaussian noise
-    private: double gaussian_noise_;
+    private: double gaussianNoise;
 
     /// \brief Gaussian noise generator
     private: double GaussianKernel(double mu, double sigma);
 
     /// \brief hack to mimic hokuyo intensity cutoff of 100
-    private: double hokuyo_min_intensity_;
+    private: double hokuyoMinIntensity;
 
     /// \brief Keep track of number of connctions for point clouds
-    private: int laser_connect_count_;
+    private: int laserConnectCount;
     private: void LaserConnect();
     private: void LaserDisconnect();
 
     /// \brief A pointer to the ROS node.  A node will be instantiated
     /// if it does not exist.
-    private: ros::Publisher laser_scan_pub_;
+    private: ros::Publisher pubLaserScan;
 
     /// \brief PCL point cloud message
-    private: pcl::PointCloud<pcl::PointXYZI> point_cloud_msg_;
+    private: pcl::PointCloud<pcl::PointXYZI> pointCloudMsg;
 
-    private: sensor_msgs::LaserScan laser_scan_msg_;
+    private: sensor_msgs::LaserScan laserScanMsg;
 
-    private: double point_cloud_cutoff_;
+    private: double pointCloudCutoff;
 
     /// \brief ROS image topic name
-    private: std::string laser_topic_name_;
+    private: std::string laserTopicName;
 
     // overload with our own
-    private: common::Time sensor_update_time_;
+    private: common::Time sensorUpdateTime;
 
-    protected: ros::NodeHandle* rosnode_;
-    private: std::string robot_namespace_;
+    protected: ros::NodeHandle* rosnode;
+    private: std::string robotNamespace;
 
-    protected: ros::CallbackQueue queue_;
+    protected: ros::CallbackQueue queue;
     protected: void QueueThread();
-    protected: boost::thread callback_queue_thread_;
+    protected: boost::thread callbackQueueThread;
 
-    protected: ros::WallTime last_publish_;
-    // protected: std::ofstream timelog_;
-    // protected: unsigned int logCount_;
+    protected: ros::WallTime lastPubTime;
 
-    protected: std::string frame_name_;
-    protected: double update_rate_;
-    protected: double update_period_;
+    protected: std::string frameName;
+    protected: double updateRate;
+    protected: double updatePeriod;
   };
 }
 #endif
