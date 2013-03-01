@@ -52,9 +52,11 @@
   </gazebo>
   <gazebo reference="l_leg_lax">
     <provideFeedback>1</provideFeedback>
+    <cfmDamping>1</cfmDamping>
   </gazebo>
   <gazebo reference="r_leg_lax">
     <provideFeedback>1</provideFeedback>
+    <cfmDamping>1</cfmDamping>
   </gazebo>
   <gazebo reference="r_foot">
     <mu1>10.0</mu1>
@@ -133,9 +135,6 @@
   <gazebo reference="l_leg_kny">
     <cfmDamping>1</cfmDamping>
   </gazebo>
-  <gazebo reference="l_leg_lax">
-    <cfmDamping>1</cfmDamping>
-  </gazebo>
   <gazebo reference="l_leg_lhy">
     <cfmDamping>1</cfmDamping>
   </gazebo>
@@ -170,9 +169,6 @@
     <cfmDamping>1</cfmDamping>
   </gazebo>
   <gazebo reference="r_leg_kny">
-    <cfmDamping>1</cfmDamping>
-  </gazebo>
-  <gazebo reference="r_leg_lax">
     <cfmDamping>1</cfmDamping>
   </gazebo>
   <gazebo reference="r_leg_lhy">

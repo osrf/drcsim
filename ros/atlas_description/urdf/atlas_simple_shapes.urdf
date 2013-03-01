@@ -880,7 +880,7 @@
         <axis xyz="1 0 0" />
         <parent link="l_talus" />
         <child link="l_foot" />
-        <dynamics damping="300" friction="0" />
+        <dynamics damping="50" friction="0" />
         <limit effort="90" velocity="12" lower="-0.436" upper="0.436" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.436" soft_upper_limit="10.436" />
     </joint>
@@ -907,7 +907,7 @@
         <axis xyz="0 1 0" />
         <parent link="l_lleg" />
         <child link="l_talus" />
-        <dynamics damping="1000" friction="0" />
+        <dynamics damping="100" friction="0" />
         <limit effort="220" velocity="12" lower="-0.698" upper="0.698" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.698" soft_upper_limit="10.698" />
     </joint>
@@ -999,7 +999,7 @@
         <axis xyz="1 0 0" />
         <parent link="r_talus" />
         <child link="r_foot" />
-        <dynamics damping="1000" friction="0" />
+        <dynamics damping="50" friction="0" />
         <limit effort="90" velocity="12" lower="-0.436" upper="0.436" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.436" soft_upper_limit="10.436" />
     </joint>
@@ -1026,7 +1026,7 @@
         <axis xyz="0 1 0" />
         <parent link="r_lleg" />
         <child link="r_talus" />
-        <dynamics damping="1000" friction="0" />
+        <dynamics damping="100" friction="0" />
         <limit effort="220" velocity="12" lower="-0.698" upper="0.698" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.698" soft_upper_limit="10.698" />
     </joint>
