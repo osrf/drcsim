@@ -1,4 +1,3 @@
-add_subdirectory(atlas)
 set (files
   database.config
 )
