@@ -147,7 +147,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
-    this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].k_i_q_i = 0;
     this->errorTerms[i].qd_p = 0;
   }
 
@@ -199,7 +199,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     /*
     this->fromRobot.error_terms[i].q_p = 0;
     this->fromRobot.error_terms[i].qd_p = 0;
-    this->fromRobot.error_terms[i].q_i = 0;
+    this->fromRobot.error_terms[i].k_i_q_i = 0;
     */
   }
 
@@ -812,18 +812,16 @@ void AtlasPlugin::UpdateStates()
         this->errorTerms[i].qd_p =
            this->jointCommands.velocity[i] - this->jointStates.velocity[i];
 
-        if (!math::equal(this->jointCommands.ki_position[i], 0.0))
-          this->errorTerms[i].q_i = math::clamp(
-            this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-            static_cast<double>(this->jointCommands.i_effort_min[i]) /
-            this->jointCommands.ki_position[i],
-            static_cast<double>(this->jointCommands.i_effort_max[i]) /
-            this->jointCommands.ki_position[i]);
+        this->errorTerms[i].k_i_q_i = math::clamp(
+          this->errorTerms[i].k_i_q_i +
+          dt * this->jointCommands.ki_position[i] * this->errorTerms[i].q_p,
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
 
         // use gain params to compute force cmd
         double force =
           this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
-          this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
+                                               this->errorTerms[i].k_i_q_i +
           this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
           this->jointCommands.effort[i];
@@ -835,8 +833,7 @@ void AtlasPlugin::UpdateStates()
         if (!math::equal(intTieBack, 0.0))
         {
           // Apply integral tie-back, recalculate integral term
-          this->errorTerms[i].q_i = intTieBack /
-            this->jointCommands.ki_position[i];
+          this->errorTerms[i].k_i_q_i = intTieBack;
           // Clamp force and
           force = forceClamped;
           
