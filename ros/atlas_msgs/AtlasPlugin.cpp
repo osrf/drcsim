@@ -827,7 +827,8 @@ void AtlasPlugin::UpdateStates()
 
 
         // AtlasSimInterface:  add controller force to overall control torque.
-        force += this->toRobot.j[i].f_d;
+        if (this->usingWalkingController)
+          force += this->toRobot.j[i].f_d;
 
         this->joints[i]->SetForce(0, force);
 
