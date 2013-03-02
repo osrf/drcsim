@@ -83,7 +83,7 @@ void DRCVehicleROSPlugin::SetHandBrakePercent(const std_msgs::Float64::ConstPtr
     &_msg)
 {
   double min, max, percent, cmd;
-  percent = math::clamp(static_cast<double>(_msg->data), -1.0, 1.0);
+  percent = math::clamp(static_cast<double>(_msg->data), 0.0, 1.0);
   DRCVehiclePlugin::GetHandBrakeLimits(min, max);
   cmd = min + percent * (max - min);
   DRCVehiclePlugin::SetHandBrakeState(cmd);
@@ -101,7 +101,7 @@ void DRCVehicleROSPlugin::SetGasPedalPercent(const std_msgs::Float64::ConstPtr
                                                 &_msg)
 {
   double min, max, percent, cmd;
-  percent = math::clamp(static_cast<double>(_msg->data), -1.0, 1.0);
+  percent = math::clamp(static_cast<double>(_msg->data), 0.0, 1.0);
   DRCVehiclePlugin::GetGasPedalLimits(min, max);
   cmd = min + percent * (max - min);
   DRCVehiclePlugin::SetGasPedalState(cmd);
@@ -112,7 +112,7 @@ void DRCVehicleROSPlugin::SetBrakePedalPercent(const std_msgs::Float64::ConstPtr
     &_msg)
 {
   double min, max, percent, cmd;
-  percent = math::clamp(static_cast<double>(_msg->data), -1.0, 1.0);
+  percent = math::clamp(static_cast<double>(_msg->data), 0.0, 1.0);
   DRCVehiclePlugin::GetBrakePedalLimits(min, max);
   cmd = min + percent * (max - min);
   DRCVehiclePlugin::SetBrakePedalState(cmd);

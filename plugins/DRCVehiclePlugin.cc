@@ -34,7 +34,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->gasPedalCmd = 0;
   this->brakePedalCmd = 0;
   this->handWheelCmd = 0;
-  this->handBrakeCmd = 1;
+  this->handBrakeCmd = 0;
   this->flWheelCmd = 0;
   this->frWheelCmd = 0;
   this->blWheelCmd = 0;
@@ -438,6 +438,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->handBrakeLow = jointCenter +
     (1 - this->jointDeadbandPercent) * (this->handBrakeLow - jointCenter);
   this->handBrakeRange   = this->handBrakeHigh - this->handBrakeLow;
+  this->handBrakeCmd = this->handBrakeHigh;
 
   // get some vehicle parameters
   this->frontTorque = _sdf->GetValueDouble("front_torque");
@@ -495,7 +496,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->pedalForce, -this->pedalForce);
   this->brakePedalPID.Init(800, 0, 3, 50, -50,
                          this->pedalForce, -this->pedalForce);
-  this->handWheelPID.Init(200, 0, 30.0, 5.0, -5.0,
+  this->handWheelPID.Init(5, 0, 30.0, 2.0, -2.0,
                          this->handWheelForce, -this->handWheelForce);
   this->handBrakePID.Init(30, 0, 3.0, 5.0, -5.0,
                          this->handBrakeForce, -this->handBrakeForce);
@@ -541,10 +542,28 @@ void DRCVehiclePlugin::UpdateStates()
     double steerCmd = this->handWheelPID.Update(steerError, dt);
     this->handWheelJoint->SetForce(0, steerCmd);
 
+    // Bi-stable switching of hand-brake reference point
+    double handBrakeHysteresis = 0.2;
+    double handBrakeCmdEps = 0.01;
+    if (this->handBrakeCmd < (handBrakeLow + handBrakeCmdEps) &&
+        this->GetHandBrakePercent() > (0.5 + handBrakeHysteresis) &&
+        curTime.sec >= 1)
+    {
+      this->handBrakeCmd = this->handBrakeHigh;
+      gzdbg << "Hand brake manually enabled\n";
+    }
+    else if (this->handBrakeCmd > (handBrakeHigh - handBrakeCmdEps) &&
+        this->GetHandBrakePercent() < (0.5 - handBrakeHysteresis) &&
+        curTime.sec >= 1)
+    {
+      this->handBrakeCmd = this->handBrakeLow;
+      gzdbg << "Hand brake manually disabled\n";
+    }
+
     // PID (position) hand brake
     double handBrakeError = this->handBrakeState - this->handBrakeCmd;
-    double handBrakeCmd = this->handBrakePID.Update(handBrakeError, dt);
-    this->handBrakeJoint->SetForce(0, handBrakeCmd);
+    double handBrakePIDCmd = this->handBrakePID.Update(handBrakeError, dt);
+    this->handBrakeJoint->SetForce(0, handBrakePIDCmd);
 
     // PID (position) gas pedal
     double gasError = this->gasPedalState - this->gasPedalCmd;
