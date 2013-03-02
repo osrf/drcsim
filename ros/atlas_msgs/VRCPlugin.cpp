@@ -163,7 +163,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
 
-    // raise robot, find gorund height, set it down and upright it, then pin it
+    // raise robot, find ground height, set it down and upright it, then pin it
     math::Pose atlasPose = this->atlas.pinLink->GetWorldPose();
 
     // where to raise robot to
