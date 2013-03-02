@@ -144,7 +144,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   this->errorTerms.resize(this->joints.size());
-  for (unsigned i = 0; i < this->joints.size(); ++i)
+  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
@@ -529,12 +529,13 @@ void AtlasPlugin::DeferredLoad()
     resetControlsAso);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   atlas_msgs::ResetControls::Response &_res)
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
-  for (unsigned i = 0; i < this->joints.size(); ++i)
+  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
@@ -549,6 +550,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // AtlasSimInterface:
 // subscribe to a control_mode string message, current valid commands are:
 //   walk, stand, safety, stand-prep, none
@@ -585,6 +587,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
@@ -901,6 +904,7 @@ void AtlasPlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnLContactUpdate()
 {
   // Get all the contacts.
@@ -959,6 +963,7 @@ void AtlasPlugin::OnLContactUpdate()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnRContactUpdate()
 {
   // Get all the contacts.
@@ -1017,6 +1022,7 @@ void AtlasPlugin::OnRContactUpdate()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::ZeroJointCommands()
 {
   for (unsigned i = 0; i < this->jointCommands.name.size(); ++i)
@@ -1034,6 +1040,7 @@ void AtlasPlugin::ZeroJointCommands()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::LoadPIDGainsFromParameter()
 {
   // pull down controller parameters
@@ -1064,6 +1071,7 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::RosQueueThread()
 {
   static const double timeout = 0.01;
