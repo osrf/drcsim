@@ -819,38 +819,36 @@ void AtlasPlugin::UpdateStates()
           static_cast<double>(this->jointCommands.i_effort_max[i]));
 
         // use gain params to compute force cmd
-        double force =
+        double forceUnclamped =
           this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
                                                this->errorTerms[i].k_i_q_i +
           this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
           this->jointCommands.effort[i];
 
-        double forceClamped = math::clamp(force, -this->effortLimit[i],
+        // keep unclamped force for integral tie-back calculation
+        double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
           this->effortLimit[i]);
-        double intTieBack = forceClamped - force;
 
-        if (!math::equal(intTieBack, 0.0))
-        {
-          // Apply integral tie-back, recalculate integral term
-          this->errorTerms[i].k_i_q_i = intTieBack;
-          // Clamp force and
-          force = forceClamped;
-          
-        }
+        // integral tie-back during control saturation
+        this->errorTerms[i].k_i_q_i = math::clamp(
+          forceClamped - (forceUnclamped - this->errorTerms[i].k_i_q_i),
+          static_cast<double>(-this->effortLimit[i]),
+          static_cast<double>(this->effortLimit[i]));
 
-        // AtlasSimInterface:  add controller force to overall control torque.
-        force += this->toRobot.j[i].f_d;
+        // AtlasSimInterface:  add controller feed forward force
+        // to overall control torque.
+        forceClamped += this->toRobot.j[i].f_d;
 
-        this->joints[i]->SetForce(0, force);
+        this->joints[i]->SetForce(0, forceClamped);
 
         // fill in jointState efforts
-        this->jointStates.effort[i] = force;
+        this->jointStates.effort[i] = forceClamped;
 
         // AtlasSimInterface: fill in fromRobot efforts.
         // FIXME: Is this used by the controller?  i.e. should this happen
         // before process_control_input?
-        this->fromRobot.j[i].f = force;
+        this->fromRobot.j[i].f = forceClamped;
       }
     }
 
