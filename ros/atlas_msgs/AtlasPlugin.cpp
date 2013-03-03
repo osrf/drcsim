@@ -830,11 +830,17 @@ void AtlasPlugin::UpdateStates()
         double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
           this->effortLimit[i]);
 
-        // integral tie-back during control saturation
-        this->errorTerms[i].k_i_q_i = math::clamp(
-          forceClamped - (forceUnclamped - this->errorTerms[i].k_i_q_i),
-          static_cast<double>(-this->effortLimit[i]),
-          static_cast<double>(this->effortLimit[i]));
+        // integral tie-back during control saturation if using integral gain
+        if (!math::equal(forceClamped,forceUnclamped) &&
+            !math::equal(this->jointCommands.ki_position[i],0.0) )
+        {
+          // lock integral term to provide continuous control as system moves
+          // out of staturation
+          this->errorTerms[i].k_i_q_i = math::clamp(
+            this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
+        }
 
         // AtlasSimInterface:  add controller feed forward force
         // to overall control torque.
