@@ -1,0 +1,37 @@
+<?xml version='1.0'?>
+<sdf version='1.3'>
+  <model name='standpipe'>
+    <static>true</static>
+    <link name="link">
+      <collision name="collision_1">
+        <geometry>
+          <cylinder>
+            <radius>0.10</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <collision name="collision_2">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.08</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://vrc_standpipe/meshes/vrc_standpipe.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+
+    </link>
+
+  </model>
+</sdf>
