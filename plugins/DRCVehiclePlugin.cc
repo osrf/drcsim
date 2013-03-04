@@ -450,6 +450,29 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   this->UpdateHandWheelRatio();
 
+  // Simulate braking using joint stops with stop_erp = 0
+  this->flWheelJoint->SetHighStop(0, 0);
+  this->frWheelJoint->SetHighStop(0, 0);
+  this->blWheelJoint->SetHighStop(0, 0);
+  this->brWheelJoint->SetHighStop(0, 0);
+
+  this->flWheelJoint->SetLowStop(0, 0);
+  this->frWheelJoint->SetLowStop(0, 0);
+  this->blWheelJoint->SetLowStop(0, 0);
+  this->brWheelJoint->SetLowStop(0, 0);
+
+  // stop_erp == 0 means no position correction torques will act
+  this->flWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+  this->frWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+  this->blWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+  this->brWheelJoint->SetAttribute("stop_erp", 0, 0.0);
+
+  // stop_cfm == 0 means the joints will initially be locked
+  this->flWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+  this->frWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+  this->blWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+  this->brWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+
   // Update wheel radius for each wheel from SDF collision objects
   //  assumes that wheel link is child of joint (and not parent of joint)
   //  assumes that wheel link has only one collision
@@ -638,6 +661,27 @@ void DRCVehiclePlugin::UpdateStates()
       math::clamp(this->blWheelState / smoothingSpeed, -1.0, 1.0);
     brBrakeTorque = -brakePercent*this->backBrakeTorque *
       math::clamp(this->brWheelState / smoothingSpeed, -1.0, 1.0);
+
+    // Lock wheels if high braking applied at low speed
+    if (brakePercent > 0.7 && fabs(this->flWheelState) < smoothingSpeed)
+      this->flWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
+    else
+      this->flWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+
+    if (brakePercent > 0.7 && fabs(this->frWheelState) < smoothingSpeed)
+      this->frWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
+    else
+      this->frWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+
+    if (brakePercent > 0.7 && fabs(this->blWheelState) < smoothingSpeed)
+      this->blWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
+    else
+      this->blWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+
+    if (brakePercent > 0.7 && fabs(this->brWheelState) < smoothingSpeed)
+      this->brWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
+    else
+      this->brWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
 
     this->flWheelJoint->SetForce(0, flGasTorque + flBrakeTorque);
     this->frWheelJoint->SetForce(0, frGasTorque + frBrakeTorque);
