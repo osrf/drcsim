@@ -844,7 +844,8 @@ void AtlasPlugin::UpdateStates()
 
         // AtlasSimInterface:  add controller feed forward force
         // to overall control torque.
-        forceClamped += this->toRobot.j[i].f_d;
+        forceClamped = math::clamp(forceUnclamped + this->toRobot.j[i].f_d,
+          -this->effortLimit[i], this->effortLimit[i]);
 
         this->joints[i]->SetForce(0, forceClamped);
 
