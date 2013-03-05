@@ -15,6 +15,7 @@
  *
 */
 
+#include <algorithm>
 #include <string>
 #include <algorithm>
 
@@ -311,79 +312,85 @@ void AtlasPlugin::SetJointCommands(
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
-  this->jointCommands.header.stamp = _msg->header.stamp;
+  this->UpdateJointCommands(*_msg);
+}
 
-  if (_msg->position.size() == this->jointCommands.position.size())
-    std::copy(_msg->position.begin(), _msg->position.end(),
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
+{
+  this->jointCommands.header.stamp = _msg.header.stamp;
+
+  if (_msg.position.size() == this->jointCommands.position.size())
+    std::copy(_msg.position.begin(), _msg.position.end(),
       this->jointCommands.position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements position[%ld] than expected[%ld]",
-      _msg->position.size(), this->jointCommands.position.size());
+      _msg.position.size(), this->jointCommands.position.size());
 
-  if (_msg->velocity.size() == this->jointCommands.velocity.size())
-    std::copy(_msg->velocity.begin(), _msg->velocity.end(),
+  if (_msg.velocity.size() == this->jointCommands.velocity.size())
+    std::copy(_msg.velocity.begin(), _msg.velocity.end(),
       this->jointCommands.velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
-      _msg->velocity.size(), this->jointCommands.velocity.size());
+      _msg.velocity.size(), this->jointCommands.velocity.size());
 
-  if (_msg->effort.size() == this->jointCommands.effort.size())
-    std::copy(_msg->effort.begin(), _msg->effort.end(),
+  if (_msg.effort.size() == this->jointCommands.effort.size())
+    std::copy(_msg.effort.begin(), _msg.effort.end(),
       this->jointCommands.effort.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements effort[%ld] than expected[%ld]",
-      _msg->effort.size(), this->jointCommands.effort.size());
+      _msg.effort.size(), this->jointCommands.effort.size());
 
-  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
-    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+  if (_msg.kp_position.size() == this->jointCommands.kp_position.size())
+    std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
       this->jointCommands.kp_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
-      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+      _msg.kp_position.size(), this->jointCommands.kp_position.size());
 
-  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
-    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+  if (_msg.ki_position.size() == this->jointCommands.ki_position.size())
+    std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
       this->jointCommands.ki_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
-      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+      _msg.ki_position.size(), this->jointCommands.ki_position.size());
 
-  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
-    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+  if (_msg.kd_position.size() == this->jointCommands.kd_position.size())
+    std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
       this->jointCommands.kd_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
-      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+      _msg.kd_position.size(), this->jointCommands.kd_position.size());
 
-  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
-    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+  if (_msg.kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
       this->jointCommands.kp_velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
-      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+      _msg.kp_velocity.size(), this->jointCommands.kp_velocity.size());
 
-  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
-    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+  if (_msg.i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
       this->jointCommands.i_effort_min.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
-      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+      _msg.i_effort_min.size(), this->jointCommands.i_effort_min.size());
 
-  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+  if (_msg.i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
       this->jointCommands.i_effort_max.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
-      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
+      _msg.i_effort_max.size(), this->jointCommands.i_effort_max.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -525,8 +532,39 @@ void AtlasPlugin::DeferredLoad()
 
   this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
      boost::bind(&AtlasPlugin::OnRContactUpdate, this));
+
+  // Advertise services on the custom queue
+  ros::AdvertiseServiceOptions resetControlsAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::ResetControls>(
+      "atlas/reset_controls", boost::bind(
+        &AtlasPlugin::ResetControls, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->resetControlsService = this->rosNode->advertiseService(
+    resetControlsAso);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
+  atlas_msgs::ResetControls::Response &_res)
+{
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
+  {
+    this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].d_q_p_dt = 0;
+    this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].qd_p = 0;
+  }
+
+  this->UpdateJointCommands(_req.joint_commands);
+
+  _res.success = true;
+  _res.status_message = "success";
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // AtlasSimInterface:
 // subscribe to a control_mode string message, current valid commands are:
 //   walk, stand, safety, stand-prep, none
@@ -563,6 +601,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
@@ -880,6 +919,7 @@ void AtlasPlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnLContactUpdate()
 {
   // Get all the contacts.
@@ -935,6 +975,7 @@ void AtlasPlugin::OnLContactUpdate()
   this->pubLFootContact.publish(msg);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnRContactUpdate()
 {
   // Get all the contacts.
@@ -995,6 +1036,7 @@ void AtlasPlugin::OnRContactUpdate()
   this->pubRFootContact.publish(msg);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::ZeroJointCommands()
 {
   for (unsigned i = 0; i < this->jointCommands.name.size(); ++i)
@@ -1012,6 +1054,7 @@ void AtlasPlugin::ZeroJointCommands()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::LoadPIDGainsFromParameter()
 {
   // pull down controller parameters
@@ -1042,6 +1085,7 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::RosQueueThread()
 {
   static const double timeout = 0.01;
