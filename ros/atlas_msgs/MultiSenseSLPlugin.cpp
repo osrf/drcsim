@@ -40,7 +40,7 @@ MultiSenseSL::MultiSenseSL()
   this->multiCameraGain = 1.0;
   // the parent link of the head_imu_sensor ends up being head after
   // fixed joint reduction.  Offset of the imu_link is lumped into
-  // the <pose> tag in the imu_senosr block.
+  // the <pose> tag in the imu_sensor block.
   this->imuLinkName = "head";
 }
 
