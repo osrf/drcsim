@@ -38,6 +38,9 @@ MultiSenseSL::MultiSenseSL()
   this->spindleMinRPM = 0;
   this->multiCameraExposureTime = 0.001;
   this->multiCameraGain = 1.0;
+  // the parent link of the head_imu_sensor ends up being head after
+  // fixed joint reduction.  Offset of the imu_link is lumped into
+  // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "head";
   this->imagerMode = 2;
 }
@@ -64,18 +67,20 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->lastTime = this->world->GetSimTime();
 
-  // initialize imu
-  this->lastImuTime = this->world->GetSimTime();
-
   // Get imu link
   this->imuLink = this->atlasModel->GetLink(this->imuLinkName);
   if (!this->imuLink)
     gzerr << this->imuLinkName << " not found\n";
 
-  // initialize imu reference pose
-  this->imuReferencePose = this->imuLink->GetWorldPose();
-  this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
-    this->imuLink->GetWorldLinearVel());
+  // Get sensors
+  this->imuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->atlasModel->GetScopedName()
+        + "::head::"
+        "head_imu_sensor"));
+  if (!this->imuSensor)
+    gzerr << "head_imu_sensor not found\n" << "\n";
 
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
   this->spindleLink = this->atlasModel->GetLink("atlas::hokuyo_link");
@@ -249,61 +254,40 @@ void MultiSenseSL::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
 
-  if (curTime > this->lastImuTime)
+  // get imu data from imu link
+  if (this->imuSensor)
   {
-    // get imu data from imu link
-    if (this->imuLink && curTime > this->lastImuTime)
+    sensor_msgs::Imu imuMsg;
+    imuMsg.header.frame_id = this->imuLinkName;
+    imuMsg.header.stamp = ros::Time(curTime.Double());
+
+    // compute angular rates
     {
-      // Get imuLnk Pose/Orientation
-      math::Pose imuPose = this->imuLink->GetWorldPose();
-      math::Vector3 imuLinearVel = imuPose.rot.RotateVector(
-        this->imuLink->GetWorldLinearVel());
-
-      sensor_msgs::Imu imuMsg;
-      imuMsg.header.frame_id = this->imuLinkName;
-      imuMsg.header.stamp = ros::Time(curTime.Double());
-
-      // compute angular rates
-      {
-        // get world twist and convert to local frame
-        math::Vector3 wLocal = imuPose.rot.RotateVector(
-          this->imuLink->GetWorldAngularVel());
-        imuMsg.angular_velocity.x = wLocal.x;
-        imuMsg.angular_velocity.y = wLocal.y;
-        imuMsg.angular_velocity.z = wLocal.z;
-      }
-
-      // compute acceleration
-      {
-        math::Vector3 accel = imuLinearVel - this->imuLastLinearVel;
-        double imuDdx = accel.x;
-        double imuDdy = accel.y;
-        double imuDdz = accel.z;
-
-        imuMsg.linear_acceleration.x = imuDdx;
-        imuMsg.linear_acceleration.y = imuDdy;
-        imuMsg.linear_acceleration.z = imuDdz;
-
-        this->imuLastLinearVel = imuLinearVel;
-      }
-
-      // compute orientation
-      {
-        // Get IMU rotation relative to Initial IMU Reference Pose
-        math::Quaternion imuRot =
-          imuPose.rot * this->imuReferencePose.rot.GetInverse();
-
-        imuMsg.orientation.x = imuRot.x;
-        imuMsg.orientation.y = imuRot.y;
-        imuMsg.orientation.z = imuRot.z;
-        imuMsg.orientation.w = imuRot.w;
-      }
-
-      this->pubImu.publish(imuMsg);
-
-      // update time
-      this->lastImuTime = curTime.Double();
+      math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
+      imuMsg.angular_velocity.x = wLocal.x;
+      imuMsg.angular_velocity.y = wLocal.y;
+      imuMsg.angular_velocity.z = wLocal.z;
     }
+
+    // compute acceleration
+    {
+      math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
+      imuMsg.linear_acceleration.x = accel.x;
+      imuMsg.linear_acceleration.y = accel.y;
+      imuMsg.linear_acceleration.z = accel.z;
+    }
+
+    // compute orientation
+    {
+      math::Quaternion imuRot =
+        this->imuSensor->GetOrientation();
+      imuMsg.orientation.x = imuRot.x;
+      imuMsg.orientation.y = imuRot.y;
+      imuMsg.orientation.z = imuRot.z;
+      imuMsg.orientation.w = imuRot.w;
+    }
+
+    this->pubImu.publish(imuMsg);
   }
 
   double dt = (curTime - this->lastTime).Double();
