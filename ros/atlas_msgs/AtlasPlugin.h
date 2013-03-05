@@ -100,7 +100,7 @@ namespace gazebo
 
     /// Throttle update rate
     private: common::Time lastControllerStatisticsTime;
-    private: double updateRate;
+    private: double statsUpdateRate;
 
     // Contact sensors
     private: sensors::ContactSensorPtr lFootContactSensor;
@@ -147,10 +147,6 @@ namespace gazebo
     private: ros::Publisher pubJointStates;
     private: ros::Publisher pubForceTorqueSensors;
     private: ros::Publisher pubAtlasStates;
-    private: math::Vector3 lFootForce;
-    private: math::Vector3 lFootTorque;
-    private: math::Vector3 rFootForce;
-    private: math::Vector3 rFootTorque;
 
     private: ros::Subscriber subJointCommands;
     private: void SetJointCommands(
