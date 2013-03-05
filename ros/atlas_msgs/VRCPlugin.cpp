@@ -156,14 +156,42 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "harnessed")
   {
-    // pinning robot, and turning off effect of gravity
-    if (!this->atlas.pinJoint)
+    bool paused = this->world->IsPaused();
+    this->world->SetPaused(true);
+
+    // remove pin
+    if (this->atlas.pinJoint)
+      this->RemoveJoint(this->atlas.pinJoint);
+
+    // raise robot, find ground height, set it down and upright it, then pin it
+    math::Pose atlasPose = this->atlas.pinLink->GetWorldPose();
+
+    // where to raise robot to
+    math::Pose atlasAway = atlasPose + math::Pose(0, 0, 50.0, 0, 0, 0);
+
+    // move robot out of the way
+    this->atlas.model->SetLinkWorldPose(atlasAway, this->atlas.pinLink);
+
+    // where to start down casting ray to check for ground
+    math::Pose rayStart = atlasPose - math::Pose(0, 0, -2.0, 0, 0, 0);
+
+    physics::EntityPtr objectBelow =
+      this->world->GetEntityBelowPoint(rayStart.pos);
+    if (objectBelow)
     {
-      math::Pose pose;
-      // slightly above ground
-      pose.pos = math::Vector3(0, 0, 1.11);
-      pose.rot.SetFromEuler(0, 0, 0);
-      this->atlas.model->SetLinkWorldPose(pose, this->atlas.pinLink);
+      math::Box groundBB = objectBelow->GetBoundingBox();
+      double groundHeight = groundBB.max.z;
+
+      gzdbg << objectBelow->GetName() << "\n";
+      gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
+      gzdbg << groundHeight << "\n";
+      gzdbg << groundBB.max.z << "\n";
+      gzdbg << groundBB.min.z << "\n";
+
+      // slightly above ground and upright
+      atlasPose.pos.z = groundHeight + 1.11;
+      atlasPose.rot.SetFromEuler(0, 0, 0);
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
 
       this->atlas.pinJoint = this->AddJoint(this->world,
                                         this->atlas.model,
@@ -173,14 +201,22 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                         math::Vector3(0, 0, 0),
                                         math::Vector3(0, 0, 1),
                                         0.0, 0.0);
-    }
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
+      // turning off effect of gravity
+      physics::Link_V links = this->atlas.model->GetLinks();
+      for (unsigned int i = 0; i < links.size(); ++i)
+      {
+        links[i]->SetGravityMode(false);
+      }
     }
+    else
+    {
+      gzwarn << "No entity below robot, or GetEntityBelowPoint returned NULL pointer.\n";
+      // put atlas back
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+    }
+    this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
   {
