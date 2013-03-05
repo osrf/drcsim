@@ -1,6 +1,6 @@
 set(MODEL_NAME vrc_standpipe)
 set (files 
-  manifest.xml
+  model.config
   model.sdf
 )
 

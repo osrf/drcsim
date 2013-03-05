@@ -4,19 +4,20 @@
     <static>true</static>
     <link name="link">
       <collision name="collision_1">
+        <pose>0 0 0.2 0 0 0</pose>
         <geometry>
           <cylinder>
-            <radius>0.10</radius>
+            <radius>0.0965</radius>
             <length>0.1</length>
           </cylinder>
         </geometry>
       </collision>
 
       <collision name="collision_2">
-        <pose>0 0 0.15 0 0 0</pose>
+        <pose>0 0 0.32 0 0 0</pose>
         <geometry>
           <cylinder>
-            <radius>0.08</radius>
+            <radius>0.069</radius>
             <length>0.2</length>
           </cylinder>
         </geometry>
@@ -30,8 +31,6 @@
           </mesh>
         </geometry>
       </visual>
-
     </link>
-
   </model>
 </sdf>

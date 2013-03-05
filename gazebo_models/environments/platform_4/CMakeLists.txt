@@ -1,7 +1,7 @@
 set(MODEL_NAME platform_4)
 
 set (files 
-  manifest.xml
+  model.config
   model.sdf
 )
 

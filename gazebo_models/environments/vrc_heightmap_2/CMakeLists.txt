@@ -1,6 +1,6 @@
 set(MODEL_NAME vrc_heightmap_2)
 set (files 
-  manifest.xml
+  model.config
   model.sdf
 )
 

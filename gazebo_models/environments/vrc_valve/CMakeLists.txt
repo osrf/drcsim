@@ -1,6 +1,6 @@
 set(MODEL_NAME vrc_valve)
 set (files 
-  manifest.xml
+  model.config
   model.sdf
 )
 

@@ -6,10 +6,14 @@
       <collision name="collision">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry>
-          <cylinder>
+          <mesh>
+            <uri>model://vrc_valve/meshes/vrc_valve.dae</uri>
+          </mesh>
+          <!--          <cylinder>
             <radius>0.08</radius>
             <length>0.2</length>
           </cylinder>
+-->
         </geometry>
       </collision>
 
@@ -17,7 +21,6 @@
         <pose>0 0 0.15 0 0 0</pose>
         <geometry>
           <mesh>
-            <scale>1.0 1.0 1.0</scale>
             <uri>model://vrc_valve/meshes/vrc_valve.dae</uri>
           </mesh>
         </geometry>

@@ -1,7 +1,7 @@
 set(MODEL_NAME grass_plane)
 set (files 
-  manifest.xml
-  model-1_3.sdf
+  model.config
+  model.sdf
 )
 
 add_subdirectory(materials)
