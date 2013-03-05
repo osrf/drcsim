@@ -1,4 +1,4 @@
-set(MODEL_NAME stepping_block)
+set(MODEL_NAME vrc_standpipe)
 set (files 
   model.config
   model.sdf

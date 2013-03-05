@@ -14,6 +14,9 @@ set (files
   qual_task_2.launch
   qual_task_3.launch
   qual_task_4.launch
+  vrc_task_1.launch
+  vrc_task_2.launch
+  vrc_task_3.launch
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/launch/)
 

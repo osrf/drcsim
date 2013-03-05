@@ -1,4 +1,5 @@
-set(MODEL_NAME stepping_block)
+set(MODEL_NAME gate_number_4)
+
 set (files 
   model.config
   model.sdf

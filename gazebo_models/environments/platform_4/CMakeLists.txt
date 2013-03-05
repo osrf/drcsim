@@ -1,4 +1,5 @@
-set(MODEL_NAME stepping_block)
+set(MODEL_NAME platform_4)
+
 set (files 
   model.config
   model.sdf
