@@ -173,11 +173,14 @@ namespace gazebo
     private: AtlasSimInterface* atlasSimInterface;
 
     private: physics::Joint_V joints;
+    private: std::vector<double> effortLimit;
+
     private: class ErrorTerms
       {
+        /// error term contributions to final control output
         double q_p;
         double d_q_p_dt;
-        double q_i;
+        double k_i_q_i;  // integral term weighted by k_i
         double qd_p;
         friend class AtlasPlugin;
       };
