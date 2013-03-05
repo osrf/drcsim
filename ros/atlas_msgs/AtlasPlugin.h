@@ -189,6 +189,7 @@ namespace gazebo
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
+    private: common::Time lastImuTime;
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
