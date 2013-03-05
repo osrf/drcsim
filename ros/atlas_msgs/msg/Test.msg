@@ -1,6 +1,5 @@
 # test Message
-# This structure contains some test info
-#
+# Do not use, testing only
 Header header
 
 string[] name
