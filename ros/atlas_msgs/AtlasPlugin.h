@@ -185,13 +185,15 @@ namespace gazebo
 
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
+    private: std::vector<double> effortLimit;
 
     /// \brief internal class for keeping track of PID states
     private: class ErrorTerms
       {
+        /// error term contributions to final control output
         double q_p;
         double d_q_p_dt;
-        double q_i;
+        double k_i_q_i;  // integral term weighted by k_i
         double qd_p;
         friend class AtlasPlugin;
       };
