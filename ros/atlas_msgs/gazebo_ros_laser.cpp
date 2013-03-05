@@ -126,9 +126,6 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   else
     this->update_rate_ = this->sdf->GetValueDouble("updateRate");
 
-  // set parent sensor update rate
-  this->parent_sensor_->SetUpdateRate(this->update_rate_);
-
   // prepare to throttle this plugin at the same rate
   // ideally, we should invoke a plugin update when the sensor updates,
   // have to think about how to do that properly later

@@ -177,13 +177,10 @@
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
     <sensor type="multicamera" name="stereo_camera">
-      <!-- update rate based on spec sheet for 2mp 15fps -->
-      <update_rate>15.0</update_rate>
+      <!-- see MultiSenseSLPlugin.h for available modes -->
+      <update_rate>30.0</update_rate>
       <camera name="left">
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
-        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
-        <!-- robot also capable of 1024 x 544 resolution -->
-        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
           <width>1024</width>
@@ -198,9 +195,6 @@
       <camera name="right">
         <pose>0 -0.07 0 0 0 0</pose>
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
-        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
-        <!-- robot also capable of 1024 x 544 resolution -->
-        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
           <width>1024</width>
@@ -214,7 +208,7 @@
       </camera>
       <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
         <alwaysOn>true</alwaysOn>
-        <updateRate>15.0</updateRate>
+        <updateRate>0.0</updateRate>
         <cameraName>multisense_sl/camera</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
