@@ -844,17 +844,27 @@
       </visual>
     </link>
 
-    <joint name="joint_01" type="ball">
+    <joint name="joint_01" type="universal">
       <child>link_01</child>
       <parent>coupling</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -864,17 +874,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_02" type="ball">
+    <joint name="joint_02" type="universal">
       <child>link_02</child>
       <parent>link_01</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -884,17 +904,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_03" type="ball">
+    <joint name="joint_03" type="universal">
       <child>link_03</child>
       <parent>link_02</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -904,17 +934,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_04" type="ball">
+    <joint name="joint_04" type="universal">
       <child>link_04</child>
       <parent>link_03</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -924,17 +964,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_05" type="ball">
+    <joint name="joint_05" type="universal">
       <child>link_05</child>
       <parent>link_04</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -944,17 +994,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_06" type="ball">
+    <joint name="joint_06" type="universal">
       <child>link_06</child>
       <parent>link_05</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -964,17 +1024,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_07" type="ball">
+    <joint name="joint_07" type="universal">
       <child>link_07</child>
       <parent>link_06</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -984,17 +1054,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_08" type="ball">
+    <joint name="joint_08" type="universal">
       <child>link_08</child>
       <parent>link_07</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1004,17 +1084,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_09" type="ball">
+    <joint name="joint_09" type="universal">
       <child>link_09</child>
       <parent>link_08</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1024,17 +1114,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_10" type="ball">
+    <joint name="joint_10" type="universal">
       <child>link_10</child>
       <parent>link_09</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1044,17 +1144,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_11" type="ball">
+    <joint name="joint_11" type="universal">
       <child>link_11</child>
       <parent>link_10</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1064,17 +1174,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_12" type="ball">
+    <joint name="joint_12" type="universal">
       <child>link_12</child>
       <parent>link_11</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1084,17 +1204,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_13" type="ball">
+    <joint name="joint_13" type="universal">
       <child>link_13</child>
       <parent>link_12</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1104,17 +1234,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_14" type="ball">
+    <joint name="joint_14" type="universal">
       <child>link_14</child>
       <parent>link_13</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1124,17 +1264,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_15" type="ball">
+    <joint name="joint_15" type="universal">
       <child>link_15</child>
       <parent>link_14</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1144,17 +1294,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_16" type="ball">
+    <joint name="joint_16" type="universal">
       <child>link_16</child>
       <parent>link_15</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1164,17 +1324,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_17" type="ball">
+    <joint name="joint_17" type="universal">
       <child>link_17</child>
       <parent>link_16</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1184,17 +1354,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_18" type="ball">
+    <joint name="joint_18" type="universal">
       <child>link_18</child>
       <parent>link_17</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1204,17 +1384,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_19" type="ball">
+    <joint name="joint_19" type="universal">
       <child>link_19</child>
       <parent>link_18</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1224,17 +1414,27 @@
       </physics>
     </joint>
 
-    <joint name="joint_20" type="ball">
+    <joint name="joint_20" type="universal">
       <child>nozzle</child>
       <parent>link_19</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
@@ -1244,17 +1444,27 @@
       </physics>
     </joint>
 
-    <joint name="world" type="ball">
+    <joint name="world" type="universal">
       <child>nozzle</child>
       <parent>world</parent>
       <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis>
       <axis2>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+        </limit>
         <dynamics>
-          <damping>100.0</damping>
+          <damping>3.0</damping>
         </dynamics>
       </axis2>
       <physics>
