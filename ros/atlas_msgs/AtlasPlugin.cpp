@@ -143,13 +143,17 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   this->errorTerms.resize(this->joints.size());
-  for (unsigned i = 0; i < this->joints.size(); ++i)
+  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
-    this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].k_i_q_i = 0;
     this->errorTerms[i].qd_p = 0;
   }
+
+  this->effortLimit.resize(this->jointNames.size());
+  for (unsigned i = 0; i < this->effortLimit.size(); ++i)
+    this->effortLimit[i] = this->joints[i]->GetEffortLimit(0);
 
   this->jointStates.name.resize(this->joints.size());
   this->jointStates.position.resize(this->joints.size());
@@ -195,7 +199,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     /*
     this->fromRobot.error_terms[i].q_p = 0;
     this->fromRobot.error_terms[i].qd_p = 0;
-    this->fromRobot.error_terms[i].q_i = 0;
+    this->fromRobot.error_terms[i].k_i_q_i = 0;
     */
   }
 
@@ -793,11 +797,10 @@ void AtlasPlugin::UpdateStates()
       for (unsigned int i = 0; i < this->joints.size(); ++i)
       {
         // truncate joint position within range of motion
-        // FIXME: get upperLimit[i] etc.
         double positionTarget = math::clamp(
           this->jointCommands.position[i],
-          this->joints[i]->GetLowerLimit(0).Radian(),
-          this->joints[i]->GetUpperLimit(0).Radian());
+          this->joints[i]->GetLowStop(0).Radian(),
+          this->joints[i]->GetHighStop(0).Radian());
 
         double q_p = positionTarget - this->jointStates.position[i];
 
@@ -809,36 +812,50 @@ void AtlasPlugin::UpdateStates()
         this->errorTerms[i].qd_p =
            this->jointCommands.velocity[i] - this->jointStates.velocity[i];
 
-        if (!math::equal(this->jointCommands.ki_position[i], 0.0))
-          this->errorTerms[i].q_i = math::clamp(
-            this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-            static_cast<double>(this->jointCommands.i_effort_min[i]) /
-            this->jointCommands.ki_position[i],
-            static_cast<double>(this->jointCommands.i_effort_max[i]) /
-            this->jointCommands.ki_position[i]);
+        this->errorTerms[i].k_i_q_i = math::clamp(
+          this->errorTerms[i].k_i_q_i +
+          dt * this->jointCommands.ki_position[i] * this->errorTerms[i].q_p,
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
 
         // use gain params to compute force cmd
-        double force =
+        double forceUnclamped =
           this->jointCommands.kp_position[i] * this->errorTerms[i].q_p +
-          this->jointCommands.ki_position[i] * this->errorTerms[i].q_i +
+                                               this->errorTerms[i].k_i_q_i +
           this->jointCommands.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->jointCommands.kp_velocity[i] * this->errorTerms[i].qd_p +
           this->jointCommands.effort[i];
 
+        // keep unclamped force for integral tie-back calculation
+        double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
+          this->effortLimit[i]);
 
-        // AtlasSimInterface:  add controller force to overall control torque.
-        if (this->usingWalkingController)
-          force += this->toRobot.j[i].f_d;
+        // integral tie-back during control saturation if using integral gain
+        if (!math::equal(forceClamped,forceUnclamped) &&
+            !math::equal(this->jointCommands.ki_position[i],0.0) )
+        {
+          // lock integral term to provide continuous control as system moves
+          // out of staturation
+          this->errorTerms[i].k_i_q_i = math::clamp(
+            this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
+        }
 
-        this->joints[i]->SetForce(0, force);
+        // AtlasSimInterface:  add controller feed forward force
+        // to overall control torque.
+        forceClamped = math::clamp(forceUnclamped + this->toRobot.j[i].f_d,
+          -this->effortLimit[i], this->effortLimit[i]);
+
+        this->joints[i]->SetForce(0, forceClamped);
 
         // fill in jointState efforts
-        this->jointStates.effort[i] = force;
+        this->jointStates.effort[i] = forceClamped;
 
         // AtlasSimInterface: fill in fromRobot efforts.
         // FIXME: Is this used by the controller?  i.e. should this happen
         // before process_control_input?
-        this->fromRobot.j[i].f = force;
+        this->fromRobot.j[i].f = forceClamped;
       }
     }
 
