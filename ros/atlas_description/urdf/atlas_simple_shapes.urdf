@@ -133,9 +133,9 @@
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="1.5707963267949 0 0" xyz="0 0.0940525 0.0"/>
+          <origin rpy="1.5707963267949 0 0" xyz="0 0.0940525 -0.01"/>
           <geometry>
-            <cylinder radius="0.045" length="0.188105"/>
+            <cylinder radius="0.044" length="0.188105"/>
           </geometry>
         </collision>
     </link>
@@ -567,9 +567,9 @@
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="1.5707963267949 0 0" xyz="0 -0.0940525 0.0"/>
+          <origin rpy="1.5707963267949 0 0" xyz="0 -0.0940525 -0.01"/>
           <geometry>
-            <cylinder radius="0.045" length="0.188105"/>
+            <cylinder radius="0.044" length="0.188105"/>
           </geometry>
         </collision>
     </link>
