@@ -847,106 +847,421 @@
     <joint name="joint_01" type="ball">
       <child>link_01</child>
       <parent>coupling</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_02" type="ball">
       <child>link_02</child>
       <parent>link_01</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_03" type="ball">
       <child>link_03</child>
       <parent>link_02</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_04" type="ball">
       <child>link_04</child>
       <parent>link_03</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_05" type="ball">
       <child>link_05</child>
       <parent>link_04</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_06" type="ball">
       <child>link_06</child>
       <parent>link_05</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_07" type="ball">
       <child>link_07</child>
       <parent>link_06</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_08" type="ball">
       <child>link_08</child>
       <parent>link_07</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_09" type="ball">
       <child>link_09</child>
       <parent>link_08</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_10" type="ball">
       <child>link_10</child>
       <parent>link_09</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_11" type="ball">
       <child>link_11</child>
       <parent>link_10</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_12" type="ball">
       <child>link_12</child>
       <parent>link_11</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_13" type="ball">
       <child>link_13</child>
       <parent>link_12</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_14" type="ball">
       <child>link_14</child>
       <parent>link_13</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_15" type="ball">
       <child>link_15</child>
       <parent>link_14</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_16" type="ball">
       <child>link_16</child>
       <parent>link_15</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_17" type="ball">
       <child>link_17</child>
       <parent>link_16</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_18" type="ball">
       <child>link_18</child>
       <parent>link_17</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_19" type="ball">
       <child>link_19</child>
       <parent>link_18</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="joint_20" type="ball">
       <child>nozzle</child>
       <parent>link_19</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
     <joint name="world" type="ball">
       <child>nozzle</child>
       <parent>world</parent>
+      <axis>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis>
+      <axis2>
+        <dynamics>
+          <damping>100.0</damping>
+        </dynamics>
+      </axis2>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
     </joint>
 
   </model>
