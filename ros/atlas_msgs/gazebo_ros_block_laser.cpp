@@ -375,15 +375,6 @@ void GazeboRosBlockLaser::LaserQueueThread()
   }
 }
 
-void GazeboRosBlockLaser::OnStats( const boost::shared_ptr<msgs::WorldStatistics const> &_msg)
-{
-  this->sim_time_  = msgs::Convert( _msg->sim_time() );
-
-  math::Pose pose;
-  pose.pos.x = 0.5*sin(0.01*this->sim_time_.Double());
-  gzdbg << "plugin simTime [" << this->sim_time_.Double() << "] update pose [" << pose.pos.x << "]\n";
-}
-
 // Register this plugin with the simulator
 GZ_REGISTER_SENSOR_PLUGIN(GazeboRosBlockLaser)
 
