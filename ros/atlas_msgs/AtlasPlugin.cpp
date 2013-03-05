@@ -479,8 +479,16 @@ void AtlasPlugin::DeferredLoad()
   jointCommandsSo.transport_hints =
     ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
-  this->subJointCommands=
+  this->subJointCommands =
     this->rosNode->subscribe(jointCommandsSo);
+
+  // ros topic subscribtions
+  ros::SubscribeOptions testSo =
+    ros::SubscribeOptions::create<atlas_msgs::Test>(
+    "atlas/debug/test", 1,
+    boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subTest = this->rosNode->subscribe(testSo);
 
   // publish imu data
   this->pubImu =
@@ -1058,6 +1066,68 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     this->jointCommands.i_effort_min[joint] = -i_clamp_val;
     this->jointCommands.i_effort_max[joint] =  i_clamp_val;
   }
+}
+
+void AtlasPlugin::SetExperimentalDampingPID(
+  const atlas_msgs::Test::ConstPtr &_msg)
+{
+  if (_msg->damping.size() == this->joints.size())
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+      this->joints[i]->SetDamping(0, _msg->damping[i]);
+  else
+    ROS_DEBUG("joint test message contains different number of"
+      " elements damping[%ld] than expected[%ld]",
+      _msg->damping.size(), this->joints.size());
+
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+      this->jointCommands.kp_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_position[%ld] than expected[%ld]",
+      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+
+  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+      this->jointCommands.ki_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements ki_position[%ld] than expected[%ld]",
+      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+
+  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+      this->jointCommands.kd_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kd_position[%ld] than expected[%ld]",
+      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+
+  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+      this->jointCommands.kp_velocity.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_velocity[%ld] than expected[%ld]",
+      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+
+  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+      this->jointCommands.i_effort_min.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_min[%ld] than expected[%ld]",
+      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+
+  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+      this->jointCommands.i_effort_max.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_max[%ld] than expected[%ld]",
+      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
 }
 
 void AtlasPlugin::RosQueueThread()
