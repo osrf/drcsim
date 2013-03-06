@@ -15,8 +15,8 @@
  *
 */
 
-#include <algorithm>
 #include <string>
+#include <algorithm>
 
 #include <gazebo/transport/Node.hh>
 
@@ -33,10 +33,6 @@ GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 ////////////////////////////////////////////////////////////////////////////////
 AtlasPlugin::AtlasPlugin()
 {
-  this->lFootForce = 0;
-  this->lFootTorque = 0;
-  this->rFootForce = 0;
-  this->rFootTorque = 0;
   // the parent link of the imu_sensor ends up being pelvis after
   // fixed joint reduction.  Offset of the imu_link is lumped into
   // the <pose> tag in the imu_senosr block.
@@ -463,13 +459,15 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10);
 
+  // these topics are used for debugging only
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/l_foot_contact", 10);
+      "atlas/debug/l_foot_contact", 10);
 
+  // these topics are used for debugging only
   this->pubRFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
-      "atlas/r_foot_contact", 10);
+      "atlas/debug/r_foot_contact", 10);
 
   // ros topic subscribtions
   ros::SubscribeOptions jointCommandsSo =
@@ -487,8 +485,16 @@ void AtlasPlugin::DeferredLoad()
   jointCommandsSo.transport_hints =
     ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
-  this->subJointCommands=
+  this->subJointCommands =
     this->rosNode->subscribe(jointCommandsSo);
+
+  // ros topic subscribtions
+  ros::SubscribeOptions testSo =
+    ros::SubscribeOptions::create<atlas_msgs::Test>(
+    "atlas/debug/test", 1,
+    boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subTest = this->rosNode->subscribe(testSo);
 
   // publish imu data
   this->pubImu =
@@ -496,7 +502,22 @@ void AtlasPlugin::DeferredLoad()
 
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
-  this->updateRate = 1.0;
+
+  // controller statistics update rate defaults to 1kHz,
+  // read from ros param if available
+  double rate;
+  if (this->rosNode->getParam("atlas/controller_statistics/update_rate",
+    rate))
+  {
+    rate = math::clamp(rate, 1.0, 10000.0);
+    ROS_INFO("AtlasPlugin controller statistics %f kHz", rate);
+    this->statsUpdateRate = rate;
+  }
+  else
+  {
+    ROS_INFO("AtlasPlugin default controller statistics 1kHz");
+    this->statsUpdateRate = 1000.0;
+  }
 
   // AtlasSimInterface:
   // subscribe to a control_mode string message, current valid commands are:
@@ -906,7 +927,7 @@ void AtlasPlugin::UpdateStates()
     if (this->pubControllerStatistics.getNumSubscribers() > 0)
     {
       if ((curTime - this->lastControllerStatisticsTime).Double() >=
-        1.0/this->updateRate)
+        1.0/this->statsUpdateRate)
       {
         atlas_msgs::ControllerStatistics msg;
         msg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
@@ -931,6 +952,9 @@ void AtlasPlugin::OnLContactUpdate()
   contacts = this->lFootContactSensor->GetContacts();
 
 
+  math::Vector3 fTotal;
+  math::Vector3 tTotal;
+
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
@@ -944,8 +968,6 @@ void AtlasPlugin::OnLContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
-    math::Vector3 fTotal;
-    math::Vector3 tTotal;
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // gzerr << j << "  Position:"
@@ -966,20 +988,16 @@ void AtlasPlugin::OnLContactUpdate()
                             contacts.contact(i).wrench(j).body_1_torque().y(),
                             contacts.contact(i).wrench(j).body_1_torque().z());
     }
-    // low pass filter over time
-    double e = 0.99;
-    this->lFootForce = this->lFootForce * e + fTotal * (1.0 - e);
-    this->lFootTorque = this->lFootTorque * e + tTotal * (1.0 - e);
-
-    geometry_msgs::Wrench msg;
-    msg.force.x = this->lFootForce.x;
-    msg.force.y = this->lFootForce.y;
-    msg.force.z = this->lFootForce.z;
-    msg.torque.x = this->lFootTorque.x;
-    msg.torque.y = this->lFootTorque.y;
-    msg.torque.z = this->lFootTorque.z;
-    this->pubLFootContact.publish(msg);
   }
+
+  geometry_msgs::Wrench msg;
+  msg.force.x = fTotal.x;
+  msg.force.y = fTotal.y;
+  msg.force.z = fTotal.z;
+  msg.torque.x = tTotal.x;
+  msg.torque.y = tTotal.y;
+  msg.torque.z = tTotal.z;
+  this->pubLFootContact.publish(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -989,9 +1007,15 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
+  math::Vector3 fTotal;
+  math::Vector3 tTotal;
 
+  // GetContacts returns all contacts on the collision body
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
+    // loop through all contact pairs to sum the total force
+    // on collision1
+
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
     // gzerr << " t[" << this->world->GetSimTime()
@@ -1003,10 +1027,10 @@ void AtlasPlugin::OnRContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
-    math::Vector3 fTotal;
-    math::Vector3 tTotal;
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
+      // loop through all contacts between collision1 and collision2
+
       // gzerr << j << "  Position:"
       //       << contacts.contact(i).position(j).x() << " "
       //       << contacts.contact(i).position(j).y() << " "
@@ -1025,20 +1049,16 @@ void AtlasPlugin::OnRContactUpdate()
                             contacts.contact(i).wrench(j).body_1_torque().y(),
                             contacts.contact(i).wrench(j).body_1_torque().z());
     }
-    // low pass filter over time
-    double e = 0.99;
-    this->rFootForce = this->rFootForce * e + fTotal * (1.0 - e);
-    this->rFootTorque = this->rFootTorque * e + tTotal * (1.0 - e);
-
-    geometry_msgs::Wrench msg;
-    msg.force.x = this->rFootForce.x;
-    msg.force.y = this->rFootForce.y;
-    msg.force.z = this->rFootForce.z;
-    msg.torque.x = this->rFootTorque.x;
-    msg.torque.y = this->rFootTorque.y;
-    msg.torque.z = this->rFootTorque.z;
-    this->pubRFootContact.publish(msg);
   }
+
+  geometry_msgs::Wrench msg;
+  msg.force.x = fTotal.x;
+  msg.force.y = fTotal.y;
+  msg.force.z = fTotal.z;
+  msg.torque.x = tTotal.x;
+  msg.torque.y = tTotal.y;
+  msg.torque.z = tTotal.z;
+  this->pubRFootContact.publish(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1091,6 +1111,68 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::SetExperimentalDampingPID(
+  const atlas_msgs::Test::ConstPtr &_msg)
+{
+  if (_msg->damping.size() == this->joints.size())
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+      this->joints[i]->SetDamping(0, _msg->damping[i]);
+  else
+    ROS_DEBUG("joint test message contains different number of"
+      " elements damping[%ld] than expected[%ld]",
+      _msg->damping.size(), this->joints.size());
+
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+      this->jointCommands.kp_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_position[%ld] than expected[%ld]",
+      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+
+  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+      this->jointCommands.ki_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements ki_position[%ld] than expected[%ld]",
+      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+
+  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+      this->jointCommands.kd_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kd_position[%ld] than expected[%ld]",
+      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+
+  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+      this->jointCommands.kp_velocity.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_velocity[%ld] than expected[%ld]",
+      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+
+  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+      this->jointCommands.i_effort_min.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_min[%ld] than expected[%ld]",
+      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+
+  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+      this->jointCommands.i_effort_max.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_max[%ld] than expected[%ld]",
+      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
+}
+
 void AtlasPlugin::RosQueueThread()
 {
   static const double timeout = 0.01;

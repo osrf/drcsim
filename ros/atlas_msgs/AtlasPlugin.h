@@ -59,6 +59,8 @@
 #include <atlas_msgs/ControllerStatistics.h>
 #include <sensor_msgs/JointState.h>
 
+#include <atlas_msgs/Test.h>
+
 namespace gazebo
 {
   class AtlasPlugin : public ModelPlugin
@@ -106,7 +108,7 @@ namespace gazebo
 
     /// Throttle update rate
     private: common::Time lastControllerStatisticsTime;
-    private: double updateRate;
+    private: double statsUpdateRate;
 
     // Contact sensors
     private: sensors::ContactSensorPtr lFootContactSensor;
@@ -150,10 +152,6 @@ namespace gazebo
     private: ros::Publisher pubControllerStatistics;
     private: ros::Publisher pubJointStates;
     private: ros::Publisher pubForceTorqueSensors;
-    private: math::Vector3 lFootForce;
-    private: math::Vector3 lFootTorque;
-    private: math::Vector3 rFootForce;
-    private: math::Vector3 rFootTorque;
 
     private: ros::Subscriber subJointCommands;
 
@@ -231,6 +229,10 @@ namespace gazebo
     private: double jointCommandsAgeMean;
     private: double jointCommandsAgeVariance;
     private: double jointCommandsAge;
+
+    private: void SetExperimentalDampingPID(
+      const atlas_msgs::Test::ConstPtr &_msg);
+    private: ros::Subscriber subTest;
   };
 }
 #endif
