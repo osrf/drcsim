@@ -182,11 +182,11 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       math::Box groundBB = objectBelow->GetBoundingBox();
       double groundHeight = groundBB.max.z;
 
-      gzdbg << objectBelow->GetName() << "\n";
-      gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
-      gzdbg << groundHeight << "\n";
-      gzdbg << groundBB.max.z << "\n";
-      gzdbg << groundBB.min.z << "\n";
+      // gzdbg << objectBelow->GetName() << "\n";
+      // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
+      // gzdbg << groundHeight << "\n";
+      // gzdbg << groundBB.max.z << "\n";
+      // gzdbg << groundBB.min.z << "\n";
 
       // slightly above ground and upright
       atlasPose.pos.z = groundHeight + 1.11;
