@@ -564,7 +564,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   {
     this->errorTerms[i].q_p = 0;
     this->errorTerms[i].d_q_p_dt = 0;
-    this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].k_i_q_i = 0;
     this->errorTerms[i].qd_p = 0;
   }
 
