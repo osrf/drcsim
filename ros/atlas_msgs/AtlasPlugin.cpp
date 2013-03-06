@@ -299,13 +299,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
-  // initialize imu reference pose
-  this->imuOffsetPose = this->imuSensor->GetPose();
-  this->imuReferencePose = this->imuOffsetPose + this->imuLink->GetWorldPose();
-  this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
-    this->imuLink->GetWorldLinearVel());
-  // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
-
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
     boost::bind(&AtlasPlugin::DeferredLoad, this));
@@ -318,79 +311,85 @@ void AtlasPlugin::SetJointCommands(
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
-  this->jointCommands.header.stamp = _msg->header.stamp;
+  this->UpdateJointCommands(*_msg);
+}
 
-  if (_msg->position.size() == this->jointCommands.position.size())
-    std::copy(_msg->position.begin(), _msg->position.end(),
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
+{
+  this->jointCommands.header.stamp = _msg.header.stamp;
+
+  if (_msg.position.size() == this->jointCommands.position.size())
+    std::copy(_msg.position.begin(), _msg.position.end(),
       this->jointCommands.position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements position[%ld] than expected[%ld]",
-      _msg->position.size(), this->jointCommands.position.size());
+      _msg.position.size(), this->jointCommands.position.size());
 
-  if (_msg->velocity.size() == this->jointCommands.velocity.size())
-    std::copy(_msg->velocity.begin(), _msg->velocity.end(),
+  if (_msg.velocity.size() == this->jointCommands.velocity.size())
+    std::copy(_msg.velocity.begin(), _msg.velocity.end(),
       this->jointCommands.velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
-      _msg->velocity.size(), this->jointCommands.velocity.size());
+      _msg.velocity.size(), this->jointCommands.velocity.size());
 
-  if (_msg->effort.size() == this->jointCommands.effort.size())
-    std::copy(_msg->effort.begin(), _msg->effort.end(),
+  if (_msg.effort.size() == this->jointCommands.effort.size())
+    std::copy(_msg.effort.begin(), _msg.effort.end(),
       this->jointCommands.effort.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements effort[%ld] than expected[%ld]",
-      _msg->effort.size(), this->jointCommands.effort.size());
+      _msg.effort.size(), this->jointCommands.effort.size());
 
-  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
-    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+  if (_msg.kp_position.size() == this->jointCommands.kp_position.size())
+    std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
       this->jointCommands.kp_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
-      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+      _msg.kp_position.size(), this->jointCommands.kp_position.size());
 
-  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
-    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+  if (_msg.ki_position.size() == this->jointCommands.ki_position.size())
+    std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
       this->jointCommands.ki_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
-      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+      _msg.ki_position.size(), this->jointCommands.ki_position.size());
 
-  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
-    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+  if (_msg.kd_position.size() == this->jointCommands.kd_position.size())
+    std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
       this->jointCommands.kd_position.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
-      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+      _msg.kd_position.size(), this->jointCommands.kd_position.size());
 
-  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
-    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+  if (_msg.kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
       this->jointCommands.kp_velocity.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
-      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+      _msg.kp_velocity.size(), this->jointCommands.kp_velocity.size());
 
-  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
-    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+  if (_msg.i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
       this->jointCommands.i_effort_min.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
-      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+      _msg.i_effort_min.size(), this->jointCommands.i_effort_min.size());
 
-  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
-    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+  if (_msg.i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
       this->jointCommands.i_effort_max.begin());
   else
     ROS_DEBUG("joint commands message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
-      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
+      _msg.i_effort_max.size(), this->jointCommands.i_effort_max.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -482,8 +481,16 @@ void AtlasPlugin::DeferredLoad()
   jointCommandsSo.transport_hints =
     ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
-  this->subJointCommands=
+  this->subJointCommands =
     this->rosNode->subscribe(jointCommandsSo);
+
+  // ros topic subscribtions
+  ros::SubscribeOptions testSo =
+    ros::SubscribeOptions::create<atlas_msgs::Test>(
+    "atlas/debug/test", 1,
+    boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subTest = this->rosNode->subscribe(testSo);
 
   // publish imu data
   this->pubImu =
@@ -532,8 +539,39 @@ void AtlasPlugin::DeferredLoad()
 
   this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
      boost::bind(&AtlasPlugin::OnRContactUpdate, this));
+
+  // Advertise services on the custom queue
+  ros::AdvertiseServiceOptions resetControlsAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::ResetControls>(
+      "atlas/reset_controls", boost::bind(
+        &AtlasPlugin::ResetControls, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->resetControlsService = this->rosNode->advertiseService(
+    resetControlsAso);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
+  atlas_msgs::ResetControls::Response &_res)
+{
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
+  {
+    this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].d_q_p_dt = 0;
+    this->errorTerms[i].k_i_q_i = 0;
+    this->errorTerms[i].qd_p = 0;
+  }
+
+  this->UpdateJointCommands(_req.joint_commands);
+
+  _res.success = true;
+  _res.status_message = "success";
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // AtlasSimInterface:
 // subscribe to a control_mode string message, current valid commands are:
 //   walk, stand, safety, stand-prep, none
@@ -570,6 +608,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
@@ -587,34 +626,15 @@ void AtlasPlugin::UpdateStates()
     }
 
     // get imu data from imu link
-    if (this->imuLink && curTime > this->lastImuTime)
+    if (this->imuSensor && curTime > this->lastImuTime)
     {
-      double dt = (curTime - this->lastImuTime).Double();
-      // Get imuLnk Pose/Orientation
-      math::Pose parentEntityPose = this->imuLink->GetWorldPose();
-      math::Pose imuLinkPose = this->imuOffsetPose + parentEntityPose;
-
-      // calculate imu's linear velocity in imu frame
-      math::Vector3 imuAngularVelParentFrame =
-        parentEntityPose.rot.GetInverse().RotateVector(
-        this->imuLink->GetWorldAngularVel());
-      math::Vector3 imuLinearVelParentFrame =
-        parentEntityPose.rot.GetInverse().RotateVector(
-        this->imuLink->GetWorldLinearVel()) +
-        this->imuOffsetPose.pos.Cross(imuAngularVelParentFrame);
-      math::Vector3 imuLinearVel =
-        this->imuOffsetPose.rot.GetInverse().RotateVector(
-          imuLinearVelParentFrame);
-
       sensor_msgs::Imu* imuMsg = &this->atlasStates.imu;
       imuMsg->header.frame_id = this->imuLinkName;
       imuMsg->header.stamp = ros::Time(curTime.Double());
 
       // compute angular rates
       {
-        // get world twist and convert to local frame
-        math::Vector3 wLocal = imuLinkPose.rot.GetInverse().RotateVector(
-          this->imuLink->GetWorldAngularVel());
+        math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
         imuMsg->angular_velocity.x = wLocal.x;
         imuMsg->angular_velocity.y = wLocal.y;
         imuMsg->angular_velocity.z = wLocal.z;
@@ -627,8 +647,7 @@ void AtlasPlugin::UpdateStates()
 
       // compute acceleration
       {
-        math::Vector3 accel = (imuLinearVel - this->imuLastLinearVel)/dt;
-
+        math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
         imuMsg->linear_acceleration.x = accel.x;
         imuMsg->linear_acceleration.y = accel.y;
         imuMsg->linear_acceleration.z = accel.z;
@@ -637,16 +656,11 @@ void AtlasPlugin::UpdateStates()
         this->fromRobot.imu.linear_acceleration.n[0] = accel.x;
         this->fromRobot.imu.linear_acceleration.n[1] = accel.y;
         this->fromRobot.imu.linear_acceleration.n[2] = accel.z;
-
-        this->imuLastLinearVel = imuLinearVel;
       }
 
       // compute orientation
       {
-        // Get IMU rotation relative to Initial IMU Reference Pose
-        math::Quaternion imuRot =
-          imuLinkPose.rot * this->imuReferencePose.rot.GetInverse();
-
+        math::Quaternion imuRot = this->imuSensor->GetOrientation();
         imuMsg->orientation.x = imuRot.x;
         imuMsg->orientation.y = imuRot.y;
         imuMsg->orientation.z = imuRot.z;
@@ -666,7 +680,7 @@ void AtlasPlugin::UpdateStates()
     }
 
     // AtlasSimInterface: pelvis pose/twist for internal debugging only.
-    if (this->pelvisLink && curTime > this->lastImuTime)
+    if (this->pelvisLink)
     {
       math::Pose pose = this->pelvisLink->GetWorldPose();
       math::Vector3 vel = this->pelvisLink->GetWorldLinearVel();
@@ -912,6 +926,7 @@ void AtlasPlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnLContactUpdate()
 {
   // Get all the contacts.
@@ -967,6 +982,7 @@ void AtlasPlugin::OnLContactUpdate()
   this->pubLFootContact.publish(msg);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnRContactUpdate()
 {
   // Get all the contacts.
@@ -1027,6 +1043,7 @@ void AtlasPlugin::OnRContactUpdate()
   this->pubRFootContact.publish(msg);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::ZeroJointCommands()
 {
   for (unsigned i = 0; i < this->jointCommands.name.size(); ++i)
@@ -1044,6 +1061,7 @@ void AtlasPlugin::ZeroJointCommands()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::LoadPIDGainsFromParameter()
 {
   // pull down controller parameters
@@ -1072,6 +1090,69 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     this->jointCommands.i_effort_min[joint] = -i_clamp_val;
     this->jointCommands.i_effort_max[joint] =  i_clamp_val;
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::SetExperimentalDampingPID(
+  const atlas_msgs::Test::ConstPtr &_msg)
+{
+  if (_msg->damping.size() == this->joints.size())
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+      this->joints[i]->SetDamping(0, _msg->damping[i]);
+  else
+    ROS_DEBUG("joint test message contains different number of"
+      " elements damping[%ld] than expected[%ld]",
+      _msg->damping.size(), this->joints.size());
+
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  if (_msg->kp_position.size() == this->jointCommands.kp_position.size())
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
+      this->jointCommands.kp_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_position[%ld] than expected[%ld]",
+      _msg->kp_position.size(), this->jointCommands.kp_position.size());
+
+  if (_msg->ki_position.size() == this->jointCommands.ki_position.size())
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
+      this->jointCommands.ki_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements ki_position[%ld] than expected[%ld]",
+      _msg->ki_position.size(), this->jointCommands.ki_position.size());
+
+  if (_msg->kd_position.size() == this->jointCommands.kd_position.size())
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
+      this->jointCommands.kd_position.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kd_position[%ld] than expected[%ld]",
+      _msg->kd_position.size(), this->jointCommands.kd_position.size());
+
+  if (_msg->kp_velocity.size() == this->jointCommands.kp_velocity.size())
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
+      this->jointCommands.kp_velocity.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements kp_velocity[%ld] than expected[%ld]",
+      _msg->kp_velocity.size(), this->jointCommands.kp_velocity.size());
+
+  if (_msg->i_effort_min.size() == this->jointCommands.i_effort_min.size())
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
+      this->jointCommands.i_effort_min.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_min[%ld] than expected[%ld]",
+      _msg->i_effort_min.size(), this->jointCommands.i_effort_min.size());
+
+  if (_msg->i_effort_max.size() == this->jointCommands.i_effort_max.size())
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
+      this->jointCommands.i_effort_max.begin());
+  else
+    ROS_DEBUG("joint commands message contains different number of"
+      " elements i_effort_max[%ld] than expected[%ld]",
+      _msg->i_effort_max.size(), this->jointCommands.i_effort_max.size());
 }
 
 void AtlasPlugin::RosQueueThread()

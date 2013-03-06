@@ -48,6 +48,7 @@
 #include <gazebo/sensors/MultiCameraSensor.hh>
 #include <gazebo/sensors/RaySensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
 
 namespace gazebo
@@ -77,11 +78,9 @@ namespace gazebo
     private: boost::thread deferred_load_thread_;
 
     // IMU sensor
+    private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
     private: physics::LinkPtr imuLink;
-    private: common::Time lastImuTime;
-    private: math::Pose imuReferencePose;
-    private: math::Vector3 imuLastLinearVel;
     private: ros::Publisher pubImu;
 
     // reset of ros stuff
