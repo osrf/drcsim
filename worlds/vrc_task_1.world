@@ -191,7 +191,7 @@
 
 
     <include>
-      <uri>model://polaris_ranger_ev</uri>
+      <uri>model://drc_vehicle</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
 
@@ -398,8 +398,8 @@
          <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>golf_cart</model_name>
-        <seat_link>chassis</seat_link>
+        <model_name>drc_vehicle</model_name>
+        <seat_link>polaris_ranger_ev::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
         <fire_hose_model>fire_hose</fire_hose_model>
