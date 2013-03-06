@@ -1,6 +1,11 @@
 # testing everything a robot needs
 Header header
 
+# Default joint indices used when publishing the
+# JointCommands joint_states topic below
+# For exmaple, if you subscribe to this message, then
+# msg.joint_states.position[atlas_msgs::AtlasStates::back_lbz] gives back
+# the position of the back_lbz.
 int32 back_lbz  = 0
 int32 back_mby  = 1
 int32 back_ubx  = 2
@@ -30,8 +35,8 @@ int32 r_arm_elx = 25
 int32 r_arm_uwy = 26
 int32 r_arm_mwx = 27
 
-int32[] joint_index
-
-sensor_msgs/JointState joint_states
+# using JointCommands to store joint_states information
+# joint_states.name[] array is left empty, use the enum list above
+osrf_msgs/JointCommands joint_states
 sensor_msgs/Imu imu
 atlas_msgs/ForceTorqueSensors force_torque_sensors

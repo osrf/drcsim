@@ -145,13 +145,25 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
-    // ROS stuff
+    // ROS internal stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
+
+    /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
+
+    /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
+
+    /// \brief ros publisher for force torque sensors
     private: ros::Publisher pubForceTorqueSensors;
+
+    /// \brief ros publisher for atlas states, currently it contains
+    /// joint index enums
+    /// sensor_msgs::JointState
+    /// sensor_msgs::Imu
+    /// atlas_msgs::FroceTorqueSensors
     private: ros::Publisher pubAtlasStates;
 
     private: ros::Subscriber subJointCommands;

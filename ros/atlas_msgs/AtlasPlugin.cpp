@@ -19,6 +19,7 @@
 #include <algorithm>
 
 #include <gazebo/transport/Node.hh>
+#include <gazebo/common/Assert.hh>
 
 #include "AtlasPlugin.h"
 
@@ -152,13 +153,24 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   for (unsigned i = 0; i < this->effortLimit.size(); ++i)
     this->effortLimit[i] = this->joints[i]->GetEffortLimit(0);
 
-  this->atlasStates.joint_states.name.resize(this->joints.size());
+  // We are not sending names due to the fact that there is an enum
+  // joint indices in AtlasStates.msg.
+  this->atlasStates.joint_states.name.clear();
   this->atlasStates.joint_states.position.resize(this->joints.size());
   this->atlasStates.joint_states.velocity.resize(this->joints.size());
   this->atlasStates.joint_states.effort.resize(this->joints.size());
 
+  // Setup jointStates: downside of using JointCommands in AtlasStates
+  // is that we have to maintain a copy of JointState locally and
+  // memcopy all the arrays.  If we switch to JointState inside
+  // AtlasStates, the need of jointStates variable can be avoided,
+  // but no access to PID gains.
+  this->jointStates.name.resize(this->joints.size());
+  this->jointStates.position.resize(this->joints.size());
+  this->jointStates.velocity.resize(this->joints.size());
+  this->jointStates.effort.resize(this->joints.size());
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    this->atlasStates.joint_states.name[i] = this->jointNames[i];
+    this->jointStates.name[i] = this->jointNames[i];
 
   this->jointCommands.name.resize(this->joints.size());
   this->jointCommands.position.resize(this->joints.size());
@@ -772,9 +784,11 @@ void AtlasPlugin::UpdateStates()
     // populate atlasStates from robot
     this->atlasStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
 
-    // populate jointStates from robot
+    // populate jointStates from robot both for atlas_states and joint_states
     this->atlasStates.joint_states.header.stamp =
-      ros::Time(curTime.sec, curTime.nsec);
+      this->jointStates.header.stamp;
+    this->jointStates.header.stamp = this->atlasStates.header.stamp;
+
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
       this->atlasStates.joint_states.position[i] =
@@ -782,6 +796,22 @@ void AtlasPlugin::UpdateStates()
       this->atlasStates.joint_states.velocity[i] =
         this->joints[i]->GetVelocity(0);
     }
+    // copy from atlasStates.joint_states.position into joint_states.position
+    GZ_ASSERT(this->atlasStates.joint_states.position.size() ==
+              this->jointStates.position.size(),
+              "atlasStates.joint_states.position and "
+              "jointStates.position size mismatch.");
+    std::copy(this->atlasStates.joint_states.position.begin(),
+              this->atlasStates.joint_states.position.end(),
+              this->jointStates.position.begin());
+    // copy from atlasStates.joint_states.velocity into joint_states.velocity
+    GZ_ASSERT(this->atlasStates.joint_states.velocity.size() ==
+              this->jointStates.velocity.size(),
+              "atlasStates.joint_states.velocity and "
+              "jointStates.velocity size mismatch.");
+    std::copy(this->atlasStates.joint_states.velocity.begin(),
+              this->atlasStates.joint_states.velocity.end(),
+              this->jointStates.velocity.begin());
 
     // AtlasSimInterface:
     if (this->usingWalkingController)
@@ -898,11 +928,68 @@ void AtlasPlugin::UpdateStates()
         // before process_control_input?
         this->fromRobot.j[i].f = forceClamped;
       }
+      // copy pid gains from jointCommands into atlasStates.joint_states
+      GZ_ASSERT(this->jointCommands.kp_position.size() ==
+                this->atlasStates.joint_states.kp_position.size(),
+                "jointCommands.kp_position and "
+                "atlasStates.joint_states.kp_position size mismatch.");
+      std::copy(this->jointCommands.kp_position.begin(),
+                this->jointCommands.kp_position.end(),
+                this->atlasStates.joint_states.kp_position.begin());
+      // copy pid gains from jointCommands into atlasStates.joint_states
+      GZ_ASSERT(this->jointCommands.ki_position.size() ==
+                this->atlasStates.joint_states.ki_position.size(),
+                "jointCommands.ki_position and "
+                "atlasStates.joint_states.ki_position size mismatch.");
+      std::copy(this->jointCommands.ki_position.begin(),
+                this->jointCommands.ki_position.end(),
+                this->atlasStates.joint_states.ki_position.begin());
+      // copy pid gains from jointCommands into atlasStates.joint_states
+      GZ_ASSERT(this->jointCommands.kd_position.size() ==
+                this->atlasStates.joint_states.kd_position.size(),
+                "jointCommands.kd_position and "
+                "atlasStates.joint_states.kd_position size mismatch.");
+      std::copy(this->jointCommands.kd_position.begin(),
+                this->jointCommands.kd_position.end(),
+                this->atlasStates.joint_states.kd_position.begin());
+      // copy pid gains from jointCommands into atlasStates.joint_states
+      GZ_ASSERT(this->jointCommands.kp_velocity.size() ==
+                this->atlasStates.joint_states.kp_velocity.size(),
+                "jointCommands.kp_velocity and "
+                "atlasStates.joint_states.kp_velocity size mismatch.");
+      std::copy(this->jointCommands.kp_velocity.begin(),
+                this->jointCommands.kp_velocity.end(),
+                this->atlasStates.joint_states.kp_velocity.begin());
+      // copy pid gains from jointCommands into atlasStates.joint_states
+      GZ_ASSERT(this->jointCommands.i_effort_min.size() ==
+                this->atlasStates.joint_states.i_effort_min.size(),
+                "jointCommands.i_effort_min and "
+                "atlasStates.joint_states.i_effort_min size mismatch.");
+      std::copy(this->jointCommands.i_effort_min.begin(),
+                this->jointCommands.i_effort_min.end(),
+                this->atlasStates.joint_states.i_effort_min.begin());
+      // copy pid gains from jointCommands into atlasStates.joint_states
+      GZ_ASSERT(this->jointCommands.i_effort_max.size() ==
+                this->atlasStates.joint_states.i_effort_max.size(),
+                "jointCommands.i_effort_max and "
+                "atlasStates.joint_states.i_effort_max size mismatch.");
+      std::copy(this->jointCommands.i_effort_max.begin(),
+                this->jointCommands.i_effort_max.end(),
+                this->atlasStates.joint_states.i_effort_max.begin());
     }
+
+    // copy from atlasStates.joint_states.effort into joint_states.effort
+    GZ_ASSERT(this->atlasStates.joint_states.effort.size() ==
+              this->jointStates.effort.size(),
+              "atlasStates.joint_states.effort and "
+              "jointStates.effort size mismatch.");
+    std::copy(this->atlasStates.joint_states.effort.begin(),
+              this->atlasStates.joint_states.effort.end(),
+              this->jointStates.effort.begin());
 
     this->lastControllerUpdateTime = curTime;
 
-    this->pubJointStates.publish(this->atlasStates.joint_states);
+    this->pubJointStates.publish(this->jointStates);
     this->pubAtlasStates.publish(this->atlasStates);
 
     /// controller statistics diagnostics, damages, etc.
