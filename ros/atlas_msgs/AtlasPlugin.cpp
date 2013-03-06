@@ -159,6 +159,12 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->atlasStates.joint_states.position.resize(this->joints.size());
   this->atlasStates.joint_states.velocity.resize(this->joints.size());
   this->atlasStates.joint_states.effort.resize(this->joints.size());
+  this->atlasStates.joint_states.kp_position.resize(this->joints.size());
+  this->atlasStates.joint_states.ki_position.resize(this->joints.size());
+  this->atlasStates.joint_states.kd_position.resize(this->joints.size());
+  this->atlasStates.joint_states.kp_velocity.resize(this->joints.size());
+  this->atlasStates.joint_states.i_effort_min.resize(this->joints.size());
+  this->atlasStates.joint_states.i_effort_max.resize(this->joints.size());
 
   // Setup jointStates: downside of using JointCommands in AtlasStates
   // is that we have to maintain a copy of JointState locally and
