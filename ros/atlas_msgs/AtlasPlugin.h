@@ -57,7 +57,7 @@
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
-#include <atlas_msgs/AtlasStates.h>
+#include <atlas_msgs/AtlasState.h>
 #include <sensor_msgs/JointState.h>
 
 #include <atlas_msgs/Test.h>
@@ -127,7 +127,7 @@ namespace gazebo
 
     /// \brief A combined JointStates, IMU and ForceTorqueSensors Message
     /// for accessing all these states synchronously.
-    private: atlas_msgs::AtlasStates atlasStates;
+    private: atlas_msgs::AtlasState atlasState;
 
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
@@ -164,7 +164,7 @@ namespace gazebo
     /// sensor_msgs::JointState
     /// sensor_msgs::Imu
     /// atlas_msgs::FroceTorqueSensors
-    private: ros::Publisher pubAtlasStates;
+    private: ros::Publisher pubAtlasState;
 
     private: ros::Subscriber subJointCommands;
 
