@@ -689,10 +689,13 @@ void AtlasPlugin::UpdateStates()
     this->forceTorqueSensorsMsg.header.stamp =
       ros::Time(curTime.sec, curTime.nsec);
 
+    // The following is added to fix compiler warnings.
+    unsigned int i0 = 0;
+
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
     {
-      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(i0);
       this->forceTorqueSensorsMsg.l_foot.force.z = wrench.body1Force.z;
       this->forceTorqueSensorsMsg.l_foot.torque.x = wrench.body1Torque.x;
       this->forceTorqueSensorsMsg.l_foot.torque.y = wrench.body1Torque.y;
@@ -706,7 +709,7 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right ankle and publish
     if (this->rAnkleJoint)
     {
-      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(i0);
       this->forceTorqueSensorsMsg.r_foot.force.z = wrench.body1Force.z;
       this->forceTorqueSensorsMsg.r_foot.torque.x = wrench.body1Torque.x;
       this->forceTorqueSensorsMsg.r_foot.torque.y = wrench.body1Torque.y;
@@ -720,7 +723,7 @@ void AtlasPlugin::UpdateStates()
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
-      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(i0);
       this->forceTorqueSensorsMsg.l_hand.force.x = wrench.body1Force.x;
       this->forceTorqueSensorsMsg.l_hand.force.y = wrench.body1Force.y;
       this->forceTorqueSensorsMsg.l_hand.force.z = wrench.body1Force.z;
@@ -740,7 +743,7 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
-      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(i0);
       this->forceTorqueSensorsMsg.r_hand.force.x = wrench.body1Force.x;
       this->forceTorqueSensorsMsg.r_hand.force.y = wrench.body1Force.y;
       this->forceTorqueSensorsMsg.r_hand.force.z = wrench.body1Force.z;
