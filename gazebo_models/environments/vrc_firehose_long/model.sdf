@@ -848,7 +848,7 @@
       <child>link_01</child>
       <parent>coupling</parent>
       <axis>
-        <xyz>0 0 1</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -858,7 +858,7 @@
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -878,7 +878,7 @@
       <child>link_02</child>
       <parent>link_01</parent>
       <axis>
-        <xyz>0 0 1</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -888,7 +888,7 @@
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -998,17 +998,17 @@
       <child>link_06</child>
       <parent>link_05</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.57</lower>
-          <upper>1.57</upper>
+          <lower>-0.72</lower>
+          <upper>2.35</upper>
         </limit>
         <dynamics>
           <damping>1.0</damping>
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 0 1</xyz>
+        <xyz>1 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -1028,17 +1028,17 @@
       <child>link_07</child>
       <parent>link_06</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.57</lower>
-          <upper>1.57</upper>
+          <lower>-0.0</lower>
+          <upper>3.14</upper>
         </limit>
         <dynamics>
           <damping>1.0</damping>
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 0 1</xyz>
+        <xyz>-1 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -1070,8 +1070,8 @@
       <axis2>
         <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.57</lower>
-          <upper>1.57</upper>
+          <lower>-0.72</lower>
+          <upper>2.35</upper>
         </limit>
         <dynamics>
           <damping>1.0</damping>
@@ -1208,17 +1208,17 @@
       <child>link_13</child>
       <parent>link_12</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.57</lower>
-          <upper>1.57</upper>
+          <lower>-2.35</lower>
+          <upper>0.72</upper>
         </limit>
         <dynamics>
           <damping>1.0</damping>
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 0 1</xyz>
+        <xyz>-1 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -1238,17 +1238,17 @@
       <child>link_14</child>
       <parent>link_13</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.57</lower>
-          <upper>1.57</upper>
+          <lower>-3.14</lower>
+          <upper>0.0</upper>
         </limit>
         <dynamics>
           <damping>1.0</damping>
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 0 1</xyz>
+        <xyz>1 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
@@ -1268,17 +1268,17 @@
       <child>link_15</child>
       <parent>link_14</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.57</lower>
-          <upper>1.57</upper>
+          <lower>-2.35</lower>
+          <upper>0.72</upper>
         </limit>
         <dynamics>
           <damping>1.0</damping>
         </dynamics>
       </axis>
       <axis2>
-        <xyz>0 0 1</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
