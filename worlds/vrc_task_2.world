@@ -130,6 +130,16 @@
               <size>8 10 0.2</size>
             </box>
           </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1000</kp>
+                <kd>1.0</kd>
+                <max_vel>0.1</max_vel>
+                <min_depth>0.5</min_depth>
+              </ode>
+            </contact>
+          </surface>
         </collision>
         <visual name="visual">
           <geometry>
