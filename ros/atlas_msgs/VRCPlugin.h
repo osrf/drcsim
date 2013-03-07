@@ -20,6 +20,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -216,6 +217,8 @@ namespace gazebo
 
       /// \brief flag for successful initialization of atlas
       private: bool isInitialized;
+
+      private: double startupHarnessDuration;
 
       private: ros::Subscriber subTrajectory;
       private: ros::Subscriber subPose;
@@ -455,9 +458,8 @@ namespace gazebo
         // set joint positions
         std::map<std::string, double> jps;
         for (unsigned int i = 0; i < this->jc.name.size(); ++i)
-        {
           jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
-        }
+
         atlasModel->SetJointPositions(jps);
 
         // publish JointCommands
@@ -504,9 +506,8 @@ namespace gazebo
         // set joint positions
         std::map<std::string, double> jps;
         for (unsigned int i = 0; i < this->jc.name.size(); ++i)
-        {
           jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
-        }
+
         atlasModel->SetJointPositions(jps);
 
         // publish JointCommands

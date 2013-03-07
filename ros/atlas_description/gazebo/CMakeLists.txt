@@ -1,6 +1,5 @@
-add_subdirectory(atlas)
 set (files
-  manifest.xml
+  database.config
 )
 
 install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/)

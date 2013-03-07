@@ -86,23 +86,14 @@ void GazeboRosMultiCamera::OnNewFrameLeft(const unsigned char *_image,
   GazeboRosCameraUtils* util = this->utils[0];
   util->sensor_update_time_ = util->parentSensor_->GetLastUpdateTime();
 
-  if (!util->parentSensor_->IsActive())
+  if (util->parentSensor_->IsActive())
   {
-    if (util->image_connect_count_ > 0)
-      // activate first so there's chance for sensor to run 1 frame
-      // after activation
-      util->parentSensor_->SetActive(true);
-  }
-  else
-  {
-    if (util->image_connect_count_ > 0)
+    common::Time cur_time = util->world_->GetSimTime();
+    if (cur_time - util->last_update_time_ >= util->update_period_)
     {
-      common::Time cur_time = util->world_->GetSimTime();
-      if (cur_time - util->last_update_time_ >= util->update_period_)
-      {
-        util->PutCameraData(_image);
-        util->last_update_time_ = cur_time;
-      }
+      util->PutCameraData(_image);
+      util->PublishCameraInfo();
+      util->last_update_time_ = cur_time;
     }
   }
 }
@@ -116,23 +107,14 @@ void GazeboRosMultiCamera::OnNewFrameRight(const unsigned char *_image,
   GazeboRosCameraUtils* util = this->utils[1];
   util->sensor_update_time_ = util->parentSensor_->GetLastUpdateTime();
 
-  if (!util->parentSensor_->IsActive())
+  if (util->parentSensor_->IsActive())
   {
-    if (util->image_connect_count_ > 0)
-      // activate first so there's chance for sensor to run 1 frame
-      // after activation
-      util->parentSensor_->SetActive(true);
-  }
-  else
-  {
-    if (util->image_connect_count_ > 0)
+    common::Time cur_time = util->world_->GetSimTime();
+    if (cur_time - util->last_update_time_ >= util->update_period_)
     {
-      common::Time cur_time = util->world_->GetSimTime();
-      if (cur_time - util->last_update_time_ >= util->update_period_)
-      {
-        util->PutCameraData(_image);
-        util->last_update_time_ = cur_time;
-      }
+      util->PutCameraData(_image);
+      util->PublishCameraInfo();
+      util->last_update_time_ = cur_time;
     }
   }
 }

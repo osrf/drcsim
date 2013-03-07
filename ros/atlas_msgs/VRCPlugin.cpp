@@ -36,7 +36,7 @@ VRCPlugin::VRCPlugin()
 // Destructor
 VRCPlugin::~VRCPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -100,7 +100,11 @@ void VRCPlugin::DeferredLoad()
     this->SetRobotMode("pinned");
     this->atlas.startupHarness = true;
     ROS_INFO("Start robot with gravity turned off and harnessed.");
-    ROS_INFO("Resume to nominal mode after 10 seconds.");
+    if (math::equal(this->atlas.startupHarnessDuration, 0.0))
+      ROS_INFO("Atlas will stay pinned.");
+    else
+      ROS_INFO("Resume to nominal mode after %f seconds.",
+        this->atlas.startupHarnessDuration);
   }
 
   // ros callback queue for processing subscription
@@ -110,7 +114,7 @@ void VRCPlugin::DeferredLoad()
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&VRCPlugin::UpdateStates, this));
 }
 
@@ -150,6 +154,34 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
   }
+  else if (_str == "harnessed")
+  {
+    // pinning robot, and turning off effect of gravity
+    if (!this->atlas.pinJoint)
+    {
+      math::Pose pose;
+      // slightly above ground
+      pose.pos = math::Vector3(0, 0, 1.11);
+      pose.rot.SetFromEuler(0, 0, 0);
+      this->atlas.model->SetLinkWorldPose(pose, this->atlas.pinLink);
+
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
+                                        physics::LinkPtr(),
+                                        this->atlas.pinLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
+    }
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
+  }
   else if (_str == "pinned")
   {
     // pinning robot, and turning off effect of gravity
@@ -168,6 +200,26 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     for (unsigned int i = 0; i < links.size(); ++i)
     {
       links[i]->SetGravityMode(false);
+    }
+  }
+  else if (_str == "pinned_with_gravity")
+  {
+    // pinning robot, and turning off effect of gravity
+    if (!this->atlas.pinJoint)
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
+                                        physics::LinkPtr(),
+                                        this->atlas.pinLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(true);
     }
   }
   else if (_str == "nominal")
@@ -206,13 +258,12 @@ void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
+                     _pose->orientation.y, _pose->orientation.z);
+  q.Normalize();
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
-                                _pose->position.z),
-                  math::Quaternion(_pose->orientation.w,
-                                   _pose->orientation.x,
-                                   _pose->orientation.y,
-                                   _pose->orientation.z));
+                                _pose->position.z), q);
   this->atlas.model->SetWorldPose(pose);
 }
 
@@ -315,20 +366,33 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+
   // hardcoded offset of the robot when it's seated in the vehicle driver seat.
   this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 2.02),
                                               math::Quaternion());
 
+  // turn physics off while manipulating things
+  bool physics = this->world->GetEnablePhysicsEngine();
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
+  this->world->EnablePhysicsEngine(false);
+
   // set robot configuration
   this->jointCommandsController.SetSeatingConfiguration(this->atlas.model);
   ros::spinOnce();
+  // give some time for controllers to settle
+  // \todo: use joint state subscriber to check if goal is obtained
+  gazebo::common::Time::MSleep(1000);
+  ROS_INFO("set robot configuration done");
+
+  this->world->EnablePhysicsEngine(physics);
+  this->world->SetPaused(paused);
 
   this->atlas.model->SetLinkWorldPose(pose +
     this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
     this->atlas.pinLink);
-
-  if (this->vehicleRobotJoint)
-    this->RemoveJoint(this->vehicleRobotJoint);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
@@ -339,11 +403,6 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
-
-  // give some time for controllers to settle
-  // \todo: use joint state subscriber to check if goal is obtained
-  gazebo::common::Time::MSleep(1000);
-  ROS_INFO("set configuration done");
 
   // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
   this->atlas.vehicleRelPose = math::Pose(-0.06, 0.3, 1.26, 0, 0, 0);
@@ -384,19 +443,32 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
 
-  // hardcoded offset of the robot when it's standing next to the vehicle.
-  this->atlas.vehicleRelPose = math::Pose(0.52, 1.7, 1.20, 0, 0, 0);
-
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
-  this->atlas.model->SetLinkWorldPose(pose +
-    this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
-    this->atlas.pinLink);
+  // hardcoded offset of the robot when it's standing next to the vehicle.
+  this->atlas.vehicleRelPose = math::Pose(0.52, 1.7, 1.20, 0, 0, 0);
 
+  // turn physics off while manipulating things
+  bool physics = this->world->GetEnablePhysicsEngine();
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
+  this->world->EnablePhysicsEngine(false);
   // set robot configuration
   this->jointCommandsController.SetStandingConfiguration(this->atlas.model);
   ros::spinOnce();
+  // give some time for controllers to settle
+  // \todo: use joint state subscriber to check if goal is obtained
+  gazebo::common::Time::MSleep(1000);
+  ROS_INFO("set configuration done");
+
+  this->world->EnablePhysicsEngine(physics);
+  this->world->SetPaused(paused);
+
+  // move model to new pose
+  this->atlas.model->SetLinkWorldPose(pose +
+    this->atlas.vehicleRelPose + this->drcVehicle.model->GetWorldPose(),
+    this->atlas.pinLink);
 
   if (!this->vehicleRobotJoint)
     this->vehicleRobotJoint = this->AddJoint(this->world,
@@ -407,11 +479,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        math::Vector3(0, 0, 0),
                                        math::Vector3(0, 0, 1),
                                        0.0, 0.0);
-
-  // give some time for controllers to settle
-  // \todo: use joint state subscriber to check if goal is obtained
-  gazebo::common::Time::MSleep(1000);
-  ROS_INFO("set configuration done");
+  gazebo::common::Time::MSleep(5000);
 
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
@@ -422,6 +490,8 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 // remove a joint
 void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
 {
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
   if (_joint)
   {
     // reenable collision between the link pair
@@ -435,6 +505,7 @@ void VRCPlugin::RemoveJoint(physics::JointPtr &_joint)
     _joint->Detach();
     _joint.reset();
   }
+  this->world->SetPaused(paused);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -479,8 +550,9 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
 
-  if (this->atlas.isInitialized &&
-      this->atlas.startupHarness && curTime > 10)
+  if (this->atlas.startupHarness && this->atlas.isInitialized &&
+      !math::equal(atlas.startupHarnessDuration, 0.0) &&
+      curTime > atlas.startupHarnessDuration)
   {
     this->SetRobotMode("nominal");
     this->atlas.startupHarness = false;
@@ -691,6 +763,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   this->isInitialized = false;
+  this->startupHarnessDuration = 10;
 
   // load parameters
   if (_sdf->HasElement("atlas") &&
@@ -774,6 +847,13 @@ void VRCPlugin::LoadVRCROSAPI()
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadRobotROSAPI()
 {
+  if (!this->rosNode->getParam("atlas/time_to_unpin",
+    atlas.startupHarnessDuration))
+  {
+    ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
+             " %f seconds", atlas.startupHarnessDuration);
+  }
+
   // ros subscription
   std::string trajectory_topic_name = "atlas/cmd_vel";
   ros::SubscribeOptions trajectory_so =
