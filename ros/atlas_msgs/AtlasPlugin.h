@@ -57,7 +57,7 @@
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
-#include <atlas_msgs/AtlasStates.h>
+#include <atlas_msgs/AtlasState.h>
 #include <sensor_msgs/JointState.h>
 
 #include <atlas_msgs/Test.h>
@@ -127,13 +127,14 @@ namespace gazebo
 
     /// \brief A combined JointStates, IMU and ForceTorqueSensors Message
     /// for accessing all these states synchronously.
-    private: atlas_msgs::AtlasStates atlasStates;
+    private: atlas_msgs::AtlasState atlasState;
 
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
     private: physics::LinkPtr imuLink;
     private: ros::Publisher pubImu;
+    private: common::Time lastImuTime;
 
     // AtlasSimInterface: internal debugging only
     // Pelvis position and velocity
@@ -144,14 +145,26 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
-    // ROS stuff
+    // ROS internal stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
+
+    /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
+
+    /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
+
+    /// \brief ros publisher for force torque sensors
     private: ros::Publisher pubForceTorqueSensors;
-    private: ros::Publisher pubAtlasStates;
+
+    /// \brief ros publisher for atlas states, currently it contains
+    /// joint index enums
+    /// sensor_msgs::JointState
+    /// sensor_msgs::Imu
+    /// atlas_msgs::FroceTorqueSensors
+    private: ros::Publisher pubAtlasState;
 
     private: ros::Subscriber subJointCommands;
 
@@ -219,7 +232,6 @@ namespace gazebo
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
-    private: common::Time lastImuTime;
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
