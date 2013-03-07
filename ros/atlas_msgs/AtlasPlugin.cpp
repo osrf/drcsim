@@ -175,6 +175,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointStates.position.resize(this->joints.size());
   this->jointStates.velocity.resize(this->joints.size());
   this->jointStates.effort.resize(this->joints.size());
+
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->jointStates.name[i] = this->jointNames[i];
 
