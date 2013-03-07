@@ -175,6 +175,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointStates.position.resize(this->joints.size());
   this->jointStates.velocity.resize(this->joints.size());
   this->jointStates.effort.resize(this->joints.size());
+
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->jointStates.name[i] = this->jointNames[i];
 
@@ -718,10 +719,13 @@ void AtlasPlugin::UpdateStates()
     forceTorqueSensorsMsg->header.stamp =
       ros::Time(curTime.sec, curTime.nsec);
 
+    // The following is added to fix compiler warnings.
+    unsigned int i0 = 0;
+
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
     {
-      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(i0);
       forceTorqueSensorsMsg->l_foot.force.z = wrench.body1Force.z;
       forceTorqueSensorsMsg->l_foot.torque.x = wrench.body1Torque.x;
       forceTorqueSensorsMsg->l_foot.torque.y = wrench.body1Torque.y;
@@ -735,7 +739,7 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right ankle and publish
     if (this->rAnkleJoint)
     {
-      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(i0);
       forceTorqueSensorsMsg->r_foot.force.z = wrench.body1Force.z;
       forceTorqueSensorsMsg->r_foot.torque.x = wrench.body1Torque.x;
       forceTorqueSensorsMsg->r_foot.torque.y = wrench.body1Torque.y;
@@ -749,7 +753,7 @@ void AtlasPlugin::UpdateStates()
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
-      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(i0);
       forceTorqueSensorsMsg->l_hand.force.x = wrench.body1Force.x;
       forceTorqueSensorsMsg->l_hand.force.y = wrench.body1Force.y;
       forceTorqueSensorsMsg->l_hand.force.z = wrench.body1Force.z;
@@ -769,7 +773,7 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
-      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(0);
+      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(i0);
       forceTorqueSensorsMsg->r_hand.force.x = wrench.body1Force.x;
       forceTorqueSensorsMsg->r_hand.force.y = wrench.body1Force.y;
       forceTorqueSensorsMsg->r_hand.force.z = wrench.body1Force.z;
