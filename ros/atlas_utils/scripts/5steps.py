@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; #roslib.load_manifest('atlas_utils')
+import roslib; roslib.load_manifest('atlas_utils')
 import rospy, math
 
 from std_msgs.msg import String
@@ -16,7 +16,7 @@ def demo():
     while mode.get_num_connections() == 0:
       rospy.sleep(0.1)
 
-    mode.publish("pinned")
+    mode.publish("harnessed")
     control_mode.publish("stand-prep")
     rospy.sleep(5.0)
     mode.publish("nominal")
