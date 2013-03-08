@@ -1,6 +1,7 @@
 set (rostests
   atlas_publishers_hz
   atlas_sandia_hands_publishers_hz
+  performance_test1.launch
 ) 
 
 # If we have a GPU, add in the GPU-dependent tests.
