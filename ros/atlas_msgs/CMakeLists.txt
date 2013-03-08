@@ -8,6 +8,8 @@ set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH})
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 project(atlas_msgs)
+
+set(ROS_BUILD_TYPE Release)
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
 
