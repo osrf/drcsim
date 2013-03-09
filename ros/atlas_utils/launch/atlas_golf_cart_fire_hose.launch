@@ -8,5 +8,8 @@
     <arg name="gzworld" value="atlas_golf_cart_fire_hose.world"/>
   </include>
 
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
+
   <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
 </launch>
