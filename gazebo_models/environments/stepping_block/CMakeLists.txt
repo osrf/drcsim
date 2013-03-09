@@ -1,6 +1,6 @@
 set(MODEL_NAME stepping_block)
 set (files 
-  manifest.xml
+  model.config
   model-1_3.sdf
 )
 
