@@ -7,12 +7,14 @@ from std_msgs.msg import Float64
 from geometry_msgs.msg import Pose
 
 def jointStateCommand():
-    rospy.sleep(3.0)
     # Initialize the node
     rospy.init_node('joint_control')
 
-    # Setup the publishers for each joint
     pose = rospy.Publisher('/pose', Pose)
+    while pose.get_num_connections() == 0:
+      rospy.sleep(0.1)
+
+    # Setup the publishers for each joint
     back_lbz = rospy.Publisher('/back_lbz_position_controller/command', Float64)
     back_mby = rospy.Publisher('/back_mby_position_controller/command', Float64)
     back_ubx = rospy.Publisher('/back_ubx_position_controller/command', Float64)

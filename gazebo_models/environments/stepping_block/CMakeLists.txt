@@ -1,7 +1,7 @@
 set(MODEL_NAME stepping_block)
 set (files 
-  manifest.xml
-  model-1_3.sdf
+  model.config
+  model.sdf
 )
 
 add_subdirectory(meshes)

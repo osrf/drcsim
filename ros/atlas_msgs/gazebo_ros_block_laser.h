@@ -18,19 +18,11 @@
 #ifndef GAZEBO_ROS_BLOCK_LASER_HH
 #define GAZEBO_ROS_BLOCK_LASER_HH
 
-// Custom Callback Queue
+#include <string>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
-
-#include "sdf/interface/Param.hh"
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "msgs/MessageTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "sensors/SensorTypes.hh"
-#include "plugins/RayPlugin.hh"
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -38,9 +30,17 @@
 
 #include <sensor_msgs/PointCloud.h>
 
+#include <gazebo/sdf/interface/Param.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/plugins/RayPlugin.hh>
+
 namespace gazebo
 {
-
   class GazeboRosBlockLaser : public RayPlugin
   {
     /// \brief Constructor
@@ -79,7 +79,7 @@ namespace gazebo
 
     /// \brief ros message
     private: sensor_msgs::PointCloud cloud_msg_;
-   
+
     /// \brief topic name
     private: std::string topic_name_;
 
@@ -90,13 +90,13 @@ namespace gazebo
     private: double gaussian_noise_;
 
     /// \brief Gaussian noise generator
-    private: double GaussianKernel(double mu,double sigma);
+    private: double GaussianKernel(double mu, double sigma);
 
-    /// \brief A mutex to lock access to fields that are used in message callbacks
+    /// \brief A mutex to lock access to fields that are
+    /// used in message callbacks
     private: boost::mutex lock;
 
     /// \brief hack to mimic hokuyo intensity cutoff of 100
-    //private: ParamT<double> *hokuyoMinIntensityP;
     private: double hokuyo_min_intensity_;
 
     /// update rate of this sensor
@@ -113,11 +113,6 @@ namespace gazebo
     // subscribe to world stats
     private: transport::NodePtr node_;
     private: common::Time sim_time_;
-    public: void OnStats( const boost::shared_ptr<msgs::WorldStatistics const> &_msg);
-
   };
-
 }
-
 #endif
-
