@@ -201,11 +201,11 @@ void DRCVehiclePlugin::UpdateHandWheelRatio()
   this->handWheelHigh  = this->handWheelJoint->GetHighStop(0).Radian();
   this->handWheelLow   = this->handWheelJoint->GetLowStop(0).Radian();
   this->handWheelRange = this->handWheelHigh - this->handWheelLow;
-  double high = std::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
+  double high = math::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
                          this->frWheelSteeringJoint->GetHighStop(0).Radian());
-  double low = std::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
+  double low = math::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
                         this->frWheelSteeringJoint->GetLowStop(0).Radian());
-  this->tireAngleRange = std::min(fabs(high), fabs(low));
+  this->tireAngleRange = math::min(fabs(high), fabs(low));
 
   // Compute the angle ratio between the steering wheel and the tires
   this->steeringRatio = this->tireAngleRange / this->handWheelRange;
@@ -467,7 +467,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->blWheelJoint->SetAttribute("stop_erp", 0, 0.0);
   this->brWheelJoint->SetAttribute("stop_erp", 0, 0.0);
 
-  // stop_cfm == 0 means the joints will initially be locked
+  // stop_cfm == 10 means the joints will initially have small damping
   this->flWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
   this->frWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
   this->blWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
