@@ -630,7 +630,7 @@ void DRCVehiclePlugin::UpdateStates()
     double flGasTorque = 0, frGasTorque = 0, blGasTorque = 0, brGasTorque = 0;
     // Apply equal torque at left and right wheels, which is an implicit model
     // of the differential.
-    if ( (fabs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
+    if ((fabs(this->flWheelState * this->flWheelRadius) < this->maxSpeed)
       && (fabs(this->frWheelState * this->frWheelRadius) < this->maxSpeed))
     {
       flGasTorque = gasPercent*this->frontTorque * gasMultiplier;
@@ -707,6 +707,7 @@ void DRCVehiclePlugin::UpdateStates()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // function that extracts the radius of a cylinder or sphere collision shape
 // the function returns zero otherwise
 double DRCVehiclePlugin::get_collision_radius(physics::CollisionPtr _coll)
@@ -728,12 +729,14 @@ double DRCVehiclePlugin::get_collision_radius(physics::CollisionPtr _coll)
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// function that extracts the position of the collision object specified by _id
 math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
-                                                       unsigned int id)
+                                                       unsigned int _id)
 {
-  if (!_link || !(_link->GetCollision(id)))
+  if (!_link || !(_link->GetCollision(_id)))
     return math::Vector3::Zero;
-  math::Pose pose = _link->GetCollision(id)->GetWorldPose();
+  math::Pose pose = _link->GetCollision(_id)->GetWorldPose();
   return pose.pos;
 }
 
