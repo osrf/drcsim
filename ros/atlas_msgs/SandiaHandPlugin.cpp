@@ -232,6 +232,9 @@ void SandiaHandPlugin::DeferredLoad()
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // pull down controller parameters; they should be on the param server by now
   const int NUM_SIDES = 2, NUM_FINGERS = 4, NUM_FINGER_JOINTS = 3;
   const char *sides[NUM_SIDES] = {"left", "right"};
@@ -274,8 +277,10 @@ void SandiaHandPlugin::DeferredLoad()
 
   // ros publication / subscription
   /// brief broadcasts the robot states
+  this->pubLeftJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubLeftJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/l_hand/joint_states", 10);
+  this->pubRightJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubRightJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/r_hand/joint_states", 10);
 
@@ -294,9 +299,11 @@ void SandiaHandPlugin::DeferredLoad()
   this->subJointCommands[1] = this->rosNode->subscribe(jointCommandsSo);
 
   // publish imu data
+  this->pubLeftImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubLeftImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/l_hand/imu", 10);
+  this->pubRightImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubRightImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/r_hand/imu", 10);
@@ -371,7 +378,7 @@ void SandiaHandPlugin::UpdateStates()
           leftImuMsg.orientation.w = leftImuRot.w;
         }
 
-        this->pubLeftImu.publish(leftImuMsg);
+        this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
       }
 
       if (this->rightImuLink)
@@ -421,7 +428,7 @@ void SandiaHandPlugin::UpdateStates()
           rightImuMsg.orientation.w = rightImuRot.w;
         }
 
-        this->pubRightImu.publish(rightImuMsg);
+        this->pubRightImuQueue->push(rightImuMsg, this->pubRightImu);
       }
 
       // update time
@@ -452,8 +459,10 @@ void SandiaHandPlugin::UpdateStates()
         this->rightJointStates.effort[j] = this->joints[i]->GetForce(i0);
       }
     }
-    this->pubLeftJointStates.publish(this->leftJointStates);
-    this->pubRightJointStates.publish(this->rightJointStates);
+    this->pubLeftJointStatesQueue->push(this->leftJointStates,
+      this->pubLeftJointStates);
+    this->pubRightJointStatesQueue->push(this->rightJointStates,
+      this->pubRightJointStates);
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
