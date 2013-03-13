@@ -36,9 +36,6 @@
 
 #include <boost/thread.hpp>
 
-// AtlasSimInterface: header
-#include "AtlasSimInterface.h"
-
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/physics/PhysicsTypes.hh>
@@ -187,12 +184,6 @@ namespace gazebo
     private: physics::JointControllerPtr jointController;
     private: transport::NodePtr node;
     private: transport::PublisherPtr jointCmdPub;
-
-    // AtlasSimInterface:
-    private: AtlasControlDataToRobot toRobot;
-    private: AtlasControlDataFromRobot fromRobot;
-    private: AtlasErrorCode errorCode;
-    private: AtlasSimInterface* atlasSimInterface;
 
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;

@@ -35,8 +35,6 @@ include_directories(
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
   ${PLUGIN_LINK_DIRECTORIES}
-  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_1.0.3/lib64
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64
   ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.3
 )
 
@@ -84,16 +82,9 @@ rosbuild_add_library(gazebo_ros_p3d gazebo_ros_p3d.cpp)
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
 rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
-target_link_libraries(AtlasPlugin AtlasSimInterface)
-
-
-
-
 
 message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64")
 message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.3")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64")
 add_custom_command(OUTPUT output.x
                    COMMAND find ../..
                    COMMAND pwd
