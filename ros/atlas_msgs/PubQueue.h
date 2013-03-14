@@ -21,6 +21,8 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <deque>
+#include <list>
+#include <vector>
 
 #include <ros/ros.h>
 
@@ -66,16 +68,14 @@ class PubQueue
       notify_func_();
     }
 
-    boost::shared_ptr<PubMessagePair<T> > pop()
+    void pop(std::vector<boost::shared_ptr<PubMessagePair<T> > >& els)
     {
       boost::mutex::scoped_lock lock(*queue_lock_);
-      boost::shared_ptr<PubMessagePair<T> > el;
-      if(!queue_->empty())
+      while(!queue_->empty())
       {
-        el = queue_->front();
+        els.push_back(queue_->front());
         queue_->pop_front();
       }
-      return el;
     }
 };
 
@@ -91,9 +91,14 @@ class PubMultiQueue
     template <class T> 
     void serviceFunc(boost::shared_ptr<PubQueue<T> > pq)
     {
-      boost::shared_ptr<PubMessagePair<T> > el = pq->pop();
-      if(el)
-        el->pub_.publish(el->msg_);
+      std::vector<boost::shared_ptr<PubMessagePair<T> > > els;
+      pq->pop(els);
+      for(typename std::vector<boost::shared_ptr<PubMessagePair<T> > >::iterator it = els.begin();
+          it != els.end();
+          ++it)
+      {
+        (*it)->pub_.publish((*it)->msg_);
+      }
     }
   
   public:
