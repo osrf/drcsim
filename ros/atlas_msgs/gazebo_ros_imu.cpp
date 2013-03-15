@@ -33,7 +33,7 @@ GazeboRosIMU::GazeboRosIMU()
 // Destructor
 GazeboRosIMU::~GazeboRosIMU()
 {
-  event::Events::DisconnectWorldUpdateStart(this->update_connection_);
+  event::Events::DisconnectWorldUpdateBegin(this->update_connection_);
   // Finalize the controller
   this->rosnode_->shutdown();
   this->callback_queue_thread_.join();
@@ -116,7 +116,7 @@ void GazeboRosIMU::LoadThread()
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_api.so\n";
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
     return;
   }
 
@@ -163,7 +163,7 @@ void GazeboRosIMU::LoadThread()
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosIMU::UpdateChild, this));
 }
 

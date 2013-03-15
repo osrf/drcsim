@@ -36,7 +36,7 @@ DRCVehicleROSPlugin::DRCVehicleROSPlugin()
 // Destructor
 DRCVehicleROSPlugin::~DRCVehicleROSPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->ros_publish_connection_);
+  event::Events::DisconnectWorldUpdateBegin(this->ros_publish_connection_);
   this->rosNode->shutdown();
   this->queue.clear();
   this->queue.disable();
@@ -118,7 +118,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_api.so\n";
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
     return;
   }
 
@@ -200,7 +200,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
   this->callbackQueueThread = boost::thread(
     boost::bind(&DRCVehicleROSPlugin::QueueThread, this));
 
-  this->ros_publish_connection_ = event::Events::ConnectWorldUpdateStart(
+  this->ros_publish_connection_ = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&DRCVehicleROSPlugin::RosPublishStates, this));
 }
 

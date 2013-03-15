@@ -224,7 +224,7 @@ void GazeboRosCameraUtils::LoadThread()
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_api.so\n";
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
     return;
   }
 
@@ -263,10 +263,22 @@ void GazeboRosCameraUtils::LoadThread()
     boost::bind(&GazeboRosCameraUtils::ImageDisconnect, this),
     ros::VoidPtr(), &this->camera_queue_);
 
-  this->camera_info_pub_ =
-    this->rosnode_->advertise<sensor_msgs::CameraInfo>(
-    this->camera_info_topic_name_, 1);
+  // camera info publish rate will be synchronized to image sensor
+  // publish rates.
+  // If someone connects to camera_info, sensor will be activated
+  // and camera_info will be published alongside image_raw with the
+  // same timestamps.  This incurrs additional computational cost when
+  // there are subscribers to camera_info, but better mimics behavior
+  // of image_pipeline.
+  ros::AdvertiseOptions cio =
+    ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
+    this->camera_info_topic_name_, 1,
+    boost::bind(&GazeboRosCameraUtils::ImageConnect, this),
+    boost::bind(&GazeboRosCameraUtils::ImageDisconnect, this),
+    ros::VoidPtr(), &this->camera_queue_);
+  this->camera_info_pub_ = this->rosnode_->advertise(cio);
 
+  /* disabling fov and rate setting for each camera
   ros::SubscribeOptions zoom_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
         "set_hfov", 1,
@@ -280,6 +292,7 @@ void GazeboRosCameraUtils::LoadThread()
         boost::bind(&GazeboRosCameraUtils::SetUpdateRate, this, _1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
+  */
 
   this->Init();
 }
@@ -323,9 +336,6 @@ void GazeboRosCameraUtils::ImageDisconnect()
 // Initialize the controller
 void GazeboRosCameraUtils::Init()
 {
-  // set parent sensor update rate
-  this->parentSensor_->SetUpdateRate(this->update_rate_);
-
   // prepare to throttle this plugin at the same rate
   // ideally, we should invoke a plugin update when the sensor updates,
   // have to think about how to do that properly later
@@ -436,16 +446,16 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src,
 
 void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
 {
-  boost::mutex::scoped_lock lock(this->lock_);
-
-  // copy data into image
-  this->image_msg_.header.frame_id = this->frame_name_;
-  this->image_msg_.header.stamp.sec = this->sensor_update_time_.sec;
-  this->image_msg_.header.stamp.nsec = this->sensor_update_time_.nsec;
-
   /// don't bother if there are no subscribers
-  if (this->image_connect_count_ > 0)
+  if (this->image_pub_.getNumSubscribers() > 0)
   {
+    boost::mutex::scoped_lock lock(this->lock_);
+
+    // copy data into image
+    this->image_msg_.header.frame_id = this->frame_name_;
+    this->image_msg_.header.stamp.sec = this->sensor_update_time_.sec;
+    this->image_msg_.header.stamp.nsec = this->sensor_update_time_.nsec;
+
     // copy from src to image_msg_
     fillImage(this->image_msg_, this->type_, this->height_, this->width_,
         this->skip_*this->width_, reinterpret_cast<const void*>(_src));
@@ -454,8 +464,6 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
     this->image_pub_.publish(this->image_msg_);
   }
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Put camera_ data to the interface
@@ -547,9 +555,6 @@ void GazeboRosCameraUtils::CameraQueueThread()
 
   while (this->rosnode_->ok())
   {
-    /// publish CameraInfo
-    this->PublishCameraInfo();
-
     /// take care of callback queue
     this->camera_queue_.callAvailable(ros::WallDuration(timeout));
   }

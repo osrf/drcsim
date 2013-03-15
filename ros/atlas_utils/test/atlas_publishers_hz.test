@@ -56,7 +56,7 @@
   <test pkg="rostest" type="hztest" test-name="atlas_hztest_multisense_sl_scan">
     <param name="hz" value="40.0"/>
     <param name="hzerror" value="10.0"/>
-    <param name="topic" value="/multisense_sl/scan"/>
+    <param name="topic" value="/multisense_sl/laser/scan"/>
     <param name="test_duration" value="10.0"/>
   </test>
 

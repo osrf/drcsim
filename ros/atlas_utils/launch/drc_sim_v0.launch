@@ -6,7 +6,13 @@
   <param name="/use_sim_time" type="bool" value="true"/>
 
   <!-- start gazebo with the Atlas -->
-  <node name="gazebo" pkg="atlas_utils" type="run_$(arg gzname)" args="drc_sim_v0.world" output="screen"/>
+  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
+    <arg name="gzname" value="$(arg gzname)"/>
+    <arg name="gzworld" value="drc_sim_v0.world"/>
+  </include>
+
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
 
   <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
 </launch>

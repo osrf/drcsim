@@ -42,14 +42,14 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   GazeboRosApiPlugin::~GazeboRosApiPlugin()
   {
     // disconnect slots
-    event::Events::DisconnectWorldUpdateStart(this->wrench_update_event_);
-    event::Events::DisconnectWorldUpdateStart(this->force_update_event_);
-    event::Events::DisconnectWorldUpdateStart(this->time_update_event_);
+    event::Events::DisconnectWorldUpdateBegin(this->wrench_update_event_);
+    event::Events::DisconnectWorldUpdateBegin(this->force_update_event_);
+    event::Events::DisconnectWorldUpdateBegin(this->time_update_event_);
 
     if (this->pub_link_states_connection_count_ > 0)
-      event::Events::DisconnectWorldUpdateStart(this->pub_link_states_event_);
+      event::Events::DisconnectWorldUpdateBegin(this->pub_link_states_event_);
     if (this->pub_model_states_connection_count_ > 0)
-      event::Events::DisconnectWorldUpdateStart(this->pub_model_states_event_);
+      event::Events::DisconnectWorldUpdateBegin(this->pub_model_states_event_);
 
     // shutdown ros
     this->rosnode_->shutdown();
@@ -151,11 +151,11 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     this->pub_model_states_connection_count_ = 0;
 
     // hooks for applying forces, publishing simtime on /clock
-    this->wrench_update_event_ = event::Events::ConnectWorldUpdateStart(
+    this->wrench_update_event_ = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosApiPlugin::wrenchBodySchedulerSlot, this));
-    this->force_update_event_  = event::Events::ConnectWorldUpdateStart(
+    this->force_update_event_  = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosApiPlugin::forceJointSchedulerSlot, this));
-    this->time_update_event_   = event::Events::ConnectWorldUpdateStart(
+    this->time_update_event_   = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosApiPlugin::publishSimTime, this));
 
     this->gazebonode_ = transport::NodePtr(new transport::Node());
@@ -482,14 +482,14 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   {
     this->pub_link_states_connection_count_++;
     if (this->pub_link_states_connection_count_ == 1)
-      this->pub_link_states_event_   = event::Events::ConnectWorldUpdateStart(
+      this->pub_link_states_event_   = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&GazeboRosApiPlugin::publishLinkStates, this));
   }
   void GazeboRosApiPlugin::onModelStatesConnect()
   {
     this->pub_model_states_connection_count_++;
     if (this->pub_model_states_connection_count_ == 1)
-      this->pub_model_states_event_   = event::Events::ConnectWorldUpdateStart(
+      this->pub_model_states_event_   = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&GazeboRosApiPlugin::publishModelStates, this));
   }
   void GazeboRosApiPlugin::onLinkStatesDisconnect()
@@ -497,7 +497,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     this->pub_link_states_connection_count_--;
     if (this->pub_link_states_connection_count_ <= 0)
     {
-      event::Events::DisconnectWorldUpdateStart(this->pub_link_states_event_);
+      event::Events::DisconnectWorldUpdateBegin(this->pub_link_states_event_);
       if (this->pub_link_states_connection_count_ < 0)
         ROS_ERROR("one too mandy disconnect from pub_link_states_"
                   " in gazebo_ros.cpp? something weird");
@@ -508,7 +508,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     this->pub_model_states_connection_count_--;
     if (this->pub_model_states_connection_count_ <= 0)
     {
-      event::Events::DisconnectWorldUpdateStart(this->pub_model_states_event_);
+      event::Events::DisconnectWorldUpdateBegin(this->pub_model_states_event_);
       if (this->pub_model_states_connection_count_ < 0)
         ROS_ERROR("one too mandy disconnect from pub_model_states_"
                   " in gazebo_ros.cpp? something weird");
@@ -1764,7 +1764,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   void GazeboRosApiPlugin::spin()
   {
     // todo: make a wait loop that does not provide extra ros::spin()
-    ros::Rate r(10);
+    ros::Rate r(1000);
     while (ros::ok())
     {
       ros::spinOnce();
@@ -2112,7 +2112,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     physics_reconfigure_srv.setCallback(physics_reconfigure_f);
 
     ROS_INFO("Starting to spin physics dynamic reconfigure node...");
-    ros::Rate r(10);
+    ros::Rate r(1000);
     while (ros::ok())
     {
       ros::spinOnce();

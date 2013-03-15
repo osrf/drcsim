@@ -137,7 +137,7 @@ void GazeboRosBlockLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
-          << "  gazebo -s libgazebo_ros_api.so\n";
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
     return;
   }
 
@@ -373,15 +373,6 @@ void GazeboRosBlockLaser::LaserQueueThread()
   {
     this->laser_queue_.callAvailable(ros::WallDuration(timeout));
   }
-}
-
-void GazeboRosBlockLaser::OnStats( const boost::shared_ptr<msgs::WorldStatistics const> &_msg)
-{
-  this->sim_time_  = msgs::Convert( _msg->sim_time() );
-
-  math::Pose pose;
-  pose.pos.x = 0.5*sin(0.01*this->sim_time_.Double());
-  gzdbg << "plugin simTime [" << this->sim_time_.Double() << "] update pose [" << pose.pos.x << "]\n";
 }
 
 // Register this plugin with the simulator

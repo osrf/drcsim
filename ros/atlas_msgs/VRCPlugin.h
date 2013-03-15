@@ -20,6 +20,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -30,9 +31,7 @@
 #include <std_msgs/String.h>
 #include <sensor_msgs/JointState.h>
 
-#include <control_msgs/FollowJointTrajectoryAction.h>
-#include <control_msgs/JointTolerance.h>
-#include <actionlib/client/simple_action_client.h>
+#include <osrf_msgs/JointCommands.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -44,8 +43,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 
-typedef actionlib::SimpleActionClient<
-  control_msgs::FollowJointTrajectoryAction > TrajClient;
 namespace gazebo
 {
   class VRCPlugin : public WorldPlugin
@@ -221,6 +218,8 @@ namespace gazebo
       /// \brief flag for successful initialization of atlas
       private: bool isInitialized;
 
+      private: double startupHarnessDuration;
+
       private: ros::Subscriber subTrajectory;
       private: ros::Subscriber subPose;
       private: ros::Subscriber subConfiguration;
@@ -307,273 +306,228 @@ namespace gazebo
     //   Joint Trajectory Controller                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    private: class JointTrajectory
+    private: class JointCommandsController
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      public: JointTrajectory()
+      private: JointCommandsController()
       {
-        // tell the action client that we want to spin a thread by default
-        this->clientTraj = new TrajClient(
-          "/atlas_controller/follow_joint_trajectory", true);
-      }
-
-      /// \brief Destructor, clean up the action client
-      public: ~JointTrajectory()
-      {
-        delete this->clientTraj;
-      }
-
-      /// \brief Sends the command to start a given trajectory
-      public: void sendTrajectory(control_msgs::FollowJointTrajectoryGoal _goal)
-      {
-        // When to start the trajectory: 1s from now
-        _goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
-
-        this->clientTraj->sendGoal(_goal);
-      }
-
-      /// \brief Generates a simple trajectory
-      /// Note that this trajectory contains two waypoints, joined together
-      /// as a single trajectory. Alternatively, each of these waypoints could
-      /// be in its own trajectory - a trajectory can have one or more waypoints
-      /// depending on the desired application.
-      public: control_msgs::FollowJointTrajectoryGoal seatingConfiguration()
-      {
-        // goal variable
-        control_msgs::FollowJointTrajectoryGoal goal;
-
-        // First, the joint names, which apply to all waypoints
-        goal.trajectory.joint_names.push_back("l_leg_uhz");
-        goal.trajectory.joint_names.push_back("l_leg_mhx");
-        goal.trajectory.joint_names.push_back("l_leg_lhy");
-        goal.trajectory.joint_names.push_back("l_leg_kny");
-        goal.trajectory.joint_names.push_back("l_leg_uay");
-        goal.trajectory.joint_names.push_back("l_leg_lax");
-
-        goal.trajectory.joint_names.push_back("r_leg_uhz");
-        goal.trajectory.joint_names.push_back("r_leg_mhx");
-        goal.trajectory.joint_names.push_back("r_leg_lhy");
-        goal.trajectory.joint_names.push_back("r_leg_kny");
-        goal.trajectory.joint_names.push_back("r_leg_uay");
-        goal.trajectory.joint_names.push_back("r_leg_lax");
-
-        goal.trajectory.joint_names.push_back("l_arm_usy");
-        goal.trajectory.joint_names.push_back("l_arm_shx");
-        goal.trajectory.joint_names.push_back("l_arm_ely");
-        goal.trajectory.joint_names.push_back("l_arm_elx");
-        goal.trajectory.joint_names.push_back("l_arm_uwy");
-        goal.trajectory.joint_names.push_back("l_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("r_arm_usy");
-        goal.trajectory.joint_names.push_back("r_arm_shx");
-        goal.trajectory.joint_names.push_back("r_arm_ely");
-        goal.trajectory.joint_names.push_back("r_arm_elx");
-        goal.trajectory.joint_names.push_back("r_arm_uwy");
-        goal.trajectory.joint_names.push_back("r_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("neck_ay");
-        goal.trajectory.joint_names.push_back("back_lbz");
-        goal.trajectory.joint_names.push_back("back_mby");
-        goal.trajectory.joint_names.push_back("back_ubx");
-
-        // We will have two waypoints in this goal trajectory
-        goal.trajectory.points.resize(1);
-
-        // First trajectory point
-        // Positions
-        int ind = 0;
-        goal.trajectory.points[ind].positions.resize(28);
-        goal.trajectory.points[ind].positions[0]  =   0.00;
-        goal.trajectory.points[ind].positions[1]  =   0.00;
-        goal.trajectory.points[ind].positions[2]  =  -1.70;
-        goal.trajectory.points[ind].positions[3]  =   1.80;
-        goal.trajectory.points[ind].positions[4]  =  -0.10;
-        goal.trajectory.points[ind].positions[5]  =   0.00;
-
-        goal.trajectory.points[ind].positions[6]  =   0.00;
-        goal.trajectory.points[ind].positions[7]  =   0.00;
-        goal.trajectory.points[ind].positions[8]  =  -1.70;
-        goal.trajectory.points[ind].positions[9]  =   1.80;
-        goal.trajectory.points[ind].positions[10] =  -0.10;
-        goal.trajectory.points[ind].positions[11] =   0.00;
-
-        goal.trajectory.points[ind].positions[12] =  -1.60;
-        goal.trajectory.points[ind].positions[13] =  -1.60;
-        goal.trajectory.points[ind].positions[14] =   0.00;
-        goal.trajectory.points[ind].positions[15] =   0.00;
-        goal.trajectory.points[ind].positions[16] =   0.00;
-        goal.trajectory.points[ind].positions[17] =   0.00;
-
-        goal.trajectory.points[ind].positions[18] =  -1.60;
-        goal.trajectory.points[ind].positions[19] =   1.60;
-        goal.trajectory.points[ind].positions[20] =   0.00;
-        goal.trajectory.points[ind].positions[21] =   0.00;
-        goal.trajectory.points[ind].positions[22] =   0.00;
-        goal.trajectory.points[ind].positions[23] =   0.00;
-
-        goal.trajectory.points[ind].positions[24] =   0.00;
-        goal.trajectory.points[ind].positions[25] =   0.00;
-        goal.trajectory.points[ind].positions[26] =   0.00;
-        goal.trajectory.points[ind].positions[27] =   0.00;
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
+        // initialize ros
+        if (!ros::isInitialized())
         {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
-        }
-        // To be reached 1 second after starting along the trajectory
-        goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
-
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
-        {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
+          gzerr << "Not loading JointCommandsController since ROS hasn't been "
+                << "properly initialized.  Try starting Gazebo with"
+                << " ros plugin:\n"
+                << "  gazebo -s libgazebo_ros_api_plugin.so\n";
+          return;
         }
 
-        // tolerances
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
+        // ros stuff
+        this->rosNode = new ros::NodeHandle("");
+
+        // must match those inside AtlasPlugin
+        this->jc.name.push_back("atlas::back_lbz");
+        this->jc.name.push_back("atlas::back_mby");
+        this->jc.name.push_back("atlas::back_ubx");
+        this->jc.name.push_back("atlas::neck_ay");
+        this->jc.name.push_back("atlas::l_leg_uhz");
+        this->jc.name.push_back("atlas::l_leg_mhx");
+        this->jc.name.push_back("atlas::l_leg_lhy");
+        this->jc.name.push_back("atlas::l_leg_kny");
+        this->jc.name.push_back("atlas::l_leg_uay");
+        this->jc.name.push_back("atlas::l_leg_lax");
+        this->jc.name.push_back("atlas::r_leg_uhz");
+        this->jc.name.push_back("atlas::r_leg_mhx");
+        this->jc.name.push_back("atlas::r_leg_lhy");
+        this->jc.name.push_back("atlas::r_leg_kny");
+        this->jc.name.push_back("atlas::r_leg_uay");
+        this->jc.name.push_back("atlas::r_leg_lax");
+        this->jc.name.push_back("atlas::l_arm_usy");
+        this->jc.name.push_back("atlas::l_arm_shx");
+        this->jc.name.push_back("atlas::l_arm_ely");
+        this->jc.name.push_back("atlas::l_arm_elx");
+        this->jc.name.push_back("atlas::l_arm_uwy");
+        this->jc.name.push_back("atlas::l_arm_mwx");
+        this->jc.name.push_back("atlas::r_arm_usy");
+        this->jc.name.push_back("atlas::r_arm_shx");
+        this->jc.name.push_back("atlas::r_arm_ely");
+        this->jc.name.push_back("atlas::r_arm_elx");
+        this->jc.name.push_back("atlas::r_arm_uwy");
+        this->jc.name.push_back("atlas::r_arm_mwx");
+
+        unsigned int n = this->jc.name.size();
+        this->jc.position.resize(n);
+        this->jc.velocity.resize(n);
+        this->jc.effort.resize(n);
+        this->jc.kp_position.resize(n);
+        this->jc.ki_position.resize(n);
+        this->jc.kd_position.resize(n);
+        this->jc.kp_velocity.resize(n);
+        this->jc.i_effort_min.resize(n);
+        this->jc.i_effort_max.resize(n);
+
+        for (unsigned int i = 0; i < n; i++)
         {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 1000;
-          jt.velocity = 1000;
-          jt.acceleration = 1000;
-          goal.goal_tolerance.push_back(jt);
+          std::vector<std::string> pieces;
+          boost::split(pieces, this->jc.name[i], boost::is_any_of(":"));
+
+          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+            "/p", this->jc.kp_position[i]);
+
+          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+            "/i", this->jc.ki_position[i]);
+
+          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+            "/d", this->jc.kd_position[i]);
+
+          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+            "/i_clamp", this->jc.i_effort_min[i]);
+          this->jc.i_effort_min[i] = -this->jc.i_effort_min[i];
+
+          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+            "/i_clamp", this->jc.i_effort_max[i]);
+
+          this->jc.velocity[i]     = 0;
+          this->jc.effort[i]       = 0;
+          this->jc.kp_velocity[i]  = 0;
         }
 
-        goal.goal_time_tolerance.sec = 10;
-        goal.goal_time_tolerance.nsec = 0;
+        this->pubJointCommands =
+          this->rosNode->advertise<osrf_msgs::JointCommands>(
+          "/atlas/joint_commands", 1, true);
 
-        // we are done; return the goal
-        return goal;
+        ros::SubscribeOptions jointStatesSo =
+          ros::SubscribeOptions::create<sensor_msgs::JointState>(
+          "/atlas/joint_states", 1,
+          boost::bind(&JointCommandsController::GetJointStates, this, _1),
+          ros::VoidPtr(), this->rosNode->getCallbackQueue());
+        this->subJointStates =
+          this->rosNode->subscribe(jointStatesSo);
       }
 
-      /// \brief Generates a simple trajectory for standing configuration.
-      public: control_msgs::FollowJointTrajectoryGoal standingConfiguration()
+      /// \brief Destructor
+      private: ~JointCommandsController()
       {
-        // goal variable
-        control_msgs::FollowJointTrajectoryGoal goal;
-
-        // First, the joint names, which apply to all waypoints
-        goal.trajectory.joint_names.push_back("l_leg_uhz");
-        goal.trajectory.joint_names.push_back("l_leg_mhx");
-        goal.trajectory.joint_names.push_back("l_leg_lhy");
-        goal.trajectory.joint_names.push_back("l_leg_kny");
-        goal.trajectory.joint_names.push_back("l_leg_uay");
-        goal.trajectory.joint_names.push_back("l_leg_lax");
-
-        goal.trajectory.joint_names.push_back("r_leg_uhz");
-        goal.trajectory.joint_names.push_back("r_leg_mhx");
-        goal.trajectory.joint_names.push_back("r_leg_lhy");
-        goal.trajectory.joint_names.push_back("r_leg_kny");
-        goal.trajectory.joint_names.push_back("r_leg_uay");
-        goal.trajectory.joint_names.push_back("r_leg_lax");
-
-        goal.trajectory.joint_names.push_back("l_arm_usy");
-        goal.trajectory.joint_names.push_back("l_arm_shx");
-        goal.trajectory.joint_names.push_back("l_arm_ely");
-        goal.trajectory.joint_names.push_back("l_arm_elx");
-        goal.trajectory.joint_names.push_back("l_arm_uwy");
-        goal.trajectory.joint_names.push_back("l_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("r_arm_usy");
-        goal.trajectory.joint_names.push_back("r_arm_shx");
-        goal.trajectory.joint_names.push_back("r_arm_ely");
-        goal.trajectory.joint_names.push_back("r_arm_elx");
-        goal.trajectory.joint_names.push_back("r_arm_uwy");
-        goal.trajectory.joint_names.push_back("r_arm_mwx");
-
-        goal.trajectory.joint_names.push_back("neck_ay");
-        goal.trajectory.joint_names.push_back("back_lbz");
-        goal.trajectory.joint_names.push_back("back_mby");
-        goal.trajectory.joint_names.push_back("back_ubx");
-
-        // We will have two waypoints in this goal trajectory
-        goal.trajectory.points.resize(1);
-
-        // First trajectory point
-        // Positions
-        int ind = 0;
-        goal.trajectory.points[ind].positions.resize(28);
-        goal.trajectory.points[ind].positions[0]  =   0.00;
-        goal.trajectory.points[ind].positions[1]  =   0.00;
-        goal.trajectory.points[ind].positions[2]  =   0.00;
-        goal.trajectory.points[ind].positions[3]  =   0.00;
-        goal.trajectory.points[ind].positions[4]  =   0.00;
-        goal.trajectory.points[ind].positions[5]  =   0.00;
-
-        goal.trajectory.points[ind].positions[6]  =   0.00;
-        goal.trajectory.points[ind].positions[7]  =   0.00;
-        goal.trajectory.points[ind].positions[8]  =   0.00;
-        goal.trajectory.points[ind].positions[9]  =   0.00;
-        goal.trajectory.points[ind].positions[10] =   0.00;
-        goal.trajectory.points[ind].positions[11] =   0.00;
-
-        goal.trajectory.points[ind].positions[12] =   0.00;
-        goal.trajectory.points[ind].positions[13] =  -1.60;
-        goal.trajectory.points[ind].positions[14] =   0.00;
-        goal.trajectory.points[ind].positions[15] =   0.00;
-        goal.trajectory.points[ind].positions[16] =   0.00;
-        goal.trajectory.points[ind].positions[17] =   0.00;
-
-        goal.trajectory.points[ind].positions[18] =   0.00;
-        goal.trajectory.points[ind].positions[19] =   1.60;
-        goal.trajectory.points[ind].positions[20] =   0.00;
-        goal.trajectory.points[ind].positions[21] =   0.00;
-        goal.trajectory.points[ind].positions[22] =   0.00;
-        goal.trajectory.points[ind].positions[23] =   0.00;
-
-        goal.trajectory.points[ind].positions[24] =   0.00;
-        goal.trajectory.points[ind].positions[25] =   0.00;
-        goal.trajectory.points[ind].positions[26] =   0.00;
-        goal.trajectory.points[ind].positions[27] =   0.00;
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
-        {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
-        }
-        // To be reached 1 second after starting along the trajectory
-        goal.trajectory.points[ind].time_from_start = ros::Duration(1.0);
-
-        // Velocities
-        goal.trajectory.points[ind].velocities.resize(28);
-        for (size_t j = 0; j < 28; ++j)
-        {
-          goal.trajectory.points[ind].velocities[j] = 0.0;
-        }
-
-        // tolerances
-        for (unsigned j = 0; j < goal.trajectory.joint_names.size(); ++j)
-        {
-          control_msgs::JointTolerance jt;
-          jt.name = goal.trajectory.joint_names[j];
-          jt.position = 1000;
-          jt.velocity = 1000;
-          jt.acceleration = 1000;
-          goal.goal_tolerance.push_back(jt);
-        }
-
-        goal.goal_time_tolerance.sec = 10;
-        goal.goal_time_tolerance.nsec = 0;
-
-        // we are done; return the goal
-        return goal;
+        this->rosNode->shutdown();
+        delete this->rosNode;
       }
 
-      /// \brief Get state of the simple action client
-      /// \return the current state of the action
-      public: actionlib::SimpleClientGoalState getState()
+      /// \brief subscriber to joint_states of the atlas robot
+      private: void GetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
       {
-        return this->clientTraj->getState();
+        /// \todo: implement joint state monitoring when setting configuration
       }
 
-      // Action client for the joint trajectory action
-      // used to trigger the arm movement action
-      public: TrajClient* clientTraj;
-    } jointTrajectoryController;
+      /// \brief sitting configuration of the robot when it enters
+      /// the vehicle.
+      /// \param[in] added pose offset when the robot is attached in the
+      /// seating position.
+      private: void SetSeatingConfiguration(physics::ModelPtr atlasModel)
+      {
+        // seated configuration
+        this->jc.header.stamp = ros::Time::now();
+        this->jc.position[0]  =   0.00;
+        this->jc.position[1]  =   0.00;
+        this->jc.position[2]  =   0.00;
+        this->jc.position[3]  =   0.00;
+        this->jc.position[4]  =   0.45;
+        this->jc.position[5]  =   0.00;
+        this->jc.position[6]  =  -1.60;
+        this->jc.position[7]  =   1.60;
+        this->jc.position[8]  =  -0.10;
+        this->jc.position[9]  =   0.00;
+        this->jc.position[10] =  -0.45;
+        this->jc.position[11] =   0.00;
+        this->jc.position[12] =  -1.60;
+        this->jc.position[13] =   1.60;
+        this->jc.position[14] =  -0.10;
+        this->jc.position[15] =   0.00;
+        this->jc.position[16] =   0.00;
+        this->jc.position[17] =   0.00;
+        this->jc.position[18] =   1.50;
+        this->jc.position[19] =   1.50;
+        this->jc.position[20] =  -3.00;
+        this->jc.position[21] =   0.00;
+        this->jc.position[22] =   0.00;
+        this->jc.position[23] =   0.00;
+        this->jc.position[24] =   1.50;
+        this->jc.position[25] =  -1.50;
+        this->jc.position[26] =  -3.00;
+        this->jc.position[27] =   0.00;
+
+        // set joint positions
+        std::map<std::string, double> jps;
+        for (unsigned int i = 0; i < this->jc.name.size(); ++i)
+          jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
+
+        atlasModel->SetJointPositions(jps);
+
+        // publish JointCommands
+        this->pubJointCommands.publish(jc);
+      }
+
+      /// \brief standing configuration of the robot when it exits
+      /// the vehicle.
+      /// \param[in] added pose offset when the robot is set down next
+      /// to the vehicle.
+      private: void SetStandingConfiguration(physics::ModelPtr atlasModel)
+      {
+        // standing configuration
+        this->jc.header.stamp = ros::Time::now();
+        this->jc.position[0]  =   0.00;
+        this->jc.position[1]  =   0.00;
+        this->jc.position[2]  =   0.00;
+        this->jc.position[3]  =   0.00;
+        this->jc.position[4]  =   0.00;
+        this->jc.position[5]  =   0.00;
+        this->jc.position[6]  =   0.00;
+        this->jc.position[7]  =   0.00;
+        this->jc.position[8]  =   0.00;
+        this->jc.position[9]  =   0.00;
+        this->jc.position[10] =   0.00;
+        this->jc.position[11] =   0.00;
+        this->jc.position[12] =   0.00;
+        this->jc.position[13] =   0.00;
+        this->jc.position[14] =   0.00;
+        this->jc.position[15] =   0.00;
+        this->jc.position[16] =   0.00;
+        this->jc.position[17] =  -1.60;
+        this->jc.position[18] =   0.00;
+        this->jc.position[19] =   0.00;
+        this->jc.position[20] =   0.00;
+        this->jc.position[21] =   0.00;
+        this->jc.position[22] =   0.00;
+        this->jc.position[23] =   1.60;
+        this->jc.position[24] =   0.00;
+        this->jc.position[25] =   0.00;
+        this->jc.position[26] =   0.00;
+        this->jc.position[27] =   0.00;
+
+        // set joint positions
+        std::map<std::string, double> jps;
+        for (unsigned int i = 0; i < this->jc.name.size(); ++i)
+          jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
+
+        atlasModel->SetJointPositions(jps);
+
+        // publish JointCommands
+        this->pubJointCommands.publish(jc);
+      }
+
+      /// \brief subscriber to joint_states
+      private: ros::Subscriber subJointStates;
+
+      /// \brief publisher of joint_commands
+      private: ros::Publisher pubJointCommands;
+
+      /// \brief ros node handle
+      private: ros::NodeHandle* rosNode;
+
+      /// \brief local copy of JointCommands message
+      private: osrf_msgs::JointCommands jc;
+
+      friend class VRCPlugin;
+    } jointCommandsController;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //

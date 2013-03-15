@@ -1,6 +1,7 @@
+<!-- This manifest.xml is here because xacro needs to find this package in the
+source tree.  This file is not installed. -->
 <package>
-  <description brief="MultiSense-SL_simplified2">MultiSense-SL_simplified2</description>
-  <depend package="gazebo" />
+  <description brief="multisense_sl_description">The Carnegie Robotics MultiSense-SL sensor head.</description>
   <author>Stephen Brawner, John Hsu</author>
   <license>Apache 2.0</license>
 </package>

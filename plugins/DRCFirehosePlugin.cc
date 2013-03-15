@@ -30,7 +30,7 @@ DRCFirehosePlugin::DRCFirehosePlugin()
 // Destructor
 DRCFirehosePlugin::~DRCFirehosePlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&DRCFirehosePlugin::UpdateStates, this));
 }
 
@@ -91,6 +91,10 @@ void DRCFirehosePlugin::SetInitialConfiguration()
 
   // for (unsigned int i = 0; i < this->links.size(); ++i)
   //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
+
+  // should do this via setting initial state in sdf when it's working
+  // this->joints[this->joints.size()-4]->SetAngle(0, -M_PI/4.0);
+  // this->joints[this->joints.size()-2]->SetAngle(0, -M_PI/4.0);
 
   this->joints[17]->SetAngle(0, -M_PI/4.0);
   this->joints[19]->SetAngle(0, -M_PI/4.0);

@@ -21,23 +21,23 @@ foreach(model_basename ${model_basenames})
   add_custom_target(${model_basename}_urdf ALL DEPENDS ${model_basename}.urdf)
 
   add_custom_command(
-    OUTPUT ${model_basename}.manifest.xml
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gazebo_manifest_generator.sh ${model_basename} > ${model_basename}.manifest.xml
+    OUTPUT ${model_basename}.model.config
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gazebo_manifest_generator.sh ${model_basename} > ${model_basename}.model.config
     DEPENDS gazebo_manifest_generator.sh)
-  add_custom_target(${model_basename}_manifest ALL DEPENDS ${model_basename}.manifest.xml)
+  add_custom_target(${model_basename}_manifest ALL DEPENDS ${model_basename}.model.config)
     
-  install(FILES ${model_basename}.urdf.xacro
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
+  #install(FILES ${model_basename}.urdf.xacro
+  #        DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename})
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.manifest.xml
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.model.config
+          DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
+          RENAME model.config)
+  # In gazebo-1.4, the model manifests were renamed from manifest.xml to model.config
+  # For backwards compatibility, we will continue to install a duplicate manifest.xml
+  # alongside the model.config
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.model.config
           DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME manifest.xml)
 endforeach()
-
-#set (files
-#  atlas_sandia_hand.model.xacro
-#  atlas.model.xacro
-#)
-#install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/robots/)
 
