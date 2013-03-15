@@ -1,0 +1,55 @@
+# TODO: add missing topics and enable strict checking
+strict: false
+topics:
+
+  ##########################################################
+  # Published topics
+
+  #####################################
+  # Multisense-SL
+  - topic: /multisense_sl/imu
+    type: sensor_msgs/Imu
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/joint_states
+    type: sensor_msgs/JointState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/laser/scan
+    type: sensor_msgs/LaserScan
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  # TODO: check output topics from stereo_image_proc
+
+  ##########################################################
+  # Subscribed topics
+
+  #####################################
+  # Multisense-SL
+  - topic: /multisense_sl/set_spindle_speed
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1

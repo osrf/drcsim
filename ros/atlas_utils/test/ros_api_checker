@@ -10,57 +10,111 @@ import re
 
 class Tester(unittest.TestCase):
 
-    def setUp(self):
-        self.argv = sys.argv
-        self.skip = False
-        try:
-            import yaml
-        except:
-            self.skip('Python yaml module not installed; skipping tests. On Ubuntu: sudo apt-get install python-yaml')
-        # Wait for a bit to let Gazebo come up
-        time.sleep(5.0)
+    def _test_extra_topics(self, topics):
+        cmd = ['rostopic', 'list']
+        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = po.communicate()
+        self.assertEqual(po.returncode, 0, 'rostopic failed. stdout: %s stderr: %s'%(out, err))
+        topics_actual = set(out.split('\n'))
+        topics_expected = set([x['topic'] for x in topics])
+        self.assertEqual(topics_expected, topics_actual)
 
-    def test_api(self):
-        self.assertTrue(len(self.argv) > 2, msg='Not enough args')
-        topics = self._load(self.argv[1:])
-        for t in topics:
-            self._test_topic(t)
-    
     def _test_topic(self, t):
+        self.assertIn('topic', t)
+        self.assertIn('type', t)
+        self.assertIn('num_publishers', t)
+        self.assertIn('num_subscribers', t)
+
         cmd = ['rostopic', 'info', t['topic']]
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         self.assertEqual(po.returncode, 0, 'rostopic failed. stdout: %s stderr: %s'%(out, err))
+        self._parse_rostopic(t, out)
 
-    def _parse_rostopic(self, out):
+    def _parse_rostopic(self, t, out):
         # Should probably do this through a library API instead...
+
+        # Step 0: make sure we have enough output
         outsplit = out.split('\n')
-        assertTrue(len(outsplit) >= 5)
+        self.assertTrue(len(outsplit) >= 5)
+
         type_re = re.compile('\w*Type: (.*)')
+        pub_start_re = re.compile('Publishers:.*')
+        sub_start_re = re.compile('Subscribers:.*')
+        pub_sub_re = re.compile(' *\* *([^ ]*).*')
+
+        # Step 1: check type
         m = type_re.match(outsplit[0])
-        assertEqual(len(m.groups), 1)
-        assertEqual(m.groups
+        self.assertEqual(len(m.groups()), 1)
+        self.assertEqual(m.groups()[0], t['type'])
        
-        for l in out.split('\n'):
-            if
-    
-    def _load(self, files):
-        import yaml
-        topics = []
-        for f in files:
-            # Ignore args passed in by rostest
-            if f[:2] == '--' or f[:2] == '__':
-                continue
-            # Let parsing exceptions leak out; they'll be marked as test errors
-            y = yaml.load(open(f))
-            self.assertIn('topics', y)
-            for t in y['topics']:
-                self.assertIn('topic', t)
-                self.assertIn('type', t)
-                self.assertIn('num_publishers', t)
-                self.assertIn('num_subscribers', t)
-                topics.append(t)
-        return topics
+        # Step 2: check num_publishers and num_subscribers
+        state = None
+        pubs = 0
+        subs = 0
+        for l in outsplit:
+            if pub_start_re.match(l):
+                state = 'in_pubs'
+            elif sub_start_re.match(l):
+                state = 'in_subs'
+            else:
+                m = pub_sub_re.match(l)
+                if m and len(m.groups()) == 1:
+                    if state == 'in_pubs':
+                        pubs += 1
+                    elif state == 'in_subs':
+                        subs += 1
+        if t['num_publishers'] >= 0:
+            self.assertEqual(pubs, t['num_publishers'])
+        if t['num_subscribers'] >= 0:
+            self.assertEqual(subs, t['num_subscribers'])
+
+def load_config(files):
+    import yaml
+    topics = []
+    strict = False
+    for f in files:
+        # Ignore args passed in by rostest
+        if f[:2] == '--' or f[:2] == '__':
+            continue
+        # Let parsing exceptions leak out; we'll catch them by noticing the
+        # absence of a test result file.
+        y = yaml.load(open(f))
+        for t in y['topics']:
+            topics.append(t)
+
+        # TODO: This logic will enforce strictness if any of the provided files
+        # sets strict to true, which isn't necessarily the right thing.
+        if 'strict' in y and y['strict']:
+            strict = True
+    return topics, strict
+
+def generate_test(t):
+    def test_func(self):
+        self._test_topic(t)
+    return test_func
+
+def generate_test_extra_topics(topics):
+    def test_func(self):
+        self._test_extra_topics(topics)
+    return test_func
+
+def add_tests(topics, strict):
+    for t in topics:
+        test_func = generate_test(t)
+        test_name = "test_%s"%(t['topic'].replace('/','_'))
+        setattr(Tester, test_name, test_func)
+    if strict:
+        test_func = generate_test_extra_topics(topics)
+        test_name = "test_extra_topics"
+        setattr(Tester, test_name, test_func)
 
 if __name__ == '__main__':
+    # Dynamically generate test cases and stuff them into the Tester class
+    topics, strict = load_config(sys.argv[1:])
+    add_tests(topics, strict)
+
+    # 5 second startup delay to let Gazebo get going
+    time.sleep(5.0)
+
     rostest.run('atlas_utils', 'api_check', Tester, sys.argv)

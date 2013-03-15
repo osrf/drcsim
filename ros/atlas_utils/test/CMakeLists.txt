@@ -2,6 +2,7 @@ set (rostests
   atlas_publishers_hz.test
   atlas_sandia_hands_publishers_hz.test
   atlas_rosapi.test
+  atlas_sandia_hands_rosapi.test
   performance_test1.launch
 ) 
 
@@ -36,6 +37,8 @@ endforeach()
 set(files
   ${rostests}
   atlas_rosapi.yaml
+  multisense_sl_rosapi.yaml
+  sandia_hands_rosapi.yaml
 )
 set(scripts
   ros_api_checker

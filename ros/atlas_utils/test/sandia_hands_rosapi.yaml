@@ -1,0 +1,58 @@
+# TODO: add missing topics and enable strict checking
+strict: false
+topics:
+
+  ##########################################################
+  # Published topics
+
+  #####################################
+  # Sandia hands
+  - topic: /sandia_hands/l_hand/joint_states
+    type: sensor_msgs/JointState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/imu
+    type: sensor_msgs/Imu
+    num_publishers: 1
+    num_subscribers: -1
+
+  # TODO: /sandia_hands/l_hand/tactile_raw (not yet implemented)
+  # TODO: /sandia_hands/l_hand/camera/left/image_raw (not yet implemented)
+  # TODO: /sandia_hands/l_hand/camera/left/camera_info (not yet implemented)
+  # TODO: /sandia_hands/l_hand/camera/right/image_raw (not yet implemented)
+  # TODO: /sandia_hands/l_hand/camera/right/camera_info (not yet implemented)
+  # TODO: check output topics from stereo_image_proc
+
+  - topic: /sandia_hands/r_hand/joint_states
+    type: sensor_msgs/JointState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/imu
+    type: sensor_msgs/Imu
+    num_publishers: 1
+    num_subscribers: -1
+
+  # TODO: /sandia_hands/r_hand/tactile_raw (not yet implemented)
+  # TODO: /sandia_hands/r_hand/camera/left/image_raw (not yet implemented)
+  # TODO: /sandia_hands/r_hand/camera/left/camera_info (not yet implemented)
+  # TODO: /sandia_hands/r_hand/camera/right/image_raw (not yet implemented)
+  # TODO: /sandia_hands/r_hand/camera/right/camera_info (not yet implemented)
+  # TODO: check output topics from stereo_image_proc
+
+  ##########################################################
+  # Subscribed topics
+
+  #####################################
+  # Sandia hands
+  - topic: /sandia_hands/l_hand/joint_commands
+    type: osrf_msgs/JointCommands
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /sandia_hands/r_hand/joint_commands
+    type: osrf_msgs/JointCommands
+    num_publishers: -1
+    num_subscribers: 1
+
