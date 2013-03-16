@@ -207,6 +207,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     // Side effects:
     //  - CG of subsystems shifts
     ////////////////////////////////////////////////////////////////////////////
+
     ////////////////////////////////////////////////////////////////////////////
     //  From a controls perspective, important things to keep constant
     //  Feet
@@ -220,15 +221,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     //      check overall IXX increase of talus, foot and lleg, check % is small
     //   1d keep IZZ of talus + foot about uay(lax) constant (avg is sufficient)
     //      split IZZ equally between talus and uay
-    //  Spine
-    //   - Split utorso and mtorso mass 10:1 ratio
-    //   - keep IXX of utorso about ubx constant
-    //   - keep IYY of mtorso + utorso about mby constant
-    //   - (optional) keep IYY of ltorso + pelvis about mby constant
-    //   - keep IZZ of utorso + mtorso + ltorso about lbz constant
-    //  Sanity check
-    //   - check group CG to make sure changes are reasonable
-    ////////////////////////////////////////////////////////////////////////////
 
     gzdbg << "================= Ankle Inertial Tweak ==================\n";
 
@@ -238,13 +230,15 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     // 1a modify mass by average
     i_r_talus_mod.SetMass(0.5 * (i_r_talus.GetMass() + i_r_foot.GetMass()));
     i_r_foot_mod.SetMass(0.5 * (i_r_talus.GetMass() + i_r_foot.GetMass()));
-    physics::Inertial i1 = i_r_talus + i_r_foot;
-    physics::Inertial i1_mod = i_r_talus_mod + i_r_foot_mod;
     // 1a check cog movement is small
-    gzdbg << "\ncheck cog movement : \n"
-          << "  original cog: [" << i1.GetPose() << "]\n"
-          << "  modified cog: [" << i1_mod.GetPose() << "]\n"
-          << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
+    {
+      physics::Inertial i1 = i_r_talus + i_r_foot;
+      physics::Inertial i1_mod = i_r_talus_mod + i_r_foot_mod;
+      gzdbg << "\ncheck cog movement : \n"
+            << "  original cog: [" << i1.GetPose() << "]\n"
+            << "  modified cog: [" << i1_mod.GetPose() << "]\n"
+            << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
+    }
 
     // 1b modify IYY, check total MOI at uay
     double iyy_talus = i_r_talus_mod.GetIYY();
@@ -287,42 +281,223 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
                                     i_r_lleg_talus_foot.GetIXX() << "\n";
 
     // 1d modify IZZ by splitting equally
+    //    this actually does not affect dynamics, because lleg, talus, foot
+    //    are all constrained in z-axis.
+    // We have to take more advantage of this property.
     double izz_talus = i_r_talus_mod.GetIZZ();
     double izz_foot = i_r_foot_mod.GetIZZ();
     i_r_talus_mod.SetIZZ(0.5*(izz_talus + izz_foot));
     i_r_foot_mod.SetIZZ(0.5*(izz_talus + izz_foot));
+    // check increase of IZZ for lleg + talus + foot about lleg (kny location)
+    i_r_lleg_talus_foot_mod =
+      i_r_lleg.GetInertial(math::Pose()) +
+      i_r_talus_mod.GetInertial(r_talus_lleg) +
+      i_r_foot_mod.GetInertial(r_foot_lleg);
+    gzdbg << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
+          << "  original izz: " << i_r_lleg_talus_foot.GetIZZ() << "\n"
+          << "  modified izz: " << i_r_lleg_talus_foot_mod.GetIZZ() << "\n"
+          << "  changed  izz: " << i_r_lleg_talus_foot_mod.GetIZZ() -
+                                   i_r_lleg_talus_foot.GetIZZ() << "\n"
+          << "  changed% izz: " << (i_r_lleg_talus_foot_mod.GetIZZ() -
+                                    i_r_lleg_talus_foot.GetIZZ()) /
+                                    i_r_lleg_talus_foot.GetIZZ() << "\n";
+
 
     // what's the new inertial
-    gzdbg << "\n============ Summary ==============\n";
+    gzdbg << "\n============ Ankle Summary ==============\n";
     std::cout << "original talus MOI@cog: \n" << i_r_talus.GetMOI() << "\n";
     std::cout << "modified talus MOI@cog: \n" << i_r_talus_mod.GetMOI() << "\n";
     std::cout << "original foot MOI@cog: \n" << i_r_foot.GetMOI() << "\n";
     std::cout << "modified foot MOI@cog: \n" << i_r_foot_mod.GetMOI() << "\n";
 
-    ////////////////////////////////////////////////////////////////
-    // Tweak back mass
+    ////////////////////////////////////////////////////////////////////////////
+    //  Spine
+    //   1a Split utorso and mtorso mass 10:1 ratio
+    //   1b keep IYY of mtorso + utorso about mby constant
+    //   1c keep IXX of utorso about ubx constant
+    //   1d (optional) keep IYY of ltorso + pelvis about mby constant
+    //   1e keep IZZ of utorso + mtorso + ltorso about lbz constant
+    //      check group CG to make sure changes are reasonable
+
     gzdbg << "\n============ Torso Inertial Tweaks ==============\n";
+
     physics::Inertial i_utorso_mod = i_utorso;
     physics::Inertial i_mtorso_mod = i_mtorso;
     physics::Inertial i_ltorso_mod = i_ltorso;
     physics::Inertial i_pelvis_mod = i_pelvis;
 
+    // 1a split utorso and mtorso mass by a ratio of about 5:1
+    //   anticipate utorso increase by 30kg, so end ratio after
+    //   torso change will be around 12:1, which is still tolerable
     double mass_um = i_utorso.GetMass() + i_mtorso.GetMass();
-    double e_um = 0.3;
+    double e_um = 0.2;
     i_utorso.SetMass((1.0 - e_um) * mass_um);
     i_mtorso.SetMass(        e_um * mass_um);
+    // 1a check cog movement is small
+    {
+      physics::Inertial i1 = i_utorso + i_mtorso;
+      physics::Inertial i1_mod = i_utorso_mod + i_mtorso_mod;
+      gzdbg << "\ncheck cog of utorso + mtorso movement : \n"
+            << "  original cog: [" << i1.GetPose() << "]\n"
+            << "  modified cog: [" << i1_mod.GetPose() << "]\n"
+            << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
+    }
 
-    gzdbg << "inertia of utorso:\n" << i_utorso << "\n";
-    std::cout << "------------------\n" << i_utorso_mod << "\n\n";
+    // 1b modify IYY, check total MOI at mby
+    //    given utorso and mtorso are constrained about y axis,
+    //    it is ok to simply distribute IYY equally.
+    double iyy_utorso = i_utorso_mod.GetIYY();
+    double iyy_mtorso = i_mtorso_mod.GetIYY();
+    i_utorso_mod.SetIYY(0.5*(iyy_utorso + iyy_mtorso));
+    i_mtorso_mod.SetIYY(0.5*(iyy_utorso + iyy_mtorso));
+    // check total IYY about mby
+    // transform from foot link frame to lleg link
+    math::Pose mtorso_utorso =
+      utorso->GetWorldPose() - mtorso->GetWorldPose();
+    math::Matrix3 moi_utorso_mtorso_mby =
+            (i_utorso.GetMOI(math::Pose()) +
+             i_mtorso.GetMOI(mtorso_utorso));
+    math::Matrix3 moi_utorso_mtorso_mby_mod =
+            (i_utorso_mod.GetMOI(math::Pose()) +
+             i_mtorso_mod.GetMOI(mtorso_utorso));
+    gzdbg << "\nCheck IYY of utorso + mtorso about mby:\n"
+          << "  original iyy: " << moi_utorso_mtorso_mby[2][2] << "\n"
+          << "  modified iyy: " << moi_utorso_mtorso_mby_mod[2][2] << "\n"
+          << "  changed  iyy: " << moi_utorso_mtorso_mby_mod[2][2] -
+                                   moi_utorso_mtorso_mby[2][2] << "\n";
 
-    gzdbg << "inertia of mtorso:\n" << i_mtorso << "\n";
-    std::cout << "------------------\n" << i_mtorso_mod << "\n\n";
+    // 1b, keep IXX of utorso and about ubx constant.
+    //     Increase IXX of mtorso, and check to see that change in IXX
+    //     of utorso + mtorso about mby is reasonable
+    double ixx_mtorso = i_mtorso_mod.GetIXX();
+    double ixx_utorso = i_utorso_mod.GetIXX();
+    // simply brute force ixx of mtorso to be 1/2 of ixx utorso
+    i_mtorso_mod.SetIXX(0.0*ixx_mtorso + 0.5*ixx_utorso);
+    // check increase of IXX for mtorso + utorso about mtorso (ubx location)
+    physics::Inertial i_mtorso_utorso =
+      i_mtorso.GetInertial(math::Pose()) +
+      i_utorso.GetInertial(mtorso_utorso);
+    physics::Inertial i_mtorso_utorso_mod =
+      i_mtorso_mod.GetInertial(math::Pose()) +
+      i_utorso_mod.GetInertial(mtorso_utorso);
+    gzdbg << "\nCheck IXX of utorso, mtorso at mtorso(ubx) link:\n"
+          << "  original ixx: " << i_mtorso_utorso.GetIXX() << "\n"
+          << "  modified ixx: " << i_mtorso_utorso_mod.GetIXX() << "\n"
+          << "  changed  ixx: " << i_mtorso_utorso_mod.GetIXX() -
+                                   i_mtorso_utorso.GetIXX() << "\n"
+          << "  changed% ixx: " << (i_mtorso_utorso_mod.GetIXX() -
+                                    i_mtorso_utorso.GetIXX()) /
+                                    i_mtorso_utorso.GetIXX() << "\n";
 
-    gzdbg << "inertia of ltorso:\n" << i_ltorso << "\n";
-    std::cout << "------------------\n" << i_ltorso_mod << "\n\n";
+    // 1c modify IZZ by splitting equally between utorso, mtorso, ltorso
+    //    this actually does not affect dynamics, because all three lins
+    //    are fully constrained in z-axis.
+    // We have to take more advantage of this types of inertia distribution.
+    double izz_utorso = i_utorso_mod.GetIZZ();
+    double izz_mtorso = i_mtorso_mod.GetIZZ();
+    double izz_ltorso = i_ltorso_mod.GetIZZ();
+    i_utorso_mod.SetIZZ((izz_utorso + izz_mtorso + izz_ltorso) / 3.0);
+    i_mtorso_mod.SetIZZ((izz_utorso + izz_mtorso + izz_ltorso) / 3.0);
+    i_ltorso_mod.SetIZZ((izz_utorso + izz_mtorso + izz_ltorso) / 3.0);
+    // check increase of IZZ of utorso, mtorso, ltorso about ltorso(lbz)
+    // make sure it's reasonable
+    math::Pose ltorso_utorso =
+      utorso->GetWorldPose() - ltorso->GetWorldPose();
+    physics::Inertial i_utorso_mtorso_ltorso =
+      i_utorso.GetInertial(math::Pose()) +
+      i_mtorso.GetInertial(mtorso_utorso) +
+      i_ltorso.GetInertial(ltorso_utorso);
+    physics::Inertial i_utorso_mtorso_ltorso_mod =
+      i_utorso_mod.GetInertial(math::Pose()) +
+      i_mtorso_mod.GetInertial(mtorso_utorso) +
+      i_ltorso_mod.GetInertial(ltorso_utorso);
+    gzdbg << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
+          << "  original izz: " << i_utorso_mtorso_ltorso.GetIZZ() << "\n"
+          << "  modified izz: " << i_utorso_mtorso_ltorso_mod.GetIZZ() << "\n"
+          << "  changed  izz: " << i_utorso_mtorso_ltorso_mod.GetIZZ() -
+                                   i_utorso_mtorso_ltorso.GetIZZ() << "\n"
+          << "  changed% izz: " << (i_utorso_mtorso_ltorso_mod.GetIZZ() -
+                                    i_utorso_mtorso_ltorso.GetIZZ()) /
+                                    i_utorso_mtorso_ltorso.GetIZZ() << "\n";
 
-    gzdbg << "inertia of pelvis:\n" << i_pelvis << "\n";
-    std::cout << "------------------\n" << i_pelvis_mod << "\n\n";
+    // Now, to the same thing
+    // Simply increase IYY of ltorso so pelvis:ltorso ratio is 10:1
+    // Simply split IXX between ltorso an dpelvis
+
+    // 1a split pelvis and ltorso mass by a ratio of about 10:1
+    //   anticipate pelvis increase by 30kg, so end ratio after
+    //   torso change will be around 12:1, which is still tolerable
+    double mass_pl = i_pelvis.GetMass() + i_ltorso.GetMass();
+    double e_pl = 0.1;
+    i_pelvis.SetMass((1.0 - e_pl) * mass_pl);
+    i_ltorso.SetMass(        e_pl * mass_pl);
+    // 1a check cog movement is small
+    {
+      physics::Inertial i1 = i_pelvis + i_ltorso;
+      physics::Inertial i1_mod = i_pelvis_mod + i_ltorso_mod;
+      gzdbg << "\ncheck cog of pelvis + ltorso movement : \n"
+            << "  original cog: [" << i1.GetPose() << "]\n"
+            << "  modified cog: [" << i1_mod.GetPose() << "]\n"
+            << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
+    }
+
+    // 1b modify IYY, check total MOI at mby
+    //    given pelvis and ltorso are constrained about y axis,
+    //    it is ok to simply distribute IYY equally.
+    double iyy_pelvis = i_pelvis_mod.GetIYY();
+    double iyy_ltorso = i_ltorso_mod.GetIYY();
+    i_pelvis_mod.SetIYY(0.5*(iyy_pelvis + iyy_ltorso));
+    i_ltorso_mod.SetIYY(0.5*(iyy_pelvis + iyy_ltorso));
+    // check total IYY about mby
+    // transform from foot link frame to lleg link
+    math::Pose ltorso_pelvis =
+      pelvis->GetWorldPose() - ltorso->GetWorldPose();
+    math::Matrix3 moi_pelvis_ltorso_mby =
+            (i_pelvis.GetMOI(math::Pose()) +
+             i_ltorso.GetMOI(ltorso_pelvis));
+    math::Matrix3 moi_pelvis_ltorso_mby_mod =
+            (i_pelvis_mod.GetMOI(math::Pose()) +
+             i_ltorso_mod.GetMOI(ltorso_pelvis));
+    gzdbg << "\nCheck IYY of pelvis + ltorso about mby:\n"
+          << "  original iyy: " << moi_pelvis_ltorso_mby[2][2] << "\n"
+          << "  modified iyy: " << moi_pelvis_ltorso_mby_mod[2][2] << "\n"
+          << "  changed  iyy: " << moi_pelvis_ltorso_mby_mod[2][2] -
+                                   moi_pelvis_ltorso_mby[2][2] << "\n";
+
+    // 1b modify IXX, check total MOI at lbz
+    //    given pelvis and ltorso are constrained about x axis,
+    //    it is ok to simply distribute IXX equally.
+    double ixx_pelvis = i_pelvis_mod.GetIXX();
+    double ixx_ltorso = i_ltorso_mod.GetIXX();
+    i_pelvis_mod.SetIXX(0.5*(ixx_pelvis + ixx_ltorso));
+    i_ltorso_mod.SetIXX(0.5*(ixx_pelvis + ixx_ltorso));
+    // check total IXX about lbz
+    // transform from foot link frame to lleg link
+    math::Matrix3 moi_pelvis_ltorso_lbz =
+            (i_pelvis.GetMOI(math::Pose()) +
+             i_ltorso.GetMOI(ltorso_pelvis));
+    math::Matrix3 moi_pelvis_ltorso_lbz_mod =
+            (i_pelvis_mod.GetMOI(math::Pose()) +
+             i_ltorso_mod.GetMOI(ltorso_pelvis));
+    gzdbg << "\nCheck IXX of pelvis + ltorso about lbz:\n"
+          << "  original ixx: " << moi_pelvis_ltorso_lbz[2][2] << "\n"
+          << "  modified ixx: " << moi_pelvis_ltorso_lbz_mod[2][2] << "\n"
+          << "  changed  ixx: " << moi_pelvis_ltorso_lbz_mod[2][2] -
+                                   moi_pelvis_ltorso_lbz[2][2] << "\n";
+
+
+
+    // what's the new inertial
+    gzdbg << "\n============ Torso Summary ==============\n";
+    std::cout << "original utorso MOI@cog: \n" << i_utorso.GetMOI() << "\n";
+    std::cout << "modified utorso MOI@cog: \n" << i_utorso_mod.GetMOI() << "\n";
+    std::cout << "original mtorso MOI@cog: \n" << i_mtorso.GetMOI() << "\n";
+    std::cout << "modified mtorso MOI@cog: \n" << i_mtorso_mod.GetMOI() << "\n";
+    std::cout << "original ltorso MOI@cog: \n" << i_ltorso.GetMOI() << "\n";
+    std::cout << "modified ltorso MOI@cog: \n" << i_ltorso_mod.GetMOI() << "\n";
+    std::cout << "original pelvis MOI@cog: \n" << i_pelvis.GetMOI() << "\n";
+    std::cout << "modified pelvis MOI@cog: \n" << i_pelvis_mod.GetMOI() << "\n";
+
     
   }
 
