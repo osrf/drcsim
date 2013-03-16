@@ -230,10 +230,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     //   - check group CG to make sure changes are reasonable
     ////////////////////////////////////////////////////////////////////////////
 
-    physics::Inertial i_r_talus_mod = i_r_talus;
-    physics::Inertial i_r_foot_mod = i_r_foot;
-
-    ////////////////////////////////////////////////////////////////////////////
+    gzdbg << "================= Ankle Inertial Tweak ==================\n";
 
     physics::Inertial i_r_talus_mod = i_r_talus;
     physics::Inertial i_r_foot_mod = i_r_foot;
@@ -241,12 +238,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     // 1a modify mass by average
     i_r_talus_mod.SetMass(0.5 * (i_r_talus.GetMass() + i_r_foot.GetMass()));
     i_r_foot_mod.SetMass(0.5 * (i_r_talus.GetMass() + i_r_foot.GetMass()));
-    physics::Inetial i1 = i_r_talus + i_r_foot;
-    physics::Inetial i1_mod = i_r_talus_mod + i_r_foot_mod;
+    physics::Inertial i1 = i_r_talus + i_r_foot;
+    physics::Inertial i1_mod = i_r_talus_mod + i_r_foot_mod;
     // 1a check cog movement is small
-    gzdbg << "check cog movement : \n"
-          << "original cog: [" << i1.GetPose << "]\n"
-          << "modified cog: [" << i1_mod.GetPose << "]\n"
+    gzdbg << "\ncheck cog movement : \n"
+          << "  original cog: [" << i1.GetPose() << "]\n"
+          << "  modified cog: [" << i1_mod.GetPose() << "]\n"
+          << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
 
     // 1b modify IYY, check total MOI at uay
     double iyy_talus = i_r_talus_mod.GetIYY();
@@ -260,75 +258,50 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     math::Matrix3 moi_talus_foot_uay_mod =
             (i_r_talus_mod.GetMOI(math::Pose()) +
              i_r_foot_mod.GetMOI(r_foot_talus));
-    gzdbg << "check IYY of talus + foot about uay:\n"
-          << "original iyy: " << moi_talus_foot_uay[2][2];
-          << "modified iyy: " << moi_talus_foot_uay_mod[2][2];
+    gzdbg << "\nCheck IYY of talus + foot about uay:\n"
+          << "  original iyy: " << moi_talus_foot_uay[2][2] << "\n"
+          << "  modified iyy: " << moi_talus_foot_uay_mod[2][2] << "\n"
+          << "  changed  iyy: " << moi_talus_foot_uay_mod[2][2] -
+                                   moi_talus_foot_uay[2][2] << "\n";
 
-    // simple scalar average as a first approximation
-    i_r_talus_mod.SetMOI(0.5 * moi_talus_foot_uay);
-    i_r_foot_mod.SetMOI(0.5 * moi_talus_foot_uay);
-    // updated total MOI at uay
-    math::Matrix3 moi_talus_foot_uay =
-            (i_r_talus_mod.GetMOI(math::Pose()) +
-             i_r_foot_mod.GetMOI(r_foot_talus));
+    // more iterations to make changed iyy 0
 
-
-    // 1d modify IXX by average
-    math::Matrix3 moi_r_foot_mean =
-      0.5 * (i_r_talus_mod.GetMOI(math::Pose()) +
-             i_r_foot_mod.GetMOI(r_foot_talus));
-
-    math::Matrix3 test = moi_r_foot_mean * 0.5;
-
-    i_r_talus_mod.SetMOI(moi_r_foot_mean);
-    i_r_foot_mod.SetMOI(moi_r_foot_mean);
-
-    math::Matrix3 moi_r_foot_new =
-          i_r_foot.GetMOI(r_foot_talus) - i_r_foot_mod.GetMOI(r_foot_talus);
-    i_r_foot_mod.SetMOI(moi_r_foot_new);
-
-    // what's the new inertial
-    gzdbg << "1. original MOI(foot)@talus of foot at talus:\n"
-          << i_r_foot.GetMOI(r_foot_talus) << "\n";
-    std::cout << "  new MOI(foot)@talus after mass change\n"
-          << i_r_foot_mod.GetMOI(r_foot_talus) << "\n\n";
-    // what to change I so total I is the same
-    math::Matrix3 moi_talus_foot =
-      i_r_foot.GetMOI(r_foot_talus) - i_r_foot_mod.GetMOI(r_foot_talus);
-
-    // update MOI to compensate
-    i_r_foot_mod.SetMOI(i_r_foot_mod.GetMOI() + moi_talus_foot);
-    std::cout << "  new MOI(foot)@talus after mass change and after MOI tweak\n"
-          << i_r_foot_mod.GetMOI(r_foot_talus) << "\n\n";
-    std::cout << "====== New MOI at r_foot cog =======\n"
-          << i_r_foot_mod.GetMOI() << "\n\n";
-
-    std::cout << "2. Old MOI at r_talus\n"
-          << i_r_talus.GetMOI() << "\n";
-    std::cout << "====== New MOI at r_talus cog =======\n"
-          << i_r_talus_mod.GetMOI() << "\n\n";
-
-
-
-    // Check tweaked inertia
-    // total inertia from knee down viewed in the lleg link frame
+    // 1c modify IXX, simply increase talus IXX and check % increase for
+    //   lleg + talus + foot about kny
+    double ixx_talus = i_r_talus_mod.GetIXX();
+    double ixx_foot = i_r_foot_mod.GetIXX();
+    // simply brute force ixx of talus to be 1/2 of ixx foot
+    i_r_talus_mod.SetIXX(0.0*ixx_talus + 0.5*ixx_foot);
+    // check increase of IXX for lleg + talus + foot about lleg (kny location)
     physics::Inertial i_r_lleg_talus_foot_mod =
       i_r_lleg.GetInertial(math::Pose()) +
       i_r_talus_mod.GetInertial(r_talus_lleg) +
       i_r_foot_mod.GetInertial(r_foot_lleg);
-    gzdbg << "TOTAL inertia of foot, talus and lleg at lleg link:\n"
-          << i_r_lleg_talus_foot_mod << "\n";
+    gzdbg << "\nCheck IXX of foot, talus and lleg at lleg(uay) link:\n"
+          << "  original ixx: " << i_r_lleg_talus_foot.GetIXX() << "\n"
+          << "  modified ixx: " << i_r_lleg_talus_foot_mod.GetIXX() << "\n"
+          << "  changed  ixx: " << i_r_lleg_talus_foot_mod.GetIXX() -
+                                   i_r_lleg_talus_foot.GetIXX() << "\n"
+          << "  changed% ixx: " << (i_r_lleg_talus_foot_mod.GetIXX() -
+                                    i_r_lleg_talus_foot.GetIXX()) /
+                                    i_r_lleg_talus_foot.GetIXX() << "\n";
 
-    // total inertia from talus down viewed in the talus link frame
-    physics::Inertial i_r_talus_foot_mod =
-      i_r_talus_mod.GetInertial(math::Pose()) +
-      i_r_foot_mod.GetInertial(r_foot_talus);
-    gzdbg << "TOTAL inertia of foot and talus at talus link:\n"
-          << i_r_talus_foot_mod << "\n";
+    // 1d modify IZZ by splitting equally
+    double izz_talus = i_r_talus_mod.GetIZZ();
+    double izz_foot = i_r_foot_mod.GetIZZ();
+    i_r_talus_mod.SetIZZ(0.5*(izz_talus + izz_foot));
+    i_r_foot_mod.SetIZZ(0.5*(izz_talus + izz_foot));
 
+    // what's the new inertial
+    gzdbg << "\n============ Summary ==============\n";
+    std::cout << "original talus MOI@cog: \n" << i_r_talus.GetMOI() << "\n";
+    std::cout << "modified talus MOI@cog: \n" << i_r_talus_mod.GetMOI() << "\n";
+    std::cout << "original foot MOI@cog: \n" << i_r_foot.GetMOI() << "\n";
+    std::cout << "modified foot MOI@cog: \n" << i_r_foot_mod.GetMOI() << "\n";
 
     ////////////////////////////////////////////////////////////////
     // Tweak back mass
+    gzdbg << "\n============ Torso Inertial Tweaks ==============\n";
     physics::Inertial i_utorso_mod = i_utorso;
     physics::Inertial i_mtorso_mod = i_mtorso;
     physics::Inertial i_ltorso_mod = i_ltorso;
