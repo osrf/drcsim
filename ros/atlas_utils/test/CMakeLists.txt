@@ -39,6 +39,9 @@ set(files
   atlas_rosapi.yaml
   multisense_sl_rosapi.yaml
   sandia_hands_rosapi.yaml
+  atlas_cheats_rosapi.yaml
+  drc_vehicle_cheats_rosapi.yaml
+  golf_cart_cheats_rosapi.yaml
 )
 set(scripts
   ros_api_checker

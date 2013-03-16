@@ -1,0 +1,21 @@
+# TODO: add missing topics and enable strict checking
+strict: false
+topics:
+
+  ##########################################################
+  # Published topics
+
+  - topic: /atlas/debug/l_foot_contact
+    type: geometry_msgs/Wrench
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/debug/r_foot_contact
+    type: geometry_msgs/Wrench
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /ground_truth_odom
+    type: nav_msgs/Odometry
+    num_publishers: 1
+    num_subscribers: -1

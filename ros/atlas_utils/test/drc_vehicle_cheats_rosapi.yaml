@@ -1,0 +1,37 @@
+# TODO: add missing topics and enable strict checking
+strict: false
+topics:
+
+  ##########################################################
+  # Published topics
+
+  - topic: /drc_vehicle/brake_pedal/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /drc_vehicle/direction/state
+    type: std_msgs/Int8
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /drc_vehicle/gas_pedal/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /drc_vehicle/hand_brake/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /drc_vehicle/hand_wheel/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /drc_vehicle/key/state
+    type: std_msgs/Int8
+    num_publishers: 1
+    num_subscribers: -1
+
