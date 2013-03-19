@@ -476,12 +476,12 @@ void AtlasPlugin::DeferredLoad()
 
   // these topics are used for debugging only
   this->pubLFootContact =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
+    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/l_foot_contact", 10);
 
   // these topics are used for debugging only
   this->pubRFootContact =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
+    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/r_foot_contact", 10);
 
   // ros topic subscribtions
@@ -1030,12 +1030,14 @@ void AtlasPlugin::OnLContactUpdate()
   msgs::Contacts contacts;
   contacts = this->lFootContactSensor->GetContacts();
 
-
+  geometry_msgs::WrenchStamped msg;
   math::Vector3 fTotal;
   math::Vector3 tTotal;
 
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
     // gzerr << " t[" << this->world->GetSimTime()
@@ -1047,6 +1049,8 @@ void AtlasPlugin::OnLContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // gzerr << j << "  Position:"
@@ -1067,16 +1071,14 @@ void AtlasPlugin::OnLContactUpdate()
                             contacts.contact(i).wrench(j).body_1_torque().y(),
                             contacts.contact(i).wrench(j).body_1_torque().z());
     }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubLFootContact.publish(msg);
   }
-
-  geometry_msgs::Wrench msg;
-  msg.force.x = fTotal.x;
-  msg.force.y = fTotal.y;
-  msg.force.z = fTotal.z;
-  msg.torque.x = tTotal.x;
-  msg.torque.y = tTotal.y;
-  msg.torque.z = tTotal.z;
-  this->pubLFootContact.publish(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1086,6 +1088,7 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
+  geometry_msgs::WrenchStamped msg;
   math::Vector3 fTotal;
   math::Vector3 tTotal;
 
@@ -1094,6 +1097,9 @@ void AtlasPlugin::OnRContactUpdate()
   {
     // loop through all contact pairs to sum the total force
     // on collision1
+
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
 
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
@@ -1106,6 +1112,8 @@ void AtlasPlugin::OnRContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // loop through all contacts between collision1 and collision2
@@ -1128,16 +1136,14 @@ void AtlasPlugin::OnRContactUpdate()
                             contacts.contact(i).wrench(j).body_1_torque().y(),
                             contacts.contact(i).wrench(j).body_1_torque().z());
     }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubRFootContact.publish(msg);
   }
-
-  geometry_msgs::Wrench msg;
-  msg.force.x = fTotal.x;
-  msg.force.y = fTotal.y;
-  msg.force.z = fTotal.z;
-  msg.torque.x = tTotal.x;
-  msg.torque.y = tTotal.y;
-  msg.torque.z = tTotal.z;
-  this->pubRFootContact.publish(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
