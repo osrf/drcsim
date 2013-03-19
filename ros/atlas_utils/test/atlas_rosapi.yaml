@@ -77,6 +77,11 @@ topics:
     type: sensor_msgs/JointState
     num_publishers: 1
     num_subscribers: -1
+  
+  - topic: /atlas/atlas_states
+    type: atlas_msgs/AtlasState
+    num_publishers: 1
+    num_subscribers: -1
 
   ##########################################################
   # Subscribed topics

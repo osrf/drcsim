@@ -18,12 +18,6 @@ topics:
     num_publishers: 1
     num_subscribers: -1
 
-  # To be added to wiki (or removed):
-  - topic: /atlas/atlas_states
-    type: atlas_msgs/AtlasState
-    num_publishers: 1
-    num_subscribers: -1
-
   ##########################################################
   # Subscribed topics
 
