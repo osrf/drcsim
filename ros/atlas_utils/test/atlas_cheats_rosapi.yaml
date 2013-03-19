@@ -4,12 +4,12 @@ topics:
   # Published topics
 
   - topic: /atlas/debug/l_foot_contact
-    type: geometry_msgs/Wrench
+    type: geometry_msgs/WrenchStamped
     num_publishers: 1
     num_subscribers: -1
 
   - topic: /atlas/debug/r_foot_contact
-    type: geometry_msgs/Wrench
+    type: geometry_msgs/WrenchStamped
     num_publishers: 1
     num_subscribers: -1
 
