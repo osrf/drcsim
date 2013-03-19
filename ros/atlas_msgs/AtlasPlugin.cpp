@@ -149,14 +149,26 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     physics::Inertial i_r_talus = *r_talus->GetInertial();
     physics::Inertial i_r_foot  = *r_foot->GetInertial();
 
-    gzdbg << "inertia of utorso:\n" << i_utorso << "\n";
-    gzdbg << "inertia of mtorso:\n" << i_mtorso << "\n";
-    gzdbg << "inertia of ltorso:\n" << i_ltorso << "\n";
-    gzdbg << "inertia of pelvis:\n" << i_pelvis << "\n";
+    physics::LinkPtr r_uglut = this->model->GetLink("r_uglut");
+    physics::LinkPtr r_lglut = this->model->GetLink("r_lglut");
+    physics::LinkPtr r_uleg = this->model->GetLink("r_uleg");
 
-    gzdbg << "inertia of lleg:\n" << i_r_lleg << "\n";
-    gzdbg << "inertia of talus:\n" << i_r_talus << "\n";
-    gzdbg << "inertia of foot:\n" << i_r_foot << "\n";
+    physics::Inertial i_r_uglut = *r_uglut->GetInertial();
+    physics::Inertial i_r_lglut = *r_lglut->GetInertial();
+    physics::Inertial i_r_uleg  = *r_uleg->GetInertial();
+
+    std::cout << "inertia of utorso:\n" << i_utorso << "\n";
+    std::cout << "inertia of mtorso:\n" << i_mtorso << "\n";
+    std::cout << "inertia of ltorso:\n" << i_ltorso << "\n";
+    std::cout << "inertia of pelvis:\n" << i_pelvis << "\n";
+
+    std::cout << "inertia of lleg:\n" << i_r_lleg << "\n";
+    std::cout << "inertia of talus:\n" << i_r_talus << "\n";
+    std::cout << "inertia of foot:\n" << i_r_foot << "\n";
+
+    std::cout << "inertia of uglut:\n" << i_r_uglut << "\n";
+    std::cout << "inertia of lglut:\n" << i_r_lglut << "\n";
+    std::cout << "inertia of uleg:\n" << i_r_uleg << "\n";
 
     // transform from r_foot link frame to r_lleg link
     math::Pose r_foot_talus =
@@ -175,14 +187,14 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       i_r_lleg.GetInertial(math::Pose()) +
       i_r_talus.GetInertial(r_talus_lleg) +
       i_r_foot.GetInertial(r_foot_lleg);
-    gzdbg << "TOTAL inertia of foot, talus and lleg at lleg link:\n"
+    std::cout << "TOTAL inertia of foot, talus and lleg at lleg link:\n"
           << i_r_lleg_talus_foot << "\n";
 
     // total inertia from talus down viewed in the talus link frame
     physics::Inertial i_r_talus_foot =
       i_r_talus.GetInertial(math::Pose()) +
       i_r_foot.GetInertial(r_foot_talus);
-    gzdbg << "TOTAL inertia of foot and talus at talus link:\n"
+    std::cout << "TOTAL inertia of foot and talus at talus link:\n"
           << i_r_talus_foot << "\n";
 
     ////////////////////////////////////////////////////////////////////////////
@@ -222,7 +234,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     //   1d keep IZZ of talus + foot about uay(lax) constant (avg is sufficient)
     //      split IZZ equally between talus and uay
 
-    gzdbg << "================= Ankle Inertial Tweak ==================\n";
+    std::cout << "================= Ankle Inertial Tweak ==================\n";
 
     physics::Inertial i_r_talus_mod = i_r_talus;
     physics::Inertial i_r_foot_mod = i_r_foot;
@@ -234,7 +246,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     {
       physics::Inertial i1 = i_r_talus + i_r_foot;
       physics::Inertial i1_mod = i_r_talus_mod + i_r_foot_mod;
-      gzdbg << "\ncheck cog movement : \n"
+      std::cout << "\ncheck cog movement : \n"
             << "  original cog: [" << i1.GetPose() << "]\n"
             << "  modified cog: [" << i1_mod.GetPose() << "]\n"
             << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
@@ -252,7 +264,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     math::Matrix3 moi_talus_foot_uay_mod =
             (i_r_talus_mod.GetMOI(math::Pose()) +
              i_r_foot_mod.GetMOI(r_foot_talus));
-    gzdbg << "\nCheck IYY of talus + foot about uay:\n"
+    std::cout << "\nCheck IYY of talus + foot about uay:\n"
           << "  original iyy: " << moi_talus_foot_uay[2][2] << "\n"
           << "  modified iyy: " << moi_talus_foot_uay_mod[2][2] << "\n"
           << "  changed  iyy: " << moi_talus_foot_uay_mod[2][2] -
@@ -271,7 +283,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       i_r_lleg.GetInertial(math::Pose()) +
       i_r_talus_mod.GetInertial(r_talus_lleg) +
       i_r_foot_mod.GetInertial(r_foot_lleg);
-    gzdbg << "\nCheck IXX of foot, talus and lleg at lleg(uay) link:\n"
+    std::cout << "\nCheck IXX of foot, talus and lleg at lleg(uay) link:\n"
           << "  original ixx: " << i_r_lleg_talus_foot.GetIXX() << "\n"
           << "  modified ixx: " << i_r_lleg_talus_foot_mod.GetIXX() << "\n"
           << "  changed  ixx: " << i_r_lleg_talus_foot_mod.GetIXX() -
@@ -293,7 +305,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       i_r_lleg.GetInertial(math::Pose()) +
       i_r_talus_mod.GetInertial(r_talus_lleg) +
       i_r_foot_mod.GetInertial(r_foot_lleg);
-    gzdbg << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
+    std::cout << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
           << "  original izz: " << i_r_lleg_talus_foot.GetIZZ() << "\n"
           << "  modified izz: " << i_r_lleg_talus_foot_mod.GetIZZ() << "\n"
           << "  changed  izz: " << i_r_lleg_talus_foot_mod.GetIZZ() -
@@ -304,10 +316,14 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 
     // what's the new inertial
-    gzdbg << "\n============ Ankle Summary ==============\n";
+    std::cout << "\n============ Ankle Summary ==============\n";
+    std::cout << "original talus mass: \n" << i_r_talus.GetMass() << "\n";
     std::cout << "original talus MOI@cog: \n" << i_r_talus.GetMOI() << "\n";
+    std::cout << "modified talus mass: \n" << i_r_talus_mod.GetMass() << "\n";
     std::cout << "modified talus MOI@cog: \n" << i_r_talus_mod.GetMOI() << "\n";
+    std::cout << "original foot mass: \n" << i_r_foot.GetMass() << "\n";
     std::cout << "original foot MOI@cog: \n" << i_r_foot.GetMOI() << "\n";
+    std::cout << "modified foot mass: \n" << i_r_foot_mod.GetMass() << "\n";
     std::cout << "modified foot MOI@cog: \n" << i_r_foot_mod.GetMOI() << "\n";
 
     ////////////////////////////////////////////////////////////////////////////
@@ -319,7 +335,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     //   1e keep IZZ of utorso + mtorso + ltorso about lbz constant
     //      check group CG to make sure changes are reasonable
 
-    gzdbg << "\n============ Torso Inertial Tweaks ==============\n";
+    std::cout << "\n============ Torso Inertial Tweaks ==============\n";
 
     physics::Inertial i_utorso_mod = i_utorso;
     physics::Inertial i_mtorso_mod = i_mtorso;
@@ -331,13 +347,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     //   torso change will be around 12:1, which is still tolerable
     double mass_um = i_utorso.GetMass() + i_mtorso.GetMass();
     double e_um = 0.2;
-    i_utorso.SetMass((1.0 - e_um) * mass_um);
-    i_mtorso.SetMass(        e_um * mass_um);
+    i_utorso_mod.SetMass((1.0 - e_um) * mass_um);
+    i_mtorso_mod.SetMass(        e_um * mass_um);
     // 1a check cog movement is small
     {
       physics::Inertial i1 = i_utorso + i_mtorso;
       physics::Inertial i1_mod = i_utorso_mod + i_mtorso_mod;
-      gzdbg << "\ncheck cog of utorso + mtorso movement : \n"
+      std::cout << "\ncheck cog of utorso + mtorso movement : \n"
             << "  original cog: [" << i1.GetPose() << "]\n"
             << "  modified cog: [" << i1_mod.GetPose() << "]\n"
             << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
@@ -360,7 +376,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     math::Matrix3 moi_utorso_mtorso_mby_mod =
             (i_utorso_mod.GetMOI(math::Pose()) +
              i_mtorso_mod.GetMOI(mtorso_utorso));
-    gzdbg << "\nCheck IYY of utorso + mtorso about mby:\n"
+    std::cout << "\nCheck IYY of utorso + mtorso about mby:\n"
           << "  original iyy: " << moi_utorso_mtorso_mby[2][2] << "\n"
           << "  modified iyy: " << moi_utorso_mtorso_mby_mod[2][2] << "\n"
           << "  changed  iyy: " << moi_utorso_mtorso_mby_mod[2][2] -
@@ -380,7 +396,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     physics::Inertial i_mtorso_utorso_mod =
       i_mtorso_mod.GetInertial(math::Pose()) +
       i_utorso_mod.GetInertial(mtorso_utorso);
-    gzdbg << "\nCheck IXX of utorso, mtorso at mtorso(ubx) link:\n"
+    std::cout << "\nCheck IXX of utorso, mtorso at mtorso(ubx) link:\n"
           << "  original ixx: " << i_mtorso_utorso.GetIXX() << "\n"
           << "  modified ixx: " << i_mtorso_utorso_mod.GetIXX() << "\n"
           << "  changed  ixx: " << i_mtorso_utorso_mod.GetIXX() -
@@ -411,7 +427,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       i_utorso_mod.GetInertial(math::Pose()) +
       i_mtorso_mod.GetInertial(mtorso_utorso) +
       i_ltorso_mod.GetInertial(ltorso_utorso);
-    gzdbg << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
+    std::cout << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
           << "  original izz: " << i_utorso_mtorso_ltorso.GetIZZ() << "\n"
           << "  modified izz: " << i_utorso_mtorso_ltorso_mod.GetIZZ() << "\n"
           << "  changed  izz: " << i_utorso_mtorso_ltorso_mod.GetIZZ() -
@@ -429,13 +445,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     //   torso change will be around 12:1, which is still tolerable
     double mass_pl = i_pelvis.GetMass() + i_ltorso.GetMass();
     double e_pl = 0.1;
-    i_pelvis.SetMass((1.0 - e_pl) * mass_pl);
-    i_ltorso.SetMass(        e_pl * mass_pl);
+    i_pelvis_mod.SetMass((1.0 - e_pl) * mass_pl);
+    i_ltorso_mod.SetMass(        e_pl * mass_pl);
     // 1a check cog movement is small
     {
       physics::Inertial i1 = i_pelvis + i_ltorso;
       physics::Inertial i1_mod = i_pelvis_mod + i_ltorso_mod;
-      gzdbg << "\ncheck cog of pelvis + ltorso movement : \n"
+      std::cout << "\ncheck cog of pelvis + ltorso movement : \n"
             << "  original cog: [" << i1.GetPose() << "]\n"
             << "  modified cog: [" << i1_mod.GetPose() << "]\n"
             << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
@@ -458,7 +474,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     math::Matrix3 moi_pelvis_ltorso_mby_mod =
             (i_pelvis_mod.GetMOI(math::Pose()) +
              i_ltorso_mod.GetMOI(ltorso_pelvis));
-    gzdbg << "\nCheck IYY of pelvis + ltorso about mby:\n"
+    std::cout << "\nCheck IYY of pelvis + ltorso about mby:\n"
           << "  original iyy: " << moi_pelvis_ltorso_mby[2][2] << "\n"
           << "  modified iyy: " << moi_pelvis_ltorso_mby_mod[2][2] << "\n"
           << "  changed  iyy: " << moi_pelvis_ltorso_mby_mod[2][2] -
@@ -479,7 +495,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     math::Matrix3 moi_pelvis_ltorso_lbz_mod =
             (i_pelvis_mod.GetMOI(math::Pose()) +
              i_ltorso_mod.GetMOI(ltorso_pelvis));
-    gzdbg << "\nCheck IXX of pelvis + ltorso about lbz:\n"
+    std::cout << "\nCheck IXX of pelvis + ltorso about lbz:\n"
           << "  original ixx: " << moi_pelvis_ltorso_lbz[2][2] << "\n"
           << "  modified ixx: " << moi_pelvis_ltorso_lbz_mod[2][2] << "\n"
           << "  changed  ixx: " << moi_pelvis_ltorso_lbz_mod[2][2] -
@@ -488,17 +504,241 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
 
     // what's the new inertial
-    gzdbg << "\n============ Torso Summary ==============\n";
-    std::cout << "original utorso MOI@cog: \n" << i_utorso.GetMOI() << "\n";
-    std::cout << "modified utorso MOI@cog: \n" << i_utorso_mod.GetMOI() << "\n";
-    std::cout << "original mtorso MOI@cog: \n" << i_mtorso.GetMOI() << "\n";
-    std::cout << "modified mtorso MOI@cog: \n" << i_mtorso_mod.GetMOI() << "\n";
-    std::cout << "original ltorso MOI@cog: \n" << i_ltorso.GetMOI() << "\n";
-    std::cout << "modified ltorso MOI@cog: \n" << i_ltorso_mod.GetMOI() << "\n";
-    std::cout << "original pelvis MOI@cog: \n" << i_pelvis.GetMOI() << "\n";
-    std::cout << "modified pelvis MOI@cog: \n" << i_pelvis_mod.GetMOI() << "\n";
+    std::cout << "\n============ Torso Summary ==============\n";
+    std::cout << "original utorso Mass@cog\n" << i_utorso.GetMass() << "\n";
+    std::cout << "original utorso MOI@cog\n" << i_utorso.GetMOI() << "\n";
+    std::cout << "modified utorso Mass@cog\n" << i_utorso_mod.GetMass() << "\n";
+    std::cout << "modified utorso MOI@cog\n" << i_utorso_mod.GetMOI() << "\n";
+    std::cout << "original mtorso Mass@cog\n" << i_mtorso.GetMass() << "\n";
+    std::cout << "original mtorso MOI@cog\n" << i_mtorso.GetMOI() << "\n";
+    std::cout << "modified mtorso Mass@cog\n" << i_mtorso_mod.GetMass() << "\n";
+    std::cout << "modified mtorso MOI@cog\n" << i_mtorso_mod.GetMOI() << "\n";
+    std::cout << "original ltorso Mass@cog\n" << i_ltorso.GetMass() << "\n";
+    std::cout << "original ltorso MOI@cog\n" << i_ltorso.GetMOI() << "\n";
+    std::cout << "modified ltorso Mass@cog\n" << i_ltorso_mod.GetMass() << "\n";
+    std::cout << "modified ltorso MOI@cog\n" << i_ltorso_mod.GetMOI() << "\n";
+    std::cout << "original pelvis Mass@cog\n" << i_pelvis.GetMass() << "\n";
+    std::cout << "original pelvis MOI@cog\n" << i_pelvis.GetMOI() << "\n";
+    std::cout << "modified pelvis Mass@cog\n" << i_pelvis_mod.GetMass() << "\n";
+    std::cout << "modified pelvis MOI@cog\n" << i_pelvis_mod.GetMOI() << "\n";
 
     
+    ////////////////////////////////////////////////////////////////////////////
+    //  Gluts
+    //   pelvis <uhz>@uglut --> 0.089 m down
+    //   uglut <mhx>@lglut --> collocated
+    //   lglut <lhy>@uleg --> 0.05, 0, -0.05
+    //
+    //   note i_pelvis is already modified, continue to modify it.
+    //
+    //   Split pelvis and uglut mass 10:1 ratio
+    //   Split uleg and lglut mass 10:1 ratio
+    //   Distribute IZZ across uglut, lglut, uleg
+    //   Distribute IXX across pelvis and uglut
+    //   Distribute IXX across lglut and uleg
+    //   Distribute IYY across pelvis, uglut, lglut
+    //
+    std::cout << "\n============ Gluts Inertial Tweaks ==============\n";
+
+    physics::Inertial i_pelvis_mod2 = i_pelvis_mod;
+    physics::Inertial i_r_uglut_mod = i_r_uglut;
+    physics::Inertial i_r_lglut_mod = i_r_lglut;
+    physics::Inertial i_r_uleg_mod = i_r_uleg;
+
+    // split pelvis and r_uglut mass by a ratio of about 5:1
+    double mass_pu = i_pelvis_mod.GetMass() + i_r_uglut.GetMass();
+    double e_pu = 0.1;
+    i_pelvis_mod2.SetMass((1.0 - e_pu) * mass_pu);
+    i_r_uglut_mod.SetMass(        e_pu * mass_pu);
+    // check cog movement is small
+    {
+      physics::Inertial i1 = i_pelvis_mod + i_r_uglut;
+      physics::Inertial i1_mod = i_pelvis_mod2 + i_r_uglut_mod;
+      std::cout << "\ncheck cog of pelvis + r_uglut movement : \n"
+            << "  original cog: [" << i1.GetPose() << "]\n"
+            << "  modified cog: [" << i1_mod.GetPose() << "]\n"
+            << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
+    }
+
+    // split uleg and r_lglut mass by a ratio of about 5:1
+    double mass_ul = i_r_uleg.GetMass() + i_r_lglut.GetMass();
+    double e_ul = 0.1;
+    i_r_uleg_mod.SetMass((1.0 - e_ul) * mass_ul);
+    i_r_lglut_mod.SetMass(        e_ul * mass_ul);
+    // check cog movement is small
+    {
+      physics::Inertial i1 = i_r_uleg + i_r_lglut;
+      physics::Inertial i1_mod = i_r_uleg_mod + i_r_lglut_mod;
+      std::cout << "\ncheck cog of r_uleg + r_lglut movement : \n"
+            << "  original cog: [" << i1.GetPose() << "]\n"
+            << "  modified cog: [" << i1_mod.GetPose() << "]\n"
+            << "  changed  cog: [" << i1_mod.GetPose() - i1.GetPose() << "]\n";
+    }
+
+    // 1c modify IZZ by splitting equally between r_uglut, r_lglut, r_uleg
+    //    this actually does not affect dynamics, because all three lins
+    //    are fully constrained in z-axis.
+    // We have to take more advantage of this types of inertia distribution.
+    double izz_r_uglut = i_r_uglut_mod.GetIZZ();
+    double izz_r_lglut = i_r_lglut_mod.GetIZZ();
+    double izz_r_uleg = i_r_uleg_mod.GetIZZ();
+    i_r_uglut_mod.SetIZZ((izz_r_uglut + izz_r_lglut + izz_r_uleg) / 3.0);
+    i_r_lglut_mod.SetIZZ((izz_r_uglut + izz_r_lglut + izz_r_uleg) / 3.0);
+    i_r_uleg_mod.SetIZZ((izz_r_uglut + izz_r_lglut + izz_r_uleg) / 3.0);
+    // check increase of IZZ of r_uglut, r_lglut, r_uleg about r_uleg(lbz)
+    // make sure it's reasonable
+    math::Pose r_lglut_r_uglut =
+      r_uglut->GetWorldPose() - r_lglut->GetWorldPose();
+    math::Pose r_uleg_r_uglut =
+      r_uglut->GetWorldPose() - r_uleg->GetWorldPose();
+    physics::Inertial i_r_uglut_r_lglut_r_uleg =
+      i_r_uglut.GetInertial(math::Pose()) +
+      i_r_lglut.GetInertial(r_lglut_r_uglut) +
+      i_r_uleg.GetInertial(r_uleg_r_uglut);
+    physics::Inertial i_r_uglut_r_lglut_r_uleg_mod =
+      i_r_uglut_mod.GetInertial(math::Pose()) +
+      i_r_lglut_mod.GetInertial(r_lglut_r_uglut) +
+      i_r_uleg_mod.GetInertial(r_uleg_r_uglut);
+    std::cout << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
+          << "  original izz: " << i_r_uglut_r_lglut_r_uleg.GetIZZ() << "\n"
+          << "  modified izz: " << i_r_uglut_r_lglut_r_uleg_mod.GetIZZ() << "\n"
+          << "  changed  izz: " << i_r_uglut_r_lglut_r_uleg_mod.GetIZZ() -
+                                   i_r_uglut_r_lglut_r_uleg.GetIZZ() << "\n"
+          << "  changed% izz: " << (i_r_uglut_r_lglut_r_uleg_mod.GetIZZ() -
+                                    i_r_uglut_r_lglut_r_uleg.GetIZZ()) /
+                                    i_r_uglut_r_lglut_r_uleg.GetIZZ() << "\n";
+
+    // modify IYY by splitting equally between pelvis, r_uglut, r_lglut
+    //    this actually does not affect dynamics, because all three lins
+    //    are fully constrained in y-axis.
+    // We have to take more advantage of this types of inertia distribution.
+    double iyy_pelvis2 = i_pelvis_mod2.GetIYY();
+    double iyy_r_uglut = i_r_uglut_mod.GetIYY();
+    double iyy_r_lglut = i_r_lglut_mod.GetIYY();
+    i_r_uglut_mod.SetIYY((iyy_r_uglut + iyy_r_lglut + iyy_pelvis2) / 3.0);
+    i_r_lglut_mod.SetIYY((iyy_r_uglut + iyy_r_lglut + iyy_pelvis2) / 3.0);
+    i_pelvis_mod2.SetIYY((iyy_r_uglut + iyy_r_lglut + iyy_pelvis2) / 3.0);
+    // check increase of IYY of r_uglut, r_lglut, pelvis about pelvis(lbz)
+    // make sure it's reasonable
+    math::Pose pelvis_r_uleg =
+      r_uleg->GetWorldPose() - pelvis->GetWorldPose();
+    math::Pose r_uglut_r_uleg =
+      r_uleg->GetWorldPose() - r_uglut->GetWorldPose();
+    math::Pose r_lglut_r_uleg =
+      r_uleg->GetWorldPose() - r_lglut->GetWorldPose();
+    physics::Inertial i_pelvis_r_uglut_r_lglut =
+      i_r_uglut.GetInertial(r_uglut_r_uleg) +
+      i_r_lglut.GetInertial(r_lglut_r_uleg) +
+      i_pelvis.GetInertial(pelvis_r_uleg);
+    physics::Inertial i_pelvis_r_uglut_r_lglut_mod =
+      i_r_uglut_mod.GetInertial(r_uglut_r_uleg) +
+      i_r_lglut_mod.GetInertial(r_lglut_r_uleg) +
+      i_pelvis_mod.GetInertial(pelvis_r_uleg);
+    std::cout << "\nCheck IYY of foot, talus and lleg at lleg(uay) link:\n"
+          << "  original iyy: " << i_pelvis_r_uglut_r_lglut.GetIYY() << "\n"
+          << "  modified iyy: " << i_pelvis_r_uglut_r_lglut_mod.GetIYY() << "\n"
+          << "  changed  iyy: " << i_pelvis_r_uglut_r_lglut_mod.GetIYY() -
+                                   i_pelvis_r_uglut_r_lglut.GetIYY() << "\n"
+          << "  changed% iyy: " << (i_pelvis_r_uglut_r_lglut_mod.GetIYY() -
+                                    i_pelvis_r_uglut_r_lglut.GetIYY()) /
+                                    i_pelvis_r_uglut_r_lglut.GetIYY() << "\n";
+
+    // distribute IXX across pelvis and uglut
+    double ixx_pelvis2 = i_pelvis_mod2.GetIXX();
+    double ixx_r_uglut = i_r_uglut_mod.GetIXX();
+    i_pelvis_mod2.SetIXX((ixx_r_uglut + ixx_pelvis2) / 2.0);
+    i_r_uglut_mod.SetIXX((ixx_r_uglut + ixx_pelvis2) / 2.0);
+    // check increase of IXX of r_uglut, pelvis about lglut(mhx)
+    // make sure it's not changed
+    math::Pose r_uglut_r_lglut =
+      r_lglut->GetWorldPose() - r_uglut->GetWorldPose();
+    math::Pose pelvis_r_lglut =
+      r_lglut->GetWorldPose() - pelvis->GetWorldPose();
+    physics::Inertial i_pelvis_r_uglut =
+      i_r_uglut.GetInertial(r_uglut_r_lglut) +
+      i_pelvis.GetInertial(pelvis_r_lglut);
+    physics::Inertial i_pelvis_r_uglut_mod =
+      i_r_uglut_mod.GetInertial(r_uglut_r_lglut) +
+      i_pelvis_mod.GetInertial(pelvis_r_lglut);
+    std::cout << "\nCheck IXX of pelvis and uglut at lleg(mhx) link:\n"
+          << "  original ixx: " << i_pelvis_r_uglut.GetIXX() << "\n"
+          << "  modified ixx: " << i_pelvis_r_uglut_mod.GetIXX() << "\n"
+          << "  changed  ixx: " << i_pelvis_r_uglut_mod.GetIXX() -
+                                   i_pelvis_r_uglut.GetIXX() << "\n"
+          << "  changed% ixx: " << (i_pelvis_r_uglut_mod.GetIXX() -
+                                    i_pelvis_r_uglut.GetIXX()) /
+                                    i_pelvis_r_uglut.GetIXX() << "\n";
+
+    // distribute IXX across lglut and uleg
+    double ixx_r_lglut = i_r_lglut_mod.GetIXX();
+    double ixx_r_uleg = i_r_uleg_mod.GetIXX();
+    i_r_lglut_mod.SetIXX((ixx_r_uleg + ixx_r_lglut) / 2.0);
+    i_r_uleg_mod.SetIXX((ixx_r_uleg + ixx_r_lglut) / 2.0);
+    // check increase of IXX of r_uleg, r_lglut about lglut(mhx)
+    // make sure it's not changed
+    math::Pose r_uleg_r_lglut =
+      r_lglut->GetWorldPose() - r_uleg->GetWorldPose();
+    physics::Inertial i_r_lglut_r_uleg =
+      i_r_uleg.GetInertial(r_uleg_r_lglut) +
+      i_r_lglut.GetInertial(math::Pose());
+    physics::Inertial i_r_lglut_r_uleg_mod =
+      i_r_uleg_mod.GetInertial(r_uleg_r_lglut) +
+      i_r_lglut_mod.GetInertial(math::Pose());
+    std::cout << "\nCheck IXX of lglut and uleg at lglut(mhx) link:\n"
+          << "  original ixx: " << i_r_lglut_r_uleg.GetIXX() << "\n"
+          << "  modified ixx: " << i_r_lglut_r_uleg_mod.GetIXX() << "\n"
+          << "  changed  ixx: " << i_r_lglut_r_uleg_mod.GetIXX() -
+                                   i_r_lglut_r_uleg.GetIXX() << "\n"
+          << "  changed% ixx: " << (i_r_lglut_r_uleg_mod.GetIXX() -
+                                    i_r_lglut_r_uleg.GetIXX()) /
+                                    i_r_lglut_r_uleg.GetIXX() << "\n";
+
+    // what's the new inertial
+    std::cout << "\n============ Gluts Summary ==============\n";
+    std::cout << "original pelvis Mass@cog\n" << i_pelvis.GetMass() << "\n";
+    std::cout << "original pelvis MOI@cog\n" << i_pelvis.GetMOI() << "\n";
+    std::cout << "modified pelvis Mass@cog\n" << i_pelvis_mod2.GetMass()<< "\n";
+    std::cout << "modified pelvis MOI@cog\n" << i_pelvis_mod2.GetMOI()<< "\n";
+    std::cout << "original r_uglut Mass@cog\n" << i_r_uglut.GetMass() << "\n";
+    std::cout << "original r_uglut MOI@cog\n" << i_r_uglut.GetMOI() << "\n";
+    std::cout << "modified r_uglut Mass@cog\n" << i_r_uglut_mod.GetMass()<<"\n";
+    std::cout << "modified r_uglut MOI@cog\n" << i_r_uglut_mod.GetMOI() << "\n";
+    std::cout << "original r_lglut Mass@cog\n" << i_r_lglut.GetMass() << "\n";
+    std::cout << "original r_lglut MOI@cog\n" << i_r_lglut.GetMOI() << "\n";
+    std::cout << "modified r_lglut Mass@cog\n" << i_r_lglut_mod.GetMass()<<"\n";
+    std::cout << "modified r_lglut MOI@cog\n" << i_r_lglut_mod.GetMOI() << "\n";
+    std::cout << "original r_uleg Mass@cog\n" << i_r_uleg.GetMass() << "\n";
+    std::cout << "original r_uleg MOI@cog\n" << i_r_uleg.GetMOI() << "\n";
+    std::cout << "modified r_uleg Mass@cog\n" << i_r_uleg_mod.GetMass() << "\n";
+    std::cout << "modified r_uleg MOI@cog\n" << i_r_uleg_mod.GetMOI() << "\n";
+
+    // sanity check: build aggregate inertia of robot viewed from ankle up
+    physics::Link_V links = this->model->GetLinks();
+    physics::Inertial totalUAYUp;
+    for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+    {
+      if ((*li)->GetName() != "l_foot" && (*li)->GetName() != "l_talus" &&
+          (*li)->GetName() != "r_foot" && (*li)->GetName() != "r_talus" )
+      {
+        math::Pose linkToUAY = r_talus->GetWorldPose() - (*li)->GetWorldPose();
+        // gzerr << "accumulating: " <<  (*li)->GetName()
+        //       << " inertia\n" << (*li)->GetInertial()->GetInertial(linkToUAY)
+        //       << "\n";
+        totalUAYUp = totalUAYUp + (*li)->GetInertial()->GetInertial(linkToUAY);
+      }
+      else
+      {
+        // gzerr << "skipping: " <<  (*li)->GetName() << "\n";
+      }
+        
+    }
+    std::cout << "\n============ Total Inertia of Atlas above ankle from ankle"
+          << " ==============\n";
+    std::cout << "original total Mass@cog\n" << totalUAYUp.GetMass() << "\n";
+    std::cout << "original total MOI@cog\n" << totalUAYUp.GetMOI() << "\n";
+    std::cout << "modified pelvis Mass@cog\n" << i_pelvis_mod2.GetMass()<< "\n";
+    std::cout << "modified pelvis MOI@cog\n" << i_pelvis_mod2.GetMOI()<< "\n";
+ 
   }
 
   // JointController: Publish messages to reset joint controller gains
@@ -851,12 +1091,12 @@ void AtlasPlugin::DeferredLoad()
 
   // these topics are used for debugging only
   this->pubLFootContact =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
+    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/l_foot_contact", 10);
 
   // these topics are used for debugging only
   this->pubRFootContact =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
+    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/r_foot_contact", 10);
 
   // ros topic subscribtions
@@ -1128,41 +1368,79 @@ void AtlasPlugin::UpdateStates()
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
+      static double e = 0.99;
       physics::JointWrench wrench = this->lWristJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->l_hand.force.x = wrench.body1Force.x;
-      forceTorqueSensorsMsg->l_hand.force.y = wrench.body1Force.y;
-      forceTorqueSensorsMsg->l_hand.force.z = wrench.body1Force.z;
-      forceTorqueSensorsMsg->l_hand.torque.x = wrench.body1Torque.x;
-      forceTorqueSensorsMsg->l_hand.torque.y = wrench.body1Torque.y;
-      forceTorqueSensorsMsg->l_hand.torque.z = wrench.body1Torque.z;
+      forceTorqueSensorsMsg->l_hand.force.x  =
+        e * forceTorqueSensorsMsg->l_hand.force.x +
+        (1.0 - e) * wrench.body1Force.x;
+      forceTorqueSensorsMsg->l_hand.force.y  =
+        e * forceTorqueSensorsMsg->l_hand.force.y +
+        (1.0 - e) * wrench.body1Force.y;
+      forceTorqueSensorsMsg->l_hand.force.z  =
+        e * forceTorqueSensorsMsg->l_hand.force.z +
+        (1.0 - e) * wrench.body1Force.z;
+      forceTorqueSensorsMsg->l_hand.torque.x =
+        e * forceTorqueSensorsMsg->l_hand.torque.x +
+        (1.0 - e) * wrench.body1Torque.x;
+      forceTorqueSensorsMsg->l_hand.torque.y =
+        e * forceTorqueSensorsMsg->l_hand.torque.y +
+        (1.0 - e) * wrench.body1Torque.y;
+      forceTorqueSensorsMsg->l_hand.torque.z =
+        e * forceTorqueSensorsMsg->l_hand.torque.z +
+        (1.0 - e) * wrench.body1Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
-      this->fromRobot.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
-      this->fromRobot.wrist_sensors[0].f.n[1] = wrench.body1Force.y;
-      this->fromRobot.wrist_sensors[0].f.n[2] = wrench.body1Force.z;
-      this->fromRobot.wrist_sensors[0].m.n[0] = wrench.body1Torque.x;
-      this->fromRobot.wrist_sensors[0].m.n[1] = wrench.body1Torque.y;
-      this->fromRobot.wrist_sensors[0].m.n[2] = wrench.body1Torque.z;
+      this->fromRobot.wrist_sensors[0].f.n[0] =
+        forceTorqueSensorsMsg->l_hand.force.x;
+      this->fromRobot.wrist_sensors[0].f.n[1] =
+        forceTorqueSensorsMsg->l_hand.force.y;
+      this->fromRobot.wrist_sensors[0].f.n[2] =
+        forceTorqueSensorsMsg->l_hand.force.z;
+      this->fromRobot.wrist_sensors[0].m.n[0] =
+        forceTorqueSensorsMsg->l_hand.torque.x;
+      this->fromRobot.wrist_sensors[0].m.n[1] =
+        forceTorqueSensorsMsg->l_hand.torque.y;
+      this->fromRobot.wrist_sensors[0].m.n[2] =
+        forceTorqueSensorsMsg->l_hand.torque.z;
     }
 
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
+      static double e = 0.99;
       physics::JointWrench wrench = this->rWristJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->r_hand.force.x = wrench.body1Force.x;
-      forceTorqueSensorsMsg->r_hand.force.y = wrench.body1Force.y;
-      forceTorqueSensorsMsg->r_hand.force.z = wrench.body1Force.z;
-      forceTorqueSensorsMsg->r_hand.torque.x = wrench.body1Torque.x;
-      forceTorqueSensorsMsg->r_hand.torque.y = wrench.body1Torque.y;
-      forceTorqueSensorsMsg->r_hand.torque.z = wrench.body1Torque.z;
+      forceTorqueSensorsMsg->r_hand.force.x =
+        e * forceTorqueSensorsMsg->r_hand.force.x +
+        (1.0 - e) * wrench.body1Force.x;
+      forceTorqueSensorsMsg->r_hand.force.y =
+        e * forceTorqueSensorsMsg->r_hand.force.y +
+        (1.0 - e) * wrench.body1Force.y;
+      forceTorqueSensorsMsg->r_hand.force.z =
+        e * forceTorqueSensorsMsg->r_hand.force.z +
+        (1.0 - e) * wrench.body1Force.z;
+      forceTorqueSensorsMsg->r_hand.torque.x =
+        e * forceTorqueSensorsMsg->r_hand.torque.x +
+        (1.0 - e) * wrench.body1Torque.x;
+      forceTorqueSensorsMsg->r_hand.torque.y =
+        e * forceTorqueSensorsMsg->r_hand.torque.y +
+        (1.0 - e) * wrench.body1Torque.y;
+      forceTorqueSensorsMsg->r_hand.torque.z =
+        e * forceTorqueSensorsMsg->r_hand.torque.z +
+        (1.0 - e) * wrench.body1Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
-      this->fromRobot.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
-      this->fromRobot.wrist_sensors[1].f.n[1] = wrench.body1Force.y;
-      this->fromRobot.wrist_sensors[1].f.n[2] = wrench.body1Force.z;
-      this->fromRobot.wrist_sensors[1].m.n[0] = wrench.body1Torque.x;
-      this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
-      this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
+      this->fromRobot.wrist_sensors[1].f.n[0] =
+        forceTorqueSensorsMsg->r_hand.force.x;
+      this->fromRobot.wrist_sensors[1].f.n[1] =
+        forceTorqueSensorsMsg->r_hand.force.y;
+      this->fromRobot.wrist_sensors[1].f.n[2] =
+        forceTorqueSensorsMsg->r_hand.force.z;
+      this->fromRobot.wrist_sensors[1].m.n[0] =
+        forceTorqueSensorsMsg->r_hand.torque.x;
+      this->fromRobot.wrist_sensors[1].m.n[1] =
+        forceTorqueSensorsMsg->r_hand.torque.y;
+      this->fromRobot.wrist_sensors[1].m.n[2] =
+        forceTorqueSensorsMsg->r_hand.torque.z;
     }
     this->pubForceTorqueSensors.publish(*forceTorqueSensorsMsg);
 
@@ -1405,12 +1683,14 @@ void AtlasPlugin::OnLContactUpdate()
   msgs::Contacts contacts;
   contacts = this->lFootContactSensor->GetContacts();
 
-
+  geometry_msgs::WrenchStamped msg;
   math::Vector3 fTotal;
   math::Vector3 tTotal;
 
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
     // gzerr << " t[" << this->world->GetSimTime()
@@ -1422,6 +1702,8 @@ void AtlasPlugin::OnLContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // gzerr << j << "  Position:"
@@ -1442,16 +1724,14 @@ void AtlasPlugin::OnLContactUpdate()
                             contacts.contact(i).wrench(j).body_1_torque().y(),
                             contacts.contact(i).wrench(j).body_1_torque().z());
     }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubLFootContact.publish(msg);
   }
-
-  geometry_msgs::Wrench msg;
-  msg.force.x = fTotal.x;
-  msg.force.y = fTotal.y;
-  msg.force.z = fTotal.z;
-  msg.torque.x = tTotal.x;
-  msg.torque.y = tTotal.y;
-  msg.torque.z = tTotal.z;
-  this->pubLFootContact.publish(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1461,6 +1741,7 @@ void AtlasPlugin::OnRContactUpdate()
   msgs::Contacts contacts;
   contacts = this->rFootContactSensor->GetContacts();
 
+  geometry_msgs::WrenchStamped msg;
   math::Vector3 fTotal;
   math::Vector3 tTotal;
 
@@ -1469,6 +1750,9 @@ void AtlasPlugin::OnRContactUpdate()
   {
     // loop through all contact pairs to sum the total force
     // on collision1
+
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
 
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
@@ -1481,6 +1765,8 @@ void AtlasPlugin::OnRContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
       // loop through all contacts between collision1 and collision2
@@ -1503,16 +1789,14 @@ void AtlasPlugin::OnRContactUpdate()
                             contacts.contact(i).wrench(j).body_1_torque().y(),
                             contacts.contact(i).wrench(j).body_1_torque().z());
     }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubRFootContact.publish(msg);
   }
-
-  geometry_msgs::Wrench msg;
-  msg.force.x = fTotal.x;
-  msg.force.y = fTotal.y;
-  msg.force.z = fTotal.z;
-  msg.torque.x = tTotal.x;
-  msg.torque.y = tTotal.y;
-  msg.torque.z = tTotal.z;
-  this->pubRFootContact.publish(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
