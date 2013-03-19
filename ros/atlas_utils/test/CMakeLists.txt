@@ -3,6 +3,7 @@ set (rostests
   atlas_sandia_hands_publishers_hz.test
   atlas_rosapi.test
   atlas_sandia_hands_rosapi.test
+  atlas_drc_vehicle_fire_hose.test
   performance_test1.launch
 ) 
 

@@ -35,3 +35,34 @@ topics:
     num_publishers: 1
     num_subscribers: -1
 
+  ##########################################################
+  # Subscribed topics
+  - topic: /drc_vehicle/brake_pedal/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_vehicle/direction/cmd
+    type: std_msgs/Int8
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_vehicle/gas_pedal/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_vehicle/hand_brake/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_vehicle/hand_wheel/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_vehicle/key/cmd
+    type: std_msgs/Int8
+    num_publishers: -1
+    num_subscribers: 1

@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find atlas_utils)/launch/atlas_drc_vehicle_fire_hose.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="atlas_utils" type="ros_api_checker" test-name="atlas_sandia_hands_rosapi" 
+        args="$(find atlas_utils)/test/atlas_rosapi.yaml $(find atlas_utils)/test/sandia_hands_rosapi.yaml $(find atlas_utils)/test/multisense_sl_rosapi.yaml $(find atlas_utils)/test/atlas_cheats_rosapi.yaml $(find atlas_utils)/test/drc_vehicle_cheats_rosapi.yaml"
+        time-limit="60.0"/>
+</launch>
