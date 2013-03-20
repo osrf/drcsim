@@ -41,7 +41,6 @@ topics:
     num_publishers: -1
     num_subscribers: 1
 
-  # To be added to wiki (or removed):
   - topic: /atlas/mode
     type: std_msgs/String
     num_publishers: -1
