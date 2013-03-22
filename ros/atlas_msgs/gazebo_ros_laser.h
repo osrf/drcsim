@@ -84,9 +84,6 @@ namespace gazebo
 
     private: gazebo::transport::NodePtr gazebo_node_;
     private: gazebo::transport::SubscriberPtr laser_scan_sub_;
-    // Lock used to exclude Subscribe() and Unsubscribe() from
-    // happening while OnScan() is in progress.
-    private: boost::mutex laser_scan_sub_lock_;
     private: void OnScan(ConstLaserScanStampedPtr &_msg);
   };
 }
