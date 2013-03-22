@@ -22,7 +22,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include <ros/ros.h>
 #include <ros/advertise_options.h>
