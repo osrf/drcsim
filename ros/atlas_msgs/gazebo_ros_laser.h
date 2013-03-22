@@ -25,7 +25,6 @@
 #include <boost/thread/mutex.hpp>
 
 #include <ros/ros.h>
-#include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 #include <sensor_msgs/LaserScan.h>
 
@@ -53,29 +52,20 @@ namespace gazebo
     /// \param take in SDF root element
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \brief Update the controller
-    protected: virtual void OnNewLaserScans();
-
-    /// \brief Put laser data to the ROS topic
-    private: void PutLaserData(common::Time &_updateTime);
-
     /// \brief Keep track of number of connctions
     private: int laser_connect_count_;
     private: void LaserConnect();
     private: void LaserDisconnect();
 
     // Pointer to the model
+    private: std::string world_name_;
     private: physics::WorldPtr world_;
     /// \brief The parent sensor
-    private: sensors::SensorPtr parent_sensor_;
     private: sensors::RaySensorPtr parent_ray_sensor_;
 
     /// \brief pointer to ros node
     private: ros::NodeHandle* rosnode_;
     private: ros::Publisher pub_;
-
-    /// \brief ros message
-    private: sensor_msgs::LaserScan laser_msg_;
 
     /// \brief topic name
     private: std::string topic_name_;
@@ -83,35 +73,21 @@ namespace gazebo
     /// \brief frame transform name, should match link name
     private: std::string frame_name_;
 
-    /// \brief Gaussian noise
-    private: double gaussian_noise_;
-
-    /// \brief Gaussian noise generator
-    private: double GaussianKernel(double mu, double sigma);
-
-    /// \brief mutex to lock access to fields that are used in message callbacks
-    private: boost::mutex lock_;
-
-    /// \brief hack to mimic hokuyo intensity cutoff of 100
-    private: double hokuyo_min_intensity_;
-
-    /// update rate of this sensor
-    private: double update_rate_;
-    private: double update_period_;
-    private: common::Time last_update_time_;
-
     /// \brief for setting ROS name space
     private: std::string robot_namespace_;
-
-    private: ros::CallbackQueue laser_queue_;
-    private: void LaserQueueThread();
-    private: boost::thread callback_queue_thread_;
 
     // deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
     private: unsigned int seed;
+
+    private: gazebo::transport::NodePtr gazebo_node_;
+    private: gazebo::transport::SubscriberPtr laser_scan_sub_;
+    // Lock used to exclude Subscribe() and Unsubscribe() from
+    // happening while OnScan() is in progress.
+    private: boost::mutex laser_scan_sub_lock_;
+    private: void OnScan(ConstLaserScanStampedPtr &_msg);
   };
 }
 #endif

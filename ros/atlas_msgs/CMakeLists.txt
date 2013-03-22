@@ -9,7 +9,7 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 project(atlas_msgs)
 
-set(ROS_BUILD_TYPE Release)
+set(ROS_BUILD_TYPE Debug)
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
 
