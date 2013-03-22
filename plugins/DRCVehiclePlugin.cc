@@ -201,11 +201,11 @@ void DRCVehiclePlugin::UpdateHandWheelRatio()
   this->handWheelHigh  = this->handWheelJoint->GetHighStop(0).Radian();
   this->handWheelLow   = this->handWheelJoint->GetLowStop(0).Radian();
   this->handWheelRange = this->handWheelHigh - this->handWheelLow;
-  double high = math::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
+  double high = std::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
                          this->frWheelSteeringJoint->GetHighStop(0).Radian());
-  double low = math::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
+  double low = std::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
                         this->frWheelSteeringJoint->GetLowStop(0).Radian());
-  this->tireAngleRange = math::min(fabs(high), fabs(low));
+  this->tireAngleRange = std::min(fabs(high), fabs(low));
 
   // Compute the angle ratio between the steering wheel and the tires
   this->steeringRatio = this->tireAngleRange / this->handWheelRange;
