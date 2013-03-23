@@ -132,7 +132,6 @@ namespace gazebo
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
-    private: physics::LinkPtr imuLink;
     private: ros::Publisher pubImu;
     private: common::Time lastImuTime;
 

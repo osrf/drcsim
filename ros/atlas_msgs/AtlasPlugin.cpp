@@ -37,7 +37,7 @@ AtlasPlugin::AtlasPlugin()
   // the parent link of the imu_sensor ends up being pelvis after
   // fixed joint reduction.  Offset of the imu_link is lumped into
   // the <pose> tag in the imu_senosr block.
-  this->imuLinkName = "pelvis";
+  this->imuLinkName = "imu_link";
 
   this->pelvisLinkName = "pelvis";
 
@@ -262,11 +262,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // behavior.
   this->errorCode = this->atlasSimInterface->reset_control();
   this->errorCode = this->atlasSimInterface->set_desired_behavior("safety");
-
-  // Get imu link
-  this->imuLink = this->model->GetLink(this->imuLinkName);
-  if (!this->imuLink)
-    gzerr << this->imuLinkName << " not found\n";
 
   // AtlasSimInterface: Get pelvis link for internal debugging only
   this->pelvisLink = this->model->GetLink(this->pelvisLinkName);
