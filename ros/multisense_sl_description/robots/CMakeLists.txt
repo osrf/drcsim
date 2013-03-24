@@ -11,7 +11,7 @@ set (model_basenames multisense_sl_description multisense_sl_on_box)
 foreach(model_basename ${model_basenames})
   add_custom_command(
     OUTPUT ${model_basename}.urdf
-    COMMAND ROS_PACKAGE_PATH=${CMAKE_SOURCE_DIR}/ros:$ENV{ROS_PACKAGE_PATH}
+    COMMAND export ROS_PACKAGE_PATH=${CMAKE_SOURCE_DIR}/ros:$ENV{ROS_PACKAGE_PATH}
     COMMAND rosrun xacro xacro.py ${CMAKE_SOURCE_DIR}/ros/${ROS_PACKAGE_NAME}/robots/${model_basename}.urdf.xacro > ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf
     DEPENDS ${model_basename}.urdf.xacro)
   add_custom_target(${model_basename}_urdf ALL DEPENDS ${model_basename}.urdf)
