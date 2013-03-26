@@ -802,7 +802,6 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
       this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
     }
-    // this->pubForceTorqueSensors.publish(*forceTorqueSensorsMsg);
     this->pubForceTorqueSensorsQueue->push(*forceTorqueSensorsMsg, this->pubForceTorqueSensors);
 
     // populate atlasState from robot
@@ -1013,9 +1012,7 @@ void AtlasPlugin::UpdateStates()
 
     this->lastControllerUpdateTime = curTime;
 
-    // this->pubJointStates.publish(this->jointStates);
     this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
-    // this->pubAtlasState.publish(this->atlasState);
     this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
 
     /// controller statistics diagnostics, damages, etc.
@@ -1032,7 +1029,6 @@ void AtlasPlugin::UpdateStates()
           (this->jointCommandsAgeBuffer.size() - 1);
         msg.command_age_window_size = this->jointCommandsAgeBufferDuration;
 
-        // this->pubControllerStatistics.publish(msg);
         this->pubControllerStatisticsQueue->push(msg, this->pubControllerStatistics);
         this->lastControllerStatisticsTime = curTime;
       }

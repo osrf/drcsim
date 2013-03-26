@@ -27,39 +27,49 @@
 #include <ros/ros.h>
 
 
+/// \brief Container for a (ROS publisher, outgoing message) pair.  
+/// We'll have queues of these.  Templated on a ROS message type.
 template<class T>
 class PubMessagePair
 {
   public:
+    /// \brief The outgoing message.
     T msg_;
+    /// \brief The publisher to use to publish the message.
     ros::Publisher pub_;
     PubMessagePair(T& msg, ros::Publisher& pub) :
       msg_(msg), pub_(pub) {}
 };
 
+/// \brief A queue of outgoing messages.  Instead of calling publish() directly,
+/// you can push() messages here to defer ROS serialization and locking.
+/// Templated on a ROS message type.
 template<class T>
 class PubQueue
 {
+  public:
+    typedef boost::shared_ptr<std::deque<boost::shared_ptr<
+      PubMessagePair<T> > > > QueuePtr;
+    typedef boost::shared_ptr<PubQueue<T> > Ptr;
+
   private:
-    boost::shared_ptr<std::deque<boost::shared_ptr<PubMessagePair<T> > > > queue_;
+    /// \brief Our queue of outgoing messages.
+    QueuePtr queue_;
+    /// \brief Mutex to control access to the queue.
     boost::shared_ptr<boost::mutex> queue_lock_;
+    /// \brief Function that will be called when a new message is pushed on.
     boost::function<void()> notify_func_;
 
   public:
-    typedef boost::shared_ptr<PubQueue<T> > Ptr;
-
-    /* copy constructor
-    PubQueue(const PubQueue<T> &_pq)
-    {
-      *this = _pq;
-    } */
-
-    PubQueue(boost::shared_ptr<std::deque<boost::shared_ptr<PubMessagePair<T> > > > queue, 
+    PubQueue(QueuePtr queue, 
              boost::shared_ptr<boost::mutex> queue_lock,
              boost::function<void()> notify_func) :
       queue_(queue), queue_lock_(queue_lock), notify_func_(notify_func) {}
     ~PubQueue() {}
 
+    /// \brief Push a new message onto the queue.
+    /// \param[in] msg The outgoing message
+    /// \param[in] pub The ROS publisher to use to publish the message
     void push(T& msg, ros::Publisher& pub)
     {
       boost::shared_ptr<PubMessagePair<T> > el(new PubMessagePair<T>(msg, pub));
@@ -68,6 +78,8 @@ class PubQueue
       notify_func_();
     }
 
+    /// \brief Pop all waiting messages off the queue.
+    /// \param[out] els Place to store the popped messages
     void pop(std::vector<boost::shared_ptr<PubMessagePair<T> > >& els)
     {
       boost::mutex::scoped_lock lock(*queue_lock_);
@@ -79,15 +91,24 @@ class PubQueue
     }
 };
 
+/// \brief A collection of PubQueue objects, potentially of different types.
+/// This class is the programmer's interface to this queuing system.
 class PubMultiQueue
 {
   private:
+    /// \brief List of functions to be called to service our queues.
     std::list<boost::function<void()> > service_funcs_;
+    /// \brief Mutex to lock access to service_funcs_
     boost::mutex service_funcs_lock_;
+    /// \brief If started, the thread that will call the service functions
     boost::thread service_thread_;
+    /// \brief Condition variable used to block and resume service_thread_
     boost::condition_variable service_cond_var_;
+    /// \brief Mutex to accompany service_cond_var_
     boost::mutex service_cond_var_lock_;
 
+    /// \brief Service a given queue by popping outgoing message off it and
+    /// publishing them.
     template <class T> 
     void serviceFunc(boost::shared_ptr<PubQueue<T> > pq)
     {
@@ -112,10 +133,13 @@ class PubMultiQueue
       }
     }
 
+    /// \brief Add a new queue.  Call this once for each published topic (or at
+    /// least each type of publish message).
+    /// \return Pointer to the newly created queue, good for calling push() on.
     template <class T>
     boost::shared_ptr<PubQueue<T> > addPub()
     {
-      boost::shared_ptr<std::deque<boost::shared_ptr<PubMessagePair<T> > > > queue(new std::deque<boost::shared_ptr<PubMessagePair<T> > >);
+      typename PubQueue<T>::QueuePtr queue(new std::deque<boost::shared_ptr<PubMessagePair<T> > >);
       boost::shared_ptr<boost::mutex> queue_lock(new boost::mutex);
       boost::shared_ptr<PubQueue<T> > pq(new PubQueue<T>(queue, queue_lock, boost::bind(&PubMultiQueue::notifyServiceThread, this)));
       boost::function<void()> f = boost::bind(&PubMultiQueue::serviceFunc<T>, this, pq);
@@ -126,6 +150,7 @@ class PubMultiQueue
       return pq;
     }
 
+    /// \brief Service each queue one time.
     void spinOnce()
     {
       boost::mutex::scoped_lock lock(service_funcs_lock_);
@@ -137,6 +162,8 @@ class PubMultiQueue
       }
     }
 
+    /// \brief Service all queues indefinitely, waiting on a condition variable
+    /// in between cycles.
     void spin()
     {
       while(ros::ok())
@@ -147,11 +174,14 @@ class PubMultiQueue
       }
     }
 
+    /// \brief Start a thread to call spin().
     void startServiceThread()
     {
       service_thread_ = boost::thread(boost::bind(&PubMultiQueue::spin, this));
     }
 
+    /// \brief Wake up the queue serive thread (e.g., after having pushed a
+    /// message onto one of the queues).
     void notifyServiceThread()
     {
       service_cond_var_.notify_one();
