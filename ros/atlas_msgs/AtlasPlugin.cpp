@@ -130,7 +130,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     msgs::JointCmd msg;
-    msg.set_name(this->joints[i]->GetScopedName()); 
+    msg.set_name(this->joints[i]->GetScopedName());
     msg.mutable_position()->set_target(0.0);
     msg.mutable_position()->set_p_gain(0.0);
     msg.mutable_position()->set_i_gain(0.0);
@@ -439,7 +439,7 @@ void AtlasPlugin::DeferredLoad()
              " ros parameter server, defaulting to %f sec.",
              this->jointCommandsAgeBufferDuration);
   }
-  double stepSize = this->world->GetPhysicsEngine()->GetStepTime();
+  double stepSize = this->world->GetPhysicsEngine()->GetMaxStepSize();
   if (math::equal(stepSize, 0.0))
   {
     stepSize = 0.001;
@@ -609,7 +609,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     // start AtlasSimLibrary controller
     // this mode resets the timer, and automatically goes into stand mode
-    // after 
+    // after
     this->usingWalkingController = true;
     this->atlasSimInterface->set_desired_behavior(_mode->data);
     this->ZeroJointCommands();

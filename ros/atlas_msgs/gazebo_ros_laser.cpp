@@ -18,15 +18,14 @@
 #include <algorithm>
 #include <string>
 #include <assert.h>
+#include <sdf/sdf.hh>
 
-#include "gazebo/physics/World.hh"
-#include "gazebo/physics/HingeJoint.hh"
-#include "gazebo/sensors/Sensor.hh"
-#include "gazebo/sdf/interface/SDF.hh"
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/common/Exception.hh"
-#include "gazebo/sensors/RaySensor.hh"
-#include "gazebo/sensors/SensorTypes.hh"
+#include <gazebo/physics/World.hh>
+#include <gazebo/physics/HingeJoint.hh>
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/common/Exception.hh>
+#include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
 
 #include "tf/tf.h"
 
@@ -80,7 +79,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
+    this->robot_namespace_ = this->sdf->Get<std::string>("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("frameName"))
   {
@@ -88,7 +87,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->frame_name_ = "/world";
   }
   else
-    this->frame_name_ = this->sdf->GetValueString("frameName");
+    this->frame_name_ = this->sdf->Get<std::string>("frameName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -96,7 +95,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->topic_name_ = "/world";
   }
   else
-    this->topic_name_ = this->sdf->GetValueString("topicName");
+    this->topic_name_ = this->sdf->Get<std::string>("topicName");
 
   if (!this->sdf->HasElement("gaussianNoise"))
   {
@@ -104,7 +103,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->gaussian_noise_ = 0;
   }
   else
-    this->gaussian_noise_ = this->sdf->GetValueDouble("gaussianNoise");
+    this->gaussian_noise_ = this->sdf->Get<double>("gaussianNoise");
 
   if (!this->sdf->HasElement("hokuyoMinIntensity"))
   {
@@ -113,7 +112,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   }
   else
     this->hokuyo_min_intensity_ =
-      this->sdf->GetValueDouble("hokuyoMinIntensity");
+      this->sdf->Get<double>("hokuyoMinIntensity");
 
   ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to"
            " %f due to cutoff in hokuyo filters.", this->hokuyo_min_intensity_);
@@ -124,7 +123,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->update_rate_ = 0;
   }
   else
-    this->update_rate_ = this->sdf->GetValueDouble("updateRate");
+    this->update_rate_ = this->sdf->Get<double>("updateRate");
 
   // prepare to throttle this plugin at the same rate
   // ideally, we should invoke a plugin update when the sensor updates,

@@ -649,7 +649,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   sdf::ElementPtr sdf = _sdf->GetElement("drc_fire_hose");
   // Get special coupling links (on the firehose side)
-  std::string fireHoseModelName = sdf->GetValueString("fire_hose_model");
+  std::string fireHoseModelName = sdf->Get<std::string>("fire_hose_model");
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
@@ -659,7 +659,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
 
   // Get coupling link
-  std::string couplingLinkName = sdf->GetValueString("coupling_link");
+  std::string couplingLinkName = sdf->Get<std::string>("coupling_link");
   this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
   if (!this->couplingLink)
   {
@@ -674,7 +674,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseLinks = this->fireHoseModel->GetLinks();
 
   // Get special links from the standpipe
-  std::string standpipeModelName = sdf->GetValueString("standpipe_model");
+  std::string standpipeModelName = sdf->Get<std::string>("standpipe_model");
   this->standpipeModel = _world->GetModel(standpipeModelName);
   if (!this->standpipeModel)
   {
@@ -683,7 +683,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   }
 
   // Get spout link
-  std::string spoutLinkName = sdf->GetValueString("spout_link");
+  std::string spoutLinkName = sdf->Get<std::string>("spout_link");
   this->spoutLink = this->standpipeModel->GetLink(spoutLinkName);
   if (!this->spoutLink)
   {
@@ -691,9 +691,10 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     return;
   }
 
-  this->threadPitch = sdf->GetValueDouble("thread_pitch");
+  this->threadPitch = sdf->Get<double>("thread_pitch");
 
-  this->couplingRelativePose = sdf->GetValuePose("coupling_relative_pose");
+  this->couplingRelativePose =
+    sdf->Get<gazebo::math::Pose>("coupling_relative_pose");
 
   // Set initial configuration
   this->SetInitialConfiguration();
@@ -758,7 +759,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
       _sdf->GetElement("drc_vehicle")->HasElement("model_name"))
   {
     this->model = _world->GetModel(_sdf->GetElement("drc_vehicle")
-                        ->GetValueString("model_name"));
+                        ->Get<std::string>("model_name"));
   }
   else
   {
@@ -776,7 +777,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
       _sdf->GetElement("drc_vehicle")->HasElement("seat_link"))
   {
     this->seatLink = this->model->GetLink(_sdf->GetElement("drc_vehicle")
-                        ->GetValueString("seat_link"));
+                        ->Get<std::string>("seat_link"));
   }
   else
   {
@@ -806,7 +807,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
       _sdf->GetElement("atlas")->HasElement("model_name"))
   {
     this->model = _world->GetModel(_sdf->GetElement("atlas")
-                        ->GetValueString("model_name"));
+                        ->Get<std::string>("model_name"));
   }
   else
   {
@@ -824,7 +825,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
       _sdf->GetElement("atlas")->HasElement("pin_link"))
   {
     this->pinLink = this->model->GetLink(_sdf->GetElement("atlas")
-                        ->GetValueString("pin_link"));
+                        ->Get<std::string>("pin_link"));
   }
   else
   {

@@ -22,8 +22,6 @@
 #include <gazebo/physics/HingeJoint.hh>
 #include <gazebo/physics/Contact.hh>
 #include <gazebo/sensors/Sensor.hh>
-#include <gazebo/sdf/interface/SDF.hh>
-#include <gazebo/sdf/interface/Param.hh>
 #include <gazebo/common/Exception.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/math/Pose.hh>
@@ -64,14 +62,14 @@ void GazeboRosBumper::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   this->robot_namespace_ = "";
   if (_sdf->HasElement("robotNamespace"))
     this->robot_namespace_ =
-      _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+      _sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
 
   // "publishing contact/collisions to this topic name: "
   //   << this->bumper_topic_name_ << std::endl;
   this->bumper_topic_name_ = "bumper_states";
   if (_sdf->GetElement("bumperTopicName"))
     this->bumper_topic_name_ =
-      _sdf->GetElement("bumperTopicName")->GetValueString();
+      _sdf->GetElement("bumperTopicName")->Get<std::string>();
 
   // "transform contact/collisions pose, forces to this body (link) name: "
   //   << this->frame_name_ << std::endl;
@@ -81,7 +79,7 @@ void GazeboRosBumper::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->frame_name_ = "world";
   }
   else
-    this->frame_name_ = _sdf->GetElement("frameName")->GetValueString();
+    this->frame_name_ = _sdf->GetElement("frameName")->Get<std::string>();
 
   // Exit if no ROS
   if (!ros::isInitialized())

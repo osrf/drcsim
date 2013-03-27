@@ -45,13 +45,12 @@
 #endif
 
 // gazebo stuff
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/msgs/MessageTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/plugins/CameraPlugin.hh"
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/plugins/CameraPlugin.hh>
 
 namespace gazebo
 {

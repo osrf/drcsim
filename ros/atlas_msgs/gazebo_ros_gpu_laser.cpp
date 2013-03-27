@@ -68,22 +68,22 @@ void GazeboRosGpuLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   //GazeboRosCameraUtils::Load(_parent, _sdf);
   this->robotNamespace = "";
   if (_sdf->HasElement("robotNamespace"))
-    this->robotNamespace = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robotNamespace = _sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
 
   // point cloud stuff
   if (!_sdf->GetElement("topicName"))
     this->laserTopicName = "scan";
   else
-    this->laserTopicName = _sdf->GetElement("topicName")->GetValueString();
+    this->laserTopicName = _sdf->GetElement("topicName")->Get<std::string>();
 
   if (!_sdf->GetElement("pointCloudCutoff"))
     this->pointCloudCutoff = 0.4;
   else
-    this->pointCloudCutoff = _sdf->GetElement("pointCloudCutoff")->GetValueDouble();
+    this->pointCloudCutoff = _sdf->GetElement("pointCloudCutoff")->Get<double>();
 
   this->frameName = "/world";
   if (_sdf->HasElement("frameName"))
-    this->frameName = _sdf->GetElement("frameName")->GetValueString();
+    this->frameName = _sdf->GetElement("frameName")->Get<std::string>();
 
   if (!_sdf->HasElement("gaussianNoise"))
   {
@@ -91,7 +91,7 @@ void GazeboRosGpuLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->gaussianNoise = 0;
   }
   else
-    this->gaussianNoise = _sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->gaussianNoise = _sdf->GetElement("gaussianNoise")->Get<double>();
 
   if (!_sdf->HasElement("hokuyoMinIntensity"))
   {
@@ -99,7 +99,7 @@ void GazeboRosGpuLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->hokuyoMinIntensity = 101;
   }
   else
-    this->hokuyoMinIntensity = _sdf->GetElement("hokuyoMinIntensity")->GetValueDouble();
+    this->hokuyoMinIntensity = _sdf->GetElement("hokuyoMinIntensity")->Get<double>();
 
   ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyoMinIntensity);
 
@@ -109,7 +109,7 @@ void GazeboRosGpuLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->updateRate = 0;
   }
   else
-    this->updateRate = _sdf->GetElement("updateRate")->GetValueDouble();
+    this->updateRate = _sdf->GetElement("updateRate")->Get<double>();
 
 
   // Exit if no ROS
