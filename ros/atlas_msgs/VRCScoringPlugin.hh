@@ -47,14 +47,61 @@ namespace gazebo
     /// \param[in] _info Current world information.
     public: void OnUpdate(const common::UpdateInfo &_info);
 
+    /// \brief Update the current score.
+    private: void UpdateScore();
+
+    /// \brief Data about a gate.
+    private: class Gate
+             {
+               /// \brief Name of the gate
+               public: std::string name;
+
+               /// \brief Center of the gate.
+               public: gazebo::math::pose center;
+
+               /// \brief Entrance of the gate.
+               public: gazebo::math::pose entrance;
+
+               /// \brief Exit of the gate.
+               public: gazebo::math::pose exit;
+
+               /// \brief Time Atlas entered the gate.
+               public: gazebo::common::Time entered;
+
+               /// \brief Time Atlas exited the gate.
+               public: gazebo::common::Time exited;
+             };
+
     /// \brief Pointer to the world.
     private: physics::WorldPtr world;
 
     /// \brief Pointer to Atlas.
     private: physics::ModelPtr atlas;
 
+    /// \brief Pointer to a Gazebo node. Used for communication.
+    private: transport::NodePtr node;
+
+    /// \brief The publisher of scoring information.
+    private: transport::PublisherPtr scorePub;
+
+    /// \brief The publisher of timing information.
+    private: transport::PublisherPtr timePub;
+
     /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
+
+    /// \brief List of all the gates in the world. We assume that gates have
+    /// the names: gate_1, gate_2, ..., gate_n.
+    private: std::list<Gate> gates;
+
+    /// \brief Time at which Atlas passed through the first gate.
+    private: gazebo::comon::Time startTime;
+
+    /// \brief The current live score.
+    private: double score;
+
+    /// \brief Pose of the atlas at the previous timestep.
+    private: gazebo::math::Pose prevAtlasPose;
 
     private: common::Time prevTime;
   };
