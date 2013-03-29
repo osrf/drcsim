@@ -53,12 +53,13 @@
 #include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
 
-#include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
 #include <atlas_msgs/AtlasState.h>
 #include <sensor_msgs/JointState.h>
+#include <atlas_msgs/AtlasState.h>
+#include <atlas_msgs/AtlasCommand.h>
 
 #include <atlas_msgs/Test.h>
 
@@ -125,7 +126,7 @@ namespace gazebo
     private: physics::JointPtr rWristJoint;
     private: physics::JointPtr lWristJoint;
 
-    /// \brief A combined JointStates, IMU and ForceTorqueSensors Message
+    /// \brief A combined AtlasState, IMU and ForceTorqueSensors Message
     /// for accessing all these states synchronously.
     private: atlas_msgs::AtlasState atlasState;
 
@@ -133,7 +134,6 @@ namespace gazebo
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
     private: physics::LinkPtr imuLink;
-    private: ros::Publisher pubImu;
     private: common::Time lastImuTime;
 
     // AtlasSimInterface: internal debugging only
@@ -156,9 +156,6 @@ namespace gazebo
     /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
 
-    /// \brief ros publisher for force torque sensors
-    private: ros::Publisher pubForceTorqueSensors;
-
     /// \brief ros publisher for atlas states, currently it contains
     /// joint index enums
     /// sensor_msgs::JointState
@@ -166,20 +163,20 @@ namespace gazebo
     /// atlas_msgs::FroceTorqueSensors
     private: ros::Publisher pubAtlasState;
 
-    private: ros::Subscriber subJointCommands;
+    private: ros::Subscriber subAtlasCommand;
 
     /// \brief ros topic callback to update Joint Commands
     /// \param[in] _msg Incoming ros message
-    private: void SetJointCommands(
-      const osrf_msgs::JointCommands::ConstPtr &_msg);
+    private: void SetAtlasCommand(
+      const atlas_msgs::AtlasCommand::ConstPtr &_msg);
 
     /// \brief ros topic callback to update Joint Commands
     /// \param[in] _msg Incoming ros message
-    private: void UpdateJointCommands(
-      const osrf_msgs::JointCommands &_msg);
+    private: void UpdateAtlasCommand(
+      const atlas_msgs::AtlasCommand &_msg);
 
     private: void LoadPIDGainsFromParameter();
-    private: void ZeroJointCommands();
+    private: void ZeroAtlasCommand();
 
     private: std::vector<std::string> jointNames;
 
@@ -210,7 +207,7 @@ namespace gazebo
       };
     private: std::vector<ErrorTerms> errorTerms;
 
-    private: osrf_msgs::JointCommands jointCommands;
+    private: atlas_msgs::AtlasCommand atlasCommand;
     private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
 
@@ -235,13 +232,13 @@ namespace gazebo
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
-    private: std::vector<double> jointCommandsAgeBuffer;
-    private: std::vector<double> jointCommandsAgeDelta2Buffer;
-    private: unsigned int jointCommandsAgeBufferIndex;
-    private: double jointCommandsAgeBufferDuration;
-    private: double jointCommandsAgeMean;
-    private: double jointCommandsAgeVariance;
-    private: double jointCommandsAge;
+    private: std::vector<double> atlasCommandAgeBuffer;
+    private: std::vector<double> atlasCommandAgeDelta2Buffer;
+    private: unsigned int atlasCommandAgeBufferIndex;
+    private: double atlasCommandAgeBufferDuration;
+    private: double atlasCommandAgeMean;
+    private: double atlasCommandAgeVariance;
+    private: double atlasCommandAge;
 
     private: void SetExperimentalDampingPID(
       const atlas_msgs::Test::ConstPtr &_msg);
