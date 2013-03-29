@@ -21,11 +21,12 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
+#include <gazebo/math/Pose.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
 
 namespace gazebo
 {
@@ -57,13 +58,13 @@ namespace gazebo
                public: std::string name;
 
                /// \brief Center of the gate.
-               public: gazebo::math::pose center;
+               public: gazebo::math::Pose center;
 
                /// \brief Entrance of the gate.
-               public: gazebo::math::pose entrance;
+               public: gazebo::math::Pose entrance;
 
                /// \brief Exit of the gate.
-               public: gazebo::math::pose exit;
+               public: gazebo::math::Pose exit;
 
                /// \brief Time Atlas entered the gate.
                public: gazebo::common::Time entered;
@@ -95,7 +96,7 @@ namespace gazebo
     private: std::list<Gate> gates;
 
     /// \brief Time at which Atlas passed through the first gate.
-    private: gazebo::comon::Time startTime;
+    private: gazebo::common::Time startTime;
 
     /// \brief The current live score.
     private: double score;
@@ -104,6 +105,7 @@ namespace gazebo
     private: gazebo::math::Pose prevAtlasPose;
 
     private: common::Time prevTime;
+    private: gazebo::math::Pose prevLinearVel;
   };
 }
 #endif

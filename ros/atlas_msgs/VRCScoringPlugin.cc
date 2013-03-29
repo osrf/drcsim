@@ -15,8 +15,10 @@
  *
 */
 
-#include <gazebo/common/Common.hh>
-#include <gazebo/physics/Physics.hh>
+#include <gazebo/msgs/msgs.hh>
+#include <gazebo/transport/transport.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/physics.hh>
 #include "VRCScoringPlugin.hh"
 
 using namespace gazebo;
@@ -36,7 +38,7 @@ VRCScoringPlugin::~VRCScoringPlugin()
 void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   this->node = transport::NodePtr(new transport::Node());
-  this->node->Init(this->GetName());
+  this->node->Init();
 
   // Create the score publisher. Only send out data at 10 Hz.
   this->scorePub = this->node->Advertise<gazebo::msgs::GzString>(
@@ -71,7 +73,7 @@ void VRCScoringPlugin::UpdateScore()
   {
   }
 
-  this->prevAtlasPose = altasPose;
+  this->prevAtlasPose = atlasPose;
 }
 
 /////////////////////////////////////////////////
@@ -84,22 +86,26 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
 
     // Grab the current pose of Atlas if found.
     if (this->atlas)
-      this->atlasPrevPose = this->atlas->GetWorldPose();
+      this->prevAtlasPose = this->atlas->GetWorldPose();
     else
       return;
   }
 
   common::Time diffTime = _info.simTime - this->prevTime;
-
   gazebo::physics::LinkPtr link = this->atlas->GetLink("head");
 
   if (!link)
     std::cout << "Unable to find head\n";
 
+  gazebo::math::Pose currVel = link->GetWorldLinearVel();
+
+  double velDiff = currVel.z - prevLinearVel.z;
+
   std::cout << _info.simTime.Double() << " "
-    << link->GetWorldLinearVel().z / diffTime.Double() << std::endl;
+            << velDiff / diffTime.Double() << std::endl;
 
   this->prevTime = _info.simTime;
+  this->prevLinearVel = currVel;
 
   // Update the current score.
   this->UpdateScore();
@@ -112,8 +118,12 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
 
     gazebo::msgs::Time timeMsg;
     if (this->startTime >= _info.simTime)
-      gazebo::msgs::Set(timeMsg, this->startTime - _info.simTime);
-    this->timePub->Publish(timeMsg);
+    {
+      gazebo::common::Time diff = this->startTime - _info.simTime;
+      timeMsg.set_sec(diff.sec);
+      timeMsg.set_nsec(diff.nsec);
+      this->timePub->Publish(timeMsg);
+    }
   }
 }
 
