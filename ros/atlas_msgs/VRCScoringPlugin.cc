@@ -101,7 +101,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
 
   double velDiff = currVel.z - prevLinearVel.z;
 
-  std::cout << _info.simTime.Double() << " "
+  std::cerr << _info.simTime.Double() << " "
             << velDiff / diffTime.Double() << std::endl;
 
   this->prevTime = _info.simTime;
