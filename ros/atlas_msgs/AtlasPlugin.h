@@ -56,8 +56,8 @@
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
-#include <atlas_msgs/AtlasState.h>
 #include <sensor_msgs/JointState.h>
+#include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
 
@@ -164,6 +164,7 @@ namespace gazebo
     private: ros::Publisher pubAtlasState;
 
     private: ros::Subscriber subAtlasCommand;
+    private: ros::Subscriber subJointCommands;
 
     /// \brief ros topic callback to update Joint Commands
     /// \param[in] _msg Incoming ros message
@@ -172,11 +173,23 @@ namespace gazebo
 
     /// \brief ros topic callback to update Joint Commands
     /// \param[in] _msg Incoming ros message
+    private: void SetJointCommands(
+      const osrf_msgs::JointCommands::ConstPtr &_msg);
+
+    /// \brief ros topic callback to update Joint Commands
+    /// \param[in] _msg Incoming ros message
     private: void UpdateAtlasCommand(
       const atlas_msgs::AtlasCommand &_msg);
 
+    /// \brief ros topic callback to update Joint Commands
+    /// \param[in] _msg Incoming ros message
+    private: void UpdateJointCommands(
+      const osrf_msgs::JointCommands &_msg);
+
     private: void LoadPIDGainsFromParameter();
     private: void ZeroAtlasCommand();
+
+    private: void ZeroJointCommands();
 
     private: std::vector<std::string> jointNames;
 
@@ -208,6 +221,7 @@ namespace gazebo
     private: std::vector<ErrorTerms> errorTerms;
 
     private: atlas_msgs::AtlasCommand atlasCommand;
+    private: osrf_msgs::JointCommands jointCommands;
     private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
 

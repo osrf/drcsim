@@ -185,6 +185,18 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   this->ZeroAtlasCommand();
 
+  this->jointCommands.position.resize(this->joints.size());
+  this->jointCommands.velocity.resize(this->joints.size());
+  this->jointCommands.effort.resize(this->joints.size());
+  this->jointCommands.kp_position.resize(this->joints.size());
+  this->jointCommands.ki_position.resize(this->joints.size());
+  this->jointCommands.kd_position.resize(this->joints.size());
+  this->jointCommands.kp_velocity.resize(this->joints.size());
+  this->jointCommands.i_effort_min.resize(this->joints.size());
+  this->jointCommands.i_effort_max.resize(this->joints.size());
+
+  this->ZeroJointCommands();
+
   // AtlasSimInterface:  initialize toRobot
   this->toRobot.timestamp = 1.0e9 * this->world->GetSimTime().nsec
     + this->world->GetSimTime().nsec;
@@ -355,53 +367,140 @@ void AtlasPlugin::UpdateAtlasCommand(const atlas_msgs::AtlasCommand &_msg)
       " elements effort[%ld] than expected[%ld]",
       _msg.effort.size(), this->atlasCommand.effort.size());
 
-  if (_msg.kp_position.size() == this->atlasCommand.kp_position.size())
+  if (_msg.kp_position.size() == this->atlasState.kp_position.size())
     std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
-      this->atlasCommand.kp_position.begin());
+      this->atlasState.kp_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
-      _msg.kp_position.size(), this->atlasCommand.kp_position.size());
+      _msg.kp_position.size(), this->atlasState.kp_position.size());
 
-  if (_msg.ki_position.size() == this->atlasCommand.ki_position.size())
+  if (_msg.ki_position.size() == this->atlasState.ki_position.size())
     std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
-      this->atlasCommand.ki_position.begin());
+      this->atlasState.ki_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
-      _msg.ki_position.size(), this->atlasCommand.ki_position.size());
+      _msg.ki_position.size(), this->atlasState.ki_position.size());
 
-  if (_msg.kd_position.size() == this->atlasCommand.kd_position.size())
+  if (_msg.kd_position.size() == this->atlasState.kd_position.size())
     std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
-      this->atlasCommand.kd_position.begin());
+      this->atlasState.kd_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
-      _msg.kd_position.size(), this->atlasCommand.kd_position.size());
+      _msg.kd_position.size(), this->atlasState.kd_position.size());
 
-  if (_msg.kp_velocity.size() == this->atlasCommand.kp_velocity.size())
+  if (_msg.kp_velocity.size() == this->atlasState.kp_velocity.size())
     std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
-      this->atlasCommand.kp_velocity.begin());
+      this->atlasState.kp_velocity.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
-      _msg.kp_velocity.size(), this->atlasCommand.kp_velocity.size());
+      _msg.kp_velocity.size(), this->atlasState.kp_velocity.size());
 
-  if (_msg.i_effort_min.size() == this->atlasCommand.i_effort_min.size())
+  if (_msg.i_effort_min.size() == this->atlasState.i_effort_min.size())
     std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
-      this->atlasCommand.i_effort_min.begin());
+      this->atlasState.i_effort_min.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
-      _msg.i_effort_min.size(), this->atlasCommand.i_effort_min.size());
+      _msg.i_effort_min.size(), this->atlasState.i_effort_min.size());
 
-  if (_msg.i_effort_max.size() == this->atlasCommand.i_effort_max.size())
+  if (_msg.i_effort_max.size() == this->atlasState.i_effort_max.size())
     std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
-      this->atlasCommand.i_effort_max.begin());
+      this->atlasState.i_effort_max.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
-      _msg.i_effort_max.size(), this->atlasCommand.i_effort_max.size());
+      _msg.i_effort_max.size(), this->atlasState.i_effort_max.size());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::SetJointCommands(
+  const osrf_msgs::JointCommands::ConstPtr &_msg)
+{
+  boost::mutex::scoped_lock lock(this->mutex);
+
+  this->UpdateJointCommands(*_msg);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
+{
+  this->jointCommands.header.stamp = _msg.header.stamp;
+
+  if (_msg.position.size() == this->jointCommands.position.size())
+    std::copy(_msg.position.begin(), _msg.position.end(),
+      this->jointCommands.position.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements position[%ld] than expected[%ld]",
+      _msg.position.size(), this->jointCommands.position.size());
+
+  if (_msg.velocity.size() == this->jointCommands.velocity.size())
+    std::copy(_msg.velocity.begin(), _msg.velocity.end(),
+      this->jointCommands.velocity.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements velocity[%ld] than expected[%ld]",
+      _msg.velocity.size(), this->jointCommands.velocity.size());
+
+  if (_msg.effort.size() == this->jointCommands.effort.size())
+    std::copy(_msg.effort.begin(), _msg.effort.end(),
+      this->jointCommands.effort.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements effort[%ld] than expected[%ld]",
+      _msg.effort.size(), this->jointCommands.effort.size());
+
+  if (_msg.kp_position.size() == this->atlasState.kp_position.size())
+    std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
+      this->atlasState.kp_position.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements kp_position[%ld] than expected[%ld]",
+      _msg.kp_position.size(), this->atlasState.kp_position.size());
+
+  if (_msg.ki_position.size() == this->atlasState.ki_position.size())
+    std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
+      this->atlasState.ki_position.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements ki_position[%ld] than expected[%ld]",
+      _msg.ki_position.size(), this->atlasState.ki_position.size());
+
+  if (_msg.kd_position.size() == this->atlasState.kd_position.size())
+    std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
+      this->atlasState.kd_position.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements kd_position[%ld] than expected[%ld]",
+      _msg.kd_position.size(), this->atlasState.kd_position.size());
+
+  if (_msg.kp_velocity.size() == this->atlasState.kp_velocity.size())
+    std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
+      this->atlasState.kp_velocity.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements kp_velocity[%ld] than expected[%ld]",
+      _msg.kp_velocity.size(), this->atlasState.kp_velocity.size());
+
+  if (_msg.i_effort_min.size() == this->atlasState.i_effort_min.size())
+    std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
+      this->atlasState.i_effort_min.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements i_effort_min[%ld] than expected[%ld]",
+      _msg.i_effort_min.size(), this->atlasState.i_effort_min.size());
+
+  if (_msg.i_effort_max.size() == this->atlasState.i_effort_max.size())
+    std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
+      this->atlasState.i_effort_max.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements i_effort_max[%ld] than expected[%ld]",
+      _msg.i_effort_max.size(), this->atlasState.i_effort_max.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -476,7 +575,7 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions atlasCommandSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasCommand>(
-    "atlas/joint_commands", 1,
+    "atlas/atlas_command", 1,
     boost::bind(&AtlasPlugin::SetAtlasCommand, this, _1),
     ros::VoidPtr(), &this->rosQueue);
 
@@ -491,6 +590,17 @@ void AtlasPlugin::DeferredLoad()
 
   this->subAtlasCommand =
     this->rosNode->subscribe(atlasCommandSo);
+
+  // ros topic subscribtions
+  ros::SubscribeOptions jointCommandsSo =
+    ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
+    "atlas/joint_commands", 1,
+    boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  jointCommandsSo.transport_hints =
+    ros::TransportHints().reliable().tcpNoDelay(true);
+  this->subJointCommands =
+    this->rosNode->subscribe(jointCommandsSo);
 
   // ros topic subscribtions
   ros::SubscribeOptions testSo =
@@ -860,17 +970,17 @@ void AtlasPlugin::UpdateStates()
 
         this->errorTerms[i].k_i_q_i = math::clamp(
           this->errorTerms[i].k_i_q_i +
-          dt * this->atlasCommand.ki_position[i] * this->errorTerms[i].q_p,
-          static_cast<double>(this->atlasCommand.i_effort_min[i]),
-          static_cast<double>(this->atlasCommand.i_effort_max[i]));
+          dt * this->atlasState.ki_position[i] * this->errorTerms[i].q_p,
+          static_cast<double>(this->atlasState.i_effort_min[i]),
+          static_cast<double>(this->atlasState.i_effort_max[i]));
 
         // use gain params to compute force cmd
         double forceUnclamped =
-          this->atlasCommand.kp_position[i] * this->errorTerms[i].q_p +
-                                               this->errorTerms[i].k_i_q_i +
-          this->atlasCommand.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-          this->atlasCommand.kp_velocity[i] * this->errorTerms[i].qd_p +
-          this->atlasCommand.effort[i];
+          this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
+                                            this->errorTerms[i].k_i_q_i +
+          this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+          this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
+          this->atlasState.effort[i];
 
         // keep unclamped force for integral tie-back calculation
         double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
@@ -878,14 +988,14 @@ void AtlasPlugin::UpdateStates()
 
         // integral tie-back during control saturation if using integral gain
         if (!math::equal(forceClamped,forceUnclamped) &&
-            !math::equal((double)this->atlasCommand.ki_position[i],0.0) )
+            !math::equal((double)this->atlasState.ki_position[i],0.0) )
         {
           // lock integral term to provide continuous control as system moves
           // out of staturation
           this->errorTerms[i].k_i_q_i = math::clamp(
             this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
-          static_cast<double>(this->atlasCommand.i_effort_min[i]),
-          static_cast<double>(this->atlasCommand.i_effort_max[i]));
+          static_cast<double>(this->atlasState.i_effort_min[i]),
+          static_cast<double>(this->atlasState.i_effort_max[i]));
         }
 
         // AtlasSimInterface:  add controller feed forward force
@@ -897,71 +1007,14 @@ void AtlasPlugin::UpdateStates()
 
         // fill in jointState efforts
         this->atlasState.effort[i] = forceClamped;
+        this->jointStates.effort[i] = forceClamped;
 
         // AtlasSimInterface: fill in fromRobot efforts.
         // FIXME: Is this used by the controller?  i.e. should this happen
         // before process_control_input?
         this->fromRobot.j[i].f = forceClamped;
       }
-      // copy pid gains from atlasCommand into atlasState
-      GZ_ASSERT(this->atlasCommand.kp_position.size() ==
-                this->atlasState.kp_position.size(),
-                "atlasCommand.kp_position and "
-                "atlasState.kp_position size mismatch.");
-      std::copy(this->atlasCommand.kp_position.begin(),
-                this->atlasCommand.kp_position.end(),
-                this->atlasState.kp_position.begin());
-      // copy pid gains from atlasCommand into atlasState
-      GZ_ASSERT(this->atlasCommand.ki_position.size() ==
-                this->atlasState.ki_position.size(),
-                "atlasCommand.ki_position and "
-                "atlasState.ki_position size mismatch.");
-      std::copy(this->atlasCommand.ki_position.begin(),
-                this->atlasCommand.ki_position.end(),
-                this->atlasState.ki_position.begin());
-      // copy pid gains from atlasCommand into atlasState
-      GZ_ASSERT(this->atlasCommand.kd_position.size() ==
-                this->atlasState.kd_position.size(),
-                "atlasCommand.kd_position and "
-                "atlasState.kd_position size mismatch.");
-      std::copy(this->atlasCommand.kd_position.begin(),
-                this->atlasCommand.kd_position.end(),
-                this->atlasState.kd_position.begin());
-      // copy pid gains from atlasCommand into atlasState
-      GZ_ASSERT(this->atlasCommand.kp_velocity.size() ==
-                this->atlasState.kp_velocity.size(),
-                "atlasCommand.kp_velocity and "
-                "atlasState.kp_velocity size mismatch.");
-      std::copy(this->atlasCommand.kp_velocity.begin(),
-                this->atlasCommand.kp_velocity.end(),
-                this->atlasState.kp_velocity.begin());
-      // copy pid gains from atlasCommand into atlasState
-      GZ_ASSERT(this->atlasCommand.i_effort_min.size() ==
-                this->atlasState.i_effort_min.size(),
-                "atlasCommand.i_effort_min and "
-                "atlasState.i_effort_min size mismatch.");
-      std::copy(this->atlasCommand.i_effort_min.begin(),
-                this->atlasCommand.i_effort_min.end(),
-                this->atlasState.i_effort_min.begin());
-      // copy pid gains from atlasCommand into atlasState
-      GZ_ASSERT(this->atlasCommand.i_effort_max.size() ==
-                this->atlasState.i_effort_max.size(),
-                "atlasCommand.i_effort_max and "
-                "atlasState.i_effort_max size mismatch.");
-      std::copy(this->atlasCommand.i_effort_max.begin(),
-                this->atlasCommand.i_effort_max.end(),
-                this->atlasState.i_effort_max.begin());
     }
-
-    // copy from atlasState.effort into jointStates.effort
-    GZ_ASSERT(this->atlasState.effort.size() ==
-              this->jointStates.effort.size(),
-              "atlasState.effort and "
-              "jointStates.effort size mismatch.");
-    std::copy(this->atlasState.effort.begin(),
-              this->atlasState.effort.end(),
-              this->jointStates.effort.begin());
-
     this->lastControllerUpdateTime = curTime;
 
     this->pubJointStates.publish(this->jointStates);
@@ -1113,12 +1166,13 @@ void AtlasPlugin::ZeroAtlasCommand()
     this->atlasCommand.position[i] = 0;
     this->atlasCommand.velocity[i] = 0;
     this->atlasCommand.effort[i] = 0;
-    this->atlasCommand.kp_position[i] = 0;
-    this->atlasCommand.ki_position[i] = 0;
-    this->atlasCommand.kd_position[i] = 0;
-    this->atlasCommand.kp_velocity[i] = 0;
-    this->atlasCommand.i_effort_min[i] = 0;
-    this->atlasCommand.i_effort_max[i] = 0;
+    // store these directly on altasState, more efficient for pub later
+    this->atlasState.kp_position[i] = 0;
+    this->atlasState.ki_position[i] = 0;
+    this->atlasState.kd_position[i] = 0;
+    this->atlasState.kp_velocity[i] = 0;
+    this->atlasState.i_effort_min[i] = 0;
+    this->atlasState.i_effort_max[i] = 0;
   }
 }
 
@@ -1145,11 +1199,12 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
       ROS_ERROR("couldn't find a param for %s", joint_ns);
       continue;
     }
-    this->atlasCommand.kp_position[joint]  =  p_val;
-    this->atlasCommand.ki_position[joint]  =  i_val;
-    this->atlasCommand.kd_position[joint]  =  d_val;
-    this->atlasCommand.i_effort_min[joint] = -i_clamp_val;
-    this->atlasCommand.i_effort_max[joint] =  i_clamp_val;
+    // store these directly on altasState, more efficient for pub later
+    this->atlasState.kp_position[joint]  =  p_val;
+    this->atlasState.ki_position[joint]  =  i_val;
+    this->atlasState.kd_position[joint]  =  d_val;
+    this->atlasState.i_effort_min[joint] = -i_clamp_val;
+    this->atlasState.i_effort_max[joint] =  i_clamp_val;
   }
 }
 
@@ -1167,53 +1222,53 @@ void AtlasPlugin::SetExperimentalDampingPID(
 
   boost::mutex::scoped_lock lock(this->mutex);
 
-  if (_msg->kp_position.size() == this->atlasCommand.kp_position.size())
+  if (_msg->kp_position.size() == this->atlasState.kp_position.size())
     std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
-      this->atlasCommand.kp_position.begin());
+      this->atlasState.kp_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
-      _msg->kp_position.size(), this->atlasCommand.kp_position.size());
+      _msg->kp_position.size(), this->atlasState.kp_position.size());
 
-  if (_msg->ki_position.size() == this->atlasCommand.ki_position.size())
+  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
     std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
-      this->atlasCommand.ki_position.begin());
+      this->atlasState.ki_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
-      _msg->ki_position.size(), this->atlasCommand.ki_position.size());
+      _msg->ki_position.size(), this->atlasState.ki_position.size());
 
-  if (_msg->kd_position.size() == this->atlasCommand.kd_position.size())
+  if (_msg->kd_position.size() == this->atlasState.kd_position.size())
     std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
-      this->atlasCommand.kd_position.begin());
+      this->atlasState.kd_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
-      _msg->kd_position.size(), this->atlasCommand.kd_position.size());
+      _msg->kd_position.size(), this->atlasState.kd_position.size());
 
-  if (_msg->kp_velocity.size() == this->atlasCommand.kp_velocity.size())
+  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
     std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
-      this->atlasCommand.kp_velocity.begin());
+      this->atlasState.kp_velocity.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
-      _msg->kp_velocity.size(), this->atlasCommand.kp_velocity.size());
+      _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
 
-  if (_msg->i_effort_min.size() == this->atlasCommand.i_effort_min.size())
+  if (_msg->i_effort_min.size() == this->atlasState.i_effort_min.size())
     std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
-      this->atlasCommand.i_effort_min.begin());
+      this->atlasState.i_effort_min.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
-      _msg->i_effort_min.size(), this->atlasCommand.i_effort_min.size());
+      _msg->i_effort_min.size(), this->atlasState.i_effort_min.size());
 
-  if (_msg->i_effort_max.size() == this->atlasCommand.i_effort_max.size())
+  if (_msg->i_effort_max.size() == this->atlasState.i_effort_max.size())
     std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
-      this->atlasCommand.i_effort_max.begin());
+      this->atlasState.i_effort_max.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
-      _msg->i_effort_max.size(), this->atlasCommand.i_effort_max.size());
+      _msg->i_effort_max.size(), this->atlasState.i_effort_max.size());
 }
 
 void AtlasPlugin::RosQueueThread()

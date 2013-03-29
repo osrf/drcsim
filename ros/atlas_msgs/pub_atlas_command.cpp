@@ -24,7 +24,7 @@
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
 
-ros::Publisher pub_joint_commands_;
+ros::Publisher pub_atlas_command_;
 atlas_msgs::AtlasCommand ac;
 std::vector<std::string> jointNames;
 
@@ -39,13 +39,13 @@ void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_js)
     for (unsigned int i = 0; i < jointNames.size(); i++)
       ac.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
 
-    pub_joint_commands_.publish(ac);
+    pub_atlas_command_.publish(ac);
   }
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "pub_joint_command_test");
+  ros::init(argc, argv, "pub_atlas_commandt");
 
   ros::NodeHandle* rosnode = new ros::NodeHandle();
 
@@ -145,9 +145,9 @@ int main(int argc, char** argv)
   // ros::Subscriber subAtlasState =
   //   rosnode->subscribe("/atlas/joint_states", 1000, SetAtlasState);
 
-  pub_joint_commands_ =
+  pub_atlas_command_ =
     rosnode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/joint_commands", 1, true);
+    "/atlas/atlas_command", 1, true);
 
   ros::spin();
 
