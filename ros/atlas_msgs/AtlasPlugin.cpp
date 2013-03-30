@@ -427,37 +427,37 @@ void AtlasPlugin::SetJointCommands(
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
 {
-  this->jointCommands.header.stamp = _msg.header.stamp;
+  this->atlasCommand.header.stamp = _msg.header.stamp;
 
-  if (_msg.position.size() == this->jointCommands.position.size())
+  if (_msg.position.size() == this->atlasCommand.position.size())
     std::copy(_msg.position.begin(), _msg.position.end(),
-      this->jointCommands.position.begin());
+      this->atlasCommand.position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements position[%ld] than expected[%ld]",
-      _msg.position.size(), this->jointCommands.position.size());
+      _msg.position.size(), this->atlasCommand.position.size());
 
-  if (_msg.velocity.size() == this->jointCommands.velocity.size())
+  if (_msg.velocity.size() == this->atlasCommand.velocity.size())
     std::copy(_msg.velocity.begin(), _msg.velocity.end(),
-      this->jointCommands.velocity.begin());
+      this->atlasCommand.velocity.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
-      _msg.velocity.size(), this->jointCommands.velocity.size());
+      _msg.velocity.size(), this->atlasCommand.velocity.size());
 
-  if (_msg.effort.size() == this->jointCommands.effort.size())
+  if (_msg.effort.size() == this->atlasCommand.effort.size())
     std::copy(_msg.effort.begin(), _msg.effort.end(),
-      this->jointCommands.effort.begin());
+      this->atlasCommand.effort.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements effort[%ld] than expected[%ld]",
-      _msg.effort.size(), this->jointCommands.effort.size());
+      _msg.effort.size(), this->atlasCommand.effort.size());
 
   if (_msg.kp_position.size() == this->atlasState.kp_position.size())
     std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
       this->atlasState.kp_position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg.kp_position.size(), this->atlasState.kp_position.size());
 
@@ -465,7 +465,7 @@ void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
     std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
       this->atlasState.ki_position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg.ki_position.size(), this->atlasState.ki_position.size());
 
@@ -473,7 +473,7 @@ void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
     std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
       this->atlasState.kd_position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg.kd_position.size(), this->atlasState.kd_position.size());
 
@@ -481,7 +481,7 @@ void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
     std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg.kp_velocity.size(), this->atlasState.kp_velocity.size());
 
@@ -489,7 +489,7 @@ void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
     std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
       this->atlasState.i_effort_min.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
       _msg.i_effort_min.size(), this->atlasState.i_effort_min.size());
 
@@ -497,7 +497,7 @@ void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
     std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
       this->atlasState.i_effort_max.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("JointCommands message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
       _msg.i_effort_max.size(), this->atlasState.i_effort_max.size());
 }
@@ -1307,7 +1307,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
     std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->atlasState.kp_position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("Test message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg->kp_position.size(), this->atlasState.kp_position.size());
 
@@ -1315,7 +1315,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
     std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->atlasState.ki_position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("Test message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg->ki_position.size(), this->atlasState.ki_position.size());
 
@@ -1323,7 +1323,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
     std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->atlasState.kd_position.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("Test message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg->kd_position.size(), this->atlasState.kd_position.size());
 
@@ -1331,7 +1331,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
     std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("Test message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
 
@@ -1339,7 +1339,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
     std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
       this->atlasState.i_effort_min.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("Test message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
       _msg->i_effort_min.size(), this->atlasState.i_effort_min.size());
 
@@ -1347,7 +1347,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
     std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
       this->atlasState.i_effort_max.begin());
   else
-    ROS_DEBUG("AtlasCommand message contains different number of"
+    ROS_DEBUG("Test message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
       _msg->i_effort_max.size(), this->atlasState.i_effort_max.size());
 }
