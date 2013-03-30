@@ -980,7 +980,7 @@ void AtlasPlugin::UpdateStates()
                                             this->errorTerms[i].k_i_q_i +
           this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
-          this->atlasState.effort[i];
+          this->atlasCommand.effort[i];
 
         // keep unclamped force for integral tie-back calculation
         double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
@@ -1166,6 +1166,24 @@ void AtlasPlugin::ZeroAtlasCommand()
     this->atlasCommand.position[i] = 0;
     this->atlasCommand.velocity[i] = 0;
     this->atlasCommand.effort[i] = 0;
+    // store these directly on altasState, more efficient for pub later
+    this->atlasState.kp_position[i] = 0;
+    this->atlasState.ki_position[i] = 0;
+    this->atlasState.kd_position[i] = 0;
+    this->atlasState.kp_velocity[i] = 0;
+    this->atlasState.i_effort_min[i] = 0;
+    this->atlasState.i_effort_max[i] = 0;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::ZeroJointCommands()
+{
+  for (unsigned i = 0; i < this->jointNames.size(); ++i)
+  {
+    this->jointCommands.position[i] = 0;
+    this->jointCommands.velocity[i] = 0;
+    this->jointCommands.effort[i] = 0;
     // store these directly on altasState, more efficient for pub later
     this->atlasState.kp_position[i] = 0;
     this->atlasState.ki_position[i] = 0;
