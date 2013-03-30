@@ -23,7 +23,11 @@
 
 #include "AtlasPlugin.h"
 
+// publish separate /atlas/imu topic, to be deprecated
 #include "sensor_msgs/Imu.h"
+
+// publish separate /atlas/force_torque_sensors topic, to be deprecated
+#include <atlas_msgs/ForceTorqueSensors.h>
 
 using std::string;
 
@@ -267,11 +271,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // behavior.
   this->errorCode = this->atlasSimInterface->reset_control();
   this->errorCode = this->atlasSimInterface->set_desired_behavior("safety");
-
-  // Get imu link
-  this->imuLink = this->model->GetLink(this->imuLinkName);
-  if (!this->imuLink)
-    gzerr << this->imuLinkName << " not found\n";
 
   // AtlasSimInterface: Get pelvis link for internal debugging only
   this->pelvisLink = this->model->GetLink(this->pelvisLinkName);
@@ -557,6 +556,15 @@ void AtlasPlugin::DeferredLoad()
   this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
     "atlas/atlas_state", 1);
 
+  // publish separate /atlas/imu topic, to be deprecated
+  this->pubImu =
+    this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
+
+  // publish separate /atlas/force_torque_sensors topic, to be deprecated
+  this->pubForceTorqueSensors =
+    this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
+    "atlas/force_torque_sensors", 10);
+
   // ros publication / subscription
   this->pubControllerStatistics =
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
@@ -742,12 +750,22 @@ void AtlasPlugin::UpdateStates()
     // get imu data from imu link
     if (this->imuSensor && curTime > this->lastImuTime)
     {
+      // publish separate /atlas/imu topic, to be deprecated
+      sensor_msgs::Imu imuMsg;
+      imuMsg.header.frame_id = this->imuLinkName;
+      imuMsg.header.stamp = ros::Time(curTime.Double());
+
       // compute angular rates
       {
         math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
         this->atlasState.angular_velocity.x = wLocal.x;
         this->atlasState.angular_velocity.y = wLocal.y;
         this->atlasState.angular_velocity.z = wLocal.z;
+
+        // publish separate /atlas/imu topic, to be deprecated
+        imuMsg.angular_velocity.x = wLocal.x;
+        imuMsg.angular_velocity.y = wLocal.y;
+        imuMsg.angular_velocity.z = wLocal.z;
 
         // AtlasSimInterface: populate imu in fromRobot
         this->fromRobot.imu.angular_velocity.n[0] = wLocal.x;
@@ -761,6 +779,11 @@ void AtlasPlugin::UpdateStates()
         this->atlasState.linear_acceleration.x = accel.x;
         this->atlasState.linear_acceleration.y = accel.y;
         this->atlasState.linear_acceleration.z = accel.z;
+
+        // publish separate /atlas/imu topic, to be deprecated
+        imuMsg.linear_acceleration.x = accel.x;
+        imuMsg.linear_acceleration.y = accel.y;
+        imuMsg.linear_acceleration.z = accel.z;
 
         // AtlasSimInterface: populate imu in fromRobot
         this->fromRobot.imu.linear_acceleration.n[0] = accel.x;
@@ -776,12 +799,21 @@ void AtlasPlugin::UpdateStates()
         this->atlasState.orientation.z = imuRot.z;
         this->atlasState.orientation.w = imuRot.w;
 
+        // publish separate /atlas/imu topic, to be deprecated
+        imuMsg.orientation.x = imuRot.x;
+        imuMsg.orientation.y = imuRot.y;
+        imuMsg.orientation.z = imuRot.z;
+        imuMsg.orientation.w = imuRot.w;
+
         // AtlasSimInterface: populate imu in fromRobot
         this->fromRobot.imu.orientation_estimate.m_qw = imuRot.w;
         this->fromRobot.imu.orientation_estimate.m_qx = imuRot.x;
         this->fromRobot.imu.orientation_estimate.m_qy = imuRot.y;
         this->fromRobot.imu.orientation_estimate.m_qz = imuRot.z;
       }
+
+      // publish separate /atlas/imu topic, to be deprecated
+      this->pubImu.publish(imuMsg);
 
       // update time
       this->lastImuTime = curTime.Double();
@@ -802,16 +834,24 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.pelvis_velocity.n[2] = vel.z;
     }
 
-    // The following is added to fix compiler warnings.
-    unsigned int i0 = 0;
+    // publish separate /atlas/force_torque_sensors topic, to be deprecated
+    atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
+    // publish separate /atlas/force_torque_sensors topic, to be deprecated
+    forceTorqueSensorsMsg.header.stamp =
+      ros::Time(curTime.sec, curTime.nsec);
 
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
     {
-      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(i0);
+      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(0u);
       this->atlasState.l_foot.force.z = wrench.body1Force.z;
       this->atlasState.l_foot.torque.x = wrench.body1Torque.x;
       this->atlasState.l_foot.torque.y = wrench.body1Torque.y;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.l_foot.force.z = wrench.body1Force.z;
+      forceTorqueSensorsMsg.l_foot.torque.x = wrench.body1Torque.x;
+      forceTorqueSensorsMsg.l_foot.torque.y = wrench.body1Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
       this->fromRobot.foot_sensors[0].fz = wrench.body1Force.z;
@@ -822,10 +862,15 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right ankle and publish
     if (this->rAnkleJoint)
     {
-      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(i0);
+      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(0u);
       this->atlasState.r_foot.force.z = wrench.body1Force.z;
       this->atlasState.r_foot.torque.x = wrench.body1Torque.x;
       this->atlasState.r_foot.torque.y = wrench.body1Torque.y;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.r_foot.force.z = wrench.body1Force.z;
+      forceTorqueSensorsMsg.r_foot.torque.x = wrench.body1Torque.x;
+      forceTorqueSensorsMsg.r_foot.torque.y = wrench.body1Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
       this->fromRobot.foot_sensors[1].fz = wrench.body1Force.z;
@@ -836,13 +881,21 @@ void AtlasPlugin::UpdateStates()
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
-      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(i0);
+      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(0u);
       this->atlasState.l_hand.force.x = wrench.body1Force.x;
       this->atlasState.l_hand.force.y = wrench.body1Force.y;
       this->atlasState.l_hand.force.z = wrench.body1Force.z;
       this->atlasState.l_hand.torque.x = wrench.body1Torque.x;
       this->atlasState.l_hand.torque.y = wrench.body1Torque.y;
       this->atlasState.l_hand.torque.z = wrench.body1Torque.z;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.l_hand.force.x = wrench.body1Force.x;
+      forceTorqueSensorsMsg.l_hand.force.y = wrench.body1Force.y;
+      forceTorqueSensorsMsg.l_hand.force.z = wrench.body1Force.z;
+      forceTorqueSensorsMsg.l_hand.torque.x = wrench.body1Torque.x;
+      forceTorqueSensorsMsg.l_hand.torque.y = wrench.body1Torque.y;
+      forceTorqueSensorsMsg.l_hand.torque.z = wrench.body1Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
       this->fromRobot.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
@@ -856,13 +909,21 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
-      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(i0);
+      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(0u);
       this->atlasState.r_hand.force.x = wrench.body1Force.x;
       this->atlasState.r_hand.force.y = wrench.body1Force.y;
       this->atlasState.r_hand.force.z = wrench.body1Force.z;
       this->atlasState.r_hand.torque.x = wrench.body1Torque.x;
       this->atlasState.r_hand.torque.y = wrench.body1Torque.y;
       this->atlasState.r_hand.torque.z = wrench.body1Torque.z;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.r_hand.force.x = wrench.body1Force.x;
+      forceTorqueSensorsMsg.r_hand.force.y = wrench.body1Force.y;
+      forceTorqueSensorsMsg.r_hand.force.z = wrench.body1Force.z;
+      forceTorqueSensorsMsg.r_hand.torque.x = wrench.body1Torque.x;
+      forceTorqueSensorsMsg.r_hand.torque.y = wrench.body1Torque.y;
+      forceTorqueSensorsMsg.r_hand.torque.z = wrench.body1Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
       this->fromRobot.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
@@ -872,6 +933,8 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
       this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
     }
+    // publish separate /atlas/force_torque_sensors topic, to be deprecated
+    this->pubForceTorqueSensors.publish(forceTorqueSensorsMsg);
 
     // populate atlasState from robot
     // populate jointStates from robot both for atlas_states

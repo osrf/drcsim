@@ -54,7 +54,6 @@
 #include <gazebo/sensors/Sensor.hh>
 
 #include <atlas_msgs/ResetControls.h>
-#include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
 #include <sensor_msgs/JointState.h>
 #include <osrf_msgs/JointCommands.h>
@@ -133,8 +132,12 @@ namespace gazebo
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
-    private: physics::LinkPtr imuLink;
     private: common::Time lastImuTime;
+    // publish separate /atlas/imu topic, to be deprecated
+    private: ros::Publisher pubImu;
+
+    /// \brief ros publisher for force torque sensors
+    private: ros::Publisher pubForceTorqueSensors;
 
     // AtlasSimInterface: internal debugging only
     // Pelvis position and velocity
