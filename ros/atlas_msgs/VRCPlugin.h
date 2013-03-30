@@ -400,7 +400,7 @@ namespace gazebo
 
         this->pubAtlasCommand =
           this->rosNode->advertise<atlas_msgs::AtlasCommand>(
-          "/atlas/joint_commands", 1, true);
+          "/atlas/atlas_command", 1, true);
 
         ros::SubscribeOptions jointStatesSo =
           ros::SubscribeOptions::create<sensor_msgs::JointState>(
