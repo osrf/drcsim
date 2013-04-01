@@ -20,12 +20,12 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
-#include "gazebo/common/PID.hh"
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
+#include <gazebo/common/PID.hh>
 
 namespace gazebo
 {
@@ -224,10 +224,9 @@ namespace gazebo
     public: void Init();
 
     private: double GetGasTorqueMultiplier();
-    private: double Saturate(double _data, double _min, double _max);
     private: double get_collision_radius(physics::CollisionPtr _collision);
     private: math::Vector3 get_collision_position(physics::LinkPtr _link,
-                                                  unsigned int id);
+                                                  unsigned int _id);
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
@@ -239,6 +238,13 @@ namespace gazebo
     private: physics::JointPtr brWheelJoint;
     private: physics::JointPtr flWheelSteeringJoint;
     private: physics::JointPtr frWheelSteeringJoint;
+
+    /// \brief The gas/brake pedals and handbrake apply torque to the wheels
+    ///        based on their joint position as a percentage of the total
+    ///        range of travel. The constant jointDeadbandPercent adds a small
+    ///        deadband between the actual joint limits and the 0% and 100%
+    ///        values reported by Get[GasPedal|BrakePedal|HandBrake]Percent()
+    private: const double jointDeadbandPercent;
 
     private: double frontTorque;
     private: double backTorque;

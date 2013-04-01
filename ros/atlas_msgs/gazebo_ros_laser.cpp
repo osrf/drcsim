@@ -157,6 +157,8 @@ void GazeboRosLaser::LoadThread()
 {
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
+  this->pmq.startServiceThread();
+
   // resolve tf prefix
   std::string prefix;
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
@@ -171,6 +173,7 @@ void GazeboRosLaser::LoadThread()
       boost::bind(&GazeboRosLaser::LaserDisconnect, this),
       ros::VoidPtr(), &this->laser_queue_);
     this->pub_ = this->rosnode_->advertise(ao);
+    this->pub_queue_ = this->pmq.addPub<sensor_msgs::LaserScan>();
   }
 
 
@@ -308,7 +311,7 @@ void GazeboRosLaser::PutLaserData(common::Time &_updateTime)
 
     // send data out via ros message
     if (this->laser_connect_count_ > 0 && this->topic_name_ != "")
-        this->pub_.publish(this->laser_msg_);
+        this->pub_queue_->push(this->laser_msg_, this->pub_);
   }
 }
 
