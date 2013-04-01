@@ -32,6 +32,8 @@
 #include "gazebo/transport/transport.hh"
 #include "gazebo/common/common.hh"
 
+#include "PubQueue.h"
+
 namespace gazebo
 {
   class GazeboRosIMU : public ModelPlugin
@@ -58,7 +60,7 @@ namespace gazebo
     /// \brief pointer to ros node
     private: ros::NodeHandle* rosnode_;
     private: ros::Publisher pub_;
-    private: ros::Publisher deprecated_pub_;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pub_Queue;
 
     /// \brief ros message
     private: sensor_msgs::Imu imu_msg_;
@@ -114,6 +116,9 @@ namespace gazebo
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
     private: unsigned int seed;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
   };
 }
 #endif

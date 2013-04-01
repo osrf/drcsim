@@ -51,6 +51,8 @@
 #include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
 
+#include "PubQueue.h"
+
 namespace gazebo
 {
   class MultiSenseSL : public ModelPlugin
@@ -82,6 +84,7 @@ namespace gazebo
     private: std::string imuLinkName;
     private: physics::LinkPtr imuLink;
     private: ros::Publisher pubImu;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pubImuQueue;
 
     // reset of ros stuff
     private: ros::NodeHandle* rosnode_;
@@ -136,6 +139,7 @@ namespace gazebo
 
     // joint state
     private: ros::Publisher pubJointStates;
+    private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
     private: sensor_msgs::JointState jointStates;
 
     // camera control
@@ -160,6 +164,9 @@ namespace gazebo
     /// Throttle update rate
     private: double lastUpdateTime;
     private: double updateRate;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
   };
 }
 #endif

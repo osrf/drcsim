@@ -52,6 +52,8 @@
 #include <osrf_msgs/JointCommands.h>
 #include <sensor_msgs/JointState.h>
 
+#include "PubQueue.h"
+
 namespace gazebo
 {
   class SandiaHandPlugin : public ModelPlugin
@@ -95,11 +97,13 @@ namespace gazebo
     private: math::Pose leftImuReferencePose;
     private: math::Vector3 leftImuLastLinearVel;
     private: ros::Publisher pubLeftImu;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pubLeftImuQueue;
     private: std::string rightImuLinkName;
     private: physics::LinkPtr rightImuLink;
     private: math::Pose rightImuReferencePose;
     private: math::Vector3 rightImuLastLinearVel;
     private: ros::Publisher pubRightImu;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pubRightImuQueue;
 
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
@@ -110,7 +114,9 @@ namespace gazebo
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
     private: ros::Publisher pubLeftJointStates;
+    private: PubQueue<sensor_msgs::JointState>::Ptr pubLeftJointStatesQueue;
     private: ros::Publisher pubRightJointStates;
+    private: PubQueue<sensor_msgs::JointState>::Ptr pubRightJointStatesQueue;
 
     private: ros::Subscriber subJointCommands[2];
     private: void SetJointCommands(
@@ -135,6 +141,9 @@ namespace gazebo
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
   };
 /** \} */
 /// @}
