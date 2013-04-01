@@ -442,7 +442,7 @@ void AtlasPlugin::DeferredLoad()
              " ros parameter server, defaulting to %f sec.",
              this->jointCommandsAgeBufferDuration);
   }
-  double stepSize = this->world->GetPhysicsEngine()->GetStepTime();
+  double stepSize = this->world->GetPhysicsEngine()->GetMaxStepSize();
   if (math::equal(stepSize, 0.0))
   {
     stepSize = 0.001;
