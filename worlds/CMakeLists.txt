@@ -4,6 +4,7 @@ set (worlds
      atlas_sandia_hands.world
      atlas_irobot_hands.world
      atlas_drc_vehicle_fire_hose.world
+     atlas_AtlasSimInterface.world
      drc_vehicle.world
      atlas_golf_cart_fire_hose.world
      golf_cart.world
@@ -13,6 +14,9 @@ set (worlds
      qual_task_2.world
      qual_task_3.world
      qual_task_4.world
+     vrc_task_1.world
+     vrc_task_2.world
+     vrc_task_3.world
     )
 
 install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/worlds/)

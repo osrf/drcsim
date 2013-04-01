@@ -38,7 +38,7 @@ SandiaHandPlugin::SandiaHandPlugin()
 // Destructor
 SandiaHandPlugin::~SandiaHandPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -232,6 +232,9 @@ void SandiaHandPlugin::DeferredLoad()
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // pull down controller parameters; they should be on the param server by now
   const int NUM_SIDES = 2, NUM_FINGERS = 4, NUM_FINGER_JOINTS = 3;
   const char *sides[NUM_SIDES] = {"left", "right"};
@@ -274,8 +277,10 @@ void SandiaHandPlugin::DeferredLoad()
 
   // ros publication / subscription
   /// brief broadcasts the robot states
+  this->pubLeftJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubLeftJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/l_hand/joint_states", 10);
+  this->pubRightJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubRightJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/r_hand/joint_states", 10);
 
@@ -294,9 +299,11 @@ void SandiaHandPlugin::DeferredLoad()
   this->subJointCommands[1] = this->rosNode->subscribe(jointCommandsSo);
 
   // publish imu data
+  this->pubLeftImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubLeftImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/l_hand/imu", 10);
+  this->pubRightImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubRightImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/r_hand/imu", 10);
@@ -309,7 +316,7 @@ void SandiaHandPlugin::DeferredLoad()
   this->callbackQueeuThread = boost::thread(
     boost::bind(&SandiaHandPlugin::RosQueueThread, this));
 
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&SandiaHandPlugin::UpdateStates, this));
 }
 
@@ -371,7 +378,7 @@ void SandiaHandPlugin::UpdateStates()
           leftImuMsg.orientation.w = leftImuRot.w;
         }
 
-        this->pubLeftImu.publish(leftImuMsg);
+        this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
       }
 
       if (this->rightImuLink)
@@ -421,7 +428,7 @@ void SandiaHandPlugin::UpdateStates()
           rightImuMsg.orientation.w = rightImuRot.w;
         }
 
-        this->pubRightImu.publish(rightImuMsg);
+        this->pubRightImuQueue->push(rightImuMsg, this->pubRightImu);
       }
 
       // update time
@@ -433,13 +440,15 @@ void SandiaHandPlugin::UpdateStates()
     this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
+      // The following is added to fix compiler warnings.
+      unsigned int i0 = 0;
       if (i < this->joints.size() / 2)
       {
         this->leftJointStates.position[i] =
           this->joints[i]->GetAngle(0).Radian();
         this->leftJointStates.velocity[i] = this->joints[i]->GetVelocity(0);
         // better to use GetForceTorque dot joint axis
-        this->leftJointStates.effort[i] = this->joints[i]->GetForce(0);
+        this->leftJointStates.effort[i] = this->joints[i]->GetForce(i0);
       }
       else
       {
@@ -447,11 +456,13 @@ void SandiaHandPlugin::UpdateStates()
         this->rightJointStates.position[j] =
           this->joints[i]->GetAngle(0).Radian();
         this->rightJointStates.velocity[j] = this->joints[i]->GetVelocity(0);
-        this->rightJointStates.effort[j] = this->joints[i]->GetForce(0);
+        this->rightJointStates.effort[j] = this->joints[i]->GetForce(i0);
       }
     }
-    this->pubLeftJointStates.publish(this->leftJointStates);
-    this->pubRightJointStates.publish(this->rightJointStates);
+    this->pubLeftJointStatesQueue->push(this->leftJointStates,
+      this->pubLeftJointStates);
+    this->pubRightJointStatesQueue->push(this->rightJointStates,
+      this->pubRightJointStates);
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 

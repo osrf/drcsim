@@ -113,6 +113,8 @@
 #include "gazebo/transport/Node.hh"
 // #include "msgs/MessageTypes.hh"  // implicitly included from CommonTypes.hh
 
+#include "PubQueue.h"
+
 namespace gazebo
 {
 class GazeboRosApiPlugin : public SystemPlugin
@@ -295,8 +297,12 @@ class GazeboRosApiPlugin : public SystemPlugin
     ros::ServiceServer clear_body_wrenches_service_;
     ros::Subscriber    set_link_state_topic_;
     ros::Subscriber    set_model_state_topic_;
+#ifdef GAZEBO_MSGS
     ros::Publisher     pub_link_states_;
+    PubQueue<gazebo_msgs::LinkStates>::Ptr pub_link_states_queue_;
     ros::Publisher     pub_model_states_;
+    PubQueue<gazebo_msgs::ModelStates>::Ptr pub_model_states_queue_;
+#endif
     int                pub_link_states_connection_count_;
     int                pub_model_states_connection_count_;
 
@@ -320,6 +326,7 @@ class GazeboRosApiPlugin : public SystemPlugin
     void OnResponse(ConstResponsePtr &_response);
 
     ros::Publisher     pub_clock_;
+    PubQueue<rosgraph_msgs::Clock>::Ptr pub_clock_queue_;
 
     /// \brief A mutex to lock access to fields that are used in
     /// ROS message callbacks
@@ -412,6 +419,9 @@ class GazeboRosApiPlugin : public SystemPlugin
     bool spawnAndConfirm(TiXmlDocument &gazebo_model_xml,
       std::string model_name, gazebo_msgs::SpawnModel::Response &res);
 #endif
+
+    /// \brief ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
 };
 }
 #endif

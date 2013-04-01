@@ -15,11 +15,12 @@
  *
 */
 
-#include "sensor_msgs/Imu.h"
+#include <gazebo/physics/PhysicsTypes.hh>
+#include <gazebo/rendering/Camera.hh>
+#include <sensor_msgs/Imu.h>
 
 #include "MultiSenseSLPlugin.h"
 
-#include "gazebo/physics/PhysicsTypes.hh"
 
 namespace gazebo
 {
@@ -35,16 +36,19 @@ MultiSenseSL::MultiSenseSL()
   this->spindleSpeed = 0;
   this->spindleMaxRPM = 50.0;
   this->spindleMinRPM = 0;
-  this->multiCameraFrameRate = 25.0;
   this->multiCameraExposureTime = 0.001;
   this->multiCameraGain = 1.0;
+  // the parent link of the head_imu_sensor ends up being head after
+  // fixed joint reduction.  Offset of the imu_link is lumped into
+  // the <pose> tag in the imu_sensor block.
   this->imuLinkName = "head";
+  this->imagerMode = 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 MultiSenseSL::~MultiSenseSL()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->rosnode_->shutdown();
   this->queue_.clear();
   this->queue_.disable();
@@ -63,18 +67,20 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->lastTime = this->world->GetSimTime();
 
-  // initialize imu
-  this->lastImuTime = this->world->GetSimTime();
-
   // Get imu link
   this->imuLink = this->atlasModel->GetLink(this->imuLinkName);
   if (!this->imuLink)
     gzerr << this->imuLinkName << " not found\n";
 
-  // initialize imu reference pose
-  this->imuReferencePose = this->imuLink->GetWorldPose();
-  this->imuLastLinearVel = imuReferencePose.rot.RotateVector(
-    this->imuLink->GetWorldLinearVel());
+  // Get sensors
+  this->imuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->atlasModel->GetScopedName()
+        + "::head::"
+        "head_imu_sensor"));
+  if (!this->imuSensor)
+    gzerr << "head_imu_sensor not found\n" << "\n";
 
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
   this->spindleLink = this->atlasModel->GetLink("atlas::hokuyo_link");
@@ -108,6 +114,9 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->multiCameraSensor)
     gzerr << "multicamera sensor not found\n";
 
+  // get default frame rate
+  this->multiCameraFrameRate = this->multiCameraSensor->GetUpdateRate();
+
   this->laserSensor =
     boost::shared_dynamic_cast<sensors::RaySensor>(
     sensors::SensorManager::Instance()->GetSensor("head_hokuyo_sensor"));
@@ -132,11 +141,16 @@ void MultiSenseSL::LoadThread()
   // create ros node
   this->rosnode_ = new ros::NodeHandle("");
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // ros publication
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
     "multisense_sl/joint_states", 10);
 
   // publish imu data
+  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubImu =
     this->rosnode_->advertise<sensor_msgs::Imu>(
       "multisense_sl/imu", 10);
@@ -152,6 +166,28 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
+  ros::SubscribeOptions set_multi_camera_frame_rate_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/fps", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraFrameRate), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_frame_rate_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
+
+  /* FIXME currently this causes simulation to crash,
+  ros::SubscribeOptions set_multi_camera_resolution_so =
+    ros::SubscribeOptions::create<std_msgs::Int32>(
+    "multisense_sl/set_camera_resolution_mode", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Int32::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraResolution), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_resolution_sub_ =
+    this->rosnode_->subscribe(set_multi_camera_resolution_so);
+  */
+
   /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
@@ -162,16 +198,6 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_spindle_state_sub_ =
     this->rosnode_->subscribe(set_spindle_state_so);
-
-  ros::SubscribeOptions set_multi_camera_frame_rate_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_camera_frame_rate", 100,
-    boost::bind( static_cast<void (MultiSenseSL::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &MultiSenseSL::SetMultiCameraFrameRate),this,_1),
-    ros::VoidPtr(), &this->queue_);
-  this->set_multi_camera_frame_rate_sub_ =
-    this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
 
   ros::SubscribeOptions set_multi_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -224,7 +250,7 @@ void MultiSenseSL::LoadThread()
   this->callback_queue_thread_ = boost::thread(
     boost::bind(&MultiSenseSL::QueueThread, this));
 
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&MultiSenseSL::UpdateStates, this));
 }
 
@@ -233,61 +259,40 @@ void MultiSenseSL::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
 
-  if (curTime > this->lastImuTime)
+  // get imu data from imu link
+  if (this->imuSensor)
   {
-    // get imu data from imu link
-    if (this->imuLink && curTime > this->lastImuTime)
+    sensor_msgs::Imu imuMsg;
+    imuMsg.header.frame_id = this->imuLinkName;
+    imuMsg.header.stamp = ros::Time(curTime.Double());
+
+    // compute angular rates
     {
-      // Get imuLnk Pose/Orientation
-      math::Pose imuPose = this->imuLink->GetWorldPose();
-      math::Vector3 imuLinearVel = imuPose.rot.RotateVector(
-        this->imuLink->GetWorldLinearVel());
-
-      sensor_msgs::Imu imuMsg;
-      imuMsg.header.frame_id = this->imuLinkName;
-      imuMsg.header.stamp = ros::Time(curTime.Double());
-
-      // compute angular rates
-      {
-        // get world twist and convert to local frame
-        math::Vector3 wLocal = imuPose.rot.RotateVector(
-          this->imuLink->GetWorldAngularVel());
-        imuMsg.angular_velocity.x = wLocal.x;
-        imuMsg.angular_velocity.y = wLocal.y;
-        imuMsg.angular_velocity.z = wLocal.z;
-      }
-
-      // compute acceleration
-      {
-        math::Vector3 accel = imuLinearVel - this->imuLastLinearVel;
-        double imuDdx = accel.x;
-        double imuDdy = accel.y;
-        double imuDdz = accel.z;
-
-        imuMsg.linear_acceleration.x = imuDdx;
-        imuMsg.linear_acceleration.y = imuDdy;
-        imuMsg.linear_acceleration.z = imuDdz;
-
-        this->imuLastLinearVel = imuLinearVel;
-      }
-
-      // compute orientation
-      {
-        // Get IMU rotation relative to Initial IMU Reference Pose
-        math::Quaternion imuRot =
-          imuPose.rot * this->imuReferencePose.rot.GetInverse();
-
-        imuMsg.orientation.x = imuRot.x;
-        imuMsg.orientation.y = imuRot.y;
-        imuMsg.orientation.z = imuRot.z;
-        imuMsg.orientation.w = imuRot.w;
-      }
-
-      this->pubImu.publish(imuMsg);
-
-      // update time
-      this->lastImuTime = curTime.Double();
+      math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
+      imuMsg.angular_velocity.x = wLocal.x;
+      imuMsg.angular_velocity.y = wLocal.y;
+      imuMsg.angular_velocity.z = wLocal.z;
     }
+
+    // compute acceleration
+    {
+      math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
+      imuMsg.linear_acceleration.x = accel.x;
+      imuMsg.linear_acceleration.y = accel.y;
+      imuMsg.linear_acceleration.z = accel.z;
+    }
+
+    // compute orientation
+    {
+      math::Quaternion imuRot =
+        this->imuSensor->GetOrientation();
+      imuMsg.orientation.x = imuRot.x;
+      imuMsg.orientation.y = imuRot.y;
+      imuMsg.orientation.z = imuRot.z;
+      imuMsg.orientation.w = imuRot.w;
+    }
+
+    this->pubImuQueue->push(imuMsg, this->pubImu);
   }
 
   double dt = (curTime - this->lastTime).Double();
@@ -315,7 +320,7 @@ void MultiSenseSL::UpdateStates()
     {
       this->spindlePID.Reset();
     }
-    this->pubJointStates.publish(this->jointStates);
+    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   }
 }
 
@@ -364,8 +369,125 @@ void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
+  // limit frame rate to what is capable
   this->multiCameraFrameRate = static_cast<double>(_msg->data);
+
+  // FIXME: Hardcoded lower limit on all resolution
+  if (this->multiCameraFrameRate < 1.0)
+  {
+    ROS_INFO("Camera rate cannot be below 1Hz at any resolution\n");
+    this->multiCameraFrameRate = 1.0;
+  }
+
+  // FIXME: Hardcoded upper limit.  Need to switch rates between modes.
+  if (this->imagerMode == 0)
+  {
+    if (this->multiCameraFrameRate > 15.0)
+    {
+      ROS_INFO("Camera rate cannot be above 15Hz at this resolution\n");
+      this->multiCameraFrameRate = 15.0;
+    }
+  }
+  else if (this->imagerMode == 1)
+  {
+    if (this->multiCameraFrameRate > 30.0)
+    {
+      ROS_INFO("Camera rate cannot be above 30Hz at this resolution\n");
+      this->multiCameraFrameRate = 30.0;
+    }
+  }
+  else if (this->imagerMode == 2)
+  {
+    if (this->multiCameraFrameRate > 60.0)
+    {
+      ROS_INFO("Camera rate cannot be above 60Hz at this resolution\n");
+      this->multiCameraFrameRate = 60.0;
+    }
+  }
+  else if (this->imagerMode == 3)
+  {
+    if (this->multiCameraFrameRate > 70.0)
+    {
+      ROS_INFO("Camera rate cannot be above 70Hz at this resolution\n");
+      this->multiCameraFrameRate = 70.0;
+    }
+  }
+  else
+  {
+    ROS_ERROR("MultiSense SL internal state error (%d)", this->imagerMode);
+  }
+
   this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void MultiSenseSL::SetMultiCameraResolution(
+  const std_msgs::Int32::ConstPtr &_msg)
+{
+  /// see MultiSenseSLPlugin.h for available modes
+  if (_msg->data < 0 || _msg->data > 3)
+  {
+    ROS_WARN("/multisense_sl/set_camera_resolution_mode must"
+              " be between 0 - 3:\n"
+              "  0 - 2MP (2048*1088) @ up to 15 fps\n"
+              "  1 - 1MP (2048*544) @ up to 30 fps\n"
+              "  2 - 0.5MP (1024*544) @ up to 60 fps (default)\n"
+              "  3 - VGA (640*480) @ up to 70 fps\n");
+    return;
+  }
+
+  this->imagerMode = _msg->data;
+
+  unsigned int width = 640;
+  unsigned int height = 480;
+  if (this->imagerMode == 0)
+  {
+    width = 2048;
+    height = 1088;
+    if (this->multiCameraFrameRate > 15)
+    {
+      ROS_INFO("Reducing frame rate to 15Hz.");
+      this->multiCameraFrameRate = 15.0;
+    }
+  }
+  else if (this->imagerMode == 1)
+  {
+    width = 2048;
+    height = 544;
+    if (this->multiCameraFrameRate > 30)
+    {
+      ROS_INFO("Reducing frame rate to 30Hz.");
+      this->multiCameraFrameRate = 30.0;
+    }
+  }
+  else if (this->imagerMode == 2)
+  {
+    width = 1024;
+    height = 544;
+    if (this->multiCameraFrameRate > 60)
+    {
+      ROS_INFO("Reducing frame rate to 60Hz.");
+      this->multiCameraFrameRate = 60.0;
+    }
+  }
+  else if (this->imagerMode == 3)
+  {
+    width = 640;
+    height = 480;
+    if (this->multiCameraFrameRate > 70)
+    {
+      ROS_INFO("Reducing frame rate to 70Hz.");
+      this->multiCameraFrameRate = 70.0;
+    }
+  }
+
+  this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
+
+  for (unsigned int i = 0; i < this->multiCameraSensor->GetCameraCount(); ++i)
+  {
+    this->multiCameraSensor->GetCamera(i)->SetImageWidth(width);
+    this->multiCameraSensor->GetCamera(i)->SetImageHeight(height);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

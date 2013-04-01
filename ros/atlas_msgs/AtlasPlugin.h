@@ -36,6 +36,9 @@
 
 #include <boost/thread.hpp>
 
+// AtlasSimInterface: header
+#include "AtlasSimInterface.h"
+
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/physics/PhysicsTypes.hh>
@@ -51,9 +54,15 @@
 #include <gazebo/sensors/Sensor.hh>
 
 #include <osrf_msgs/JointCommands.h>
+#include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ForceTorqueSensors.h>
 #include <atlas_msgs/ControllerStatistics.h>
+#include <atlas_msgs/AtlasState.h>
 #include <sensor_msgs/JointState.h>
+
+#include <atlas_msgs/Test.h>
+
+#include "PubQueue.h"
 
 namespace gazebo
 {
@@ -82,6 +91,12 @@ namespace gazebo
     /// \brief ROS callback queue thread
     private: void RosQueueThread();
 
+    /// \brief ros service callback to reset joint control internal states
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool ResetControls(atlas_msgs::ResetControls::Request &_req,
+      atlas_msgs::ResetControls::Response &_res);
+
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
     private: void DeferredLoad();
@@ -96,13 +111,15 @@ namespace gazebo
 
     /// Throttle update rate
     private: common::Time lastControllerStatisticsTime;
-    private: double updateRate;
+    private: double statsUpdateRate;
 
     // Contact sensors
     private: sensors::ContactSensorPtr lFootContactSensor;
     private: sensors::ContactSensorPtr rFootContactSensor;
     private: ros::Publisher pubLFootContact;
+    private: PubQueue<geometry_msgs::Wrench>::Ptr pubLFootContactQueue;
     private: ros::Publisher pubRFootContact;
+    private: PubQueue<geometry_msgs::Wrench>::Ptr pubRFootContactQueue;
 
     // Force torque sensors at ankles
     private: physics::JointPtr rAnkleJoint;
@@ -112,45 +129,91 @@ namespace gazebo
     private: physics::JointPtr rWristJoint;
     private: physics::JointPtr lWristJoint;
 
-    private: atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
+    /// \brief A combined JointStates, IMU and ForceTorqueSensors Message
+    /// for accessing all these states synchronously.
+    private: atlas_msgs::AtlasState atlasState;
 
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
-    private: math::Pose imuOffsetPose;
     private: physics::LinkPtr imuLink;
-    private: common::Time lastImuTime;
-    private: math::Pose imuReferencePose;
-    private: math::Vector3 imuLastLinearVel;
     private: ros::Publisher pubImu;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pubImuQueue;
+    private: common::Time lastImuTime;
+
+    // AtlasSimInterface: internal debugging only
+    // Pelvis position and velocity
+    private: std::string pelvisLinkName;
+    private: physics::LinkPtr pelvisLink;
 
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
-    // ROS stuff
+    // ROS internal stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
+
+    /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
+    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr pubControllerStatisticsQueue;
+
+    /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
+    private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
+
+    /// \brief ros publisher for force torque sensors
     private: ros::Publisher pubForceTorqueSensors;
-    private: math::Vector3 lFootForce;
-    private: math::Vector3 lFootTorque;
-    private: math::Vector3 rFootForce;
-    private: math::Vector3 rFootTorque;
+    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr pubForceTorqueSensorsQueue;
+
+    /// \brief ros publisher for atlas states, currently it contains
+    /// joint index enums
+    /// sensor_msgs::JointState
+    /// sensor_msgs::Imu
+    /// atlas_msgs::FroceTorqueSensors
+    private: ros::Publisher pubAtlasState;
+    private: PubQueue<atlas_msgs::AtlasState>::Ptr pubAtlasStateQueue;
 
     private: ros::Subscriber subJointCommands;
+
+    /// \brief ros topic callback to update Joint Commands
+    /// \param[in] _msg Incoming ros message
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
+    /// \brief ros topic callback to update Joint Commands
+    /// \param[in] _msg Incoming ros message
+    private: void UpdateJointCommands(
+      const osrf_msgs::JointCommands &_msg);
+
+    private: void LoadPIDGainsFromParameter();
+    private: void ZeroJointCommands();
+
     private: std::vector<std::string> jointNames;
+
+    // JointController: pointer to a copy of the joint controller in gazebo
+    private: physics::JointControllerPtr jointController;
+    private: transport::NodePtr node;
+    private: transport::PublisherPtr jointCmdPub;
+
+    // AtlasSimInterface:
+    private: AtlasControlDataToRobot toRobot;
+    private: AtlasControlDataFromRobot fromRobot;
+    private: AtlasErrorCode errorCode;
+    private: AtlasSimInterface* atlasSimInterface;
+
+    /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
+    private: std::vector<double> effortLimit;
+
+    /// \brief internal class for keeping track of PID states
     private: class ErrorTerms
       {
+        /// error term contributions to final control output
         double q_p;
         double d_q_p_dt;
-        double q_i;
+        double k_i_q_i;  // integral term weighted by k_i
         double qd_p;
         friend class AtlasPlugin;
       };
@@ -160,7 +223,23 @@ namespace gazebo
     private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
 
-    // Controls stuff
+    /// \brief ros service to reset controls internal states
+    private: ros::ServiceServer resetControlsService;
+
+    // AtlasSimInterface:  Controls ros interface
+    private: ros::Subscriber subAtlasControlMode;
+
+    /// \brief AtlasSimInterface:
+    /// subscribe to a control_mode string message, current valid commands are:
+    ///   walk, stand, safety, stand-prep, none
+    /// the command is passed to the AtlasSimInterface library.
+    /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
+    private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
+
+    /// \brief internal variable for keeping state of the BDI walking controller
+    private: bool usingWalkingController;
+
+    /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
 
     // controls message age measure
@@ -172,6 +251,13 @@ namespace gazebo
     private: double jointCommandsAgeMean;
     private: double jointCommandsAgeVariance;
     private: double jointCommandsAge;
+
+    private: void SetExperimentalDampingPID(
+      const atlas_msgs::Test::ConstPtr &_msg);
+    private: ros::Subscriber subTest;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
   };
 }
 #endif
