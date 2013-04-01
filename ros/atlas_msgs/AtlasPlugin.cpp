@@ -726,68 +726,68 @@ void AtlasPlugin::UpdateStates()
     if (this->lAnkleJoint)
     {
       physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->l_foot.force.z = wrench.body1Force.z;
-      forceTorqueSensorsMsg->l_foot.torque.x = wrench.body1Torque.x;
-      forceTorqueSensorsMsg->l_foot.torque.y = wrench.body1Torque.y;
+      forceTorqueSensorsMsg->l_foot.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg->l_foot.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg->l_foot.torque.y = wrench.body2Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[0].fz = wrench.body1Force.z;
-      this->fromRobot.foot_sensors[0].mx = wrench.body1Torque.x;
-      this->fromRobot.foot_sensors[0].my = wrench.body1Torque.y;
+      this->fromRobot.foot_sensors[0].fz = wrench.body2Force.z;
+      this->fromRobot.foot_sensors[0].mx = wrench.body2Torque.x;
+      this->fromRobot.foot_sensors[0].my = wrench.body2Torque.y;
     }
 
     // get force torque at right ankle and publish
     if (this->rAnkleJoint)
     {
       physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->r_foot.force.z = wrench.body1Force.z;
-      forceTorqueSensorsMsg->r_foot.torque.x = wrench.body1Torque.x;
-      forceTorqueSensorsMsg->r_foot.torque.y = wrench.body1Torque.y;
+      forceTorqueSensorsMsg->r_foot.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg->r_foot.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg->r_foot.torque.y = wrench.body2Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[1].fz = wrench.body1Force.z;
-      this->fromRobot.foot_sensors[1].mx = wrench.body1Torque.x;
-      this->fromRobot.foot_sensors[1].my = wrench.body1Torque.y;
+      this->fromRobot.foot_sensors[1].fz = wrench.body2Force.z;
+      this->fromRobot.foot_sensors[1].mx = wrench.body2Torque.x;
+      this->fromRobot.foot_sensors[1].my = wrench.body2Torque.y;
     }
 
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
       physics::JointWrench wrench = this->lWristJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->l_hand.force.x = wrench.body1Force.x;
-      forceTorqueSensorsMsg->l_hand.force.y = wrench.body1Force.y;
-      forceTorqueSensorsMsg->l_hand.force.z = wrench.body1Force.z;
-      forceTorqueSensorsMsg->l_hand.torque.x = wrench.body1Torque.x;
-      forceTorqueSensorsMsg->l_hand.torque.y = wrench.body1Torque.y;
-      forceTorqueSensorsMsg->l_hand.torque.z = wrench.body1Torque.z;
+      forceTorqueSensorsMsg->l_hand.force.x = wrench.body2Force.x;
+      forceTorqueSensorsMsg->l_hand.force.y = wrench.body2Force.y;
+      forceTorqueSensorsMsg->l_hand.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg->l_hand.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg->l_hand.torque.y = wrench.body2Torque.y;
+      forceTorqueSensorsMsg->l_hand.torque.z = wrench.body2Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
-      this->fromRobot.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
-      this->fromRobot.wrist_sensors[0].f.n[1] = wrench.body1Force.y;
-      this->fromRobot.wrist_sensors[0].f.n[2] = wrench.body1Force.z;
-      this->fromRobot.wrist_sensors[0].m.n[0] = wrench.body1Torque.x;
-      this->fromRobot.wrist_sensors[0].m.n[1] = wrench.body1Torque.y;
-      this->fromRobot.wrist_sensors[0].m.n[2] = wrench.body1Torque.z;
+      this->fromRobot.wrist_sensors[0].f.n[0] = wrench.body2Force.x;
+      this->fromRobot.wrist_sensors[0].f.n[1] = wrench.body2Force.y;
+      this->fromRobot.wrist_sensors[0].f.n[2] = wrench.body2Force.z;
+      this->fromRobot.wrist_sensors[0].m.n[0] = wrench.body2Torque.x;
+      this->fromRobot.wrist_sensors[0].m.n[1] = wrench.body2Torque.y;
+      this->fromRobot.wrist_sensors[0].m.n[2] = wrench.body2Torque.z;
     }
 
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
       physics::JointWrench wrench = this->rWristJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->r_hand.force.x = wrench.body1Force.x;
-      forceTorqueSensorsMsg->r_hand.force.y = wrench.body1Force.y;
-      forceTorqueSensorsMsg->r_hand.force.z = wrench.body1Force.z;
-      forceTorqueSensorsMsg->r_hand.torque.x = wrench.body1Torque.x;
-      forceTorqueSensorsMsg->r_hand.torque.y = wrench.body1Torque.y;
-      forceTorqueSensorsMsg->r_hand.torque.z = wrench.body1Torque.z;
+      forceTorqueSensorsMsg->r_hand.force.x = wrench.body2Force.x;
+      forceTorqueSensorsMsg->r_hand.force.y = wrench.body2Force.y;
+      forceTorqueSensorsMsg->r_hand.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg->r_hand.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg->r_hand.torque.y = wrench.body2Torque.y;
+      forceTorqueSensorsMsg->r_hand.torque.z = wrench.body2Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
-      this->fromRobot.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
-      this->fromRobot.wrist_sensors[1].f.n[1] = wrench.body1Force.y;
-      this->fromRobot.wrist_sensors[1].f.n[2] = wrench.body1Force.z;
-      this->fromRobot.wrist_sensors[1].m.n[0] = wrench.body1Torque.x;
-      this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
-      this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
+      this->fromRobot.wrist_sensors[1].f.n[0] = wrench.body2Force.x;
+      this->fromRobot.wrist_sensors[1].f.n[1] = wrench.body2Force.y;
+      this->fromRobot.wrist_sensors[1].f.n[2] = wrench.body2Force.z;
+      this->fromRobot.wrist_sensors[1].m.n[0] = wrench.body2Torque.x;
+      this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body2Torque.y;
+      this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body2Torque.z;
     }
     this->pubForceTorqueSensors.publish(*forceTorqueSensorsMsg);
 
