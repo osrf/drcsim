@@ -35,6 +35,8 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 
+#include "PubQueue.h"
+
 namespace gazebo
 {
   class GazeboRosP3D : public ModelPlugin
@@ -64,6 +66,7 @@ namespace gazebo
     /// \brief pointer to ros node
     private: ros::NodeHandle* rosnode_;
     private: ros::Publisher pub_;
+    private: PubQueue<nav_msgs::Odometry>::Ptr pub_Queue;
 
     /// \brief ros message
     private: nav_msgs::Odometry pose_msg_;
@@ -116,6 +119,9 @@ namespace gazebo
     private: event::ConnectionPtr update_connection_;
 
     private: unsigned int seed;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
   };
 }
 #endif
