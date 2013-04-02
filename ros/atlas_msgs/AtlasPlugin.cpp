@@ -651,45 +651,47 @@ void AtlasPlugin::UpdateStates()
       imuMsg->header.frame_id = this->imuLinkName;
       imuMsg->header.stamp = ros::Time(curTime.Double());
 
+      msgs::IMU imuM = this->imuSensor->GetImuMessage();
+
       // compute angular rates
       {
-        math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
-        imuMsg->angular_velocity.x = wLocal.x;
-        imuMsg->angular_velocity.y = wLocal.y;
-        imuMsg->angular_velocity.z = wLocal.z;
+        imuMsg->angular_velocity.x = imuM.angular_velocity().x();
+        imuMsg->angular_velocity.y = imuM.angular_velocity().y();
+        imuMsg->angular_velocity.z = imuM.angular_velocity().z();
 
         // AtlasSimInterface: populate imu in fromRobot
-        this->fromRobot.imu.angular_velocity.n[0] = wLocal.x;
-        this->fromRobot.imu.angular_velocity.n[1] = wLocal.y;
-        this->fromRobot.imu.angular_velocity.n[2] = wLocal.z;
+        this->fromRobot.imu.angular_velocity.n[0] = imuM.angular_velocity().x();
+        this->fromRobot.imu.angular_velocity.n[1] = imuM.angular_velocity().y();
+        this->fromRobot.imu.angular_velocity.n[2] = imuM.angular_velocity().z();
       }
 
       // compute acceleration
       {
-        math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
-        imuMsg->linear_acceleration.x = accel.x;
-        imuMsg->linear_acceleration.y = accel.y;
-        imuMsg->linear_acceleration.z = accel.z;
+        imuMsg->linear_acceleration.x = imuM.linear_acceleration().x();
+        imuMsg->linear_acceleration.y = imuM.linear_acceleration().y();
+        imuMsg->linear_acceleration.z = imuM.linear_acceleration().z();
 
         // AtlasSimInterface: populate imu in fromRobot
-        this->fromRobot.imu.linear_acceleration.n[0] = accel.x;
-        this->fromRobot.imu.linear_acceleration.n[1] = accel.y;
-        this->fromRobot.imu.linear_acceleration.n[2] = accel.z;
+        this->fromRobot.imu.linear_acceleration.n[0] =
+          imuM.linear_acceleration().x();
+        this->fromRobot.imu.linear_acceleration.n[1] =
+          imuM.linear_acceleration().y();
+        this->fromRobot.imu.linear_acceleration.n[2] =
+          imuM.linear_acceleration().z();
       }
 
       // compute orientation
       {
-        math::Quaternion imuRot = this->imuSensor->GetOrientation();
-        imuMsg->orientation.x = imuRot.x;
-        imuMsg->orientation.y = imuRot.y;
-        imuMsg->orientation.z = imuRot.z;
-        imuMsg->orientation.w = imuRot.w;
+        imuMsg->orientation.x = imuM.orientation().x();
+        imuMsg->orientation.y = imuM.orientation().y();
+        imuMsg->orientation.z = imuM.orientation().z();
+        imuMsg->orientation.w = imuM.orientation().w();
 
         // AtlasSimInterface: populate imu in fromRobot
-        this->fromRobot.imu.orientation_estimate.m_qw = imuRot.w;
-        this->fromRobot.imu.orientation_estimate.m_qx = imuRot.x;
-        this->fromRobot.imu.orientation_estimate.m_qy = imuRot.y;
-        this->fromRobot.imu.orientation_estimate.m_qz = imuRot.z;
+        this->fromRobot.imu.orientation_estimate.m_qw = imuM.orientation().w();
+        this->fromRobot.imu.orientation_estimate.m_qx = imuM.orientation().x();
+        this->fromRobot.imu.orientation_estimate.m_qy = imuM.orientation().y();
+        this->fromRobot.imu.orientation_estimate.m_qz = imuM.orientation().z();
       }
 
       this->pubImu.publish(*imuMsg);
