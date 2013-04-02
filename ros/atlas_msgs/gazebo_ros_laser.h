@@ -39,6 +39,8 @@
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/plugins/RayPlugin.hh>
 
+#include "PubQueue.h"
+
 namespace gazebo
 {
   class GazeboRosLaser : public RayPlugin
@@ -73,6 +75,7 @@ namespace gazebo
     /// \brief pointer to ros node
     private: ros::NodeHandle* rosnode_;
     private: ros::Publisher pub_;
+    private: PubQueue<sensor_msgs::LaserScan>::Ptr pub_queue_;
 
     /// \brief ros message
     private: sensor_msgs::LaserScan laser_msg_;
@@ -112,6 +115,9 @@ namespace gazebo
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
     private: unsigned int seed;
+
+    /// \brief prevents blocking
+    private: PubMultiQueue pmq;
   };
 }
 #endif

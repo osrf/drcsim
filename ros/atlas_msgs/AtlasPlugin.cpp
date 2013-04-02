@@ -23,12 +23,6 @@
 
 #include "AtlasPlugin.h"
 
-// publish separate /atlas/imu topic, to be deprecated
-#include "sensor_msgs/Imu.h"
-
-// publish separate /atlas/force_torque_sensors topic, to be deprecated
-#include <atlas_msgs/ForceTorqueSensors.h>
-
 using std::string;
 
 namespace gazebo
@@ -517,6 +511,9 @@ void AtlasPlugin::DeferredLoad()
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // pull down controller parameters
   this->LoadPIDGainsFromParameter();
 
@@ -530,7 +527,7 @@ void AtlasPlugin::DeferredLoad()
              " ros parameter server, defaulting to %f sec.",
              this->atlasCommandAgeBufferDuration);
   }
-  double stepSize = this->world->GetPhysicsEngine()->GetStepTime();
+  double stepSize = this->world->GetPhysicsEngine()->GetMaxStepSize();
   if (math::equal(stepSize, 0.0))
   {
     stepSize = 0.001;
@@ -550,22 +547,27 @@ void AtlasPlugin::DeferredLoad()
 
   // ROS Controller API
   /// brief broadcasts the robot states
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "atlas/joint_states", 1);
 
+  this->pubAtlasStateQueue = this->pmq.addPub<atlas_msgs::AtlasState>();
   this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
     "atlas/atlas_state", 1);
 
   // publish separate /atlas/imu topic, to be deprecated
   this->pubImu =
     this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
+  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
 
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
+  this->pubForceTorqueSensorsQueue = this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
 
   // ros publication / subscription
+  this->pubControllerStatisticsQueue = this->pmq.addPub<atlas_msgs::ControllerStatistics>();
   this->pubControllerStatistics =
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10);
@@ -575,10 +577,14 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<geometry_msgs::Wrench>(
       "atlas/debug/l_foot_contact", 10);
 
+  this->pubLFootContactQueue = this->pmq.addPub<geometry_msgs::Wrench>();
+
   // these topics are used for debugging only
   this->pubRFootContact =
     this->rosNode->advertise<geometry_msgs::Wrench>(
       "atlas/debug/r_foot_contact", 10);
+
+  this->pubRFootContactQueue = this->pmq.addPub<geometry_msgs::Wrench>();
 
   // ros topic subscribtions
   ros::SubscribeOptions atlasCommandSo =
@@ -813,7 +819,7 @@ void AtlasPlugin::UpdateStates()
       }
 
       // publish separate /atlas/imu topic, to be deprecated
-      this->pubImu.publish(imuMsg);
+      this->pubImuQueue->push(imuMsg, this->pubImu);
 
       // update time
       this->lastImuTime = curTime.Double();
@@ -934,10 +940,9 @@ void AtlasPlugin::UpdateStates()
       this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
     }
     // publish separate /atlas/force_torque_sensors topic, to be deprecated
-    this->pubForceTorqueSensors.publish(forceTorqueSensorsMsg);
+    this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg, this->pubForceTorqueSensors);
 
     // populate atlasState from robot
-    // populate jointStates from robot both for atlas_states
     this->atlasState.header.stamp = ros::Time(curTime.sec, curTime.nsec);
     this->jointStates.header.stamp = this->atlasState.header.stamp;
 
@@ -1080,8 +1085,8 @@ void AtlasPlugin::UpdateStates()
     }
     this->lastControllerUpdateTime = curTime;
 
-    this->pubJointStates.publish(this->jointStates);
-    this->pubAtlasState.publish(this->atlasState);
+    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
+    this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
 
     /// controller statistics diagnostics, damages, etc.
     if (this->pubControllerStatistics.getNumSubscribers() > 0)
@@ -1097,7 +1102,7 @@ void AtlasPlugin::UpdateStates()
           (this->atlasCommandAgeBuffer.size() - 1);
         msg.command_age_window_size = this->atlasCommandAgeBufferDuration;
 
-        this->pubControllerStatistics.publish(msg);
+        this->pubControllerStatisticsQueue->push(msg, this->pubControllerStatistics);
         this->lastControllerStatisticsTime = curTime;
       }
     }
@@ -1157,7 +1162,7 @@ void AtlasPlugin::OnLContactUpdate()
   msg.torque.x = tTotal.x;
   msg.torque.y = tTotal.y;
   msg.torque.z = tTotal.z;
-  this->pubLFootContact.publish(msg);
+  this->pubLFootContactQueue->push(msg, this->pubLFootContact);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1218,7 +1223,7 @@ void AtlasPlugin::OnRContactUpdate()
   msg.torque.x = tTotal.x;
   msg.torque.y = tTotal.y;
   msg.torque.z = tTotal.z;
-  this->pubRFootContact.publish(msg);
+  this->pubRFootContactQueue->push(msg, this->pubRFootContact);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
