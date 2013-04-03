@@ -65,6 +65,8 @@
 #include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
+#include <atlas_msgs/AtlasSimInterface.h>
+#include <atlas_msgs/AtlasSimInterfaceState.h>
 
 #include <atlas_msgs/Test.h>
 
@@ -149,7 +151,8 @@ namespace gazebo
 
     /// \brief ros publisher for force torque sensors
     private: ros::Publisher pubForceTorqueSensors;
-    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr pubForceTorqueSensorsQueue;
+    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr
+      pubForceTorqueSensorsQueue;
 
     // AtlasSimInterface: internal debugging only
     // Pelvis position and velocity
@@ -167,7 +170,8 @@ namespace gazebo
 
     /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
-    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr pubControllerStatisticsQueue;
+    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr
+      pubControllerStatisticsQueue;
 
     /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
@@ -253,6 +257,14 @@ namespace gazebo
 
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
+
+    // AtlasSimInterface: Params for custom dynamic behaviors (walk, stand).
+    private: ros::Subscriber subBDIControlParamsMode;
+    private: void OnBDIControlParams(
+               const atlas_msgs::AtlasSimInterface::ConstPtr &_msg);
+    private: PubQueue<atlas_msgs::AtlasSimInterfaceState>::Ptr
+               pubBDIControlStateQueue;
+    private: ros::Publisher pubBDIControlState;
 
     /// \brief AtlasSimInterface:
     /// subscribe to a control_mode string message, current valid commands are:

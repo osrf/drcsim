@@ -614,13 +614,15 @@ void AtlasPlugin::DeferredLoad()
   this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
 
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
+  this->pubForceTorqueSensorsQueue =
+    this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
-  this->pubForceTorqueSensorsQueue = this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
 
   // ros publication / subscription
-  this->pubControllerStatisticsQueue = this->pmq.addPub<atlas_msgs::ControllerStatistics>();
+  this->pubControllerStatisticsQueue =
+    this->pmq.addPub<atlas_msgs::ControllerStatistics>();
   this->pubControllerStatistics =
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10);
@@ -716,6 +718,20 @@ void AtlasPlugin::DeferredLoad()
     ros::VoidPtr(), &this->rosQueue);
   this->subAtlasControlMode = this->rosNode->subscribe(atlasControlModeSo);
 
+  // AtlasSimInterface: subscribe walking controller parameters
+  ros::SubscribeOptions bdiControlParamsSo =
+    ros::SubscribeOptions::create<atlas_msgs::AtlasSimInterface>(
+    "atlas/bdi_control_params", 1,
+    boost::bind(&AtlasPlugin::OnBDIControlParams, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subBDIControlParamsMode = this->rosNode->subscribe(bdiControlParamsSo);
+  // AtlasSimInterface: publish bdi walking controller state
+  this->pubBDIControlStateQueue =
+    this->pmq.addPub<atlas_msgs::AtlasSimInterfaceState>();
+  this->pubBDIControlState =
+    this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
+    "atlas/bdi_control_state", 1);
+
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
@@ -738,6 +754,12 @@ void AtlasPlugin::DeferredLoad()
         ros::VoidPtr(), &this->rosQueue);
   this->resetControlsService = this->rosNode->advertiseService(
     resetControlsAso);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::OnBDIControlParams(
+  const atlas_msgs::AtlasSimInterface::ConstPtr &_msg)
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -807,12 +829,19 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
       }
     }
   }
-  else if (_mode->data == "none")
+  else if (_mode->data == "pid" || _mode->data == "none")
   {
     // revert to PID control
     this->LoadPIDGainsFromParameter();
     this->usingWalkingController = false;
-    this->atlasSimInterface->set_desired_behavior(_mode->data);
+    this->atlasSimInterface->set_desired_behavior("none");
+  }
+  else if (_mode->data == "ragdoll")
+  {
+    // revert to PID control
+    this->ZeroAtlasCommand();
+    this->usingWalkingController = false;
+    this->atlasSimInterface->set_desired_behavior("none");
   }
   else
   {
@@ -1068,11 +1097,51 @@ void AtlasPlugin::UpdateStates()
       this->errorCode = this->atlasSimInterface->process_control_input(
         this->fromRobot, this->toRobot);
 
+      // populate AtlasSimInterfaceState.msg and publish it
+      atlas_msgs::AtlasSimInterfaceState AtlasSimInterfaceStateMsg;
+
+      AtlasSimInterfaceStateMsg.error_code = this->errorCode;
+
+      AtlasSimInterfaceStateMsg.pelvis_position.x =
+        this->toRobot.pos_est.position.n[0];
+      AtlasSimInterfaceStateMsg.pelvis_position.y =
+        this->toRobot.pos_est.position.n[1];
+      AtlasSimInterfaceStateMsg.pelvis_position.z =
+        this->toRobot.pos_est.position.n[2];
+
+      AtlasSimInterfaceStateMsg.pelvis_velocity.x =
+        this->toRobot.pos_est.velocity.n[0];
+      AtlasSimInterfaceStateMsg.pelvis_velocity.y =
+        this->toRobot.pos_est.velocity.n[1];
+      AtlasSimInterfaceStateMsg.pelvis_velocity.z =
+        this->toRobot.pos_est.velocity.n[1];
+
+      AtlasSimInterfaceStateMsg.foot_pos_est[0].x =
+        this->toRobot.foot_pos_est[0].n[0];
+      AtlasSimInterfaceStateMsg.foot_pos_est[0].y =
+        this->toRobot.foot_pos_est[0].n[1];
+      AtlasSimInterfaceStateMsg.foot_pos_est[0].z =
+        this->toRobot.foot_pos_est[0].n[2];
+
+      AtlasSimInterfaceStateMsg.foot_pos_est[1].x =
+        this->toRobot.foot_pos_est[1].n[0];
+      AtlasSimInterfaceStateMsg.foot_pos_est[1].y =
+        this->toRobot.foot_pos_est[1].n[1];
+      AtlasSimInterfaceStateMsg.foot_pos_est[1].z =
+        this->toRobot.foot_pos_est[1].n[2];
+
+      AtlasSimInterfaceStateMsg.current_step_index =
+        this->toRobot.current_step_index;
+
+      this->pubBDIControlStateQueue->push(AtlasSimInterfaceStateMsg,
+        this->pubBDIControlState);
+
       std::string mode;
       this->errorCode = this->atlasSimInterface->get_desired_behavior(mode);
 
       if (mode == "walk")
       {
+        // Update trajectory buffer
         unsigned int currentStepIndex = this->toRobot.current_step_index + 1;
         AtlasBehaviorMultiStepWalkParams* multistep =
           &this->fromRobot.multistep_walk_params;
