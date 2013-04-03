@@ -10,7 +10,7 @@ ExternalProject_Add(atlas_msgs
                     PATCH_COMMAND true
                     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/atlas_msgs
                     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/atlas_msgs
-                    BUILD_COMMAND env ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j4
+                    BUILD_COMMAND env ROS_PARALLEL_THREADS=8 ROS_PARALLEL_JOBS="-j8" ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j8
                     CMAKE_ARGS
                       -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}
                       -DROS_ROOT=$ENV{ROS_ROOT}
@@ -32,7 +32,7 @@ ExternalProject_Add(joint_commands_gui
                     PATCH_COMMAND true
                     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/joint_commands_gui
                     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/joint_commands_gui
-                    BUILD_COMMAND env ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j4
+                    BUILD_COMMAND env ROS_PARALLEL_THREADS=8 ROS_PARALLEL_JOBS="-j8" ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j8
                     CMAKE_ARGS
                       -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}
                       -DROS_ROOT=$ENV{ROS_ROOT}
