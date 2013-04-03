@@ -58,7 +58,6 @@ rosbuild_link_boost(gazebo_ros_controller_manager thread)
 # needs roscpp, trajectory_msgs
 rosbuild_add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
 rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
-target_link_libraries(pub_joint_commands ${GAZEBO_LIBRARIES})
 
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)

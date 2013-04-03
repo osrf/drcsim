@@ -51,7 +51,7 @@ GazeboRosForce::GazeboRosForce()
 // Destructor
 GazeboRosForce::~GazeboRosForce()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
 
   // Custom Callback Queue
   this->queue.clear();
