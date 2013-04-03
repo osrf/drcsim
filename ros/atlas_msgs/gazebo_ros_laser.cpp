@@ -59,8 +59,8 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   // load plugin
   RayPlugin::Load(_parent, this->sdf);
   // Get the world name.
-  this->world_name_ = _parent->GetWorldName();
-  this->world_ = physics::get_world(this->world_name_);
+  std::string worldName = _parent->GetWorldName();
+  this->world_ = physics::get_world(worldName);
   // save pointers
   this->sdf = _sdf;
 
