@@ -718,6 +718,7 @@ void AtlasPlugin::DeferredLoad()
     ros::VoidPtr(), &this->rosQueue);
   this->subAtlasControlMode = this->rosNode->subscribe(atlasControlModeSo);
 
+  /* Topic debug
   // AtlasSimInterface: subscribe walking controller parameters
   ros::SubscribeOptions bdiControlParamsSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasSimInterface>(
@@ -731,6 +732,13 @@ void AtlasPlugin::DeferredLoad()
   this->pubBDIControlState =
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
     "atlas/bdi_control_state", 1);
+  */
+
+  // actionlib simple action server
+  this->actionServer = new ActionServer(*this->rosNode, "atlas/bdi_control",
+    boost::bind(&AtlasPlugin::ServerCallback, this, _1, this->actionServer),
+    false);
+  this->actionServer->start();
 
   // ros callback queue for processing subscription
   this->callbackQueeuThread = boost::thread(
@@ -757,10 +765,22 @@ void AtlasPlugin::DeferredLoad()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::ServerCallback(
+  const atlas_msgs::AtlasSimInterfaceGoalConstPtr& _goal,
+  ActionServer* _server)
+{
+  // actionlib simple action server
+  _server->setSucceeded();
+}
+
+
+/* Topic debug
+////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::OnBDIControlParams(
   const atlas_msgs::AtlasSimInterface::ConstPtr &_msg)
 {
 }
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
@@ -1131,8 +1151,10 @@ void AtlasPlugin::UpdateStates()
       AtlasSimInterfaceStateMsg.current_step_index =
         this->toRobot.current_step_index;
 
+      /* Topic debug
       this->pubBDIControlStateQueue->push(AtlasSimInterfaceStateMsg,
         this->pubBDIControlState);
+      */
 
       std::string mode;
       this->errorCode = this->atlasSimInterface->get_desired_behavior(mode);

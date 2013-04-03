@@ -70,10 +70,18 @@
 
 #include <atlas_msgs/Test.h>
 
+// actionlib for BDI's dynamic controller
+#include <atlas_msgs/AtlasSimInterfaceAction.h>
+#include <actionlib/server/simple_action_server.h>
+
 #include "PubQueue.h"
 
 namespace gazebo
 {
+  // actionlib simple action server
+  typedef actionlib::SimpleActionServer<atlas_msgs::AtlasSimInterfaceAction>
+    ActionServer;
+
   class AtlasPlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -258,6 +266,7 @@ namespace gazebo
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
 
+    /* Topic debug
     // AtlasSimInterface: Params for custom dynamic behaviors (walk, stand).
     private: ros::Subscriber subBDIControlParamsMode;
     private: void OnBDIControlParams(
@@ -265,6 +274,15 @@ namespace gazebo
     private: PubQueue<atlas_msgs::AtlasSimInterfaceState>::Ptr
                pubBDIControlStateQueue;
     private: ros::Publisher pubBDIControlState;
+    */
+
+    /// \brief actionlib simple action server executor callback
+    private: void ServerCallback(
+      const atlas_msgs::AtlasSimInterfaceGoalConstPtr& _goal,
+      ActionServer* _server);
+
+    /// \brief actionlib simple action server
+    private: ActionServer* actionServer;
 
     /// \brief AtlasSimInterface:
     /// subscribe to a control_mode string message, current valid commands are:
