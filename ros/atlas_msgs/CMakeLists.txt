@@ -9,6 +9,11 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 project(atlas_msgs)
 
+# generate action for AtlasSimInterface
+rosbuild_find_ros_package(actionlib_msgs)
+include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
+genaction()
+
 set(ROS_BUILD_TYPE Release)
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
@@ -87,24 +92,22 @@ rosbuild_add_library(gazebo_ros_force gazebo_ros_force.cpp)
 
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
 rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
+
+# compile AtlasPlugin with AtlasSimInterface
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
 target_link_libraries(AtlasPlugin AtlasSimInterface)
 
-
-
-
-
-message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
-message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
-add_custom_command(OUTPUT output.x
-                   COMMAND find ../..
-                   COMMAND pwd
-                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                   )
-add_custom_target(debug_output DEPENDS output.x)
-add_dependencies(AtlasPlugin debug_output)
+# message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
+# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
+# message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5")
+# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
+# add_custom_command(OUTPUT output.x
+#                    COMMAND find ../..
+#                    COMMAND pwd
+#                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#                    )
+# add_custom_target(debug_output DEPENDS output.x)
+# add_dependencies(AtlasPlugin debug_output)
 
 # needs actionlib, control_msgs
 rosbuild_add_library(VRCPlugin VRCPlugin.cpp)
