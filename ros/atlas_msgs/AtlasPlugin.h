@@ -35,6 +35,7 @@
 #include <std_msgs/String.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 // AtlasSimInterface: header
 #include "AtlasSimInterface.h"
@@ -193,6 +194,11 @@ namespace gazebo
     /// \param[in] _msg Incoming ros message
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
+
+    private: void Pause(const std_msgs::String::ConstPtr &_msg);
+    private: boost::condition pause;
+    private: ros::Subscriber subPause;
+    private: boost::mutex pauseMutex;
 
     /// \brief ros topic callback to update Joint Commands
     /// \param[in] _msg Incoming ros message

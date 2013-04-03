@@ -23,6 +23,12 @@
 
 #include "AtlasPlugin.h"
 
+// publish separate /atlas/imu topic, to be deprecated
+#include "sensor_msgs/Imu.h"
+
+// publish separate /atlas/force_torque_sensors topic, to be deprecated
+#include <atlas_msgs/ForceTorqueSensors.h>
+
 using std::string;
 
 namespace gazebo
@@ -301,7 +307,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // behavior.
   this->errorCode = this->atlasSimInterface->reset_control();
   this->errorCode = this->atlasSimInterface->set_desired_behavior("stand-prep");
-  // this->errorCode = this->atlasSimInterface->set_desired_behavior("walk");
 
   // AtlasSimInterface: Get pelvis link for internal debugging only
   this->pelvisLink = this->model->GetLink(this->pelvisLinkName);
@@ -358,6 +363,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     boost::bind(&AtlasPlugin::DeferredLoad, this));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::Pause(
+  const std_msgs::String::ConstPtr &_msg)
+{
+  boost::mutex::scoped_lock lock(this->pauseMutex);
+  this->pause.notify_one();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::SetAtlasCommand(
@@ -450,9 +462,13 @@ void AtlasPlugin::UpdateAtlasCommand(const atlas_msgs::AtlasCommand &_msg)
 void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
-  boost::mutex::scoped_lock lock(this->mutex);
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+    this->UpdateJointCommands(*_msg);
+  }
 
-  this->UpdateJointCommands(*_msg);
+  boost::mutex::scoped_lock lock(this->pauseMutex);
+  this->pause.notify_one();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -613,15 +629,24 @@ void AtlasPlugin::DeferredLoad()
   this->pubLFootContact =
     this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/l_foot_contact", 10);
-
   this->pubLFootContactQueue = this->pmq.addPub<geometry_msgs::WrenchStamped>();
 
   // these topics are used for debugging only
   this->pubRFootContact =
     this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/r_foot_contact", 10);
-
   this->pubRFootContactQueue = this->pmq.addPub<geometry_msgs::WrenchStamped>();
+
+  // ros topic subscribtions
+  ros::SubscribeOptions pauseSo =
+    ros::SubscribeOptions::create<std_msgs::String>(
+    "atlas/pause", 1,
+    boost::bind(&AtlasPlugin::Pause, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  pauseSo.transport_hints =
+    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
+  this->subPause =
+    this->rosNode->subscribe(pauseSo);
 
   // ros topic subscribtions
   ros::SubscribeOptions atlasCommandSo =
@@ -1234,6 +1259,15 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
+
+  // EXPERIMENTAL: wait for controller publication?
+  // {
+  //   boost::mutex::scoped_lock lock(this->pauseMutex);
+  //   // pause.wait(lock);
+  //   boost::system_time timeout = boost::get_system_time() +
+  //     boost::posix_time::milliseconds(0.5);
+  //   pause.timed_wait(lock, timeout);
+  // }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
