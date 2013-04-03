@@ -334,7 +334,7 @@
     </link>
     <link name="ltorso">
         <inertial>
-            <mass value="1.92" />
+            <mass value="1.62729" />
             <origin xyz="-0.0112984 -3.15366e-06 0.0746835" rpy="0 -0 0" />
             <inertia ixx="0.0646646" ixy="-5.04491e-08" ixz="-0.000342157" iyy="0.050298" iyz="4.87119e-07" izz="0.10973" />
         </inertial>
@@ -398,7 +398,7 @@
     </link>
     <link name="pelvis">
         <inertial>
-            <mass value="13.646" />
+            <mass value="12.54638" />
             <origin xyz="0.0111 0 0.0271" rpy="0 -0 0" />
             <inertia ixx="0.0327037" ixy="0.0008" ixz="-0.0007" iyy="0.0174182" iyz="-0.0005" izz="0.118059" />
         </inertial>
