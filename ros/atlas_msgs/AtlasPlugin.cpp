@@ -442,7 +442,7 @@ void AtlasPlugin::DeferredLoad()
              " ros parameter server, defaulting to %f sec.",
              this->jointCommandsAgeBufferDuration);
   }
-  double stepSize = this->world->GetPhysicsEngine()->GetStepTime();
+  double stepSize = this->world->GetPhysicsEngine()->GetMaxStepSize();
   if (math::equal(stepSize, 0.0))
   {
     stepSize = 0.001;
@@ -486,14 +486,14 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/l_foot_contact", 10);
 
-  this->pubLFootContactQueue = this->pmq.addPub<geometry_msgs::Wrench>();
+  this->pubLFootContactQueue = this->pmq.addPub<geometry_msgs::WrenchStamped>();
 
   // these topics are used for debugging only
   this->pubRFootContact =
-    this->rosNode->advertise<geometry_msgs::Wrench>(
+    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
       "atlas/debug/r_foot_contact", 10);
 
-  this->pubRFootContactQueue = this->pmq.addPub<geometry_msgs::Wrench>();
+  this->pubRFootContactQueue = this->pmq.addPub<geometry_msgs::WrenchStamped>();
 
   // ros topic subscribtions
   ros::SubscribeOptions jointCommandsSo =
@@ -1051,6 +1051,7 @@ void AtlasPlugin::OnLContactUpdate()
   {
     msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
                                  contacts.contact(i).time().nsec());
+    msg.header.frame_id = "l_foot";
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
     // gzerr << " t[" << this->world->GetSimTime()
@@ -1113,7 +1114,7 @@ void AtlasPlugin::OnRContactUpdate()
 
     msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
                                  contacts.contact(i).time().nsec());
-
+    msg.header.frame_id = "r_foot";
     // gzerr << "Collision between[" << contacts.contact(i).collision1()
     //           << "] and [" << contacts.contact(i).collision2() << "]\n";
     // gzerr << " t[" << this->world->GetSimTime()
