@@ -202,11 +202,11 @@
           <!-- Noise is sampled independently per pixel on each frame.  
                That pixel's noise value is added to each of its color
                channels, which at that point lie in the range [0,1].
-               Assuming 8 bits per channel, zero mean and sttdev of 0.004
-               will put 99.7% of color values within ~3 units (out of 256)
-               of the true value. -->
+               The stddev value of 0.007 is based on experimental data 
+               from a camera in a Sandia hand pointed at a static scene
+               in a couple of different lighting conditions.  -->
           <mean>0.0</mean>
-          <stddev>0.01</stddev>
+          <stddev>0.007</stddev>
         </noise>
       </camera>
       <camera name="right">
