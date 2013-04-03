@@ -231,6 +231,9 @@ namespace gazebo
     /// \brief internal variable for keeping state of the BDI walking controller
     private: bool usingWalkingController;
 
+    /// \brief: for keeping track of internal force torque sensor update rates.
+    private: common::Time lastFTUpdateTime;
+
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
 
@@ -247,6 +250,9 @@ namespace gazebo
     private: void SetExperimentalDampingPID(
       const atlas_msgs::Test::ConstPtr &_msg);
     private: ros::Subscriber subTest;
+
+    /// \brief first order filter time constant
+    private: double timeConstant;
   };
 }
 #endif

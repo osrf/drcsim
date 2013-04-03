@@ -78,8 +78,12 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // save sdf
   this->sdf = _sdf;
 
+  /// \TODO: get this from sdf
+  this->timeConstant = 0.005;
+
   // initialize update time
   this->lastControllerUpdateTime = this->world->GetSimTime();
+  this->lastFTUpdateTime = this->world->GetSimTime();
 
   // initialize imu
   this->lastImuTime = this->world->GetSimTime();
@@ -417,17 +421,19 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     i_ltorso_mod.SetIZZ((izz_utorso + izz_mtorso + izz_ltorso) / 3.0);
     // check increase of IZZ of utorso, mtorso, ltorso about ltorso(lbz)
     // make sure it's reasonable
-    math::Pose ltorso_utorso =
-      utorso->GetWorldPose() - ltorso->GetWorldPose();
+    math::Pose mtorso_ltorso =
+      ltorso->GetWorldPose() - mtorso->GetWorldPose();
+    math::Pose utorso_ltorso =
+      ltorso->GetWorldPose() - utorso->GetWorldPose();
     physics::Inertial i_utorso_mtorso_ltorso =
-      i_utorso.GetInertial(math::Pose()) +
-      i_mtorso.GetInertial(mtorso_utorso) +
-      i_ltorso.GetInertial(ltorso_utorso);
+      i_utorso.GetInertial(utorso_ltorso) +
+      i_mtorso.GetInertial(mtorso_ltorso) +
+      i_ltorso.GetInertial(math::Pose());
     physics::Inertial i_utorso_mtorso_ltorso_mod =
-      i_utorso_mod.GetInertial(math::Pose()) +
-      i_mtorso_mod.GetInertial(mtorso_utorso) +
-      i_ltorso_mod.GetInertial(ltorso_utorso);
-    std::cout << "\nCheck IZZ of foot, talus and lleg at lleg(uay) link:\n"
+      i_utorso_mod.GetInertial(utorso_ltorso) +
+      i_mtorso_mod.GetInertial(mtorso_ltorso) +
+      i_ltorso_mod.GetInertial(math::Pose());
+    std::cout << "\nCheck IZZ of utorso, mtorso and ltoros at ltorso(lbz):\n"
           << "  original izz: " << i_utorso_mtorso_ltorso.GetIZZ() << "\n"
           << "  modified izz: " << i_utorso_mtorso_ltorso_mod.GetIZZ() << "\n"
           << "  changed  izz: " << i_utorso_mtorso_ltorso_mod.GetIZZ() -
@@ -1249,6 +1255,9 @@ void AtlasPlugin::UpdateStates()
 
   if (curTime > this->lastControllerUpdateTime)
   {
+    double dt = (curTime - this->lastControllerUpdateTime).Double();
+    static double e = this->timeConstant / (this->timeConstant + dt);
+
     // AtlasSimInterface:
     // populate fromRobot from robot
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -1268,7 +1277,11 @@ void AtlasPlugin::UpdateStates()
 
       // compute angular rates
       {
-        math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
+        static math::Vector3 wLocal;
+        if (math::equal(e, 0.0))
+          wLocal = this->imuSensor->GetAngularVelocity();
+        else
+          wLocal = e*wLocal + (1.0 - e)*this->imuSensor->GetAngularVelocity();
         imuMsg->angular_velocity.x = wLocal.x;
         imuMsg->angular_velocity.y = wLocal.y;
         imuMsg->angular_velocity.z = wLocal.z;
@@ -1281,7 +1294,11 @@ void AtlasPlugin::UpdateStates()
 
       // compute acceleration
       {
-        math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
+        static math::Vector3 accel;
+        if (math::equal(e, 0.0))
+          accel = this->imuSensor->GetLinearAcceleration();
+        else
+          accel = e*accel + (1.0 - e)*this->imuSensor->GetLinearAcceleration();
         imuMsg->linear_acceleration.x = accel.x;
         imuMsg->linear_acceleration.y = accel.y;
         imuMsg->linear_acceleration.z = accel.z;
@@ -1294,7 +1311,12 @@ void AtlasPlugin::UpdateStates()
 
       // compute orientation
       {
-        math::Quaternion imuRot = this->imuSensor->GetOrientation();
+        static math::Quaternion imuRot;
+        if (math::equal(e, 0.0))
+          imuRot = this->imuSensor->GetOrientation();
+        else
+          imuRot = imuRot*e + this->imuSensor->GetOrientation()*(1.0 - e);
+        // imuRot = e*imuRot + (1.0 - e)*this->imuSensor->GetOrientation();
         imuMsg->orientation.x = imuRot.x;
         imuMsg->orientation.y = imuRot.y;
         imuMsg->orientation.z = imuRot.z;
@@ -1340,54 +1362,55 @@ void AtlasPlugin::UpdateStates()
     // get force torque at left ankle and publish
     if (this->lAnkleJoint)
     {
-      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->l_foot.force.z = wrench.body1Force.z;
+      static physics::JointWrench wrench;
+      // if (math::equal(e, 0.0))
+        wrench = this->lAnkleJoint->GetForceTorque(i0);
+      // else
+      //   wrench = e*wrench + (1.0 - e)*this->lAnkleJoint->GetForceTorque(i0);
+      forceTorqueSensorsMsg->l_foot.force.z  = wrench.body1Force.z;
       forceTorqueSensorsMsg->l_foot.torque.x = wrench.body1Torque.x;
       forceTorqueSensorsMsg->l_foot.torque.y = wrench.body1Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[0].fz = wrench.body1Force.z;
-      this->fromRobot.foot_sensors[0].mx = wrench.body1Torque.x;
-      this->fromRobot.foot_sensors[0].my = wrench.body1Torque.y;
+      this->fromRobot.foot_sensors[0].fz =
+        forceTorqueSensorsMsg->l_foot.force.z;
+      this->fromRobot.foot_sensors[0].mx =
+        forceTorqueSensorsMsg->l_foot.torque.x;
+      this->fromRobot.foot_sensors[0].my =
+        forceTorqueSensorsMsg->l_foot.torque.y;
     }
 
     // get force torque at right ankle and publish
     if (this->rAnkleJoint)
     {
-      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(i0);
+      static physics::JointWrench wrench;
+      wrench = this->rAnkleJoint->GetForceTorque(i0);
+      // wrench = e*wrench + (1.0 - e)*this->rAnkleJoint->GetForceTorque(i0);
       forceTorqueSensorsMsg->r_foot.force.z = wrench.body1Force.z;
       forceTorqueSensorsMsg->r_foot.torque.x = wrench.body1Torque.x;
       forceTorqueSensorsMsg->r_foot.torque.y = wrench.body1Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[1].fz = wrench.body1Force.z;
-      this->fromRobot.foot_sensors[1].mx = wrench.body1Torque.x;
-      this->fromRobot.foot_sensors[1].my = wrench.body1Torque.y;
+      this->fromRobot.foot_sensors[1].fz =
+        forceTorqueSensorsMsg->r_foot.force.z;
+      this->fromRobot.foot_sensors[1].mx =
+        forceTorqueSensorsMsg->r_foot.torque.x;
+      this->fromRobot.foot_sensors[1].my =
+        forceTorqueSensorsMsg->r_foot.torque.y;
     }
 
     // get force torque at left wrist and publish
     if (this->lWristJoint)
     {
-      static double e = 0.99;
-      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->l_hand.force.x  =
-        e * forceTorqueSensorsMsg->l_hand.force.x +
-        (1.0 - e) * wrench.body1Force.x;
-      forceTorqueSensorsMsg->l_hand.force.y  =
-        e * forceTorqueSensorsMsg->l_hand.force.y +
-        (1.0 - e) * wrench.body1Force.y;
-      forceTorqueSensorsMsg->l_hand.force.z  =
-        e * forceTorqueSensorsMsg->l_hand.force.z +
-        (1.0 - e) * wrench.body1Force.z;
-      forceTorqueSensorsMsg->l_hand.torque.x =
-        e * forceTorqueSensorsMsg->l_hand.torque.x +
-        (1.0 - e) * wrench.body1Torque.x;
-      forceTorqueSensorsMsg->l_hand.torque.y =
-        e * forceTorqueSensorsMsg->l_hand.torque.y +
-        (1.0 - e) * wrench.body1Torque.y;
-      forceTorqueSensorsMsg->l_hand.torque.z =
-        e * forceTorqueSensorsMsg->l_hand.torque.z +
-        (1.0 - e) * wrench.body1Torque.z;
+      static physics::JointWrench wrench;
+      wrench = this->lWristJoint->GetForceTorque(i0);
+      // wrench = e*wrench + (1.0 - e)*this->lWristJoint->GetForceTorque(i0);
+      forceTorqueSensorsMsg->l_hand.force.x  = wrench.body1Force.x;
+      forceTorqueSensorsMsg->l_hand.force.y  = wrench.body1Force.y;
+      forceTorqueSensorsMsg->l_hand.force.z  = wrench.body1Force.z;
+      forceTorqueSensorsMsg->l_hand.torque.x = wrench.body1Torque.x;
+      forceTorqueSensorsMsg->l_hand.torque.y = wrench.body1Torque.y;
+      forceTorqueSensorsMsg->l_hand.torque.z = wrench.body1Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
       this->fromRobot.wrist_sensors[0].f.n[0] =
@@ -1407,26 +1430,15 @@ void AtlasPlugin::UpdateStates()
     // get force torque at right wrist and publish
     if (this->rWristJoint)
     {
-      static double e = 0.99;
-      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(i0);
-      forceTorqueSensorsMsg->r_hand.force.x =
-        e * forceTorqueSensorsMsg->r_hand.force.x +
-        (1.0 - e) * wrench.body1Force.x;
-      forceTorqueSensorsMsg->r_hand.force.y =
-        e * forceTorqueSensorsMsg->r_hand.force.y +
-        (1.0 - e) * wrench.body1Force.y;
-      forceTorqueSensorsMsg->r_hand.force.z =
-        e * forceTorqueSensorsMsg->r_hand.force.z +
-        (1.0 - e) * wrench.body1Force.z;
-      forceTorqueSensorsMsg->r_hand.torque.x =
-        e * forceTorqueSensorsMsg->r_hand.torque.x +
-        (1.0 - e) * wrench.body1Torque.x;
-      forceTorqueSensorsMsg->r_hand.torque.y =
-        e * forceTorqueSensorsMsg->r_hand.torque.y +
-        (1.0 - e) * wrench.body1Torque.y;
-      forceTorqueSensorsMsg->r_hand.torque.z =
-        e * forceTorqueSensorsMsg->r_hand.torque.z +
-        (1.0 - e) * wrench.body1Torque.z;
+      static physics::JointWrench wrench;
+      wrench = this->rWristJoint->GetForceTorque(i0);
+      // wrench = e*wrench + (1.0 - e)*this->rWristJoint->GetForceTorque(i0);
+      forceTorqueSensorsMsg->r_hand.force.x  = wrench.body1Force.x;
+      forceTorqueSensorsMsg->r_hand.force.y  = wrench.body1Force.y;
+      forceTorqueSensorsMsg->r_hand.force.z  = wrench.body1Force.z;
+      forceTorqueSensorsMsg->r_hand.torque.x = wrench.body1Torque.x;
+      forceTorqueSensorsMsg->r_hand.torque.y = wrench.body1Torque.y;
+      forceTorqueSensorsMsg->r_hand.torque.z = wrench.body1Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
       this->fromRobot.wrist_sensors[1].f.n[0] =
@@ -1481,8 +1493,6 @@ void AtlasPlugin::UpdateStates()
       // process data fromRobot to create output data toRobot
       this->errorCode = this->atlasSimInterface->process_control_input(
         this->fromRobot, this->toRobot);
-
-    double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     {
       boost::mutex::scoped_lock lock(this->mutex);
