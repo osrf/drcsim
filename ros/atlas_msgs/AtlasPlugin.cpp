@@ -852,8 +852,6 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
-  static unsigned int count = 0;
-
   common::Time curTime = this->world->GetSimTime();
 
   if (curTime > this->lastControllerUpdateTime)
@@ -1148,14 +1146,16 @@ void AtlasPlugin::UpdateStates()
 
         if (currentStepIndex + 1 != multistep->step_data[0].step_index)
         {
-          if (count == 0)
-            gzerr << "current step [" << currentStepIndex
-                  << "] count [" << count
-                  << "]\n";
-          ++count;
-          if ((currentStepIndex == 1 && count > 1064) ||
-              (currentStepIndex == 2 && count >  400) ||
-              (currentStepIndex >= 3 && count >  200))
+          // gzerr << "current step [" << currentStepIndex
+          //       << "]\n";
+          unsigned int foot_index = 
+              multistep->step_data[0].foot_index;
+
+          // gzerr << "  foot [" << foot_index
+          //       << "] z [" << this->toRobot.foot_pos_est[foot_index].n[2]
+          //       << "]\n";
+
+          if (this->toRobot.foot_pos_est[foot_index].n[2] > -0.02)
           {
             for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
                  ++stepId)
@@ -1181,14 +1181,12 @@ void AtlasPlugin::UpdateStates()
                 multistep->step_data[stepId].position =
                   AtlasVec3f(stepX, stepY, 0);
 
-              gzerr << "  building stepId : " << stepId
-                    << "  step_index[" << stepId + 1 + currentStepIndex
-                    << "]  isRight[" << isRight
-                    << "]  step x[" << stepX
-                    << "]  count[" << count
-                    << "]\n";
+              // gzerr << "  building stepId : " << stepId
+              //       << "  step_index[" << stepId + 1 + currentStepIndex
+              //       << "]  isRight[" << isRight
+              //       << "]  step x[" << stepX
+              //       << "]\n";
             }
-            count = 0;
           }
         }
       }
