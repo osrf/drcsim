@@ -1430,102 +1430,21 @@ void AtlasPlugin::UpdateStates()
             AtlasBehaviorMultiStepWalkParams* multistep =
               &this->fromRobot.multistep_walk_params;
 
-            gzerr << currentStepIndex << " : "
-                  << multistep->step_data[0].step_index
-                  << "\n";
+            // gzdbg << currentStepIndex << " : "
+            //       << multistep->step_data[0].step_index
+            //       << "\n";
 
-            // Update trajectory buffer
-            if (currentStepIndex == multistep->step_data[0].step_index)
-            {
-              unsigned int foot_index = 
-                  multistep->step_data[0].foot_index;
-
-              gzdbg << "current step [" << currentStepIndex
-                    << "] foot [" << 0
-                    << "] z [" << this->toRobot.foot_pos_est[0].n[2]
-                    << "] foot [" << 1
-                    << "] z [" << this->toRobot.foot_pos_est[1].n[2]
-                    << "]\n";
-
-              if (this->toRobot.foot_pos_est[foot_index].n[2] > -0.02)
-              {
-                for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
-                     ++stepId)
-                {
-                  multistep->step_data[stepId].step_index =
-                    stepId +1+ currentStepIndex;
-                  int isRight = (stepId + currentStepIndex) % 2;
-                  multistep->step_data[stepId].foot_index =
-                    (unsigned int)(isRight);
-                  multistep->step_data[stepId].duration = this->strideDuration;
-                  double stepX = 
-                    static_cast<double>(stepId + 1 + currentStepIndex) *
-                    this->strideSagittal;
-                  double stepY = this->strideCoronal;
-
-                  double yaw = this->walkYawRate * 
-                    static_cast<double>(stepId + 1 + currentStepIndex);
-                  multistep->step_data[stepId].yaw = yaw;
-
-                  if (isRight)
-                    multistep->step_data[stepId].position =
-                      AtlasVec3f(stepX, -stepY, 0);
-                  else
-                    multistep->step_data[stepId].position =
-                      AtlasVec3f(stepX, stepY, 0);
-
-                  gzdbg << "  building stepId : " << stepId
-                        << "  step_index[" << stepId + 1 + currentStepIndex
-                        << "]  isRight[" << isRight
-                        << "]  step x[" << stepX
-                        << "]\n";
-                }
-              }
-            }
-          }
-          break;
-        case atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK:
-          {
-            // debug: test turn off repeatedly
-            // this->fromRobot.multistep_walk_params.use_demo_walk = false;
-
-            // process data fromRobot to create output data toRobot
-            this->actionServerResult.end_state.error_code =
-              this->atlasSimInterface->process_control_input(
-              this->fromRobot, this->toRobot);
-
-            // stuff data from toRobot into actionServerFeedback.
-            this->UpdateActionServerStateFeedback();
-
-            /* Topic debug
-            this->pubBDIControlStateQueue->push(this->actionServerFeedback,
-              this->pubBDIControlState);
-            */
-
-            // sanity check
-            if (mode != "walk")
-              ROS_ERROR("mode[%s], but we are in walk mode?", mode.c_str());
-
-            // roll out trajectory, update fromRobot.multistep_walk_params
-            AtlasBehaviorMultiStepWalkParams* multistep =
-              &this->fromRobot.multistep_walk_params;
-
-            // save typing
-            unsigned int currentStepIndex =
-              this->actionServerFeedback.state.current_step_index;
-
-            gzerr << currentStepIndex << " : "
-                  << multistep->step_data[0].step_index
-                  << "\n";
             // Update trajectory buffer
             if (currentStepIndex + 1 != multistep->step_data[0].step_index)
             {
               unsigned int foot_index = 
                   multistep->step_data[0].foot_index;
 
-              // gzdbg << "current step [" << currentStepIndex
-              //       << "] foot [" << foot_index
-              //       << "] z [" << this->toRobot.foot_pos_est[foot_index].n[2]
+              // gzdbg << "next step [" << currentStepIndex + 1
+              //       << "] foot [" << 0
+              //       << "] z [" << this->toRobot.foot_pos_est[0].n[2]
+              //       << "] foot [" << 1
+              //       << "] z [" << this->toRobot.foot_pos_est[1].n[2]
               //       << "]\n";
 
               if (this->toRobot.foot_pos_est[foot_index].n[2] > -0.02)
@@ -1563,18 +1482,93 @@ void AtlasPlugin::UpdateStates()
                 }
               }
             }
+          }
+          break;
+        case atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK:
+          {
+            // debug: test turn off repeatedly
+            // this->fromRobot.multistep_walk_params.use_demo_walk = false;
 
-            /// \TODO: detect when demo finishes, switch to stand and end action
-            if (false)
+            // process data fromRobot to create output data toRobot
+            this->actionServerResult.end_state.error_code =
+              this->atlasSimInterface->process_control_input(
+              this->fromRobot, this->toRobot);
+
+            // stuff data from toRobot into actionServerFeedback.
+            this->UpdateActionServerStateFeedback();
+
+            // save typing
+            unsigned int currentStepIndex =
+              this->actionServerFeedback.state.current_step_index + 1;
+
+            /* Topic debug
+            this->pubBDIControlStateQueue->push(this->actionServerFeedback,
+              this->pubBDIControlState);
+            */
+
+            // sanity check
+            if (mode != "walk")
+              ROS_ERROR("mode[%s], but we are in walk mode?", mode.c_str());
+
+            // roll out trajectory, update fromRobot.multistep_walk_params
+            // get pointer to current walking param
+            AtlasBehaviorMultiStepWalkParams* multistep =
+              &this->fromRobot.multistep_walk_params;
+
+            // gzdbg << currentStepIndex << " : "
+            //       << multistep->step_data[0].step_index
+            //       << "\n";
+
+            // Update trajectory buffer
+            if (currentStepIndex + 1 != multistep->step_data[0].step_index)
             {
-              ROS_DEBUG("AtlasSimInterface: multi-step walk finished fine, "
-                        "going into stand mode.");
-              this->actionServerGoal.params.behavior =
-                atlas_msgs::AtlasSimInterface::STAND;
-              this->actionServerResult.end_state.error_code = 
-                this->atlasSimInterface->set_desired_behavior("stand");
+              unsigned int foot_index = 
+                  multistep->step_data[0].foot_index;
+
+              // gzdbg << "next step [" << currentStepIndex + 1
+              //       << "] foot [" << 0
+              //       << "] z [" << this->toRobot.foot_pos_est[0].n[2]
+              //       << "] foot [" << 1
+              //       << "] z [" << this->toRobot.foot_pos_est[1].n[2]
+              //       << "]\n";
+
+              if (this->toRobot.foot_pos_est[foot_index].n[2] > -0.02)
+              {
+                for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
+                     ++stepId)
+                {
+                  multistep->step_data[stepId].step_index =
+                    stepId +1+ currentStepIndex;
+                  int isRight = (stepId + currentStepIndex) % 2;
+                  multistep->step_data[stepId].foot_index =
+                    (unsigned int)(isRight);
+                  multistep->step_data[stepId].duration = this->strideDuration;
+                  double stepX = 
+                    static_cast<double>(stepId + 1 + currentStepIndex) *
+                    this->strideSagittal;
+                  double stepY = this->strideCoronal;
+
+                  double yaw = this->walkYawRate * 
+                    static_cast<double>(stepId + 1 + currentStepIndex);
+                  multistep->step_data[stepId].yaw = yaw;
+
+                  if (isRight)
+                    multistep->step_data[stepId].position =
+                      AtlasVec3f(stepX, -stepY, 0);
+                  else
+                    multistep->step_data[stepId].position =
+                      AtlasVec3f(stepX, stepY, 0);
+
+                  // gzdbg << "  building stepId : " << stepId
+                  //       << "  step_index[" << stepId + 1 + currentStepIndex
+                  //       << "]  isRight[" << isRight
+                  //       << "]  step x[" << stepX
+                  //       << "]\n";
+                }
+              }
             }
           }
+ 
           break;
         case atlas_msgs::AtlasSimInterface::SINGLE_STEP_WALK:
           {
@@ -1775,7 +1769,7 @@ void AtlasPlugin::UpdateActionServerStateFeedback()
     this->actionServerResult.end_state.error_code;
 
   this->actionServerFeedback.state.current_step_index =
-    this->toRobot.current_step_index + 1;
+    this->toRobot.current_step_index;
 
   this->actionServerFeedback.state.pelvis_position.x =
     this->toRobot.pos_est.position.n[0];
