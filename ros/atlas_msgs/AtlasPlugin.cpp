@@ -980,6 +980,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   //  * remove the harness
   //  * after robot hits ground, switch over to stand mode
   //  * robot should dynamically balance itself
+
   // simple state machine here to do something
   if (_mode->data == "safety" || _mode->data == "stand-prep" ||
       _mode->data == "stand" || _mode->data == "walk")
@@ -1352,12 +1353,11 @@ void AtlasPlugin::UpdateStates()
             // Update trajectory buffer
             if (currentStepIndex + 1 != multistep->step_data[0].step_index)
             {
-              // gzerr << "current step [" << currentStepIndex
-              //       << "]\n";
               unsigned int foot_index = 
                   multistep->step_data[0].foot_index;
 
-              // gzerr << "  foot [" << foot_index
+              // gzdbg << "current step [" << currentStepIndex
+              //       << "] foot [" << foot_index
               //       << "] z [" << this->toRobot.foot_pos_est[foot_index].n[2]
               //       << "]\n";
 
@@ -1387,7 +1387,7 @@ void AtlasPlugin::UpdateStates()
                     multistep->step_data[stepId].position =
                       AtlasVec3f(stepX, stepY, 0);
 
-                  // gzerr << "  building stepId : " << stepId
+                  // gzdbg << "  building stepId : " << stepId
                   //       << "  step_index[" << stepId + 1 + currentStepIndex
                   //       << "]  isRight[" << isRight
                   //       << "]  step x[" << stepX
