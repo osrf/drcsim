@@ -1349,7 +1349,15 @@ void AtlasPlugin::UpdateStates()
             // stuff data from toRobot into actionServerFeedback.
             this->UpdateActionServerStateFeedback();
 
-            /// \TODO: when demo finishes, switch to stand and end action
+            /// \TODO: detect when demo finishes, switch to stand and end action
+            if (false)
+            {
+              ROS_DEBUG("AtlasSimInterface: demo2 finished, going into stand.");
+              this->actionServerGoal.params.behavior =
+                atlas_msgs::AtlasSimInterface::STAND;
+              this->actionServerResult.end_state.error_code = 
+                this->atlasSimInterface->set_desired_behavior("stand");
+            }
           }
           break;
         case atlas_msgs::AtlasSimInterface::DEMO1:
@@ -1506,15 +1514,33 @@ void AtlasPlugin::UpdateStates()
                 }
               }
             }
+
+            /// \TODO: detect when demo finishes, switch to stand and end action
+            if (false)
+            {
+              ROS_DEBUG("AtlasSimInterface: multi-step walk finished fine, "
+                        "going into stand mode.");
+              this->actionServerGoal.params.behavior =
+                atlas_msgs::AtlasSimInterface::STAND;
+              this->actionServerResult.end_state.error_code = 
+                this->atlasSimInterface->set_desired_behavior("stand");
+            }
           }
           break;
         case atlas_msgs::AtlasSimInterface::SINGLE_STEP_WALK:
           {
+            // process data fromRobot to create output data toRobot
+            this->actionServerResult.end_state.error_code =
+              this->atlasSimInterface->process_control_input(
+              this->fromRobot, this->toRobot);
+
+            this->UpdateActionServerStateFeedback();
+
             if (this->actionServerResult.end_state.error_code == NO_ERRORS) 
             {
               ROS_DEBUG("AtlasSimInterface: performing single-step mode.");
               this->actionServerGoal.params.behavior =
-                atlas_msgs::AtlasSimInterface::STEP;
+                atlas_msgs::AtlasSimInterface::SINGLE_STEP_WALK;
             }
             else if (false)  /// \TODO: check step termination
             {
@@ -1522,17 +1548,17 @@ void AtlasPlugin::UpdateStates()
               this->actionServerGoal.params.behavior =
                 atlas_msgs::AtlasSimInterface::STAND;
               this->actionServerResult.end_state.error_code = 
-                this->atlasSimInterface->set_desired_behavior("step");
+                this->atlasSimInterface->set_desired_behavior("stand");
             }
             else
             {
-              ROS_DEBUG("AtlasSimInterface: single-step failed with error ");
+              ROS_DEBUG("AtlasSimInterface: single-step failed with error "
                         "code (%d).",
                         this->actionServerResult.end_state.error_code);
               this->actionServerGoal.params.behavior =
                 atlas_msgs::AtlasSimInterface::STAND;
               this->actionServerResult.end_state.error_code = 
-                this->atlasSimInterface->set_desired_behavior("step");
+                this->atlasSimInterface->set_desired_behavior("stand");
               if (this->actionServerResult.end_state.error_code != NO_ERRORS) 
                 ROS_DEBUG("AtlasSimInterface: single-step switch to stand "
                           "failed with error code (%d)",
