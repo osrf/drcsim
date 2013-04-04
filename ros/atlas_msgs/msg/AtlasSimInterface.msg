@@ -8,13 +8,24 @@ uint32 steps
 uint32 LEFT_FOOT = 0
 uint32 RIGHT_FOOT = 1
 # permissible values for behavior
-uint32 MULTI_STEP_WALK = 0
-uint32 SINGLE_STEP_WALK = 1
-uint32 STAND = 2
+uint32 NONE              =  0 # disable AtlasSimInterface updates, rely on
+                              # /atlas/atlas_command or /atlas/joint_commands
+uint32 PID_OFF           =  1 # for convenience, option to turn off PID gains
+uint32 RELOAD_PID        =  2 # for convenience, option to reload PID gains
+                              # from ROS params
+uint32 SAFETY            =  3 # safety mode
+uint32 STAND_PREP        =  4 # stand-prep (AtlasSimInterface documentation)
+uint32 MULTI_STEP_WALK   =  5 # multi-step walk
+uint32 SINGLE_STEP_WALK  =  6 # single step walk
+uint32 STAND             =  7 # stand (and manipulate)
+uint32 RESET             =  8 # see AtlasSimInterface.h for documentation.
+uint32 DEMO1             =  9 # walk in straight link
+uint32 DEMO2             = 10 # figure 8
 
-time start_time     	           # Start time for step trajectory
+time start_time     	       # Start time for step trajectory
 
-uint32 behaviors                 # can be one of MULTI_STEP_WALK, SINGLE_STEP_WALK or STAND
+uint32 behavior              # can be one of MULTI_STEP_WALK,
+                             # SINGLE_STEP_WALK, STAND, NONE
 
 # multi_step walking trajectory parameters
 atlas_msgs/AtlasBehaviorMultiStepParams multistep_walk_params

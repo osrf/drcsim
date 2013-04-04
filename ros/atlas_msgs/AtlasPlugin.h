@@ -71,6 +71,7 @@
 #include <atlas_msgs/Test.h>
 
 // actionlib for BDI's dynamic controller
+// see http://ros.org/wiki/actionlib for documentation on actions
 #include <atlas_msgs/AtlasSimInterfaceAction.h>
 #include <actionlib/server/simple_action_server.h>
 
@@ -236,7 +237,6 @@ namespace gazebo
     // AtlasSimInterface:
     private: AtlasControlDataToRobot toRobot;
     private: AtlasControlDataFromRobot fromRobot;
-    private: AtlasErrorCode errorCode;
     private: AtlasSimInterface* atlasSimInterface;
 
     /// \brief Internal list of pointers to Joints
@@ -277,12 +277,29 @@ namespace gazebo
     */
 
     /// \brief actionlib simple action server executor callback
-    private: void ServerCallback(
+    private: void ActionServerCallback(
       const atlas_msgs::AtlasSimInterfaceGoalConstPtr& _goal,
       ActionServer* _server);
 
+    /// \brief lock while updating control modes
+    private: boost::mutex actionServerMutex;
+
     /// \brief actionlib simple action server
     private: ActionServer* actionServer;
+
+    /// \brief local copy of the goal
+    private: atlas_msgs::AtlasSimInterfaceGoal actionServerGoal;
+
+    /// \brief actionlib feedback
+    private: atlas_msgs::AtlasSimInterfaceFeedback actionServerFeedback;
+
+    /// \brief actionlib result
+    private: atlas_msgs::AtlasSimInterfaceResult actionServerResult;
+
+    /// \brief fill in action server feedback state from toRobot,
+    /// where toRobot is populated by call to AtlasSimInterface
+    /// process_control_input()
+    private: void UpdateActionServerStateFeedback();
 
     /// \brief AtlasSimInterface:
     /// subscribe to a control_mode string message, current valid commands are:
@@ -290,9 +307,6 @@ namespace gazebo
     /// the command is passed to the AtlasSimInterface library.
     /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
     private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
-
-    /// \brief internal variable for keeping state of the BDI walking controller
-    private: bool usingWalkingController;
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
