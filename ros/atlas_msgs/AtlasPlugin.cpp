@@ -1032,6 +1032,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     {
       this->actionServerGoal.params.behavior =
         atlas_msgs::AtlasSimInterface::STAND;
+
     }
     else if (_mode->data == "walk")
     {
@@ -1039,8 +1040,18 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
         atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
     }
 
-    this->atlasSimInterface->set_desired_behavior(_mode->data);
+    this->actionServerResult.end_state.error_code = 
+      this->atlasSimInterface->set_desired_behavior(_mode->data);
+    if (this->actionServerResult.end_state.error_code == NO_ERRORS) 
+      ROS_INFO("AtlasSimInterface: %s mode fine.", _mode->data.c_str());
+    else
+      ROS_INFO("AtlasSimInterface: %s mode faile with code (%d).",
+               _mode->data.c_str(),
+               this->actionServerResult.end_state.error_code);
+
     this->ZeroAtlasCommand();
+
+    // initialize walk data
     if (_mode->data == "walk")
     {
       AtlasBehaviorMultiStepWalkParams* multistep =
@@ -1339,6 +1350,32 @@ void AtlasPlugin::UpdateStates()
       }
       else switch (this->actionServerGoal.params.behavior)
       {
+        case atlas_msgs::AtlasSimInterface::SAFETY:
+        case atlas_msgs::AtlasSimInterface::STAND_PREP:
+        case atlas_msgs::AtlasSimInterface::STAND:
+          {
+            // process data fromRobot to create output data toRobot
+            this->actionServerResult.end_state.error_code =
+              this->atlasSimInterface->process_control_input(
+              this->fromRobot, this->toRobot);
+
+            if (this->actionServerResult.end_state.error_code == NO_ERRORS) 
+            {
+              // stuff data from toRobot into actionServerFeedback.
+              this->UpdateActionServerStateFeedback();
+            }
+            else
+            {
+              ROS_WARN("AtlasSimInterface: failed with error code (%d) when "
+                       "setting mode (%d) in update loop. Switching to "
+                       "stand mode",
+                       this->actionServerResult.end_state.error_code,
+                       this->actionServerGoal.params.behavior);
+              this->actionServerResult.success = false;
+              this->actionServer->setAborted(this->actionServerResult);
+            }
+          }
+          break;
         case atlas_msgs::AtlasSimInterface::DEMO2:
           {
             // process data fromRobot to create output data toRobot
