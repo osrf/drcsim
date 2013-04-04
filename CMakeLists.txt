@@ -14,6 +14,15 @@ set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
 set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
 message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
 
+# Documentation
+add_subdirectory(doc)
+
+# If we're configuring only to build docs, stop here
+if (DOC_ONLY)
+  message(WARNING "Configuration was done in DOC_ONLY mode.  You can build documentation (make doc), but nothing else.")
+  return()
+endif()
+
 if ("${CATKIN_BUILD_BINARY_PACKAGE}" STREQUAL "1")
   set (CATKIN_BUILD_BINARY_PACKAGE_STRING "-DCATKIN_BUILD_BINARY_PACKAGE=1")
 else()
