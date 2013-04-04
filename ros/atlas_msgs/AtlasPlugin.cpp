@@ -1006,6 +1006,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   //  * after robot hits ground, switch over to stand mode
   //  * robot should dynamically balance itself
 
+  boost::mutex::scoped_lock lock(this->actionServerMutex);
+
   // simple state machine here to do something
   if (_mode->data == "safety" || _mode->data == "stand-prep" ||
       _mode->data == "stand" || _mode->data == "walk")
@@ -1037,7 +1039,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     else if (_mode->data == "walk")
     {
       this->actionServerGoal.params.behavior =
-        atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
+        atlas_msgs::AtlasSimInterface::DEMO1;
     }
 
     this->actionServerResult.end_state.error_code = 
@@ -1410,6 +1412,10 @@ void AtlasPlugin::UpdateStates()
             // stuff data from toRobot into actionServerFeedback.
             this->UpdateActionServerStateFeedback();
 
+            // save typing
+            unsigned int currentStepIndex =
+              this->actionServerFeedback.state.current_step_index + 1;
+
             /* Topic debug
             this->pubBDIControlStateQueue->push(this->actionServerFeedback,
               this->pubBDIControlState);
@@ -1420,23 +1426,26 @@ void AtlasPlugin::UpdateStates()
               ROS_ERROR("mode[%s], but we are in walk mode?", mode.c_str());
 
             // roll out trajectory, update fromRobot.multistep_walk_params
+            // get pointer to current walking param
             AtlasBehaviorMultiStepWalkParams* multistep =
               &this->fromRobot.multistep_walk_params;
 
-            // save typing
-            unsigned int currentStepIndex =
-              this->actionServerFeedback.state.current_step_index;
+            gzerr << currentStepIndex << " : "
+                  << multistep->step_data[0].step_index
+                  << "\n";
 
             // Update trajectory buffer
-            if (currentStepIndex + 1 != multistep->step_data[0].step_index)
+            if (currentStepIndex == multistep->step_data[0].step_index)
             {
               unsigned int foot_index = 
                   multistep->step_data[0].foot_index;
 
-              // gzdbg << "current step [" << currentStepIndex
-              //       << "] foot [" << foot_index
-              //       << "] z [" << this->toRobot.foot_pos_est[foot_index].n[2]
-              //       << "]\n";
+              gzdbg << "current step [" << currentStepIndex
+                    << "] foot [" << 0
+                    << "] z [" << this->toRobot.foot_pos_est[0].n[2]
+                    << "] foot [" << 1
+                    << "] z [" << this->toRobot.foot_pos_est[1].n[2]
+                    << "]\n";
 
               if (this->toRobot.foot_pos_est[foot_index].n[2] > -0.02)
               {
@@ -1465,11 +1474,11 @@ void AtlasPlugin::UpdateStates()
                     multistep->step_data[stepId].position =
                       AtlasVec3f(stepX, stepY, 0);
 
-                  // gzdbg << "  building stepId : " << stepId
-                  //       << "  step_index[" << stepId + 1 + currentStepIndex
-                  //       << "]  isRight[" << isRight
-                  //       << "]  step x[" << stepX
-                  //       << "]\n";
+                  gzdbg << "  building stepId : " << stepId
+                        << "  step_index[" << stepId + 1 + currentStepIndex
+                        << "]  isRight[" << isRight
+                        << "]  step x[" << stepX
+                        << "]\n";
                 }
               }
             }
@@ -1505,6 +1514,9 @@ void AtlasPlugin::UpdateStates()
             unsigned int currentStepIndex =
               this->actionServerFeedback.state.current_step_index;
 
+            gzerr << currentStepIndex << " : "
+                  << multistep->step_data[0].step_index
+                  << "\n";
             // Update trajectory buffer
             if (currentStepIndex + 1 != multistep->step_data[0].step_index)
             {
@@ -1796,7 +1808,8 @@ void AtlasPlugin::UpdateActionServerStateFeedback()
   this->actionServerFeedback.state.current_step_index =
     this->toRobot.current_step_index;
 
-  this->actionServer->publishFeedback(this->actionServerFeedback);
+  if (this->actionServer->isActive())
+    this->actionServer->publishFeedback(this->actionServerFeedback);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
