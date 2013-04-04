@@ -1432,6 +1432,9 @@ void AtlasPlugin::UpdateStates()
           break;
         case atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK:
           {
+            // debug: test turn off repeatedly
+            // this->fromRobot.multistep_walk_params.use_demo_walk = false;
+
             // process data fromRobot to create output data toRobot
             this->actionServerResult.end_state.error_code =
               this->atlasSimInterface->process_control_input(
@@ -1507,21 +1510,33 @@ void AtlasPlugin::UpdateStates()
           break;
         case atlas_msgs::AtlasSimInterface::SINGLE_STEP_WALK:
           {
-            ROS_INFO("AtlasSimInterface: Single step mode (not yet implemented).");
-            this->actionServerResult.end_state.error_code = 
-              this->atlasSimInterface->set_desired_behavior("step");
             if (this->actionServerResult.end_state.error_code == NO_ERRORS) 
             {
-              ROS_INFO("AtlasSimInterface: starting single-step mode.");
+              ROS_DEBUG("AtlasSimInterface: performing single-step mode.");
               this->actionServerGoal.params.behavior =
-                atlas_msgs::AtlasSimInterface::NONE;
+                atlas_msgs::AtlasSimInterface::STEP;
+            }
+            else if (false)  /// \TODO: check step termination
+            {
+              ROS_DEBUG("AtlasSimInterface: single-step finished fine.");
+              this->actionServerGoal.params.behavior =
+                atlas_msgs::AtlasSimInterface::STAND;
+              this->actionServerResult.end_state.error_code = 
+                this->atlasSimInterface->set_desired_behavior("step");
             }
             else
             {
-              ROS_INFO("AtlasSimInterface: set single-step mode failed, error code "
-                       "(%d).", this->actionServerResult.end_state.error_code);
+              ROS_DEBUG("AtlasSimInterface: single-step failed with error ");
+                        "code (%d).",
+                        this->actionServerResult.end_state.error_code);
               this->actionServerGoal.params.behavior =
                 atlas_msgs::AtlasSimInterface::STAND;
+              this->actionServerResult.end_state.error_code = 
+                this->atlasSimInterface->set_desired_behavior("step");
+              if (this->actionServerResult.end_state.error_code != NO_ERRORS) 
+                ROS_DEBUG("AtlasSimInterface: single-step switch to stand "
+                          "failed with error code (%d)",
+                          this->actionServerResult.end_state.error_code);
               this->actionServerResult.success = false;
               this->actionServer->setAborted(this->actionServerResult);
             }
