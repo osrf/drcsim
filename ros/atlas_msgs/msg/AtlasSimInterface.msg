@@ -19,7 +19,7 @@ uint32 MULTI_STEP_WALK   =  5 # multi-step walk
 uint32 SINGLE_STEP_WALK  =  6 # single step walk
 uint32 STAND             =  7 # stand (and manipulate)
 uint32 RESET             =  8 # see AtlasSimInterface.h for documentation.
-uint32 DEMO1             =  9 # walk in straight link
+uint32 DEMO1             =  9 # walk in straight line
 uint32 DEMO2             = 10 # figure 8
 
 time start_time     	       # Start time for step trajectory
