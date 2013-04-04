@@ -856,10 +856,9 @@ void AtlasPlugin::ActionServerCallback(
       }
       break;
     case atlas_msgs::AtlasSimInterface::DEMO1:
-      _goal->params.multistep_walk_params.use_demo_walk = false;
+    case atlas_msgs::AtlasSimInterface::DEMO2:
     case atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK:
       {
-        _goal->params.multistep_walk_params.use_demo_walk = false;
         this->actionServerResult.end_state.error_code = 
           this->atlasSimInterface->set_desired_behavior("walk");
         if (this->actionServerResult.end_state.error_code == NO_ERRORS) 
@@ -875,8 +874,6 @@ void AtlasPlugin::ActionServerCallback(
           _server->setAborted(this->actionServerResult);
         }
       }
-    case atlas_msgs::AtlasSimInterface::DEMO2:
-      _goal->params.multistep_walk_params.use_demo_walk = true;
       break;
     case atlas_msgs::AtlasSimInterface::SINGLE_STEP_WALK:
       {
@@ -995,27 +992,27 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
              "ROS action server on /atlas/bdi_control.  For more "
              "information on actions, see http://ros.org/wiki/actionlib.");
 
-    switch (_mode->data)
+    if (_mode->data == "safety")
     {
-      case "safety":
-        this->actionServerGoal.params.behavior =
-          atlas_msgs::AtlasSimInterface::SAFETY;
-        break;
-      case "stand-prep":
-        this->actionServerGoal.params.behavior =
-          atlas_msgs::AtlasSimInterface::STAND_PREP;
-        break;
-      case "stand":
-        this->actionServerGoal.params.behavior =
-          atlas_msgs::AtlasSimInterface::STAND;
-        break;
-      case "walk":
-        this->actionServerGoal.params.behavior =
-          atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
-        break;
-      default:
-        break;
+      this->actionServerGoal.params.behavior =
+        atlas_msgs::AtlasSimInterface::SAFETY;
     }
+    else if (_mode->data == "stand-prep")
+    {
+      this->actionServerGoal.params.behavior =
+        atlas_msgs::AtlasSimInterface::STAND_PREP;
+    }
+    else if (_mode->data == "stand")
+    {
+      this->actionServerGoal.params.behavior =
+        atlas_msgs::AtlasSimInterface::STAND;
+    }
+    else if (_mode->data == "walk")
+    {
+      this->actionServerGoal.params.behavior =
+        atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
+    }
+
     this->atlasSimInterface->set_desired_behavior(_mode->data);
     this->ZeroAtlasCommand();
     if (_mode->data == "walk")
@@ -1310,7 +1307,7 @@ void AtlasPlugin::UpdateStates()
       if (this->actionServerResult.end_state.error_code != NO_ERRORS)
       {
         ROS_ERROR("AtlasSimInterface: get_desired_behavior failed with "
-                  "error code (%f), controller update skipped.",
+                  "error code (%d), controller update skipped.",
                   this->actionServerResult.end_state.error_code);
         this->actionServerResult.success = false;
         this->actionServer->setAborted(this->actionServerResult);
@@ -1350,7 +1347,7 @@ void AtlasPlugin::UpdateStates()
 
             // save typing
             unsigned int currentStepIndex =
-              this->actionServerFeedback.state.currentStepIndex;
+              this->actionServerFeedback.state.current_step_index;
 
             // Update trajectory buffer
             if (currentStepIndex + 1 != multistep->step_data[0].step_index)
@@ -1418,7 +1415,7 @@ void AtlasPlugin::UpdateStates()
               this->actionServerGoal.params.behavior =
                 atlas_msgs::AtlasSimInterface::STAND;
               this->actionServerResult.success = false;
-              _server->setAborted(this->actionServerResult);
+              this->actionServer->setAborted(this->actionServerResult);
             }
           }
           break;
@@ -1579,7 +1576,7 @@ void AtlasPlugin::UpdateActionServerStateFeedback()
   this->actionServerFeedback.state.error_code =
     this->actionServerResult.end_state.error_code;
 
-  this->actionServerFeedback.state.currentStepIndex =
+  this->actionServerFeedback.state.current_step_index =
     this->toRobot.current_step_index + 1;
 
   this->actionServerFeedback.state.pelvis_position.x =
