@@ -1,18 +1,6 @@
 set (rostests
   atlas_publishers_hz.test
   atlas_sandia_hands_publishers_hz.test
-  atlas_rosapi.test
-  atlas_sandia_hands_rosapi.test
-  atlas_drc_vehicle_fire_hose_rosapi.test
-  atlas_golf_cart_fire_hose_rosapi.test
-  drc_sim_v0_rosapi.test
-  qual_task_1_rosapi.test
-  qual_task_2_rosapi.test
-  qual_task_3_rosapi.test
-  qual_task_4_rosapi.test
-  vrc_task_1_rosapi.test
-  vrc_task_2_rosapi.test
-  vrc_task_3_rosapi.test
   performance_test1.launch
 ) 
 
@@ -27,6 +15,18 @@ if(GLXINFO_PATH)
   if(NOT RESULT_VARIABLE)
     list(APPEND rostests 
          atlas_publishers_hz_gpu.test
+         atlas_rosapi.test
+         atlas_sandia_hands_rosapi.test
+         atlas_drc_vehicle_fire_hose_rosapi.test
+         atlas_golf_cart_fire_hose_rosapi.test
+         drc_sim_v0_rosapi.test
+         qual_task_1_rosapi.test
+         qual_task_2_rosapi.test
+         qual_task_3_rosapi.test
+         qual_task_4_rosapi.test
+         vrc_task_1_rosapi.test
+         vrc_task_2_rosapi.test
+         vrc_task_3_rosapi.test
          # Pending hand camera implementation
          #atlas_sandia_hands_publishers_hz_gpu.test
          )
