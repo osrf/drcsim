@@ -58,6 +58,8 @@ rosbuild_link_boost(gazebo_ros_controller_manager thread)
 # needs roscpp, trajectory_msgs
 rosbuild_add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
 rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
+rosbuild_add_executable(pub_atlas_command pub_atlas_command.cpp)
+rosbuild_add_executable(pub_joint_states pub_joint_states.cpp)
 
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)
@@ -88,21 +90,17 @@ rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
 target_link_libraries(AtlasPlugin AtlasSimInterface)
 
-
-
-
-
-message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
-message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5")
-message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
-add_custom_command(OUTPUT output.x
-                   COMMAND find ../..
-                   COMMAND pwd
-                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                   )
-add_custom_target(debug_output DEPENDS output.x)
-add_dependencies(AtlasPlugin debug_output)
+# message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
+# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
+# message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5")
+# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
+# add_custom_command(OUTPUT output.x
+#                    COMMAND find ../..
+#                    COMMAND pwd
+#                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#                    )
+# add_custom_target(debug_output DEPENDS output.x)
+# add_dependencies(AtlasPlugin debug_output)
 
 # needs actionlib, control_msgs
 rosbuild_add_library(VRCPlugin VRCPlugin.cpp)
@@ -114,6 +112,6 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY srv srv_gen msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_p3d gazebo_ros_force MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands 
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_command pub_joint_states 
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
