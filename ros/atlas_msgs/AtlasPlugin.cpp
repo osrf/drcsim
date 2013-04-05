@@ -611,6 +611,9 @@ void AtlasPlugin::DeferredLoad()
     "atlas/joint_commands", 1,
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
+  // This subscription is TCP because the message is larger than a UDP datagram
+  // and we have had reports of corrupted data, which we attribute to erroneous
+  // demarshalling following packet loss.
   jointCommandsSo.transport_hints =
     ros::TransportHints().reliable().tcpNoDelay(true);
   this->subJointCommands =
