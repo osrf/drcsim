@@ -233,7 +233,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   // AtlasSimInterface:  initialize fromRobot sensor data
-  this->fromRobot.imu.imu_timestamp = 1.0e9 * this->world->GetSimTime().nsec
+  this->fromRobot.imu.imu_timestamp = 1.0e9 * this->world->GetSimTime().sec
     + this->world->GetSimTime().nsec;
   this->fromRobot.imu.angular_velocity.n[0] = 0;
   this->fromRobot.imu.angular_velocity.n[1] = 0;
@@ -825,7 +825,7 @@ void AtlasPlugin::UpdateStates()
     if (this->imuSensor && curTime > this->lastImuTime)
     {
       // AtlasSimInterface: populate imu in fromRobot
-      this->fromRobot.imu.imu_timestamp = 1.0e9 * curTime.nsec + curTime.nsec;
+      this->fromRobot.imu.imu_timestamp = 1.0e9 * curTime.sec + curTime.nsec;
 
       // publish separate /atlas/imu topic, to be deprecated
       sensor_msgs::Imu imuMsg;
