@@ -31,7 +31,7 @@
 #include <std_msgs/String.h>
 #include <sensor_msgs/JointState.h>
 
-#include <osrf_msgs/JointCommands.h>
+#include <atlas_msgs/AtlasCommand.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -306,16 +306,16 @@ namespace gazebo
     //   Joint Trajectory Controller                                          //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
-    private: class JointCommandsController
+    private: class AtlasCommandController
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      private: JointCommandsController()
+      private: AtlasCommandController()
       {
         // initialize ros
         if (!ros::isInitialized())
         {
-          gzerr << "Not loading JointCommandsController since ROS hasn't been "
+          gzerr << "Not loading AtlasCommandController since ROS hasn't been "
                 << "properly initialized.  Try starting Gazebo with"
                 << " ros plugin:\n"
                 << "  gazebo -s libgazebo_ros_api_plugin.so\n";
@@ -326,36 +326,36 @@ namespace gazebo
         this->rosNode = new ros::NodeHandle("");
 
         // must match those inside AtlasPlugin
-        this->jc.name.push_back("atlas::back_lbz");
-        this->jc.name.push_back("atlas::back_mby");
-        this->jc.name.push_back("atlas::back_ubx");
-        this->jc.name.push_back("atlas::neck_ay");
-        this->jc.name.push_back("atlas::l_leg_uhz");
-        this->jc.name.push_back("atlas::l_leg_mhx");
-        this->jc.name.push_back("atlas::l_leg_lhy");
-        this->jc.name.push_back("atlas::l_leg_kny");
-        this->jc.name.push_back("atlas::l_leg_uay");
-        this->jc.name.push_back("atlas::l_leg_lax");
-        this->jc.name.push_back("atlas::r_leg_uhz");
-        this->jc.name.push_back("atlas::r_leg_mhx");
-        this->jc.name.push_back("atlas::r_leg_lhy");
-        this->jc.name.push_back("atlas::r_leg_kny");
-        this->jc.name.push_back("atlas::r_leg_uay");
-        this->jc.name.push_back("atlas::r_leg_lax");
-        this->jc.name.push_back("atlas::l_arm_usy");
-        this->jc.name.push_back("atlas::l_arm_shx");
-        this->jc.name.push_back("atlas::l_arm_ely");
-        this->jc.name.push_back("atlas::l_arm_elx");
-        this->jc.name.push_back("atlas::l_arm_uwy");
-        this->jc.name.push_back("atlas::l_arm_mwx");
-        this->jc.name.push_back("atlas::r_arm_usy");
-        this->jc.name.push_back("atlas::r_arm_shx");
-        this->jc.name.push_back("atlas::r_arm_ely");
-        this->jc.name.push_back("atlas::r_arm_elx");
-        this->jc.name.push_back("atlas::r_arm_uwy");
-        this->jc.name.push_back("atlas::r_arm_mwx");
+        this->jointNames.push_back("atlas::back_lbz");
+        this->jointNames.push_back("atlas::back_mby");
+        this->jointNames.push_back("atlas::back_ubx");
+        this->jointNames.push_back("atlas::neck_ay");
+        this->jointNames.push_back("atlas::l_leg_uhz");
+        this->jointNames.push_back("atlas::l_leg_mhx");
+        this->jointNames.push_back("atlas::l_leg_lhy");
+        this->jointNames.push_back("atlas::l_leg_kny");
+        this->jointNames.push_back("atlas::l_leg_uay");
+        this->jointNames.push_back("atlas::l_leg_lax");
+        this->jointNames.push_back("atlas::r_leg_uhz");
+        this->jointNames.push_back("atlas::r_leg_mhx");
+        this->jointNames.push_back("atlas::r_leg_lhy");
+        this->jointNames.push_back("atlas::r_leg_kny");
+        this->jointNames.push_back("atlas::r_leg_uay");
+        this->jointNames.push_back("atlas::r_leg_lax");
+        this->jointNames.push_back("atlas::l_arm_usy");
+        this->jointNames.push_back("atlas::l_arm_shx");
+        this->jointNames.push_back("atlas::l_arm_ely");
+        this->jointNames.push_back("atlas::l_arm_elx");
+        this->jointNames.push_back("atlas::l_arm_uwy");
+        this->jointNames.push_back("atlas::l_arm_mwx");
+        this->jointNames.push_back("atlas::r_arm_usy");
+        this->jointNames.push_back("atlas::r_arm_shx");
+        this->jointNames.push_back("atlas::r_arm_ely");
+        this->jointNames.push_back("atlas::r_arm_elx");
+        this->jointNames.push_back("atlas::r_arm_uwy");
+        this->jointNames.push_back("atlas::r_arm_mwx");
 
-        unsigned int n = this->jc.name.size();
+        unsigned int n = this->jointNames.size();
         this->jc.position.resize(n);
         this->jc.velocity.resize(n);
         this->jc.effort.resize(n);
@@ -369,44 +369,49 @@ namespace gazebo
         for (unsigned int i = 0; i < n; i++)
         {
           std::vector<std::string> pieces;
-          boost::split(pieces, this->jc.name[i], boost::is_any_of(":"));
+          boost::split(pieces, this->jointNames[i], boost::is_any_of(":"));
+
+          double val;
+          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+            "/p", val);
+          this->jc.kp_position[i] = val;
 
           this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/p", this->jc.kp_position[i]);
+            "/i", val);
+          this->jc.ki_position[i] = val;
 
           this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/i", this->jc.ki_position[i]);
+            "/d", val);
+          this->jc.kd_position[i] = val;
 
           this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/d", this->jc.kd_position[i]);
+            "/i_clamp", val);
+          this->jc.i_effort_min[i] = -val;
 
           this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/i_clamp", this->jc.i_effort_min[i]);
-          this->jc.i_effort_min[i] = -this->jc.i_effort_min[i];
-
-          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/i_clamp", this->jc.i_effort_max[i]);
+            "/i_clamp", val);
+          this->jc.i_effort_max[i] = val;
 
           this->jc.velocity[i]     = 0;
           this->jc.effort[i]       = 0;
           this->jc.kp_velocity[i]  = 0;
         }
 
-        this->pubJointCommands =
-          this->rosNode->advertise<osrf_msgs::JointCommands>(
-          "/atlas/joint_commands", 1, true);
+        this->pubAtlasCommand =
+          this->rosNode->advertise<atlas_msgs::AtlasCommand>(
+          "/atlas/atlas_command", 1, true);
 
         ros::SubscribeOptions jointStatesSo =
           ros::SubscribeOptions::create<sensor_msgs::JointState>(
           "/atlas/joint_states", 1,
-          boost::bind(&JointCommandsController::GetJointStates, this, _1),
+          boost::bind(&AtlasCommandController::GetJointStates, this, _1),
           ros::VoidPtr(), this->rosNode->getCallbackQueue());
         this->subJointStates =
           this->rosNode->subscribe(jointStatesSo);
       }
 
       /// \brief Destructor
-      private: ~JointCommandsController()
+      private: ~AtlasCommandController()
       {
         this->rosNode->shutdown();
         delete this->rosNode;
@@ -457,13 +462,13 @@ namespace gazebo
 
         // set joint positions
         std::map<std::string, double> jps;
-        for (unsigned int i = 0; i < this->jc.name.size(); ++i)
-          jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
+        for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+          jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
 
         atlasModel->SetJointPositions(jps);
 
-        // publish JointCommands
-        this->pubJointCommands.publish(jc);
+        // publish AtlasCommand
+        this->pubAtlasCommand.publish(jc);
       }
 
       /// \brief standing configuration of the robot when it exits
@@ -505,29 +510,32 @@ namespace gazebo
 
         // set joint positions
         std::map<std::string, double> jps;
-        for (unsigned int i = 0; i < this->jc.name.size(); ++i)
-          jps.insert(std::make_pair(this->jc.name[i], this->jc.position[i]));
+        for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+          jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
 
         atlasModel->SetJointPositions(jps);
 
-        // publish JointCommands
-        this->pubJointCommands.publish(jc);
+        // publish AtlasCommand
+        this->pubAtlasCommand.publish(jc);
       }
 
       /// \brief subscriber to joint_states
       private: ros::Subscriber subJointStates;
 
       /// \brief publisher of joint_commands
-      private: ros::Publisher pubJointCommands;
+      private: ros::Publisher pubAtlasCommand;
 
       /// \brief ros node handle
       private: ros::NodeHandle* rosNode;
 
-      /// \brief local copy of JointCommands message
-      private: osrf_msgs::JointCommands jc;
+      /// \brief local copy of AtlasCommand message
+      private: atlas_msgs::AtlasCommand jc;
+
+      /// \brief hardcoded joint names for atlas
+      private: std::vector<std::string> jointNames;
 
       friend class VRCPlugin;
-    } jointCommandsController;
+    } atlasCommandController;
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
