@@ -42,6 +42,11 @@ AtlasPlugin::AtlasPlugin()
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
   this->usingWalkingController = false;
+
+  this->strideSagittal = 0.23;
+  this->strideCoronal = 0.12;
+  this->strideDuration = 0.63;
+  this->walkYawRate = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -196,8 +201,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->ZeroJointCommands();
 
   // AtlasSimInterface:  initialize toRobot
-  this->toRobot.timestamp = 1.0e9 * this->world->GetSimTime().nsec
-    + this->world->GetSimTime().nsec;
   for(unsigned int i = 0; i < this->joints.size(); ++i)
   {
     this->toRobot.j[i].q_d = 0;
@@ -206,6 +209,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->toRobot.jparams[i].k_q_p = 0;
     this->toRobot.jparams[i].k_q_i = 0;
     this->toRobot.jparams[i].k_qd_p = 0;
+
+    // probably not used?
+    this->toRobot.pos_est.position = AtlasVec3f(0, 0, 0);
+    this->toRobot.pos_est.velocity = AtlasVec3f(0, 0, 0);
+    this->toRobot.foot_pos_est[0] = AtlasVec3f(0, 0, 0);
+    this->toRobot.foot_pos_est[1] = AtlasVec3f(0, 0, 0);
+    this->toRobot.current_step_index = 1;
   }
 
   // AtlasSimInterface:  initialize fromRobot joints data
@@ -223,7 +233,8 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   // AtlasSimInterface:  initialize fromRobot sensor data
-  this->fromRobot.imu.imu_timestamp = this->toRobot.timestamp;
+  this->fromRobot.imu.imu_timestamp = 1.0e9 * this->world->GetSimTime().nsec
+    + this->world->GetSimTime().nsec;
   this->fromRobot.imu.angular_velocity.n[0] = 0;
   this->fromRobot.imu.angular_velocity.n[1] = 0;
   this->fromRobot.imu.angular_velocity.n[2] = 0;
@@ -253,18 +264,44 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->fromRobot.wrist_sensors[1].m.n[1] = 0;
   this->fromRobot.wrist_sensors[1].m.n[2] = 0;
   // internal debugging use only
-  this->fromRobot.pelvis_position.n[0] = 0;
-  this->fromRobot.pelvis_position.n[1] = 0;
-  this->fromRobot.pelvis_position.n[2] = 0;
-  this->fromRobot.pelvis_velocity.n[0] = 0;
-  this->fromRobot.pelvis_velocity.n[1] = 0;
-  this->fromRobot.pelvis_velocity.n[2] = 0;
+  // this->fromRobot.pelvis_position.n[0] = 0;
+  // this->fromRobot.pelvis_position.n[1] = 0;
+  // this->fromRobot.pelvis_position.n[2] = 0;
+  // this->fromRobot.pelvis_velocity.n[0] = 0;
+  // this->fromRobot.pelvis_velocity.n[1] = 0;
+  // this->fromRobot.pelvis_velocity.n[2] = 0;
+
+  this->fromRobot.stand_params.use_desired_pelvis_height = false;
+  this->fromRobot.stand_params.desired_pelvis_height = 0.0;
+
+  AtlasBehaviorSingleStepWalkParams* singlestep =
+    &this->fromRobot.singlestep_walk_params;
+  singlestep->desired_step.step_index = 1;
+  singlestep->desired_step.foot_index = 0;
+  singlestep->desired_step.duration = 0.63;
+  singlestep->desired_step.position = AtlasVec3f(1, 0, 0);
+  singlestep->desired_step.yaw = 0;
+
+  AtlasBehaviorMultiStepWalkParams* multistep =
+    &this->fromRobot.multistep_walk_params;
+
+  multistep->use_demo_walk = false;
+
+  for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
+  {
+    multistep->step_data[stepId].step_index = stepId + 1;
+    multistep->step_data[stepId].foot_index = 0;
+    multistep->step_data[stepId].duration = 0.0;
+    multistep->step_data[stepId].position = AtlasVec3f(0, 0, 0);
+    multistep->step_data[stepId].yaw = 0;
+  }
 
   // AtlasSimInterface:
   // Calling into the behavior library to reset controls and set startup
   // behavior.
   this->errorCode = this->atlasSimInterface->reset_control();
-  this->errorCode = this->atlasSimInterface->set_desired_behavior("safety");
+  this->errorCode = this->atlasSimInterface->set_desired_behavior("stand-prep");
+  // this->errorCode = this->atlasSimInterface->set_desired_behavior("walk");
 
   // AtlasSimInterface: Get pelvis link for internal debugging only
   this->pelvisLink = this->model->GetLink(this->pelvisLinkName);
@@ -611,9 +648,6 @@ void AtlasPlugin::DeferredLoad()
     "atlas/joint_commands", 1,
     boost::bind(&AtlasPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
-  // This subscription is TCP because the message is larger than a UDP datagram
-  // and we have had reports of corrupted data, which we attribute to erroneous
-  // demarshalling following packet loss.
   jointCommandsSo.transport_hints =
     ros::TransportHints().reliable().tcpNoDelay(true);
   this->subJointCommands =
@@ -725,6 +759,28 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     this->usingWalkingController = true;
     this->atlasSimInterface->set_desired_behavior(_mode->data);
     this->ZeroAtlasCommand();
+    if (_mode->data == "walk")
+    {
+      AtlasBehaviorMultiStepWalkParams* multistep =
+        &this->fromRobot.multistep_walk_params;
+
+      multistep->use_demo_walk = false;
+
+      for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
+      {
+        int isRight = stepId % 2;
+        multistep->step_data[stepId].step_index = stepId + 1;
+        multistep->step_data[stepId].foot_index = (int)isRight;
+        multistep->step_data[stepId].duration = this->strideDuration;
+        double stepX = static_cast<double>(stepId + 1)*this->strideSagittal;
+        double stepY = this->strideCoronal;
+        if (isRight)
+          multistep->step_data[stepId].position = AtlasVec3f(stepX, -stepY, 0);
+        else
+          multistep->step_data[stepId].position = AtlasVec3f(stepX, stepY, 0);
+        multistep->step_data[stepId].yaw = 0;
+      }
+    }
   }
   else if (_mode->data == "none")
   {
@@ -742,10 +798,16 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
+  static unsigned int count = 0;
+
   common::Time curTime = this->world->GetSimTime();
 
   if (curTime > this->lastControllerUpdateTime)
   {
+
+    // test turn off repeatedly
+    // this->fromRobot.multistep_walk_params.use_demo_walk = false;
+
     // AtlasSimInterface:
     // populate fromRobot from robot
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -759,6 +821,9 @@ void AtlasPlugin::UpdateStates()
     // get imu data from imu link
     if (this->imuSensor && curTime > this->lastImuTime)
     {
+      // AtlasSimInterface: populate imu in fromRobot
+      this->fromRobot.imu.imu_timestamp = 1.0e9 * curTime.nsec + curTime.nsec;
+
       // publish separate /atlas/imu topic, to be deprecated
       sensor_msgs::Imu imuMsg;
       imuMsg.header.frame_id = this->imuLinkName;
@@ -835,12 +900,12 @@ void AtlasPlugin::UpdateStates()
       math::Vector3 vel = this->pelvisLink->GetWorldLinearVel();
 
       /// WARNING: these are inertial?
-      this->fromRobot.pelvis_position.n[0] = pose.pos.x;
-      this->fromRobot.pelvis_position.n[1] = pose.pos.y;
-      this->fromRobot.pelvis_position.n[2] = pose.pos.z;
-      this->fromRobot.pelvis_velocity.n[0] = vel.x;
-      this->fromRobot.pelvis_velocity.n[1] = vel.y;
-      this->fromRobot.pelvis_velocity.n[2] = vel.z;
+      // this->fromRobot.pelvis_position.n[0] = pose.pos.x;
+      // this->fromRobot.pelvis_position.n[1] = pose.pos.y;
+      // this->fromRobot.pelvis_position.n[2] = pose.pos.z;
+      // this->fromRobot.pelvis_velocity.n[0] = vel.x;
+      // this->fromRobot.pelvis_velocity.n[1] = vel.y;
+      // this->fromRobot.pelvis_velocity.n[2] = vel.z;
     }
 
     // publish separate /atlas/force_torque_sensors topic, to be deprecated
@@ -863,9 +928,9 @@ void AtlasPlugin::UpdateStates()
       forceTorqueSensorsMsg.l_foot.torque.y = wrench.body2Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[0].fz = wrench.body2Force.z;
-      this->fromRobot.foot_sensors[0].mx = wrench.body2Torque.x;
-      this->fromRobot.foot_sensors[0].my = wrench.body2Torque.y;
+      this->fromRobot.foot_sensors[0].fz = wrench.body1Force.z;
+      this->fromRobot.foot_sensors[0].mx = wrench.body1Torque.x;
+      this->fromRobot.foot_sensors[0].my = wrench.body1Torque.y;
     }
 
     // get force torque at right ankle and publish
@@ -882,9 +947,9 @@ void AtlasPlugin::UpdateStates()
       forceTorqueSensorsMsg.r_foot.torque.y = wrench.body2Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[1].fz = wrench.body2Force.z;
-      this->fromRobot.foot_sensors[1].mx = wrench.body2Torque.x;
-      this->fromRobot.foot_sensors[1].my = wrench.body2Torque.y;
+      this->fromRobot.foot_sensors[1].fz = wrench.body1Force.z;
+      this->fromRobot.foot_sensors[1].mx = wrench.body1Torque.x;
+      this->fromRobot.foot_sensors[1].my = wrench.body1Torque.y;
     }
 
     // get force torque at left wrist and publish
@@ -907,12 +972,12 @@ void AtlasPlugin::UpdateStates()
       forceTorqueSensorsMsg.l_hand.torque.z = wrench.body2Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
-      this->fromRobot.wrist_sensors[0].f.n[0] = wrench.body2Force.x;
-      this->fromRobot.wrist_sensors[0].f.n[1] = wrench.body2Force.y;
-      this->fromRobot.wrist_sensors[0].f.n[2] = wrench.body2Force.z;
-      this->fromRobot.wrist_sensors[0].m.n[0] = wrench.body2Torque.x;
-      this->fromRobot.wrist_sensors[0].m.n[1] = wrench.body2Torque.y;
-      this->fromRobot.wrist_sensors[0].m.n[2] = wrench.body2Torque.z;
+      this->fromRobot.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
+      this->fromRobot.wrist_sensors[0].f.n[1] = wrench.body1Force.y;
+      this->fromRobot.wrist_sensors[0].f.n[2] = wrench.body1Force.z;
+      this->fromRobot.wrist_sensors[0].m.n[0] = wrench.body1Torque.x;
+      this->fromRobot.wrist_sensors[0].m.n[1] = wrench.body1Torque.y;
+      this->fromRobot.wrist_sensors[0].m.n[2] = wrench.body1Torque.z;
     }
 
     // get force torque at right wrist and publish
@@ -935,12 +1000,12 @@ void AtlasPlugin::UpdateStates()
       forceTorqueSensorsMsg.r_hand.torque.z = wrench.body2Torque.z;
 
       // AtlasSimInterface: populate wrist force torque sensor in fromRobot
-      this->fromRobot.wrist_sensors[1].f.n[0] = wrench.body2Force.x;
-      this->fromRobot.wrist_sensors[1].f.n[1] = wrench.body2Force.y;
-      this->fromRobot.wrist_sensors[1].f.n[2] = wrench.body2Force.z;
-      this->fromRobot.wrist_sensors[1].m.n[0] = wrench.body2Torque.x;
-      this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body2Torque.y;
-      this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body2Torque.z;
+      this->fromRobot.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
+      this->fromRobot.wrist_sensors[1].f.n[1] = wrench.body1Force.y;
+      this->fromRobot.wrist_sensors[1].f.n[2] = wrench.body1Force.z;
+      this->fromRobot.wrist_sensors[1].m.n[0] = wrench.body1Torque.x;
+      this->fromRobot.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
+      this->fromRobot.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
     }
     // publish separate /atlas/force_torque_sensors topic, to be deprecated
     this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg, this->pubForceTorqueSensors);
@@ -973,9 +1038,68 @@ void AtlasPlugin::UpdateStates()
 
     // AtlasSimInterface:
     if (this->usingWalkingController)
+    {
       // process data fromRobot to create output data toRobot
       this->errorCode = this->atlasSimInterface->process_control_input(
         this->fromRobot, this->toRobot);
+
+      std::string mode;
+      this->errorCode = this->atlasSimInterface->get_desired_behavior(mode);
+
+      if (mode == "walk")
+      {
+        unsigned int currentStepIndex = this->toRobot.current_step_index + 1;
+        AtlasBehaviorMultiStepWalkParams* multistep =
+          &this->fromRobot.multistep_walk_params;
+
+        if (currentStepIndex + 1 != multistep->step_data[0].step_index)
+        {
+          if (count == 0)
+            gzerr << "current step [" << currentStepIndex
+                  << "] count [" << count
+                  << "]\n";
+          ++count;
+          if ((currentStepIndex == 1 && count > 1064) ||
+              (currentStepIndex == 2 && count >  400) ||
+              (currentStepIndex >= 3 && count >  200))
+          {
+            for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
+                 ++stepId)
+            {
+              multistep->step_data[stepId].step_index =
+                stepId +1+ currentStepIndex;
+              int isRight = (stepId + currentStepIndex) % 2;
+              multistep->step_data[stepId].foot_index = (unsigned int)(isRight);
+              multistep->step_data[stepId].duration = this->strideDuration;
+              double stepX = 
+                static_cast<double>(stepId + 1 + currentStepIndex) *
+                this->strideSagittal;
+              double stepY = this->strideCoronal;
+
+              double yaw = this->walkYawRate * 
+                static_cast<double>(stepId + 1 + currentStepIndex);
+              multistep->step_data[stepId].yaw = yaw;
+
+              if (isRight)
+                multistep->step_data[stepId].position =
+                  AtlasVec3f(stepX, -stepY, 0);
+              else
+                multistep->step_data[stepId].position =
+                  AtlasVec3f(stepX, stepY, 0);
+
+              gzerr << "  building stepId : " << stepId
+                    << "  step_index[" << stepId + 1 + currentStepIndex
+                    << "]  isRight[" << isRight
+                    << "]  step x[" << stepX
+                    << "]  count[" << count
+                    << "]\n";
+            }
+            count = 0;
+          }
+        }
+      }
+
+    }
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 

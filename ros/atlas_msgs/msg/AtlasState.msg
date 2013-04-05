@@ -1,8 +1,3 @@
-#
-# This message has been carefully constructed to be less
-# than 1500 in size when serialized, to accommodate transfer
-# UDP.
-#
 # testing everything a robot needs
 Header header
 

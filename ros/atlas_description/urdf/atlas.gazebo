@@ -93,6 +93,8 @@
     <cfmDamping>1</cfmDamping>
   </gazebo>
   <gazebo reference="r_foot">
+    <kp>6000000.0</kp>
+    <kd>1.0</kd>
     <mu1>0.9</mu1>
     <mu2>0.9</mu2>
     <fdir1>1 0 0</fdir1>
@@ -100,6 +102,8 @@
     <minDepth>0.003</minDepth>
   </gazebo>
   <gazebo reference="l_foot">
+    <kp>6000000.0</kp>
+    <kd>1.0</kd>
     <mu1>0.9</mu1>
     <mu2>0.9</mu2>
     <fdir1>1 0 0</fdir1>

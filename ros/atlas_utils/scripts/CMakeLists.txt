@@ -1,7 +1,9 @@
 set (files
+  gdbrun
   run_gazebo
   run_gazebo_paused
   run_gzserver
+  run_gzserver_gdb
   reset_pose.py
   nanokontrol.py
   arm_teleop.py

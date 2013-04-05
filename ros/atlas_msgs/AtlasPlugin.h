@@ -277,6 +277,11 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
+
+    private: double strideSagittal;
+    private: double strideCoronal;
+    private: double strideDuration;
+    private: double walkYawRate;
   };
 }
 #endif

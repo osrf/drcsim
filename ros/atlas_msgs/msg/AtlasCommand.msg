@@ -2,10 +2,6 @@
 # This structure contains the gains to be applied to a joint.
 # The controller is a PID with feedforward desired torque:
 #
-# This message has been carefully constructed to be less
-# than 1500 in size when serialized, to accommodate transfer
-# UDP.
-#
 #   kp_position     * ( position - measured_position )       +
 #   ki_position     * 1/s * ( position - measured_position ) +
 #   kd_position     * s * ( position - measured_position ) +
