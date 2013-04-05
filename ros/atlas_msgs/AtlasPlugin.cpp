@@ -43,10 +43,16 @@ AtlasPlugin::AtlasPlugin()
   this->atlasSimInterface = create_atlas_sim_interface();
   this->usingWalkingController = false;
 
-  this->strideSagittal = 0.23;
-  this->strideCoronal = 0.12;
-  this->strideDuration = 0.63;
-  this->walkYawRate = 0.0;
+  // good set of initial values
+  static const double strideSagittalDefault = 0.23;
+  static const double strideCoronalDefault  = 0.12;
+  static const double strideDurationDefault = 0.63;
+  static const double walkYawRateDefault    = 0.0;
+
+  this->strideSagittal = strideSagittalDefault;
+  this->strideCoronal  = strideCoronalDefault;
+  this->strideDuration = strideDurationDefault;
+  this->walkYawRate    = walkYawRateDefault;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
