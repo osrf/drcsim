@@ -66,7 +66,9 @@ rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
 rosbuild_add_executable(pub_atlas_command pub_atlas_command.cpp)
 rosbuild_add_executable(pub_joint_states pub_joint_states.cpp)
 
+# atlas actionlib clients
 rosbuild_add_executable(atlas_actions atlas_actions.cc)
+rosbuild_add_executable(atlas_actions_teleop atlas_actions_teleop.cc)
 
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)
