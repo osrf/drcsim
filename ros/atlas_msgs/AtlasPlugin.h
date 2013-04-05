@@ -278,8 +278,7 @@ namespace gazebo
 
     /// \brief actionlib simple action server executor callback
     private: void ActionServerCallback(
-      const atlas_msgs::AtlasSimInterfaceGoalConstPtr& _goal,
-      ActionServer* _server);
+      const atlas_msgs::AtlasSimInterfaceGoalConstPtr& _goal);
 
     /// \brief lock while updating control modes
     private: boost::mutex actionServerMutex;
