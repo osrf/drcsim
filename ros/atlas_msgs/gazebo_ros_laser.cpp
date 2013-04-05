@@ -59,8 +59,8 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   // load plugin
   RayPlugin::Load(_parent, this->sdf);
   // Get the world name.
-  this->world_name_ = _parent->GetWorldName();
-  this->world_ = physics::get_world(this->world_name_);
+  std::string worldName = _parent->GetWorldName();
+  this->world_ = physics::get_world(worldName);
   // save pointers
   this->sdf = _sdf;
 
@@ -114,6 +114,7 @@ void GazeboRosLaser::LoadThread()
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
   this->gazebo_node_ = gazebo::transport::NodePtr(new gazebo::transport::Node());
   this->gazebo_node_->Init(this->world_name_);
+
   this->pmq.startServiceThread();
 
   // resolve tf prefix
@@ -183,7 +184,6 @@ void GazeboRosLaser::OnScan(ConstLaserScanStampedPtr &_msg)
   std::copy(_msg->scan().intensities().begin(), 
             _msg->scan().intensities().end(), 
             laser_msg.intensities.begin());
-  // this->pub_.publish(laser_msg);
   this->pub_queue_->push(laser_msg, this->pub_);
 }
 }
