@@ -39,7 +39,7 @@ int main(int argc, char** argv)
   // demo1 - walk
   goal.params.behavior = 9;
   client.sendGoal(goal);
-  client.waitForResult(ros::Duration(1.0));
+  client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas demo1 action suceeded");
 

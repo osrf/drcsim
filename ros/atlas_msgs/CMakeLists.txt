@@ -14,6 +14,7 @@ rosbuild_find_ros_package(actionlib_msgs)
 include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
 genaction()
 
+set(ROS_BUILD_TYPE Release)
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
 
