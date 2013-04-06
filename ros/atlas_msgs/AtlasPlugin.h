@@ -298,9 +298,6 @@ namespace gazebo
     private: std::vector<atlas_msgs::AtlasBehaviorStepParams>*
       stepTrajectory;
 
-    /// \brief demo1 internal parameters, contains (x, y, heading)
-    // private: math::Vector3 demo1Target;
-
     /// \brief used for trajectory rollout
     private: unsigned int trajectoryIndex;
 
@@ -336,6 +333,8 @@ namespace gazebo
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
 
+    // walking parameters
+    private: double footLiftThreshold;
     private: double strideSagittal;
     private: double strideCoronal;
     private: double strideDuration;

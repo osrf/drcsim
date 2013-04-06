@@ -37,7 +37,7 @@ int main(int argc, char** argv)
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas reset action suceeded\n");
 
-  ros::Duration(5).sleep();
+  ros::Duration(0.5).sleep();
 
   // safety
   goal.params.behavior = 3;
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas safety action suceeded\n");
 
-  ros::Duration(5).sleep();
+  ros::Duration(0.5).sleep();
 
   // stand prep
   goal.params.behavior = 4;
@@ -55,11 +55,13 @@ int main(int argc, char** argv)
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas stand prep action suceeded\n");
 
-  // nominal
   ros::Duration(5).sleep();
+
+  // nominal
   std_msgs::String msg;
   msg.data = "nominal";
   pubMode.publish(msg);
+
   ros::Duration(0.3).sleep();
 
   // stand
@@ -69,10 +71,10 @@ int main(int argc, char** argv)
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas stand action suceeded\n");
 
-  ros::Duration(5).sleep();
+  ros::Duration(2).sleep();
 
   // demo1 - walk
-  goal.params.behavior = 9;
+  goal.params.behavior = 10;
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
