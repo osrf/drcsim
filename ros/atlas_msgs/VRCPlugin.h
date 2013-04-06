@@ -387,9 +387,6 @@ namespace gazebo
           this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
             "/i_clamp", val);
           this->jc.i_effort_min[i] = -val;
-
-          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/i_clamp", val);
           this->jc.i_effort_max[i] = val;
 
           this->jc.velocity[i]     = 0;
