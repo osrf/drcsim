@@ -284,7 +284,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     &this->fromRobot.singlestep_walk_params;
   singlestep->desired_step.step_index = 1;
   singlestep->desired_step.foot_index = 0;
-  singlestep->desired_step.duration = 0.63;
+  singlestep->desired_step.duration = this->strideDuration;
   singlestep->desired_step.position = AtlasVec3f(1, 0, 0);
   singlestep->desired_step.yaw = 0;
 
