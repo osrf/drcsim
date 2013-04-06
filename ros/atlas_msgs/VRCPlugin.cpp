@@ -416,7 +416,7 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   this->world->EnablePhysicsEngine(false);
 
   // set robot configuration
-  this->jointCommandsController.SetSeatingConfiguration(this->atlas.model);
+  this->atlasCommandController.SetSeatingConfiguration(this->atlas.model);
   ros::spinOnce();
   // give some time for controllers to settle
   // \todo: use joint state subscriber to check if goal is obtained
@@ -491,7 +491,7 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
   this->world->SetPaused(true);
   this->world->EnablePhysicsEngine(false);
   // set robot configuration
-  this->jointCommandsController.SetStandingConfiguration(this->atlas.model);
+  this->atlasCommandController.SetStandingConfiguration(this->atlas.model);
   ros::spinOnce();
   // give some time for controllers to settle
   // \todo: use joint state subscriber to check if goal is obtained
