@@ -277,8 +277,7 @@ namespace gazebo
     */
 
     /// \brief actionlib simple action server executor callback
-    private: void ActionServerCallback(
-      const atlas_msgs::AtlasSimInterfaceGoalConstPtr& _goal);
+    private: void ActionServerCallback();
 
     /// \brief lock while updating control modes
     private: boost::mutex actionServerMutex;
@@ -294,6 +293,16 @@ namespace gazebo
 
     /// \brief actionlib result
     private: atlas_msgs::AtlasSimInterfaceResult actionServerResult;
+
+    /// \brief used for trajectory rollout
+    private: std::vector<atlas_msgs::AtlasBehaviorStepParams>*
+      stepTrajectory;
+
+    /// \brief demo1 internal parameters, contains (x, y, heading)
+    // private: math::Vector3 demo1Target;
+
+    /// \brief used for trajectory rollout
+    private: unsigned int trajectoryIndex;
 
     /// \brief fill in action server feedback state from toRobot,
     /// where toRobot is populated by call to AtlasSimInterface
