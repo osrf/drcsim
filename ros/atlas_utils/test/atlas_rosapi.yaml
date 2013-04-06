@@ -78,7 +78,7 @@ topics:
     num_publishers: 1
     num_subscribers: -1
   
-  - topic: /atlas/atlas_states
+  - topic: /atlas/atlas_state
     type: atlas_msgs/AtlasState
     num_publishers: 1
     num_subscribers: -1
@@ -95,6 +95,11 @@ topics:
 
   - topic: /atlas/joint_commands
     type: osrf_msgs/JointCommands
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/atlas_command
+    type: atlas_msgs/AtlasCommand
     num_publishers: -1
     num_subscribers: 1
 
