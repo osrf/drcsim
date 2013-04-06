@@ -88,7 +88,7 @@ class TeleopAtlasKeyboard
   double strideDuration;
   double turnAngle;
   atlas_msgs::AtlasSimInterfaceState currentState;
-  atlas_msgs::AtlasBehaviorMultiStepParams multistep;
+//  atlas_msgs::AtlasBehaviorMultiStepParams multistep;
 
 
   public:
@@ -235,9 +235,9 @@ void TeleopAtlasKeyboard::keyboardLoop()
       // for testing: generate 4 steps to match internal atlas step buffer size
       for ( int stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
       {
-        multistep.multistep_params[stepId].step_index = stepId + 1;
-        multistep.multistep_params[stepId].foot_index = stepId ^ 1;
-        multistep.multistep_params[stepId].duration = this->strideDuration;
+        goal.params.multistep_walk_params[stepId].step_index = stepId + 1;
+        goal.params.multistep_walk_params[stepId].foot_index = stepId ^ 1;
+        goal.params.multistep_walk_params[stepId].duration = this->strideDuration;
 
         double stepX =
           static_cast<double>(stepId + 1) * this->strideSagittal;
@@ -253,10 +253,8 @@ void TeleopAtlasKeyboard::keyboardLoop()
         pose.orientation.y = 0;
         pose.orientation.z = 0;
         pose.orientation.w = 1;
-        multistep.multistep_params[stepId].pose = pose;
+        goal.params.multistep_walk_params[stepId].pose = pose;
       }
-      goal.params.multistep_walk_params = multistep;
-
       dirty = true;
       break;
     }
@@ -268,9 +266,9 @@ void TeleopAtlasKeyboard::keyboardLoop()
       // for testing: generate 4 steps to match internal atlas step buffer size
       for ( int stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
       {
-        multistep.multistep_params[stepId].step_index = stepId + 1;
-        multistep.multistep_params[stepId].foot_index = stepId ^ 1;
-        multistep.multistep_params[stepId].duration = this->strideDuration;
+        goal.params.multistep_walk_params[stepId].step_index = stepId + 1;
+        goal.params.multistep_walk_params[stepId].foot_index = stepId ^ 1;
+        goal.params.multistep_walk_params[stepId].duration = this->strideDuration;
 
         double stepX =
           static_cast<double>(stepId + 1) * this->strideSagittal * -1;
@@ -286,10 +284,8 @@ void TeleopAtlasKeyboard::keyboardLoop()
         pose.orientation.y = 0;
         pose.orientation.z = 0;
         pose.orientation.w = 1;
-        multistep.multistep_params[stepId].pose = pose;
+        goal.params.multistep_walk_params[stepId].pose = pose;
       }
-      goal.params.multistep_walk_params = multistep;
-
       dirty = true;
       break;
     }
@@ -300,9 +296,9 @@ void TeleopAtlasKeyboard::keyboardLoop()
       // for testing: generate 4 steps to match internal atlas step buffer size
       for ( int stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
       {
-        multistep.multistep_params[stepId].step_index = stepId + 1;
-        multistep.multistep_params[stepId].foot_index = stepId ^ 1;
-        multistep.multistep_params[stepId].duration = this->strideDuration;
+        goal.params.multistep_walk_params[stepId].step_index = stepId + 1;
+        goal.params.multistep_walk_params[stepId].foot_index = stepId ^ 1;
+        goal.params.multistep_walk_params[stepId].duration = this->strideDuration;
 
         double stepX = 0;
         double stepY = this->strideSagittal
@@ -318,9 +314,8 @@ void TeleopAtlasKeyboard::keyboardLoop()
         pose.orientation.y = 0;
         pose.orientation.z = 0;
         pose.orientation.w = 1;
-        multistep.multistep_params[stepId].pose = pose;
+        goal.params.multistep_walk_params[stepId].pose = pose;
       }
-      goal.params.multistep_walk_params = multistep;
       dirty = true;
       break;
     }
@@ -333,9 +328,9 @@ void TeleopAtlasKeyboard::keyboardLoop()
       // for testing: generate 4 steps to match internal atlas step buffer size
       for ( int stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
       {
-        multistep.multistep_params[stepId].step_index = stepId + 1;
-        multistep.multistep_params[stepId].foot_index = stepId ^ 1;
-        multistep.multistep_params[stepId].duration = this->strideDuration;
+        goal.params.multistep_walk_params[stepId].step_index = stepId + 1;
+        goal.params.multistep_walk_params[stepId].foot_index = stepId ^ 1;
+        goal.params.multistep_walk_params[stepId].duration = this->strideDuration;
 
         double stepX = 0;
         double stepY = this->strideSagittal
@@ -351,9 +346,8 @@ void TeleopAtlasKeyboard::keyboardLoop()
         pose.orientation.y = 0;
         pose.orientation.z = 0;
         pose.orientation.w = 1;
-        multistep.multistep_params[stepId].pose = pose;
+        goal.params.multistep_walk_params[stepId].pose = pose;
       }
-      goal.params.multistep_walk_params = multistep;
       dirty = true;
       break;
     }
@@ -365,9 +359,9 @@ void TeleopAtlasKeyboard::keyboardLoop()
       // for testing: generate 4 steps to match internal atlas step buffer size
       for ( int stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
       {
-        multistep.multistep_params[stepId].step_index = stepId + 1;
-        multistep.multistep_params[stepId].foot_index = stepId ^ 1;
-        multistep.multistep_params[stepId].duration = this->strideDuration;
+        goal.params.multistep_walk_params[stepId].step_index = stepId + 1;
+        goal.params.multistep_walk_params[stepId].foot_index = stepId ^ 1;
+        goal.params.multistep_walk_params[stepId].duration = this->strideDuration;
 
         angle = (stepId + 1) / 4.0 * this->turnAngle;
 
@@ -388,10 +382,8 @@ void TeleopAtlasKeyboard::keyboardLoop()
         tf::Quaternion q(tf::Vector3(0, 0, 1), angle);
         tf::quaternionTFToMsg(q, pose.orientation);
 
-        multistep.multistep_params[stepId].pose = pose;
+        goal.params.multistep_walk_params[stepId].pose = pose;
       }
-      goal.params.multistep_walk_params = multistep;
-
       dirty = true;
       break;
     }
@@ -403,9 +395,9 @@ void TeleopAtlasKeyboard::keyboardLoop()
       // for testing: generate 4 steps to match internal atlas step buffer size
       for ( int stepId = 0; stepId < 4; ++stepId)
       {
-        multistep.multistep_params[stepId].step_index = stepId + 1;
-        multistep.multistep_params[stepId].foot_index = stepId ^ 1;
-        multistep.multistep_params[stepId].duration = this->strideDuration;
+        goal.params.multistep_walk_params[stepId].step_index = stepId + 1;
+        goal.params.multistep_walk_params[stepId].foot_index = stepId ^ 1;
+        goal.params.multistep_walk_params[stepId].duration = this->strideDuration;
 
         angle = (stepId + 1) / 4.0 * this->turnAngle;
 
@@ -426,9 +418,8 @@ void TeleopAtlasKeyboard::keyboardLoop()
         tf::Quaternion q(tf::Vector3(0, 0, 1), -angle);
         tf::quaternionTFToMsg(q, pose.orientation);
 
-        multistep.multistep_params[stepId].pose = pose;
+        goal.params.multistep_walk_params[stepId].pose = pose;
       }
-      goal.params.multistep_walk_params = multistep;
       dirty = true;
       break;
     }
