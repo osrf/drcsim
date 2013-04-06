@@ -1141,7 +1141,9 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 
     // stuff only works in ODE right now
     ode_pe->SetAutoDisableFlag(req.ode_config.auto_disable_bodies);
-    ode_pe->SetSORPGSPreconIters(req.ode_config.sor_pgs_precon_iters);
+
+    //@TODO This method doesn't work.
+    //ode_pe->SetSORPGSPreconIters(req.ode_config.sor_pgs_precon_iters);
     ode_pe->SetSORPGSIters(req.ode_config.sor_pgs_iters);
     ode_pe->SetSORPGSW(req.ode_config.sor_pgs_w);
     ode_pe->SetWorldCFM(req.ode_config.cfm);
