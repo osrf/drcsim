@@ -28,7 +28,7 @@ uint32 behavior              # can be one of MULTI_STEP_WALK,
                              # SINGLE_STEP_WALK, STAND, NONE
 
 # multi_step walking trajectory parameters
-atlas_msgs/AtlasBehaviorMultiStepParams multistep_walk_params
+atlas_msgs/AtlasBehaviorStepParams[] multistep_walk_params
 
 # parameters for single_step behavior (not yet implemented)
 atlas_msgs/AtlasBehaviorStepParams singlestep_walk_params
