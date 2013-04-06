@@ -476,13 +476,8 @@ void AtlasPlugin::UpdateAtlasCommand(const atlas_msgs::AtlasCommand &_msg)
 void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
-  {
-    boost::mutex::scoped_lock lock(this->mutex);
-    this->UpdateJointCommands(*_msg);
-  }
-
-  boost::mutex::scoped_lock lock(this->pauseMutex);
-  this->pause.notify_one();
+  boost::mutex::scoped_lock lock(this->mutex);
+  this->UpdateJointCommands(*_msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
