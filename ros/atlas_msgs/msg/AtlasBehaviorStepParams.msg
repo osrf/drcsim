@@ -1,5 +1,5 @@
 # multi_step walking trajectory parameters
-uint32 step_index 	           # Step index, starting from 1,
+uint32 step_index 	           # Step index, matlab style, starting from 1,
                                # monotonically increasing during walking
 							                 #  resets to 1 if robot leaves walk behaviors
 float64 foot_index             # Foot_index can be LEFT_FOOT or RIGHT_FOOT

@@ -286,7 +286,7 @@ namespace gazebo
     private: ActionServer* actionServer;
 
     /// \brief local copy of the goal
-    private: atlas_msgs::AtlasSimInterfaceGoal actionServerGoal;
+    private: atlas_msgs::AtlasSimInterfaceGoal activeGoal;
 
     /// \brief actionlib feedback
     private: atlas_msgs::AtlasSimInterfaceFeedback actionServerFeedback;
@@ -295,11 +295,45 @@ namespace gazebo
     private: atlas_msgs::AtlasSimInterfaceResult actionServerResult;
 
     /// \brief used for trajectory rollout
-    private: std::vector<atlas_msgs::AtlasBehaviorStepParams>*
+    private: std::vector<atlas_msgs::AtlasBehaviorStepParams>
       stepTrajectory;
 
-    /// \brief used for trajectory rollout
-    private: unsigned int trajectoryIndex;
+    /// \brief current position of the robot
+    math::Vector3 currentPelvisPosition;
+    math::Vector3 currentLFootPosition;
+    math::Vector3 currentRFootPosition;
+    math::Pose bdiOdometryFrame;
+
+    private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
+    {
+      return math::Pose(math::Vector3(_pose.position.x,
+                                      _pose.position.y,
+                                      _pose.position.z),
+                        math::Quaternion(_pose.orientation.w,
+                                         _pose.orientation.x,
+                                         _pose.orientation.y,
+                                         _pose.orientation.z));
+    }
+
+    private: inline geometry_msgs::Pose ToPose(const math::Pose &_pose) const
+    {
+      geometry_msgs::Pose result;
+      result.position.x = _pose.pos.x;
+      result.position.y = _pose.pos.y;
+      result.position.z = _pose.pos.y;
+      result.orientation.w = _pose.rot.w;
+      result.orientation.x = _pose.rot.x;
+      result.orientation.y = _pose.rot.y;
+      result.orientation.z = _pose.rot.z;
+      return result;
+    }
+
+    private: inline AtlasVec3f ToVec3(const geometry_msgs::Point _point) const
+    {
+      return AtlasVec3f(_point.x,
+                        _point.y,
+                        _point.z);
+    }
 
     /// \brief fill in action server feedback state from toRobot,
     /// where toRobot is populated by call to AtlasSimInterface

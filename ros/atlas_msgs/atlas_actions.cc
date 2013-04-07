@@ -31,7 +31,7 @@ int main(int argc, char** argv)
   ros::Duration(0.3).sleep();
 
   // reset
-  goal.params.behavior = 8;
+  goal.params.behavior = atlas_msgs::AtlasSimInterface::RESET;
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
   ros::Duration(0.5).sleep();
 
   // safety
-  goal.params.behavior = 3;
+  goal.params.behavior = atlas_msgs::AtlasSimInterface::SAFETY;
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
   ros::Duration(0.5).sleep();
 
   // stand prep
-  goal.params.behavior = 4;
+  goal.params.behavior = atlas_msgs::AtlasSimInterface::STAND_PREP;
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
   ros::Duration(0.3).sleep();
 
   // stand
-  goal.params.behavior = 7;
+  goal.params.behavior = atlas_msgs::AtlasSimInterface::STAND;
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
@@ -74,7 +74,27 @@ int main(int argc, char** argv)
   ros::Duration(2).sleep();
 
   // demo1 - walk
-  goal.params.behavior = 10;
+  goal.params.behavior = atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
+  // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO2;
+  // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO1;
+  // build 10 steps
+  unsigned int steps = 10;
+  goal.params.multistep_walk_params.resize(steps);
+  for (unsigned int i = 0; i < steps; ++i)
+  {
+    goal.params.multistep_walk_params[i].step_index = i;
+    goal.params.multistep_walk_params[i].foot_index = i % 2;
+    goal.params.multistep_walk_params[i].duration = 0.63;
+    goal.params.multistep_walk_params[i].pose.position.x = 0.2 * i;
+    goal.params.multistep_walk_params[i].pose.position.y = 0.1 - (i%2)*0.2;
+    goal.params.multistep_walk_params[i].pose.position.z = 0.1;
+    goal.params.multistep_walk_params[i].pose.orientation.x = 0;
+    goal.params.multistep_walk_params[i].pose.orientation.y = 0;
+    goal.params.multistep_walk_params[i].pose.orientation.z = 0;
+    goal.params.multistep_walk_params[i].pose.orientation.w = 1;
+    goal.params.multistep_walk_params[i].swing_height = 0.3;
+  }
+
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
