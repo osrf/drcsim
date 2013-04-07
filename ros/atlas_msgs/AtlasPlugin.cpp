@@ -1017,6 +1017,15 @@ void AtlasPlugin::ActionServerCallback()
               this->ToVec3(this->stepTrajectory[stepId].pose.position);
             curStep->step_data[stepId].yaw = this->ToPose(
               this->stepTrajectory[stepId].pose).rot.GetAsEuler().z;
+
+            gzdbg << "  building stepId : " << stepId
+                  << "  step_index["
+                  << curStep->step_data[stepId].step_index
+                  << "]  isRight["
+                  << curStep->step_data[stepId].foot_index
+                  << "]  pos ["
+                  << curStep->step_data[stepId].position.n[0]
+                  << "]\n";
           }
         }
         else
@@ -1682,9 +1691,9 @@ void AtlasPlugin::UpdateStates()
             AtlasBehaviorMultiStepWalkParams* curStep =
               &this->fromRobot.multistep_walk_params;
 
-            // gzdbg << currentStepIndex << " : "
-            //       << curStep->step_data[0].step_index
-            //       << "\n";
+            gzdbg << currentStepIndex << " : "
+                  << curStep->step_data[0].step_index
+                  << "\n";
 
             if (1 + currentStepIndex >= this->stepTrajectory.size())
             {
@@ -1707,12 +1716,12 @@ void AtlasPlugin::UpdateStates()
               unsigned int foot_index =
                   curStep->step_data[0].foot_index;
 
-              // gzdbg << "next step [" << currentStepIndex + 1
-              //       << "] foot [" << 0
-              //       << "] z [" << this->toRobot.foot_pos_est[0].n[2]
-              //       << "] foot [" << 1
-              //       << "] z [" << this->toRobot.foot_pos_est[1].n[2]
-              //       << "]\n";
+              gzdbg << "next step [" << currentStepIndex + 1
+                    << "] foot [" << 0
+                    << "] z [" << this->toRobot.foot_pos_est[0].n[2]
+                    << "] foot [" << 1
+                    << "] z [" << this->toRobot.foot_pos_est[1].n[2]
+                    << "]\n";
 
               if (this->toRobot.foot_pos_est[foot_index].n[2] >
                   this->footLiftThreshold)
@@ -1737,11 +1746,15 @@ void AtlasPlugin::UpdateStates()
                   curStep->step_data[stepId].yaw = this->ToPose(
                     this->stepTrajectory[curStepId].pose).rot.GetAsEuler().z;
 
-                  // gzdbg << "  building stepId : " << stepId
-                  //       << "  step_index[" << curStepId
-                  //       << "]  isRight[" << isRight
-                  //       << "]  step x[" << stepX
-                  //       << "]\n";
+                  gzdbg << "  building stepId : " << stepId
+                        << "  traj id [" << curStepId
+                        << curStep->step_data[stepId].step_index
+                        << "  step_index["
+                        << "]  isRight["
+                        << curStep->step_data[stepId].foot_index
+                        << "]  pos ["
+                        << curStep->step_data[stepId].position.n[0]
+                        << "]\n";
                 }
               }
             }

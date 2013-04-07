@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   goal.params.multistep_walk_params.resize(steps);
   for (unsigned int i = 0; i < steps; ++i)
   {
-    goal.params.multistep_walk_params[i].step_index = i;
+    goal.params.multistep_walk_params[i].step_index = i + 1;
     goal.params.multistep_walk_params[i].foot_index = i % 2;
     goal.params.multistep_walk_params[i].duration = 0.63;
     goal.params.multistep_walk_params[i].pose.position.x = 0.2 * i;
