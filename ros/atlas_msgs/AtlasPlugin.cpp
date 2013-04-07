@@ -882,9 +882,9 @@ void AtlasPlugin::ActionServerCallback()
           // setup initial step buffer
           for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
           {
-            int isRight = stepId % 2;
+            unsigned int isRight = stepId % 2;
             multistep->step_data[stepId].step_index = stepId + 1;
-            multistep->step_data[stepId].foot_index = (int)isRight;
+            multistep->step_data[stepId].foot_index = (unsigned int)isRight;
             multistep->step_data[stepId].duration = this->strideDuration;
             double stepX = static_cast<double>(stepId + 1)*this->strideSagittal;
             double stepY = this->strideCoronal;
@@ -968,18 +968,22 @@ void AtlasPlugin::ActionServerCallback()
           // deduce current orientation from feet location relative
           // to pelvis.
           math::Vector3 dr = currentRFootPosition - currentLFootPosition;
-          double currentOrientation = atan2(dr.y, dr.x);
+          gzerr << dr << "\n";
+          double currentOrientation = atan2(dr.x, -dr.y);
 
           // try to create current odometry pose, but ideally we would like
           // this from the controller.
           this->bdiOdometryFrame = math::Pose(currentPelvisPosition,
             math::Quaternion(0, 0, currentOrientation));
 
-          gzdbg <<   "current position pelvis[" << this->currentPelvisPosition
-                << "] current position l_foot[" << this->currentLFootPosition
-                << "] current position r_root[" << this->currentRFootPosition
-                << "] orientation [" << currentOrientation
-                << "]\n";
+          // gzdbg <<   "current position pelvis["
+          //       << this->currentPelvisPosition
+          //       << "] current position l_foot["
+          //       << this->currentLFootPosition
+          //       << "] current position r_root["
+          //       << this->currentRFootPosition
+          //       << "] orientation [" << currentOrientation
+          //       << "]\n";
         }
 
         // convert trajectory to local coordinate frame
@@ -1005,7 +1009,8 @@ void AtlasPlugin::ActionServerCallback()
           curStep->use_demo_walk = false;
 
           // initialize buffer with first 4 steps
-          for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
+          for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
+               ++stepId)
           {
             curStep->step_data[stepId].step_index =
               this->stepTrajectory[stepId].step_index;
@@ -1022,7 +1027,7 @@ void AtlasPlugin::ActionServerCallback()
                   << "  step_index["
                   << curStep->step_data[stepId].step_index
                   << "]  isRight["
-                  << curStep->step_data[stepId].foot_index
+                  << this->stepTrajectory[stepId].foot_index
                   << "]  pos ["
                   << curStep->step_data[stepId].position.n[0]
                   << "]\n";
@@ -1227,7 +1232,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
       {
         int isRight = stepId % 2;
         multistep->step_data[stepId].step_index = stepId + 1;
-        multistep->step_data[stepId].foot_index = (int)isRight;
+        multistep->step_data[stepId].foot_index = (unsigned int)isRight;
         multistep->step_data[stepId].duration = this->strideDuration;
         double stepX = static_cast<double>(stepId + 1)*this->strideSagittal;
         double stepY = this->strideCoronal;
@@ -1630,7 +1635,7 @@ void AtlasPlugin::UpdateStates()
                 {
                   curStep->step_data[stepId].step_index =
                     stepId +1+ currentStepIndex;
-                  int isRight = (stepId + currentStepIndex) % 2;
+                  unsigned int isRight = (stepId + currentStepIndex) % 2;
                   curStep->step_data[stepId].foot_index =
                     (unsigned int)(isRight);
                   curStep->step_data[stepId].duration = this->strideDuration;
@@ -1691,11 +1696,15 @@ void AtlasPlugin::UpdateStates()
             AtlasBehaviorMultiStepWalkParams* curStep =
               &this->fromRobot.multistep_walk_params;
 
-            gzdbg << currentStepIndex << " : "
-                  << curStep->step_data[0].step_index
-                  << "\n";
+            // gzdbg << currentStepIndex << " : "
+            //       << curStep->step_data[0].step_index
+            //       << " size: "
+            //       << this->stepTrajectory.size()
+            //       << " err: "
+            //       << this->actionServerResult.end_state.error_code
+            //       << "\n";
 
-            if (1 + currentStepIndex >= this->stepTrajectory.size())
+            if (currentStepIndex >= this->stepTrajectory.size() + 1)
             {
               // end of trajectory
               ROS_INFO("AtlasSimInterface: multi-step mode finished "
@@ -1716,12 +1725,12 @@ void AtlasPlugin::UpdateStates()
               unsigned int foot_index =
                   curStep->step_data[0].foot_index;
 
-              gzdbg << "next step [" << currentStepIndex + 1
-                    << "] foot [" << 0
-                    << "] z [" << this->toRobot.foot_pos_est[0].n[2]
-                    << "] foot [" << 1
-                    << "] z [" << this->toRobot.foot_pos_est[1].n[2]
-                    << "]\n";
+              // gzdbg << "next step [" << currentStepIndex + 1
+              //       << "] foot [" << 0
+              //       << "] z [" << this->toRobot.foot_pos_est[0].n[2]
+              //       << "] foot [" << 1
+              //       << "] z [" << this->toRobot.foot_pos_est[1].n[2]
+              //       << "]\n";
 
               if (this->toRobot.foot_pos_est[foot_index].n[2] >
                   this->footLiftThreshold)
@@ -1729,14 +1738,14 @@ void AtlasPlugin::UpdateStates()
                 for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
                      ++stepId)
                 {
-                  unsigned int curStepId = stepId + 1 + currentStepIndex;
+                  unsigned int curStepId = stepId + 0 + currentStepIndex;
 
-                  // no more steps, duplcate last step for buffer
-                  if (curStepId >= this->stepTrajectory.size())
-                    curStepId = this->stepTrajectory.size() - 1;
+                  // no more steps, duplcate last step for same foot in buffer
+                  while (curStepId >= this->stepTrajectory.size())
+                    curStepId -= 2;
 
                   curStep->step_data[stepId].step_index =
-                    this->stepTrajectory[curStepId].step_index;
+                    stepId + 1 + currentStepIndex;
                   curStep->step_data[stepId].foot_index =
                     this->stepTrajectory[curStepId].foot_index;
                   curStep->step_data[stepId].duration =
@@ -1746,15 +1755,17 @@ void AtlasPlugin::UpdateStates()
                   curStep->step_data[stepId].yaw = this->ToPose(
                     this->stepTrajectory[curStepId].pose).rot.GetAsEuler().z;
 
-                  gzdbg << "  building stepId : " << stepId
-                        << "  traj id [" << curStepId
-                        << curStep->step_data[stepId].step_index
-                        << "  step_index["
-                        << "]  isRight["
-                        << curStep->step_data[stepId].foot_index
-                        << "]  pos ["
-                        << curStep->step_data[stepId].position.n[0]
-                        << "]\n";
+                  // gzdbg << "  building stepId : " << stepId
+                  //       << "  traj id [" << curStepId
+                  //       << "] step_index["
+                  //       << curStep->step_data[stepId].step_index
+                  //       << "]  isRight["
+                  //       << curStep->step_data[stepId].foot_index
+                  //       << "]  pos ["
+                  //       << curStep->step_data[stepId].position.n[0]
+                  //       << ", "
+                  //       << curStep->step_data[stepId].position.n[1]
+                  //       << "]\n";
                 }
               }
             }

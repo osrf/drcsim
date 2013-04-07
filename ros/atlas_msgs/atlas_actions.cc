@@ -24,10 +24,11 @@ int main(int argc, char** argv)
   // Fill in goal here
 
   // nominal
-  ros::Duration(5).sleep();
+  ROS_INFO("harnessed.");
   std_msgs::String msg1;
   msg1.data = "harnessed";
   pubMode.publish(msg1);
+
   ros::Duration(0.3).sleep();
 
   // reset
@@ -55,7 +56,7 @@ int main(int argc, char** argv)
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas stand prep action suceeded\n");
 
-  ros::Duration(5).sleep();
+  ros::Duration(3).sleep();
 
   // nominal
   std_msgs::String msg;
@@ -71,14 +72,14 @@ int main(int argc, char** argv)
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     printf("Yay! The altas stand action suceeded\n");
 
-  ros::Duration(2).sleep();
+  ros::Duration(1).sleep();
 
   // demo1 - walk
   goal.params.behavior = atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
   // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO2;
   // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO1;
   // build 10 steps
-  unsigned int steps = 10;
+  unsigned int steps = 4;
   goal.params.multistep_walk_params.resize(steps);
   for (unsigned int i = 0; i < steps; ++i)
   {
