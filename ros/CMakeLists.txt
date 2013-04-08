@@ -20,7 +20,7 @@ ExternalProject_Add(atlas_msgs
                       -DDRC_SIM_VERSION=${DRC_SIM_VERSION}
                       -DDRC_SIM_CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
                       -DPLUGIN_LINK_DIRECTORIES=${CMAKE_BINARY_DIR}/plugins
-                      -DROS_BUILD_TYPE ${CMAKE_BUILD_TYPE}
+                      -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       ${CATKIN_BUILD_BINARY_PACKAGE_STRING}
                     INSTALL_COMMAND ""
                     )
@@ -43,7 +43,7 @@ ExternalProject_Add(joint_commands_gui
                       -DDRC_SIM_VERSION=${DRC_SIM_VERSION}
                       -DDRC_SIM_CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
                       -DPLUGIN_LINK_DIRECTORIES=${CMAKE_BINARY_DIR}/plugins
-                      -DROS_BUILD_TYPE ${CMAKE_BUILD_TYPE}
+                      -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                     INSTALL_COMMAND ""
                     )
 install(CODE "execute_process(COMMAND make -C ${CMAKE_CURRENT_BINARY_DIR}/joint_commands_gui install)")
