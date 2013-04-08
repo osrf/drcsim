@@ -65,7 +65,87 @@
       <pose>2.15 -22 3.75 0 0 1.5707</pose>
     </include>
 
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_0</name>
+      <static>true</static>
+      <pose>15.763 -4.704 1.71 0 0 0</pose>
+    </include>
 
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_1</name>
+      <static>true</static>
+      <pose>-6.495 8.145556 2.303633 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_2</name>
+      <static>true</static>
+      <pose>-0.271239 10.978891 3.309053 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_3</name>
+      <static>true</static>
+      <pose>-10.430363 -1.794219 1.847281 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_4</name>
+      <static>true</static>
+      <pose>14.481933 5.461687 2.781944 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_5</name>
+      <static>true</static>
+      <pose>16.632443 2.107978 3.882098 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_6</name>
+      <static>true</static>
+      <pose>13.247138 -10.905164 2.669825 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_7</name>
+      <static>true</static>
+      <pose>7.977997 -14.508799 2.572939 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_8</name>
+      <static>true</static>
+      <pose>-6.052604 -13.905914 2.389020 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>cone_9</name>
+      <static>true</static>
+      <pose>-7.950964 -8.615575 3.599553 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://house_2</uri>
+      <static>true</static>
+      <pose>24.841499 19.771599 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://house_3</uri>
+      <static>true</static>
+      <pose>-13 20 0 0 0 0</pose>
+    </include>
 
 
     <include>

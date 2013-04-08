@@ -141,11 +141,16 @@ void MultiSenseSL::LoadThread()
   // create ros node
   this->rosnode_ = new ros::NodeHandle("");
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // ros publication
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
     "multisense_sl/joint_states", 10);
 
   // publish imu data
+  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubImu =
     this->rosnode_->advertise<sensor_msgs::Imu>(
       "multisense_sl/imu", 10);
@@ -287,7 +292,7 @@ void MultiSenseSL::UpdateStates()
       imuMsg.orientation.w = imuRot.w;
     }
 
-    this->pubImu.publish(imuMsg);
+    this->pubImuQueue->push(imuMsg, this->pubImu);
   }
 
   double dt = (curTime - this->lastTime).Double();
@@ -315,7 +320,7 @@ void MultiSenseSL::UpdateStates()
     {
       this->spindlePID.Reset();
     }
-    this->pubJointStates.publish(this->jointStates);
+    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   }
 }
 
