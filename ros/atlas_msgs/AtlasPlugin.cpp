@@ -952,7 +952,6 @@ void AtlasPlugin::ActionServerCallback()
           // deduce current orientation from feet location relative
           // to pelvis.
           math::Vector3 dr = currentRFootPosition - currentLFootPosition;
-          gzerr << dr << "\n";
           double currentOrientation = atan2(dr.x, -dr.y);
 
           // try to create current odometry pose, but ideally we would like
@@ -1007,14 +1006,14 @@ void AtlasPlugin::ActionServerCallback()
             curStep->step_data[stepId].yaw = this->ToPose(
               this->stepTrajectory[stepId].pose).rot.GetAsEuler().z;
 
-            gzdbg << "  building stepId : " << stepId
-                  << "  step_index["
-                  << curStep->step_data[stepId].step_index
-                  << "]  isRight["
-                  << this->stepTrajectory[stepId].foot_index
-                  << "]  pos ["
-                  << curStep->step_data[stepId].position.n[0]
-                  << "]\n";
+            // gzdbg << "  building stepId : " << stepId
+            //       << "  step_index["
+            //       << curStep->step_data[stepId].step_index
+            //       << "]  isRight["
+            //       << this->stepTrajectory[stepId].foot_index
+            //       << "]  pos ["
+            //       << curStep->step_data[stepId].position.n[0]
+            //       << "]\n";
           }
         }
         else
