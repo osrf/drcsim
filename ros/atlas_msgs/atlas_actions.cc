@@ -77,9 +77,9 @@ int main(int argc, char** argv)
   ros::Duration(1).sleep();
 
   // demo1 - walk
-  goal.params.behavior = atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
+  // goal.params.behavior = atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK;
   // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO2;
-  // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO1;
+  goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO1;
   // build 10 steps
   unsigned int steps = 6;
   goal.params.multistep_walk_params.resize(steps+1);

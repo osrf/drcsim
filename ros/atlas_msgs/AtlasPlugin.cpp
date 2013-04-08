@@ -49,15 +49,17 @@ AtlasPlugin::AtlasPlugin()
   this->atlasSimInterface = create_atlas_sim_interface();
 
   // good set of initial values
-  static const double strideSagittalDefault    = 0.00;
-  static const double strideCoronalDefault     = 0.12;
+  static const double strideSagittalDefault    = 0.25;
+  static const double strideCoronalDefault     = 0.15;
+  static const double stepWidthDefault         = 0.12;
   static const double strideDurationDefault    = 0.63;
-  static const double walkYawRateDefault       = 0.0;
+  static const double walkYawRateDefault       = 0.1;
   static const double footLiftThresholdDefault = -0.02;
 
   this->footLiftThreshold = footLiftThresholdDefault;
   this->strideSagittal    = strideSagittalDefault;
   this->strideCoronal     = strideCoronalDefault;
+  this->stepWidth         = stepWidthDefault;
   this->strideDuration    = strideDurationDefault;
   this->walkYawRate       = walkYawRateDefault;
 
@@ -732,6 +734,14 @@ void AtlasPlugin::DeferredLoad()
     ros::VoidPtr(), &this->rosQueue);
   this->subAtlasControlMode = this->rosNode->subscribe(atlasControlModeSo);
 
+  // demo1
+  ros::SubscribeOptions bdiCmdVelSo =
+    ros::SubscribeOptions::create<geometry_msgs::Twist>(
+    "atlas/bdi_cmd_vel", 100,
+    boost::bind(&AtlasPlugin::SetBDICmdVel, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  this->subBDICmdVel = this->rosNode->subscribe(bdiCmdVelSo);
+
   // actionlib simple action server
   this->actionServer = new ActionServer(*this->rosNode, "atlas/bdi_control",
     false);
@@ -763,6 +773,15 @@ void AtlasPlugin::DeferredLoad()
         ros::VoidPtr(), &this->rosQueue);
   this->resetControlsService = this->rosNode->advertiseService(
     resetControlsAso);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::SetBDICmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
+{
+  // update demo1 velocity command
+  this->demo1Vel.x = _cmd->linear.x * this->strideSagittal;
+  this->demo1Vel.y = _cmd->linear.y * this->strideCoronal;
+  this->demo1Vel.z = _cmd->angular.z * this->walkYawRate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -855,36 +874,91 @@ void AtlasPlugin::ActionServerCallback()
         this->ZeroAtlasCommand();
         this->actionServerResult.end_state.error_code =
           this->atlasSimInterface->set_desired_behavior("walk");
+
+        // get current location of the robot in its internal
+        // odometry frame
+        {
+          // call process_control_input once to get toRobot
+          // with internal state, so we know where we are in
+          // the robot's internal odometry.
+          this->actionServerResult.end_state.error_code =
+            this->atlasSimInterface->process_control_input(
+            this->fromRobot, this->toRobot);
+
+          // get current foot placement
+          this->currentPelvisPosition =
+            this->ToVec3(this->toRobot.pos_est.position);
+          this->currentLFootPosition =
+            this->ToVec3(this->toRobot.foot_pos_est[0]);
+          this->currentRFootPosition =
+            this->ToVec3(this->toRobot.foot_pos_est[1]);
+
+          // deduce current orientation from feet location relative
+          // to pelvis.
+          math::Vector3 dr = currentRFootPosition - currentLFootPosition;
+          double currentOrientation = atan2(dr.x, -dr.y);
+
+          // try to create current odometry pose, but ideally we would like
+          // this from the controller.
+          this->bdiOdometryFrame = math::Pose(this->currentPelvisPosition,
+            math::Quaternion(0, 0, currentOrientation));
+
+          // gzdbg <<   "current position pelvis["
+          //       << this->currentPelvisPosition
+          //       << "] current position l_foot["
+          //       << this->currentLFootPosition
+          //       << "] current position r_root["
+          //       << this->currentRFootPosition
+          //       << "] orientation [" << currentOrientation
+          //       << "]\n";
+        }
+
+        // build initial step using current local coordinate frame
+        this->ZeroAtlasCommand();
+        this->actionServerResult.end_state.error_code =
+          this->atlasSimInterface->set_desired_behavior("walk");
         if (this->actionServerResult.end_state.error_code == NO_ERRORS)
         {
-          ROS_INFO("AtlasSimInterface: starting multi-step mode.");
+          ROS_INFO("AtlasSimInterface: starting demo1 mode.");
           // set goal's use_demo_walk to false
-          AtlasBehaviorMultiStepWalkParams* multistep =
+          AtlasBehaviorMultiStepWalkParams* curStep =
             &this->fromRobot.multistep_walk_params;
-          multistep->use_demo_walk = false;
+          curStep->use_demo_walk = false;
 
-          // setup initial step buffer
-          for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS; ++stepId)
+          // initialize buffer with first 4 steps
+          for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
+               ++stepId)
           {
-            unsigned int isRight = stepId % 2;
-            multistep->step_data[stepId].step_index = stepId + 1;
-            multistep->step_data[stepId].foot_index = (unsigned int)isRight;
-            multistep->step_data[stepId].duration = this->strideDuration;
-            double stepX = static_cast<double>(stepId + 1)*this->strideSagittal;
-            double stepY = this->strideCoronal;
-            if (isRight)
-              multistep->step_data[stepId].position =
-                AtlasVec3f(stepX, -stepY, 0);
-            else
-              multistep->step_data[stepId].position =
-                AtlasVec3f(stepX, stepY, 0);
-            multistep->step_data[stepId].yaw = 0;
+            curStep->step_data[stepId].step_index =
+              this->toRobot.current_step_index + 1 + stepId;
+            // alternate foot
+            this->demo1FootIndex = !this->demo1FootIndex;
+            curStep->step_data[stepId].foot_index = this->demo1FootIndex;
+            curStep->step_data[stepId].duration = this->strideDuration;
+            double coronalOffset = (1.0 - 2.0*this->demo1FootIndex) *
+              this->stepWidth;
+            curStep->step_data[stepId].position =
+              this->ToVec3(this->bdiOdometryFrame.pos +
+                           math::Vector3(0, coronalOffset, 0));
+            // set initial yaw rate to 0
+            curStep->step_data[stepId].yaw = 0;
+
+            gzdbg <<   "Building stepId [" << stepId
+                  << "] step_index["
+                  << curStep->step_data[stepId].step_index
+                  << "]  isRight["
+                  << curStep->step_data[stepId].foot_index
+                  << "]  pos ["
+                  << curStep->step_data[stepId].position.n[0]
+                  << "]\n";
           }
         }
         else
         {
-          ROS_INFO("AtlasSimInterface: set multi-step mode failed, error code "
+          ROS_INFO("AtlasSimInterface: set demo1 mode failed, error code "
                    "(%d).", this->actionServerResult.end_state.error_code);
+          this->actionServerResult.end_state.error_code =
+            this->atlasSimInterface->set_desired_behavior("walk");
           this->actionServerResult.success = false;
           this->actionServer->setAborted(this->actionServerResult);
         }
@@ -936,18 +1010,12 @@ void AtlasPlugin::ActionServerCallback()
             this->fromRobot, this->toRobot);
 
           // get current foot placement
-          this->currentPelvisPosition = math::Vector3(
-            this->toRobot.pos_est.position.n[0],
-            this->toRobot.pos_est.position.n[1],
-            this->toRobot.pos_est.position.n[2]);
-          this->currentLFootPosition = math::Vector3(
-            this->toRobot.foot_pos_est[0].n[0],
-            this->toRobot.foot_pos_est[0].n[1],
-            this->toRobot.foot_pos_est[0].n[2]);
-          this->currentRFootPosition = math::Vector3(
-            this->toRobot.foot_pos_est[1].n[0],
-            this->toRobot.foot_pos_est[1].n[1],
-            this->toRobot.foot_pos_est[1].n[2]);
+          this->currentPelvisPosition =
+            this->ToVec3(this->toRobot.pos_est.position);
+          this->currentLFootPosition =
+            this->ToVec3(this->toRobot.foot_pos_est[0]);
+          this->currentRFootPosition =
+            this->ToVec3(this->toRobot.foot_pos_est[1]);
 
           // deduce current orientation from feet location relative
           // to pelvis.
@@ -956,7 +1024,7 @@ void AtlasPlugin::ActionServerCallback()
 
           // try to create current odometry pose, but ideally we would like
           // this from the controller.
-          this->bdiOdometryFrame = math::Pose(currentPelvisPosition,
+          this->bdiOdometryFrame = math::Pose(this->currentPelvisPosition,
             math::Quaternion(0, 0, currentOrientation));
 
           // gzdbg <<   "current position pelvis["
@@ -1034,7 +1102,7 @@ void AtlasPlugin::ActionServerCallback()
           this->atlasSimInterface->set_desired_behavior("walk");
         if (this->actionServerResult.end_state.error_code == NO_ERRORS)
         {
-          ROS_INFO("AtlasSimInterface: starting multi-step demo (figure 8).");
+          ROS_INFO("AtlasSimInterface: starting DEMO2 (figure 8 pattern).");
           // set goal's use_demo_walk to true
           AtlasBehaviorMultiStepWalkParams* multistep =
             &this->fromRobot.multistep_walk_params;
@@ -1210,7 +1278,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
         multistep->step_data[stepId].foot_index = (unsigned int)isRight;
         multistep->step_data[stepId].duration = this->strideDuration;
         double stepX = static_cast<double>(stepId + 1)*this->strideSagittal;
-        double stepY = this->strideCoronal;
+        double stepY = this->stepWidth;
         if (isRight)
           multistep->step_data[stepId].position = AtlasVec3f(stepX, -stepY, 0);
         else
@@ -1245,6 +1313,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
+
+  double dt = (curTime - this->lastControllerUpdateTime).Double();
 
   if (curTime > this->lastControllerUpdateTime)
   {
@@ -1584,8 +1654,7 @@ void AtlasPlugin::UpdateStates()
             // Update trajectory buffer
             if (currentStepIndex + 1 != curStep->step_data[0].step_index)
             {
-              unsigned int foot_index =
-                  curStep->step_data[0].foot_index;
+              this->demo1FootIndex = curStep->step_data[0].foot_index;
 
               // gzdbg << "next step [" << currentStepIndex + 1
               //       << "] foot [" << 0
@@ -1594,38 +1663,64 @@ void AtlasPlugin::UpdateStates()
               //       << "] z [" << this->toRobot.foot_pos_est[1].n[2]
               //       << "]\n";
 
-              if (this->toRobot.foot_pos_est[foot_index].n[2] >
+              if (this->toRobot.foot_pos_est[this->demo1FootIndex].n[2] >
                   this->footLiftThreshold)
               {
+
+                math::Pose odometryFrame = this->bdiOdometryFrame;
+
+                // initialize buffer with first 4 steps
                 for (unsigned stepId = 0; stepId < NUM_MULTISTEP_WALK_STEPS;
                      ++stepId)
                 {
+                  // switch foot
+                  this->demo1FootIndex = !this->demo1FootIndex;
+
+                  // step lateral offset in local odometry frame
+                  double coronalOffset = (1.0 - 2.0*this->demo1FootIndex) *
+                    this->stepWidth;
+
+                  // how much will odometry frame change, expressed in
+                  // current odometry frame
+                  // demo1Vel is specified in m / step or rad / step
+                  math::Pose dOdometryFrame(
+                    math::Vector3(this->demo1Vel.x,
+                                  this->demo1Vel.y, 0.0),
+                    math::Quaternion(0, 0, this->demo1Vel.z));
+
+                  // compute next step based on update
+                  odometryFrame = dOdometryFrame + odometryFrame;
+
+                  // step location, local frame
+                  math::Pose stepLocation(0, coronalOffset, 0, 0, 0, 0);
+
+                  // step location, odometry frame
+                  stepLocation = stepLocation + odometryFrame;
+
+                  // update next step location
+                  if (stepId == 0)
+                    this->bdiOdometryFrame = odometryFrame;
+
+                  // gzdbg << coronalOffset << " | " << odometryFrame << "\n";
+
                   curStep->step_data[stepId].step_index =
                     stepId +1+ currentStepIndex;
-                  unsigned int isRight = (stepId + currentStepIndex) % 2;
-                  curStep->step_data[stepId].foot_index =
-                    (unsigned int)(isRight);
+                  // alternate foot
+                  curStep->step_data[stepId].foot_index = this->demo1FootIndex;
                   curStep->step_data[stepId].duration = this->strideDuration;
-                  double stepX =
-                    static_cast<double>(stepId + 1 + currentStepIndex) *
-                    this->strideSagittal;
-                  double stepY = this->strideCoronal;
+                  curStep->step_data[stepId].position =
+                    AtlasVec3f(ToVec3(stepLocation.pos));
+                  curStep->step_data[stepId].yaw = stepLocation.rot.GetYaw();
 
-                  double yaw = this->walkYawRate *
-                    static_cast<double>(stepId + 1 + currentStepIndex);
-                  curStep->step_data[stepId].yaw = yaw;
-
-                  if (isRight)
-                    curStep->step_data[stepId].position =
-                      AtlasVec3f(stepX, -stepY, 0);
-                  else
-                    curStep->step_data[stepId].position =
-                      AtlasVec3f(stepX, stepY, 0);
-
-                  // gzdbg << "  building stepId : " << stepId
-                  //       << "  step_index[" << stepId + 1 + currentStepIndex
-                  //       << "]  isRight[" << isRight
-                  //       << "]  step x[" << stepX
+                  // gzdbg <<   "building stepId : " << stepId
+                  //       << "  step_index["
+                  //       << curStep->step_data[stepId].step_index
+                  //       << "]  isRight["
+                  //       << curStep->step_data[stepId].foot_index
+                  //       << "]  pos ["
+                  //       << curStep->step_data[stepId].position.n[0]
+                  //       << ", "
+                  //       << curStep->step_data[stepId].position.n[1]
                   //       << "]\n";
                 }
               }
@@ -1776,8 +1871,6 @@ void AtlasPlugin::UpdateStates()
           break;
       }
     }
-
-    double dt = (curTime - this->lastControllerUpdateTime).Double();
 
     {
       boost::mutex::scoped_lock lock(this->mutex);

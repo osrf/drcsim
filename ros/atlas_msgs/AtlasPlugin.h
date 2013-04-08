@@ -186,6 +186,11 @@ namespace gazebo
     private: ros::Publisher pubJointStates;
     private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
 
+    /// \brief demo1
+    public: void SetBDICmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
+    public: ros::Subscriber subBDICmdVel;
+    public: math::Vector3 demo1Vel;
+    public: bool demo1FootIndex;
 
     /// \brief ros publisher for atlas states, currently it contains
     /// joint index enums
@@ -318,11 +323,25 @@ namespace gazebo
       return result;
     }
 
-    private: inline AtlasVec3f ToVec3(const geometry_msgs::Point _point) const
+    private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
       return AtlasVec3f(_point.x,
                         _point.y,
                         _point.z);
+    }
+
+    private: inline AtlasVec3f ToVec3(const math::Vector3 &_vector3) const
+    {
+      return AtlasVec3f(_vector3.x,
+                        _vector3.y,
+                        _vector3.z);
+    }
+
+    private: inline math::Vector3 ToVec3(const AtlasVec3f &_vec3) const
+    {
+      return math::Vector3(_vec3.n[0],
+                           _vec3.n[1],
+                           _vec3.n[2]);
     }
 
     /// \brief fill in action server feedback state from toRobot,
@@ -361,6 +380,7 @@ namespace gazebo
     private: double footLiftThreshold;
     private: double strideSagittal;
     private: double strideCoronal;
+    private: double stepWidth;
     private: double strideDuration;
     private: double walkYawRate;
   };
