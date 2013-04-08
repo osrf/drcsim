@@ -1,0 +1,50 @@
+<!-- This file will launch a representative set of ROS subscribers for drcsim.  It's meant for use 
+     in teting to stand in for how teams will actually load the simulator (and ROS, and the network, 
+     etc.). -->
+<launch>
+
+<!-- System -->
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /clock"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /rosout_agg"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /tf"/>
+
+<!-- Atlas -->
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /atlas/atlas_state"/>
+
+<!-- Multisense-SL -->
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/imu"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/joint_states"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/laser/scan"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/left/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/left/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/left/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/right/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/right/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/right/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /multisense_sl/camera/points2"/>
+
+<!-- Sandia hands (left) -->
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/imu"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/joint_states"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/tactile_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/left/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/left/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/left/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/right/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/right/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/right/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/l_hand/camera/points2"/>
+
+<!-- Sandia hands (right) -->
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/imu"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/joint_states"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/tactile_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/left/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/left/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/left/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/right/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/right/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/right/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="$(anon ros_subscriber)" args="hz /sandia_hands/r_hand/camera/points2"/>
+
+</launch>
