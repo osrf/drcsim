@@ -49,7 +49,7 @@ AtlasPlugin::AtlasPlugin()
   this->atlasSimInterface = create_atlas_sim_interface();
 
   // good set of initial values
-  static const double strideSagittalDefault    = 0.23;
+  static const double strideSagittalDefault    = 0.00;
   static const double strideCoronalDefault     = 0.12;
   static const double strideDurationDefault    = 0.63;
   static const double walkYawRateDefault       = 0.0;
@@ -732,22 +732,6 @@ void AtlasPlugin::DeferredLoad()
     ros::VoidPtr(), &this->rosQueue);
   this->subAtlasControlMode = this->rosNode->subscribe(atlasControlModeSo);
 
-  /* Topic debug
-  // AtlasSimInterface: subscribe walking controller parameters
-  ros::SubscribeOptions bdiControlParamsSo =
-    ros::SubscribeOptions::create<atlas_msgs::AtlasSimInterface>(
-    "atlas/bdi_control_params", 1,
-    boost::bind(&AtlasPlugin::OnBDIControlParams, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subBDIControlParamsMode = this->rosNode->subscribe(bdiControlParamsSo);
-  // AtlasSimInterface: publish bdi walking controller state
-  this->pubBDIControlStateQueue =
-    this->pmq.addPub<atlas_msgs::AtlasSimInterfaceState>();
-  this->pubBDIControlState =
-    this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
-    "atlas/bdi_control_state", 1);
-  */
-
   // actionlib simple action server
   this->actionServer = new ActionServer(*this->rosNode, "atlas/bdi_control",
     false);
@@ -1131,14 +1115,6 @@ void AtlasPlugin::ActionServerCallback()
   }
 }
 
-
-/* Topic debug
-////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::OnBDIControlParams(
-  const atlas_msgs::AtlasSimInterface::ConstPtr &_msg)
-{
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
@@ -1581,9 +1557,6 @@ void AtlasPlugin::UpdateStates()
           break;
         case atlas_msgs::AtlasSimInterface::DEMO1:
           {
-            // debug: test turn off repeatedly
-            // this->fromRobot.multistep_walk_params.use_demo_walk = false;
-
             // process data fromRobot to create output data toRobot
             this->actionServerResult.end_state.error_code =
               this->atlasSimInterface->process_control_input(
@@ -1595,11 +1568,6 @@ void AtlasPlugin::UpdateStates()
             // save typing
             unsigned int currentStepIndex =
               this->actionServerFeedback.state.current_step_index + 1;
-
-            /* Topic debug
-            this->pubBDIControlStateQueue->push(this->actionServerFeedback,
-              this->pubBDIControlState);
-            */
 
             // sanity check
             if (mode != "walk")
@@ -1667,9 +1635,6 @@ void AtlasPlugin::UpdateStates()
           break;
         case atlas_msgs::AtlasSimInterface::MULTI_STEP_WALK:
           {
-            // debug: test turn off repeatedly
-            // this->fromRobot.multistep_walk_params.use_demo_walk = false;
-
             // process data fromRobot to create output data toRobot
             this->actionServerResult.end_state.error_code =
               this->atlasSimInterface->process_control_input(
@@ -1681,11 +1646,6 @@ void AtlasPlugin::UpdateStates()
             // save typing
             unsigned int currentStepIndex =
               this->actionServerFeedback.state.current_step_index + 1;
-
-            /* Topic debug
-            this->pubBDIControlStateQueue->push(this->actionServerFeedback,
-              this->pubBDIControlState);
-            */
 
             // sanity check
             if (mode != "walk")

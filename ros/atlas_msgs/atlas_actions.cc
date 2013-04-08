@@ -23,6 +23,7 @@ int main(int argc, char** argv)
   atlas_msgs::AtlasSimInterfaceGoal goal;
   // Fill in goal here
 
+/*
   // nominal
   ROS_INFO("harnessed.");
   std_msgs::String msg1;
@@ -64,6 +65,7 @@ int main(int argc, char** argv)
   pubMode.publish(msg);
 
   ros::Duration(0.3).sleep();
+*/
 
   // stand
   goal.params.behavior = atlas_msgs::AtlasSimInterface::STAND;
@@ -79,8 +81,8 @@ int main(int argc, char** argv)
   // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO2;
   // goal.params.behavior = atlas_msgs::AtlasSimInterface::DEMO1;
   // build 10 steps
-  unsigned int steps = 4;
-  goal.params.multistep_walk_params.resize(steps);
+  unsigned int steps = 6;
+  goal.params.multistep_walk_params.resize(steps+1);
   for (unsigned int i = 0; i < steps; ++i)
   {
     goal.params.multistep_walk_params[i].step_index = i + 1;
@@ -95,11 +97,23 @@ int main(int argc, char** argv)
     goal.params.multistep_walk_params[i].pose.orientation.w = 1;
     goal.params.multistep_walk_params[i].swing_height = 0.3;
   }
+  // add one more step, bring both feet together
+  goal.params.multistep_walk_params[steps].step_index = steps + 1;
+  goal.params.multistep_walk_params[steps].foot_index = steps % 2;
+  goal.params.multistep_walk_params[steps].duration = 0.63;
+  goal.params.multistep_walk_params[steps].pose.position.x = 0.2 * (steps - 1);
+  goal.params.multistep_walk_params[steps].pose.position.y = 0.1-(steps%2)*0.2;
+  goal.params.multistep_walk_params[steps].pose.position.z = 0.1;
+  goal.params.multistep_walk_params[steps].pose.orientation.x = 0;
+  goal.params.multistep_walk_params[steps].pose.orientation.y = 0;
+  goal.params.multistep_walk_params[steps].pose.orientation.z = 0;
+  goal.params.multistep_walk_params[steps].pose.orientation.w = 1;
+  goal.params.multistep_walk_params[steps].swing_height = 0.3;
 
   client.sendGoal(goal);
   client.waitForResult(ros::Duration(5.0));
   if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-    printf("Yay! The altas demo1 action suceeded\n");
+    printf("Yay! The altas walk action suceeded\n");
 
   printf("Current State: %s\n", client.getState().toString().c_str());
   return 0;

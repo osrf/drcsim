@@ -266,16 +266,6 @@ namespace gazebo
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
 
-    /* Topic debug
-    // AtlasSimInterface: Params for custom dynamic behaviors (walk, stand).
-    private: ros::Subscriber subBDIControlParamsMode;
-    private: void OnBDIControlParams(
-               const atlas_msgs::AtlasSimInterface::ConstPtr &_msg);
-    private: PubQueue<atlas_msgs::AtlasSimInterfaceState>::Ptr
-               pubBDIControlStateQueue;
-    private: ros::Publisher pubBDIControlState;
-    */
-
     /// \brief actionlib simple action server executor callback
     private: void ActionServerCallback();
 
