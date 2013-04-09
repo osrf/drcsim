@@ -185,6 +185,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->atlasState.kp_velocity.resize(this->joints.size());
   this->atlasState.i_effort_min.resize(this->joints.size());
   this->atlasState.i_effort_max.resize(this->joints.size());
+  this->atlasState.k_effort.resize(this->joints.size());
 
   this->jointStates.name.resize(this->joints.size());
   this->jointStates.position.resize(this->joints.size());
@@ -203,6 +204,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->atlasCommand.kp_velocity.resize(this->joints.size());
   this->atlasCommand.i_effort_min.resize(this->joints.size());
   this->atlasCommand.i_effort_max.resize(this->joints.size());
+  this->atlasCommand.k_effort.resize(this->joints.size());
 
   this->ZeroAtlasCommand();
 
@@ -474,6 +476,14 @@ void AtlasPlugin::UpdateAtlasCommand(const atlas_msgs::AtlasCommand &_msg)
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
       _msg.i_effort_max.size(), this->atlasState.i_effort_max.size());
+
+  if (_msg.k_effort.size() == this->atlasState.k_effort.size())
+    std::copy(_msg.k_effort.begin(), _msg.k_effort.end(),
+      this->atlasState.k_effort.begin());
+  else
+    ROS_DEBUG("AtlasCommand message contains different number of"
+      " elements k_effort[%ld] than expected[%ld]",
+      _msg.k_effort.size(), this->atlasState.k_effort.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -805,6 +815,9 @@ void AtlasPlugin::ActionServerCallback()
         // revert to PID control
         this->actionServerResult.end_state.error_code =
           this->atlasSimInterface->set_desired_behavior("none");
+        // clear out forces
+        for (unsigned i = 0; i < this->jointNames.size(); ++i)
+          this->toRobot.j[i].f_d = 0;
         if (this->actionServerResult.end_state.error_code == NO_ERRORS)
         {
           this->actionServerResult.success = true;
@@ -943,14 +956,14 @@ void AtlasPlugin::ActionServerCallback()
             // set initial yaw rate to 0
             curStep->step_data[stepId].yaw = 0;
 
-            gzdbg <<   "Building stepId [" << stepId
-                  << "] step_index["
-                  << curStep->step_data[stepId].step_index
-                  << "]  isRight["
-                  << curStep->step_data[stepId].foot_index
-                  << "]  pos ["
-                  << curStep->step_data[stepId].position.n[0]
-                  << "]\n";
+            // gzdbg <<   "Building stepId [" << stepId
+            //       << "] step_index["
+            //       << curStep->step_data[stepId].step_index
+            //       << "]  isRight["
+            //       << curStep->step_data[stepId].foot_index
+            //       << "]  pos ["
+            //       << curStep->step_data[stepId].position.n[0]
+            //       << "]\n";
           }
         }
         else
@@ -1294,6 +1307,9 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     this->activeGoal.params.behavior =
       atlas_msgs::AtlasSimInterface::NONE;
     this->atlasSimInterface->set_desired_behavior("none");
+    // clear out forces
+    for (unsigned i = 0; i < this->jointNames.size(); ++i)
+      this->toRobot.j[i].f_d = 0;
   }
   else if (_mode->data == "ragdoll")
   {
@@ -1302,6 +1318,9 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     this->activeGoal.params.behavior =
       atlas_msgs::AtlasSimInterface::NONE;
     this->atlasSimInterface->set_desired_behavior("none");
+    // clear out forces
+    for (unsigned i = 0; i < this->jointNames.size(); ++i)
+      this->toRobot.j[i].f_d = 0;
   }
   else
   {
@@ -1938,13 +1957,20 @@ void AtlasPlugin::UpdateStates()
           static_cast<double>(this->atlasState.i_effort_min[i]),
           static_cast<double>(this->atlasState.i_effort_max[i]));
 
+        // convert k_effort to a double between 0 and 1
+        double k_effort =
+          static_cast<double>(this->atlasState.k_effort[i])/255.0;
+
         // use gain params to compute force cmd
+        // AtlasSimInterface:  also, add bdi controller feed forward force
+        // to overall control torque scaled by 1 - k_effort.
         double forceUnclamped =
           this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
                                             this->errorTerms[i].k_i_q_i +
           this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
-          this->atlasCommand.effort[i];
+          k_effort                        * this->atlasCommand.effort[i] +
+          (1.0 - k_effort)                * this->toRobot.j[i].f_d;
 
         // keep unclamped force for integral tie-back calculation
         double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
@@ -1962,11 +1988,11 @@ void AtlasPlugin::UpdateStates()
           static_cast<double>(this->atlasState.i_effort_max[i]));
         }
 
-        // AtlasSimInterface:  add controller feed forward force
-        // to overall control torque.
-        forceClamped = math::clamp(forceUnclamped + this->toRobot.j[i].f_d,
+        // clamp force after integral tie-back
+        forceClamped = math::clamp(forceUnclamped,
           -this->effortLimit[i], this->effortLimit[i]);
 
+        // apply force to joint
         this->joints[i]->SetForce(0, forceClamped);
 
         // fill in jointState efforts
@@ -2200,6 +2226,7 @@ void AtlasPlugin::ZeroAtlasCommand()
     this->atlasState.kp_velocity[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
+    this->atlasState.k_effort[i] = 0;
   }
 }
 
@@ -2218,6 +2245,7 @@ void AtlasPlugin::ZeroJointCommands()
     this->atlasState.kp_velocity[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
+    this->atlasState.k_effort[i] = 0;
   }
 }
 
@@ -2225,11 +2253,11 @@ void AtlasPlugin::ZeroJointCommands()
 void AtlasPlugin::LoadPIDGainsFromParameter()
 {
   // pull down controller parameters
-  for (unsigned int joint = 0; joint < this->joints.size(); ++joint)
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     char joint_ns[200] = "";
     snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
-             this->joints[joint]->GetName().c_str());
+             this->joints[i]->GetName().c_str());
     // this is so ugly
     double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
     string p_str = string(joint_ns)+"p";
@@ -2245,11 +2273,12 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
       continue;
     }
     // store these directly on altasState, more efficient for pub later
-    this->atlasState.kp_position[joint]  =  p_val;
-    this->atlasState.ki_position[joint]  =  i_val;
-    this->atlasState.kd_position[joint]  =  d_val;
-    this->atlasState.i_effort_min[joint] = -i_clamp_val;
-    this->atlasState.i_effort_max[joint] =  i_clamp_val;
+    this->atlasState.kp_position[i]  =  p_val;
+    this->atlasState.ki_position[i]  =  i_val;
+    this->atlasState.kd_position[i]  =  d_val;
+    this->atlasState.i_effort_min[i] = -i_clamp_val;
+    this->atlasState.i_effort_max[i] =  i_clamp_val;
+    this->atlasState.k_effort[i] = 0;
   }
 }
 
@@ -2314,6 +2343,14 @@ void AtlasPlugin::SetExperimentalDampingPID(
     ROS_DEBUG("Test message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
       _msg->i_effort_max.size(), this->atlasState.i_effort_max.size());
+
+  if (_msg->k_effort.size() == this->atlasState.k_effort.size())
+    std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
+      this->atlasState.k_effort.begin());
+  else
+    ROS_DEBUG("Test message contains different number of"
+      " elements k_effort[%ld] than expected[%ld]",
+      _msg->k_effort.size(), this->atlasState.k_effort.size());
 }
 
 void AtlasPlugin::RosQueueThread()
