@@ -1,0 +1,14 @@
+<launch>
+   <node pkg="atlas_utils" type="run_gzstats_log"
+         name="gzstats_log" />
+   <node pkg="atlas_utils" type="stand.py"
+         name="stand" />
+   <node pkg="atlas_msgs"  type="atlas_actions"
+         name="atlas_actions" 
+         ouput="screen"/>
+   <node pkg="pr2_teleop"  type="teleop_pr2_keyboard" 
+         name="atlas_walking_teleop2"
+         output="screen">
+     <remap from="cmd_vel" to="/atlas/bdi_cmd_vel" />
+   </node>
+</launch>

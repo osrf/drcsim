@@ -8,6 +8,7 @@ set (files
   atlas_arm_controllers.launch
   atlas_position_controllers.launch
   atlas_no_controllers.launch
+  atlas_init_and_walking_teleop.launch
   drc_sim_v0.launch
   drc_trajectory_controllers.launch
   qual_task_1.launch

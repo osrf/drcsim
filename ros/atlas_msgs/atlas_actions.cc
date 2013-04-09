@@ -6,6 +6,8 @@ typedef actionlib::SimpleActionClient<atlas_msgs::AtlasSimInterfaceAction> Clien
 
 int main(int argc, char** argv)
 {
+  ROS_INFO("TODO: wait 10 seconds to finish the stand.py script");
+  sleep(10);
   ros::init(argc, argv, "atlas_client");
   Client client("atlas/bdi_control", true); // true -> don't need ros::spin()
 
