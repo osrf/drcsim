@@ -990,12 +990,33 @@ void AtlasPlugin::ActionServerCallback()
         else if (this->stepTrajectory.size() < NUM_MULTISTEP_WALK_STEPS)
         {
           /// \TODO: test this
-          ROS_INFO("fill trajectory shorter than 4 with zeros.");
+          ROS_INFO("fill trajectory shorter than 4 with previous steps.");
           for (unsigned int i = this->stepTrajectory.size();
                i < NUM_MULTISTEP_WALK_STEPS; ++i)
           {
-            atlas_msgs::AtlasBehaviorStepParams step;
-            this->stepTrajectory.push_back(step);
+            int prevStepId = std::max(0, (int)i-2);
+
+            atlas_msgs::AtlasBehaviorStepParams curStep;
+            curStep.step_index = i+1;
+            curStep.foot_index =
+              this->stepTrajectory[prevStepId].foot_index;
+            curStep.duration =
+              this->stepTrajectory[prevStepId].duration;
+            curStep.pose =
+              this->stepTrajectory[prevStepId].pose;
+            curStep.swing_height = 
+              this->stepTrajectory[prevStepId].swing_height;
+            this->stepTrajectory.push_back(curStep);
+            
+            //       gzdbg << "  building stepId : " << i
+            //            << "  prevStep id [" << prevStepId
+            //             << "] step_index["
+            //             << curStep.step_index
+            //             << "]  isRight["
+            //             << curStep.foot_index
+            //             << "]  pos ["
+            //             << curStep.pose
+            //             << "]\n";
           }
         }
 
@@ -1074,14 +1095,14 @@ void AtlasPlugin::ActionServerCallback()
             curStep->step_data[stepId].yaw = this->ToPose(
               this->stepTrajectory[stepId].pose).rot.GetAsEuler().z;
 
-            // gzdbg << "  building stepId : " << stepId
-            //       << "  step_index["
-            //       << curStep->step_data[stepId].step_index
-            //       << "]  isRight["
-            //       << this->stepTrajectory[stepId].foot_index
-            //       << "]  pos ["
-            //       << curStep->step_data[stepId].position.n[0]
-            //       << "]\n";
+             gzdbg << "  building stepId : " << stepId
+                   << "  step_index["
+                   << curStep->step_data[stepId].step_index
+                   << "]  isRight["
+                   << this->stepTrajectory[stepId].foot_index
+                   << "]  pos ["
+                   << curStep->step_data[stepId].position.n[0]
+                   << "]\n";
           }
         }
         else
