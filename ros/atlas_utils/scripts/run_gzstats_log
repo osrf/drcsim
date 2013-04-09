@@ -1,0 +1,7 @@
+#!/bin/sh
+
+TIMESTAMP=$(date +"%Y-%m-%dT:%H:%M:%S")
+LOG_DIR=${HOME}/.gazebo/log/
+mkdir -p ${LOG_DIR}
+LOG_FILE=${LOG_DIR}/gzstats-${TIMESTAMP}.log
+gzstats -p > ${LOG_DIR}
