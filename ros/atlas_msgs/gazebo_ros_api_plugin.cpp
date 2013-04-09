@@ -99,6 +99,9 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 
     this->rosnode_ = new ros::NodeHandle("~");
 
+    // publish multi queue
+    this->pmq.startServiceThread();
+
     // setup custom callback queue
     gazebo_callback_queue_thread_ = new boost::thread(
       &GazeboRosApiPlugin::gazeboQueueThread, this);
@@ -193,6 +196,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   {
     // publish clock for simulated ros time
     pub_clock_ = this->rosnode_->advertise<rosgraph_msgs::Clock>("/clock", 10);
+    pub_clock_queue_ = this->pmq.addPub<rosgraph_msgs::Clock>();
 
 #ifdef GAZEBO_MSGS
     // Advertise spawn services on the custom queue
@@ -460,6 +464,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
         boost::bind(&GazeboRosApiPlugin::onLinkStatesDisconnect, this),
         ros::VoidPtr(), &this->gazebo_queue_);
     pub_link_states_ = this->rosnode_->advertise(pub_link_states_ao);
+    pub_link_states_queue = this->pmq.addPub<gazebo_msgs::LinkStates>();
 
     // publish complete model states in world frame
     ros::AdvertiseOptions pub_model_states_ao =
@@ -469,6 +474,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
         boost::bind(&GazeboRosApiPlugin::onModelStatesDisconnect, this),
         ros::VoidPtr(), &this->gazebo_queue_);
     pub_model_states_ = this->rosnode_->advertise(pub_model_states_ao);
+    pub_model_states_queue_ = this->addPub<gazebo_msgs::ModelStates>();
 #endif
 
     // set param for use_sim_time if not set by user alread
@@ -1886,7 +1892,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     rosgraph_msgs::Clock ros_time_;
     ros_time_.clock.fromSec(currentTime.Double());
     //  publish time to ros
-    this->pub_clock_.publish(ros_time_);
+    this->pub_clock_queue_->push(ros_time_, this->pub_clock_);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -1896,7 +1902,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
     rosgraph_msgs::Clock ros_time_;
     ros_time_.clock.fromSec(currentTime.Double());
     //  publish time to ros
-    this->pub_clock_.publish(ros_time_);
+    this->pub_clock_queue_->push(ros_time_, this->pub_clock_);
   }
 
 #ifdef GAZEBO_MSGS
@@ -1944,7 +1950,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
       }
     }
 
-    this->pub_link_states_.publish(link_states);
+    this->pub_link_states_queue->push(link_states, this->pub_link_states_);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -1980,7 +1986,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
       twist.angular.z = angular_vel.z;
       model_states.twist.push_back(twist);
     }
-    this->pub_model_states_.publish(model_states);
+    this->pub_model_states_queue_->push(model_states, this->pub_model_states_);
   }
 
 #ifdef USE_DYNAMIC_RECONFIGURE

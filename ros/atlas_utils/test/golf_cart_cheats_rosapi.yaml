@@ -1,0 +1,66 @@
+topics:
+
+  ##########################################################
+  # Published topics
+
+  - topic: /golf_cart/brake_pedal/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /golf_cart/direction/state
+    type: std_msgs/Int8
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /golf_cart/gas_pedal/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /golf_cart/hand_brake/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /golf_cart/hand_wheel/state
+    type: std_msgs/Float64
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /golf_cart/key/state
+    type: std_msgs/Int8
+    num_publishers: 1
+    num_subscribers: -1
+
+  ##########################################################
+  # Subscribed topics
+  - topic: /golf_cart/brake_pedal/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /golf_cart/direction/cmd
+    type: std_msgs/Int8
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /golf_cart/gas_pedal/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /golf_cart/hand_brake/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /golf_cart/hand_wheel/cmd
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /golf_cart/key/cmd
+    type: std_msgs/Int8
+    num_publishers: -1
+    num_subscribers: 1

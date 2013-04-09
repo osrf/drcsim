@@ -122,6 +122,9 @@ void GazeboRosIMU::LoadThread()
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // assert that the body by link_name_ exists
   this->link = boost::shared_dynamic_cast<physics::Link>(
     this->world_->GetEntity(this->link_name_));
@@ -135,6 +138,7 @@ void GazeboRosIMU::LoadThread()
   // if topic name specified as empty, do not publish
   if (this->topic_name_ != "")
   {
+    this->pub_Queue = this->pmq.addPub<sensor_msgs::Imu>();
     this->pub_ = this->rosnode_->advertise<sensor_msgs::Imu>(
       this->topic_name_, 1);
 
@@ -271,7 +275,7 @@ void GazeboRosIMU::UpdateChild()
       boost::mutex::scoped_lock lock(this->lock_);
       // publish to ros
       if (this->pub_.getNumSubscribers() > 0 && this->topic_name_ != "")
-          this->pub_.publish(this->imu_msg_);
+          this->pub_Queue->push(this->imu_msg_, this->pub_);
     }
 
     // save last time stamp

@@ -133,6 +133,9 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // resolve tf prefix
   std::string prefix;
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
@@ -140,6 +143,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (this->topic_name_ != "")
   {
+    this->pub_Queue = this->pmq.addPub<nav_msgs::Odometry>();
     this->pub_ =
       this->rosnode_->advertise<nav_msgs::Odometry>(this->topic_name_, 1);
   }
@@ -304,7 +308,7 @@ void GazeboRosP3D::UpdateChild()
         this->pose_msg_.twist.covariance[35] = gn2;
 
         // publish to ros
-        this->pub_.publish(this->pose_msg_);
+        this->pub_Queue->push(this->pose_msg_, this->pub_);
       }
 
       this->lock.unlock();
