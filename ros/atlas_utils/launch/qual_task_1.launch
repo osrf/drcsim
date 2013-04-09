@@ -33,6 +33,8 @@
   </node>
 
   <!-- set the robot to stand position -->
-  <node pkg="robot_state_publisher" type="state_publisher" name="sandia_hands_r_hand_robot_state_publisher">
+  <!--
   <node pkg="altas_utils" type="stand.py" name="stand" />
+  <node pkg="altas_msgs" type="atlas_actions" name="atlas_actions" />
+  -->
 </launch>

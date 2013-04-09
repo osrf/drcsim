@@ -4,4 +4,4 @@
 # (e.g., `rospack find atlas_utils`/worlds/atlas.world)
 # or a world that's install in $GAZEBO_RESOURCE_PATH/worlds/atlas
 #`rospack find gazebo_worlds`/scripts/gdbrun gzserver -s libgazebo_ros_api_plugin.so $1
-gazebo -s libgazebo_ros_api_plugin.so $1
+gazebo -s libgazebo_ros_api_plugin.so $@
