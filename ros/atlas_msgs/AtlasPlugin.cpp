@@ -1095,14 +1095,14 @@ void AtlasPlugin::ActionServerCallback()
             curStep->step_data[stepId].yaw = this->ToPose(
               this->stepTrajectory[stepId].pose).rot.GetAsEuler().z;
 
-             gzdbg << "  building stepId : " << stepId
-                   << "  step_index["
-                   << curStep->step_data[stepId].step_index
-                   << "]  isRight["
-                   << this->stepTrajectory[stepId].foot_index
-                   << "]  pos ["
-                   << curStep->step_data[stepId].position.n[0]
-                   << "]\n";
+            // gzdbg << "  building stepId : " << stepId
+            //       << "  step_index["
+            //       << curStep->step_data[stepId].step_index
+            //       << "]  isRight["
+            //       << this->stepTrajectory[stepId].foot_index
+            //       << "]  pos ["
+            //       << curStep->step_data[stepId].position.n[0]
+            //       << "]\n";
           }
         }
         else
