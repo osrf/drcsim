@@ -12,6 +12,5 @@ foreach (src ${plugins})
 endforeach (src ${plugins})
 
 install (FILES AtlasSimInterface_1.0.7/lib64/libAtlasSimInterface.so DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7)
-install (DIRECTORY AtlasSimInterface_1.0.7/config DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7/config)
 install (DIRECTORY AtlasSimInterface_1.0.7/include DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7)
 install (DIRECTORY AtlasSimInterface_1.0.7/doc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7)

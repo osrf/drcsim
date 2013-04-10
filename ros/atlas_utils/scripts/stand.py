@@ -22,8 +22,6 @@ def demo():
     mode.publish("nominal")
     rospy.sleep(0.3)
     control_mode.publish("Stand")
-    rospy.sleep(1.0)
-    control_mode.publish("walk")
 
 if __name__ == '__main__':
     try:

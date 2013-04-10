@@ -1,0 +1,9 @@
+# Goal
+atlas_msgs/AtlasSimInterface params
+---
+# Result
+atlas_msgs/AtlasSimInterfaceState end_state
+bool success
+---
+# Feedback
+atlas_msgs/AtlasSimInterfaceState state

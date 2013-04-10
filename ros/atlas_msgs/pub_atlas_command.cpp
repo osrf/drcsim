@@ -98,6 +98,7 @@ int main(int argc, char** argv)
   ac.kp_velocity.resize(n);
   ac.i_effort_min.resize(n);
   ac.i_effort_max.resize(n);
+  ac.k_effort.resize(n);
 
   for (unsigned int i = 0; i < n; i++)
   {
@@ -124,6 +125,7 @@ int main(int argc, char** argv)
     ac.velocity[i]     = 0;
     ac.effort[i]       = 0;
     ac.kp_velocity[i]  = 0;
+    ac.k_effort[i]     = 255.0;
   }
 
   // ros topic subscribtions

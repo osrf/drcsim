@@ -35,6 +35,7 @@
 #include <std_msgs/String.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 // AtlasSimInterface: header
 #include "AtlasSimInterface.h"
@@ -64,13 +65,24 @@
 #include <osrf_msgs/JointCommands.h>
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
+#include <atlas_msgs/AtlasSimInterface.h>
+#include <atlas_msgs/AtlasSimInterfaceState.h>
 
 #include <atlas_msgs/Test.h>
+
+// actionlib for BDI's dynamic controller
+// see http://ros.org/wiki/actionlib for documentation on actions
+#include <atlas_msgs/AtlasSimInterfaceAction.h>
+#include <actionlib/server/simple_action_server.h>
 
 #include "PubQueue.h"
 
 namespace gazebo
 {
+  // actionlib simple action server
+  typedef actionlib::SimpleActionServer<atlas_msgs::AtlasSimInterfaceAction>
+    ActionServer;
+
   class AtlasPlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -148,7 +160,8 @@ namespace gazebo
 
     /// \brief ros publisher for force torque sensors
     private: ros::Publisher pubForceTorqueSensors;
-    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr pubForceTorqueSensorsQueue;
+    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr
+      pubForceTorqueSensorsQueue;
 
     // AtlasSimInterface: internal debugging only
     // Pelvis position and velocity
@@ -166,12 +179,17 @@ namespace gazebo
 
     /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
-    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr pubControllerStatisticsQueue;
+    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr
+      pubControllerStatisticsQueue;
 
     /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
     private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
 
+    /// \brief demo1
+    public: void SetBDICmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
+    public: ros::Subscriber subBDICmdVel;
+    public: math::Vector3 demo1Vel;
 
     /// \brief ros publisher for atlas states, currently it contains
     /// joint index enums
@@ -193,6 +211,11 @@ namespace gazebo
     /// \param[in] _msg Incoming ros message
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
+
+    private: void Pause(const std_msgs::String::ConstPtr &_msg);
+    private: boost::condition pause;
+    private: ros::Subscriber subPause;
+    private: boost::mutex pauseMutex;
 
     /// \brief ros topic callback to update Joint Commands
     /// \param[in] _msg Incoming ros message
@@ -216,9 +239,9 @@ namespace gazebo
     private: transport::PublisherPtr jointCmdPub;
 
     // AtlasSimInterface:
-    private: AtlasControlDataToRobot toRobot;
-    private: AtlasControlDataFromRobot fromRobot;
-    private: AtlasErrorCode errorCode;
+    private: AtlasControlOutput atlasControlOutput;
+    private: AtlasRobotState atlasRobotState;
+    private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
 
     /// \brief Internal list of pointers to Joints
@@ -248,15 +271,90 @@ namespace gazebo
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
 
+    /// \brief actionlib simple action server executor callback
+    private: void ActionServerCallback();
+
+    /// \brief lock while updating control modes
+    private: boost::mutex actionServerMutex;
+
+    /// \brief actionlib simple action server
+    private: ActionServer* actionServer;
+
+    /// \brief local copy of the goal
+    private: atlas_msgs::AtlasSimInterfaceGoal activeGoal;
+
+    /// \brief actionlib feedback
+    private: atlas_msgs::AtlasSimInterfaceFeedback actionServerFeedback;
+
+    /// \brief actionlib result
+    private: atlas_msgs::AtlasSimInterfaceResult actionServerResult;
+
+    /// \brief used for trajectory rollout
+    private: std::vector<atlas_msgs::AtlasBehaviorStepData>
+      stepTrajectory;
+
+    /// \brief current position of the robot
+    math::Vector3 currentPelvisPosition;
+    math::Vector3 currentLFootPosition;
+    math::Vector3 currentRFootPosition;
+    math::Pose bdiOdometryFrame;
+
+    private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
+    {
+      return math::Pose(math::Vector3(_pose.position.x,
+                                      _pose.position.y,
+                                      _pose.position.z),
+                        math::Quaternion(_pose.orientation.w,
+                                         _pose.orientation.x,
+                                         _pose.orientation.y,
+                                         _pose.orientation.z));
+    }
+
+    private: inline geometry_msgs::Pose ToPose(const math::Pose &_pose) const
+    {
+      geometry_msgs::Pose result;
+      result.position.x = _pose.pos.x;
+      result.position.y = _pose.pos.y;
+      result.position.z = _pose.pos.y;
+      result.orientation.w = _pose.rot.w;
+      result.orientation.x = _pose.rot.x;
+      result.orientation.y = _pose.rot.y;
+      result.orientation.z = _pose.rot.z;
+      return result;
+    }
+
+    private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
+    {
+      return AtlasVec3f(_point.x,
+                        _point.y,
+                        _point.z);
+    }
+
+    private: inline AtlasVec3f ToVec3(const math::Vector3 &_vector3) const
+    {
+      return AtlasVec3f(_vector3.x,
+                        _vector3.y,
+                        _vector3.z);
+    }
+
+    private: inline math::Vector3 ToVec3(const AtlasVec3f &_vec3) const
+    {
+      return math::Vector3(_vec3.n[0],
+                           _vec3.n[1],
+                           _vec3.n[2]);
+    }
+
+    /// \brief fill in action server feedback state from toRobot,
+    /// where toRobot is populated by call to AtlasSimInterface
+    /// process_control_input()
+    private: void UpdateActionServerStateFeedback();
+
     /// \brief AtlasSimInterface:
     /// subscribe to a control_mode string message, current valid commands are:
     ///   walk, stand, safety, stand-prep, none
     /// the command is passed to the AtlasSimInterface library.
     /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
     private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
-
-    /// \brief internal variable for keeping state of the BDI walking controller
-    private: bool usingWalkingController;
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
@@ -278,8 +376,10 @@ namespace gazebo
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
 
+    // walking parameters
     private: double strideSagittal;
     private: double strideCoronal;
+    private: double stepWidth;
     private: double strideDuration;
     private: double walkYawRate;
   };
