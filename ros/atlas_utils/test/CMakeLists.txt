@@ -5,14 +5,9 @@ set (rostests
 ) 
 
 # If we have a GPU, add in the GPU-dependent tests.
-# TODO: replace this with the stuff that Jose's working on for inclusion in Gazebo
-find_program(GLXINFO_PATH glxinfo)
-if(GLXINFO_PATH)
-  execute_process(COMMAND glxinfo
-                  RESULT_VARIABLE glxinfo_returncode
-                  OUTPUT_VARIABLE glxinfo_stdout
-                  ERROR_VARIABLE glxinfo_stderr)
-  if(NOT RESULT_VARIABLE)
+include (CheckDisplayCapabilities.cmake)
+
+if(VALID_DRI_DISPLAY)
     list(APPEND rostests 
          atlas_publishers_hz_gpu.test
          atlas_rosapi.test
@@ -30,7 +25,6 @@ if(GLXINFO_PATH)
          # Pending hand camera implementation
          #atlas_sandia_hands_publishers_hz_gpu.test
          )
-  endif()
 endif()
 
 foreach (rostest ${rostests})
