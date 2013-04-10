@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import roslib; roslib.load_manifest('AtlasActionClient')
+import roslib; roslib.load_manifest('atlas_utils')
 
 from atlas_msgs.msg import AtlasSimInterface, AtlasSimInterfaceGoal, \
     AtlasSimInterfaceAction, AtlasBehaviorStepParams
