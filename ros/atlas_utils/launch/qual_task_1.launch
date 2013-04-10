@@ -34,10 +34,4 @@
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/sandia_hands/r_hand/joint_states" />
   </node>
-
-  <!-- set the robot to stand position -->
-  <!--
-  <node pkg="altas_utils" type="stand.py" name="stand" />
-  <node pkg="altas_msgs" type="atlas_actions" name="atlas_actions" />
-  -->
 </launch>
