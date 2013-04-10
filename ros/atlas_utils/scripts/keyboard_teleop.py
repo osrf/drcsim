@@ -208,7 +208,8 @@ class AtlasTeleop():
             var = raw_input("New value for " + param + " [min: " +
             str(self.params[param]["min"]) + ", max: " +
             str(self.params[param]["max"]) + ", type: " +
-            str(self.params[param]["type"]) + "]? ") try:
+            str(self.params[param]["type"]) + "]? ") 
+            try:
                 if (self.params[param]["type"] is "float"):
                     value = float(var)
                 elif (self.params[param]["type"] is "int"):
