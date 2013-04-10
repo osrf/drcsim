@@ -1,4 +1,4 @@
 <launch>
-   <include file="$(find atlas_utils)/test/atlas_arenas_init_and_walking_teleop.launch" />
    <include file="$(find atlas_utils)/test/atlas_arenas_logging.launch" /> 
+   <include file="$(find atlas_utils)/test/atlas_arenas_init_and_walking_teleop.launch" />
 </launch>
