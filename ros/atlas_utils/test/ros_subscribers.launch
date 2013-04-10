@@ -3,10 +3,6 @@
      etc.). -->
 <launch>
 
-<!-- Record the controller_statistics, for later analysis -->
-<node pkg="atlas_utils" type="run_gzstats.sh" name="$(anon gzstats)"/>
-<node pkg="atlas_utils" type="run_rosbag.sh" name="$(anon rosbag)"/>
-
 <!-- System -->
 <node pkg="rostopic" type="rostopic" name="hz_clock" args="hz -w 100 /clock"/>
 <node pkg="rostopic" type="rostopic" name="hz_rosout_agg" args="hz -w 100 /rosout_agg"/>

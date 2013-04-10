@@ -1,7 +1,4 @@
 <launch>
-   <node pkg="atlas_utils" type="run_gzstats_log"
-         name="gzstats_log"
-         output="screen" />
    <node pkg="atlas_utils" type="stand.py"
          name="stand" />
    <node pkg="atlas_msgs"  type="atlas_actions"
