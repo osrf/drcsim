@@ -52,9 +52,13 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
+  ros_subscribers.launch
 )
 set(scripts
   ros_api_checker
+  run_gzstats.sh
+  run_pub_atlas_command.sh
+  run_rosbag.sh
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
