@@ -1,4 +1,7 @@
 set (rostests
+  atlas_arenas_init_and_walking_teleop.launch
+  atlas_arenas_start_testing.launch
+  atlas_arenas_logging.launch
   atlas_publishers_hz.test
   atlas_sandia_hands_publishers_hz.test
   atlas_rosapi.test
