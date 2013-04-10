@@ -1,10 +1,8 @@
 #! /usr/bin/env python
-
 import roslib; roslib.load_manifest('AtlasActionClient')
-import rospy
 
-# Brings in the SimpleActionClient
-import actionlib, math, select, sys, termios, tty
+import actionlib, math, rospy, select, sys, termios, tty
+
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 from atlas_msgs.msg import AtlasSimInterface, \
@@ -13,8 +11,6 @@ from atlas_msgs.msg import AtlasSimInterface, \
                            AtlasBehaviorStepParams
                            
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
-
-
 
 class AtlasTeleop():
     
@@ -62,14 +58,14 @@ class AtlasTeleop():
     def run(self):
         try:
             self.init()
-            self.printUsage()
+            self.print_usage()
             while not rospy.is_shutdown():
-                ch =  self.getKey()
-                self.processKey(ch)
+                ch =  self.get_key()
+                self.process_key(ch)
         finally:
             self.fini()
 
-    def printUsage(self):
+    def print_usage(self):
         msg = """
         Keyboard Teleop for AtlasSimInterface 1.0.5
         Copyright (C) 2013 Open Source Robotics Foundation
@@ -88,7 +84,7 @@ class AtlasTeleop():
         """
         self.debug(msg)      
         
-    def resetToStanding(self):
+    def reset_to_standing(self):
         self.mode.publish("harnessed")
         self.control_mode.publish("stand-prep")
         rospy.sleep(5.0)
@@ -165,21 +161,16 @@ class AtlasTeleop():
         step.swing_height = self.params["swing_height"]["value"]
         steps.append(step)
                
-           
         multi_step_walk_goal = AtlasSimInterfaceGoal(AtlasSimInterface(None, 0, rospy.Time.now() , AtlasSimInterface.MULTI_STEP_WALK, steps, None, None))
         
         self.client.send_goal(multi_step_walk_goal)
         self.client.wait_for_result(rospy.Duration(2*self.params["stride_duration"]["value"]*len(steps)))
     
-    def processMovement(self, ch):
-        self.newMovement = True
-        self.stand()
-#        self.client.wait_for_result()
-
+    def process_movement(self, ch):
         dir = self.directions[ch]       
         self.twist(dir["forward"], dir["lateral"], dir["turn"])
     
-    def editParams(self):
+    def edit_params(self):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         print("")
         maxLength = -1
@@ -195,7 +186,7 @@ class AtlasTeleop():
         while selection < 0 or selection >= len(self.params):
             var = raw_input("Enter number of param you want to change: ")
             if var == 'x' or var == 'X':
-                self.printUsage()
+                self.print_usage()
                 return
             try:
                 selection = int(var)
@@ -217,22 +208,22 @@ class AtlasTeleop():
                 valid = False
         
         self.params[param]["value"] = value
-        self.editParams()
+        self.edit_params()
         
     def debug(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         print(str)
         tty.setraw(sys.stdin.fileno())
     
-    def processKey(self, ch):
+    def process_key(self, ch):
         if self.directions.has_key(ch):
-            self.processMovement(ch)
+            self.process_movement(ch)
         elif ch == 'e' or ch == 'E':
-            self.editParams()
+            self.edit_params()
         elif ch == 'r':
-            self.resetToStanding()
+            self.reset_to_standing()
         elif ch == 'h' or ch == 'H':
-            self.printUsage()
+            self.print_usage()
         elif ch == 'q' or ch == 'Q':
             rospy.signal_shutdown("Shutdown")
         try:
@@ -242,16 +233,13 @@ class AtlasTeleop():
         except ValueError:
             pass
             
-    def getKey(self):
+    def get_key(self):
         tty.setraw(sys.stdin.fileno())
         select.select([sys.stdin], [], [], 0)
         key = sys.stdin.read(1)
         return key
  
-    
 if __name__ == '__main__':
-    # Initializes a rospy node so that the SimpleActionClient can
-    # publish and subscribe over ROS.
     rospy.init_node('walking_client')
     teleop = AtlasTeleop()
     teleop.run()
