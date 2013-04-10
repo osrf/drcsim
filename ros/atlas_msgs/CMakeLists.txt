@@ -29,15 +29,15 @@ endif()
 include_directories(
   ${GAZEBO_INCLUDE_DIRS}
   ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/include
-  ${CMAKE_INSTALL_PREFIX}/include/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.7/include
+  ${CMAKE_INSTALL_PREFIX}/include/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7
 )
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
   ${PLUGIN_LINK_DIRECTORIES}
-  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_1.0.5/lib64
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64
-  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5
+  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_1.0.7/lib64
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.7/lib64
+  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7
 )
 
 #set the default path for built executables to the "bin" directory
@@ -91,9 +91,9 @@ rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
 target_link_libraries(AtlasPlugin AtlasSimInterface)
 
 # message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
-# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
-# message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.5")
-# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.5/lib64")
+# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.7/lib64")
+# message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.7")
+# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.7/lib64")
 # add_custom_command(OUTPUT output.x
 #                    COMMAND find ../..
 #                    COMMAND pwd
