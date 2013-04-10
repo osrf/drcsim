@@ -10,6 +10,7 @@ set (files
   arm_teleop.py
   5steps.py
   stand.py
+  stats_from_gzstats_log.py
   test.py
   performance_test1.py
 )
