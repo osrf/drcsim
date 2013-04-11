@@ -291,6 +291,28 @@ namespace gazebo
     }
 
     /// \brief Conversion helper functions
+    private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
+    {
+      geometry_msgs::Point result;
+      result.x = _v.n[0];
+      result.y = _v.n[1];
+      result.z = _v.n[2];
+      return result;
+    }
+
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
+      const
+    {
+      geometry_msgs::Quaternion result;
+      result.w = _q.w;
+      result.x = _q.x;
+      result.y = _q.y;
+      result.z = _q.z;
+      return result;
+    }
+
+    /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
       return AtlasVec3f(_point.x,

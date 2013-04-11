@@ -1198,19 +1198,26 @@ void AtlasPlugin::UpdateStates()
               sd->duration = sdOut->duration;
 
               // compose geometry_msgs::Pose from position, yaw, normal
-              /*
-              sd->pose =
-              sdOut->position.n[0] = 0.0;
-              sdOut->position.n[1] = 0.0;
-              sdOut->position.n[2] = 0.0;
-              sdOut->yaw = 0.0;
-              sdOut->normal.n[0] = 0.0;
-              sdOut->normal.n[1] = 0.0;
-              sdOut->normal.n[2] = 0.0;
-              sdOut->swing_height = 0.0;
-              */
+              sd->pose.position = this->ToPoint(sdOut->position);
+              sd->pose.orientation = this->ToQ(
+                math::Quaternion(0, 0, sdOut->yaw));
+              // \TODO: further rotate rot based on normal
+              // sd->pose.rot = sdOut->normal ...;
 
-              sd->swing_height = sdOut->swing_height;
+              sdOut->swing_height = sd->swing_height;
+            }
+            // gzdbg << " csi[" << fb->walk_feedback.current_step_index
+            //       << "] nsi[" << fb->walk_feedback.next_step_index_needed
+            //       << "] flag[" << fb->walk_feedback.status_flags
+            //       << "]\n";
+
+            static const int lastStep = 25;
+            // or if status_flag turns from 2 to 4
+            if (fb->walk_feedback.current_step_index == lastStep)
+            {
+              this->atlasSimInterface->set_desired_behavior("Stand");
+              this->asiState.desired_behavior =
+                atlas_msgs::AtlasSimInterfaceCommand::STAND;
             }
           }
           break;
