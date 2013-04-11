@@ -17,7 +17,8 @@ class Tester(unittest.TestCase):
         self.assertEqual(po.returncode, 0, 'rostopic failed. stdout: %s stderr: %s'%(out, err))
         topics_actual = set(out.split('\n')) - set([''])
         topics_expected = set([x['topic'] for x in topics])
-        self.assertEqual(topics_expected, topics_actual)
+        topics_extra = topics_actual - topics_expected
+        self.assertEqual(topics_extra, set([]))
 
     def _test_topic(self, t):
         self.assertIn('topic', t)
@@ -114,7 +115,9 @@ if __name__ == '__main__':
     topics, strict = load_config(sys.argv[1:])
     add_tests(topics, strict)
 
-    # 5 second startup delay to let Gazebo get going
-    time.sleep(5.0)
+    # startup delay to let Gazebo get going
+    print('Sleeping to let Gazebo start...')
+    time.sleep(15.0)
+    print('OK, starting test.')
 
     rostest.run('atlas_utils', 'api_check', Tester, sys.argv)

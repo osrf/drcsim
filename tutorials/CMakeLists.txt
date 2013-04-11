@@ -10,7 +10,7 @@ ExternalProject_Add(atlas_msgs
                     PATCH_COMMAND true
                     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/atlas_msgs
                     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/atlas_msgs
-                    BUILD_COMMAND env ROS_PARALLEL_JOBS=$ENV{ROS_PARALLEL_JOBS} ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make $ENV{ROS_PARALLEL_JOBS}
+                    BUILD_COMMAND env ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j4
                     CMAKE_ARGS
                       -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}
                       -DROS_ROOT=$ENV{ROS_ROOT}
@@ -19,10 +19,7 @@ ExternalProject_Add(atlas_msgs
                       -DDRC_SIM_PROJECT_NAME=${PROJECT_NAME}
                       -DDRC_SIM_VERSION=${DRC_SIM_VERSION}
                       -DDRC_SIM_CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-                      -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       -DPLUGIN_LINK_DIRECTORIES=${CMAKE_BINARY_DIR}/plugins
-                      -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                      ${CATKIN_BUILD_BINARY_PACKAGE_STRING}
                     INSTALL_COMMAND ""
                     )
 install(CODE "execute_process(COMMAND make -C ${CMAKE_CURRENT_BINARY_DIR}/atlas_msgs install)")
@@ -34,7 +31,7 @@ ExternalProject_Add(joint_commands_gui
                     PATCH_COMMAND true
                     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/joint_commands_gui
                     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/joint_commands_gui
-                    BUILD_COMMAND env ROS_PARALLEL_JOBS=$ENV{ROS_PARALLEL_JOBS} ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make $ENV{ROS_PARALLEL_JOBS}
+                    BUILD_COMMAND env ROS_ROOT=$ENV{ROS_ROOT} ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH} make -j4
                     CMAKE_ARGS
                       -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}
                       -DROS_ROOT=$ENV{ROS_ROOT}
@@ -44,7 +41,6 @@ ExternalProject_Add(joint_commands_gui
                       -DDRC_SIM_VERSION=${DRC_SIM_VERSION}
                       -DDRC_SIM_CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
                       -DPLUGIN_LINK_DIRECTORIES=${CMAKE_BINARY_DIR}/plugins
-                      -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                     INSTALL_COMMAND ""
                     )
 install(CODE "execute_process(COMMAND make -C ${CMAKE_CURRENT_BINARY_DIR}/joint_commands_gui install)")
