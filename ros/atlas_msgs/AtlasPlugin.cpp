@@ -45,6 +45,14 @@ AtlasPlugin::AtlasPlugin()
 
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
+
+  // setup behavior to string map
+  this->behaviorMap["User"] = atlas_msgs::AtlasSimInterfaceCommand::USER;
+  this->behaviorMap["Stand"] = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+  this->behaviorMap["Walk"] = atlas_msgs::AtlasSimInterfaceCommand::WALK;
+  this->behaviorMap["Step"] = atlas_msgs::AtlasSimInterfaceCommand::STEP;
+  this->behaviorMap["Manipulate"] =
+    atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -847,19 +855,36 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
-  for (unsigned i = 0; i < this->errorTerms.size(); ++i)
-  {
-    this->errorTerms[i].q_p = 0;
-    this->errorTerms[i].d_q_p_dt = 0;
-    this->errorTerms[i].k_i_q_i = 0;
-    this->errorTerms[i].qd_p = 0;
-  }
-
-  this->UpdateAtlasCommand(_req.atlas_command);
-
   _res.success = true;
   _res.status_message = "success";
-  return true;
+
+  if (_req.reset_bdi_controller)
+  {
+    this->asiState.error_code = this->atlasSimInterface->reset_control();
+    if (this->asiState.error_code != NO_ERRORS)
+    {
+      ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
+                "error code (%d).", this->asiState.error_code);
+      _res.success = false;
+      _res.status_message = "failed to AtlasSimInterface::reset_control()";
+    }
+  }
+
+  if (_req.reset_pid_controller)
+    for (unsigned i = 0; i < this->errorTerms.size(); ++i)
+    {
+      this->errorTerms[i].q_p = 0;
+      this->errorTerms[i].d_q_p_dt = 0;
+      this->errorTerms[i].k_i_q_i = 0;
+      this->errorTerms[i].qd_p = 0;
+    }
+
+  if (_req.reload_pid_from_ros)
+    this->LoadPIDGainsFromParameter();
+  else
+    this->UpdateAtlasCommand(_req.atlas_command);
+
+  return _res.success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -908,6 +933,13 @@ void AtlasPlugin::SetASICommand(
     ROS_DEBUG("Test message contains different number of"
       " elements k_effort[%ld] than expected[%ld]",
       _msg->k_effort.size(), this->asiCommand.k_effort.size());
+
+  // Try and set desired behavior
+  this->asiState.error_code =
+    this->atlasSimInterface->set_desired_behavior("User");
+  if (this->asiState.error_code != NO_ERRORS)
+    ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+              "error code (%d).", this->asiState.error_code);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1140,32 +1172,130 @@ void AtlasPlugin::UpdateStates()
     {
       boost::mutex::scoped_lock lock(this->asiMutex);
 
+      // Try and get desired behavior
+	    std::string behaviorStr;
+      this->asiState.error_code =
+        this->atlasSimInterface->get_desired_behavior(behaviorStr);
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: getting desired behavior returned "
+                  "error [%s].",
+        this->atlasSimInterface->get_error_code_text(
+          (AtlasErrorCode)(this->asiState.error_code)).c_str());
+	    this->asiState.desired_behavior = this->behaviorMap[behaviorStr];
+	    if (this->asiState.desired_behavior != this->asiCommand.behavior)
+	    {
+	      // give error message and continue on
+	      ROS_ERROR("setting desired behavior did not change result of, "
+                  "get_desired_behavior, not implemented?");
+	    }
+
+      // Try and get current behavior
+      this->asiState.error_code =
+        this->atlasSimInterface->get_current_behavior(behaviorStr);
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: getting current behavior returned "
+                  "error [%s].",
+        this->atlasSimInterface->get_error_code_text(
+          (AtlasErrorCode)(this->asiState.error_code)).c_str());
+	    this->asiState.current_behavior = this->behaviorMap[behaviorStr];
+
+      // if current behavior is not desired behavior, controller is in
+      // a state of transition.
+
+      this->asiState.error_code =
+        this->atlasSimInterface->process_control_input(
+        this->atlasControlInput, this->atlasRobotState,
+        this->atlasControlOutput);
+
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: process_control_input returned "
+                  "error [%s].",
+        this->atlasSimInterface->get_error_code_text(
+          (AtlasErrorCode)(this->asiState.error_code)).c_str());
+
+      // fill in rest of asiState
+      std::copy(this->atlasControlOutput.f_out,
+                this->atlasControlOutput.f_out+28,
+                this->asiState.f_out.begin());
+
+      // 80 characters
+      atlas_msgs::AtlasBehaviorFeedback *fb =
+        &(this->asiState.behavior_feedback);
+      AtlasBehaviorFeedback *fbOut =
+        &(this->atlasControlOutput.behavior_feedback);
+
+      // just copying
+      fb->status_flags = fbOut->status_flags;
+      fb->trans_from_behavior_index = fbOut->trans_from_behavior_index;
+      fb->trans_to_behavior_index = fbOut->trans_to_behavior_index;
+
       // do something based on asiCommand
-      switch (this->asiCommand.behavior)
+      switch (this->asiState.current_behavior)
       {
         case atlas_msgs::AtlasSimInterfaceCommand::USER:
+          {
+          }
           break;
         case atlas_msgs::AtlasSimInterfaceCommand::STAND:
           {
-            this->asiState.error_code =
-              this->atlasSimInterface->process_control_input(
-              this->atlasControlInput, this->atlasRobotState,
-              this->atlasControlOutput);
+            fb->stand_feedback.status_flags =
+              fbOut->stand_feedback.status_flags;
           }
           break;
         case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
           break;
         case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
           break;
+        case atlas_msgs::AtlasSimInterfaceCommand::WALK:
+          {
+            fb->walk_feedback.t_step_rem = fbOut->walk_feedback.t_step_rem;
+            fb->walk_feedback.current_step_index =
+              fbOut->walk_feedback.current_step_index;
+            fb->walk_feedback.next_step_index_needed =
+              fbOut->walk_feedback.next_step_index_needed;
+            fb->walk_feedback.status_flags = fbOut->walk_feedback.status_flags;
+            for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
+            {
+              atlas_msgs::AtlasBehaviorStepData* sd =
+                &(fb->walk_feedback.step_data_saturated[i]);
+              AtlasBehaviorStepData* sdOut =
+                &(fbOut->walk_feedback.step_data_saturated[i]);
+              sd->step_index = sdOut->step_index;
+              sd->foot_index = sdOut->foot_index;
+              sd->duration = sdOut->duration;
+
+              // compose geometry_msgs::Pose from position, yaw, normal
+              /*
+              sd->pose =
+              sdOut->position.n[0] = 0.0;
+              sdOut->position.n[1] = 0.0;
+              sdOut->position.n[2] = 0.0;
+              sdOut->yaw = 0.0;
+              sdOut->normal.n[0] = 0.0;
+              sdOut->normal.n[1] = 0.0;
+              sdOut->normal.n[2] = 0.0;
+              sdOut->swing_height = 0.0;
+              */
+
+              sd->swing_height = sdOut->swing_height;
+            }
+          }
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::STEP:
+          {
+            fb->step_feedback.status_flags =
+              fbOut->step_feedback.status_flags;
+          }
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
+          {
+            fb->stand_feedback.status_flags =
+              fbOut->stand_feedback.status_flags;
+          }
+          break;
         case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
           break;
         case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::WALK:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::STEP:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
           break;
         default:
           break;

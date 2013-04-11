@@ -245,6 +245,8 @@ namespace gazebo
     /// \brief internal copy of atlasSimInterfaceState
     private: atlas_msgs::AtlasSimInterfaceState asiState;
 
+    private: std::map<std::string, int> behaviorMap;
+
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
     private: std::vector<double> effortLimit;

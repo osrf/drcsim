@@ -2,16 +2,16 @@
 Header header
 
 # permissible values for behavior
-int32 USER              =  3 # disable AtlasSimInterface updates, rely on
+int32 STAND             =  0 # stand
+int32 USER              =  1 # disable AtlasSimInterface updates, rely on
                              # /atlas/atlas_command or /atlas/joint_commands
-int32 STAND             =  4 # stand (no manipulate?)
-int32 FREEZE            =  5 # safety mode (new?)
-int32 STAND_PREP        =  6 # stand-prep (AtlasSimInterface documentation)
-int32 WALK              =  7 # multi-step walk
-int32 STEP              =  8 # single step walk
-int32 MANIPULATE        =  9 # stand and allows manipulation.
-int32 DEMO1             = 10 # walk in straight line
-int32 DEMO2             = 11 # figure 8
+int32 FREEZE            =  2 # safety mode
+int32 STAND_PREP        =  3 # stand-prep (AtlasSimInterface documentation)
+int32 WALK              =  4 # multi-step walk
+int32 STEP              =  5 # single step walk
+int32 MANIPULATE        =  6 # stand and allows manipulation.
+int32 DEMO1             =  7 # walk in straight line
+int32 DEMO2             =  8 # figure 8
 
 int32 behavior                # can be one of
                               # USER, FREEZE, STAND_PREP

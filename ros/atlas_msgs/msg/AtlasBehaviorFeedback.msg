@@ -60,8 +60,8 @@ uint32 STATUS_ERROR_FALLING                 = 256
 
 uint32 status_flags  # can be one of above
 
-int32 trans_from_behavior_index
-int32 trans_to_behavior_index
+int32 trans_from_behavior_index  # use this as a parm to get_behavior_at_index() to get behavior string
+int32 trans_to_behavior_index  # use this as a parm to get_behavior_at_index() to get behavior string
 
 atlas_msgs/AtlasBehaviorStandFeedback stand_feedback
 atlas_msgs/AtlasBehaviorStepFeedback step_feedback
