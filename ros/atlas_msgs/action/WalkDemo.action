@@ -1,5 +1,5 @@
 # Goal
-atlas_msgs/AtlasSimInterface params
+atlas_msgs/AtlasSimInterfaceCommand params
 ---
 # Result
 atlas_msgs/AtlasSimInterfaceState end_state

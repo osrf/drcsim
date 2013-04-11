@@ -61,28 +61,25 @@
 
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ControllerStatistics.h>
+
+// don't use these to control
 #include <sensor_msgs/JointState.h>
 #include <osrf_msgs/JointCommands.h>
+
+// high speed control
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
-#include <atlas_msgs/AtlasSimInterface.h>
+
+// low speed control
+#include <atlas_msgs/AtlasSimInterfaceCommand.h>
 #include <atlas_msgs/AtlasSimInterfaceState.h>
 
 #include <atlas_msgs/Test.h>
-
-// actionlib for BDI's dynamic controller
-// see http://ros.org/wiki/actionlib for documentation on actions
-#include <atlas_msgs/AtlasSimInterfaceAction.h>
-#include <actionlib/server/simple_action_server.h>
 
 #include "PubQueue.h"
 
 namespace gazebo
 {
-  // actionlib simple action server
-  typedef actionlib::SimpleActionServer<atlas_msgs::AtlasSimInterfaceAction>
-    ActionServer;
-
   class AtlasPlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -163,11 +160,6 @@ namespace gazebo
     private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr
       pubForceTorqueSensorsQueue;
 
-    // AtlasSimInterface: internal debugging only
-    // Pelvis position and velocity
-    private: std::string pelvisLinkName;
-    private: physics::LinkPtr pelvisLink;
-
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
@@ -185,11 +177,6 @@ namespace gazebo
     /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
     private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
-
-    /// \brief demo1
-    public: void SetBDICmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
-    public: ros::Subscriber subBDICmdVel;
-    public: math::Vector3 demo1Vel;
 
     /// \brief ros publisher for atlas states, currently it contains
     /// joint index enums
@@ -244,6 +231,20 @@ namespace gazebo
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
 
+    /// \brief AtlasSimInterface:
+    private: ros::Subscriber subASICommand;
+    /// \brief AtlasSimInterface:
+    private: void SetASICommand(
+      const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg);
+    private: ros::Publisher pubASIState;
+    private: PubQueue<atlas_msgs::AtlasSimInterfaceState>::Ptr pubASIStateQueue;
+    private: boost::mutex asiMutex;
+
+    /// \brief internal copy of atlasSimInterfaceCommand
+    private: atlas_msgs::AtlasSimInterfaceCommand asiCommand;
+    /// \brief internal copy of atlasSimInterfaceState
+    private: atlas_msgs::AtlasSimInterfaceState asiState;
+
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
     private: std::vector<double> effortLimit;
@@ -268,37 +269,7 @@ namespace gazebo
     /// \brief ros service to reset controls internal states
     private: ros::ServiceServer resetControlsService;
 
-    // AtlasSimInterface:  Controls ros interface
-    private: ros::Subscriber subAtlasControlMode;
-
-    /// \brief actionlib simple action server executor callback
-    private: void ActionServerCallback();
-
-    /// \brief lock while updating control modes
-    private: boost::mutex actionServerMutex;
-
-    /// \brief actionlib simple action server
-    private: ActionServer* actionServer;
-
-    /// \brief local copy of the goal
-    private: atlas_msgs::AtlasSimInterfaceGoal activeGoal;
-
-    /// \brief actionlib feedback
-    private: atlas_msgs::AtlasSimInterfaceFeedback actionServerFeedback;
-
-    /// \brief actionlib result
-    private: atlas_msgs::AtlasSimInterfaceResult actionServerResult;
-
-    /// \brief used for trajectory rollout
-    private: std::vector<atlas_msgs::AtlasBehaviorStepData>
-      stepTrajectory;
-
-    /// \brief current position of the robot
-    math::Vector3 currentPelvisPosition;
-    math::Vector3 currentLFootPosition;
-    math::Vector3 currentRFootPosition;
-    math::Pose bdiOdometryFrame;
-
+    /// \brief Conversion functions
     private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
     {
       return math::Pose(math::Vector3(_pose.position.x,
@@ -310,6 +281,7 @@ namespace gazebo
                                          _pose.orientation.z));
     }
 
+    /// \brief Conversion helper functions
     private: inline geometry_msgs::Pose ToPose(const math::Pose &_pose) const
     {
       geometry_msgs::Pose result;
@@ -323,6 +295,7 @@ namespace gazebo
       return result;
     }
 
+    /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
       return AtlasVec3f(_point.x,
@@ -330,6 +303,7 @@ namespace gazebo
                         _point.z);
     }
 
+    /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const math::Vector3 &_vector3) const
     {
       return AtlasVec3f(_vector3.x,
@@ -337,6 +311,7 @@ namespace gazebo
                         _vector3.z);
     }
 
+    /// \brief Conversion helper functions
     private: inline math::Vector3 ToVec3(const AtlasVec3f &_vec3) const
     {
       return math::Vector3(_vec3.n[0],
@@ -344,10 +319,8 @@ namespace gazebo
                            _vec3.n[2]);
     }
 
-    /// \brief fill in action server feedback state from toRobot,
-    /// where toRobot is populated by call to AtlasSimInterface
-    /// process_control_input()
-    private: void UpdateActionServerStateFeedback();
+    // AtlasSimInterface:  Controls ros interface
+    private: ros::Subscriber subAtlasControlMode;
 
     /// \brief AtlasSimInterface:
     /// subscribe to a control_mode string message, current valid commands are:
@@ -375,13 +348,6 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
-
-    // walking parameters
-    private: double strideSagittal;
-    private: double strideCoronal;
-    private: double stepWidth;
-    private: double strideDuration;
-    private: double walkYawRate;
   };
 }
 #endif

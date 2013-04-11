@@ -1,8 +1,8 @@
 #include <std_msgs/String.h>
-#include <atlas_msgs/AtlasSimInterfaceAction.h>
+#include <atlas_msgs/WalkDemoAction.h>
 #include <actionlib/client/simple_action_client.h>
 
-typedef actionlib::SimpleActionClient<atlas_msgs::AtlasSimInterfaceAction> Client;
+typedef actionlib::SimpleActionClient<atlas_msgs::WalkDemoAction> Client;
 
 int main(int argc, char** argv)
 {
