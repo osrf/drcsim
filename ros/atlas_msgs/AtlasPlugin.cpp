@@ -377,15 +377,15 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // AtlasSimInterface:
   // Calling into the behavior library to reset controls and set startup
   // behavior.
-  int errorCode;
-  errorCode = this->atlasSimInterface->reset_control();
-  if (errorCode != NO_ERRORS)
+  this->asiState.error_code = this->atlasSimInterface->reset_control();
+  if (this->asiState.error_code != NO_ERRORS)
     ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
-              "error code (%d).", errorCode);
-  errorCode = this->atlasSimInterface->set_desired_behavior("User");
-  if (errorCode != NO_ERRORS)
+              "error code (%d).", this->asiState.error_code);
+  this->asiState.error_code =
+    this->atlasSimInterface->set_desired_behavior("User");
+  if (this->asiState.error_code != NO_ERRORS)
     ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
-              "error code (%d).", errorCode);
+              "error code (%d).", this->asiState.error_code);
 
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint("l_arm_mwx");
@@ -867,7 +867,47 @@ void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->asiMutex);
-  this->asiCommand;
+
+  this->asiCommand.behavior = _msg->behavior;
+  this->asiState.desired_behavior = _msg->behavior;
+
+  this->asiCommand.walk_params.resize(_msg->walk_params.size());
+  for (unsigned int i = 0; i < _msg->walk_params.size(); ++i)
+  {
+    this->asiCommand.walk_params[i].step_index =
+      _msg->walk_params[i].step_index;
+    this->asiCommand.walk_params[i].foot_index =
+      _msg->walk_params[i].foot_index;
+    this->asiCommand.walk_params[i].duration =
+      _msg->walk_params[i].duration;
+    this->asiCommand.walk_params[i].pose =
+      _msg->walk_params[i].pose;
+    this->asiCommand.walk_params[i].swing_height =
+      _msg->walk_params[i].swing_height;
+  }
+
+  this->asiCommand.step_params.step_index = _msg->step_params.step_index;
+  this->asiCommand.step_params.foot_index = _msg->step_params.foot_index;
+  this->asiCommand.step_params.duration = _msg->step_params.duration;
+  this->asiCommand.step_params.pose = _msg->step_params.pose;
+  this->asiCommand.step_params.swing_height = _msg->step_params.swing_height;
+
+  this->asiCommand.stand_params.use_desired_pelvis_height =
+    _msg->stand_params.use_desired_pelvis_height;
+  this->asiCommand.stand_params.desired_pelvis_height =
+    _msg->stand_params.desired_pelvis_height;
+  this->asiCommand.stand_params.desired_pelvis_yaw =
+    _msg->stand_params.desired_pelvis_yaw;
+  this->asiCommand.stand_params.desired_pelvis_lat =
+    _msg->stand_params.desired_pelvis_lat;
+
+  if (_msg->k_effort.size() == this->asiCommand.k_effort.size())
+    std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
+      this->asiCommand.k_effort.begin());
+  else
+    ROS_DEBUG("Test message contains different number of"
+      " elements k_effort[%ld] than expected[%ld]",
+      _msg->k_effort.size(), this->asiCommand.k_effort.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1100,6 +1140,38 @@ void AtlasPlugin::UpdateStates()
     {
       boost::mutex::scoped_lock lock(this->asiMutex);
 
+      // do something based on asiCommand
+      switch (this->asiCommand.behavior)
+      {
+        case atlas_msgs::AtlasSimInterfaceCommand::USER:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::STAND:
+          {
+            this->asiState.error_code =
+              this->atlasSimInterface->process_control_input(
+              this->atlasControlInput, this->atlasRobotState,
+              this->atlasControlOutput);
+          }
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::WALK:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::STEP:
+          break;
+        case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
+          break;
+        default:
+          break;
+      }
+      // set asiState and publish asiState
+      this->pubASIStateQueue->push(this->asiState, this->pubASIState);
     }
 
     {

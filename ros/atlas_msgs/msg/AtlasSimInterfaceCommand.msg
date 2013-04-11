@@ -18,10 +18,6 @@ int32 behavior                # can be one of
                               # WALK, STEP, STAND, MANIPULATE
                               # DEMO1, DEMO2
 
-# permissible values for foot_index
-int32 LEFT_FOOT = 0
-int32 RIGHT_FOOT = 1
-
 # multi_step walking trajectory parameters
 atlas_msgs/AtlasBehaviorStepData[] walk_params
 
