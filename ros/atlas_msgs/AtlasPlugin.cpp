@@ -399,6 +399,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     }
 
     // start with PID control
+    this->asiState.k_effort.resize(this->jointName.size());
     for(unsigned int i = 0; i < this->jointNames.size(); ++i)
       this->asiState.k_effort[i] = 255;
   }
