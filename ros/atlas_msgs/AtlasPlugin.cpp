@@ -395,6 +395,51 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
               "error code (%d).", this->asiState.error_code);
 
+  this->asiCommand.behavior = atlas_msgs::AtlasSimInterfaceCommand::USER;
+
+  /* init asiCommand?
+  this->asiState.desired_behavior = _msg->behavior;
+
+  this->asiCommand.walk_params.resize(_msg->walk_params.size());
+  for (unsigned int i = 0; i < _msg->walk_params.size(); ++i)
+  {
+    this->asiCommand.walk_params[i].step_index =
+      _msg->walk_params[i].step_index;
+    this->asiCommand.walk_params[i].foot_index =
+      _msg->walk_params[i].foot_index;
+    this->asiCommand.walk_params[i].duration =
+      _msg->walk_params[i].duration;
+    this->asiCommand.walk_params[i].pose =
+      _msg->walk_params[i].pose;
+    this->asiCommand.walk_params[i].swing_height =
+      _msg->walk_params[i].swing_height;
+  }
+
+  this->asiCommand.step_params.step_index = _msg->step_params.step_index;
+  this->asiCommand.step_params.foot_index = _msg->step_params.foot_index;
+  this->asiCommand.step_params.duration = _msg->step_params.duration;
+  this->asiCommand.step_params.pose = _msg->step_params.pose;
+  this->asiCommand.step_params.swing_height = _msg->step_params.swing_height;
+
+  this->asiCommand.stand_params.use_desired_pelvis_height =
+    _msg->stand_params.use_desired_pelvis_height;
+  this->asiCommand.stand_params.desired_pelvis_height =
+    _msg->stand_params.desired_pelvis_height;
+  this->asiCommand.stand_params.desired_pelvis_yaw =
+    _msg->stand_params.desired_pelvis_yaw;
+  this->asiCommand.stand_params.desired_pelvis_lat =
+    _msg->stand_params.desired_pelvis_lat;
+
+  if (_msg->k_effort.size() == this->asiCommand.k_effort.size())
+    std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
+      this->asiCommand.k_effort.begin());
+  else
+    ROS_DEBUG("Test message contains different number of"
+      " elements k_effort[%ld] than expected[%ld]",
+      _msg->k_effort.size(), this->asiCommand.k_effort.size());
+  */
+
+
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint("l_arm_mwx");
   if (!this->lWristJoint)
@@ -935,11 +980,63 @@ void AtlasPlugin::SetASICommand(
       _msg->k_effort.size(), this->asiCommand.k_effort.size());
 
   // Try and set desired behavior
-  this->asiState.error_code =
-    this->atlasSimInterface->set_desired_behavior("User");
-  if (this->asiState.error_code != NO_ERRORS)
-    ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
-              "error code (%d).", this->asiState.error_code);
+  switch (this->asiCommand.behavior)
+  {
+    case atlas_msgs::AtlasSimInterfaceCommand::USER:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("User");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("Freeze");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("StandPrep");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STAND:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("Stand");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
+    case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
+    case atlas_msgs::AtlasSimInterfaceCommand::WALK:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("Walk");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STEP:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("Step");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("Manipulate");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      break;
+    default:
+      gzerr << "Unrecognized behavior\n";
+      break;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1378,11 +1475,12 @@ void AtlasPlugin::UpdateStates()
         // AtlasSimInterface:  also, add bdi controller feed forward force
         // to overall control torque scaled by 1 - k_effort.
         double forceUnclamped =
+          k_effort * (
           this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
                                             this->errorTerms[i].k_i_q_i +
           this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
-          k_effort                        * this->atlasCommand.effort[i] +
+                                            this->atlasCommand.effort[i]) +
           (1.0 - k_effort)                * this->atlasControlOutput.f_out[i];
 
         // keep unclamped force for integral tie-back calculation
