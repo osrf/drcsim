@@ -125,7 +125,7 @@ int main(int argc, char** argv)
     ac.velocity[i]     = 0;
     ac.effort[i]       = 0;
     ac.kp_velocity[i]  = 0;
-    ac.k_effort[i]     = 255.0;
+    ac.k_effort[i]     = 255;
   }
 
   // ros topic subscribtions
