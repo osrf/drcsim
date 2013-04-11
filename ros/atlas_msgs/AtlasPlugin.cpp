@@ -1211,7 +1211,7 @@ void AtlasPlugin::UpdateStates()
             //       << "] flag[" << fb->walk_feedback.status_flags
             //       << "]\n";
 
-            static const int lastStep = 25;
+            static const unsigned int lastStep = 25;
             // or if status_flag turns from 2 to 4
             if (fb->walk_feedback.current_step_index == lastStep)
             {
