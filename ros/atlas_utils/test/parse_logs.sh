@@ -65,3 +65,6 @@ ln -sf $HOME/.ros $run_name
 zip -q -r $run_name.zip $run_name
 rm -rf $run_name
 echo "Logs and plots are in $run_name.zip"
+
+echo "Stats on real time factor:"
+$DIR/meanvar.py ~/.ros/gzstats.log -s ,

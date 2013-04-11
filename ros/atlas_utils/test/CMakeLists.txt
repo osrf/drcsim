@@ -53,6 +53,8 @@ set(files
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
   ros_subscribers.launch
+  pub_atlas_command.launch
+  perf_test.launch
 )
 set(scripts
   ros_api_checker
@@ -60,6 +62,7 @@ set(scripts
   run_pub_atlas_command.sh
   run_rosbag.sh
   parse_logs.sh
+  meanvar.py
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
