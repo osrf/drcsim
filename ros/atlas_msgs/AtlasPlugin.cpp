@@ -392,50 +392,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
               "error code (%d).", this->asiState.error_code);
 
-  this->asiCommand.behavior = atlas_msgs::AtlasSimInterfaceCommand::USER;
-
-  /* init asiCommand?
-  this->asiState.desired_behavior = _msg->behavior;
-
-  this->asiCommand.walk_params.resize(_msg->walk_params.size());
-  for (unsigned int i = 0; i < _msg->walk_params.size(); ++i)
-  {
-    this->asiCommand.walk_params[i].step_index =
-      _msg->walk_params[i].step_index;
-    this->asiCommand.walk_params[i].foot_index =
-      _msg->walk_params[i].foot_index;
-    this->asiCommand.walk_params[i].duration =
-      _msg->walk_params[i].duration;
-    this->asiCommand.walk_params[i].pose =
-      _msg->walk_params[i].pose;
-    this->asiCommand.walk_params[i].swing_height =
-      _msg->walk_params[i].swing_height;
-  }
-
-  this->asiCommand.step_params.step_index = _msg->step_params.step_index;
-  this->asiCommand.step_params.foot_index = _msg->step_params.foot_index;
-  this->asiCommand.step_params.duration = _msg->step_params.duration;
-  this->asiCommand.step_params.pose = _msg->step_params.pose;
-  this->asiCommand.step_params.swing_height = _msg->step_params.swing_height;
-
-  this->asiCommand.stand_params.use_desired_pelvis_height =
-    _msg->stand_params.use_desired_pelvis_height;
-  this->asiCommand.stand_params.desired_pelvis_height =
-    _msg->stand_params.desired_pelvis_height;
-  this->asiCommand.stand_params.desired_pelvis_yaw =
-    _msg->stand_params.desired_pelvis_yaw;
-  this->asiCommand.stand_params.desired_pelvis_lat =
-    _msg->stand_params.desired_pelvis_lat;
-
-  if (_msg->k_effort.size() == this->asiCommand.k_effort.size())
-    std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
-      this->asiCommand.k_effort.begin());
-  else
-    ROS_DEBUG("Test message contains different number of"
-      " elements k_effort[%ld] than expected[%ld]",
-      _msg->k_effort.size(), this->asiCommand.k_effort.size());
-  */
-
+  this->asiState.desired_behavior = atlas_msgs::AtlasSimInterfaceCommand::USER;
 
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint("l_arm_mwx");
@@ -935,8 +892,6 @@ void AtlasPlugin::SetASICommand(
 {
   boost::mutex::scoped_lock lock(this->asiMutex);
 
-  // dont need asiCommand
-
   // copy _msg contents directly into
   // atlasControlInput::stand_params
   // atlasControlInput::step_params
@@ -1021,7 +976,8 @@ void AtlasPlugin::SetASICommand(
       " elements k_effort[%ld] than expected[%ld]",
       _msg->k_effort.size(), this->atlasState.k_effort.size());
 
-  /// \TODO: Set atlasControlInput from asiCommand or from _msg
+  /// \TODO: Set atlasControlInput from _msg
+  /*
   for(unsigned int i = 0; i < this->joints.size(); ++i)
   {
     this->atlasControlInput.j[i].q_d = 0.0;
@@ -1031,9 +987,10 @@ void AtlasPlugin::SetASICommand(
     this->atlasControlInput.jparams[i].k_q_i = 0.0;
     this->atlasControlInput.jparams[i].k_qd_p = 0.0;
   }
+  */
 
   // Try and set desired behavior (reverse map of behaviorMap)
-  switch (this->asiCommand.behavior)
+  switch (this->asiState.desired_behavior)
   {
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
       this->asiState.error_code =
@@ -1157,12 +1114,12 @@ void AtlasPlugin::UpdateStates()
                   "error [%s].",
         this->atlasSimInterface->get_error_code_text(
           (AtlasErrorCode)(this->asiState.error_code)).c_str());
-	    this->asiState.desired_behavior = this->behaviorMap[behaviorStr];
-	    if (this->asiState.desired_behavior != this->asiCommand.behavior)
+	    if (this->asiState.desired_behavior != this->behaviorMap[behaviorStr])
 	    {
-	      // give error message and continue on
-	      ROS_ERROR("setting desired behavior did not change result of, "
-                  "get_desired_behavior, not implemented?");
+	      ROS_ERROR("setting desired behavior[%d] did not change result of "
+                  "get_desired_behavior[%d], not implemented?",
+                  this->asiState.desired_behavior,
+                  this->behaviorMap[behaviorStr]);
 	    }
 
       // Try and get current behavior
@@ -1205,7 +1162,7 @@ void AtlasPlugin::UpdateStates()
       fb->trans_from_behavior_index = fbOut->trans_from_behavior_index;
       fb->trans_to_behavior_index = fbOut->trans_to_behavior_index;
 
-      // do something based on asiCommand
+      // do something based on current_behavior
       switch (this->asiState.current_behavior)
       {
         case atlas_msgs::AtlasSimInterfaceCommand::USER:
@@ -1622,7 +1579,8 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     this->atlasState.kd_position[i]  =  d_val;
     this->atlasState.i_effort_min[i] = -i_clamp_val;
     this->atlasState.i_effort_max[i] =  i_clamp_val;
-    this->atlasState.k_effort[i] = 0;
+    // default k_effort is set to 1, controller relies on PID.
+    this->atlasState.k_effort[i] = 255;
   }
 }
 
@@ -1787,7 +1745,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     // revert to PID control
     this->LoadPIDGainsFromParameter();
-    this->asiCommand.behavior =
+    this->asiState.desired_behavior =
       atlas_msgs::AtlasSimInterfaceCommand::USER;
     this->atlasSimInterface->set_desired_behavior("User");
     // clear out forces
@@ -1798,7 +1756,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     // revert to PID control
     this->ZeroAtlasCommand();
-    this->asiCommand.behavior =
+    this->asiState.desired_behavior =
       atlas_msgs::AtlasSimInterfaceCommand::USER;
     this->atlasSimInterface->set_desired_behavior("User");
     // clear out forces

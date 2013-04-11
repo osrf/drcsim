@@ -235,8 +235,6 @@ namespace gazebo
     private: PubQueue<atlas_msgs::AtlasSimInterfaceState>::Ptr pubASIStateQueue;
     private: boost::mutex asiMutex;
 
-    /// \brief internal copy of atlasSimInterfaceCommand
-    private: atlas_msgs::AtlasSimInterfaceCommand asiCommand;
     /// \brief internal copy of atlasSimInterfaceState
     private: atlas_msgs::AtlasSimInterfaceState asiState;
 
