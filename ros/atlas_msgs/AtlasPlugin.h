@@ -238,7 +238,11 @@ namespace gazebo
     /// \brief internal copy of atlasSimInterfaceState
     private: atlas_msgs::AtlasSimInterfaceState asiState;
 
+    /// \brief helper functions converting behavior string to int
     private: std::map<std::string, int> behaviorMap;
+
+    /// \brief helper functions converting behavior int to string
+    private: std::string GetBehavior(int _behavior);
 
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
