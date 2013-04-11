@@ -32,9 +32,6 @@ geometry_msgs/Pose[2] foot_pose_est      # World position estimate for feet
 
 atlas_msgs/AtlasBehaviorFeedback behavior_feedback
 
-uint32 current_step_index                # Current step index in multi_step
-                                         # or single_step modes.
-
 uint8[] k_effort       # k_effort can be an unsigned int 8value from 0 to 255, 
                        # at run time, a double between 0 and 1 is obtained
                        # by dividing by 255.0d.

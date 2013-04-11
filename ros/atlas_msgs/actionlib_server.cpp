@@ -1,5 +1,21 @@
 // actionlib for BDI's dynamic controller
 // see http://ros.org/wiki/actionlib for documentation on actions
+#include <string>
+#include <vector>
+
+#include <boost/thread/mutex.hpp>
+
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
+#include <ros/subscribe_options.h>
+
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/WrenchStamped.h>
+#include <std_msgs/String.h>
+
 #include <atlas_msgs/AtlasSimInterfaceAction.h>
 #include <actionlib/server/simple_action_server.h>
 

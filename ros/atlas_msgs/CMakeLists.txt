@@ -10,9 +10,9 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 project(atlas_msgs)
 
 # generate action for AtlasSimInterface
-#rosbuild_find_ros_package(actionlib_msgs)
-#include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
-#genaction()
+# rosbuild_find_ros_package(actionlib_msgs)
+# include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
+# genaction()
 
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
@@ -96,6 +96,14 @@ rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
 target_link_libraries(AtlasPlugin AtlasSimInterface)
 
+# compile actionlib_server with AtlasSimInterface
+# rosbuild_add_executable(actionlib_server actionlib_server.cpp)
+# target_link_libraries(actionlib_server AtlasSimInterface)
+
+# compile actionlib_client with AtlasSimInterface
+# rosbuild_add_executable(actionlib_client actionlib_client.cpp)
+# target_link_libraries(actionlib_client AtlasSimInterface)
+
 # message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
 # message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.8/lib64")
 # message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.8")
@@ -118,6 +126,6 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY srv srv_gen msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_command pub_joint_states
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_command pub_joint_states # actionlib_server actionlib_client
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
