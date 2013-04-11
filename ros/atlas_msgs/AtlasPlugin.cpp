@@ -90,9 +90,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // initialize update time
   this->lastControllerUpdateTime = this->world->GetSimTime();
 
-  // initialize imu
-  this->lastImuTime = this->world->GetSimTime();
-
   // get joints
   this->jointNames.push_back("back_lbz");
   this->jointNames.push_back("back_mby");
@@ -504,93 +501,89 @@ void AtlasPlugin::SetAtlasCommand(
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
-  this->UpdateAtlasCommand(*_msg);
-}
+  this->atlasCommand.header.stamp = _msg->header.stamp;
 
-////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::UpdateAtlasCommand(const atlas_msgs::AtlasCommand &_msg)
-{
-  this->atlasCommand.header.stamp = _msg.header.stamp;
-
-  if (_msg.position.size() == this->atlasCommand.position.size())
-    std::copy(_msg.position.begin(), _msg.position.end(),
+  // potential optimization:
+  // only atlasCommand position, velocity and efforts are used.
+  if (_msg->position.size() == this->atlasCommand.position.size())
+    std::copy(_msg->position.begin(), _msg->position.end(),
       this->atlasCommand.position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements position[%ld] than expected[%ld]",
-      _msg.position.size(), this->atlasCommand.position.size());
+      _msg->position.size(), this->atlasCommand.position.size());
 
-  if (_msg.velocity.size() == this->atlasCommand.velocity.size())
-    std::copy(_msg.velocity.begin(), _msg.velocity.end(),
+  if (_msg->velocity.size() == this->atlasCommand.velocity.size())
+    std::copy(_msg->velocity.begin(), _msg->velocity.end(),
       this->atlasCommand.velocity.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
-      _msg.velocity.size(), this->atlasCommand.velocity.size());
+      _msg->velocity.size(), this->atlasCommand.velocity.size());
 
-  if (_msg.effort.size() == this->atlasCommand.effort.size())
-    std::copy(_msg.effort.begin(), _msg.effort.end(),
+  if (_msg->effort.size() == this->atlasCommand.effort.size())
+    std::copy(_msg->effort.begin(), _msg->effort.end(),
       this->atlasCommand.effort.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements effort[%ld] than expected[%ld]",
-      _msg.effort.size(), this->atlasCommand.effort.size());
+      _msg->effort.size(), this->atlasCommand.effort.size());
 
-  if (_msg.kp_position.size() == this->atlasState.kp_position.size())
-    std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
+  if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->atlasState.kp_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
-      _msg.kp_position.size(), this->atlasState.kp_position.size());
+      _msg->kp_position.size(), this->atlasState.kp_position.size());
 
-  if (_msg.ki_position.size() == this->atlasState.ki_position.size())
-    std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
+  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->atlasState.ki_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
-      _msg.ki_position.size(), this->atlasState.ki_position.size());
+      _msg->ki_position.size(), this->atlasState.ki_position.size());
 
-  if (_msg.kd_position.size() == this->atlasState.kd_position.size())
-    std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
+  if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->atlasState.kd_position.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
-      _msg.kd_position.size(), this->atlasState.kd_position.size());
+      _msg->kd_position.size(), this->atlasState.kd_position.size());
 
-  if (_msg.kp_velocity.size() == this->atlasState.kp_velocity.size())
-    std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
+  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
-      _msg.kp_velocity.size(), this->atlasState.kp_velocity.size());
+      _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
 
-  if (_msg.i_effort_min.size() == this->atlasState.i_effort_min.size())
-    std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
+  if (_msg->i_effort_min.size() == this->atlasState.i_effort_min.size())
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
       this->atlasState.i_effort_min.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
-      _msg.i_effort_min.size(), this->atlasState.i_effort_min.size());
+      _msg->i_effort_min.size(), this->atlasState.i_effort_min.size());
 
-  if (_msg.i_effort_max.size() == this->atlasState.i_effort_max.size())
-    std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
+  if (_msg->i_effort_max.size() == this->atlasState.i_effort_max.size())
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
       this->atlasState.i_effort_max.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
-      _msg.i_effort_max.size(), this->atlasState.i_effort_max.size());
+      _msg->i_effort_max.size(), this->atlasState.i_effort_max.size());
 
-  if (_msg.k_effort.size() == this->atlasState.k_effort.size())
-    std::copy(_msg.k_effort.begin(), _msg.k_effort.end(),
+  if (_msg->k_effort.size() == this->atlasState.k_effort.size())
+    std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
       this->atlasState.k_effort.begin());
   else
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements k_effort[%ld] than expected[%ld]",
-      _msg.k_effort.size(), this->atlasState.k_effort.size());
+      _msg->k_effort.size(), this->atlasState.k_effort.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -598,85 +591,85 @@ void AtlasPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
-  this->UpdateJointCommands(*_msg);
-}
 
-////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::UpdateJointCommands(const osrf_msgs::JointCommands &_msg)
-{
-  this->atlasCommand.header.stamp = _msg.header.stamp;
+  this->atlasCommand.header.stamp = _msg->header.stamp;
 
-  if (_msg.position.size() == this->atlasCommand.position.size())
-    std::copy(_msg.position.begin(), _msg.position.end(),
+  /// \TODO: at some point, we can try stuffing
+  ///   AtlasControlInput::J and AtlasControlInput::jparams
+  /// to test out BDI internal PID controller
+  /// as a replacement to PID control in AtlasPlugin
+
+  if (_msg->position.size() == this->atlasCommand.position.size())
+    std::copy(_msg->position.begin(), _msg->position.end(),
       this->atlasCommand.position.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements position[%ld] than expected[%ld]",
-      _msg.position.size(), this->atlasCommand.position.size());
+      _msg->position.size(), this->atlasCommand.position.size());
 
-  if (_msg.velocity.size() == this->atlasCommand.velocity.size())
-    std::copy(_msg.velocity.begin(), _msg.velocity.end(),
+  if (_msg->velocity.size() == this->atlasCommand.velocity.size())
+    std::copy(_msg->velocity.begin(), _msg->velocity.end(),
       this->atlasCommand.velocity.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements velocity[%ld] than expected[%ld]",
-      _msg.velocity.size(), this->atlasCommand.velocity.size());
+      _msg->velocity.size(), this->atlasCommand.velocity.size());
 
-  if (_msg.effort.size() == this->atlasCommand.effort.size())
-    std::copy(_msg.effort.begin(), _msg.effort.end(),
+  if (_msg->effort.size() == this->atlasCommand.effort.size())
+    std::copy(_msg->effort.begin(), _msg->effort.end(),
       this->atlasCommand.effort.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements effort[%ld] than expected[%ld]",
-      _msg.effort.size(), this->atlasCommand.effort.size());
+      _msg->effort.size(), this->atlasCommand.effort.size());
 
-  if (_msg.kp_position.size() == this->atlasState.kp_position.size())
-    std::copy(_msg.kp_position.begin(), _msg.kp_position.end(),
+  if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+    std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->atlasState.kp_position.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
-      _msg.kp_position.size(), this->atlasState.kp_position.size());
+      _msg->kp_position.size(), this->atlasState.kp_position.size());
 
-  if (_msg.ki_position.size() == this->atlasState.ki_position.size())
-    std::copy(_msg.ki_position.begin(), _msg.ki_position.end(),
+  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+    std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->atlasState.ki_position.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
-      _msg.ki_position.size(), this->atlasState.ki_position.size());
+      _msg->ki_position.size(), this->atlasState.ki_position.size());
 
-  if (_msg.kd_position.size() == this->atlasState.kd_position.size())
-    std::copy(_msg.kd_position.begin(), _msg.kd_position.end(),
+  if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+    std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->atlasState.kd_position.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
-      _msg.kd_position.size(), this->atlasState.kd_position.size());
+      _msg->kd_position.size(), this->atlasState.kd_position.size());
 
-  if (_msg.kp_velocity.size() == this->atlasState.kp_velocity.size())
-    std::copy(_msg.kp_velocity.begin(), _msg.kp_velocity.end(),
+  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+    std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
-      _msg.kp_velocity.size(), this->atlasState.kp_velocity.size());
+      _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
 
-  if (_msg.i_effort_min.size() == this->atlasState.i_effort_min.size())
-    std::copy(_msg.i_effort_min.begin(), _msg.i_effort_min.end(),
+  if (_msg->i_effort_min.size() == this->atlasState.i_effort_min.size())
+    std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
       this->atlasState.i_effort_min.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements i_effort_min[%ld] than expected[%ld]",
-      _msg.i_effort_min.size(), this->atlasState.i_effort_min.size());
+      _msg->i_effort_min.size(), this->atlasState.i_effort_min.size());
 
-  if (_msg.i_effort_max.size() == this->atlasState.i_effort_max.size())
-    std::copy(_msg.i_effort_max.begin(), _msg.i_effort_max.end(),
+  if (_msg->i_effort_max.size() == this->atlasState.i_effort_max.size())
+    std::copy(_msg->i_effort_max.begin(), _msg->i_effort_max.end(),
       this->atlasState.i_effort_max.begin());
   else
     ROS_DEBUG("JointCommands message contains different number of"
       " elements i_effort_max[%ld] than expected[%ld]",
-      _msg.i_effort_max.size(), this->atlasState.i_effort_max.size());
+      _msg->i_effort_max.size(), this->atlasState.i_effort_max.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -927,7 +920,11 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   if (_req.reload_pid_from_ros)
     this->LoadPIDGainsFromParameter();
   else
-    this->UpdateAtlasCommand(_req.atlas_command);
+  {
+    // boost::shared_ptr<atlas_msgs::AtlasCommand> msg(_req.atlas_command);
+    this->SetAtlasCommand(
+      static_cast<atlas_msgs::AtlasCommand::ConstPtr>(&(_req.atlas_command)));
+  }
 
   return _res.success;
 }
@@ -938,48 +935,104 @@ void AtlasPlugin::SetASICommand(
 {
   boost::mutex::scoped_lock lock(this->asiMutex);
 
-  this->asiCommand.behavior = _msg->behavior;
+  // dont need asiCommand
+
+  // copy _msg contents directly into
+  // atlasControlInput::stand_params
+  // atlasControlInput::step_params
+  // atlasControlInput::walk_params
+  // atlasControlInput::manipulate_params
+  // atlasState::k_effort
+  // asiState::desired_behavior
+
   this->asiState.desired_behavior = _msg->behavior;
 
-  this->asiCommand.walk_params.resize(_msg->walk_params.size());
-  for (unsigned int i = 0; i < _msg->walk_params.size(); ++i)
+  // stand
+  this->atlasControlInput.stand_params.placeholder = 0;
+  // step
+  AtlasBehaviorStepParams* stepParams =
+    &this->atlasControlInput.step_params;
+  stepParams->desired_step.step_index   =
+    _msg->step_params.desired_step.step_index;
+  stepParams->desired_step.foot_index   =
+    _msg->step_params.desired_step.foot_index;
+  stepParams->desired_step.duration     =
+    _msg->step_params.desired_step.duration;
+
+  stepParams->desired_step.position     =
+    this->ToVec3(_msg->step_params.desired_step.pose.position);
+  stepParams->desired_step.yaw          = this->ToPose(
+    _msg->step_params.desired_step.pose).rot.GetYaw();
+  stepParams->desired_step.normal       = this->ToVec3(this->ToPose(
+    _msg->step_params.desired_step.pose).rot.RotateVector(
+    math::Vector3(0, 0, 1)));
+
+  stepParams->desired_step.swing_height =
+    _msg->step_params.desired_step.swing_height;
+  stepParams->use_demo_walk =
+    _msg->step_params.use_demo_walk;
+
+  // walk
+  AtlasBehaviorWalkParams* walkParams =
+    &this->atlasControlInput.walk_params;
+  for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
   {
-    this->asiCommand.walk_params[i].step_index =
-      _msg->walk_params[i].step_index;
-    this->asiCommand.walk_params[i].foot_index =
-      _msg->walk_params[i].foot_index;
-    this->asiCommand.walk_params[i].duration =
-      _msg->walk_params[i].duration;
-    this->asiCommand.walk_params[i].pose =
-      _msg->walk_params[i].pose;
-    this->asiCommand.walk_params[i].swing_height =
-      _msg->walk_params[i].swing_height;
+    walkParams->step_data[stepId].step_index =
+      _msg->walk_params.step_data[stepId].step_index;
+    walkParams->step_data[stepId].foot_index =
+      _msg->walk_params.step_data[stepId].foot_index;
+    walkParams->step_data[stepId].duration =
+      _msg->walk_params.step_data[stepId].duration;
+
+    walkParams->step_data[stepId].position = this->ToVec3(
+      _msg->walk_params.step_data[stepId].pose.position);
+    walkParams->step_data[stepId].yaw = this->ToPose(
+      _msg->walk_params.step_data[stepId].pose).rot.GetYaw();
+    walkParams->step_data[stepId].normal = this->ToVec3(this->ToPose(
+      _msg->walk_params.step_data[stepId].pose).rot.RotateVector(
+      math::Vector3(0, 0, 1)));
+
+    walkParams->step_data[stepId].swing_height =
+      _msg->walk_params.step_data[stepId].swing_height;
+
+    walkParams->use_demo_walk = _msg->walk_params.use_demo_walk;
   }
 
-  this->asiCommand.step_params.step_index = _msg->step_params.step_index;
-  this->asiCommand.step_params.foot_index = _msg->step_params.foot_index;
-  this->asiCommand.step_params.duration = _msg->step_params.duration;
-  this->asiCommand.step_params.pose = _msg->step_params.pose;
-  this->asiCommand.step_params.swing_height = _msg->step_params.swing_height;
+  // manipulate
+  AtlasBehaviorManipulateParams* manipulateParams =
+    &this->atlasControlInput.manipulate_params;
+  manipulateParams->use_desired =
+    _msg->manipulate_params.use_desired;
+  manipulateParams->desired.pelvis_height =
+    _msg->manipulate_params.desired.pelvis_height;
+  manipulateParams->desired.pelvis_yaw =
+    _msg->manipulate_params.desired.pelvis_yaw;
+  manipulateParams->desired.pelvis_lat =
+    _msg->manipulate_params.desired.pelvis_lat;
+  manipulateParams->use_demo_mode = false;
+    _msg->manipulate_params.use_demo_mode;
 
-  this->asiCommand.stand_params.use_desired_pelvis_height =
-    _msg->stand_params.use_desired_pelvis_height;
-  this->asiCommand.stand_params.desired_pelvis_height =
-    _msg->stand_params.desired_pelvis_height;
-  this->asiCommand.stand_params.desired_pelvis_yaw =
-    _msg->stand_params.desired_pelvis_yaw;
-  this->asiCommand.stand_params.desired_pelvis_lat =
-    _msg->stand_params.desired_pelvis_lat;
-
-  if (_msg->k_effort.size() == this->asiCommand.k_effort.size())
+  // k_effort
+  if (_msg->k_effort.size() == this->atlasState.k_effort.size())
     std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
-      this->asiCommand.k_effort.begin());
+      this->atlasState.k_effort.begin());
   else
     ROS_DEBUG("Test message contains different number of"
       " elements k_effort[%ld] than expected[%ld]",
-      _msg->k_effort.size(), this->asiCommand.k_effort.size());
+      _msg->k_effort.size(), this->atlasState.k_effort.size());
 
-  // Try and set desired behavior
+  /// \TODO: Set atlasControlInput from asiCommand or from _msg
+  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    this->atlasControlInput.j[i].q_d = 0.0;
+    this->atlasControlInput.j[i].qd_d = 0.0;
+    this->atlasControlInput.j[i].f_d = 0.0;
+    this->atlasControlInput.jparams[i].k_q_p = 0.0;
+    this->atlasControlInput.jparams[i].k_q_i = 0.0;
+    this->atlasControlInput.jparams[i].k_qd_p = 0.0;
+  }
+
+  // Try and set desired behavior (reverse map of behaviorMap)
   switch (this->asiCommand.behavior)
   {
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
@@ -1059,185 +1112,11 @@ void AtlasPlugin::UpdateStates()
       // wait to fill in this->atlasRobotState.j[i].f later
     }
 
-    // get imu data from imu link
-    if (this->imuSensor && curTime > this->lastImuTime)
-    {
-      // AtlasSimInterface: populate imu in atlasRobotState
-      this->atlasRobotState.imu.imu_timestamp =
-        1.0e6  * curTime.sec +
-        1.0e-3 * curTime.nsec;
+    // get imu data from imu sensor
+    this->GetIMUState(curTime);
 
-      // publish separate /atlas/imu topic, to be deprecated
-      sensor_msgs::Imu imuMsg;
-      imuMsg.header.frame_id = this->imuLinkName;
-      imuMsg.header.stamp = ros::Time(curTime.Double());
-
-      // compute angular rates
-      {
-        math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
-        this->atlasState.angular_velocity.x = wLocal.x;
-        this->atlasState.angular_velocity.y = wLocal.y;
-        this->atlasState.angular_velocity.z = wLocal.z;
-
-        // publish separate /atlas/imu topic, to be deprecated
-        imuMsg.angular_velocity.x = wLocal.x;
-        imuMsg.angular_velocity.y = wLocal.y;
-        imuMsg.angular_velocity.z = wLocal.z;
-
-        // AtlasSimInterface: populate imu in atlasRobotState
-        this->atlasRobotState.imu.angular_velocity.n[0] = wLocal.x;
-        this->atlasRobotState.imu.angular_velocity.n[1] = wLocal.y;
-        this->atlasRobotState.imu.angular_velocity.n[2] = wLocal.z;
-      }
-
-      // compute acceleration
-      {
-        math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
-        this->atlasState.linear_acceleration.x = accel.x;
-        this->atlasState.linear_acceleration.y = accel.y;
-        this->atlasState.linear_acceleration.z = accel.z;
-
-        // publish separate /atlas/imu topic, to be deprecated
-        imuMsg.linear_acceleration.x = accel.x;
-        imuMsg.linear_acceleration.y = accel.y;
-        imuMsg.linear_acceleration.z = accel.z;
-
-        // AtlasSimInterface: populate imu in atlasRobotState
-        this->atlasRobotState.imu.linear_acceleration.n[0] = accel.x;
-        this->atlasRobotState.imu.linear_acceleration.n[1] = accel.y;
-        this->atlasRobotState.imu.linear_acceleration.n[2] = accel.z;
-      }
-
-      // compute orientation
-      {
-        math::Quaternion imuRot = this->imuSensor->GetOrientation();
-        this->atlasState.orientation.x = imuRot.x;
-        this->atlasState.orientation.y = imuRot.y;
-        this->atlasState.orientation.z = imuRot.z;
-        this->atlasState.orientation.w = imuRot.w;
-
-        // publish separate /atlas/imu topic, to be deprecated
-        imuMsg.orientation.x = imuRot.x;
-        imuMsg.orientation.y = imuRot.y;
-        imuMsg.orientation.z = imuRot.z;
-        imuMsg.orientation.w = imuRot.w;
-
-        // AtlasSimInterface: populate imu in atlasRobotState
-        this->atlasRobotState.imu.orientation_estimate.m_qw = imuRot.w;
-        this->atlasRobotState.imu.orientation_estimate.m_qx = imuRot.x;
-        this->atlasRobotState.imu.orientation_estimate.m_qy = imuRot.y;
-        this->atlasRobotState.imu.orientation_estimate.m_qz = imuRot.z;
-      }
-
-      // publish separate /atlas/imu topic, to be deprecated
-      this->pubImuQueue->push(imuMsg, this->pubImu);
-
-      // update time
-      this->lastImuTime = curTime.Double();
-    }
-
-    // publish separate /atlas/force_torque_sensors topic, to be deprecated
-    atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
-    // publish separate /atlas/force_torque_sensors topic, to be deprecated
-    forceTorqueSensorsMsg.header.stamp =
-      ros::Time(curTime.sec, curTime.nsec);
-
-    // get force torque at left ankle and publish
-    if (this->lAnkleJoint)
-    {
-      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(0u);
-      this->atlasState.l_foot.force.z = wrench.body2Force.z;
-      this->atlasState.l_foot.torque.x = wrench.body2Torque.x;
-      this->atlasState.l_foot.torque.y = wrench.body2Torque.y;
-
-      // publish separate /atlas/force_torque_sensors topic, to be deprecated
-      forceTorqueSensorsMsg.l_foot.force.z = wrench.body2Force.z;
-      forceTorqueSensorsMsg.l_foot.torque.x = wrench.body2Torque.x;
-      forceTorqueSensorsMsg.l_foot.torque.y = wrench.body2Torque.y;
-
-      // AtlasSimInterface: populate foot force torque sensor in atlasRobotState
-      this->atlasRobotState.foot_sensors[0].fz = wrench.body1Force.z;
-      this->atlasRobotState.foot_sensors[0].mx = wrench.body1Torque.x;
-      this->atlasRobotState.foot_sensors[0].my = wrench.body1Torque.y;
-    }
-
-    // get force torque at right ankle and publish
-    if (this->rAnkleJoint)
-    {
-      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(0u);
-      this->atlasState.r_foot.force.z = wrench.body2Force.z;
-      this->atlasState.r_foot.torque.x = wrench.body2Torque.x;
-      this->atlasState.r_foot.torque.y = wrench.body2Torque.y;
-
-      // publish separate /atlas/force_torque_sensors topic, to be deprecated
-      forceTorqueSensorsMsg.r_foot.force.z = wrench.body2Force.z;
-      forceTorqueSensorsMsg.r_foot.torque.x = wrench.body2Torque.x;
-      forceTorqueSensorsMsg.r_foot.torque.y = wrench.body2Torque.y;
-
-      // AtlasSimInterface: populate foot force torque sensor in atlasRobotState
-      this->atlasRobotState.foot_sensors[1].fz = wrench.body1Force.z;
-      this->atlasRobotState.foot_sensors[1].mx = wrench.body1Torque.x;
-      this->atlasRobotState.foot_sensors[1].my = wrench.body1Torque.y;
-    }
-
-    // get force torque at left wrist and publish
-    if (this->lWristJoint)
-    {
-      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(0u);
-      this->atlasState.l_hand.force.x = wrench.body2Force.x;
-      this->atlasState.l_hand.force.y = wrench.body2Force.y;
-      this->atlasState.l_hand.force.z = wrench.body2Force.z;
-      this->atlasState.l_hand.torque.x = wrench.body2Torque.x;
-      this->atlasState.l_hand.torque.y = wrench.body2Torque.y;
-      this->atlasState.l_hand.torque.z = wrench.body2Torque.z;
-
-      // publish separate /atlas/force_torque_sensors topic, to be deprecated
-      forceTorqueSensorsMsg.l_hand.force.x = wrench.body2Force.x;
-      forceTorqueSensorsMsg.l_hand.force.y = wrench.body2Force.y;
-      forceTorqueSensorsMsg.l_hand.force.z = wrench.body2Force.z;
-      forceTorqueSensorsMsg.l_hand.torque.x = wrench.body2Torque.x;
-      forceTorqueSensorsMsg.l_hand.torque.y = wrench.body2Torque.y;
-      forceTorqueSensorsMsg.l_hand.torque.z = wrench.body2Torque.z;
-
-      // AtlasSimInterface: populate wrist force torque sensor in atlasRobotState
-      this->atlasRobotState.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
-      this->atlasRobotState.wrist_sensors[0].f.n[1] = wrench.body1Force.y;
-      this->atlasRobotState.wrist_sensors[0].f.n[2] = wrench.body1Force.z;
-      this->atlasRobotState.wrist_sensors[0].m.n[0] = wrench.body1Torque.x;
-      this->atlasRobotState.wrist_sensors[0].m.n[1] = wrench.body1Torque.y;
-      this->atlasRobotState.wrist_sensors[0].m.n[2] = wrench.body1Torque.z;
-    }
-
-    // get force torque at right wrist and publish
-    if (this->rWristJoint)
-    {
-      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(0u);
-      this->atlasState.r_hand.force.x = wrench.body2Force.x;
-      this->atlasState.r_hand.force.y = wrench.body2Force.y;
-      this->atlasState.r_hand.force.z = wrench.body2Force.z;
-      this->atlasState.r_hand.torque.x = wrench.body2Torque.x;
-      this->atlasState.r_hand.torque.y = wrench.body2Torque.y;
-      this->atlasState.r_hand.torque.z = wrench.body2Torque.z;
-
-      // publish separate /atlas/force_torque_sensors topic, to be deprecated
-      forceTorqueSensorsMsg.r_hand.force.x = wrench.body2Force.x;
-      forceTorqueSensorsMsg.r_hand.force.y = wrench.body2Force.y;
-      forceTorqueSensorsMsg.r_hand.force.z = wrench.body2Force.z;
-      forceTorqueSensorsMsg.r_hand.torque.x = wrench.body2Torque.x;
-      forceTorqueSensorsMsg.r_hand.torque.y = wrench.body2Torque.y;
-      forceTorqueSensorsMsg.r_hand.torque.z = wrench.body2Torque.z;
-
-      // AtlasSimInterface: populate wrist force torque sensor in atlasRobotState
-      this->atlasRobotState.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
-      this->atlasRobotState.wrist_sensors[1].f.n[1] = wrench.body1Force.y;
-      this->atlasRobotState.wrist_sensors[1].f.n[2] = wrench.body1Force.z;
-      this->atlasRobotState.wrist_sensors[1].m.n[0] = wrench.body1Torque.x;
-      this->atlasRobotState.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
-      this->atlasRobotState.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
-    }
-    // publish separate /atlas/force_torque_sensors topic, to be deprecated
-    this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg,
-      this->pubForceTorqueSensors);
+    // get force torque sensor data from sensor
+    this->GetForceTorqueSensorState(curTime);
 
     // populate atlasState from robot
     this->atlasState.header.stamp = ros::Time(curTime.sec, curTime.nsec);
@@ -1847,23 +1726,23 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 
     if (_mode->data == "Freeze")
     {
-      this->asiCommand.behavior =
+      this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::FREEZE;
     }
     else if (_mode->data == "StandPrep")
     {
-      this->asiCommand.behavior =
+      this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP;
     }
     else if (_mode->data == "Stand")
     {
-      this->asiCommand.behavior =
+      this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::STAND;
 
     }
     else if (_mode->data == "Walk")
     {
-      this->asiCommand.behavior =
+      this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::DEMO1;
     }
 
@@ -1930,6 +1809,189 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     ROS_WARN("Unknown robot mode [%s]", _mode->data.c_str());
   }
+}
+
+void AtlasPlugin::GetIMUState(const common::Time &_curTime)
+{
+  if (this->imuSensor)
+  {
+    // AtlasSimInterface: populate imu in atlasRobotState
+    this->atlasRobotState.imu.imu_timestamp =
+      1.0e6  * _curTime.sec +
+      1.0e-3 * _curTime.nsec;
+
+    // publish separate /atlas/imu topic, to be deprecated
+    sensor_msgs::Imu imuMsg;
+    imuMsg.header.frame_id = this->imuLinkName;
+    imuMsg.header.stamp = ros::Time(_curTime.Double());
+
+    // compute angular rates
+    {
+      math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
+      this->atlasState.angular_velocity.x = wLocal.x;
+      this->atlasState.angular_velocity.y = wLocal.y;
+      this->atlasState.angular_velocity.z = wLocal.z;
+
+      // publish separate /atlas/imu topic, to be deprecated
+      imuMsg.angular_velocity.x = wLocal.x;
+      imuMsg.angular_velocity.y = wLocal.y;
+      imuMsg.angular_velocity.z = wLocal.z;
+
+      // AtlasSimInterface: populate imu in atlasRobotState
+      this->atlasRobotState.imu.angular_velocity.n[0] = wLocal.x;
+      this->atlasRobotState.imu.angular_velocity.n[1] = wLocal.y;
+      this->atlasRobotState.imu.angular_velocity.n[2] = wLocal.z;
+    }
+
+    // compute acceleration
+    {
+      math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
+      this->atlasState.linear_acceleration.x = accel.x;
+      this->atlasState.linear_acceleration.y = accel.y;
+      this->atlasState.linear_acceleration.z = accel.z;
+
+      // publish separate /atlas/imu topic, to be deprecated
+      imuMsg.linear_acceleration.x = accel.x;
+      imuMsg.linear_acceleration.y = accel.y;
+      imuMsg.linear_acceleration.z = accel.z;
+
+      // AtlasSimInterface: populate imu in atlasRobotState
+      this->atlasRobotState.imu.linear_acceleration.n[0] = accel.x;
+      this->atlasRobotState.imu.linear_acceleration.n[1] = accel.y;
+      this->atlasRobotState.imu.linear_acceleration.n[2] = accel.z;
+    }
+
+    // compute orientation
+    {
+      math::Quaternion imuRot = this->imuSensor->GetOrientation();
+      this->atlasState.orientation.x = imuRot.x;
+      this->atlasState.orientation.y = imuRot.y;
+      this->atlasState.orientation.z = imuRot.z;
+      this->atlasState.orientation.w = imuRot.w;
+
+      // publish separate /atlas/imu topic, to be deprecated
+      imuMsg.orientation.x = imuRot.x;
+      imuMsg.orientation.y = imuRot.y;
+      imuMsg.orientation.z = imuRot.z;
+      imuMsg.orientation.w = imuRot.w;
+
+      // AtlasSimInterface: populate imu in atlasRobotState
+      this->atlasRobotState.imu.orientation_estimate.m_qw = imuRot.w;
+      this->atlasRobotState.imu.orientation_estimate.m_qx = imuRot.x;
+      this->atlasRobotState.imu.orientation_estimate.m_qy = imuRot.y;
+      this->atlasRobotState.imu.orientation_estimate.m_qz = imuRot.z;
+    }
+
+    // publish separate /atlas/imu topic, to be deprecated
+    this->pubImuQueue->push(imuMsg, this->pubImu);
+  }
+}
+
+void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
+{
+
+    // publish separate /atlas/force_torque_sensors topic, to be deprecated
+    atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
+    // publish separate /atlas/force_torque_sensors topic, to be deprecated
+    forceTorqueSensorsMsg.header.stamp =
+      ros::Time(_curTime.sec, _curTime.nsec);
+
+    // get force torque at left ankle and publish
+    if (this->lAnkleJoint)
+    {
+      physics::JointWrench wrench = this->lAnkleJoint->GetForceTorque(0u);
+      this->atlasState.l_foot.force.z = wrench.body2Force.z;
+      this->atlasState.l_foot.torque.x = wrench.body2Torque.x;
+      this->atlasState.l_foot.torque.y = wrench.body2Torque.y;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.l_foot.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg.l_foot.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg.l_foot.torque.y = wrench.body2Torque.y;
+
+      // AtlasSimInterface: populate foot force torque sensor in atlasRobotState
+      this->atlasRobotState.foot_sensors[0].fz = wrench.body1Force.z;
+      this->atlasRobotState.foot_sensors[0].mx = wrench.body1Torque.x;
+      this->atlasRobotState.foot_sensors[0].my = wrench.body1Torque.y;
+    }
+
+    // get force torque at right ankle and publish
+    if (this->rAnkleJoint)
+    {
+      physics::JointWrench wrench = this->rAnkleJoint->GetForceTorque(0u);
+      this->atlasState.r_foot.force.z = wrench.body2Force.z;
+      this->atlasState.r_foot.torque.x = wrench.body2Torque.x;
+      this->atlasState.r_foot.torque.y = wrench.body2Torque.y;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.r_foot.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg.r_foot.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg.r_foot.torque.y = wrench.body2Torque.y;
+
+      // AtlasSimInterface: populate foot force torque sensor in atlasRobotState
+      this->atlasRobotState.foot_sensors[1].fz = wrench.body1Force.z;
+      this->atlasRobotState.foot_sensors[1].mx = wrench.body1Torque.x;
+      this->atlasRobotState.foot_sensors[1].my = wrench.body1Torque.y;
+    }
+
+    // get force torque at left wrist and publish
+    if (this->lWristJoint)
+    {
+      physics::JointWrench wrench = this->lWristJoint->GetForceTorque(0u);
+      this->atlasState.l_hand.force.x = wrench.body2Force.x;
+      this->atlasState.l_hand.force.y = wrench.body2Force.y;
+      this->atlasState.l_hand.force.z = wrench.body2Force.z;
+      this->atlasState.l_hand.torque.x = wrench.body2Torque.x;
+      this->atlasState.l_hand.torque.y = wrench.body2Torque.y;
+      this->atlasState.l_hand.torque.z = wrench.body2Torque.z;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.l_hand.force.x = wrench.body2Force.x;
+      forceTorqueSensorsMsg.l_hand.force.y = wrench.body2Force.y;
+      forceTorqueSensorsMsg.l_hand.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg.l_hand.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg.l_hand.torque.y = wrench.body2Torque.y;
+      forceTorqueSensorsMsg.l_hand.torque.z = wrench.body2Torque.z;
+
+      // AtlasSimInterface: populate wrist force torque sensor in atlasRobotState
+      this->atlasRobotState.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
+      this->atlasRobotState.wrist_sensors[0].f.n[1] = wrench.body1Force.y;
+      this->atlasRobotState.wrist_sensors[0].f.n[2] = wrench.body1Force.z;
+      this->atlasRobotState.wrist_sensors[0].m.n[0] = wrench.body1Torque.x;
+      this->atlasRobotState.wrist_sensors[0].m.n[1] = wrench.body1Torque.y;
+      this->atlasRobotState.wrist_sensors[0].m.n[2] = wrench.body1Torque.z;
+    }
+
+    // get force torque at right wrist and publish
+    if (this->rWristJoint)
+    {
+      physics::JointWrench wrench = this->rWristJoint->GetForceTorque(0u);
+      this->atlasState.r_hand.force.x = wrench.body2Force.x;
+      this->atlasState.r_hand.force.y = wrench.body2Force.y;
+      this->atlasState.r_hand.force.z = wrench.body2Force.z;
+      this->atlasState.r_hand.torque.x = wrench.body2Torque.x;
+      this->atlasState.r_hand.torque.y = wrench.body2Torque.y;
+      this->atlasState.r_hand.torque.z = wrench.body2Torque.z;
+
+      // publish separate /atlas/force_torque_sensors topic, to be deprecated
+      forceTorqueSensorsMsg.r_hand.force.x = wrench.body2Force.x;
+      forceTorqueSensorsMsg.r_hand.force.y = wrench.body2Force.y;
+      forceTorqueSensorsMsg.r_hand.force.z = wrench.body2Force.z;
+      forceTorqueSensorsMsg.r_hand.torque.x = wrench.body2Torque.x;
+      forceTorqueSensorsMsg.r_hand.torque.y = wrench.body2Torque.y;
+      forceTorqueSensorsMsg.r_hand.torque.z = wrench.body2Torque.z;
+
+      // AtlasSimInterface: populate wrist force torque sensor in atlasRobotState
+      this->atlasRobotState.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
+      this->atlasRobotState.wrist_sensors[1].f.n[1] = wrench.body1Force.y;
+      this->atlasRobotState.wrist_sensors[1].f.n[2] = wrench.body1Force.z;
+      this->atlasRobotState.wrist_sensors[1].m.n[0] = wrench.body1Torque.x;
+      this->atlasRobotState.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
+      this->atlasRobotState.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
+    }
+    // publish separate /atlas/force_torque_sensors topic, to be deprecated
+    this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg,
+      this->pubForceTorqueSensors);
 }
 
 void AtlasPlugin::RosQueueThread()

@@ -105,6 +105,12 @@ namespace gazebo
     /// \brief ROS callback queue thread
     private: void RosQueueThread();
 
+    /// \brief get data from IMU for robot state
+    private: void GetIMUState(const common::Time &_curTime);
+
+    /// \brief get data from force torque sensor
+    private: void GetForceTorqueSensorState(const common::Time &_curTime);
+
     /// \brief ros service callback to reset joint control internal states
     /// \param[in] _req Incoming ros service request
     /// \param[in] _res Outgoing ros service response
@@ -150,7 +156,6 @@ namespace gazebo
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
-    private: common::Time lastImuTime;
     // publish separate /atlas/imu topic, to be deprecated
     private: ros::Publisher pubImu;
     private: PubQueue<sensor_msgs::Imu>::Ptr pubImuQueue;
@@ -203,16 +208,6 @@ namespace gazebo
     private: boost::condition pause;
     private: ros::Subscriber subPause;
     private: boost::mutex pauseMutex;
-
-    /// \brief ros topic callback to update Joint Commands
-    /// \param[in] _msg Incoming ros message
-    private: void UpdateAtlasCommand(
-      const atlas_msgs::AtlasCommand &_msg);
-
-    /// \brief ros topic callback to update Joint Commands
-    /// \param[in] _msg Incoming ros message
-    private: void UpdateJointCommands(
-      const osrf_msgs::JointCommands &_msg);
 
     private: void LoadPIDGainsFromParameter();
     private: void ZeroAtlasCommand();

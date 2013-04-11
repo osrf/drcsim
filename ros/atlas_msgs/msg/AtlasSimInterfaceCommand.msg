@@ -19,13 +19,16 @@ int32 behavior                # can be one of
                               # DEMO1, DEMO2
 
 # multi_step walking trajectory parameters
-atlas_msgs/AtlasBehaviorStepData[] walk_params
+atlas_msgs/AtlasBehaviorWalkParams walk_params
 
-# parameters for single_step behavior (not yet implemented)
-atlas_msgs/AtlasBehaviorStepData step_params
+# parameters for single_step behavior
+atlas_msgs/AtlasBehaviorStepParams step_params
 
-# parameters for standing behavior (not yet implemented)
+# parameters for standing behavior
 atlas_msgs/AtlasBehaviorStandParams stand_params
+
+# parameters for stand and manipulate
+atlas_msgs/AtlasBehaviorManipulateParams manipulate_params
 
 # same k_effort as AtlasCommand
 uint8[] k_effort       # k_effort can be an unsigned int 8value from 0 to 255, 
