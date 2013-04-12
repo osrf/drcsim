@@ -16,11 +16,601 @@ topics:
     num_subscribers: -1
 
   # TODO: /sandia_hands/l_hand/tactile_raw (not yet implemented)
-  # TODO: /sandia_hands/l_hand/camera/left/image_raw (not yet implemented)
-  # TODO: /sandia_hands/l_hand/camera/left/camera_info (not yet implemented)
-  # TODO: /sandia_hands/l_hand/camera/right/image_raw (not yet implemented)
-  # TODO: /sandia_hands/l_hand/camera/right/camera_info (not yet implemented)
-  # TODO: check output topics from stereo_image_proc
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/disparity
+    type: stereo_msgs/DisparityImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_mono/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_raw/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/left/image_rect/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/points
+    type: sensor_msgs/PointCloud
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/points2
+    type: sensor_msgs/PointCloud2
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_mono/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_raw/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/right/image_rect/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_debayer_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_debayer_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_debayer_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_debayer_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_color_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_color_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_color_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_color_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_mono_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_mono_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_mono_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/l_hand/camera/stereo_proc_rectify_mono_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
 
   - topic: /sandia_hands/r_hand/joint_states
     type: sensor_msgs/JointState
@@ -33,11 +623,601 @@ topics:
     num_subscribers: -1
 
   # TODO: /sandia_hands/r_hand/tactile_raw (not yet implemented)
-  # TODO: /sandia_hands/r_hand/camera/left/image_raw (not yet implemented)
-  # TODO: /sandia_hands/r_hand/camera/left/camera_info (not yet implemented)
-  # TODO: /sandia_hands/r_hand/camera/right/image_raw (not yet implemented)
-  # TODO: /sandia_hands/r_hand/camera/right/camera_info (not yet implemented)
-  # TODO: check output topics from stereo_image_proc
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/disparity
+    type: stereo_msgs/DisparityImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_mono/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_raw/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/left/image_rect/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/points
+    type: sensor_msgs/PointCloud
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/points2
+    type: sensor_msgs/PointCloud2
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_mono/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_raw/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/right/image_rect/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_debayer_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_debayer_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_debayer_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_debayer_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_color_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_color_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_color_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_color_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
 
   ##########################################################
   # Subscribed topics

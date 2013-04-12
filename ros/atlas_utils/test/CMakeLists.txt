@@ -5,14 +5,9 @@ set (rostests
 ) 
 
 # If we have a GPU, add in the GPU-dependent tests.
-# TODO: replace this with the stuff that Jose's working on for inclusion in Gazebo
-find_program(GLXINFO_PATH glxinfo)
-if(GLXINFO_PATH)
-  execute_process(COMMAND glxinfo
-                  RESULT_VARIABLE glxinfo_returncode
-                  OUTPUT_VARIABLE glxinfo_stdout
-                  ERROR_VARIABLE glxinfo_stderr)
-  if(NOT RESULT_VARIABLE)
+include (CheckDisplayCapabilities.cmake)
+
+if(VALID_DRI_DISPLAY)
     list(APPEND rostests 
          atlas_publishers_hz_gpu.test
          atlas_rosapi.test
@@ -30,7 +25,6 @@ if(GLXINFO_PATH)
          # Pending hand camera implementation
          #atlas_sandia_hands_publishers_hz_gpu.test
          )
-  endif()
 endif()
 
 foreach (rostest ${rostests})
@@ -52,9 +46,17 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
+  ros_subscribers.launch
+  pub_atlas_command.launch
+  perf_test.launch
 )
 set(scripts
   ros_api_checker
+  run_gzstats.sh
+  run_pub_atlas_command.sh
+  run_rosbag.sh
+  parse_logs.sh
+  meanvar.py
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)

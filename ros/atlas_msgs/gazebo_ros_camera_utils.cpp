@@ -258,7 +258,7 @@ void GazeboRosCameraUtils::LoadThread()
 #endif
 
   this->image_pub_ = this->itnode_->advertise(
-    this->image_topic_name_, 1,
+    this->image_topic_name_, 2,
     boost::bind(&GazeboRosCameraUtils::ImageConnect, this),
     boost::bind(&GazeboRosCameraUtils::ImageDisconnect, this),
     ros::VoidPtr(), &this->camera_queue_);
@@ -272,7 +272,7 @@ void GazeboRosCameraUtils::LoadThread()
   // of image_pipeline.
   ros::AdvertiseOptions cio =
     ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
-    this->camera_info_topic_name_, 1,
+    this->camera_info_topic_name_, 2,
     boost::bind(&GazeboRosCameraUtils::ImageConnect, this),
     boost::bind(&GazeboRosCameraUtils::ImageDisconnect, this),
     ros::VoidPtr(), &this->camera_queue_);

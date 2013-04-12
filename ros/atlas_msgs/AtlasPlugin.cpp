@@ -863,9 +863,9 @@ void AtlasPlugin::UpdateStates()
       forceTorqueSensorsMsg.l_foot.torque.y = wrench.body2Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[0].fz = wrench.body2Force.z;
-      this->fromRobot.foot_sensors[0].mx = wrench.body2Torque.x;
-      this->fromRobot.foot_sensors[0].my = wrench.body2Torque.y;
+      this->fromRobot.foot_sensors[0].fz = wrench.body1Force.z;
+      this->fromRobot.foot_sensors[0].mx = wrench.body1Torque.x;
+      this->fromRobot.foot_sensors[0].my = wrench.body1Torque.y;
     }
 
     // get force torque at right ankle and publish
@@ -882,9 +882,9 @@ void AtlasPlugin::UpdateStates()
       forceTorqueSensorsMsg.r_foot.torque.y = wrench.body2Torque.y;
 
       // AtlasSimInterface: populate foot force torque sensor in fromRobot
-      this->fromRobot.foot_sensors[1].fz = wrench.body2Force.z;
-      this->fromRobot.foot_sensors[1].mx = wrench.body2Torque.x;
-      this->fromRobot.foot_sensors[1].my = wrench.body2Torque.y;
+      this->fromRobot.foot_sensors[1].fz = wrench.body1Force.z;
+      this->fromRobot.foot_sensors[1].mx = wrench.body1Torque.x;
+      this->fromRobot.foot_sensors[1].my = wrench.body1Torque.y;
     }
 
     // get force torque at left wrist and publish
