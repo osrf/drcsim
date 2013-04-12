@@ -24,6 +24,8 @@ set (rostests
 include (CheckDisplayCapabilities.cmake)
 if(VALID_DRI_DISPLAY)
   foreach (rostest ${rostests})
+    # We don't set a timeout here because we trust rostest to enforce the
+    # timeout specified in each .test file.
     add_test(${rostest} rostest ${CMAKE_CURRENT_SOURCE_DIR}/${rostest})
     # Check for test result file and create one if needed.  rostest can fail to
     # generate a file if it throws an exception.
