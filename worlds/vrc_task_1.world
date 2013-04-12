@@ -52,7 +52,6 @@
         <quadratic>0.001</quadratic>
       </attenuation>
     </light>
-
     <include>
       <uri>model://vrc_heightmap_1</uri>
     </include>
@@ -83,90 +82,105 @@
     <include>
       <uri>model://speed_limit_sign</uri>
       <name>speed_sign_1</name>
+      <static>true</static>
       <pose>15 -5 0 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://speed_limit_sign</uri>
       <name>speed_sign_2</name>
+      <static>true</static>
       <pose>70 5 0 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://speed_limit_sign</uri>
       <name>speed_sign_3</name>
+      <static>true</static>
       <pose>121 13 0 0 0 2.356</pose>
     </include>
 
     <include>
       <uri>model://speed_limit_sign</uri>
       <name>speed_sign_4</name>
+      <static>true</static>
       <pose>155 68 0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://speed_limit_sign</uri>
       <name>speed_sign_5</name>
+      <static>true</static>
       <pose>175 95 0 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://gate</uri>
       <name>finish_gate</name>
+      <static>true</static>
       <pose>198 103 2.0 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://gate_number_4</uri>
       <name>gate_number_4_a</name>
+      <static>true</static>
       <pose>195.85 103 3.75 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://gate_number_4</uri>
       <name>gate_number_4_b</name>
+      <static>true</static>
       <pose>200.15 103 3.75 0 0 1.5707</pose>
     </include>
 
 
     <include>
       <uri>model://starting_pen</uri>
+      <static>true</static>
       <pose>-10 7.0 0.0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://gate</uri>
       <name>start_gate</name>
+      <static>true</static>
       <pose>-10 -2 2.0 0 0 -1.5707</pose>
     </include>
 
     <include>
       <uri>model://gate_number_1</uri>
       <name>gate_number_1_a</name>
+      <static>true</static>
       <pose>-7.85 -2 3.75 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://gate_number_1</uri>
       <name>gate_number_1_b</name>
+      <static>true</static>
       <pose>-12.15 -2 3.75 0 0 1.5707</pose>
     </include>
 
     <include>
       <uri>model://vehicle_gate</uri>
       <name>vehicle_gate_1</name>
+      <static>true</static>
       <pose>5 0 2.0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://gate_number_2</uri>
       <name>gate_number_2_a</name>
+      <static>true</static>
       <pose>5 -3.65 3.75 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://gate_number_2</uri>
       <name>gate_number_2_b</name>
+      <static>true</static>
       <pose>5 3.65 3.75 0 0 0</pose>
     </include>
 
@@ -174,18 +188,21 @@
     <include>
       <uri>model://vehicle_gate</uri>
       <name>vehicle_gate_2</name>
+      <static>true</static>
       <pose>190 100 2.0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://gate_number_3</uri>
       <name>gate_number_3_a</name>
+      <static>true</static>
       <pose>190 96.35 3.75 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://gate_number_3</uri>
       <name>gate_number_3_b</name>
+      <static>true</static>
       <pose>190 103.65 3.75 0 0 0</pose>
     </include>
 
@@ -198,11 +215,13 @@
     <include>
       <uri>model://house_1</uri>
       <pose>12 9.5 0 0 0 0</pose>
+      <static>true</static>
     </include>
 
     <include>
       <uri>model://house_1</uri>
       <name>house_1_b</name>
+      <static>true</static>
       <pose>129.5 46 0 0 0 1.5707</pose>
     </include>
 
@@ -210,86 +229,101 @@
     <include>
       <uri>model://mailbox</uri>
       <name>mailbox_0</name>
+      <static>true</static>
       <pose>18 4 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://mailbox</uri>
       <name>mailbox_1</name>
+      <static>true</static>
       <pose>24.5 -4.45 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://house_2</uri>
+      <static>true</static>
       <pose>30 -8 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://house_2</uri>
       <name>house_2_b</name>
+      <static>true</static>
       <pose>77 8 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://house_2</uri>
       <name>house_2_c</name>
+      <static>true</static>
       <pose>158 91 0 0 0 0</pose>
     </include>
 
 
     <include>
       <uri>model://house_3</uri>
+      <static>true</static>
       <pose>54 7 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://house_3</uri>
       <name>house_3_b</name>
+      <static>true</static>
       <pose>111 26 0 0 0 .78539</pose>
     </include>
 
     <include>
       <uri>model://house_3</uri>
       <name>house_3_c</name>
+      <static>true</static>
       <pose>170 106 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://mailbox</uri>
       <name>mailbox_2</name>
+      <static>true</static>
       <pose>59 4.45 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://fast_food</uri>
+      <static>true</static>
       <pose>95 7.0 1.59 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://dumpster</uri>
+      <static>true</static>
       <pose>143 51.5 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://gas_station</uri>
+      <static>true</static>
       <pose>135 84.8 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_1</name>
+      <static>true</static>
       <pose>24 4 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_2</name>
+      <static>true</static>
       <pose>54 4 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_3</name>
+      <static>true</static>
       <pose>84 4 0 0 0 0</pose>
     </include>
 
@@ -297,18 +331,21 @@
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_4</name>
+      <static>true</static>
       <pose>14 -4 0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_5</name>
+      <static>true</static>
       <pose>44 -4 0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_6</name>
+      <static>true</static>
       <pose>74 -4 0 0 0 3.1415</pose>
     </include>
 
@@ -317,12 +354,14 @@
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_7</name>
+      <static>true</static>
       <pose>148 104 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_8</name>
+      <static>true</static>
       <pose>178 104 0 0 0 0</pose>
     </include>
 
@@ -330,12 +369,14 @@
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_10</name>
+      <static>true</static>
       <pose>158 96 0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_11</name>
+      <static>true</static>
       <pose>188 96 0 0 0 3.1415</pose>
     </include>
 
@@ -344,18 +385,21 @@
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_12</name>
+      <static>true</static>
       <pose>102 8 0 0 0 .785</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_13</name>
+      <static>true</static>
       <pose>123 29 0 0 0 .785</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_14</name>
+      <static>true</static>
       <pose>144 50 0 0 0 .785</pose>
     </include>
 
@@ -363,18 +407,21 @@
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_15</name>
+      <static>true</static>
       <pose>99 -4 0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_16</name>
+      <static>true</static>
       <pose>120 14.5 0 0 0 -2.35</pose>
     </include>
 
     <include>
       <uri>model://lamp_post</uri>
       <name>lamp_post_17</name>
+      <static>true</static>
       <pose>141 35.5 0 0 0 -2.35</pose>
     </include>
 

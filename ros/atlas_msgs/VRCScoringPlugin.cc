@@ -97,7 +97,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   if (!link)
     std::cout << "Unable to find head\n";
 
-  gazebo::math::Pose currVel = link->GetWorldLinearVel();
+  gazebo::math::Vector3 currVel = link->GetWorldLinearVel();
 
   double velDiff = currVel.z - prevLinearVel.z;
 

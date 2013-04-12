@@ -105,7 +105,7 @@ namespace gazebo
     private: gazebo::math::Pose prevAtlasPose;
 
     private: common::Time prevTime;
-    private: gazebo::math::Pose prevLinearVel;
+    private: gazebo::math::Vector3 prevLinearVel;
   };
 }
 #endif
