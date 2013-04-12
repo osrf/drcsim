@@ -10,9 +10,9 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 project(atlas_msgs)
 
 # generate action for AtlasSimInterface
-# rosbuild_find_ros_package(actionlib_msgs)
-# include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
-# genaction()
+ rosbuild_find_ros_package(actionlib_msgs)
+ include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
+ genaction()
 
 rosbuild_init()
 # Note: recovering PROJECT_NAME here to drcsim leads to build failure
@@ -96,9 +96,9 @@ rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
 target_link_libraries(AtlasPlugin AtlasSimInterface)
 
-# compile actionlib_server with AtlasSimInterface
-# rosbuild_add_executable(actionlib_server actionlib_server.cpp)
-# target_link_libraries(actionlib_server AtlasSimInterface)
+#compile actionlib_server with AtlasSimInterface
+ rosbuild_add_executable(actionlib_server actionlib_server.cpp)
+ target_link_libraries(actionlib_server AtlasSimInterface)
 
 # compile actionlib_client with AtlasSimInterface
 # rosbuild_add_executable(actionlib_client actionlib_client.cpp)

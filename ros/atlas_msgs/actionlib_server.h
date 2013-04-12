@@ -17,42 +17,57 @@
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/String.h>
 
-#include <atlas_msgs/AtlasSimInterfaceAction.h>
+#include <atlas_msgs/WalkDemoAction.h>
 #include <actionlib/server/simple_action_server.h>
+
+#define NUM_REQUIRED_WALK_STEPS 4
 
 #endif // ACTIONLIB_SERVER_H
 
 // actionlib simple action server
-typedef actionlib::SimpleActionServer<atlas_msgs::AtlasSimInterfaceAction>
-  ActionServer;
+typedef actionlib::SimpleActionServer<atlas_msgs::WalkDemoAction> ActionServer;
+
+
 
 class ASIActionServer
 {
-    /// \brief constructor
-    public: ASIActionServer();
+  /// \brief constructor
+  public: ASIActionServer();
 
-    /// \brief actionlib simple action server executor callback
-    private: void ActionServerCallback();
+  /// \brief actionlib simple action server executor callback
+  private: void ActionServerCallback();
 
-    /// \brief lock while updating control modes
-    private: boost::mutex actionServerMutex;
+  /// \brief Subscriber callback for BDI_interface topic
+  private: void BDIStateCallback();
 
-    /// \brief actionlib simple action server
-    private: ActionServer* actionServer;
+  /// \brief lock while updating control modes
+  private: boost::mutex actionServerMutex;
 
-    /// \brief local copy of the goal
-    private: atlas_msgs::AtlasSimInterfaceGoal activeGoal;
+  /// \brief actionlib simple action server
+  private: ActionServer* actionServer;
 
-    /// \brief actionlib feedback
-    private: atlas_msgs::AtlasSimInterfaceFeedback actionServerFeedback;
+  private: AtlasStateSubscriber* atlasStateSubscriber;
 
-    /// \brief actionlib result
-    private: atlas_msgs::AtlasSimInterfaceResult actionServerResult;
+  private: ros::Publisher commandPublisher;
 
-    /// \brief used for trajectory rollout
-    private: std::vector<atlas_msgs::AtlasBehaviorStepData>
-      stepTrajectory;
+  /// \brief local copy of the goal
+  private: atlas_msgs::WalkDemoGoal activeGoal;
 
-    /// \brief ROS nodehandle
-    private: ros::NodeHandle nh;
+  /// \brief actionlib feedback
+  private: atlas_msgs::WalkDemoFeedback actionServerFeedback;
+
+  /// \brief actionlib result
+  private: atlas_msgs::WalkDemoResult actionServerResult;
+
+  /// \brief used for trajectory rollout
+  private: std::vector<atlas_msgs::AtlasBehaviorStepData>
+  stepTrajectory;
+
+  private: atlas_msgs::AtlasSimInterfaceFeedback asiFeedback;
+  private: bool executingGoal;
+
+  private: AtlasSimInterface *atlasSimInterface;
+
+  /// \brief ROS nodehandle
+  private: ros::NodeHandle rosNode;
 };
