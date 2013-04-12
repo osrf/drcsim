@@ -84,7 +84,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("frameName"))
   {
-    ROS_INFO("p3d plugin missing <frameName>, defaults to world");
+    ROS_DEBUG("p3d plugin missing <frameName>, defaults to world");
     this->frame_name_ = "world";
   }
   else
@@ -92,7 +92,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("xyzOffset"))
   {
-    ROS_INFO("p3d plugin missing <xyzOffset>, defaults to 0s");
+    ROS_DEBUG("p3d plugin missing <xyzOffset>, defaults to 0s");
     this->offset_.pos = math::Vector3(0, 0, 0);
   }
   else
@@ -100,7 +100,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("rpyOffset"))
   {
-    ROS_INFO("p3d plugin missing <rpyOffset>, defaults to 0s");
+    ROS_DEBUG("p3d plugin missing <rpyOffset>, defaults to 0s");
     this->offset_.rot = math::Vector3(0, 0, 0);
   }
   else
@@ -108,7 +108,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("gaussianNoise"))
   {
-    ROS_INFO("p3d plugin missing <gaussianNoise>, defaults to 0.0");
+    ROS_DEBUG("p3d plugin missing <gaussianNoise>, defaults to 0.0");
     this->gaussian_noise_ = 0;
   }
   else
@@ -116,7 +116,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("updateRate"))
   {
-    ROS_INFO("p3d plugin missing <updateRate>, defaults to 0.0"
+    ROS_DEBUG("p3d plugin missing <updateRate>, defaults to 0.0"
              " (as fast as possible)");
     this->update_rate_ = 0;
   }
