@@ -30,6 +30,8 @@
 
 namespace gazebo
 {
+  /// \addtogroup drc_plugin
+  /// \{
   class DRCFirehosePlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -91,7 +93,6 @@ namespace gazebo
     private: physics::LinkPtr spoutLink;
     private: math::Pose couplingRelativePose;
   };
-/** \} */
-/// @}
+/// \} 
 }
 #endif
