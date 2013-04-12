@@ -5,47 +5,46 @@
 
 ASIActionServer::ASIActionServer()
 {
-  this->actionServer =
-    // actionlib simple action server
-    this->actionServer = new ActionServer(this->rosNode, "atlas/bdi_control",
-                                            false);
-
-  this->atlasStateSubscriber =
-    this->rosNode.subscribe("atlas/atlas_sim_interface_state", 10,
-    boost::bind(&ASIActionServer::BDIStateCallback, this, _1));
-
-  this->commandPublisher =
-      this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceCommand>(
-    "atlas/atlas_sim_interface_command", 1);
-
+  this->actionServer = new ActionServer(this->rosNode, "atlas/bdi_control",
+                                        false);
   // Register goal callback
   this->actionServer->registerGoalCallback(
     boost::bind(&ASIActionServer::ActionServerCallback, this));
 
-  this->actionServer.start();
+
+    this->atlasStateSubscriber =
+      this->rosNode.subscribe("atlas/atlas_sim_interface_state", 10,
+        &ASIActionServer::BDIStateCallback, this);
+
+  this->atlasCommandPublisher =
+    this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
+      "atlas/atlas_sim_interface_command", 1);
+
+  this->actionServer->start();
+  ros::spin();
+
 }
 
 void ASIActionServer::BDIStateCallback(
     const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg)
 {
   // Is there a goal to execute?
-  if (!this->activeGoal || !this->executingGoal)
+  if (!this->executingGoal)
   {
     return;
   }
 
   // Does the message contain bad news?
-  if (msg.behavior_feedback.status_flags > 2)
+  if (msg->behavior_feedback.status_flags > 2)
   {
-    this->activeGoal = null;
     this->executingGoal = false;
     return;
   }
 
-  atlas_msgs:::AtlasSimInterfaceCommand command;
-  if (msg.desired_behavior != this->activeGoal.behavior)
+  atlas_msgs::AtlasSimInterfaceCommand command;
+  if (msg->desired_behavior != this->activeGoal.behavior)
   {
-    ros::log_info("Switching behavior");
+    ROS_INFO("Switching behavior");
   }
 
   command.behavior = this->activeGoal.behavior;
@@ -56,23 +55,22 @@ void ASIActionServer::BDIStateCallback(
   if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK)
   {
     //Is the sequence completed?
-    if (msg.behavior_feedmsg.behavior_feedback.next_step_index_needed < 0)
+    if (msg->behavior_feedback.walk_feedback.next_step_index_needed < 0)
     {
       this->executingGoal = false;
       return;
     }
 
     unsigned int start_index =
-      std::min(msg.behavior_feedback.next_step_index_needed,
-        this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
+      std::min((long)msg->behavior_feedback.walk_feedback.next_step_index_needed,
+        (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
     for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
     {
       command.walk_params.step_data[i] =
         this->activeGoal.steps[start_index + i];
     }
   }
-  this->asiFeedback = msg;
-  this->commandPublisher.publish(command);
+  this->atlasCommandPublisher.publish(command);
 }
 
 void ASIActionServer::ActionServerCallback()
@@ -86,18 +84,20 @@ void ASIActionServer::ActionServerCallback()
   this->activeGoal = *this->actionServer->acceptNewGoal();
   while (ros::ok() && this->executingGoal)
   {
-    this->actionServer.publishFeedback(this->actionServerFeedback);
+    this->actionServer->publishFeedback(this->actionServerFeedback);
     ros::spinOnce();
-    ros::sleep(0.01);
+    ros::Duration(0.01).sleep();
   }
-  this->actionServer.setSucceeded(this->actionServerResult);
+  this->actionServer->setSucceeded(this->actionServerResult);
 }
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "AtlasSimInterface_actionlib_server");
-  ASIActionServer server();
-  ros::spin();
+  ros::init(argc, argv, "atlas_bdi_control");
+  ASIActionServer();
+
+  // actionlib simple action server
+
   return 0;
 }
 

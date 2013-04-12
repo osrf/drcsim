@@ -18,6 +18,7 @@
 #include <std_msgs/String.h>
 
 #include <atlas_msgs/WalkDemoAction.h>
+#include <atlas_msgs/AtlasSimInterfaceCommand.h>
 #include <actionlib/server/simple_action_server.h>
 
 #define NUM_REQUIRED_WALK_STEPS 4
@@ -35,20 +36,20 @@ class ASIActionServer
   public: ASIActionServer();
 
   /// \brief actionlib simple action server executor callback
-  private: void ActionServerCallback();
+  public: void ActionServerCallback();
 
   /// \brief Subscriber callback for BDI_interface topic
-  private: void BDIStateCallback();
+  public: void BDIStateCallback(
+    const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
 
   /// \brief lock while updating control modes
   private: boost::mutex actionServerMutex;
 
-  /// \brief actionlib simple action server
-  private: ActionServer* actionServer;
+  private: ActionServer *actionServer;
 
-  private: AtlasStateSubscriber* atlasStateSubscriber;
+  private: ros::Subscriber atlasStateSubscriber;
 
-  private: ros::Publisher commandPublisher;
+  private: ros::Publisher atlasCommandPublisher;
 
   /// \brief local copy of the goal
   private: atlas_msgs::WalkDemoGoal activeGoal;
@@ -63,11 +64,7 @@ class ASIActionServer
   private: std::vector<atlas_msgs::AtlasBehaviorStepData>
   stepTrajectory;
 
-  private: atlas_msgs::AtlasSimInterfaceFeedback asiFeedback;
-  private: bool executingGoal;
-
-  private: AtlasSimInterface *atlasSimInterface;
-
-  /// \brief ROS nodehandle
   private: ros::NodeHandle rosNode;
+
+  private: bool executingGoal;
 };
