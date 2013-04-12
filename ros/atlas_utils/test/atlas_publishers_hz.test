@@ -10,14 +10,14 @@
 
   <!-- ATLAS -->
 
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_clock">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_clock">
     <param name="hz" value="1000.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="20.0"/>
     <param name="topic" value="/clock"/>
     <param name="test_duration" value="10.0"/>
   </test>
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_atlas_joint_states">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_atlas_joint_states">
     <param name="hz" value="1000.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="20.0"/>
@@ -25,7 +25,7 @@
     <param name="test_duration" value="10.0"/>
   </test>
 
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_atlas_force_torque_sensors">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_atlas_force_torque_sensors">
     <param name="hz" value="1000.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="20.0"/>
@@ -33,7 +33,7 @@
     <param name="test_duration" value="10.0"/>
   </test>
 
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_atlas_imu">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_atlas_imu">
     <param name="hz" value="1000.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="20.0"/>
@@ -43,7 +43,7 @@
 
   <!-- MULTISENSE (but not camera tests; those are in another file, because they require a GPU) -->
 
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_multisense_sl_joint_states">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_joint_states">
     <param name="hz" value="1000.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="20.0"/>
@@ -51,7 +51,7 @@
     <param name="test_duration" value="10.0"/>
   </test>
 
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_multisense_sl_imu">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_imu">
     <param name="hz" value="1000.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="20.0"/>
@@ -59,7 +59,7 @@
     <param name="test_duration" value="10.0"/>
   </test>
 
-  <test pkg="rostest" type="hztest" test-name="atlas_hztest_multisense_sl_scan">
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_scan">
     <param name="hz" value="40.0"/>
     <param name="wait_time" value="120.0"/>
     <param name="hzerror" value="10.0"/>
