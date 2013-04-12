@@ -2,6 +2,7 @@ set (files
   atlas_bringup.launch
   atlas.launch
   atlas_sandia_hands.launch
+  atlas_sandia_hands_bringup.launch
   atlas_irobot_hands.launch
   atlas_drc_vehicle_fire_hose.launch
   atlas_golf_cart_fire_hose.launch
