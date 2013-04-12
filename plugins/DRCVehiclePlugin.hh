@@ -29,6 +29,8 @@
 
 namespace gazebo
 {
+  /// \addtogroup drc_plugin
+  /// \{
   class DRCVehiclePlugin : public ModelPlugin
   {
     /// \enum DirectionType
@@ -315,7 +317,6 @@ namespace gazebo
     private: double blWheelState;
     private: double brWheelState;
   };
-/** \} */
-/// @}
+/// \}
 }
 #endif

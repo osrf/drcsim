@@ -31,6 +31,9 @@
 
 namespace gazebo
 {
+  /// \defgroup drc_plugin DRC Plugins
+  /// \addtogroup drc_plugin
+  /// \{
   class DRCBuildingPlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -74,7 +77,6 @@ namespace gazebo
     private: double handleCmd;
     private: common::Time lastTime;
   };
-/** \} */
-/// @}
+/// \}
 }
 #endif
