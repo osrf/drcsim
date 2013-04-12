@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="gzname" default="gazebo"/>
-  <arg name="gzworld" default="atlas_sandia_hands_fixed.world"/>
+  <arg name="gzworld" default="qual_task_1_stumps.world"/>
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
@@ -13,4 +13,5 @@
   <param name="robot_description" textfile="$(find atlas_sandia_hands_fixed)/atlas_sandia_hands_fixed.urdf"/>
 
   <include file="$(find atlas_utils)/launch/atlas_sandia_hands_fixed_bringup.launch"/>
+
 </launch>
