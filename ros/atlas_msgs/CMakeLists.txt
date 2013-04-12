@@ -98,8 +98,9 @@ message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib
 message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.3")
 message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.3/lib64")
 add_custom_command(OUTPUT output.x
-                   COMMAND find ../..
-                   COMMAND pwd
+                   #COMMAND find ../..
+                   #COMMAND pwd
+                   COMMAND true
                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                    )
 add_custom_target(debug_output DEPENDS output.x)
