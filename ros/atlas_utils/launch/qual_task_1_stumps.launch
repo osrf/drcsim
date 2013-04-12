@@ -10,8 +10,8 @@
   </include>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas_sandia_hands_fixed)/atlas_sandia_hands_fixed.urdf"/>
+  <param name="robot_description" textfile="$(find atlas_sandia_hands_stumps)/atlas_sandia_hands_stumps.urdf"/>
 
-  <include file="$(find atlas_utils)/launch/atlas_sandia_hands_fixed_bringup.launch"/>
+  <include file="$(find atlas_utils)/launch/atlas_sandia_hands_stumps_bringup.launch"/>
 
 </launch>

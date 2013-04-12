@@ -28,7 +28,7 @@
       <uri>model://ground_plane</uri>
     </include>
     <include>
-      <uri>model://atlas_sandia_hands_fixed</uri>
+      <uri>model://atlas_sandia_hands_stumps</uri>
     </include>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
