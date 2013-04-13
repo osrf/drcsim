@@ -63,6 +63,7 @@ rosbuild_link_boost(gazebo_ros_controller_manager thread)
 rosbuild_add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
 rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
 rosbuild_add_executable(pub_atlas_command pub_atlas_command.cpp)
+rosbuild_add_executable(pub_atlas_state pub_atlas_state.cpp)
 rosbuild_add_executable(pub_joint_states pub_joint_states.cpp)
 
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
@@ -126,6 +127,6 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY srv srv_gen msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_command pub_joint_states # actionlib_server actionlib_client
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub_atlas_command pub_joint_states # actionlib_server actionlib_client
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
