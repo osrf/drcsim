@@ -24,6 +24,8 @@ set (rostests
 include (CheckDisplayCapabilities.cmake)
 if(VALID_DRI_DISPLAY)
   foreach (rostest ${rostests})
+    # We don't set a timeout here because we trust rostest to enforce the
+    # timeout specified in each .test file.
     add_test(${rostest} rostest ${CMAKE_CURRENT_SOURCE_DIR}/${rostest})
     # Check for test result file and create one if needed.  rostest can fail to
     # generate a file if it throws an exception.
@@ -43,9 +45,17 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
+  ros_subscribers.launch
+  pub_atlas_command.launch
+  perf_test.launch
 )
 set(scripts
   ros_api_checker
+  run_gzstats.sh
+  run_pub_atlas_command.sh
+  run_rosbag.sh
+  parse_logs.sh
+  meanvar.py
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)

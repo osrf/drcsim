@@ -56,6 +56,11 @@ topics:
     num_publishers: -1
     num_subscribers: 1
 
+  - topic: /atlas/pause
+    type: std_msgs/String
+    num_publishers: -1
+    num_subscribers: 1
+
   - topic: /drc_world/robot_enter_car
     type: geometry_msgs/Pose
     num_publishers: -1
