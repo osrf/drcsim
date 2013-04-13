@@ -76,52 +76,6 @@
       <pose>0.51 0.2 1.013 0 0 3.1415</pose>
     </include>
 
-    <model name="cylinder1">
-      <static>false</static>
-      <link name="link">
-        <pose>0.0 0.25 1.013 0 0 0</pose>
-        <inertial>
-          <pose>-0.00637 -0.008 0.22254 0 0 0</pose>        
-          <inertia>
-            <ixx>0.01331127</ixx>
-            <ixy>-0.00030365</ixy>
-            <ixz>-0.00034148</ixz>
-            <iyy>0.01157659</iyy>
-            <iyz>0.00088073</iyz>
-            <izz>0.00378028</izz>
-          </inertia>
-          <mass>1.50251902</mass>
-        </inertial>
-        <collision name="collision">
-          <pose>0 0 0.125 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.04</radius>
-              <length>0.25</length>
-            </cylinder>
-          </geometry>
-          <surface>
-            <contact>
-              <ode>
-                <kp>100000000000.0</kp>
-                <kd>1.0</kd>
-                <max_vel>1.0</max_vel>
-                <min_depth>0.0</min_depth>
-              </ode>
-            </contact>
-          </surface>
-        </collision>
-        <visual name="visual">
-          <pose>0 0 0.125 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.04</radius>
-              <length>0.25</length>
-            </cylinder>
-          </geometry>
-        </visual>
-      </link>
-    </model>
     <!--
     <model name="seat">
       <static>true</static>
