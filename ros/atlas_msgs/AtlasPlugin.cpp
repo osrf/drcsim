@@ -1171,7 +1171,7 @@ void AtlasPlugin::UpdateStates()
 
       // fill in rest of asiState
       std::copy(this->atlasControlOutput.f_out,
-                this->atlasControlOutput.f_out+28,
+                this->atlasControlOutput.f_out+this->jointNames.size(),
                 this->asiState.f_out.begin());
 
       // 80 characters
