@@ -1045,8 +1045,6 @@ void AtlasPlugin::SetASICommand(
         ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
                   "error code (%d).", this->asiState.error_code);
       break;
-    case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
-    case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
     case atlas_msgs::AtlasSimInterfaceCommand::WALK:
       this->asiState.error_code =
         this->atlasSimInterface->set_desired_behavior("Walk");
@@ -1257,10 +1255,6 @@ void AtlasPlugin::UpdateStates()
             fb->stand_feedback.status_flags =
               fbOut->stand_feedback.status_flags;
           }
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
           break;
         default:
           break;
@@ -1711,8 +1705,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     // after
     ROS_WARN("controllign AtlasSimInteface library over /atlas/control_mode "
              "is deprecated, please switch to uisng "
-             "ROS action server on /atlas/bdi_control.  For more "
-             "information on actions, see http://ros.org/wiki/actionlib.");
+             "ROS topic /atlas/atlas_sim_interface_command and look "
+             "for feedback on /atlas/atlas_sim_interface_state.");
 
     if (_mode->data == "Freeze")
     {
@@ -1733,7 +1727,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     else if (_mode->data == "Walk")
     {
       this->asiState.desired_behavior =
-        atlas_msgs::AtlasSimInterfaceCommand::DEMO1;
+        atlas_msgs::AtlasSimInterfaceCommand::WALK;
+      this->atlasControlInput.step_params.use_demo_walk = true;
     }
 
     this->asiState.error_code =
