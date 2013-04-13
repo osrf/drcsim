@@ -1,7 +1,14 @@
 #! /usr/bin/env python
 import roslib; roslib.load_manifest('atlas_utils')
 
-from atlas_msgs.msg import WalkDemoAction, WalkDemoActionGoal, WalkDemoGoal, AtlasBehaviorStepData
+from atlas_msgs.msg import WalkDemoAction, \
+                           WalkDemoActionGoal, \
+                           WalkDemoGoal, \
+                           AtlasBehaviorStepData, \
+                           AtlasBehaviorStepParams, \
+                           AtlasBehaviorStandParams, \
+                           AtlasBehaviorManipulateParams
+from std_msgs.msg import Header
 
 from geometry_msgs.msg import Pose
 from std_msgs.msg import String
@@ -89,14 +96,14 @@ class AtlasTeleop():
         
     def reset_to_standing(self):
         self.mode.publish("harnessed")
-        self.control_mode.publish("stand-prep")
+        self.control_mode.publish("StandPrep")
         rospy.sleep(5.0)
         self.mode.publish("nominal")
         rospy.sleep(0.3)
-        self.control_mode.publish("stand")
+        self.control_mode.publish("Stand")
     
     def stand(self):
-        self.control_mode.publish("stand")
+        self.control_mode.publish("Stand")
         rospy.sleep(1)
     
     def twist(self, forward, lateral, turn):
@@ -131,12 +138,12 @@ class AtlasTeleop():
             Q = quaternion_from_euler(0, 0, theta)
 
             step = AtlasBehaviorStepData()
-            step.step_index = i + 1
+            step.step_index = i
             step.foot_index = i % 2
             step.duration = self.params["stride_duration"]["value"]
             step.pose.position.x = X
             step.pose.position.y = Y
-            step.pose.position.z = i * self.params["step_height"]["value"]
+            step.pose.position.z = self.params["step_height"]["value"]
             step.pose.orientation.x = Q[0]
             step.pose.orientation.y = Q[1]
             step.pose.orientation.z = Q[2]
@@ -151,41 +158,47 @@ class AtlasTeleop():
         Y = Y - foot * W / 2 * math.cos(theta)
         Q = quaternion_from_euler(0, 0, theta)
         step = AtlasBehaviorStepData()
-        step.step_index = len(steps) + 1
+        step.step_index = len(steps)
         step.foot_index = 1 - steps[-1].foot_index
         step.duration = self.params["stride_duration"]["value"]
         step.pose.position.x = X
         step.pose.position.y = Y
-        step.pose.position.z = (len(steps)-1) * self.params["step_height"]["value"]
+        step.pose.position.z = self.params["step_height"]["value"]
         step.pose.orientation.x = Q[0]
         step.pose.orientation.y = Q[1]
         step.pose.orientation.z = Q[2]
         step.pose.orientation.w = Q[3]
         step.swing_height = self.params["swing_height"]["value"]
         steps.append(step)
+        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                
-        walk_goal = WalkDemoGoal(None, WalkDemoGoal.WALK, steps, None, None, None, None)
+        walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
         
         self.client.send_goal(walk_goal)
-        self.client.wait_for_result(rospy.Duration(2 * step.duration * len(steps)))
+        #self.client.wait_for_result(rospy.Duration(2 * step.duration * len(steps)))
     
     def process_movement(self, ch):
         dir = self.directions[ch]       
         self.twist(dir["forward"], dir["lateral"], dir["turn"])
     
     def edit_params(self):
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
+        print("")
+        
         maxLength = -1
         for key in self.params.keys():
             if len(key) > maxLength:
                 maxLength = len(key)
         for i in range(len(self.params)):
             param_name = self.params.keys()[i]
-            self.print_string(str(i) + " : " + param_name.ljust(maxLength + 1) + str(self.params[param_name]["value"]))
-        self.print_string("X : Exit")
+            print(str(i) + " : " + param_name.ljust(maxLength + 1) + str(self.params[param_name]["value"]))
+        print("X : Exit")
         hasNumber = False
         selection = -1
+        
         while selection < 0 or selection >= len(self.params):
             var = raw_input("Enter number of param you want to change: ")
+            
             if var == 'x' or var == 'X':
                 self.print_usage()
                 return
@@ -213,6 +226,7 @@ class AtlasTeleop():
         
         self.params[param]["value"] = value
         self.edit_params()
+        
         
     def print_string(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)

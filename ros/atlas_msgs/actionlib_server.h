@@ -16,9 +16,10 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/String.h>
-
+#include <tf/tf.h>
 #include <atlas_msgs/WalkDemoAction.h>
 #include <atlas_msgs/AtlasSimInterfaceCommand.h>
+#include <atlas_msgs/AtlasState.h>
 #include <actionlib/server/simple_action_server.h>
 
 #define NUM_REQUIRED_WALK_STEPS 4
@@ -42,10 +43,16 @@ class ASIActionServer
   public: void BDIStateCallback(
     const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
 
+  private: void atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg);
+
+  private: geometry_msgs::Vector3 robotPosition;
+
   /// \brief lock while updating control modes
   private: boost::mutex actionServerMutex;
 
   private: ActionServer *actionServer;
+
+  private: ros::Subscriber ASIStateSubscriber;
 
   private: ros::Subscriber atlasStateSubscriber;
 
@@ -67,4 +74,6 @@ class ASIActionServer
   private: ros::NodeHandle rosNode;
 
   private: bool executingGoal;
+
+  private: unsigned int currentIndex;
 };

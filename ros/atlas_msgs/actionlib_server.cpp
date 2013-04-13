@@ -12,9 +12,13 @@ ASIActionServer::ASIActionServer()
     boost::bind(&ASIActionServer::ActionServerCallback, this));
 
 
-    this->atlasStateSubscriber =
+    this->ASIStateSubscriber =
       this->rosNode.subscribe("atlas/atlas_sim_interface_state", 10,
         &ASIActionServer::BDIStateCallback, this);
+
+    //this->ASIStateSubscriber =
+    //  this->rosNode.subscribe("atlas/atlas_state", 10,
+    //    &ASIActionServer::atlasStateCB, this);
 
   this->atlasCommandPublisher =
     this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
@@ -28,15 +32,31 @@ ASIActionServer::ASIActionServer()
 void ASIActionServer::BDIStateCallback(
     const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg)
 {
+    //ROS_INFO("Received state msg");
+
+    boost::mutex::scoped_lock lock(this->actionServerMutex);
+    this->robotPosition.x = msg->pos_est.position.x;
+    this->robotPosition.y = msg->pos_est.position.y;
+    this->robotPosition.z = msg->pos_est.position.z;
+    //ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
+    //                " y: " << this->robotPosition.y <<
+    //                " z: " << this->robotPosition.z);
+
   // Is there a goal to execute?
   if (!this->executingGoal)
   {
+    //  ROS_INFO("Waiting for goal");
+    atlas_msgs::AtlasSimInterfaceCommand command;
+    command.header = this->activeGoal.header;
+    command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+    this->atlasCommandPublisher.publish(command);
     return;
   }
 
   // Does the message contain bad news?
   if (msg->behavior_feedback.status_flags > 2)
   {
+    ROS_INFO("Canceling goal, received error");
     this->executingGoal = false;
     return;
   }
@@ -47,16 +67,21 @@ void ASIActionServer::BDIStateCallback(
     ROS_INFO("Switching behavior");
   }
 
+  command.header = this->activeGoal.header;
   command.behavior = this->activeGoal.behavior;
   command.k_effort = this->activeGoal.k_effort;
   command.step_params = this->activeGoal.step_params;
   command.manipulate_params = this->activeGoal.manipulate_params;
-
+  command.stand_params = this->activeGoal.stand_params;
   if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK)
   {
     //Is the sequence completed?
-    if (msg->behavior_feedback.walk_feedback.next_step_index_needed < 0)
+    if (msg->behavior_feedback.walk_feedback.current_step_index >=
+            this->activeGoal.steps.size())
     {
+      ROS_INFO("Walk trajectory completed, standing");
+      command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+      this->atlasCommandPublisher.publish(command);
       this->executingGoal = false;
       return;
     }
@@ -70,7 +95,13 @@ void ASIActionServer::BDIStateCallback(
         this->activeGoal.steps[start_index + i];
     }
   }
+  //ROS_INFO("Publishing command");
   this->atlasCommandPublisher.publish(command);
+}
+
+void ASIActionServer::atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg)
+{
+
 }
 
 void ASIActionServer::ActionServerCallback()
@@ -82,13 +113,29 @@ void ASIActionServer::ActionServerCallback()
   // When accepteNewGoal() is called, active goal (if any) is automatically
   // preempted.
   this->activeGoal = *this->actionServer->acceptNewGoal();
-  while (ros::ok() && this->executingGoal)
+
+  ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
+                  " y: " << this->robotPosition.y <<
+                  " z: " << this->robotPosition.z);
+  for (unsigned int i = 0; i < this->activeGoal.steps.size(); ++i)
   {
-    this->actionServer->publishFeedback(this->actionServerFeedback);
-    ros::spinOnce();
-    ros::Duration(0.01).sleep();
+      this->activeGoal.steps[i].pose.position.x +=
+              this->robotPosition.x;
+      this->activeGoal.steps[i].pose.position.y +=
+              this->robotPosition.y;
+      this->activeGoal.steps[i].pose.position.z +=
+              this->robotPosition.z;
+      //this->activeGoal.steps[i].step_index += this->actionServer->currentIndex;
   }
-  this->actionServer->setSucceeded(this->actionServerResult);
+  this->currentIndex += this->activeGoal.steps.size();
+
+  atlas_msgs::AtlasSimInterfaceCommand command;
+  command.header = this->activeGoal.header;
+  command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+  this->atlasCommandPublisher.publish(command);
+
+  ROS_INFO("Received goal, executing");
+  this->executingGoal = true;
 }
 
 int main(int argc, char **argv)
