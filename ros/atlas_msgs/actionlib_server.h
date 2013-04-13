@@ -50,12 +50,17 @@ class ASIActionServer
   /// \brief lock while updating control modes
   private: boost::mutex actionServerMutex;
 
+  /// \brief ROS action server
   private: ActionServer *actionServer;
 
+  /// \brief AtlasSimInterfaceState subscriber
   private: ros::Subscriber ASIStateSubscriber;
 
+  /// TODO use this subscriber to get where the feet are located
+  /// \brief AtlasState subscriber
   private: ros::Subscriber atlasStateSubscriber;
 
+  /// \brief AtlasSimInterfaceCommand Publisher
   private: ros::Publisher atlasCommandPublisher;
 
   /// \brief local copy of the goal
@@ -71,10 +76,15 @@ class ASIActionServer
   private: std::vector<atlas_msgs::AtlasBehaviorStepData>
   stepTrajectory;
 
+  /// \brief ROS node handle
   private: ros::NodeHandle rosNode;
 
+  /// \brief bool to check if a goal is being executed, otherwise send stand
   private: bool executingGoal;
-private: bool newGoal;
+
+  /// \brief used to determine if a new goal exists, during which conflicting
+  /// information is relayed through atlas_sim_interface_state
+  private: bool newGoal;
 
   private: unsigned int currentIndex;
 };
