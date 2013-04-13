@@ -268,6 +268,11 @@ namespace gazebo
     /// \brief ros service to reset controls internal states
     private: ros::ServiceServer resetControlsService;
 
+    /// \brief helper function to copy states
+    private: void AtlasControlOutputToAtlasSimInterfaceState(
+              atlas_msgs::AtlasBehaviorFeedback *_fb,
+              AtlasBehaviorFeedback *_fbOut);
+
     /// \brief Conversion functions
     private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
     {
@@ -338,6 +343,17 @@ namespace gazebo
       return math::Vector3(_vec3.n[0],
                            _vec3.n[1],
                            _vec3.n[2]);
+    }
+
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Vector3 ToGeomVec3(
+      const AtlasVec3f &_vec3) const
+    {
+      geometry_msgs::Vector3 result;
+      result.x = _vec3.n[0];
+      result.y = _vec3.n[1];
+      result.y = _vec3.n[2];
+      return result;
     }
 
     // AtlasSimInterface:  Controls ros interface
