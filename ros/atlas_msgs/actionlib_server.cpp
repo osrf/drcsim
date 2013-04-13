@@ -10,12 +10,12 @@ ASIActionServer::ASIActionServer()
                                         false);
   // Register goal callback
   this->actionServer->registerGoalCallback(
-    boost::bind(&ASIActionServer::ActionServerCallback, this));
+    boost::bind(&ASIActionServer::ActionServerCB, this));
 
 
     this->ASIStateSubscriber =
       this->rosNode.subscribe("atlas/atlas_sim_interface_state", 10,
-        &ASIActionServer::BDIStateCallback, this);
+        &ASIActionServer::ASIStateCB, this);
 
     this->atlasStateSubscriber =
       this->rosNode.subscribe("atlas/atlas_state", 10,
@@ -30,7 +30,7 @@ ASIActionServer::ASIActionServer()
 }
 
 //////////////////////////////////////////////////
-void ASIActionServer::BDIStateCallback(
+void ASIActionServer::ASIStateCB(
     const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg)
 {
   boost::mutex::scoped_lock lock(this->actionServerMutex);
@@ -107,7 +107,7 @@ void ASIActionServer::atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg)
 }
 
 //////////////////////////////////////////////////
-void ASIActionServer::ActionServerCallback()
+void ASIActionServer::ActionServerCB()
 {
   // actionlib simple action server
   // lock and set mode and params
