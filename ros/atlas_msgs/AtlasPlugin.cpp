@@ -1234,13 +1234,17 @@ void AtlasPlugin::UpdateStates()
             //       << "] flag[" << fb->walk_feedback.status_flags
             //       << "]\n";
 
-            static const unsigned int lastStep = 25;
-            // or if status_flag turns from 2 to 4
-            if (fb->walk_feedback.current_step_index == lastStep)
+            // demo debug
+            if (this->atlasControlInput.walk_params.use_demo_walk)
             {
-              this->atlasSimInterface->set_desired_behavior("Stand");
-              this->asiState.desired_behavior =
-                atlas_msgs::AtlasSimInterfaceCommand::STAND;
+              static const unsigned int lastStep = 25;
+              // or if status_flag turns from 2 to 4
+              if (fb->walk_feedback.current_step_index == lastStep)
+              {
+                this->atlasSimInterface->set_desired_behavior("Stand");
+                this->asiState.desired_behavior =
+                  atlas_msgs::AtlasSimInterfaceCommand::STAND;
+              }
             }
           }
           break;
