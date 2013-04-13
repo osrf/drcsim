@@ -6,12 +6,15 @@
 # than 1500 in size when serialized, to accommodate transfer
 # UDP.
 #
-#   kp_position     * ( position - measured_position )       +
-#   ki_position     * 1/s * ( position - measured_position ) +
-#   kd_position     * s * ( position - measured_position ) +
-#   kp_velocity     * ( velocity - measured_velocity )     +
-#   k_effort        * effort +
+#   k_effort * (
+#     kp_position     * ( position - measured_position )       +
+#     ki_position     * 1/s * ( position - measured_position ) +
+#     kd_position     * s * ( position - measured_position ) +
+#     kp_velocity     * ( velocity - measured_velocity )     +
+#     effort ) +
 #   (1 - k_effort)  * effort_bdi
+#
+#  Where effort_bdi comes from AtlasSimInterface Dynamics Behavior Library.
 #
 Header header
 
