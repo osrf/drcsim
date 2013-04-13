@@ -74,6 +74,7 @@ class ASIActionServer
   private: ros::NodeHandle rosNode;
 
   private: bool executingGoal;
+private: bool newGoal;
 
   private: unsigned int currentIndex;
 };

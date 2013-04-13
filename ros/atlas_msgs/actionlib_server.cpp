@@ -75,9 +75,12 @@ void ASIActionServer::BDIStateCallback(
   command.stand_params = this->activeGoal.stand_params;
   if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK)
   {
-    //Is the sequence completed?
-    if (msg->behavior_feedback.walk_feedback.current_step_index >=
-            this->activeGoal.steps.size())
+
+
+      //Is the sequence completed?
+    if (!this->newGoal &&
+        msg->behavior_feedback.walk_feedback.next_step_index_needed >=
+          this->activeGoal.steps.size())
     {
       ROS_INFO("Walk trajectory completed, standing");
       command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
@@ -97,6 +100,11 @@ void ASIActionServer::BDIStateCallback(
   }
   //ROS_INFO("Publishing command");
   this->atlasCommandPublisher.publish(command);
+
+  this->newGoal = (this->newGoal &&
+    msg->behavior_feedback.walk_feedback.next_step_index_needed >=
+       NUM_REQUIRED_WALK_STEPS);
+
 }
 
 void ASIActionServer::atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg)
@@ -136,6 +144,7 @@ void ASIActionServer::ActionServerCallback()
 
   ROS_INFO("Received goal, executing");
   this->executingGoal = true;
+  this->newGoal = true;
 }
 
 int main(int argc, char **argv)
