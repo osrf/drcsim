@@ -974,9 +974,8 @@ void AtlasPlugin::SetASICommand(
 
     walkParams->step_data[stepId].swing_height =
       _msg->walk_params.step_data[stepId].swing_height;
-
-    walkParams->use_demo_walk = _msg->walk_params.use_demo_walk;
   }
+  walkParams->use_demo_walk = _msg->walk_params.use_demo_walk;
 
   // manipulate
   AtlasBehaviorManipulateParams *manipulateParams =
