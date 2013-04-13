@@ -14,6 +14,11 @@
  * limitations under the License.
  *
 */
+#include <pthread.h>
+
+#include <sys/time.h>
+#include <time.h>
+
 #include <string>
 #include <vector>
 #include <math.h>
@@ -24,28 +29,35 @@
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
 
-ros::Publisher pub_atlas_command_;
+boost::mutex mutex;
+ros::Publisher pub_atlas_state;
+atlas_msgs::AtlasState as;
 atlas_msgs::AtlasCommand ac;
-std::vector<std::string> jointNames;
+unsigned long msCount = 0;
 
-void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_js)
+void SetAtlasCommand(const atlas_msgs::AtlasCommand::ConstPtr &_ac)
 {
-  static ros::Time startTime = ros::Time::now();
+  // printf("%f %ld %f\n", ros::Time::now().toSec()*1.0e3, msCount, _ac->header.stamp.toSec()*1.0e3);
+  // return;
   {
-    // for testing round trip time
-    ac.header.stamp = _js->header.stamp;
+    //boost::mutex::scoped_lock lock(mutex);
 
-    // assign arbitrary joint angle targets
-    for (unsigned int i = 0; i < jointNames.size(); i++)
-      ac.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
-
-    pub_atlas_command_.publish(ac);
+    // bool missed = (_ac->header.seq - ac.header.seq > 1);
+      
+    ac.header.stamp = _ac->header.stamp;
+    // printf(" ac receive %ld %f %d", msCount, ac.header.stamp.toSec()*1.0e3, ac.header.seq);
+    // if (msCount - ac.header.stamp.toSec()*1.0e3 > 3)
+    //   printf(" old ");
+    // if (missed)
+    //   printf(" missed ");
+    // printf("\n");
   }
+  // pthread_yield();
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "pub_atlas_commandt");
+  ros::init(argc, argv, "pub_atlas_state_test");
 
   ros::NodeHandle* rosnode = new ros::NodeHandle();
 
@@ -59,6 +71,7 @@ int main(int argc, char** argv)
   }
 
   // must match those inside AtlasPlugin
+  std::vector<std::string> jointNames;
   jointNames.push_back("atlas::back_lbz");
   jointNames.push_back("atlas::back_mby");
   jointNames.push_back("atlas::back_ubx");
@@ -89,49 +102,14 @@ int main(int argc, char** argv)
   jointNames.push_back("atlas::r_arm_mwx");
 
   unsigned int n = jointNames.size();
-  ac.position.resize(n);
-  ac.velocity.resize(n);
-  ac.effort.resize(n);
-  ac.kp_position.resize(n);
-  ac.ki_position.resize(n);
-  ac.kd_position.resize(n);
-  ac.kp_velocity.resize(n);
-  ac.i_effort_min.resize(n);
-  ac.i_effort_max.resize(n);
-  ac.k_effort.resize(n);
-
-  for (unsigned int i = 0; i < n; i++)
-  {
-    std::vector<std::string> pieces;
-    boost::split(pieces, jointNames[i], boost::is_any_of(":"));
-
-    double val;
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/p", val);
-    ac.kp_position[i] = val;
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i", val);
-    ac.ki_position[i] = val;
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/d", val);
-    ac.kd_position[i] = val;
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp", val);
-    ac.i_effort_min[i] = val;
-    ac.i_effort_min[i] = -ac.i_effort_min[i];
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp", val);
-    ac.i_effort_max[i] = val;
-
-    ac.velocity[i]     = 0;
-    ac.effort[i]       = 0;
-    ac.kp_velocity[i]  = 0;
-    ac.k_effort[i]     = 255;
-  }
+  as.position.resize(n);
+  as.velocity.resize(n);
+  as.effort.resize(n);
 
   // ros topic subscribtions
-  ros::SubscribeOptions atlasStateSo =
-    ros::SubscribeOptions::create<atlas_msgs::AtlasState>(
-    "/atlas/atlas_state", 1, SetAtlasState,
+  ros::SubscribeOptions atlasCommandSo =
+    ros::SubscribeOptions::create<atlas_msgs::AtlasCommand>(
+    "/atlas/joint_commands", 1, SetAtlasCommand,
     ros::VoidPtr(), rosnode->getCallbackQueue());
 
   // Because TCP causes bursty communication with high jitter,
@@ -140,18 +118,60 @@ int main(int argc, char** argv)
   // Note that we'll still accept TCP connections for this topic
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
-  atlasStateSo.transport_hints =
+  atlasCommandSo.transport_hints =
+    // ros::TransportHints().reliable().tcpNoDelay(true);
     ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
 
-  ros::Subscriber subAtlasState = rosnode->subscribe(atlasStateSo);
-  // ros::Subscriber subAtlasState =
-  //   rosnode->subscribe("/atlas/joint_states", 1000, SetAtlasState);
+  ros::Subscriber subAtlasCommand = rosnode->subscribe(atlasCommandSo);
 
-  pub_atlas_command_ =
-    rosnode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/atlas_command", 1, true);
+  // ros::Subscriber subAtlasCommand =
+  //   rosnode->subscribe("/atlas/joint_commands", 1000, SetAtlasCommand);
 
-  ros::spin();
+  pub_atlas_state =
+    rosnode->advertise<atlas_msgs::AtlasState>(
+    "/atlas/atlas_state", 1, true);
+
+  boost::thread spinThread(boost::bind(&ros::spin));
+
+  as.header.stamp = ros::Time();
+  ros::WallRate r(1000.0);
+
+  static const unsigned int NNN = 100000;
+  double out1[NNN];
+  double out2[NNN];
+  double out3[NNN];
+
+  // double lastTime;
+  while(ros::ok() && msCount < NNN)
+  {
+    msCount++;
+    // double age;
+    as.header.stamp = ros::Time(msCount/1.0e3);
+    {
+      //boost::mutex::scoped_lock lock(mutex);
+      // age = msCount - ac.header.stamp.toSec()*1.0e3;
+      // if (ac.header.stamp.toSec()*1.0e3 == lastTime)
+      //   printf("dropped package \n");
+      // lastTime = ac.header.stamp.toSec()*1.0e3;
+    }
+    // pthread_yield();
+
+    // pub_atlas_state.publish(as);
+    // pthread_yield();
+
+    //if (age > 3.0)
+    //  printf("%ld, %f, %f\n", msCount, age, ac.header.stamp.toSec()*1.0e3);
+
+    // out1[msCount-1] = ros::Time::now().toSec()*1.0e3;
+    out1[msCount-1] = ros::Time::now().toSec()*1.0e3;
+    out2[msCount-1] = (double)msCount;
+    out3[msCount-1] = ac.header.stamp.toSec()*1.0e3;
+    // r.sleep();
+    usleep(1000);
+  }
+
+  for(unsigned int i =0; i < NNN; ++i)
+    printf("%f %f %f\n", out1[i], out2[i], out3[i]);
 
   return 0;
 }
