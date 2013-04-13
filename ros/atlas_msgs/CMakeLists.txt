@@ -63,6 +63,7 @@ rosbuild_link_boost(gazebo_ros_controller_manager thread)
 rosbuild_add_executable(pub_joint_trajectory_test pub_joint_trajectory_test.cpp)
 rosbuild_add_executable(pub_joint_commands pub_joint_commands.cpp)
 rosbuild_add_executable(pub_atlas_command pub_atlas_command.cpp)
+rosbuild_add_executable(pub_atlas_state pub_atlas_state.cpp)
 rosbuild_add_executable(pub_joint_states pub_joint_states.cpp)
 
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
@@ -100,22 +101,6 @@ target_link_libraries(AtlasPlugin AtlasSimInterface)
  rosbuild_add_executable(actionlib_server actionlib_server.cpp)
  target_link_libraries(actionlib_server AtlasSimInterface)
 
-# compile actionlib_client with AtlasSimInterface
-# rosbuild_add_executable(actionlib_client actionlib_client.cpp)
-# target_link_libraries(actionlib_client AtlasSimInterface)
-
-# message(DEBUG "\n\n${CMAKE_BINARY_DIR}\n\n${CMAKE_CURRENT_BINARY_DIR}\n\n")
-# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.8/lib64")
-# message(DEBUG "  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.8")
-# message(DEBUG "  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.8/lib64")
-# add_custom_command(OUTPUT output.x
-#                    COMMAND find ../..
-#                    COMMAND pwd
-#                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#                    )
-# add_custom_target(debug_output DEPENDS output.x)
-# add_dependencies(AtlasPlugin debug_output)
-
 # needs actionlib, control_msgs
 rosbuild_add_library(VRCPlugin VRCPlugin.cpp)
 target_link_libraries(VRCPlugin)
@@ -126,6 +111,6 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY srv srv_gen msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_command pub_joint_states # actionlib_server actionlib_client
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin DRCVehicleROSPlugin pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub_atlas_command pub_joint_states # actionlib_server
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

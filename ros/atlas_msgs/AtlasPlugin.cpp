@@ -77,7 +77,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // Get the world name.
   this->world = this->model->GetWorld();
 
-  // JoitnController: built-in gazebo to control joints
+  // JointController: built-in gazebo to control joints
   this->jointController = this->model->GetJointController();
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init(this->model->GetWorld()->GetName());
@@ -314,7 +314,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     // stand
     this->atlasControlInput.stand_params.placeholder = 0;
     // step
-    AtlasBehaviorStepParams* stepParams =
+    AtlasBehaviorStepParams *stepParams =
       &this->atlasControlInput.step_params;
     stepParams->desired_step.step_index = 1;
     stepParams->desired_step.foot_index = 0;
@@ -325,7 +325,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     stepParams->desired_step.swing_height = 0.0;
     stepParams->use_demo_walk = false;
     // walk
-    AtlasBehaviorWalkParams* walkParams =
+    AtlasBehaviorWalkParams *walkParams =
       &this->atlasControlInput.walk_params;
     for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
     {
@@ -340,7 +340,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     }
     walkParams->use_demo_walk = false;
     // manipulate
-    AtlasBehaviorManipulateParams* manipulateParams =
+    AtlasBehaviorManipulateParams *manipulateParams =
       &this->atlasControlInput.manipulate_params;
     manipulateParams->use_desired = false;
     manipulateParams->desired.pelvis_height = 0.0;
@@ -930,7 +930,7 @@ void AtlasPlugin::SetASICommand(
   // stand
   this->atlasControlInput.stand_params.placeholder = 0;
   // step
-  AtlasBehaviorStepParams* stepParams =
+  AtlasBehaviorStepParams *stepParams =
     &this->atlasControlInput.step_params;
   stepParams->desired_step.step_index   =
     _msg->step_params.desired_step.step_index;
@@ -953,7 +953,7 @@ void AtlasPlugin::SetASICommand(
     _msg->step_params.use_demo_walk;
 
   // walk
-  AtlasBehaviorWalkParams* walkParams =
+  AtlasBehaviorWalkParams *walkParams =
     &this->atlasControlInput.walk_params;
   for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
   {
@@ -979,7 +979,7 @@ void AtlasPlugin::SetASICommand(
   }
 
   // manipulate
-  AtlasBehaviorManipulateParams* manipulateParams =
+  AtlasBehaviorManipulateParams *manipulateParams =
     &this->atlasControlInput.manipulate_params;
   manipulateParams->use_desired =
     _msg->manipulate_params.use_desired;
@@ -1045,8 +1045,6 @@ void AtlasPlugin::SetASICommand(
         ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
                   "error code (%d).", this->asiState.error_code);
       break;
-    case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
-    case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
     case atlas_msgs::AtlasSimInterfaceCommand::WALK:
       this->asiState.error_code =
         this->atlasSimInterface->set_desired_behavior("Walk");
@@ -1173,7 +1171,7 @@ void AtlasPlugin::UpdateStates()
 
       // fill in rest of asiState
       std::copy(this->atlasControlOutput.f_out,
-                this->atlasControlOutput.f_out+28,
+                this->atlasControlOutput.f_out+this->jointNames.size(),
                 this->asiState.f_out.begin());
 
       // 80 characters
@@ -1214,9 +1212,9 @@ void AtlasPlugin::UpdateStates()
             fb->walk_feedback.status_flags = fbOut->walk_feedback.status_flags;
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
             {
-              atlas_msgs::AtlasBehaviorStepData* sd =
+              atlas_msgs::AtlasBehaviorStepData *sd =
                 &(fb->walk_feedback.step_data_saturated[i]);
-              AtlasBehaviorStepData* sdOut =
+              AtlasBehaviorStepData *sdOut =
                 &(fbOut->walk_feedback.step_data_saturated[i]);
               sd->step_index = sdOut->step_index;
               sd->foot_index = sdOut->foot_index;
@@ -1257,10 +1255,6 @@ void AtlasPlugin::UpdateStates()
             fb->stand_feedback.status_flags =
               fbOut->stand_feedback.status_flags;
           }
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::DEMO1:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::DEMO2:
           break;
         default:
           break;
@@ -1711,8 +1705,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     // after
     ROS_WARN("controllign AtlasSimInteface library over /atlas/control_mode "
              "is deprecated, please switch to uisng "
-             "ROS action server on /atlas/bdi_control.  For more "
-             "information on actions, see http://ros.org/wiki/actionlib.");
+             "ROS topic /atlas/atlas_sim_interface_command and look "
+             "for feedback on /atlas/atlas_sim_interface_state.");
 
     if (_mode->data == "Freeze")
     {
@@ -1733,7 +1727,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     else if (_mode->data == "Walk")
     {
       this->asiState.desired_behavior =
-        atlas_msgs::AtlasSimInterfaceCommand::DEMO1;
+        atlas_msgs::AtlasSimInterfaceCommand::WALK;
+      this->atlasControlInput.step_params.use_demo_walk = true;
     }
 
     this->asiState.error_code =
@@ -1750,7 +1745,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     // initialize Walk data
     if (_mode->data == "Walk")
     {
-      AtlasBehaviorWalkParams* walkParams =
+      AtlasBehaviorWalkParams *walkParams =
         &this->atlasControlInput.walk_params;
       walkParams->use_demo_walk = false;
 

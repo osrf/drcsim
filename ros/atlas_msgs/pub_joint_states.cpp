@@ -30,7 +30,7 @@
 #include <atlas_msgs/AtlasCommand.h>
 
 boost::mutex mutex;
-ros::Publisher pub_atlas_state_;
+ros::Publisher pub_atlas_state;
 atlas_msgs::AtlasState as;
 atlas_msgs::AtlasCommand ac;
 unsigned long msCount = 0;
@@ -127,7 +127,7 @@ int main(int argc, char** argv)
   // ros::Subscriber subAtlasCommand =
   //   rosnode->subscribe("/atlas/joint_commands", 1000, SetAtlasCommand);
 
-  pub_atlas_state_ =
+  pub_atlas_state =
     rosnode->advertise<atlas_msgs::AtlasState>(
     "/atlas/atlas_state", 1, true);
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
     }
     // pthread_yield();
 
-    // pub_atlas_state_.publish(as);
+    // pub_atlas_state.publish(as);
     // pthread_yield();
 
     //if (age > 3.0)
