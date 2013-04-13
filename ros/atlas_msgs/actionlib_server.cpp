@@ -103,7 +103,7 @@ void ASIActionServer::BDIStateCallback(
 //////////////////////////////////////////////////
 void ASIActionServer::atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg)
 {
-
+  tf::quaternionMsgToTF(msg->orientation, this->robotOrientation);
 }
 
 //////////////////////////////////////////////////
@@ -117,21 +117,53 @@ void ASIActionServer::ActionServerCallback()
   // preempted.
   this->activeGoal = *this->actionServer->acceptNewGoal();
 
-  ROS_DEBUG_STREAM("Current position - x: " << this->robotPosition.x <<
+  ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
                   " y: " << this->robotPosition.y <<
                   " z: " << this->robotPosition.z);
   for (unsigned int i = 0; i < this->activeGoal.steps.size(); ++i)
   {
-      this->activeGoal.steps[i].pose.position.x +=
-              this->robotPosition.x;
-      this->activeGoal.steps[i].pose.position.y +=
-              this->robotPosition.y;
-      this->activeGoal.steps[i].pose.position.z +=
-              this->robotPosition.z;
-      //this->activeGoal.steps[i].step_index += this->actionServer->currentIndex;
-  }
-  this->currentIndex += this->activeGoal.steps.size();
+      // Position vector of the robot
+      tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
+                                      this->robotPosition.y,
+                                      this->robotPosition.z);
 
+      // Create transform of this active goal step
+      tf::Quaternion agQuat;
+      tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQuat);
+      tf::Transform aGTransform(agQuat,
+        tf::Vector3(this->activeGoal.steps[i].pose.position.x,
+                    this->activeGoal.steps[i].pose.position.y,
+                    this->activeGoal.steps[i].pose.position.z));
+
+      // We only want to transform with respect to the robot's yaw
+      double yaw = tf::getYaw(this->robotOrientation);
+
+      // Transform of the robot in world coordinates
+      tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
+
+      // Transform the active goal step to world pose.
+      tf::Transform newTransform = transform * aGTransform;
+
+      ROS_INFO_STREAM("Before xform. Step: " << i << " location- x: " <<
+                      this->activeGoal.steps[i].pose.position.x <<
+                      " y: " << this->activeGoal.steps[i].pose.position.y <<
+                      " z: " << this->activeGoal.steps[i].pose.position.z);
+
+
+      // Create geometry_msgs transform msg and change the active goal to
+      // reflect the transform
+      geometry_msgs::Transform transformMsg;
+      tf::transformTFToMsg(newTransform, transformMsg);
+      this->activeGoal.steps[i].pose.orientation = transformMsg.rotation;
+      this->activeGoal.steps[i].pose.position.x = transformMsg.translation.x;
+      this->activeGoal.steps[i].pose.position.y = transformMsg.translation.y;
+      this->activeGoal.steps[i].pose.position.z = transformMsg.translation.z;
+
+      ROS_INFO_STREAM("Step: " << i << " location- x: " <<
+                      this->activeGoal.steps[i].pose.position.x <<
+                      " y: " << this->activeGoal.steps[i].pose.position.y <<
+                      " z: " << this->activeGoal.steps[i].pose.position.z);
+  }
   atlas_msgs::AtlasSimInterfaceCommand command;
   command.header = this->activeGoal.header;
   command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
