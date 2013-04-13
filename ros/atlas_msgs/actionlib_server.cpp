@@ -134,16 +134,84 @@ void ASIActionServer::ASIStateCB(
     // next time back in ASIStateCB, we'll be in newGoal&!executingGoal state.
     // Alternatively, give user an error and return.
   }
-  else if ((this->newGoal && !this->executingGoal) ||
-           (!this->newGoal && this->executingGoal))
+  else if (this->newGoal && !this->executingGoal)
   {
     // starting newGoal or executing one
     // simply set flags, and treat new goal as executing goal.
     this->newGoal = false;
     this->executingGoal = true;
-    /// \TODO: check if this is sufficient, or we need to explicitly
-    /// execute mode changeing here separately.
+    /// do startup stuff
 
+    // copy goal info into command to be dispatched over
+    // AtlasSimInterfaceCommand
+    command.header = this->activeGoal.header;
+    command.behavior = this->activeGoal.behavior;
+    command.k_effort = this->activeGoal.k_effort;
+    command.step_params = this->activeGoal.step_params;
+    command.manipulate_params = this->activeGoal.manipulate_params;
+    command.stand_params = this->activeGoal.stand_params;
+
+    // do the proper thing based on behavior
+    switch (this->activeGoal.behavior)
+    {
+      case atlas_msgs::WalkDemoGoal::WALK:
+        {
+          // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
+          //   (int)fb->walk_feedback.current_step_index,
+          //   (int)fb->walk_feedback.next_step_index_needed,
+          //   fb->walk_feedback.t_step_rem,
+          //   (int)this->currentStepIndex,
+          //   (int)this->activeGoal.steps.size());
+
+          // if needed, publish next set of 4 commands
+          for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
+          {
+            command.walk_params.step_data[i] =
+              this->activeGoal.steps[this->currentStepIndex + i];
+              std::cout << "  building stepId : " << i
+                << "  traj id [" << this->currentStepIndex + i
+                << "] step_index["
+                << command.walk_params.step_data[i].step_index
+                << "]  isRight["
+                << command.walk_params.step_data[i].foot_index
+                << "]  pos ["
+                << command.walk_params.step_data[i].pose.position.x
+                << ", "
+                << command.walk_params.step_data[i].pose.position.y
+                << "]\n";
+          }
+          // publish new set of commands
+          this->atlasCommandPublisher.publish(command);
+        }
+        break;
+      case atlas_msgs::WalkDemoGoal::STEP:
+        {
+          // fill in step command and pbulish it
+        }
+        break;
+      case atlas_msgs::WalkDemoGoal::MANIPULATE:
+        {
+          // fill in manipulate command and pbulish it
+        }
+        break;
+      case atlas_msgs::WalkDemoGoal::STAND_PREP:
+        // we don't need to do anything here
+        break;
+      case atlas_msgs::WalkDemoGoal::STAND:
+        // we don't need to do anything here
+        break;
+      case atlas_msgs::WalkDemoGoal::USER:
+        // we don't need to do anything here
+        break;
+      case atlas_msgs::WalkDemoGoal::FREEZE:
+        // we don't need to do anything here
+        break;
+      default:
+        break;
+    }
+  }
+  else if (!this->newGoal && this->executingGoal)
+  {
     // continue executing current goal
 
     // copy goal info into command to be dispatched over
@@ -160,13 +228,6 @@ void ASIActionServer::ASIStateCB(
     {
       case atlas_msgs::WalkDemoGoal::WALK:
         {
-          // if needed, publish next set of 4 commands
-          // if (fb->walk_feedback.current_step_index >=
-          //     fb->walk_feedback.next_step_index_needed - 1 &&
-          //     static_cast<unsigned int>(
-          //       fb->walk_feedback.next_step_index_needed) <
-          //     this->stepTrajectory.size() - 1)
-
           int startIndex =
             std::min((long)fb->walk_feedback.next_step_index_needed,
               (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
@@ -189,6 +250,7 @@ void ASIActionServer::ASIStateCB(
             return;
           }
 
+          // if needed, publish next set of 4 commands
           if (static_cast<int>(this->currentStepIndex) < startIndex)
           {
             this->currentStepIndex = static_cast<unsigned int>(startIndex);
@@ -225,7 +287,6 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
         // we don't need to do anything here
-        ROS_ERROR("stand prep");
         break;
       case atlas_msgs::WalkDemoGoal::STAND:
         // we don't need to do anything here
@@ -307,6 +368,18 @@ void ASIActionServer::ActionServerCB()
       this->activeGoal.steps[i].pose.position.y = transformMsg.translation.y;
       this->activeGoal.steps[i].pose.position.z = transformMsg.translation.z;
       this->currentStepIndex = 0;
+
+      std::cout << "  building stepId : " << i
+        << "  traj id [" << this->currentStepIndex + i
+        << "] step_index["
+        << this->activeGoal.steps[i].step_index
+        << "]  isRight["
+        << this->activeGoal.steps[i].foot_index
+        << "]  pos ["
+        << this->activeGoal.steps[i].pose.position.x
+        << ", "
+        << this->activeGoal.steps[i].pose.position.y
+        << "]\n";
 
       ROS_INFO_STREAM("Step: " << i << " location- x: " <<
                       this->activeGoal.steps[i].pose.position.x <<
