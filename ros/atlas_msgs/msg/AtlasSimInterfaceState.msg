@@ -1,4 +1,10 @@
+# For interfacing Boston Dynamics' AtlasSimInterface Dynamics Behavior Library
 # Feedback from AtlasSimInterface Controller after calling process_control_input
+# This ROS message should track AtlasControlOutput struct in
+# AtlasSimInterfaceTypes.h.
+# With the exception of addition of k_effort to provide user a way to switch
+# to/from PID servo control in AtlasPlugin.cpp on a per joint basis.
+
 int32 NO_ERRORS                        =  0    # no error detected
 int32 ERROR_UNSPECIFIED                = -1    # unspecified error
 int32 ERROR_VALUE_OUT_OF_RANGE         = -2    # passed value is out of range
@@ -31,6 +37,9 @@ geometry_msgs/Pose[2] foot_pose_est      # World position estimate for feet
                                          # 0 - left, 1 - right
 
 atlas_msgs/AtlasBehaviorFeedback behavior_feedback
+
+# additional vector for transitioning from servo model in AtlasPlugin
+# to BDI servo.
 
 uint8[] k_effort       # k_effort can be an unsigned int 8value from 0 to 255, 
                        # at run time, a double between 0 and 1 is obtained
