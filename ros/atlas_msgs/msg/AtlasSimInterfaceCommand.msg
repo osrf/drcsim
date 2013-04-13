@@ -19,7 +19,6 @@ int32 MANIPULATE        =  6 # stand and allows manipulation.
 int32 behavior                # can be one of
                               # USER, FREEZE, STAND_PREP
                               # WALK, STEP, STAND, MANIPULATE
-                              # DEMO1, DEMO2
 
 # multi_step walking trajectory parameters
 atlas_msgs/AtlasBehaviorWalkParams walk_params
