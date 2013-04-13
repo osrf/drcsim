@@ -1,5 +1,6 @@
 set (files
   gdbrun
+  check_inertia_symmetry.bash
   run_gazebo
   run_gazebo_paused
   run_gzserver
