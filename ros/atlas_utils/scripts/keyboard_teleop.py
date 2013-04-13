@@ -96,6 +96,7 @@ class AtlasTeleop():
         
     def reset_to_standing(self):
         self.mode.publish("harnessed")
+        self.control_mode.publish("Freeze")
         self.control_mode.publish("StandPrep")
         rospy.sleep(5.0)
         self.mode.publish("nominal")

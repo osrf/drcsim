@@ -45,6 +45,13 @@ class ASIActionServer
 
   private: void atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg);
 
+  /// \brief action server callback
+  private: void ActionServerCB();
+
+  /// \brief action server callback
+  private: void ASIStateCB(
+      const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
+
   private: geometry_msgs::Vector3 robotPosition;
   private: tf::Quaternion robotOrientation;
 
@@ -86,4 +93,5 @@ class ASIActionServer
   /// \brief used to determine if a new goal exists, during which conflicting
   /// information is relayed through atlas_sim_interface_state
   private: bool newGoal;
+  private: unsigned int currentStepIndex;
 };
