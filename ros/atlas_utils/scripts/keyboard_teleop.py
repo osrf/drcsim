@@ -14,6 +14,7 @@ from geometry_msgs.msg import Pose
 from std_msgs.msg import String
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 import actionlib
+import copy
 import math
 import rospy
 import select
@@ -42,7 +43,7 @@ class AtlasTeleop():
     params = {"stride_length":{ "value":0.25, "min":0, "max":1, "type":"float"},
               "step_height":{"value":0, "min":-1, "max":1, "type":"float"},
               "stride_duration":{ "value":0.63, "min": 0, "max":100, "type":"float"},
-              "sequence_length":{"value":5, "min":2, "max":100, "type":"int"},
+              "sequence_length":{"value":5, "min":1, "max":100, "type":"int"},
               "stride_width":{"value":0.2, "min":0, "max":1, "type":"float"},
               "in_place_turn_size":{"value":math.pi / 32, "min":0.01, "max":math.pi / 2, "type":"float"},
               "turn_radius":{"value":1, "min":0.01, "max":100, "type":"float"},
@@ -87,7 +88,7 @@ class AtlasTeleop():
            j    k    l
            m    ,    .
         
-        2-9: Change the length of step trajectory
+        1-9: Change the length of step trajectory
         E: View and Edit Parameters
         R: Reset robot to standing pose
         Q: Quit
@@ -102,6 +103,32 @@ class AtlasTeleop():
         self.mode.publish("nominal")
         rospy.sleep(0.3)
         self.control_mode.publish("Stand")
+        
+        '''
+        rospy.sleep(10)
+        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+               
+        steps = []
+        left_step = AtlasBehaviorStepData()
+        left_step.step_index = 0
+        left_step.foot_index = 0
+        left_step.duration = 0.63
+        left_step.pose.position.x = 0.01
+        left_step.pose.position.y = 0.1
+        left_step.pose.orientation.w = 1
+        
+        steps.append(left_step)
+        right_step = AtlasBehaviorStepData()
+        right_step.step_index = 1
+        right_step.foot_index = 1
+        right_step.duration = 0.63
+        right_step.pose.position.x = 0
+        right_step.pose.position.y = -0.1
+        right_step.pose.orientation.w = 1
+        steps.append(right_step)
+        walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
+        self.client.send_goal(walk_goal)
+        '''
     
     def stand(self):
         self.control_mode.publish("Stand")
@@ -124,8 +151,13 @@ class AtlasTeleop():
         else:
             dTheta = turn * self.params["in_place_turn_size"]["value"]
         steps = []
+        home_step = AtlasBehaviorStepData()
+        home_step.foot_index = 1
+        home_step.pose.position.y = 0.1
+        steps.append(home_step)
+        
         for i in range(self.params["sequence_length"]["value"]):
-            theta += (turn != 0) * (i % 2) * dTheta
+            theta += (turn != 0) * (i ) * dTheta
             # left = 1, right = -1
             foot = 1 - 2 * (i % 2)
             
@@ -139,8 +171,8 @@ class AtlasTeleop():
             Q = quaternion_from_euler(0, 0, theta)
 
             step = AtlasBehaviorStepData()
-            step.step_index = i
-            step.foot_index = i % 2
+            step.step_index = i+1
+            step.foot_index = (i+1) % 2
             step.duration = self.params["stride_duration"]["value"]
             step.pose.position.x = X
             step.pose.position.y = Y
@@ -149,7 +181,7 @@ class AtlasTeleop():
             step.pose.orientation.y = Q[1]
             step.pose.orientation.z = Q[2]
             step.pose.orientation.w = Q[3]
-            step.swing_height = self.params["swing_height"]["value"]
+            step.swing_height = self.params["swing_height"]["value"]            
             steps.append(step)
         
         # Add final step to bring feet together
@@ -159,11 +191,11 @@ class AtlasTeleop():
         Y = Y - foot * W / 2 * math.cos(theta)
         Q = quaternion_from_euler(0, 0, theta)
         step = AtlasBehaviorStepData()
-        step.step_index = len(steps)
+        step.step_index = len(steps)+1
         step.foot_index = 1 - steps[-1].foot_index
         step.duration = self.params["stride_duration"]["value"]
         step.pose.position.x = X
-        step.pose.position.y = Y
+        step.pose.position.y = Y - foot * self.params["stride_width"]["value"]/2
         step.pose.position.z = self.params["step_height"]["value"]
         step.pose.orientation.x = Q[0]
         step.pose.orientation.y = Q[1]
@@ -171,6 +203,7 @@ class AtlasTeleop():
         step.pose.orientation.w = Q[3]
         step.swing_height = self.params["swing_height"]["value"]
         steps.append(step)
+
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                
         walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
