@@ -82,18 +82,27 @@ class AtlasTeleop():
         Copyright (C) 2013 Open Source Robotics Foundation
         Released under the Apache 2 License
         --------------------------------------------------
-        Movement:
+        Linear movement:
 
-           u    i    o
-           j    k    l
-           m    ,    .
+                i    
+           j         l
+                ,    
+                
+        Turn movements:
+        o/u Turn around a point
+        m/. Turn in place
         
         1-9: Change the length of step trajectory
         E: View and Edit Parameters
         R: Reset robot to standing pose
         Q: Quit
+        
+        This walking controller is not stable. When you reset the robot,
+        take several single steps with a stride_length of 0, then a
+        trajectory of 3-5 steps to ensure the robot's internal state 
+        matches it's actual state. 
         """
-        self.print_string(msg)      
+        self.loginfo(msg)      
         
     def reset_to_standing(self):
         self.mode.publish("harnessed")
@@ -124,19 +133,6 @@ class AtlasTeleop():
         left_step.pose.orientation.w = 1
         steps.append(left_step)
         
-        '''
-        right_step = AtlasBehaviorStepData()
-        right_step.step_index = 2
-        right_step.foot_index = 1
-        right_step.duration = 0.63
-        right_step.pose.position.x = 0
-        right_step.pose.position.y = -0.1
-        right_step.pose.position.z = 0.1
-
-        right_step.pose.orientation.w = 1
-        steps.append(right_step)
-        '''
-        
         walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
         self.client.send_goal(walk_goal)
         
@@ -149,7 +145,7 @@ class AtlasTeleop():
         rospy.sleep(1)
     
     def twist(self, forward, lateral, turn):
-        self.print_string("Walking " + str(self.params["sequence_length"]["value"]) + " steps")
+        self.loginfo("Walking " + str(self.params["sequence_length"]["value"]) + " steps")
         steps = []
         
         L = self.params["stride_length"]["value"]
@@ -161,7 +157,7 @@ class AtlasTeleop():
         dTheta = 0
         
         if forward != 0:
-            dTheta = turn * 2 * math.asin(L / (2 * R))
+            dTheta = turn * 2 * math.asin(L / (2 * (R + self.params["stride_width"]["value"]/2)))
         else:
             dTheta = turn * self.params["in_place_turn_size"]["value"]
         steps = []
@@ -169,18 +165,25 @@ class AtlasTeleop():
         home_step.foot_index = 1
         home_step.pose.position.y = 0.1
         steps.append(home_step)
+        prevX = 0
+        prevY = 0
         
         for i in range(self.params["sequence_length"]["value"]):
-            theta += (turn != 0) * (i) * dTheta
+            theta += (turn != 0) * dTheta
             # left = 1, right = -1
             foot = 1 - 2 * (i % 2)
             
+            #radius from point to foot (if turning)
+            R_foot = R + foot * W/2
             if turn == 0:
                 X = (forward != 0) * (X + forward * L)
                 Y = (lateral != 0) * (Y + lateral * L) - foot * W / 2
             else:
-                X = forward * turn * R * math.sin(theta) - foot * W / 2 * math.sin(theta)
-                Y = forward * turn * (R - R * math.cos(theta)) + foot * W / 2 * math.cos(theta)
+                self.debuginfo("R: " + str(R) + " R_foot:" + str(R_foot) + " theta: " + str(theta) + " math.sin(theta): " + str(math.sin(theta)) + " math.cos(theta) + " + str(math.cos(theta)))
+                
+                #turn > 0 for counter clockwise
+                X = forward * turn * R_foot * math.sin(theta)
+                Y = forward * turn * (R - R_foot*math.cos(theta))
             
             Q = quaternion_from_euler(0, 0, theta)
             step = AtlasBehaviorStepData()
@@ -195,7 +198,8 @@ class AtlasTeleop():
             step.pose.orientation.z = Q[2]
             step.pose.orientation.w = Q[3]
             step.swing_height = self.params["swing_height"]["value"]
-            self.print_string("foot: " + str(step.foot_index) + " [" + str(step.pose.position.x) + ", " + str(step.pose.position.y) + ", " + str(theta) + "]")            
+
+            self.debuginfo("foot: " + str(step.foot_index) + " [" + str(step.pose.position.x) + ", " + str(step.pose.position.y) + ", " + str(theta) + "]")            
             steps.append(step)
         
         # Add final step to bring feet together
@@ -216,7 +220,7 @@ class AtlasTeleop():
         step.pose.orientation.z = Q[2]
         step.pose.orientation.w = Q[3]
         step.swing_height = self.params["swing_height"]["value"]
-        self.print_string("foot: " + str(step.foot_index) + " [" + str(step.pose.position.x) + ", " + str(step.pose.position.y) + ", " + str(theta) + "]")               
+        self.debuginfo("foot: " + str(step.foot_index) + " [" + str(step.pose.position.x) + ", " + str(step.pose.position.y) + ", " + str(theta) + "]")               
         steps.append(step)
 
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
@@ -277,9 +281,14 @@ class AtlasTeleop():
         self.edit_params()
         
         
-    def print_string(self, str):
+    def loginfo(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
-        print(str)
+        rospy.loginfo(str)
+        tty.setraw(sys.stdin.fileno())
+    
+    def debuginfo(self, str):
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
+        rospy.logdebug(str)
         tty.setraw(sys.stdin.fileno())
     
     def process_key(self, ch):
@@ -296,7 +305,7 @@ class AtlasTeleop():
         try:
             if (int(ch) >= self.params["sequence_length"]["min"] and int(ch) <= self.params["sequence_length"]["max"]):
                 self.params["sequence_length"]["value"] = int(ch)
-                self.print_string("sequence_length: " + str(self.params["sequence_length"]["value"]))
+                self.loginfo("sequence_length: " + str(self.params["sequence_length"]["value"]))
         except ValueError:
             pass
             
