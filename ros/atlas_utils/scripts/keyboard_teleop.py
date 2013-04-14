@@ -104,31 +104,42 @@ class AtlasTeleop():
         rospy.sleep(0.3)
         self.control_mode.publish("Stand")
         
-        '''
-        rospy.sleep(10)
+        
+        rospy.sleep(1)
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                
         steps = []
+        home_step = AtlasBehaviorStepData()
+        home_step.foot_index = 1
+        home_step.pose.position.y = 0.1
+        steps.append(home_step)
+        
         left_step = AtlasBehaviorStepData()
         left_step.step_index = 0
         left_step.foot_index = 0
         left_step.duration = 0.63
         left_step.pose.position.x = 0.01
         left_step.pose.position.y = 0.1
+        left_step.pose.position.z = 0.1
         left_step.pose.orientation.w = 1
-        
         steps.append(left_step)
+        
         right_step = AtlasBehaviorStepData()
         right_step.step_index = 1
         right_step.foot_index = 1
         right_step.duration = 0.63
         right_step.pose.position.x = 0
         right_step.pose.position.y = -0.1
+        right_step.pose.position.z = 0.1
+
         right_step.pose.orientation.w = 1
         steps.append(right_step)
         walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
         self.client.send_goal(walk_goal)
-        '''
+        
+        rospy.sleep(3)
+        self.client.send_goal(walk_goal)
+        
     
     def stand(self):
         self.control_mode.publish("Stand")
@@ -157,7 +168,7 @@ class AtlasTeleop():
         steps.append(home_step)
         
         for i in range(self.params["sequence_length"]["value"]):
-            theta += (turn != 0) * (i ) * dTheta
+            theta += (turn != 0) * (i %2) * dTheta
             # left = 1, right = -1
             foot = 1 - 2 * (i % 2)
             
