@@ -123,7 +123,7 @@ void ASIActionServer::ASIStateCB(
   else if (this->newGoal && this->executingGoal)
   {
     // robot's busy, but got new goal from user,
-    // we need to preempt last goal, and atart robot on new goal
+    // we need to preempt last goal, and start robot on new goal
     // put robot back to stand mode, and let controller take care of it.
     atlas_msgs::AtlasSimInterfaceCommand command;
     command.header = this->activeGoal.header;
@@ -243,7 +243,7 @@ void ASIActionServer::ASIStateCB(
           if (fb->walk_feedback.current_step_index >=
                 this->activeGoal.steps.size() - 1)
           {
-            ROS_INFO("Walk trajectory completed, switching to stand mdoe.");
+            ROS_INFO("Walk trajectory completed, switching to stand mode.");
             command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
             this->atlasCommandPublisher.publish(command);
             this->executingGoal = false;
@@ -325,6 +325,14 @@ void ASIActionServer::ActionServerCB()
   // When accepteNewGoal() is called, active goal (if any) is automatically
   // preempted.
   this->activeGoal = *this->actionServer->acceptNewGoal();
+  if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
+          this->activeGoal.steps.size() < 2)
+  {
+      ROS_ERROR("Walk goal must contain two or more steps");
+      this->executingGoal = false;
+      this->newGoal = false;
+      return;
+  }
 
   ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
                   " y: " << this->robotPosition.y <<
@@ -339,6 +347,7 @@ void ASIActionServer::ActionServerCB()
       // Create transform of this active goal step
       tf::Quaternion agQuat;
       tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQuat);
+      agQuat = agQuat.normalize();
       tf::Transform aGTransform(agQuat,
         tf::Vector3(this->activeGoal.steps[i].pose.position.x,
                     this->activeGoal.steps[i].pose.position.y,
@@ -385,6 +394,12 @@ void ASIActionServer::ActionServerCB()
                       this->activeGoal.steps[i].pose.position.x <<
                       " y: " << this->activeGoal.steps[i].pose.position.y <<
                       " z: " << this->activeGoal.steps[i].pose.position.z);
+  }
+
+  for (unsigned int i = this->activeGoal.steps.size();
+       i < NUM_REQUIRED_WALK_STEPS; ++i)
+  {
+      this->activeGoal.steps.push_back(this->activeGoal.steps[i-2]);
   }
 
   ROS_INFO("Received goal, executing");
