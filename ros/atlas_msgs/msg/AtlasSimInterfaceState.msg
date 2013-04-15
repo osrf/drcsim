@@ -33,7 +33,7 @@ float64[28] f_out                        # torque command from BDI controller.
 
 atlas_msgs/AtlasPositionData pos_est     # Position and velocity estimate of robot pelvis
 
-geometry_msgs/Pose[2] foot_pose_est      # World position estimate for feet
+geometry_msgs/Pose[2] foot_pos_est      # World position estimate for feet
                                          # 0 - left, 1 - right
 
 atlas_msgs/AtlasBehaviorFeedback behavior_feedback
