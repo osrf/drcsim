@@ -40,12 +40,15 @@ class AtlasTeleop():
                   ',': {"forward":-0.5, "lateral":0, "turn": 0}, \
                   '.': {"forward":0, "lateral":0, "turn":-0.5}}
     
-    params = {"stride_length":{ "value":0.15, "min":0, "max":1, "type":"float"},
+    params = {"stride_length":{ "value":0.15, "min":0, "max":1, \
+                                "type":"float"},
               "step_height":{"value":0, "min":-1, "max":1, "type":"float"},
-              "stride_duration":{ "value":0.63, "min": 0, "max":100, "type":"float"},
+              "stride_duration":{ "value":0.63, "min": 0, "max":100, \
+                                  "type":"float"},
               "sequence_length":{"value":5, "min":1, "max":100, "type":"int"},
               "stride_width":{"value":0.2, "min":0, "max":1, "type":"float"},
-              "in_place_turn_size":{"value":math.pi / 16, "min":0, "max":math.pi / 2, "type":"float"},
+              "in_place_turn_size":{"value":math.pi / 16, "min":0, \
+                                    "max":math.pi / 2, "type":"float"},
               "turn_radius":{"value":2, "min":0.01, "max":100, "type":"float"},
               "swing_height":{"value":0.3, "min":0, "max":1, "type":"float"}}
     
@@ -54,9 +57,12 @@ class AtlasTeleop():
         
         # Creates the SimpleActionClient, passing the type of the action
         # () to the constructor.
-        self.client = actionlib.SimpleActionClient('atlas/bdi_control', WalkDemoAction)
-        self.mode = rospy.Publisher('/atlas/mode', String, None, False, True, None)
-        self.control_mode = rospy.Publisher('/atlas/control_mode', String, None, False, True, None)
+        self.client = actionlib.SimpleActionClient('atlas/bdi_control', \
+          WalkDemoAction)
+        self.mode = rospy.Publisher('/atlas/mode', String, None, False, \
+          True, None)
+        self.control_mode = rospy.Publisher('/atlas/control_mode', \
+          String, None, False, True, None)
     
         # Waits until the action server has started up and started
         # listening for goals.
@@ -112,40 +118,43 @@ class AtlasTeleop():
         self.mode.publish("nominal")
         rospy.sleep(0.3)
         self.control_mode.publish("Stand")
-        
-        
-        rospy.sleep(1)
-        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
-               
-        steps = []
-        home_step = AtlasBehaviorStepData()
-        home_step.foot_index = 1
-        home_step.pose.position.y = 0.1
-        steps.append(home_step)
-        
-        left_step = AtlasBehaviorStepData()
-        left_step.step_index = 1
-        left_step.foot_index = 0
-        left_step.duration = 0.63
-        left_step.pose.position.x = 0.01
-        left_step.pose.position.y = 0.15
-        left_step.pose.position.z = 0.1
-        left_step.pose.orientation.w = 1
-        steps.append(left_step)
-        
-        walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
-        self.client.send_goal(walk_goal)
-        
-        rospy.sleep(3)
-        self.client.send_goal(walk_goal)
-        
-    
+
+        # debug
+        # rospy.sleep(1)
+        # k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
+        #               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+        #        
+        # steps = []
+        # home_step = AtlasBehaviorStepData()
+        # home_step.foot_index = 1
+        # home_step.pose.position.y = 0.1
+        # steps.append(home_step)
+        # 
+        # left_step = AtlasBehaviorStepData()
+        # left_step.step_index = 1
+        # left_step.foot_index = 0
+        # left_step.duration = 0.63
+        # left_step.pose.position.x = 0.01
+        # left_step.pose.position.y = 0.15
+        # left_step.pose.position.z = 0.1
+        # left_step.pose.orientation.w = 1
+        # steps.append(left_step)
+        # 
+        # walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, \
+        #             AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), \
+        #             AtlasBehaviorManipulateParams(),  k_effort )
+        # self.client.send_goal(walk_goal)
+        # 
+        # rospy.sleep(3)
+        # self.client.send_goal(walk_goal)
+
     def stand(self):
         self.control_mode.publish("Stand")
         rospy.sleep(1)
     
     def twist(self, forward, lateral, turn):
-        self.loginfo("Walking " + str(self.params["sequence_length"]["value"]) + " steps")
+        self.loginfo("Walking " + \
+        str(self.params["sequence_length"]["value"]) + " steps")
         steps = []
         
         L = self.params["stride_length"]["value"]
@@ -157,7 +166,8 @@ class AtlasTeleop():
         dTheta = 0
         
         if forward != 0:
-            dTheta = turn * 2 * math.asin(L / (2 * (R + self.params["stride_width"]["value"]/2)))
+            dTheta = turn * 2 * math.asin(L / (2 * (R + \
+            self.params["stride_width"]["value"]/2)))
         else:
             dTheta = turn * self.params["in_place_turn_size"]["value"]
         steps = []
@@ -179,7 +189,10 @@ class AtlasTeleop():
                 X = (forward != 0) * (X + forward * L)
                 Y = (lateral != 0) * (Y + lateral * L) - foot * W / 2
             else:
-                self.debuginfo("R: " + str(R) + " R_foot:" + str(R_foot) + " theta: " + str(theta) + " math.sin(theta): " + str(math.sin(theta)) + " math.cos(theta) + " + str(math.cos(theta)))
+                self.debuginfo("R: " + str(R) + " R_foot:" + \
+                str(R_foot) + " theta: " + str(theta) +  \
+               " math.sin(theta): " + str(math.sin(theta)) + \
+               " math.cos(theta) + " + str(math.cos(theta)))
                 
                 #turn > 0 for counter clockwise
                 X = forward * turn * R_foot * math.sin(theta)
@@ -199,7 +212,9 @@ class AtlasTeleop():
             step.pose.orientation.w = Q[3]
             step.swing_height = self.params["swing_height"]["value"]
 
-            self.debuginfo("foot: " + str(step.foot_index) + " [" + str(step.pose.position.x) + ", " + str(step.pose.position.y) + ", " + str(theta) + "]")            
+            self.debuginfo("foot: " + str(step.foot_index) + " [" + \
+              str(step.pose.position.x) + ", " + \
+              str(step.pose.position.y) + ", " + str(theta) + "]")            
             steps.append(step)
         
         # Add final step to bring feet together
@@ -220,15 +235,21 @@ class AtlasTeleop():
         step.pose.orientation.z = Q[2]
         step.pose.orientation.w = Q[3]
         step.swing_height = self.params["swing_height"]["value"]
-        self.debuginfo("foot: " + str(step.foot_index) + " [" + str(step.pose.position.x) + ", " + str(step.pose.position.y) + ", " + str(theta) + "]")               
+        self.debuginfo("foot: " + str(step.foot_index) + \
+          " [" + str(step.pose.position.x) + \
+          ", " + str(step.pose.position.y) + ", " + str(theta) + "]")               
         steps.append(step)
 
-        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                
-        walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), AtlasBehaviorManipulateParams(),  k_effort )
+        walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, \
+          AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), \
+          AtlasBehaviorManipulateParams(),  k_effort )
         
         self.client.send_goal(walk_goal)
-        #self.client.wait_for_result(rospy.Duration(2 * step.duration * len(steps)))
+        #self.client.wait_for_result(rospy.Duration(2 * \
+        #  step.duration * len(steps)))
     
     def process_movement(self, ch):
         dir = self.directions[ch]       
@@ -244,7 +265,8 @@ class AtlasTeleop():
                 maxLength = len(key)
         for i in range(len(self.params)):
             param_name = self.params.keys()[i]
-            print(str(i) + " : " + param_name.ljust(maxLength + 1) + str(self.params[param_name]["value"]))
+            print(str(i) + " : " + param_name.ljust(maxLength + 1) + \
+              str(self.params[param_name]["value"]))
         print("X : Exit")
         hasNumber = False
         selection = -1
@@ -273,7 +295,8 @@ class AtlasTeleop():
                     value = float(var)
                 elif (self.params[param]["type"] is "int"):
                     value = int(var)
-                valid = (value >= self.params[param]["min"] and value <= self.params[param]["max"])
+                valid = (value >= self.params[param]["min"] and \
+                         value <= self.params[param]["max"])
             except ValueError:
                 valid = False
         
@@ -303,9 +326,11 @@ class AtlasTeleop():
         elif ch == 'q' or ch == 'Q':
             rospy.signal_shutdown("Shutdown")
         try:
-            if (int(ch) >= self.params["sequence_length"]["min"] and int(ch) <= self.params["sequence_length"]["max"]):
+            if (int(ch) >= self.params["sequence_length"]["min"] and \
+                int(ch) <= self.params["sequence_length"]["max"]):
                 self.params["sequence_length"]["value"] = int(ch)
-                self.loginfo("sequence_length: " + str(self.params["sequence_length"]["value"]))
+                self.loginfo("sequence_length: " + \
+                  str(self.params["sequence_length"]["value"]))
         except ValueError:
             pass
             

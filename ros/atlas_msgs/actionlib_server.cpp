@@ -244,8 +244,8 @@ void ASIActionServer::ASIStateCB(
                 this->activeGoal.steps.size() - 1)
           {
             ROS_INFO("Walk trajectory completed, switching to stand mode.");
-            command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
-            this->atlasCommandPublisher.publish(command);
+            // command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+            // this->atlasCommandPublisher.publish(command);
             this->executingGoal = false;
             return;
           }
@@ -345,10 +345,9 @@ void ASIActionServer::ActionServerCB()
                                       this->robotPosition.z);
 
       // Create transform of this active goal step
-      tf::Quaternion agQuat;
-      tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQuat);
-      agQuat = agQuat.normalize();
-      tf::Transform aGTransform(agQuat,
+      tf::Quaternion agQ;
+      tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQ);
+      tf::Transform aGTransform(agQ.normalize(),
         tf::Vector3(this->activeGoal.steps[i].pose.position.x,
                     this->activeGoal.steps[i].pose.position.y,
                     this->activeGoal.steps[i].pose.position.z));
@@ -378,17 +377,17 @@ void ASIActionServer::ActionServerCB()
       this->activeGoal.steps[i].pose.position.z = transformMsg.translation.z;
       this->currentStepIndex = 0;
 
-      std::cout << "  building stepId : " << i
-        << "  traj id [" << this->currentStepIndex + i
-        << "] step_index["
-        << this->activeGoal.steps[i].step_index
-        << "]  isRight["
-        << this->activeGoal.steps[i].foot_index
-        << "]  pos ["
-        << this->activeGoal.steps[i].pose.position.x
-        << ", "
-        << this->activeGoal.steps[i].pose.position.y
-        << "]\n";
+      // std::cout << "  building stepId : " << i
+      //   << "  traj id [" << this->currentStepIndex + i
+      //   << "] step_index["
+      //   << this->activeGoal.steps[i].step_index
+      //   << "]  isRight["
+      //   << this->activeGoal.steps[i].foot_index
+      //   << "]  pos ["
+      //   << this->activeGoal.steps[i].pose.position.x
+      //   << ", "
+      //   << this->activeGoal.steps[i].pose.position.y
+      //   << "]\n";
 
       ROS_INFO_STREAM("Step: " << i << " location- x: " <<
                       this->activeGoal.steps[i].pose.position.x <<
