@@ -43,6 +43,7 @@ class ASIActionServer
   public: void BDIStateCallback(
     const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
 
+  /// \brief Subscriber to AtlasState topic
   private: void atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg);
 
   /// \brief action server callback
@@ -52,7 +53,10 @@ class ASIActionServer
   private: void ASIStateCB(
       const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
 
+  /// \brief Current robot position, pulled from ASIStateCB
   private: geometry_msgs::Vector3 robotPosition;
+
+  /// \brief Orientation of the robot, pulled from AtlasState's IMU
   private: tf::Quaternion robotOrientation;
 
   /// \brief lock while updating control modes
@@ -93,5 +97,7 @@ class ASIActionServer
   /// \brief used to determine if a new goal exists, during which conflicting
   /// information is relayed through atlas_sim_interface_state
   private: bool newGoal;
+
+  /// \brief Keeps track of the current step in process when walking
   private: unsigned int currentStepIndex;
 };

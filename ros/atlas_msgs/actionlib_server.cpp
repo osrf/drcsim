@@ -168,7 +168,7 @@ void ASIActionServer::ASIStateCB(
           {
             command.walk_params.step_data[i] =
               this->activeGoal.steps[this->currentStepIndex + i];
-              std::cout << "  building stepId : " << i
+              ROS_DEBUG_STREAM("  building stepId : " << i
                 << "  traj id [" << this->currentStepIndex + i
                 << "] step_index["
                 << command.walk_params.step_data[i].step_index
@@ -178,7 +178,7 @@ void ASIActionServer::ASIStateCB(
                 << command.walk_params.step_data[i].pose.position.x
                 << ", "
                 << command.walk_params.step_data[i].pose.position.y
-                << "]\n";
+                << "]\n");
           }
           // publish new set of commands
           this->atlasCommandPublisher.publish(command);
@@ -258,7 +258,7 @@ void ASIActionServer::ASIStateCB(
             {
               command.walk_params.step_data[i] =
                 this->activeGoal.steps[this->currentStepIndex + i];
-                std::cout << "  building stepId : " << i
+                ROS_DEBUG_STREAM("  building stepId : " << i
                   << "  traj id [" << this->currentStepIndex + i
                   << "] step_index["
                   << command.walk_params.step_data[i].step_index
@@ -268,7 +268,7 @@ void ASIActionServer::ASIStateCB(
                   << command.walk_params.step_data[i].pose.position.x
                   << ", "
                   << command.walk_params.step_data[i].pose.position.y
-                  << "]\n";
+                  << "]\n");
             }
             // publish new set of commands
             this->atlasCommandPublisher.publish(command);
@@ -361,7 +361,7 @@ void ASIActionServer::ActionServerCB()
       // Transform the active goal step to world pose.
       tf::Transform newTransform = transform * aGTransform;
 
-      ROS_INFO_STREAM("Before xform. Step: " << i << " location- x: " <<
+      ROS_DEBUG_STREAM("Before xform. Step: " << i << " location- x: " <<
                       this->activeGoal.steps[i].pose.position.x <<
                       " y: " << this->activeGoal.steps[i].pose.position.y <<
                       " z: " << this->activeGoal.steps[i].pose.position.z);
@@ -389,7 +389,7 @@ void ASIActionServer::ActionServerCB()
       //   << this->activeGoal.steps[i].pose.position.y
       //   << "]\n";
 
-      ROS_INFO_STREAM("Step: " << i << " location- x: " <<
+      ROS_DEBUG_STREAM("Step: " << i << " location- x: " <<
                       this->activeGoal.steps[i].pose.position.x <<
                       " y: " << this->activeGoal.steps[i].pose.position.y <<
                       " z: " << this->activeGoal.steps[i].pose.position.z);
@@ -398,7 +398,7 @@ void ASIActionServer::ActionServerCB()
   for (unsigned int i = this->activeGoal.steps.size();
        i < NUM_REQUIRED_WALK_STEPS; ++i)
   {
-      // ocpy setp, but hijack step_index
+      // copy setup, but hijack step_index
       atlas_msgs::AtlasBehaviorStepData repeatStep;
       repeatStep.step_index = i;
       repeatStep.foot_index = this->activeGoal.steps[i-2].foot_index;
