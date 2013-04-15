@@ -12,9 +12,8 @@ from std_msgs.msg import Header
 
 from geometry_msgs.msg import Pose
 from std_msgs.msg import String
-from tf.transformations import quaternion_from_euler, euler_from_quaternion
+from tf.transformations import quaternion_from_euler
 import actionlib
-import copy
 import math
 import rospy
 import select
@@ -24,6 +23,7 @@ import tty
 
 class AtlasTeleop():
     
+    # Keyboard teleop bindings
     directions = {'u': {"forward":1, "lateral":0, "turn": 1}, \
                   'U': {"forward":1, "lateral":0, "turn": 1}, \
                   'i': {"forward":1, "lateral":0, "turn": 0}, \
@@ -40,6 +40,7 @@ class AtlasTeleop():
                   ',': {"forward":-0.5, "lateral":0, "turn": 0}, \
                   '.': {"forward":0, "lateral":0, "turn":-0.5}}
     
+    # BDI Controller bindings
     params = {"stride_length":{ "value":0.15, "min":0, "max":1, \
                                 "type":"float"},
               "step_height":{"value":0, "min":-1, "max":1, "type":"float"},
@@ -53,6 +54,7 @@ class AtlasTeleop():
               "swing_height":{"value":0.3, "min":0, "max":1, "type":"float"}}
     
     def init(self):
+        # Saves terminal settings
         self.settings = termios.tcgetattr(sys.stdin)
         
         # Creates the SimpleActionClient, passing the type of the action
@@ -70,6 +72,7 @@ class AtlasTeleop():
         self.client.wait_for_server()
 
     def fini(self):
+        # Restore terminal settings
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         
     def run(self):
@@ -102,14 +105,10 @@ class AtlasTeleop():
         E: View and Edit Parameters
         R: Reset robot to standing pose
         Q: Quit
-        
-        This walking controller is not stable. When you reset the robot,
-        take several single steps with a stride_length of 0, then a
-        trajectory of 3-5 steps to ensure the robot's internal state 
-        matches it's actual state. 
         """
         self.loginfo(msg)      
         
+    # Publishes commands to reset robot to a standing position
     def reset_to_standing(self):
         self.mode.publish("harnessed")
         self.control_mode.publish("Freeze")
@@ -119,39 +118,10 @@ class AtlasTeleop():
         rospy.sleep(0.3)
         self.control_mode.publish("Stand")
 
-        # debug
-        # rospy.sleep(1)
-        # k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
-        #               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
-        #        
-        # steps = []
-        # home_step = AtlasBehaviorStepData()
-        # home_step.foot_index = 1
-        # home_step.pose.position.y = 0.1
-        # steps.append(home_step)
-        # 
-        # left_step = AtlasBehaviorStepData()
-        # left_step.step_index = 1
-        # left_step.foot_index = 0
-        # left_step.duration = 0.63
-        # left_step.pose.position.x = 0.01
-        # left_step.pose.position.y = 0.15
-        # left_step.pose.position.z = 0.1
-        # left_step.pose.orientation.w = 1
-        # steps.append(left_step)
-        # 
-        # walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.WALK, steps, \
-        #             AtlasBehaviorStepParams(), AtlasBehaviorStandParams(), \
-        #             AtlasBehaviorManipulateParams(),  k_effort )
-        # self.client.send_goal(walk_goal)
-        # 
-        # rospy.sleep(3)
-        # self.client.send_goal(walk_goal)
-
-    def stand(self):
-        self.control_mode.publish("Stand")
-        rospy.sleep(1)
-    
+    # Builds a trajectory of step commands. 
+    # Param forward: 1 forward, -1 backward or 0 if no forward component
+    # Param lateral: 1 left, -1 right, 0 if no lateral component
+    # Param turn: 1 Counter clockwise turn, -1 clockwise turn    
     def twist(self, forward, lateral, turn):
         self.loginfo("Walking " + \
         str(self.params["sequence_length"]["value"]) + " steps")
@@ -171,6 +141,9 @@ class AtlasTeleop():
         else:
             dTheta = turn * self.params["in_place_turn_size"]["value"]
         steps = []
+        
+        # This home step doesn't currently do anything, but it's a 
+        # response to bdi not visiting the first step in a trajectory
         home_step = AtlasBehaviorStepData()
         home_step.foot_index = 1
         home_step.pose.position.y = 0.1
@@ -178,13 +151,14 @@ class AtlasTeleop():
         prevX = 0
         prevY = 0
         
+        # Builds the sequence of steps needed
         for i in range(self.params["sequence_length"]["value"]):
+            
             theta += (turn != 0) * dTheta
             # left = 1, right = -1
             foot = 1 - 2 * (i % 2)
             
-            #radius from point to foot (if turning)
-            R_foot = R + foot * W/2
+            
             if turn == 0:
                 X = (forward != 0) * (X + forward * L)
                 Y = (lateral != 0) * (Y + lateral * L) - foot * W / 2
@@ -194,7 +168,10 @@ class AtlasTeleop():
                " math.sin(theta): " + str(math.sin(theta)) + \
                " math.cos(theta) + " + str(math.cos(theta)))
                 
-                #turn > 0 for counter clockwise
+                # Radius from point to foot (if turning)
+                R_foot = R + foot * W/2
+                
+                # turn > 0 for CCW, turn < 0 for CW
                 X = forward * turn * R_foot * math.sin(theta)
                 Y = forward * turn * (R - R_foot*math.cos(theta))
             elif turn != 0:
@@ -203,16 +180,23 @@ class AtlasTeleop():
             
             Q = quaternion_from_euler(0, 0, theta)
             step = AtlasBehaviorStepData()
+            
+            # One step already exists, so add one to index
             step.step_index = i+1
+            
+            # Alternate between feet, start with left
             step.foot_index = i % 2
             step.duration = self.params["stride_duration"]["value"]
+            
             step.pose.position.x = X
             step.pose.position.y = Y
             step.pose.position.z = self.params["step_height"]["value"]
+         
             step.pose.orientation.x = Q[0]
             step.pose.orientation.y = Q[1]
             step.pose.orientation.z = Q[2]
             step.pose.orientation.w = Q[3]
+            
             step.swing_height = self.params["swing_height"]["value"]
 
             self.debuginfo("foot: " + str(step.foot_index) + " [" + \
@@ -221,9 +205,10 @@ class AtlasTeleop():
             steps.append(step)
         
         # Add final step to bring feet together
-        # left = 1, right = -1
+        # foot = 1 for left, foot = -1 for right
         foot = 1 - 2 * (1 - steps[-1].foot_index)
-        R_foot = R + foot * W/2
+        
+        
         if turn == 0:
             Y = (lateral != 0) * (Y + lateral * L/2) - foot * W / 2
         elif forward != 0:
@@ -232,6 +217,8 @@ class AtlasTeleop():
            " math.sin(theta): " + str(math.sin(theta)) + \
            " math.cos(theta) + " + str(math.cos(theta)))
             
+            # R_foot is radius to foot
+            R_foot = R + foot * W/2
             #turn > 0 for counter clockwise
             X = forward * turn * R_foot * math.sin(theta)
             Y = forward * turn * (R - R_foot*math.cos(theta))
@@ -257,6 +244,7 @@ class AtlasTeleop():
           ", " + str(step.pose.position.y) + ", " + str(theta) + "]")               
         steps.append(step)
 
+        # 0 for full BDI control, 255 for PID control
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                
@@ -265,17 +253,19 @@ class AtlasTeleop():
           AtlasBehaviorManipulateParams(),  k_effort )
         
         self.client.send_goal(walk_goal)
-        #self.client.wait_for_result(rospy.Duration(2 * \
-        #  step.duration * len(steps)))
-    
+
+    # Select binding values and call twist
     def process_movement(self, ch):
         dir = self.directions[ch]       
         self.twist(dir["forward"], dir["lateral"], dir["turn"])
     
+    # Puts teleop into edit param mode
     def edit_params(self):
+        # Reset terminal to normal settings so you can see input
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         print("")
         
+        # Find the longest param, and use that to justify strings
         maxLength = -1
         for key in self.params.keys():
             if len(key) > maxLength:
@@ -288,6 +278,7 @@ class AtlasTeleop():
         hasNumber = False
         selection = -1
         
+        # Get the input, and check if it's valid
         while selection < 0 or selection >= len(self.params):
             var = raw_input("Enter number of param you want to change: ")
             
@@ -302,6 +293,9 @@ class AtlasTeleop():
         param = self.params.keys()[selection]
         value = 0
         valid = False
+        
+        # Keep asking for input while the value is not valid, or it is outside 
+        # of the acceptable range
         while not valid:
             var = raw_input("New value for " + param + " [min: " +
             str(self.params[param]["min"]) + ", max: " +
@@ -320,17 +314,19 @@ class AtlasTeleop():
         self.params[param]["value"] = value
         self.edit_params()
         
-        
+    # Used to print items to screen, while terminal is in funky mode
     def loginfo(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         rospy.loginfo(str)
         tty.setraw(sys.stdin.fileno())
     
+    # Used to print debug items to screen while terminal is funky
     def debuginfo(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         rospy.logdebug(str)
         tty.setraw(sys.stdin.fileno())
     
+    # For everything that can't be a binding, use if/elif instead
     def process_key(self, ch):
         if self.directions.has_key(ch):
             self.process_movement(ch)
@@ -350,7 +346,8 @@ class AtlasTeleop():
                   str(self.params["sequence_length"]["value"]))
         except ValueError:
             pass
-            
+    
+    # Get input from the terminal
     def get_key(self):
         tty.setraw(sys.stdin.fileno())
         select.select([sys.stdin], [], [], 0)
