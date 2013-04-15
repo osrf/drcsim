@@ -50,54 +50,54 @@ void ASIActionServer::ASIStateCB(
   switch (fb->status_flags)
   {
     case ABFeedback::STATUS_OK:
-      ROS_DEBUG("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_OK]");
       break;
     case ABFeedback::STATUS_TRANSITION_IN_PROGRESS:
-      ROS_DEBUG("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_TRANSITION_IN_PROGRESS]");
       break;
     case ABFeedback::STATUS_TRANSITION_SUCCESS:
-      ROS_DEBUG("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_TRANSITION_SUCCESS]");
       break;
     case ABFeedback::STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR]");
       this->executingGoal = false;
       return;
     case ABFeedback::STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR]");
       this->executingGoal = false;
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_POS:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_COM_POS]");
       this->executingGoal = false;
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_VEL:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_COM_VEL]");
       this->executingGoal = false;
       return;
     case ABFeedback::STATUS_FAILED_TRANS_VEL:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_VEL]");
       this->executingGoal = false;
       return;
     case ABFeedback::STATUS_WARNING_AUTO_TRANS:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_WARNING_AUTO_TRANS]");
       this->executingGoal = false;
       return;
     case ABFeedback::STATUS_ERROR_FALLING:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_ERROR_FALLING]");
       this->executingGoal = false;
       return;
     default:
-      ROS_ERROR("AcitonServer: AtlasBehaviorFeedback error: ["
+      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "undocumented error state]");
       this->executingGoal = false;
       return;

@@ -323,7 +323,8 @@ class AtlasTeleop():
         
     def loginfo(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
-        rospy.loginfo(str)
+        #rospy.loginfo(str)
+        print(str)
         tty.setraw(sys.stdin.fileno())
     
     def debuginfo(self, str):
@@ -341,6 +342,7 @@ class AtlasTeleop():
         elif ch == 'h' or ch == 'H':
             self.print_usage()
         elif ch == 'q' or ch == 'Q':
+            self.loginfo("Quitting")
             rospy.signal_shutdown("Shutdown")
         try:
             if (int(ch) >= self.params["sequence_length"]["min"] and \
