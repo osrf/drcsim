@@ -332,7 +332,8 @@ class AtlasTeleop():
     # Used to print items to screen, while terminal is in funky mode
     def loginfo(self, str):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
-        rospy.loginfo(str)
+        #rospy.loginfo(str)
+        print(str)
         tty.setraw(sys.stdin.fileno())
     
     # Used to print debug items to screen while terminal is funky
@@ -352,6 +353,7 @@ class AtlasTeleop():
         elif ch == 'h' or ch == 'H':
             self.print_usage()
         elif ch == 'q' or ch == 'Q':
+            self.loginfo("Quitting")
             rospy.signal_shutdown("Shutdown")
         try:
             if (int(ch) >= self.params["Walk Sequence Length"]["min"] and \
