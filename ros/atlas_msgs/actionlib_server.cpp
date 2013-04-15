@@ -345,10 +345,9 @@ void ASIActionServer::ActionServerCB()
                                       this->robotPosition.z);
 
       // Create transform of this active goal step
-      tf::Quaternion agQuat;
-      tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQuat);
-      agQuat = agQuat.normalize();
-      tf::Transform aGTransform(agQuat,
+      tf::Quaternion agQ;
+      tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQ);
+      tf::Transform aGTransform(agQ.normalize(),
         tf::Vector3(this->activeGoal.steps[i].pose.position.x,
                     this->activeGoal.steps[i].pose.position.y,
                     this->activeGoal.steps[i].pose.position.z));
@@ -378,17 +377,17 @@ void ASIActionServer::ActionServerCB()
       this->activeGoal.steps[i].pose.position.z = transformMsg.translation.z;
       this->currentStepIndex = 0;
 
-      std::cout << "  building stepId : " << i
-        << "  traj id [" << this->currentStepIndex + i
-        << "] step_index["
-        << this->activeGoal.steps[i].step_index
-        << "]  isRight["
-        << this->activeGoal.steps[i].foot_index
-        << "]  pos ["
-        << this->activeGoal.steps[i].pose.position.x
-        << ", "
-        << this->activeGoal.steps[i].pose.position.y
-        << "]\n";
+      // std::cout << "  building stepId : " << i
+      //   << "  traj id [" << this->currentStepIndex + i
+      //   << "] step_index["
+      //   << this->activeGoal.steps[i].step_index
+      //   << "]  isRight["
+      //   << this->activeGoal.steps[i].foot_index
+      //   << "]  pos ["
+      //   << this->activeGoal.steps[i].pose.position.x
+      //   << ", "
+      //   << this->activeGoal.steps[i].pose.position.y
+      //   << "]\n";
 
       ROS_INFO_STREAM("Step: " << i << " location- x: " <<
                       this->activeGoal.steps[i].pose.position.x <<
@@ -399,7 +398,14 @@ void ASIActionServer::ActionServerCB()
   for (unsigned int i = this->activeGoal.steps.size();
        i < NUM_REQUIRED_WALK_STEPS; ++i)
   {
-      this->activeGoal.steps.push_back(this->activeGoal.steps[i-2]);
+      // ocpy setp, but hijack step_index
+      atlas_msgs::AtlasBehaviorStepData repeatStep;
+      repeatStep.step_index = i;
+      repeatStep.foot_index = this->activeGoal.steps[i-2].foot_index;
+      repeatStep.duration = this->activeGoal.steps[i-2].duration;
+      repeatStep.pose = this->activeGoal.steps[i-2].pose;
+      repeatStep.swing_height = this->activeGoal.steps[i-2].swing_height;
+      this->activeGoal.steps.push_back(repeatStep);
   }
 
   ROS_INFO("Received goal, executing");
