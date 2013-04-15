@@ -188,7 +188,7 @@ class AtlasTeleop():
             Q = quaternion_from_euler(0, 0, theta)
             step = AtlasBehaviorStepData()
             step.step_index = i+1
-            step.foot_index = (i+1) % 2
+            step.foot_index = i % 2
             step.duration = self.params["stride_duration"]["value"]
             step.pose.position.x = X
             step.pose.position.y = Y
@@ -205,8 +205,10 @@ class AtlasTeleop():
         # Add final step to bring feet together
         # left = 1, right = -1
         foot = 1 - 2 * (1 - steps[-1].foot_index)
-        X = X + foot * W * math.sin(theta)
-        Y = Y + foot * W * math.cos(theta)
+        R_foot = R + foot * W/2
+        if turn != 0:
+            X = X + foot * W * math.sin(theta)
+            Y = Y + foot * W * math.cos(theta)
         Q = quaternion_from_euler(0, 0, theta)
         step = AtlasBehaviorStepData()
         step.step_index = len(steps)
