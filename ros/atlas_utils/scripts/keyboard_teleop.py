@@ -217,7 +217,6 @@ class AtlasTeleop():
             steps.append(step)
         
         # Add final step to bring feet together
-        self.loginfo("prev step  " + str(steps[len(steps)-1].foot_index))       
         is_right_foot = 1 - steps[-1].foot_index
         is_even = is_right_foot
         # foot = 1 for left, foot = -1 for right
@@ -254,7 +253,6 @@ class AtlasTeleop():
         step.pose.orientation.w = Q[3]
         step.swing_height = self.params["Swing Height"]["value"]
         
-        self.loginfo("[foot: " + str(is_right_foot) + ", " + str(X) + ", " + str(Y) + "]")            
         steps.append(step)
 
         # 0 for full BDI control, 255 for PID control
@@ -267,7 +265,7 @@ class AtlasTeleop():
         
         self.client.send_goal(walk_goal)
         for step in steps:
-            self.loginfo("foot: " + str(step.foot_index) + \
+            self.debuginfo("foot: " + str(step.foot_index) + \
               " [" + str(step.pose.position.x) + \
               ", " + str(step.pose.position.y) + ", " + str(theta) + "]")   
 
