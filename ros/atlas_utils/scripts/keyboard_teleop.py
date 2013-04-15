@@ -172,7 +172,7 @@ class AtlasTeleop():
             dTheta = turn * self.params["in_place_turn_size"]["value"]
         steps = []
         home_step = AtlasBehaviorStepData()
-        home_step.foot_index = 1
+        home_step.foot_index = 0
         home_step.pose.position.y = 0.1
         steps.append(home_step)
         prevX = 0
@@ -224,7 +224,7 @@ class AtlasTeleop():
         Y = Y + foot * W * math.cos(theta)
         Q = quaternion_from_euler(0, 0, theta)
         step = AtlasBehaviorStepData()
-        step.step_index = len(steps)+1
+        step.step_index = len(steps)
         step.foot_index = 1 - steps[-1].foot_index
         step.duration = self.params["stride_duration"]["value"]
         step.pose.position.x = X
