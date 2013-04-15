@@ -352,7 +352,7 @@ namespace gazebo
       geometry_msgs::Vector3 result;
       result.x = _vec3.n[0];
       result.y = _vec3.n[1];
-      result.y = _vec3.n[2];
+      result.z = _vec3.n[2];
       return result;
     }
 
