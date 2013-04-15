@@ -9,6 +9,8 @@ include (CheckDisplayCapabilities.cmake)
 
 if(VALID_DRI_DISPLAY)
     list(APPEND rostests 
+         atlas_arenas_logging.launch
+         atlas_arenas_start_testing.launch
          atlas_publishers_hz_gpu.test
          atlas_rosapi.test
          atlas_sandia_hands_rosapi.test
@@ -54,6 +56,7 @@ set(scripts
   ros_api_checker
   run_gzstats.sh
   run_pub_atlas_command.sh
+  run_recordmydesktop.sh
   run_rosbag.sh
   parse_logs.sh
   meanvar.py
