@@ -244,8 +244,8 @@ void ASIActionServer::ASIStateCB(
                 this->activeGoal.steps.size() - 1)
           {
             ROS_INFO("Walk trajectory completed, switching to stand mode.");
-            // command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
-            // this->atlasCommandPublisher.publish(command);
+            command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+            this->atlasCommandPublisher.publish(command);
             this->executingGoal = false;
             return;
           }
@@ -398,7 +398,14 @@ void ASIActionServer::ActionServerCB()
   for (unsigned int i = this->activeGoal.steps.size();
        i < NUM_REQUIRED_WALK_STEPS; ++i)
   {
-      this->activeGoal.steps.push_back(this->activeGoal.steps[i-2]);
+      // ocpy setp, but hijack step_index
+      atlas_msgs::AtlasBehaviorStepData repeatStep;
+      repeatStep.step_index = i;
+      repeatStep.foot_index = this->activeGoal.steps[i-2].foot_index;
+      repeatStep.duration = this->activeGoal.steps[i-2].duration;
+      repeatStep.pose = this->activeGoal.steps[i-2].pose;
+      repeatStep.swing_height = this->activeGoal.steps[i-2].swing_height;
+      this->activeGoal.steps.push_back(repeatStep);
   }
 
   ROS_INFO("Received goal, executing");
