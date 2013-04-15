@@ -172,7 +172,7 @@ class AtlasTeleop():
             dTheta = turn * self.params["in_place_turn_size"]["value"]
         steps = []
         home_step = AtlasBehaviorStepData()
-        home_step.foot_index = 0
+        home_step.foot_index = 1
         home_step.pose.position.y = 0.1
         steps.append(home_step)
         prevX = 0
@@ -188,7 +188,7 @@ class AtlasTeleop():
             if turn == 0:
                 X = (forward != 0) * (X + forward * L)
                 Y = (lateral != 0) * (Y + lateral * L) - foot * W / 2
-            else:
+            elif forward != 0:
                 self.debuginfo("R: " + str(R) + " R_foot:" + \
                 str(R_foot) + " theta: " + str(theta) +  \
                " math.sin(theta): " + str(math.sin(theta)) + \
@@ -197,6 +197,9 @@ class AtlasTeleop():
                 #turn > 0 for counter clockwise
                 X = forward * turn * R_foot * math.sin(theta)
                 Y = forward * turn * (R - R_foot*math.cos(theta))
+            elif turn != 0:
+                X = turn * W/2 * math.sin(theta)
+                Y = turn * W/2 * math.cos(theta)
             
             Q = quaternion_from_euler(0, 0, theta)
             step = AtlasBehaviorStepData()
@@ -221,9 +224,21 @@ class AtlasTeleop():
         # left = 1, right = -1
         foot = 1 - 2 * (1 - steps[-1].foot_index)
         R_foot = R + foot * W/2
-        if turn != 0:
-            X = X + foot * W * math.sin(theta)
-            Y = Y + foot * W * math.cos(theta)
+        if turn == 0:
+            Y = (lateral != 0) * (Y + lateral * L/2) - foot * W / 2
+        elif forward != 0:
+            self.debuginfo("R: " + str(R) + " R_foot:" + \
+            str(R_foot) + " theta: " + str(theta) +  \
+           " math.sin(theta): " + str(math.sin(theta)) + \
+           " math.cos(theta) + " + str(math.cos(theta)))
+            
+            #turn > 0 for counter clockwise
+            X = forward * turn * R_foot * math.sin(theta)
+            Y = forward * turn * (R - R_foot*math.cos(theta))
+        else:
+            X = turn * W/2 * math.sin(theta)
+            Y = turn * W/2 * math.cos(theta)
+            
         Q = quaternion_from_euler(0, 0, theta)
         step = AtlasBehaviorStepData()
         step.step_index = len(steps)
