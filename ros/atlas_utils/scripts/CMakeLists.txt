@@ -1,5 +1,6 @@
 set (files
   gdbrun
+  check_inertia_symmetry.bash
   run_gazebo
   run_gazebo_paused
   run_gzserver
@@ -11,6 +12,7 @@ set (files
   stand.py
   test.py
   performance_test1.py
+  keyboard_teleop.py
 )
 install(PROGRAMS ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/scripts/)
 

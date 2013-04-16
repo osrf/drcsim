@@ -53,6 +53,7 @@ set(scripts
   ros_api_checker
   run_gzstats.sh
   run_pub_atlas_command.sh
+  run_recordmydesktop.sh
   run_rosbag.sh
   parse_logs.sh
   meanvar.py

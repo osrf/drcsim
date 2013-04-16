@@ -19,6 +19,7 @@ set (files
   vrc_task_2.launch
   vrc_task_3.launch
   atlas_arm_slider_teleop.launch
+  keyboard_teleop.launch
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/launch/)
 
