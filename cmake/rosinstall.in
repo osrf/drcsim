@@ -7,4 +7,4 @@
 - setup-file:
     local-name: /opt/ros/@ROS_DISTRO@/setup.sh
 - setup-file:
-    local-name: @CMAKE_INSTALL_PREFIX@/share/drcsim/setup.sh
+    local-name: @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/setup.sh
