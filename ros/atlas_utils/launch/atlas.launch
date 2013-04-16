@@ -1,0 +1,18 @@
+<launch>
+
+  <arg name="gzname" default="gazebo"/>
+  <arg name="gzworld" default="atlas.world"/>
+
+  <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
+
+  <!-- start gazebo with the Atlas -->
+  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
+    <arg name="gzname" value="$(arg gzname)"/>
+    <arg name="gzworld" value="$(arg gzworld)"/>
+  </include>
+
+  <!-- Robot Description -->
+  <param name="robot_description" textfile="$(find atlas)/atlas.urdf"/>
+  
+  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
+</launch>
