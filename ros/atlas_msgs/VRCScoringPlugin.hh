@@ -106,6 +106,29 @@ namespace gazebo
 
     private: common::Time prevTime;
     private: gazebo::math::Vector3 prevLinearVel;
+
+    /// \brief The worlds that we might be scoring; each one can be 
+    /// slightly different
+    private: enum WorldType
+             {
+               QUAL_1,
+               QUAL_2,
+               QUAL_3,
+               QUAL_4,
+               VRC_1,
+               VRC_2,
+               VRC_3
+             };
+    
+    /// \brief Which type of world we're scoring
+    private: enum WorldType worldType;
+
+    /// \brief Is this world gate-based?
+    private: bool IsGateBased();
+
+    /// \brief Find the gates in the world and store them in this->gates.
+    private: void FindGates();
+
   };
 }
 #endif
