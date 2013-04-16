@@ -9,6 +9,8 @@ include (CheckDisplayCapabilities.cmake)
 
 if(VALID_DRI_DISPLAY)
     list(APPEND rostests 
+         atlas_arenas_logging.launch
+         atlas_arenas_start_testing.launch
          atlas_publishers_hz_gpu.test
          atlas_rosapi.test
          atlas_sandia_hands_rosapi.test
@@ -46,9 +48,18 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
+  ros_subscribers.launch
+  pub_atlas_command.launch
+  perf_test.launch
 )
 set(scripts
   ros_api_checker
+  run_gzstats.sh
+  run_pub_atlas_command.sh
+  run_recordmydesktop.sh
+  run_rosbag.sh
+  parse_logs.sh
+  meanvar.py
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)

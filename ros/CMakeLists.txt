@@ -19,6 +19,7 @@ ExternalProject_Add(atlas_msgs
                       -DDRC_SIM_PROJECT_NAME=${PROJECT_NAME}
                       -DDRC_SIM_VERSION=${DRC_SIM_VERSION}
                       -DDRC_SIM_CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+                      -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       -DPLUGIN_LINK_DIRECTORIES=${CMAKE_BINARY_DIR}/plugins
                       -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       ${CATKIN_BUILD_BINARY_PACKAGE_STRING}

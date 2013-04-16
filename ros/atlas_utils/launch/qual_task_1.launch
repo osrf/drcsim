@@ -6,6 +6,9 @@
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
+    <!-- TODO: temporary disable since it kills real time factor -0.40
+    <arg name="extra_gazebo_args" value="-r" />
+    -->
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
 

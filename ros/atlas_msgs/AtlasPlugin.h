@@ -35,6 +35,7 @@
 #include <std_msgs/String.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 // AtlasSimInterface: header
 #include "AtlasSimInterface.h"
@@ -60,10 +61,18 @@
 
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/ControllerStatistics.h>
+
+// don't use these to control
 #include <sensor_msgs/JointState.h>
 #include <osrf_msgs/JointCommands.h>
+
+// high speed control
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
+
+// low speed control
+#include <atlas_msgs/AtlasSimInterfaceCommand.h>
+#include <atlas_msgs/AtlasSimInterfaceState.h>
 
 #include <atlas_msgs/Test.h>
 
@@ -95,6 +104,12 @@ namespace gazebo
 
     /// \brief ROS callback queue thread
     private: void RosQueueThread();
+
+    /// \brief get data from IMU for robot state
+    private: void GetIMUState(const common::Time &_curTime);
+
+    /// \brief get data from force torque sensor
+    private: void GetForceTorqueSensorState(const common::Time &_curTime);
 
     /// \brief ros service callback to reset joint control internal states
     /// \param[in] _req Incoming ros service request
@@ -141,19 +156,14 @@ namespace gazebo
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
     private: std::string imuLinkName;
-    private: common::Time lastImuTime;
     // publish separate /atlas/imu topic, to be deprecated
     private: ros::Publisher pubImu;
     private: PubQueue<sensor_msgs::Imu>::Ptr pubImuQueue;
 
     /// \brief ros publisher for force torque sensors
     private: ros::Publisher pubForceTorqueSensors;
-    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr pubForceTorqueSensorsQueue;
-
-    // AtlasSimInterface: internal debugging only
-    // Pelvis position and velocity
-    private: std::string pelvisLinkName;
-    private: physics::LinkPtr pelvisLink;
+    private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr
+      pubForceTorqueSensorsQueue;
 
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
@@ -166,12 +176,12 @@ namespace gazebo
 
     /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
-    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr pubControllerStatisticsQueue;
+    private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr
+      pubControllerStatisticsQueue;
 
     /// \brief ros publisher for force atlas joint states
     private: ros::Publisher pubJointStates;
     private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
-
 
     /// \brief ros publisher for atlas states, currently it contains
     /// joint index enums
@@ -194,15 +204,10 @@ namespace gazebo
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
-    /// \brief ros topic callback to update Joint Commands
-    /// \param[in] _msg Incoming ros message
-    private: void UpdateAtlasCommand(
-      const atlas_msgs::AtlasCommand &_msg);
-
-    /// \brief ros topic callback to update Joint Commands
-    /// \param[in] _msg Incoming ros message
-    private: void UpdateJointCommands(
-      const osrf_msgs::JointCommands &_msg);
+    private: void Pause(const std_msgs::String::ConstPtr &_msg);
+    private: boost::condition pause;
+    private: ros::Subscriber subPause;
+    private: boost::mutex pauseMutex;
 
     private: void LoadPIDGainsFromParameter();
     private: void ZeroAtlasCommand();
@@ -216,10 +221,28 @@ namespace gazebo
     private: transport::PublisherPtr jointCmdPub;
 
     // AtlasSimInterface:
-    private: AtlasControlDataToRobot toRobot;
-    private: AtlasControlDataFromRobot fromRobot;
-    private: AtlasErrorCode errorCode;
+    private: AtlasControlOutput atlasControlOutput;
+    private: AtlasRobotState atlasRobotState;
+    private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
+
+    /// \brief AtlasSimInterface:
+    private: ros::Subscriber subASICommand;
+    /// \brief AtlasSimInterface:
+    private: void SetASICommand(
+      const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg);
+    private: ros::Publisher pubASIState;
+    private: PubQueue<atlas_msgs::AtlasSimInterfaceState>::Ptr pubASIStateQueue;
+    private: boost::mutex asiMutex;
+
+    /// \brief internal copy of atlasSimInterfaceState
+    private: atlas_msgs::AtlasSimInterfaceState asiState;
+
+    /// \brief helper functions converting behavior string to int
+    private: std::map<std::string, int> behaviorMap;
+
+    /// \brief helper functions converting behavior int to string
+    private: std::string GetBehavior(int _behavior);
 
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
@@ -245,6 +268,94 @@ namespace gazebo
     /// \brief ros service to reset controls internal states
     private: ros::ServiceServer resetControlsService;
 
+    /// \brief helper function to copy states
+    private: void AtlasControlOutputToAtlasSimInterfaceState(
+              atlas_msgs::AtlasBehaviorFeedback *_fb,
+              AtlasBehaviorFeedback *_fbOut);
+
+    /// \brief Conversion functions
+    private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
+    {
+      return math::Pose(math::Vector3(_pose.position.x,
+                                      _pose.position.y,
+                                      _pose.position.z),
+                        math::Quaternion(_pose.orientation.w,
+                                         _pose.orientation.x,
+                                         _pose.orientation.y,
+                                         _pose.orientation.z));
+    }
+
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Pose ToPose(const math::Pose &_pose) const
+    {
+      geometry_msgs::Pose result;
+      result.position.x = _pose.pos.x;
+      result.position.y = _pose.pos.y;
+      result.position.z = _pose.pos.y;
+      result.orientation.w = _pose.rot.w;
+      result.orientation.x = _pose.rot.x;
+      result.orientation.y = _pose.rot.y;
+      result.orientation.z = _pose.rot.z;
+      return result;
+    }
+
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
+    {
+      geometry_msgs::Point result;
+      result.x = _v.n[0];
+      result.y = _v.n[1];
+      result.z = _v.n[2];
+      return result;
+    }
+
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
+      const
+    {
+      geometry_msgs::Quaternion result;
+      result.w = _q.w;
+      result.x = _q.x;
+      result.y = _q.y;
+      result.z = _q.z;
+      return result;
+    }
+
+    /// \brief Conversion helper functions
+    private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
+    {
+      return AtlasVec3f(_point.x,
+                        _point.y,
+                        _point.z);
+    }
+
+    /// \brief Conversion helper functions
+    private: inline AtlasVec3f ToVec3(const math::Vector3 &_vector3) const
+    {
+      return AtlasVec3f(_vector3.x,
+                        _vector3.y,
+                        _vector3.z);
+    }
+
+    /// \brief Conversion helper functions
+    private: inline math::Vector3 ToVec3(const AtlasVec3f &_vec3) const
+    {
+      return math::Vector3(_vec3.n[0],
+                           _vec3.n[1],
+                           _vec3.n[2]);
+    }
+
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Vector3 ToGeomVec3(
+      const AtlasVec3f &_vec3) const
+    {
+      geometry_msgs::Vector3 result;
+      result.x = _vec3.n[0];
+      result.y = _vec3.n[1];
+      result.z = _vec3.n[2];
+      return result;
+    }
+
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
 
@@ -254,9 +365,6 @@ namespace gazebo
     /// the command is passed to the AtlasSimInterface library.
     /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
     private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
-
-    /// \brief internal variable for keeping state of the BDI walking controller
-    private: bool usingWalkingController;
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
