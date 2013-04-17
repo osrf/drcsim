@@ -51,14 +51,47 @@ void ASIActionServer::ASIStateCB(
   // claiming success
   this->actionServerResult.success = false;
 
+  int error_code = msg->error_code;
+  switch (error_code)
+  {
+    case atlas_msgs::AtlasSimInterfaceState::NO_ERRORS:
+      // Everything is fine, move along
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_UNSPECIFIED:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_UNSPECIFIED");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_VALUE_OUT_OF_RANGE:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_VALUE_OUT_OF_RANGE");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_INVALID_INDEX:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_INVALID_INDEX");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_FAILED_TO_START_BEHAVIOR:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_FAILED_TO_START_BEHAVIOR");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_NO_ACTIVE_BEHAVIOR:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_NO_ACTIVE_BEHAVIOR");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_NO_SUCH_BEHAVIOR:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_NO_SUCH_BEHAVIOR");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_BEHAVIOR_NOT_IMPLEMENTED:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_BEHAVIOR_NOT_IMPLEMENTED");
+      break;
+    case atlas_msgs::AtlasSimInterfaceState::ERROR_TIME_RAN_BACKWARD:
+      this->abortGoal("ActionServer: ERROR_CODE: ERROR_TIME_RAN_BACKWARD");
+      break;
+    default:
+      this->abortGoal("ActionServer: ERROR_CODE: UNDOCUMENTED ERROR");
+      break;
+  }
+
   // Does the message contain bad news?
   // and should we do something about it other than letting the user
   // know we are in a bad state?
   switch (fb->status_flags)
   {
     case ABFeedback::STATUS_OK:
-      ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_OK]");
       break;
     case ABFeedback::STATUS_TRANSITION_IN_PROGRESS:
       ROS_INFO("ActionServer: AtlasBehaviorFeedback error: ["
@@ -69,38 +102,24 @@ void ASIActionServer::ASIStateCB(
                 "STATUS_TRANSITION_SUCCESS]");
       break;
     case ABFeedback::STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR]");
-      this->abortGoal("STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR]");
-      this->abortGoal("STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_POS:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_FAILED_TRANS_COM_POS]");
-      this->abortGoal("STATUS_FAILED_TRANS_COM_POS");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_COM_POS");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_VEL:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_FAILED_TRANS_COM_VEL]");
-      this->abortGoal("STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_VEL:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_FAILED_TRANS_VEL]");
-      this->abortGoal("STATUS_FAILED_TRANS_VEL");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_VEL");
       return;
     case ABFeedback::STATUS_WARNING_AUTO_TRANS:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_WARNING_AUTO_TRANS]");
       return;
     case ABFeedback::STATUS_ERROR_FALLING:
-      ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_ERROR_FALLING]");
-      this->abortGoal("STATUS_ERROR_FALLING");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_ERROR_FALLING");
       return;
     default:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
@@ -111,12 +130,16 @@ void ASIActionServer::ASIStateCB(
 
   // more check
   atlas_msgs::AtlasSimInterfaceCommand command;
-  if ((msg->desired_behavior != this->activeGoal.behavior ||
-      msg->current_behavior != this->activeGoal.behavior) &&
-       !this->newGoal)
+  if (msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND &&
+      this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
+          this->actionServer->isActive() &&
+          (!this->newGoal && !this->executingGoal))
   {
-    this->abortGoal("Received new goal, but not finished with previous goal");
+      ROS_INFO("Switch to stand successful, ready for new goal");
+      this->actionServerResult.success = true;
+      this->actionServer->setSucceeded();
   }
+
 
   // assuming there are no significant errors,
   // decide what to do based on whether a newGoal has been issued,
@@ -263,8 +286,7 @@ void ASIActionServer::ASIStateCB(
             command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
             this->atlasCommandPublisher.publish(command);
             this->executingGoal = false;
-            this->actionServerResult.success = true;
-            this->actionServer->setSucceeded();
+
             return;
           }
 
