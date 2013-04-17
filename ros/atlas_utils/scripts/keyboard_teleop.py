@@ -268,6 +268,8 @@ class AtlasTeleop():
             self.debuginfo("foot: " + str(step.foot_index) + \
               " [" + str(step.pose.position.x) + \
               ", " + str(step.pose.position.y) + ", " + str(theta) + "]")   
+            
+        self.client.wait_for_result()
 
     # Select binding values and call twist
     def process_movement(self, ch):
