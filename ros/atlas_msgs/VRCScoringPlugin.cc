@@ -123,7 +123,7 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   if (_sdf->HasElement("fall_accel_threshold"))
     this->fallAccelThreshold = _sdf->GetValueDouble("fall_accel_threshold");
   else
-    this->fallAccelThreshold = 100.0;
+    this->fallAccelThreshold = 1000.0;
 
   if (_sdf->HasElement("score_file"))
     this->scoreFilePath =
