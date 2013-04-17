@@ -141,7 +141,7 @@
 
     <!-- Start: Gate 0 -->
     <include>
-      <name>gate_foo0</name>
+      <name>gate_0</name>
       <uri>model://gate</uri>
       <pose>1 0 3.0 0 0 0</pose>
     </include>

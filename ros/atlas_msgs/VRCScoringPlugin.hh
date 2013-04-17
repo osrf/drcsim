@@ -20,6 +20,7 @@
 #include <string>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/filesystem.hpp>
 
 #include <gazebo/math/Pose.hh>
 #include <gazebo/physics/physics.hh>
@@ -48,29 +49,77 @@ namespace gazebo
     /// \param[in] _info Current world information.
     public: void OnUpdate(const common::UpdateInfo &_info);
 
-    /// \brief Update the current score.
-    private: void UpdateScore();
+    /// \brief Check the next gate to see if we've passed it
+    private: bool CheckNextGate();
+
+    /// \brief Check whether we've fallen
+    private: bool CheckFall(const common::Time &_currTime);
+
+    /// \brief Write intermediate score data
+    private: void WriteIntermediateScore(
+      const gazebo::common::Time& _currTime);
+
+    /// \brief Is this world gate-based?
+    private: bool IsGateBased();
+
+    /// \brief Find the gates in the world and store them in this->gates.
+    private: void FindGates();
+
+    /// \brief Is the given robot pose "in" the given gate pose?
+    /// \param _robotWorldPose Pose of the robot, in the world frame
+    /// \param _gateWorldPose Pose of the gate, in the world frame
+    /// \param _gateWorldPose Width of the gate
+    /// \return If not "in" the gate, return 0; else return -1 if "before" the
+    ///         gate, 1 if "after" the gate.
+    private: int IsPoseInGate(const gazebo::math::Pose& _robotWorldPose,
+                              const gazebo::math::Pose& _gateWorldPose,
+                              double _gateWidth);
 
     /// \brief Data about a gate.
     private: class Gate
              {
+               public: Gate(const std::string &_name,
+                            unsigned int _number,
+                            const gazebo::math::Pose& _pose,
+                            double _width)
+                         : name(_name), number(_number),
+                           pose(_pose), width(_width),
+                           passed(false) {}
+
+               /// \brief Less-than operator to allow sorting of a list of
+               /// gates by number.
+               public: bool operator< (Gate &other)
+                       {
+                         return (this->number < other.number);
+                       }
+
                /// \brief Name of the gate
                public: std::string name;
 
-               /// \brief Center of the gate.
-               public: gazebo::math::Pose center;
+               /// \brief Number of the gate
+               public: unsigned int number;
 
-               /// \brief Entrance of the gate.
-               public: gazebo::math::Pose entrance;
+               /// \brief Pose of the center of the gate
+               public: gazebo::math::Pose pose;
 
-               /// \brief Exit of the gate.
-               public: gazebo::math::Pose exit;
+               /// \brief Width of the gate
+               public: double width;
 
-               /// \brief Time Atlas entered the gate.
-               public: gazebo::common::Time entered;
+               /// \brief Have we passed through this gate yet?
+               public: bool passed;
+             };
 
-               /// \brief Time Atlas exited the gate.
-               public: gazebo::common::Time exited;
+    /// \brief The worlds that we might be scoring; each one can be
+    /// slightly different
+    private: enum WorldType
+             {
+               QUAL_1,
+               QUAL_2,
+               QUAL_3,
+               QUAL_4,
+               VRC_1,
+               VRC_2,
+               VRC_3
              };
 
     /// \brief Pointer to the world.
@@ -95,40 +144,46 @@ namespace gazebo
     /// the names: gate_1, gate_2, ..., gate_n.
     private: std::list<Gate> gates;
 
+    /// \brief Which gate is expected next, expressed as an iterator into
+    /// this->gates.
+    private: std::list<Gate>::iterator nextGate;
+
+    /// \brief Which side of the next gate we were the last time we checked.
+    private: int nextGateSide;
+
     /// \brief Time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTime;
 
-    /// \brief The current live score.
-    private: double score;
+    /// \brief The completion score, called 'C' in the VRC docs
+    private: int completionScore;
 
-    /// \brief Pose of the atlas at the previous timestep.
-    private: gazebo::math::Pose prevAtlasPose;
+    /// \brief How much acceleration must be experienced at the robot's center
+    /// of mass to be considering damaging.
+    private: double fallAccelThreshold;
 
-    private: common::Time prevTime;
+    /// \brief How many big falls we've taken
+    private: int falls;
+
+    /// \brief Name of the file that we're writing score data to
+    private: boost::filesystem::path scoreFilePath;
+
+    /// \brief The stream associated with scoreFilePath
+    private: std::ofstream scoreFileStream;
+
+    /// \brief When we last wrote score data to disk
+    private: common::Time prevScoreTime;
+
+    /// \brief Last time that we detected a fall
+    private: common::Time prevFallTime;
+
+    /// \brief Last time that we calculated acceleration
+    private: common::Time prevVelTime;
+
+    /// \brief Velocity at last time we calculated acceleration
     private: gazebo::math::Vector3 prevLinearVel;
 
-    /// \brief The worlds that we might be scoring; each one can be 
-    /// slightly different
-    private: enum WorldType
-             {
-               QUAL_1,
-               QUAL_2,
-               QUAL_3,
-               QUAL_4,
-               VRC_1,
-               VRC_2,
-               VRC_3
-             };
-    
     /// \brief Which type of world we're scoring
     private: enum WorldType worldType;
-
-    /// \brief Is this world gate-based?
-    private: bool IsGateBased();
-
-    /// \brief Find the gates in the world and store them in this->gates.
-    private: void FindGates();
-
   };
 }
 #endif
