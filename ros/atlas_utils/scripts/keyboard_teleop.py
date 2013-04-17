@@ -126,8 +126,6 @@ class AtlasTeleop():
     # Param lateral: 1 left, -1 right, 0 if no lateral component
     # Param turn: 1 Counter clockwise turn, -1 clockwise turn    
     def twist(self, forward, lateral, turn):
-        self.loginfo("Walking " + \
-        str(self.params["Walk Sequence Length"]["value"]) + " steps")
         steps = []
         
         L = self.params["Forward Stride Length"]["value"]
@@ -354,7 +352,7 @@ class AtlasTeleop():
             self.reset_to_standing()
         elif ch == 'h' or ch == 'H':
             self.print_usage()
-        elif ch == 'q' or ch == 'Q':
+        elif ch == 'q' or ch == 'Q' or ord(ch) == 3:
             self.loginfo("Quitting")
             rospy.signal_shutdown("Shutdown")
         try:

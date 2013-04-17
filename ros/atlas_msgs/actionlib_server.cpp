@@ -25,6 +25,8 @@ ASIActionServer::ASIActionServer()
     this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
       "atlas/atlas_sim_interface_command", 1);
 
+  this->newGoal = false;
+  this->executingGoal = false;
   this->actionServer->start();
   ros::spin();
 }
@@ -57,8 +59,6 @@ void ASIActionServer::ASIStateCB(
     case ABFeedback::STATUS_OK:
       ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_OK]");
-      //if (this->executingGoal) ROS_INFO(" Executing goal ");
-      //if (this->newGoal) ROS_INFO("New Goal");
       break;
     case ABFeedback::STATUS_TRANSITION_IN_PROGRESS:
       ROS_INFO("ActionServer: AtlasBehaviorFeedback error: ["
@@ -67,73 +67,55 @@ void ASIActionServer::ASIStateCB(
     case ABFeedback::STATUS_TRANSITION_SUCCESS:
       ROS_INFO("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_TRANSITION_SUCCESS]");
-      if (this->executingGoal)
-      {
-        this->actionServer->setSucceeded();
-      }
       break;
     case ABFeedback::STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_POS:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_COM_POS]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("STATUS_FAILED_TRANS_COM_POS");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_VEL:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_COM_VEL]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_VEL:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_FAILED_TRANS_VEL]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("STATUS_FAILED_TRANS_VEL");
       return;
     case ABFeedback::STATUS_WARNING_AUTO_TRANS:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_WARNING_AUTO_TRANS]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
       return;
     case ABFeedback::STATUS_ERROR_FALLING:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "STATUS_ERROR_FALLING]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("STATUS_ERROR_FALLING");
       return;
     default:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
                 "undocumented error state]");
-      this->executingGoal = false;
-      this->actionServer->setAborted(this->actionServerResult);
+      this->abortGoal("UNDOCUMENTED STATUS STATE");
       return;
   }
 
   // more check
   atlas_msgs::AtlasSimInterfaceCommand command;
-  if (msg->desired_behavior != this->activeGoal.behavior ||
-      msg->current_behavior != this->activeGoal.behavior)
+  if ((msg->desired_behavior != this->activeGoal.behavior ||
+      msg->current_behavior != this->activeGoal.behavior) &&
+       !this->newGoal)
   {
-    // comment out until bdi controller functionality is complete
-    // otherwise, we get occassional spam in some behaviors.
-    // ROS_ERROR("Switching behavior or setting behavior failed.");
-    if (this->actionServer->isActive())
-    {
-      this->actionServer->setAborted(this->actionServerResult);
-    }
+    this->abortGoal("Received new goal, but not finished with previous goal");
   }
 
   // assuming there are no significant errors,
@@ -153,6 +135,7 @@ void ASIActionServer::ASIStateCB(
     command.header = this->activeGoal.header;
     command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
     this->atlasCommandPublisher.publish(command);
+    ROS_INFO("Conflicting goals, standing");
     this->executingGoal = false;
     return;
     // next time back in ASIStateCB, we'll be in newGoal&!executingGoal state.
@@ -180,12 +163,12 @@ void ASIActionServer::ASIStateCB(
     {
       case atlas_msgs::WalkDemoGoal::WALK:
         {
-          // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
-          //   (int)fb->walk_feedback.current_step_index,
-          //   (int)fb->walk_feedback.next_step_index_needed,
-          //   fb->walk_feedback.t_step_rem,
-          //   (int)this->currentStepIndex,
-          //   (int)this->activeGoal.steps.size());
+           //ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
+           //  (int)fb->walk_feedback.current_step_index,
+           //  (int)fb->walk_feedback.next_step_index_needed,
+           //  fb->walk_feedback.t_step_rem,
+           //  (int)this->currentStepIndex,
+           //  (int)this->activeGoal.steps.size());
 
           // if needed, publish next set of 4 commands
           for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
@@ -210,7 +193,6 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
         {
-          // fill in step command and pbulish it
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -313,7 +295,16 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
         {
-          // fill in step command and pbulish it
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
+          command.header = this->activeGoal.header;
+          command.behavior = this->activeGoal.behavior;
+          command.k_effort = this->activeGoal.k_effort;
+          command.step_params = this->activeGoal.step_params;
+          command.manipulate_params = this->activeGoal.manipulate_params;
+          command.stand_params = this->activeGoal.stand_params;
+          this->atlasCommandPublisher.publish(command);
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -322,13 +313,19 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
-        // we don't need to do anything here
+        {
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP;
+          this->atlasCommandPublisher.publish(command);
+        }
         break;
-      case atlas_msgs::WalkDemoGoal::STAND:
-        // we don't need to do anything here
-        break;
-      case atlas_msgs::WalkDemoGoal::USER:
-        // we don't need to do anything here
+        {
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+          this->atlasCommandPublisher.publish(command);
+        }
         break;
       case atlas_msgs::WalkDemoGoal::FREEZE:
         // we don't need to do anything here
@@ -360,7 +357,10 @@ void ASIActionServer::ActionServerCB()
 
   // When accepteNewGoal() is called, active goal (if any) is automatically
   // preempted.
-  this->activeGoal = *this->actionServer->acceptNewGoal();
+  if (!this->newGoal && !this->executingGoal)
+  {
+    this->activeGoal = *this->actionServer->acceptNewGoal();
+  }
   if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
           this->activeGoal.steps.size() < 2)
   {
@@ -445,8 +445,19 @@ void ASIActionServer::ActionServerCB()
   }
 
   ROS_INFO("Received goal, executing");
-  this->executingGoal = true;
+  this->executingGoal = false;
   this->newGoal = true;
+}
+
+void ASIActionServer::abortGoal(std::string reason)
+{
+    if (this->actionServer->isActive())
+    {
+        ROS_INFO_STREAM("Aborting goal for reason: " << reason);
+      this->actionServer->setAborted(this->actionServerResult, reason);
+    }
+    this->executingGoal = false;
+    this->newGoal = false;
 }
 
 int main(int argc, char **argv)
@@ -458,3 +469,5 @@ int main(int argc, char **argv)
 
   return 0;
 }
+
+
