@@ -55,6 +55,9 @@ namespace gazebo
     /// \brief Check whether we've fallen
     private: bool CheckFall(const common::Time &_currTime);
 
+    /// \brief Check whether the drill is in the bin
+    private: bool CheckDrillInBin();
+
     /// \brief Write intermediate score data
     private: void WriteIntermediateScore(
       const gazebo::common::Time& _currTime);
@@ -63,7 +66,16 @@ namespace gazebo
     private: bool IsGateBased();
 
     /// \brief Find the gates in the world and store them in this->gates.
-    private: void FindGates();
+    private: bool FindGates();
+
+    /// \brief Find stuff needed for scoring Qual 2
+    private: bool FindQual2Stuff();
+
+    /// \brief Find stuff needed for scoring VRC 1
+    private: bool FindVRC1Stuff();
+
+    /// \brief Find stuff needed for scoring VRC 3
+    private: bool FindVRC3Stuff();
 
     /// \brief Is the given robot pose "in" the given gate pose?
     /// \param _robotWorldPose Pose of the robot, in the world frame
@@ -128,14 +140,14 @@ namespace gazebo
     /// \brief Pointer to Atlas.
     private: physics::ModelPtr atlas;
 
-    /// \brief Pointer to a Gazebo node. Used for communication.
-    private: transport::NodePtr node;
+    /// \brief Pointer to drill.
+    private: physics::ModelPtr drill;
 
-    /// \brief The publisher of scoring information.
-    private: transport::PublisherPtr scorePub;
+    /// \brief The bin that will receive the drill
+    private: gazebo::math::Box bin;
 
-    /// \brief The publisher of timing information.
-    private: transport::PublisherPtr timePub;
+    /// \brief Pointer to vehicle.
+    private: physics::ModelPtr vehicle;
 
     /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
