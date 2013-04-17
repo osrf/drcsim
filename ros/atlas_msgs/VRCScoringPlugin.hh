@@ -60,7 +60,7 @@ namespace gazebo
 
     /// \brief Write intermediate score data
     private: void WriteIntermediateScore(
-      const gazebo::common::Time& _currTime);
+      const gazebo::common::Time& _currTime, bool _force);
 
     /// \brief Is this world gate-based?
     private: bool IsGateBased();

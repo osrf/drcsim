@@ -38,6 +38,8 @@ VRCScoringPlugin::VRCScoringPlugin()
 VRCScoringPlugin::~VRCScoringPlugin()
 {
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  // Be sure to write the final score data before quitting
+  this->WriteIntermediateScore(this->world->GetSimTime(), true);
 }
 
 /////////////////////////////////////////////////
@@ -175,10 +177,10 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
 /////////////////////////////////////////////////
 void VRCScoringPlugin::WriteIntermediateScore(
-  const common::Time& _currTime)
+  const common::Time& _currTime, bool _force)
 {
   // Write at 1Hz
-  if ((_currTime - this->prevScoreTime).Double() < 1.0)
+  if (!_force && (_currTime - this->prevScoreTime).Double() < 1.0)
     return;
 
   if (!this->scoreFileStream.is_open())
@@ -321,7 +323,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
     this->falls += 1;
   
   // Write score data (it's throttled internally to write at a fixed rate)
-  this->WriteIntermediateScore(_info.simTime);
+  this->WriteIntermediateScore(_info.simTime, false);
 }
 
 /////////////////////////////////////////////////
