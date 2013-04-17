@@ -6,7 +6,7 @@
             <inertia ixx="0.004" ixy="0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="1.04719755 0 0" />
             <geometry>
                 <mesh filename="package://atlas/meshes/l_clav.dae" scale="1 1 1" />
             </geometry>
@@ -196,7 +196,7 @@
             <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.013" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <mesh filename="package://atlas/meshes/l_scap.dae" scale="1 1 1" />
             </geometry>
@@ -440,7 +440,7 @@
             <inertia ixx="0.004" ixy="-0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="-1.04719755 0 0" />
             <geometry>
                 <mesh filename="package://atlas/meshes/r_clav.dae" scale="1 1 1" />
             </geometry>
