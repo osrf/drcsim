@@ -341,19 +341,10 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
-        {
-          atlas_msgs::AtlasSimInterfaceCommand command;
-          command.header = this->activeGoal.header;
-          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP;
-          this->atlasCommandPublisher.publish(command);
-        }
+         // we don't need to do anything here
         break;
-        {
-          atlas_msgs::AtlasSimInterfaceCommand command;
-          command.header = this->activeGoal.header;
-          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
-          this->atlasCommandPublisher.publish(command);
-        }
+      case atlas_msgs::WalkDemoGoal::STAND:
+        // we don't need to do anything here
         break;
       case atlas_msgs::WalkDemoGoal::FREEZE:
         // we don't need to do anything here
