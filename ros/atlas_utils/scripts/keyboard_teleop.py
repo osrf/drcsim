@@ -267,7 +267,9 @@ class AtlasTeleop():
               " [" + str(step.pose.position.x) + \
               ", " + str(step.pose.position.y) + ", " + str(theta) + "]")   
             
-        self.client.wait_for_result()
+        self.client.wait_for_result(rospy.Duration( \
+          self.params["Stride Duration"]["value"] * \
+          self.params["Walk Sequence Length"]["value"]))
 
     # Select binding values and call twist
     def process_movement(self, ch):
