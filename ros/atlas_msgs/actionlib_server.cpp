@@ -102,24 +102,30 @@ void ASIActionServer::ASIStateCB(
                 "STATUS_TRANSITION_SUCCESS]");
       break;
     case ABFeedback::STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR:
-      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
+                      "STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR:
-      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
+                      "STATUS_FAILED_TRANS_ILLEGAL_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_POS:
-      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_COM_POS");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
+                      "STATUS_FAILED_TRANS_COM_POS");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_COM_VEL:
-      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
+                      "STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR");
       return;
     case ABFeedback::STATUS_FAILED_TRANS_VEL:
-      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_FAILED_TRANS_VEL");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
+                      "STATUS_FAILED_TRANS_VEL");
       return;
     case ABFeedback::STATUS_WARNING_AUTO_TRANS:
       return;
     case ABFeedback::STATUS_ERROR_FALLING:
-      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: STATUS_ERROR_FALLING");
+      this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
+                      "STATUS_ERROR_FALLING");
       return;
     default:
       ROS_ERROR("ActionServer: AtlasBehaviorFeedback error: ["
@@ -491,5 +497,3 @@ int main(int argc, char **argv)
 
   return 0;
 }
-
-
