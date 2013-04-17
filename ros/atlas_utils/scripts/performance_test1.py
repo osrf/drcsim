@@ -33,6 +33,8 @@ class PerformanceTest(unittest.TestCase):
     def __init__(self, *args):
         super(PerformanceTest, self).__init__(*args)
         self.success = False
+        self.max_factor_reached = 0
+        self.factor_required = 0.81
 
         # test duration in real time seconds
         self.test_duration = 10.0
@@ -67,12 +69,15 @@ class PerformanceTest(unittest.TestCase):
             print "elasped real ", time.time() - start_t_real
             factor = (rospy.Time.now().to_sec() - start_t_sim.to_sec()) / (time.time() - start_t_real)
             print "real time factor ", factor
-            if factor > 0.81:
-              self.success = True
+            if factor > self.max_factor_reached:
+                self.max_factor_reached = factor
+            if factor > self.factor_required:
+                self.success = True
+            
             time.sleep(0.1)
 
 
-        self.assert_(self.success)
+        self.assertGreaterEqual(self.max_factor_reached, self.factor_required, "Performance factor desired (" + str(self.factor_required) + ") was not reached: " + str(self.max_factor_reached))
         
 if __name__ == '__main__':
     print "Waiting for test to start at time "
