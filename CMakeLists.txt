@@ -116,6 +116,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup-unversioned.sh.in ${PROJECT_BINARY_DIR}/unversioned/setup.sh @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/unversioned/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 
 add_subdirectory(gazebo_models)
 add_subdirectory(media)
