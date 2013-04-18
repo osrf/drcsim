@@ -339,6 +339,7 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
         // This isn't yet implemented on the BDI side; set succeeded immediately
+        // TODO when implemented, check curretn_behavior == STAND
         if (this->actionServer->isActive())
         {
           this->actionServer->setSucceeded();
