@@ -407,7 +407,6 @@ void ASIActionServer::ActionServerCB()
 
   switch(this->activeGoal.behavior)
   {
-
     case atlas_msgs::WalkDemoGoal::WALK:
       {
         if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
@@ -431,7 +430,8 @@ void ASIActionServer::ActionServerCB()
 
           // Create transform of this active goal step
           tf::Quaternion agQ;
-          tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQ);
+          tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation,
+                                agQ);
           tf::Transform aGTransform(agQ.normalize(),
             tf::Vector3(this->activeGoal.steps[i].pose.position.x,
                         this->activeGoal.steps[i].pose.position.y,
@@ -501,7 +501,7 @@ void ASIActionServer::ActionServerCB()
       // no pre-processing of goal is needed
       break;
     case atlas_msgs::WalkDemoGoal::MANIPULATE:
-
+      // no pre-processing of goal is needed
       break;
     case atlas_msgs::WalkDemoGoal::STAND_PREP:
       // no pre-processing of goal is needed
