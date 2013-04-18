@@ -278,7 +278,9 @@
       </drc_fire_hose>
     </plugin>
 
-    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring"/>
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring">
+      <score_file>/tmp/qual_task_2/score.log</score_file> 
+    </plugin>
 
   </world>
 </sdf>
