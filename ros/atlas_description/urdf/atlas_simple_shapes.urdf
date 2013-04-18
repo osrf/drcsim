@@ -177,7 +177,7 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 0.10 0" xyz="0.02 0.00295 -0.17"/>
+          <origin rpy="0 0.10 0" xyz="0.02 0.00295 -0.18"/>
           <geometry>
             <cylinder radius="0.07" length="0.40"/>
           </geometry>
@@ -405,25 +405,25 @@
         <collision group="default">
           <origin rpy="1.5707963267949 0 0" xyz="0.046 0.0 -0.02"/>
           <geometry>
-            <cylinder radius="0.092" length="0.03"/>
+            <cylinder radius="0.11" length="0.06"/>
           </geometry>
         </collision>
         <collision group="other">
           <origin rpy="1.5707963267949 0 0" xyz="-0.03 0.0 -0.02"/>
           <geometry>
-            <cylinder radius="0.092" length="0.03"/>
+            <cylinder radius="0.11" length="0.06"/>
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="0 0 0" xyz="0 0.042 0.06"/>
+          <origin rpy="0 0 0" xyz="0.01 0.042 0.09"/>
           <geometry>
-            <cylinder radius="0.130" length="0.022"/>
+            <cylinder radius="0.16" length="0.05"/>
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="0 0 0" xyz="0 -0.042 0.06"/>
+          <origin rpy="0 0 0" xyz="0.01 -0.042 0.09"/>
           <geometry>
-            <cylinder radius="0.130" length="0.022"/>
+            <cylinder radius="0.16" length="0.05"/>
           </geometry>
         </collision>
     </link>
@@ -605,7 +605,7 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 0.10 0" xyz="0.02 -0.00295 -0.17"/>
+          <origin rpy="0 0.10 0" xyz="0.02 -0.00295 -0.18"/>
           <geometry>
             <cylinder radius="0.07" length="0.40"/>
           </geometry>
