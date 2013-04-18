@@ -90,7 +90,7 @@
     <include>
       <name>gate_0</name>
       <uri>model://gate</uri>
-      <pose>1.75 1.25 3.3 0 0 1.57078</pose>
+      <pose>1.75 1.25 3.4 0 0 1.57078</pose>
     </include>
 
     <include>

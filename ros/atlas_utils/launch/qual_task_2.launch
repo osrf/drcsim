@@ -3,6 +3,7 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="qual_task_2.world"/>
 
+  <!-- We leave Atlas pinned in Qual 2 (teams can unpin if they want) -->
   <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
 
   <!-- start gazebo with the Atlas -->
