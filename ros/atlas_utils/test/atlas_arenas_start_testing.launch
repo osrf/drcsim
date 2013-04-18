@@ -1,4 +1,4 @@
 <launch>
    <include file="$(find atlas_utils)/test/atlas_arenas_logging.launch" /> 
-   <!-- TODO: include the teleop command when reach default -->
+   <include file="$(find atlas_utils)/launch/keybaord_teleop.launch" /> 
 </launch>
