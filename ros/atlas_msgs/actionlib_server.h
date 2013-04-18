@@ -43,6 +43,9 @@ class ASIActionServer
   public: void BDIStateCallback(
     const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
 
+  /// \brief Aborts current goal
+  public: void abortGoal(std::string reason);
+
   /// \brief Subscriber to AtlasState topic
   private: void atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg);
 
