@@ -51,6 +51,9 @@ fi
 
 tmp_dir="mktemp -d"
 
+echo $1 >> $tmp_dir/vrc_manifest.txt
+echo $2 >> $tmp_dir/vrc_manifest.txt
+
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
 sleep 3
@@ -60,11 +63,11 @@ gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
 
 # Copy the score file to the work directory
 cp $3 $tmp_dir
-cd $tmp_dir
 
 # Create the final zip file
 echo "Creating final zip file = qual_$1.zip"
-zip qual_$1.zip *.log
+cd $tmp_dir
+zip qual_$1.zip *
 mv $tmp_dir/*.zip $cwd
 
 rm -rf $tmp_dir
