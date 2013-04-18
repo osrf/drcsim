@@ -120,7 +120,7 @@ class AtlasTeleop():
         self.mode.publish("nominal")
         rospy.sleep(0.3)
         self.control_mode.publish("Stand")
-
+        
     # Builds a trajectory of step commands. 
     # Param forward: 1 forward, -1 backward or 0 if no forward component
     # Param lateral: 1 left, -1 right, 0 if no lateral component
