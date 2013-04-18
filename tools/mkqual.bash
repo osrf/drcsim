@@ -49,7 +49,7 @@ if [ ! -e $3 ]; then
   exit
 fi
 
-tmp_dir="mktemp"
+tmp_dir="mktemp -d"
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
