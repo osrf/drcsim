@@ -3,8 +3,7 @@
 # Get the current working directory
 cwd=`pwd`
 
-stamp=`eval date +%d_%m_%Y_%R:%S`
-tmp_dir="/tmp/.vrc_qual_tmp_dir-$stamp"
+tmp_dir="mktemp"
 portal="http://vrcportal.osrfoundation.org"
 
 purpose1="This script creates a qual_{n}.zip file(s) for submission to the VRC"
