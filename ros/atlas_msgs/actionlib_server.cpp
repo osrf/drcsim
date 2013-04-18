@@ -146,7 +146,6 @@ void ASIActionServer::ASIStateCB(
       this->actionServer->setSucceeded();
   }
 
-
   // assuming there are no significant errors,
   // decide what to do based on whether a newGoal has been issued,
   // and if the robot is busy.
@@ -164,7 +163,8 @@ void ASIActionServer::ASIStateCB(
     command.header = this->activeGoal.header;
     command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
     this->atlasCommandPublisher.publish(command);
-    ROS_INFO("Conflicting goals, standing");
+    ROS_INFO("New goal received while executing an original goal, switching to "
+             "stand before switching goal.");
     this->executingGoal = false;
     return;
     // next time back in ASIStateCB, we'll be in newGoal&!executingGoal state.
@@ -192,12 +192,12 @@ void ASIActionServer::ASIStateCB(
     {
       case atlas_msgs::WalkDemoGoal::WALK:
         {
-           //ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
-           //  (int)fb->walk_feedback.current_step_index,
-           //  (int)fb->walk_feedback.next_step_index_needed,
-           //  fb->walk_feedback.t_step_rem,
-           //  (int)this->currentStepIndex,
-           //  (int)this->activeGoal.steps.size());
+          // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
+          //   (int)fb->walk_feedback.current_step_index,
+          //   (int)fb->walk_feedback.next_step_index_needed,
+          //   fb->walk_feedback.t_step_rem,
+          //   (int)this->currentStepIndex,
+          //   (int)this->activeGoal.steps.size());
 
           // if needed, publish next set of 4 commands
           for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
@@ -341,9 +341,12 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
-         // we don't need to do anything here
+        // we don't need to do anything here
         break;
       case atlas_msgs::WalkDemoGoal::STAND:
+        // we don't need to do anything here
+        break;
+      case atlas_msgs::WalkDemoGoal::USER:
         // we don't need to do anything here
         break;
       case atlas_msgs::WalkDemoGoal::FREEZE:
@@ -463,7 +466,7 @@ void ASIActionServer::ActionServerCB()
       this->activeGoal.steps.push_back(repeatStep);
   }
 
-  ROS_INFO("Received goal, executing");
+  ROS_INFO("Received new goal, processing");
   this->executingGoal = false;
   this->newGoal = true;
 }
