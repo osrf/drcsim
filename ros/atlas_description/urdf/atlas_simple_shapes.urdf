@@ -63,9 +63,9 @@
         </visual>
         <!-- bottom -->
         <collision group="default">
-          <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
           <geometry>
-            <box size="0.26 0.124887 0.01"/>
+            <box size="0.26 0.124887 0.05"/>
           </geometry>
         </collision>
         <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
@@ -177,15 +177,9 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 -0.06 0" xyz="-0.01 0.00295 -0.260"/>
+          <origin rpy="0 0.10 0" xyz="0.02 0.00295 -0.17"/>
           <geometry>
-            <cylinder radius="0.06" length="0.22"/>
-          </geometry>
-        </collision>
-        <collision group="other">
-          <origin rpy="0 0.18 0" xyz="0.01 0.00295 -0.07"/>
-          <geometry>
-            <cylinder radius="0.06" length="0.20"/>
+            <cylinder radius="0.07" length="0.40"/>
           </geometry>
         </collision>
     </link>
@@ -497,9 +491,9 @@
         </visual>
         <!-- bottom -->
         <collision group="default">
-          <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
           <geometry>
-            <box size="0.26 0.124887 0.01"/>
+            <box size="0.26 0.124887 0.05"/>
           </geometry>
         </collision>
         <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
@@ -611,15 +605,9 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 -0.06 0" xyz="-0.01 -0.00295 -0.260"/>
+          <origin rpy="0 0.10 0" xyz="0.02 -0.00295 -0.17"/>
           <geometry>
-            <cylinder radius="0.06" length="0.22"/>
-          </geometry>
-        </collision>
-        <collision group="other">
-          <origin rpy="0 0.18 0" xyz="0.01 -0.00295 -0.07"/>
-          <geometry>
-            <cylinder radius="0.06" length="0.20"/>
+            <cylinder radius="0.07" length="0.40"/>
           </geometry>
         </collision>
     </link>
