@@ -409,8 +409,7 @@ void ASIActionServer::ActionServerCB()
   {
     case atlas_msgs::WalkDemoGoal::WALK:
       {
-        if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
-            this->activeGoal.steps.size() < 2)
+        if (this->activeGoal.steps.size() < 2)
         {
           ROS_ERROR("Walk goal must contain two or more steps");
           this->executingGoal = false;
