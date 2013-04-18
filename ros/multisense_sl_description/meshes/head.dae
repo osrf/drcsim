@@ -12,12 +12,12 @@
     <revision></revision>
     <subject></subject>
     <title></title>
-    <unit meter="0.010000" name="centimeter"></unit>
+    <unit meter="1.0000" name="centimeter"></unit>
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_images>
     <image id="Map #4-image" name="Map #4">
-      <init_from>file://\\babel\work\modeldev\drc_model_2013_final\geometry\tif\drc_torso_head_diffuse.tif</init_from>
+      <init_from>../materials/textures/drc_torso_head_diffuse.jpg</init_from>
     </image>
   </library_images>
   <library_materials>

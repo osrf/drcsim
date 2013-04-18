@@ -12,12 +12,12 @@
     <revision></revision>
     <subject></subject>
     <title></title>
-    <unit meter="0.010000" name="centimeter"></unit>
+    <unit meter="1.00000" name="centimeter"></unit>
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_images>
     <image id="Map #4-image" name="Map #4">
-      <init_from>file://\\babel\work\modeldev\drc_model_2013_final\geometry\tif\drc_torso_head_diffuse.tif</init_from>
+      <init_from>../materials/textures/drc_torso_head_diffuse.jpg</init_from>
     </image>
   </library_images>
   <library_materials>
@@ -1392,6 +1392,7 @@
             </extra>
           </node>
           <node name="head002" id="head002" sid="head002">
+            <!--matrix sid="matrix">-0.000000 -1.000000 0.000000 -0.185443 1.000000 -0.000000 0.000000 -0.000087 0.000000 0.000000 1.000000 -0.701582 0.000000 0.000000 0.000000 1.000000</matrix-->
             <matrix sid="matrix">-0.000000 -1.000000 0.000000 -0.185443 1.000000 -0.000000 0.000000 -0.000087 0.000000 0.000000 1.000000 -0.701582 0.000000 0.000000 0.000000 1.000000</matrix>
             <instance_geometry url="#head002-lib">
               <bind_material>
