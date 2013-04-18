@@ -90,7 +90,7 @@ class AtlasTeleop():
 
     def print_usage(self):
         msg = """
-        Keyboard Teleop for AtlasSimInterface 1.0.5
+        Keyboard Teleop for AtlasSimInterface 1.0.8
         Copyright (C) 2013 Open Source Robotics Foundation
         Released under the Apache 2 License
         --------------------------------------------------
@@ -101,8 +101,8 @@ class AtlasTeleop():
                 ,    
                 
         Turn movements:
-        o/u Turn around a point
-        m/. Turn in place
+        u/o Turn left/right around a point
+        m/. Turn left/right in place
         
         1-9: Change the length of step trajectory
         E: View and Edit Parameters
