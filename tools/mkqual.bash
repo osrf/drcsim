@@ -3,16 +3,15 @@
 # Get the current working directory
 cwd=`pwd`
 
-tmp_dir="mktemp"
 portal="http://vrcportal.osrfoundation.org"
 
-purpose1="This script creates a qual_{n}.zip file(s) for submission to the VRC"
-purpose2="qualifications.\n Two zip files are mandatory, qual_1.zip and "
-purpose3="qual_2.zip. Two files are optional, qual_3.zip and qual_4.zip."
-purpose4="It is your responsibilty to run this script with valid arguments, "
-purpose5="and then upload the resulting zip files to the VRC Portal  "
-purpose6="for submission. This ends my spiel."
-purpose7="Good luck!\n"
+purpose="This script creates a qual_{n}.zip file(s) for submission to the VRC\n\
+qualifications. Two zip files are mandatory, qual_1.zip and\n\
+qual_2.zip. Two files are optional, qual_3.zip and qual_4.zip.\n\
+It is your responsibilty to run this script with valid arguments,\n\
+and then upload the resulting zip files to the VRC Portal\n\
+for submission. This ends my spiel.\n\
+Good luck!\n\n"
 
 # A simple help message
 usage="mkqual.bash <qual task number> <Gazebo state log file> <score log file>"
@@ -20,14 +19,7 @@ usage="mkqual.bash <qual task number> <Gazebo state log file> <score log file>"
 # Make sure the correct number of parameters were supplied
 if [ "$#" -ne "3" ]; then
   echo
-  echo $purpose1
-  echo $purpose2
-  echo $purpose3
-  echo $purpose4
-  echo $purpose5
-  echo $purpose6
-  echo
-  echo $purpose7
+  echo -e $purpose
   echo
   echo "VRC Portal: $portal"
   echo
@@ -57,8 +49,7 @@ if [ ! -e $3 ]; then
   exit
 fi
 
-rm -rf $tmp_dir
-mkdir $tmp_dir
+tmp_dir="mktemp"
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
@@ -75,6 +66,8 @@ cd $tmp_dir
 echo "Creating final zip file = qual_$1.zip"
 zip qual_$1.zip *.log
 mv $tmp_dir/*.zip $cwd
+
+rm -rf $tmp_dir
 
 echo "Important: You must upload qual_$1.zip to $portal."
 sleep 2
