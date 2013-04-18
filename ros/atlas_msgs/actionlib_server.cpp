@@ -10,20 +10,20 @@ ASIActionServer::ASIActionServer()
                                         false);
   // Register goal callback
   this->actionServer->registerGoalCallback(
-    boost::bind(&ASIActionServer::ActionServerCB, this));
+        boost::bind(&ASIActionServer::ActionServerCB, this));
 
 
-    this->ASIStateSubscriber =
+  this->ASIStateSubscriber =
       this->rosNode.subscribe("atlas/atlas_sim_interface_state", 10,
-        &ASIActionServer::ASIStateCB, this);
+                              &ASIActionServer::ASIStateCB, this);
 
-    this->atlasStateSubscriber =
+  this->atlasStateSubscriber =
       this->rosNode.subscribe("atlas/atlas_state", 10,
-        &ASIActionServer::atlasStateCB, this);
+                              &ASIActionServer::atlasStateCB, this);
 
   this->atlasCommandPublisher =
-    this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
-      "atlas/atlas_sim_interface_command", 1);
+      this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
+        "atlas/atlas_sim_interface_command", 1);
 
   this->newGoal = false;
   this->executingGoal = false;
@@ -42,7 +42,7 @@ void ASIActionServer::ASIStateCB(
 
   // 80 characters
   const atlas_msgs::AtlasBehaviorFeedback *fb =
-    &(msg->behavior_feedback);
+      &(msg->behavior_feedback);
 
   typedef atlas_msgs::AtlasBehaviorFeedback ABFeedback;
 
@@ -58,28 +58,36 @@ void ASIActionServer::ASIStateCB(
       // Everything is fine, move along
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_UNSPECIFIED:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_UNSPECIFIED");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_UNSPECIFIED");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_VALUE_OUT_OF_RANGE:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_VALUE_OUT_OF_RANGE");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_VALUE_OUT_OF_RANGE");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_INVALID_INDEX:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_INVALID_INDEX");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_INVALID_INDEX");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_FAILED_TO_START_BEHAVIOR:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_FAILED_TO_START_BEHAVIOR");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_FAILED_TO_START_BEHAVIOR");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_NO_ACTIVE_BEHAVIOR:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_NO_ACTIVE_BEHAVIOR");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_NO_ACTIVE_BEHAVIOR");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_NO_SUCH_BEHAVIOR:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_NO_SUCH_BEHAVIOR");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_NO_SUCH_BEHAVIOR");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_BEHAVIOR_NOT_IMPLEMENTED:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_BEHAVIOR_NOT_IMPLEMENTED");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_BEHAVIOR_NOT_IMPLEMENTED");
       break;
     case atlas_msgs::AtlasSimInterfaceState::ERROR_TIME_RAN_BACKWARD:
-      this->abortGoal("ActionServer: ERROR_CODE: ERROR_TIME_RAN_BACKWARD");
+      this->abortGoal("ActionServer: ERROR_CODE: "
+                      "ERROR_TIME_RAN_BACKWARD");
       break;
     default:
       this->abortGoal("ActionServer: ERROR_CODE: UNDOCUMENTED ERROR");
@@ -95,11 +103,11 @@ void ASIActionServer::ASIStateCB(
       break;
     case ABFeedback::STATUS_TRANSITION_IN_PROGRESS:
       ROS_INFO("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_TRANSITION_IN_PROGRESS]");
+               "STATUS_TRANSITION_IN_PROGRESS]");
       break;
     case ABFeedback::STATUS_TRANSITION_SUCCESS:
       ROS_INFO("ActionServer: AtlasBehaviorFeedback error: ["
-                "STATUS_TRANSITION_SUCCESS]");
+               "STATUS_TRANSITION_SUCCESS]");
       break;
     case ABFeedback::STATUS_FAILED_TRANS_UNKNOWN_BEHAVIOR:
       this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
@@ -138,12 +146,12 @@ void ASIActionServer::ASIStateCB(
   atlas_msgs::AtlasSimInterfaceCommand command;
   if (msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND &&
       this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
-          this->actionServer->isActive() &&
-          (!this->newGoal && !this->executingGoal))
+      this->actionServer->isActive() &&
+      (!this->newGoal && !this->executingGoal))
   {
-      ROS_INFO("Switch to stand successful, ready for new goal");
-      this->actionServerResult.success = true;
-      this->actionServer->setSucceeded();
+    ROS_INFO("Switch to stand successful, ready for new goal");
+    this->actionServerResult.success = true;
+    this->actionServer->setSucceeded();
   }
 
   // assuming there are no significant errors,
@@ -203,18 +211,18 @@ void ASIActionServer::ASIStateCB(
           for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
           {
             command.walk_params.step_data[i] =
-              this->activeGoal.steps[this->currentStepIndex + i];
-              ROS_DEBUG_STREAM("  building stepId : " << i
-                << "  traj id [" << this->currentStepIndex + i
-                << "] step_index["
-                << command.walk_params.step_data[i].step_index
-                << "]  isRight["
-                << command.walk_params.step_data[i].foot_index
-                << "]  pos ["
-                << command.walk_params.step_data[i].pose.position.x
-                << ", "
-                << command.walk_params.step_data[i].pose.position.y
-                << "]\n");
+                this->activeGoal.steps[this->currentStepIndex + i];
+            ROS_DEBUG_STREAM("  building stepId : " << i
+                             << "  traj id [" << this->currentStepIndex + i
+                             << "] step_index["
+                             << command.walk_params.step_data[i].step_index
+                             << "]  isRight["
+                             << command.walk_params.step_data[i].foot_index
+                             << "]  pos ["
+                             << command.walk_params.step_data[i].pose.position.x
+                             << ", "
+                             << command.walk_params.step_data[i].pose.position.y
+                             << "]\n");
           }
           // publish new set of commands
           this->atlasCommandPublisher.publish(command);
@@ -222,34 +230,42 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
         {
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
+          command.header = this->activeGoal.header;
+          command.behavior = this->activeGoal.behavior;
+          command.k_effort = this->activeGoal.k_effort;
+          command.step_params = this->activeGoal.step_params;
+          command.manipulate_params = this->activeGoal.manipulate_params;
+          command.stand_params = this->activeGoal.stand_params;
+          this->atlasCommandPublisher.publish(command);
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
-        {
-          // fill in manipulate command and pbulish it
-        }
+        // Nothing to do before switching to execute
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
         {
-            atlas_msgs::AtlasSimInterfaceCommand command;
-            command.header = this->activeGoal.header;
-            command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP;
-            this->atlasCommandPublisher.publish(command);
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP;
+          this->atlasCommandPublisher.publish(command);
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND:
         {
-            atlas_msgs::AtlasSimInterfaceCommand command;
-            command.header = this->activeGoal.header;
-            command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
-            this->atlasCommandPublisher.publish(command);
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+          this->atlasCommandPublisher.publish(command);
         }
         break;
       case atlas_msgs::WalkDemoGoal::USER:
-        // we don't need to do anything here
+        // Nothing to do before switching to execute
         break;
       case atlas_msgs::WalkDemoGoal::FREEZE:
-        // we don't need to do anything here
+        // Nothing to do before switching to execute
         break;
       default:
         break;
@@ -286,7 +302,7 @@ void ASIActionServer::ASIStateCB(
 
           //Is the sequence completed?
           if (fb->walk_feedback.current_step_index >=
-                this->activeGoal.steps.size() - 1)
+              this->activeGoal.steps.size() - 1)
           {
             ROS_INFO("Walk trajectory completed, switching to stand mode.");
             command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
@@ -303,18 +319,18 @@ void ASIActionServer::ASIStateCB(
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
             {
               command.walk_params.step_data[i] =
-                this->activeGoal.steps[this->currentStepIndex + i];
-                ROS_DEBUG_STREAM("  building stepId : " << i
-                  << "  traj id [" << this->currentStepIndex + i
-                  << "] step_index["
-                  << command.walk_params.step_data[i].step_index
-                  << "]  isRight["
-                  << command.walk_params.step_data[i].foot_index
-                  << "]  pos ["
-                  << command.walk_params.step_data[i].pose.position.x
-                  << ", "
-                  << command.walk_params.step_data[i].pose.position.y
-                  << "]\n");
+                  this->activeGoal.steps[this->currentStepIndex + i];
+              ROS_DEBUG_STREAM("  building stepId : " << i
+               << "  traj id [" << this->currentStepIndex + i
+               << "] step_index["
+               << command.walk_params.step_data[i].step_index
+               << "]  isRight["
+               << command.walk_params.step_data[i].foot_index
+               << "]  pos ["
+               << command.walk_params.step_data[i].pose.position.x
+               << ", "
+               << command.walk_params.step_data[i].pose.position.y
+               << "]\n");
             }
             // publish new set of commands
             this->atlasCommandPublisher.publish(command);
@@ -322,17 +338,10 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
+        // This isn't yet implemented on the BDI side; set succeeded immediately
+        if (this->actionServer->isActive())
         {
-          atlas_msgs::AtlasSimInterfaceCommand command;
-          command.header = this->activeGoal.header;
-          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
-          command.header = this->activeGoal.header;
-          command.behavior = this->activeGoal.behavior;
-          command.k_effort = this->activeGoal.k_effort;
-          command.step_params = this->activeGoal.step_params;
-          command.manipulate_params = this->activeGoal.manipulate_params;
-          command.stand_params = this->activeGoal.stand_params;
-          this->atlasCommandPublisher.publish(command);
+          this->actionServer->setSucceeded();
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -341,16 +350,25 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
-        // we don't need to do anything here
+        if (this->actionServer->isActive() &&
+            msg->current_behavior ==
+            atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP)
+        {
+          this->actionServer->setSucceeded();
+        }
         break;
       case atlas_msgs::WalkDemoGoal::STAND:
-        // we don't need to do anything here
+        if (this->actionServer->isActive() &&
+          msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND)
+        {
+          this->actionServer->setSucceeded();
+        }
         break;
       case atlas_msgs::WalkDemoGoal::USER:
-        // we don't need to do anything here
+        // Nothing to do while executing goal
         break;
       case atlas_msgs::WalkDemoGoal::FREEZE:
-        // we don't need to do anything here
+        // Nothing to do while executing goal
         break;
       default:
         break;
@@ -382,104 +400,135 @@ void ASIActionServer::ActionServerCB()
   if (!this->newGoal && !this->executingGoal)
   {
     this->activeGoal = *this->actionServer->acceptNewGoal();
+    ROS_INFO("Received new goal, processing");
+    this->executingGoal = false;
+    this->newGoal = true;
   }
-  if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
-          this->activeGoal.steps.size() < 2)
+
+  switch(this->activeGoal.behavior)
   {
-      ROS_ERROR("Walk goal must contain two or more steps");
-      this->executingGoal = false;
-      this->newGoal = false;
-      return;
+
+    case atlas_msgs::WalkDemoGoal::WALK:
+      {
+        if (this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
+            this->activeGoal.steps.size() < 2)
+        {
+          ROS_ERROR("Walk goal must contain two or more steps");
+          this->executingGoal = false;
+          this->newGoal = false;
+          return;
+        }
+
+        ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
+                        " y: " << this->robotPosition.y <<
+                        " z: " << this->robotPosition.z);
+        for (unsigned int i = 0; i < this->activeGoal.steps.size(); ++i)
+        {
+          // Position vector of the robot
+          tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
+                                          this->robotPosition.y,
+                                          this->robotPosition.z);
+
+          // Create transform of this active goal step
+          tf::Quaternion agQ;
+          tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQ);
+          tf::Transform aGTransform(agQ.normalize(),
+            tf::Vector3(this->activeGoal.steps[i].pose.position.x,
+                        this->activeGoal.steps[i].pose.position.y,
+                        this->activeGoal.steps[i].pose.position.z));
+
+          // We only want to transform with respect to the robot's yaw
+          double yaw = tf::getYaw(this->robotOrientation);
+
+          // Transform of the robot in world coordinates
+          tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
+
+          // Transform the active goal step to world pose.
+          tf::Transform newTransform = transform * aGTransform;
+
+          ROS_DEBUG_STREAM("Before xform. Step: " << i << " location- x: " <<
+             this->activeGoal.steps[i].pose.position.x <<
+             " y: " << this->activeGoal.steps[i].pose.position.y <<
+             " z: " << this->activeGoal.steps[i].pose.position.z);
+
+
+          // Create geometry_msgs transform msg and change the active goal to
+          // reflect the transform
+          geometry_msgs::Transform transformMsg;
+          tf::transformTFToMsg(newTransform, transformMsg);
+          this->activeGoal.steps[i].pose.orientation =
+              transformMsg.rotation;
+          this->activeGoal.steps[i].pose.position.x =
+              transformMsg.translation.x;
+          this->activeGoal.steps[i].pose.position.y =
+              transformMsg.translation.y;
+          this->activeGoal.steps[i].pose.position.z =
+              transformMsg.translation.z;
+          this->currentStepIndex = 0;
+
+          // std::cout << "  building stepId : " << i
+          //   << "  traj id [" << this->currentStepIndex + i
+          //   << "] step_index["
+          //   << this->activeGoal.steps[i].step_index
+          //   << "]  isRight["
+          //   << this->activeGoal.steps[i].foot_index
+          //   << "]  pos ["
+          //   << this->activeGoal.steps[i].pose.position.x
+          //   << ", "
+          //   << this->activeGoal.steps[i].pose.position.y
+          //   << "]\n";
+
+          ROS_DEBUG_STREAM("Step: " << i << " location- x: " <<
+             this->activeGoal.steps[i].pose.position.x <<
+             " y: " << this->activeGoal.steps[i].pose.position.y <<
+             " z: " << this->activeGoal.steps[i].pose.position.z);
+        }
+
+        for (unsigned int i = this->activeGoal.steps.size();
+             i < NUM_REQUIRED_WALK_STEPS; ++i)
+        {
+          // copy setup, but hijack step_index
+          atlas_msgs::AtlasBehaviorStepData repeatStep;
+          repeatStep.step_index = i;
+          repeatStep.foot_index = this->activeGoal.steps[i-2].foot_index;
+          repeatStep.duration = this->activeGoal.steps[i-2].duration;
+          repeatStep.pose = this->activeGoal.steps[i-2].pose;
+          repeatStep.swing_height = this->activeGoal.steps[i-2].swing_height;
+          this->activeGoal.steps.push_back(repeatStep);
+        }
+      }
+    case atlas_msgs::WalkDemoGoal::STEP:
+      // no pre-processing of goal is needed
+      break;
+    case atlas_msgs::WalkDemoGoal::MANIPULATE:
+
+      break;
+    case atlas_msgs::WalkDemoGoal::STAND_PREP:
+      // no pre-processing of goal is needed
+      break;
+    case atlas_msgs::WalkDemoGoal::STAND:
+      // no pre-processing of goal is needed
+      break;
+    case atlas_msgs::WalkDemoGoal::USER:
+      // no pre-processing of goal is needed
+      break;
+    case atlas_msgs::WalkDemoGoal::FREEZE:
+      // no pre-processing of goal is needed
+      break;
+    default:
+      break;
   }
-
-  ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
-                  " y: " << this->robotPosition.y <<
-                  " z: " << this->robotPosition.z);
-  for (unsigned int i = 0; i < this->activeGoal.steps.size(); ++i)
-  {
-      // Position vector of the robot
-      tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
-                                      this->robotPosition.y,
-                                      this->robotPosition.z);
-
-      // Create transform of this active goal step
-      tf::Quaternion agQ;
-      tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation, agQ);
-      tf::Transform aGTransform(agQ.normalize(),
-        tf::Vector3(this->activeGoal.steps[i].pose.position.x,
-                    this->activeGoal.steps[i].pose.position.y,
-                    this->activeGoal.steps[i].pose.position.z));
-
-      // We only want to transform with respect to the robot's yaw
-      double yaw = tf::getYaw(this->robotOrientation);
-
-      // Transform of the robot in world coordinates
-      tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
-
-      // Transform the active goal step to world pose.
-      tf::Transform newTransform = transform * aGTransform;
-
-      ROS_DEBUG_STREAM("Before xform. Step: " << i << " location- x: " <<
-                      this->activeGoal.steps[i].pose.position.x <<
-                      " y: " << this->activeGoal.steps[i].pose.position.y <<
-                      " z: " << this->activeGoal.steps[i].pose.position.z);
-
-
-      // Create geometry_msgs transform msg and change the active goal to
-      // reflect the transform
-      geometry_msgs::Transform transformMsg;
-      tf::transformTFToMsg(newTransform, transformMsg);
-      this->activeGoal.steps[i].pose.orientation = transformMsg.rotation;
-      this->activeGoal.steps[i].pose.position.x = transformMsg.translation.x;
-      this->activeGoal.steps[i].pose.position.y = transformMsg.translation.y;
-      this->activeGoal.steps[i].pose.position.z = transformMsg.translation.z;
-      this->currentStepIndex = 0;
-
-      // std::cout << "  building stepId : " << i
-      //   << "  traj id [" << this->currentStepIndex + i
-      //   << "] step_index["
-      //   << this->activeGoal.steps[i].step_index
-      //   << "]  isRight["
-      //   << this->activeGoal.steps[i].foot_index
-      //   << "]  pos ["
-      //   << this->activeGoal.steps[i].pose.position.x
-      //   << ", "
-      //   << this->activeGoal.steps[i].pose.position.y
-      //   << "]\n";
-
-      ROS_DEBUG_STREAM("Step: " << i << " location- x: " <<
-                      this->activeGoal.steps[i].pose.position.x <<
-                      " y: " << this->activeGoal.steps[i].pose.position.y <<
-                      " z: " << this->activeGoal.steps[i].pose.position.z);
-  }
-
-  for (unsigned int i = this->activeGoal.steps.size();
-       i < NUM_REQUIRED_WALK_STEPS; ++i)
-  {
-      // copy setup, but hijack step_index
-      atlas_msgs::AtlasBehaviorStepData repeatStep;
-      repeatStep.step_index = i;
-      repeatStep.foot_index = this->activeGoal.steps[i-2].foot_index;
-      repeatStep.duration = this->activeGoal.steps[i-2].duration;
-      repeatStep.pose = this->activeGoal.steps[i-2].pose;
-      repeatStep.swing_height = this->activeGoal.steps[i-2].swing_height;
-      this->activeGoal.steps.push_back(repeatStep);
-  }
-
-  ROS_INFO("Received new goal, processing");
-  this->executingGoal = false;
-  this->newGoal = true;
 }
 
 void ASIActionServer::abortGoal(std::string reason)
 {
-    if (this->actionServer->isActive())
-    {
-        ROS_INFO_STREAM("Aborting goal for reason: " << reason);
-      this->actionServer->setAborted(this->actionServerResult, reason);
-    }
-    this->executingGoal = false;
-    this->newGoal = false;
+  if (this->actionServer->isActive())
+  {
+    ROS_INFO_STREAM("Aborting goal for reason: " << reason);
+    this->actionServer->setAborted(this->actionServerResult, reason);
+  }
+  this->executingGoal = false;
+  this->newGoal = false;
 }
 
 int main(int argc, char **argv)

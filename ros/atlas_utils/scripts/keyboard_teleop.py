@@ -106,6 +106,7 @@ class AtlasTeleop():
         
         1-9: Change the length of step trajectory
         E: View and Edit Parameters
+        H: Print this menu
         R: Reset robot to standing pose
         Q: Quit
         """
