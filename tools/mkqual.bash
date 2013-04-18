@@ -3,6 +3,8 @@
 # Get the current working directory
 cwd=`pwd`
 
+stamp=`eval date +%d_%m_%Y_%R:%S`
+tmp_dir="/tmp/.vrc_qual_tmp_dir-$stamp"
 portal="http://vrcportal.osrfoundation.org"
 
 purpose1="This script creates a qual_{n}.zip file(s) for submission to the VRC"
@@ -56,24 +58,24 @@ if [ ! -e $3 ]; then
   exit
 fi
 
-rm -rf /tmp/vrc_qual_tmp
-mkdir /tmp/vrc_qual_tmp
+rm -rf $tmp_dir
+mkdir $tmp_dir
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
 sleep 3
 
 # Filter the state log file into the work directory
-gzlog echo $2 -z 30 --filter *.pose/*.pose > /tmp/vrc_qual_tmp/state.log
+gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
 
 # Copy the score file to the work directory
-cp $3 /tmp/vrc_qual_tmp/
-cd /tmp/vrc_qual_tmp
+cp $3 $tmp_dir
+cd $tmp_dir
 
 # Create the final zip file
 echo "Creating final zip file = qual_$1.zip"
 zip qual_$1.zip *.log
-mv /tmp/vrc_qual_tmp/*.zip $cwd
+mv $tmp_dir/*.zip $cwd
 
 echo "Important: You must upload qual_$1.zip to $portal."
 sleep 2
