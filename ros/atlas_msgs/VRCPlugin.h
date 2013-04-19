@@ -331,26 +331,22 @@ namespace gazebo
 
       /// \brief stand configuration with PID controller
       /// \param[in] pointer to atlas model
-      /// seating position.
       private: void SetPIDStand(physics::ModelPtr atlasModel);
 
+      /// \brief switch to StandPrep Mode
       private: void SetBDIStandPrep();
 
-      /// \brief switch to StandMode
-      /// \param[in] pointer to atlas model
-      /// seating position.
+      /// \brief switch to Stand Mode
       private: void SetBDIStand();
 
       /// \brief sitting configuration of the robot when it enters
       /// the vehicle.
-      /// \param[in] added pose offset when the robot is attached in the
-      /// seating position.
+      /// \param[in] pointer to atlas model
       private: void SetSeatingConfiguration(physics::ModelPtr atlasModel);
 
       /// \brief standing configuration of the robot when it exits
       /// the vehicle.
-      /// \param[in] added pose offset when the robot is set down next
-      /// to the vehicle.
+      /// \param[in] pointer to atlas model
       private: void SetStandingConfiguration(physics::ModelPtr atlasModel);
 
       /// \brief subscriber to joint_states
