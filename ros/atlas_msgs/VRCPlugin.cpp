@@ -97,14 +97,23 @@ void VRCPlugin::DeferredLoad()
   // allowing the controllers can initialize without the robot falling
   if (this->atlas.isInitialized)
   {
-    this->SetRobotMode("pinned");
-    this->atlas.startupHarness = true;
-    ROS_INFO("Start robot with gravity turned off and harnessed.");
-    if (math::equal(this->atlas.startupHarnessDuration, 0.0))
-      ROS_INFO("Atlas will stay pinned.");
+    if (atlas.startupMode == "bdi_stand")
+    {
+      ROS_ERROR("pid_stand");
+      this->atlas.startupBDIStand = true;
+      this->SetRobotMode("bdi_stand");
+    }
     else
-      ROS_INFO("Resume to nominal mode after %f seconds.",
-        this->atlas.startupHarnessDuration);
+    {
+      this->SetRobotMode("pinned");
+      this->atlas.startupHarness = true;
+      ROS_INFO("Start robot with gravity turned off and harnessed.");
+      if (math::equal(this->atlas.startupHarnessDuration, 0.0))
+        ROS_INFO("Atlas will stay pinned.");
+      else
+        ROS_INFO("Resume to nominal mode after %f seconds.",
+          this->atlas.startupHarnessDuration);
+    }
   }
 
   // ros callback queue for processing subscription
@@ -260,7 +269,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "nominal")
   {
-    // reinitialize pinning
+    // nominal
     this->warpRobotWithCmdVel = false;
     physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
@@ -269,6 +278,33 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+  }
+  else if (_str == "bdi_stand")
+  {
+    // nominal
+    this->warpRobotWithCmdVel = false;
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(true);
+    }
+    if (this->atlas.pinJoint)
+      this->RemoveJoint(this->atlas.pinJoint);
+
+    // turn physics off while manipulating things
+    bool physics = this->world->GetEnablePhysicsEngine();
+    bool paused = this->world->IsPaused();
+    this->world->SetPaused(true);
+    this->world->EnablePhysicsEngine(false);
+
+    // set robot configuration
+    this->atlasCommandController.SetPIDStand(this->atlas.model);
+    /// FIXME: uncomment sleep below and AtlasSimInterface fails to STAND, why?
+    // gazebo::common::Time::Sleep(gazebo::common::Time(1.0));
+    ROS_INFO("set robot configuration done");
+
+    this->world->EnablePhysicsEngine(physics);
+    this->world->SetPaused(paused);
   }
   else
   {
@@ -586,6 +622,21 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
 
+  static bool prep = false;
+  if (this->atlas.startupBDIStand && this->atlas.isInitialized)
+  {
+    if (curTime > atlas.startupStandPrepDuration)
+    {
+      this->atlasCommandController.SetBDIStand();
+      this->atlas.startupBDIStand = false;
+    }
+    else if (!prep && curTime > atlas.startupStandPrepDuration - 1)
+    {
+      this->atlasCommandController.SetBDIStandPrep();
+      prep = true;
+    }
+  }
+
   if (this->atlas.startupHarness && this->atlas.isInitialized &&
       !math::equal(atlas.startupHarnessDuration, 0.0) &&
       curTime > atlas.startupHarnessDuration)
@@ -800,6 +851,10 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   this->isInitialized = false;
   this->startupHarnessDuration = 10;
+  this->startupStandPrepDuration = 2;
+  this->startupHarness = false;
+  this->startupBDIStand = false;
+  this->startupMode = "pinned";
 
   // load parameters
   if (_sdf->HasElement("atlas") &&
@@ -889,6 +944,26 @@ void VRCPlugin::LoadRobotROSAPI()
     ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
              " %f seconds", atlas.startupHarnessDuration);
   }
+
+  if (!this->rosNode->getParam("atlas/startup_mode", atlas.startupMode))
+  {
+    ROS_INFO("atlas/startup_mode not specified, default pinned with "
+             " harness duration of %f seconds", atlas.startupHarnessDuration);
+  }
+  else if (atlas.startupMode == "bdi_stand")
+  {
+    ROS_INFO("Starting robot with BDI standing");
+  }
+  else if (atlas.startupMode == "pinned")
+  {
+    ROS_INFO("Starting robot pinned");
+  }
+  else
+  {
+    ROS_ERROR("Unsupported /atlas/startup_mode [%s]",
+      atlas.startupMode.c_str());
+  }
+
 
   // ros subscription
   std::string trajectory_topic_name = "atlas/cmd_vel";
