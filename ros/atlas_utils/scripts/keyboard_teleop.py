@@ -194,7 +194,7 @@ class AtlasTeleop():
             step = AtlasBehaviorStepData()
             
             # One step already exists, so add one to index
-            step.step_index = i + 1
+            step.step_index = i
             
             # Alternate between feet, start with left
             step.foot_index = is_right_foot
@@ -242,7 +242,7 @@ class AtlasTeleop():
             
         Q = quaternion_from_euler(0, 0, theta)
         step = AtlasBehaviorStepData()
-        step.step_index = len(steps) + 1
+        step.step_index = len(steps)
         step.foot_index = is_right_foot
         step.duration = self.params["Stride Duration"]["value"]
         step.pose.position.x = X
