@@ -1019,7 +1019,7 @@ void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-AtlasCommandController::AtlasCommandController()
+VRCPlugin::AtlasCommandController::AtlasCommandController()
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -1123,21 +1123,22 @@ AtlasCommandController::AtlasCommandController()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-AtlasCommandController::~AtlasCommandController()
+VRCPlugin::AtlasCommandController::~AtlasCommandController()
 {
   this->rosNode->shutdown();
   delete this->rosNode;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasCommandController::GetJointStates(
+void VRCPlugin::AtlasCommandController::GetJointStates(
         const sensor_msgs::JointState::ConstPtr &_js)
 {
   /// \todo: implement joint state monitoring when setting configuration
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasCommandController::SetPIDStand(physics::ModelPtr atlasModel)
+void VRCPlugin::AtlasCommandController::SetPIDStand(
+  physics::ModelPtr atlasModel)
 {
   // seated configuration
   this->jc.header.stamp = ros::Time::now();
@@ -1185,7 +1186,7 @@ void AtlasCommandController::SetPIDStand(physics::ModelPtr atlasModel)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasCommandController::SetBDIStandPrep()
+void VRCPlugin::AtlasCommandController::SetBDIStandPrep()
 {
   atlas_msgs::AtlasSimInterfaceCommand ac;
   ac.header.stamp = ros::Time::now();
@@ -1194,7 +1195,7 @@ void AtlasCommandController::SetBDIStandPrep()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasCommandController::SetBDIStand()
+void VRCPlugin::AtlasCommandController::SetBDIStand()
 {
   atlas_msgs::AtlasSimInterfaceCommand ac;
   ac.k_effort.resize(this->jointNames.size());
@@ -1206,7 +1207,7 @@ void AtlasCommandController::SetBDIStand()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasCommandController::SetSeatingConfiguration(
+void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   physics::ModelPtr atlasModel)
 {
   // seated configuration
@@ -1252,7 +1253,7 @@ void AtlasCommandController::SetSeatingConfiguration(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasCommandController::SetStandingConfiguration(
+void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   physics::ModelPtr atlasModel)
 {
   // standing configuration
@@ -1296,5 +1297,4 @@ void AtlasCommandController::SetStandingConfiguration(
   // publish AtlasCommand
   this->pubAtlasCommand.publish(jc);
 }
-////////////////////////////////////////////////////////////////////////////////
 }
