@@ -3,12 +3,13 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="qual_task_2.world"/>
 
+  <!-- We leave Atlas pinned in Qual 2 (teams can unpin if they want) -->
   <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
-    <arg name="extra_gazebo_args" value="-r" />
+    <arg name="extra_gazebo_args" value="-r --record_path=/tmp/qual_task_2" />
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
 
