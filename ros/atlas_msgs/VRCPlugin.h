@@ -339,13 +339,11 @@ namespace gazebo
       /// \brief switch to Stand Mode
       private: void SetBDIStand();
 
-      /// \brief sitting configuration of the robot when it enters
-      /// the vehicle.
+      /// \brief sitting configuration of the robot when it enters the vehicle.
       /// \param[in] pointer to atlas model
       private: void SetSeatingConfiguration(physics::ModelPtr atlasModel);
 
-      /// \brief standing configuration of the robot when it exits
-      /// the vehicle.
+      /// \brief standing configuration of the robot when it exits the vehicle.
       /// \param[in] pointer to atlas model
       private: void SetStandingConfiguration(physics::ModelPtr atlasModel);
 
