@@ -25,41 +25,47 @@ if [ "$#" -ne "3" ]; then
   echo
   echo "Usage:"
   echo $usage 
-  exit
+  exit 1
 fi
 
 # The first option must be a value between 1 and 4 inclusive.
 if [ $1 -lt "1" ] || [ $1 -gt "4" ]; then
   echo $usage
   echo "First option must be the number of Qual task: 1, 2, 3, or 4."
-  exit
+  exit 1
 fi
 
 # The second option must be a valid file
 if [ ! -e $2 ]; then
   echo $usage
   echo "Gazebo state log file[$2] does not exist"
-  exit
+  exit 1
 fi
 
 # The third option must be a valid file
 if [ ! -e $3 ]; then
   echo $usage
   echo "Score log file[$3] does not exist"
-  exit
+  exit 1
 fi
 
-tmp_dir="mktemp -d"
+if [ -e $cwd/qual_$1.zip ]; then
+  echo "The file $cwd/qual_$1.zip already exists and I won't overwrite it.  Aborting."
+  exit 1
+fi
+
+tmp_dir=`mktemp -d`
 
 echo $1 >> $tmp_dir/vrc_manifest.txt
 echo $2 >> $tmp_dir/vrc_manifest.txt
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
-sleep 3
 
+echo -n "Filtering..."
 # Filter the state log file into the work directory
 gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
+echo "done."
 
 # Copy the score file to the work directory
 cp $3 $tmp_dir
@@ -68,7 +74,7 @@ cp $3 $tmp_dir
 echo "Creating final zip file = qual_$1.zip"
 cd $tmp_dir
 zip qual_$1.zip *
-mv $tmp_dir/*.zip $cwd
+mv $tmp_dir/qual_$1.zip $cwd
 
 rm -rf $tmp_dir
 
