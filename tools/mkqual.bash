@@ -73,7 +73,7 @@ cp $3 $tmp_dir
 # Create the final zip file
 echo "Creating final zip file = qual_$1.zip"
 cd $tmp_dir
-zip qual_$1.zip *
+zip vrc_qual_$1.zip *
 mv $tmp_dir/vrc_qual_$1.zip $cwd
 
 rm -rf $tmp_dir
