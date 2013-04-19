@@ -56,8 +56,6 @@ fi
 
 tmp_dir=`mktemp -d`
 
-echo $2 >> $tmp_dir/vrc_manifest.txt
-echo $3 >> $tmp_dir/vrc_manifest.txt
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
@@ -73,6 +71,7 @@ cp $3 $tmp_dir
 # Create the final zip file
 echo "Creating final zip file = vrc_qual_$1.zip"
 cd $tmp_dir
+ls | grep -v vrc_manifest.txt > $tmp_dir/vrc_manifest.txt
 zip vrc_qual_$1.zip *
 mv $tmp_dir/vrc_qual_$1.zip $cwd
 
