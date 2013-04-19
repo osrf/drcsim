@@ -49,8 +49,8 @@ if [ ! -e $3 ]; then
   exit 1
 fi
 
-if [ -e $cwd/qual_$1.zip ]; then
-  echo "The file $cwd/qual_$1.zip already exists and I won't overwrite it.  Aborting."
+if [ -e $cwd/vrc_qual_$1.zip ]; then
+  echo "The file $cwd/vrc_qual_$1.zip already exists and I won't overwrite it.  Aborting."
   exit 1
 fi
 
@@ -71,12 +71,12 @@ echo "done."
 cp $3 $tmp_dir
 
 # Create the final zip file
-echo "Creating final zip file = qual_$1.zip"
+echo "Creating final zip file = vrc_qual_$1.zip"
 cd $tmp_dir
-zip qual_$1.zip *
-mv $tmp_dir/qual_$1.zip $cwd
+zip vrc_qual_$1.zip *
+mv $tmp_dir/vrc_qual_$1.zip $cwd
 
 rm -rf $tmp_dir
 
-echo "Important: You must upload qual_$1.zip to $portal."
+echo "Important: You must upload vrc_qual_$1.zip to $portal."
 sleep 2
