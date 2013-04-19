@@ -1,0 +1,15 @@
+<package>
+  <description brief="atlas_teleop">
+
+     atlas_teleop
+
+  </description>
+  <author>Morgan Quigley</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://gazebosim.org/wiki/atlas_teleop</url>
+  <depend package="osrf_msgs"/>
+  <depend package="rospy"/>
+</package>
+
+

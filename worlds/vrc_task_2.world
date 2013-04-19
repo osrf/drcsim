@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.3">
-  <world name="default">
+  <world name="vrc_task_2">
     <scene>
       <ambient>0.8 0.8 0.8 1.0</ambient>
     </scene>
@@ -323,6 +323,7 @@
       </drc_fire_hose>
     </plugin>
 
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring"/>
 
   </world>
 </sdf>
