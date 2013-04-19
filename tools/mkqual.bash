@@ -56,8 +56,8 @@ fi
 
 tmp_dir=`mktemp -d`
 
-echo $1 >> $tmp_dir/vrc_manifest.txt
 echo $2 >> $tmp_dir/vrc_manifest.txt
+echo $3 >> $tmp_dir/vrc_manifest.txt
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
