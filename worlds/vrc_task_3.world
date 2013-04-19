@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.3">
-  <world name="default">
+  <world name="vrc_task_3">
 
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
@@ -173,6 +173,7 @@
       </drc_fire_hose>
     </plugin>
 
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring"/>
 
   </world>
 </sdf>
