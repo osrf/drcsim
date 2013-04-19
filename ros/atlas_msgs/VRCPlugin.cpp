@@ -99,7 +99,6 @@ void VRCPlugin::DeferredLoad()
   {
     if (atlas.startupMode == "bdi_stand")
     {
-      ROS_ERROR("pid_stand");
       this->atlas.startupBDIStand = true;
       this->SetRobotMode("bdi_stand");
     }
