@@ -313,7 +313,7 @@ namespace gazebo
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
-    //   Joint Trajectory Controller                                          //
+    //   Robot Joint Controller                                               //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     private: class AtlasCommandController
@@ -360,7 +360,7 @@ namespace gazebo
       private: ros::NodeHandle* rosNode;
 
       /// \brief local copy of AtlasCommand message
-      private: atlas_msgs::AtlasCommand jc;
+      private: atlas_msgs::AtlasCommand ac;
 
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;

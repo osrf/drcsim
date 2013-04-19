@@ -1065,16 +1065,16 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
   this->jointNames.push_back("atlas::r_arm_mwx");
 
   unsigned int n = this->jointNames.size();
-  this->jc.position.resize(n);
-  this->jc.velocity.resize(n);
-  this->jc.effort.resize(n);
-  this->jc.kp_position.resize(n);
-  this->jc.ki_position.resize(n);
-  this->jc.kd_position.resize(n);
-  this->jc.kp_velocity.resize(n);
-  this->jc.i_effort_min.resize(n);
-  this->jc.i_effort_max.resize(n);
-  this->jc.k_effort.resize(n);
+  this->ac.position.resize(n);
+  this->ac.velocity.resize(n);
+  this->ac.effort.resize(n);
+  this->ac.kp_position.resize(n);
+  this->ac.ki_position.resize(n);
+  this->ac.kd_position.resize(n);
+  this->ac.kp_velocity.resize(n);
+  this->ac.i_effort_min.resize(n);
+  this->ac.i_effort_max.resize(n);
+  this->ac.k_effort.resize(n);
 
   for (unsigned int i = 0; i < n; i++)
   {
@@ -1084,25 +1084,25 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
     double val;
     this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
       "/p", val);
-    this->jc.kp_position[i] = val;
+    this->ac.kp_position[i] = val;
 
     this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
       "/i", val);
-    this->jc.ki_position[i] = val;
+    this->ac.ki_position[i] = val;
 
     this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
       "/d", val);
-    this->jc.kd_position[i] = val;
+    this->ac.kd_position[i] = val;
 
     this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
       "/i_clamp", val);
-    this->jc.i_effort_min[i] = -val;
-    this->jc.i_effort_max[i] = val;
-    this->jc.k_effort[i] =  255;
+    this->ac.i_effort_min[i] = -val;
+    this->ac.i_effort_max[i] = val;
+    this->ac.k_effort[i] =  255;
 
-    this->jc.velocity[i]     = 0;
-    this->jc.effort[i]       = 0;
-    this->jc.kp_velocity[i]  = 0;
+    this->ac.velocity[i]     = 0;
+    this->ac.effort[i]       = 0;
+    this->ac.kp_velocity[i]  = 0;
   }
 
   this->pubAtlasCommand =
@@ -1141,48 +1141,48 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   physics::ModelPtr atlasModel)
 {
   // seated configuration
-  this->jc.header.stamp = ros::Time::now();
-  this->jc.position[0]  =   2.438504816382192e-05;
-  this->jc.position[1]  =   0.0015186156379058957;
-  this->jc.position[2]  =   9.983908967114985e-06;
-  this->jc.position[3]  =   -0.0010675729718059301;
-  this->jc.position[4]  =   -0.0003740221436601132;
-  this->jc.position[5]  =   0.06201673671603203;
-  this->jc.position[6]  =  -0.2333149015903473;
-  this->jc.position[7]  =   0.5181407332420349;
-  this->jc.position[8]  =  -0.27610817551612854;
-  this->jc.position[9]  =   -0.062101610004901886;
-  this->jc.position[10] =  0.00035181696875952184;
-  this->jc.position[11] =   -0.06218484416604042;
-  this->jc.position[12] =  -0.2332201600074768;
-  this->jc.position[13] =   0.51811283826828;
-  this->jc.position[14] =  -0.2762000858783722;
-  this->jc.position[15] =   0.06211360543966293;
-  this->jc.position[16] =   0.29983898997306824;
-  this->jc.position[17] =   -1.303462266921997;
-  this->jc.position[18] =   2.0007927417755127;
-  this->jc.position[19] =   0.49823325872421265;
-  this->jc.position[20] =  0.0003098883025813848;
-  this->jc.position[21] =   -0.0044272784143686295;
-  this->jc.position[22] =   0.29982614517211914;
-  this->jc.position[23] =   1.3034454584121704;
-  this->jc.position[24] =   2.000779867172241;
-  this->jc.position[25] =  -0.498238742351532;
-  this->jc.position[26] =  0.0003156556049361825;
-  this->jc.position[27] =   0.004448802210390568;
+  this->ac.header.stamp = ros::Time::now();
+  this->ac.position[0]  =   2.438504816382192e-05;
+  this->ac.position[1]  =   0.0015186156379058957;
+  this->ac.position[2]  =   9.983908967114985e-06;
+  this->ac.position[3]  =   -0.0010675729718059301;
+  this->ac.position[4]  =   -0.0003740221436601132;
+  this->ac.position[5]  =   0.06201673671603203;
+  this->ac.position[6]  =  -0.2333149015903473;
+  this->ac.position[7]  =   0.5181407332420349;
+  this->ac.position[8]  =  -0.27610817551612854;
+  this->ac.position[9]  =   -0.062101610004901886;
+  this->ac.position[10] =  0.00035181696875952184;
+  this->ac.position[11] =   -0.06218484416604042;
+  this->ac.position[12] =  -0.2332201600074768;
+  this->ac.position[13] =   0.51811283826828;
+  this->ac.position[14] =  -0.2762000858783722;
+  this->ac.position[15] =   0.06211360543966293;
+  this->ac.position[16] =   0.29983898997306824;
+  this->ac.position[17] =   -1.303462266921997;
+  this->ac.position[18] =   2.0007927417755127;
+  this->ac.position[19] =   0.49823325872421265;
+  this->ac.position[20] =  0.0003098883025813848;
+  this->ac.position[21] =   -0.0044272784143686295;
+  this->ac.position[22] =   0.29982614517211914;
+  this->ac.position[23] =   1.3034454584121704;
+  this->ac.position[24] =   2.000779867172241;
+  this->ac.position[25] =  -0.498238742351532;
+  this->ac.position[26] =  0.0003156556049361825;
+  this->ac.position[27] =   0.004448802210390568;
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    this->jc.k_effort[i] =  255;
+    this->ac.k_effort[i] =  255;
 
   // set joint positions
   std::map<std::string, double> jps;
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
+    jps.insert(std::make_pair(this->jointNames[i], this->ac.position[i]));
 
   atlasModel->SetJointPositions(jps);
 
   // publish AtlasCommand
-  this->pubAtlasCommand.publish(jc);
+  this->pubAtlasCommand.publish(ac);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1211,45 +1211,45 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   physics::ModelPtr atlasModel)
 {
   // seated configuration
-  this->jc.header.stamp = ros::Time::now();
-  this->jc.position[0]  =   0.00;
-  this->jc.position[1]  =   0.00;
-  this->jc.position[2]  =   0.00;
-  this->jc.position[3]  =   0.00;
-  this->jc.position[4]  =   0.45;
-  this->jc.position[5]  =   0.00;
-  this->jc.position[6]  =  -1.60;
-  this->jc.position[7]  =   1.60;
-  this->jc.position[8]  =  -0.10;
-  this->jc.position[9]  =   0.00;
-  this->jc.position[10] =  -0.45;
-  this->jc.position[11] =   0.00;
-  this->jc.position[12] =  -1.60;
-  this->jc.position[13] =   1.60;
-  this->jc.position[14] =  -0.10;
-  this->jc.position[15] =   0.00;
-  this->jc.position[16] =   0.00;
-  this->jc.position[17] =   0.00;
-  this->jc.position[18] =   1.50;
-  this->jc.position[19] =   1.50;
-  this->jc.position[20] =  -3.00;
-  this->jc.position[21] =   0.00;
-  this->jc.position[22] =   0.00;
-  this->jc.position[23] =   0.00;
-  this->jc.position[24] =   1.50;
-  this->jc.position[25] =  -1.50;
-  this->jc.position[26] =  -3.00;
-  this->jc.position[27] =   0.00;
+  this->ac.header.stamp = ros::Time::now();
+  this->ac.position[0]  =   0.00;
+  this->ac.position[1]  =   0.00;
+  this->ac.position[2]  =   0.00;
+  this->ac.position[3]  =   0.00;
+  this->ac.position[4]  =   0.45;
+  this->ac.position[5]  =   0.00;
+  this->ac.position[6]  =  -1.60;
+  this->ac.position[7]  =   1.60;
+  this->ac.position[8]  =  -0.10;
+  this->ac.position[9]  =   0.00;
+  this->ac.position[10] =  -0.45;
+  this->ac.position[11] =   0.00;
+  this->ac.position[12] =  -1.60;
+  this->ac.position[13] =   1.60;
+  this->ac.position[14] =  -0.10;
+  this->ac.position[15] =   0.00;
+  this->ac.position[16] =   0.00;
+  this->ac.position[17] =   0.00;
+  this->ac.position[18] =   1.50;
+  this->ac.position[19] =   1.50;
+  this->ac.position[20] =  -3.00;
+  this->ac.position[21] =   0.00;
+  this->ac.position[22] =   0.00;
+  this->ac.position[23] =   0.00;
+  this->ac.position[24] =   1.50;
+  this->ac.position[25] =  -1.50;
+  this->ac.position[26] =  -3.00;
+  this->ac.position[27] =   0.00;
 
   // set joint positions
   std::map<std::string, double> jps;
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
+    jps.insert(std::make_pair(this->jointNames[i], this->ac.position[i]));
 
   atlasModel->SetJointPositions(jps);
 
   // publish AtlasCommand
-  this->pubAtlasCommand.publish(jc);
+  this->pubAtlasCommand.publish(ac);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1257,44 +1257,44 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   physics::ModelPtr atlasModel)
 {
   // standing configuration
-  this->jc.header.stamp = ros::Time::now();
-  this->jc.position[0]  =   0.00;
-  this->jc.position[1]  =   0.00;
-  this->jc.position[2]  =   0.00;
-  this->jc.position[3]  =   0.00;
-  this->jc.position[4]  =   0.00;
-  this->jc.position[5]  =   0.00;
-  this->jc.position[6]  =   0.00;
-  this->jc.position[7]  =   0.00;
-  this->jc.position[8]  =   0.00;
-  this->jc.position[9]  =   0.00;
-  this->jc.position[10] =   0.00;
-  this->jc.position[11] =   0.00;
-  this->jc.position[12] =   0.00;
-  this->jc.position[13] =   0.00;
-  this->jc.position[14] =   0.00;
-  this->jc.position[15] =   0.00;
-  this->jc.position[16] =   0.00;
-  this->jc.position[17] =  -1.60;
-  this->jc.position[18] =   0.00;
-  this->jc.position[19] =   0.00;
-  this->jc.position[20] =   0.00;
-  this->jc.position[21] =   0.00;
-  this->jc.position[22] =   0.00;
-  this->jc.position[23] =   1.60;
-  this->jc.position[24] =   0.00;
-  this->jc.position[25] =   0.00;
-  this->jc.position[26] =   0.00;
-  this->jc.position[27] =   0.00;
+  this->ac.header.stamp = ros::Time::now();
+  this->ac.position[0]  =   0.00;
+  this->ac.position[1]  =   0.00;
+  this->ac.position[2]  =   0.00;
+  this->ac.position[3]  =   0.00;
+  this->ac.position[4]  =   0.00;
+  this->ac.position[5]  =   0.00;
+  this->ac.position[6]  =   0.00;
+  this->ac.position[7]  =   0.00;
+  this->ac.position[8]  =   0.00;
+  this->ac.position[9]  =   0.00;
+  this->ac.position[10] =   0.00;
+  this->ac.position[11] =   0.00;
+  this->ac.position[12] =   0.00;
+  this->ac.position[13] =   0.00;
+  this->ac.position[14] =   0.00;
+  this->ac.position[15] =   0.00;
+  this->ac.position[16] =   0.00;
+  this->ac.position[17] =  -1.60;
+  this->ac.position[18] =   0.00;
+  this->ac.position[19] =   0.00;
+  this->ac.position[20] =   0.00;
+  this->ac.position[21] =   0.00;
+  this->ac.position[22] =   0.00;
+  this->ac.position[23] =   1.60;
+  this->ac.position[24] =   0.00;
+  this->ac.position[25] =   0.00;
+  this->ac.position[26] =   0.00;
+  this->ac.position[27] =   0.00;
 
   // set joint positions
   std::map<std::string, double> jps;
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
+    jps.insert(std::make_pair(this->jointNames[i], this->ac.position[i]));
 
   atlasModel->SetJointPositions(jps);
 
   // publish AtlasCommand
-  this->pubAtlasCommand.publish(jc);
+  this->pubAtlasCommand.publish(ac);
 }
 }
