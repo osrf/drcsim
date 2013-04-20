@@ -61,6 +61,11 @@ echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
 
 echo -n "Filtering..."
+
+# This is a hack to fix an occasional error by Gazebo. It's okay to have
+# mulitple end tags, but at least one must exist.
+echo "</gazebo_log>" >> $tmp_dir/state.log
+
 # Filter the state log file into the work directory
 gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
 echo "done."
