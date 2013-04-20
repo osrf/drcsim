@@ -61,6 +61,12 @@ echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
 
 echo -n "Filtering..."
+
+# This is a hack to fix an occasional error by Gazebo.
+if ! gzlog info $2 &> /dev/null; then
+  echo "</gazebo_log>" >> $2
+fi
+
 # Filter the state log file into the work directory
 gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
 echo "done."
