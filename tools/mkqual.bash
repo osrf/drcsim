@@ -64,7 +64,7 @@ echo -n "Filtering..."
 
 # This is a hack to fix an occasional error by Gazebo. It's okay to have
 # mulitple end tags, but at least one must exist.
-echo "</gazebo_log>" >> $tmp_dir/state.log
+echo "</gazebo_log>" >> $2
 
 # Filter the state log file into the work directory
 gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
