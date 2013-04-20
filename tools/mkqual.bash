@@ -62,9 +62,8 @@ echo "If an error message appears, then you should recreate the log file."
 
 echo -n "Filtering..."
 
-# This is a hack to fix an occasional error by Gazebo. It's okay to have
-# mulitple end tags, but at least one must exist.
-if ! gzlog info $2 2> /dev/null; then
+# This is a hack to fix an occasional error by Gazebo.
+if ! gzlog info $2 &> /dev/null; then
   echo "</gazebo_log>" >> $2
 fi
 
