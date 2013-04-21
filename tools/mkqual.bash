@@ -56,13 +56,17 @@ fi
 
 tmp_dir=`mktemp -d`
 
-echo $1 >> $tmp_dir/vrc_manifest.txt
-echo $2 >> $tmp_dir/vrc_manifest.txt
 
 echo "Filtering the Gazebo state log file. This may take many minutes."
 echo "If an error message appears, then you should recreate the log file."
 
 echo -n "Filtering..."
+
+# This is a hack to fix an occasional error by Gazebo.
+if ! gzlog info $2 &> /dev/null; then
+  echo "</gazebo_log>" >> $2
+fi
+
 # Filter the state log file into the work directory
 gzlog echo $2 -z 30 --filter *.pose/*.pose > $tmp_dir/state.log
 echo "done."
@@ -73,6 +77,7 @@ cp $3 $tmp_dir
 # Create the final zip file
 echo "Creating final zip file = vrc_qual_$1.zip"
 cd $tmp_dir
+ls | grep -v vrc_manifest.txt > $tmp_dir/vrc_manifest.txt
 zip vrc_qual_$1.zip *
 mv $tmp_dir/vrc_qual_$1.zip $cwd
 

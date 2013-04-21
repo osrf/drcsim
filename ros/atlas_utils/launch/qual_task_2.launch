@@ -5,6 +5,7 @@
 
   <!-- We leave Atlas pinned in Qual 2 (teams can unpin if they want) -->
   <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
+  <param name="/atlas/startup_mode" type="string" value="pinned"/>
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
