@@ -208,6 +208,8 @@ namespace gazebo
     private: boost::condition pause;
     private: ros::Subscriber subPause;
     private: boost::mutex pauseMutex;
+    private: common::Time acStartTime;
+    private: int acReceivedCount;
 
     private: void LoadPIDGainsFromParameter();
     private: void ZeroAtlasCommand();

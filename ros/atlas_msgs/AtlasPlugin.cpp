@@ -53,6 +53,10 @@ AtlasPlugin::AtlasPlugin()
   this->behaviorMap["Step"] = atlas_msgs::AtlasSimInterfaceCommand::STEP;
   this->behaviorMap["Manipulate"] =
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
+
+
+  this->acReceivedCount = 0;
+  this->acStartTime = common::Time();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -566,6 +570,14 @@ void AtlasPlugin::SetAtlasCommand(
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements k_effort[%ld] than expected[%ld]",
       _msg->k_effort.size(), this->atlasState.k_effort.size());
+  {
+    boost::mutex::scoped_lock lock(this->pauseMutex);
+    // message received, reset count
+    this->acReceivedCount = 6;
+
+    this->acStartTime = this->world->GetSimTime();
+    this->pause.notify_one();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -758,7 +770,7 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions atlasCommandSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasCommand>(
-    "atlas/atlas_command", 1,
+    "atlas/atlas_command", 10,
     boost::bind(&AtlasPlugin::SetAtlasCommand, this, _1),
     ros::VoidPtr(), &this->rosQueue);
 
@@ -769,7 +781,7 @@ void AtlasPlugin::DeferredLoad()
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
   atlasCommandSo.transport_hints =
-    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
+    ros::TransportHints().reliable().tcpNoDelay(true);
 
   this->subAtlasCommand =
     this->rosNode->subscribe(atlasCommandSo);
@@ -1074,6 +1086,36 @@ void AtlasPlugin::SetASICommand(
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
+
+  // EXPERIMENTAL: wait for controller publication?
+  // Once AtlasCommand has been received "continuously" for 3 second,
+  // we'll enforce a 5ms guarantee.
+  // If incoming message fails to arrive in 5ms, lock and wait.
+  // If wait time exceeds 500ms, consider connection broken, and reset cycle.
+  //
+  // worst case, we wait 500ms in every 3 seconds.
+  {
+    boost::mutex::scoped_lock lock(this->pauseMutex);
+    this->acReceivedCount--;
+    if (this->acReceivedCount < 0)
+      this->acReceivedCount = 0;
+    // ROS_ERROR("countdown %d", (this->acReceivedCount));
+
+    if (this->acReceivedCount == 1)  // 5 cycles elapsed since last command
+    {
+      ROS_ERROR("wait");
+      // boost::mutex::scoped_lock lock(this->pauseMutex);
+      boost::system_time timeout = boost::get_system_time() +
+        boost::posix_time::milliseconds(2000.0);
+      if (!pause.timed_wait(lock, timeout))
+      {
+        // timeout without message, terminate waits, reset count
+        this->acReceivedCount = 0;
+        ROS_ERROR("Lost connection");
+      }
+    }
+  }
+
   common::Time curTime = this->world->GetSimTime();
 
   double dt = (curTime - this->lastControllerUpdateTime).Double();
@@ -1434,15 +1476,6 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
-
-  // EXPERIMENTAL: wait for controller publication?
-  // {
-  //   boost::mutex::scoped_lock lock(this->pauseMutex);
-  //   // pause.wait(lock);
-  //   boost::system_time timeout = boost::get_system_time() +
-  //     boost::posix_time::milliseconds(0.5);
-  //   pause.timed_wait(lock, timeout);
-  // }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

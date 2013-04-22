@@ -131,7 +131,7 @@ int main(int argc, char** argv)
   // ros topic subscribtions
   ros::SubscribeOptions atlasStateSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasState>(
-    "/atlas/atlas_state", 1, SetAtlasState,
+    "/atlas/atlas_state", 10, SetAtlasState,
     ros::VoidPtr(), rosnode->getCallbackQueue());
 
   // Because TCP causes bursty communication with high jitter,
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
   // (e.g., from rospy nodes, which don't support UDP);
   // we just prefer UDP.
   atlasStateSo.transport_hints =
-    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
+    ros::TransportHints().reliable().tcpNoDelay(true);
 
   ros::Subscriber subAtlasState = rosnode->subscribe(atlasStateSo);
   // ros::Subscriber subAtlasState =
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
 
   pub_atlas_command_ =
     rosnode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/atlas_command", 1, true);
+    "/atlas/atlas_command", 10, true);
 
   ros::spin();
 
