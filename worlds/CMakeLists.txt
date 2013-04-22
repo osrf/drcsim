@@ -15,6 +15,7 @@ set (worlds
      qual_task_1_stumps.world
      qual_task_2.world
      qual_task_3.world
+     qual_task_3_stumps.world
      qual_task_4.world
      vrc_task_1.world
      vrc_task_2.world
