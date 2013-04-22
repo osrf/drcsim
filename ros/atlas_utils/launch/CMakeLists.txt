@@ -3,7 +3,6 @@ set (files
   atlas.launch
   atlas_sandia_hands.launch
   atlas_sandia_hands_bringup.launch
-  atlas_sandia_hands_stumps.launch
   atlas_sandia_hands_stumps_bringup.launch
   atlas_irobot_hands.launch
   atlas_drc_vehicle_fire_hose.launch
@@ -14,7 +13,6 @@ set (files
   drc_sim_v0.launch
   drc_trajectory_controllers.launch
   qual_task_1.launch
-  qual_task_1_stumps.launch
   qual_task_2.launch
   qual_task_3.launch
   qual_task_4.launch

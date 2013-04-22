@@ -18,6 +18,7 @@ set (worlds
      qual_task_4.world
      vrc_task_1.world
      vrc_task_2.world
+     vrc_task_2_stumps.world
      vrc_task_3.world
     )
 
