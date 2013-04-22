@@ -9,8 +9,6 @@ include (CheckDisplayCapabilities.cmake)
 
 if(VALID_DRI_DISPLAY)
     list(APPEND rostests 
-         atlas_arenas_logging.launch
-         atlas_arenas_start_testing.launch
          atlas_publishers_hz_gpu.test
          atlas_rosapi.test
          atlas_sandia_hands_rosapi.test
