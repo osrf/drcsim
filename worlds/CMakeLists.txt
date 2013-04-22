@@ -2,6 +2,7 @@ set (worlds
      drc_sim_v0.world
      atlas.world
      atlas_sandia_hands.world
+     atlas_sandia_hands_stumps.world
      atlas_irobot_hands.world
      atlas_drc_vehicle_fire_hose.world
      atlas_AtlasSimInterface.world
@@ -11,6 +12,7 @@ set (worlds
      fire_hose.world
      powerplant.world
      qual_task_1.world
+     qual_task_1_stumps.world
      qual_task_2.world
      qual_task_3.world
      qual_task_4.world
