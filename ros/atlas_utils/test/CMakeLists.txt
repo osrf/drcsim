@@ -51,6 +51,7 @@ set(files
   ros_subscribers.launch
   pub_atlas_command.launch
   perf_test.launch
+  perf_test_local.launch
 )
 set(scripts
   ros_api_checker
