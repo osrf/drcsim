@@ -36,17 +36,18 @@ ros::Time t0;
 
 void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
 {
-  boost::mutex::scoped_lock lock(mutex);
   static ros::Time startTime = ros::Time::now();
   t0 = startTime;
   // for testing round trip time
   counter++;
-  if (counter >= 4)
+  // if (as.header.stamp.toSec() == ac.header.stamp.toSec())
+  if (counter > 3)
   {
+    boost::mutex::scoped_lock lock(mutex);
     counter = 0;
     as = *_as;
     // kick off calculation
-    conditionWait.notify_one();
+    // conditionWait.notify_one();
   }
 }
 
@@ -57,12 +58,12 @@ void Work()
     {
       boost::mutex::scoped_lock lock(mutex);
       // wait for next state
-      conditionWait.wait(lock);
+      // conditionWait.wait(lock);
       ac.header.stamp = as.header.stamp;
     }
 
     // simulate working
-    usleep(1000);
+    usleep(2500);
 
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jointNames.size(); i++)
