@@ -33,6 +33,7 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Float64MultiArray.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
@@ -207,9 +208,15 @@ namespace gazebo
     private: void Pause(const std_msgs::String::ConstPtr &_msg);
     private: boost::condition pause;
     private: ros::Subscriber subPause;
-    private: boost::mutex pauseMutex;
-    private: common::Time acStartTime;
-    private: int acReceivedCount;
+    private: common::Time delayWindowSize;
+    private: common::Time delayWindowStart;
+    private: common::Time delayMaxPerWindow;
+    private: common::Time delayMaxPerStep;
+    private: common::Time delayInWindow;
+    private: ros::Publisher pubDelayStatistics;
+    private: PubQueue<std_msgs::Float64MultiArray>::Ptr pubDelayStatisticsQueue;
+    private: std_msgs::Float64MultiArray delayStatistics;
+    //private: int acReceivedCount;
 
     private: void LoadPIDGainsFromParameter();
     private: void ZeroAtlasCommand();

@@ -27,18 +27,25 @@
 ros::Publisher pub_atlas_command_;
 atlas_msgs::AtlasCommand ac;
 std::vector<std::string> jointNames;
+int counter = 0;
 
 void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_js)
 {
   static ros::Time startTime = ros::Time::now();
-  {
-    // for testing round trip time
-    ac.header.stamp = _js->header.stamp;
+  // for testing round trip time
+  ac.header.stamp = _js->header.stamp;
 
+  counter++;
+  if (counter >= 3)
+  {
+    counter = 0;
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jointNames.size(); i++)
+    {
       ac.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
-
+      ac.k_effort[i] = 255;
+    }
+    ac.desired_controller_period_ms = 5;
     pub_atlas_command_.publish(ac);
   }
 }
@@ -131,7 +138,7 @@ int main(int argc, char** argv)
   // ros topic subscribtions
   ros::SubscribeOptions atlasStateSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasState>(
-    "/atlas/atlas_state", 10, SetAtlasState,
+    "/atlas/atlas_state", 100, SetAtlasState,
     ros::VoidPtr(), rosnode->getCallbackQueue());
 
   // Because TCP causes bursty communication with high jitter,
@@ -149,7 +156,7 @@ int main(int argc, char** argv)
 
   pub_atlas_command_ =
     rosnode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/atlas_command", 10, true);
+    "/atlas/atlas_command", 100, true);
 
   ros::spin();
 

@@ -55,8 +55,11 @@ AtlasPlugin::AtlasPlugin()
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
 
 
-  this->acReceivedCount = 0;
-  this->acStartTime = common::Time();
+  this->delayWindowSize = common::Time(10.0);
+  this->delayMaxPerWindow = common::Time(1.0);
+  this->delayMaxPerStep = common::Time(0.1);
+  this->delayWindowStart = common::Time(0.0);
+  this->delayInWindow = common::Time(0.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -477,7 +480,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 void AtlasPlugin::Pause(
   const std_msgs::String::ConstPtr &_msg)
 {
-  boost::mutex::scoped_lock lock(this->pauseMutex);
+  boost::mutex::scoped_lock lock(this->mutex);
   this->pause.notify_one();
 }
 
@@ -570,14 +573,12 @@ void AtlasPlugin::SetAtlasCommand(
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements k_effort[%ld] than expected[%ld]",
       _msg->k_effort.size(), this->atlasState.k_effort.size());
-  {
-    boost::mutex::scoped_lock lock(this->pauseMutex);
-    // message received, reset count
-    this->acReceivedCount = 6;
 
-    this->acStartTime = this->world->GetSimTime();
-    this->pause.notify_one();
-  }
+  this->atlasCommand.desired_controller_period_ms =
+    _msg->desired_controller_period_ms;
+
+  // gzerr << "SetAtlasCommand " << this->atlasCommand.header.stamp.toSec()*1000 << "\n";
+  this->pause.notify_one();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -723,7 +724,23 @@ void AtlasPlugin::DeferredLoad()
 
   this->pubAtlasStateQueue = this->pmq.addPub<atlas_msgs::AtlasState>();
   this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
-    "atlas/atlas_state", 1);
+    "atlas/atlas_state", 100, true);
+
+  this->pubDelayStatistics =
+    this->rosNode->advertise<std_msgs::Float64MultiArray>(
+    "atlas/delay_statistics", 100, true);
+  this->pubDelayStatisticsQueue =
+    this->pmq.addPub<std_msgs::Float64MultiArray>();
+  this->delayStatistics.data.resize(3);
+
+  double delayValue;
+  if (this->rosNode->getParam("atlas/delay_window_size", delayValue))
+    this->delayWindowSize = delayValue;
+  if (this->rosNode->getParam("atlas/delay_max_per_window", delayValue))
+    this->delayMaxPerWindow = delayValue;
+  if (this->rosNode->getParam("atlas/delay_max_per_step", delayValue))
+    this->delayMaxPerStep = delayValue;
+  
 
   // publish separate /atlas/imu topic, to be deprecated
   this->pubImu =
@@ -770,7 +787,7 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions atlasCommandSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasCommand>(
-    "atlas/atlas_command", 10,
+    "atlas/atlas_command", 100,
     boost::bind(&AtlasPlugin::SetAtlasCommand, this, _1),
     ros::VoidPtr(), &this->rosQueue);
 
@@ -1086,36 +1103,6 @@ void AtlasPlugin::SetASICommand(
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateStates()
 {
-
-  // EXPERIMENTAL: wait for controller publication?
-  // Once AtlasCommand has been received "continuously" for 3 second,
-  // we'll enforce a 5ms guarantee.
-  // If incoming message fails to arrive in 5ms, lock and wait.
-  // If wait time exceeds 500ms, consider connection broken, and reset cycle.
-  //
-  // worst case, we wait 500ms in every 3 seconds.
-  {
-    boost::mutex::scoped_lock lock(this->pauseMutex);
-    this->acReceivedCount--;
-    if (this->acReceivedCount < 0)
-      this->acReceivedCount = 0;
-    // ROS_ERROR("countdown %d", (this->acReceivedCount));
-
-    if (this->acReceivedCount == 1)  // 5 cycles elapsed since last command
-    {
-      ROS_ERROR("wait");
-      // boost::mutex::scoped_lock lock(this->pauseMutex);
-      boost::system_time timeout = boost::get_system_time() +
-        boost::posix_time::milliseconds(2000.0);
-      if (!pause.timed_wait(lock, timeout))
-      {
-        // timeout without message, terminate waits, reset count
-        this->acReceivedCount = 0;
-        ROS_ERROR("Lost connection");
-      }
-    }
-  }
-
   common::Time curTime = this->world->GetSimTime();
 
   double dt = (curTime - this->lastControllerUpdateTime).Double();
@@ -1336,8 +1323,57 @@ void AtlasPlugin::UpdateStates()
       this->pubASIStateQueue->push(this->asiState, this->pubASIState);
     }
 
+    if (this->atlasCommand.desired_controller_period_ms != 0)
+    {
+      common::Time curWallTime = common::Time::GetWallTime();
+      if (curWallTime >= this->delayWindowStart + this->delayWindowSize)
+      {
+        this->delayWindowStart = curWallTime;
+        this->delayInWindow = common::Time(0.0);
+      }
+
+      common::Time delayStepSum(0.0);
+      if (this->delayInWindow < this->delayMaxPerWindow)
+      {
+        boost::mutex::scoped_lock lock(this->mutex);
+        while (delayStepSum < this->delayMaxPerStep &&
+               this->delayInWindow < this->delayMaxPerWindow)
+        {
+          double age = curTime.Double() -
+            this->atlasCommand.header.stamp.toSec();
+          // gzerr << "age: " << age
+          //       << " stamp: " << this->atlasCommand.header.stamp.toSec()*1000
+          //       << "\n";
+          if (age < 0.001 * this->atlasCommand.desired_controller_period_ms)
+            break;
+          boost::system_time timeout = boost::get_system_time();
+          common::Time timeDelay(boost::detail::get_timespec(timeout));
+          timeout += boost::posix_time::seconds(std::min(
+              (this->delayMaxPerStep - delayStepSum).Double(),
+              (this->delayMaxPerWindow - this->delayInWindow).Double()));
+          pause.timed_wait(lock, timeout);
+          timeDelay = common::Time::GetWallTime() - timeDelay;
+          delayStepSum += timeDelay;
+          this->delayInWindow += timeDelay;
+          // gzerr << "notified with "
+          //       << this->atlasCommand.header.stamp.toSec()*1000 << "\n";
+        }
+      }
+      this->delayStatistics.data[0] = delayStepSum.Double();
+      this->delayStatistics.data[1] =
+        (this->delayMaxPerWindow - this->delayInWindow).Double();
+      this->delayStatistics.data[2] = 
+        ((this->delayWindowStart + this->delayWindowSize) -
+         curWallTime).Double();
+
+      this->pubDelayStatisticsQueue->push(
+        this->delayStatistics, this->pubDelayStatistics);
+    }
+
     {
       boost::mutex::scoped_lock lock(this->mutex);
+
+
       {
         // Keep track of age of atlasCommand age in seconds.
         // Note the value is invalid as a moving window average age
@@ -1619,6 +1655,7 @@ void AtlasPlugin::ZeroAtlasCommand()
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
   }
+  this->atlasCommand.desired_controller_period_ms = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
