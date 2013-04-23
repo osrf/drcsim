@@ -20,45 +20,38 @@
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
 #include <boost/algorithm/string.hpp>
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
 
-ros::Publisher pub_atlas_command_;
+ros::Publisher pubAtlasCommand;
 atlas_msgs::AtlasCommand ac;
 atlas_msgs::AtlasState as;
 std::vector<std::string> jointNames;
-boost::condition conditionWait;
 boost::mutex mutex;
-int counter = 0;
 ros::Time t0;
 
 void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
 {
   static ros::Time startTime = ros::Time::now();
   t0 = startTime;
-  // for testing round trip time
-  counter++;
-  // if (as.header.stamp.toSec() == ac.header.stamp.toSec())
-  if (counter > 3)
   {
     boost::mutex::scoped_lock lock(mutex);
-    counter = 0;
     as = *_as;
-    // kick off calculation
-    // conditionWait.notify_one();
   }
+
+  // simulate state filtering
+  // usleep(1000);
 }
 
 void Work()
 {
+  // simulated worker thread
   while(true)
   {
     {
       boost::mutex::scoped_lock lock(mutex);
-      // wait for next state
-      // conditionWait.wait(lock);
+      // for testing round trip time
       ac.header.stamp = as.header.stamp;
     }
 
@@ -77,7 +70,7 @@ void Work()
     // Use up the delay budget if wait is needed in AtlasPlugin.
     ac.desired_controller_period_ms = 5;
 
-    pub_atlas_command_.publish(ac);
+    pubAtlasCommand.publish(ac);
   }
 }
 
@@ -185,8 +178,7 @@ int main(int argc, char** argv)
   // ros::Subscriber subAtlasState =
   //   rosnode->subscribe("/atlas/joint_states", 1000, SetAtlasState);
 
-  pub_atlas_command_ =
-    rosnode->advertise<atlas_msgs::AtlasCommand>(
+  pubAtlasCommand = rosnode->advertise<atlas_msgs::AtlasCommand>(
     "/atlas/atlas_command", 100, true);
 
   boost::thread work = boost::thread(&Work);
