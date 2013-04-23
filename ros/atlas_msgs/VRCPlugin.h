@@ -32,6 +32,7 @@
 #include <sensor_msgs/JointState.h>
 
 #include <atlas_msgs/AtlasCommand.h>
+#include <atlas_msgs/AtlasSimInterfaceCommand.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -215,6 +216,15 @@ namespace gazebo
       /// \brief Flag to keep track of start-up 'harness' on the robot.
       private: bool startupHarness;
 
+      /// \brief Duration in StandPrep before going into Stand
+      private: double startupStandPrepDuration;
+
+      /// \brief Flag to keep track of start-up 'bdi_stand' on the robot.
+      private: bool startupBDIStand;
+
+      /// \brief allow user to set startup mode as bdi_stand or pinned
+      private: std::string startupMode;
+
       /// \brief flag for successful initialization of atlas
       private: bool isInitialized;
 
@@ -303,218 +313,39 @@ namespace gazebo
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
-    //   Joint Trajectory Controller                                          //
+    //   Robot Joint Controller                                               //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     private: class AtlasCommandController
     {
       /// \brief Constructor, note atlas_controller is the name
       /// of the controller loaded from yaml
-      private: AtlasCommandController()
-      {
-        // initialize ros
-        if (!ros::isInitialized())
-        {
-          gzerr << "Not loading AtlasCommandController since ROS hasn't been "
-                << "properly initialized.  Try starting Gazebo with"
-                << " ros plugin:\n"
-                << "  gazebo -s libgazebo_ros_api_plugin.so\n";
-          return;
-        }
-
-        // ros stuff
-        this->rosNode = new ros::NodeHandle("");
-
-        // must match those inside AtlasPlugin
-        this->jointNames.push_back("atlas::back_lbz");
-        this->jointNames.push_back("atlas::back_mby");
-        this->jointNames.push_back("atlas::back_ubx");
-        this->jointNames.push_back("atlas::neck_ay");
-        this->jointNames.push_back("atlas::l_leg_uhz");
-        this->jointNames.push_back("atlas::l_leg_mhx");
-        this->jointNames.push_back("atlas::l_leg_lhy");
-        this->jointNames.push_back("atlas::l_leg_kny");
-        this->jointNames.push_back("atlas::l_leg_uay");
-        this->jointNames.push_back("atlas::l_leg_lax");
-        this->jointNames.push_back("atlas::r_leg_uhz");
-        this->jointNames.push_back("atlas::r_leg_mhx");
-        this->jointNames.push_back("atlas::r_leg_lhy");
-        this->jointNames.push_back("atlas::r_leg_kny");
-        this->jointNames.push_back("atlas::r_leg_uay");
-        this->jointNames.push_back("atlas::r_leg_lax");
-        this->jointNames.push_back("atlas::l_arm_usy");
-        this->jointNames.push_back("atlas::l_arm_shx");
-        this->jointNames.push_back("atlas::l_arm_ely");
-        this->jointNames.push_back("atlas::l_arm_elx");
-        this->jointNames.push_back("atlas::l_arm_uwy");
-        this->jointNames.push_back("atlas::l_arm_mwx");
-        this->jointNames.push_back("atlas::r_arm_usy");
-        this->jointNames.push_back("atlas::r_arm_shx");
-        this->jointNames.push_back("atlas::r_arm_ely");
-        this->jointNames.push_back("atlas::r_arm_elx");
-        this->jointNames.push_back("atlas::r_arm_uwy");
-        this->jointNames.push_back("atlas::r_arm_mwx");
-
-        unsigned int n = this->jointNames.size();
-        this->jc.position.resize(n);
-        this->jc.velocity.resize(n);
-        this->jc.effort.resize(n);
-        this->jc.kp_position.resize(n);
-        this->jc.ki_position.resize(n);
-        this->jc.kd_position.resize(n);
-        this->jc.kp_velocity.resize(n);
-        this->jc.i_effort_min.resize(n);
-        this->jc.i_effort_max.resize(n);
-
-        for (unsigned int i = 0; i < n; i++)
-        {
-          std::vector<std::string> pieces;
-          boost::split(pieces, this->jointNames[i], boost::is_any_of(":"));
-
-          double val;
-          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/p", val);
-          this->jc.kp_position[i] = val;
-
-          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/i", val);
-          this->jc.ki_position[i] = val;
-
-          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/d", val);
-          this->jc.kd_position[i] = val;
-
-          this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
-            "/i_clamp", val);
-          this->jc.i_effort_min[i] = -val;
-          this->jc.i_effort_max[i] = val;
-
-          this->jc.velocity[i]     = 0;
-          this->jc.effort[i]       = 0;
-          this->jc.kp_velocity[i]  = 0;
-        }
-
-        this->pubAtlasCommand =
-          this->rosNode->advertise<atlas_msgs::AtlasCommand>(
-          "/atlas/atlas_command", 1, true);
-
-        ros::SubscribeOptions jointStatesSo =
-          ros::SubscribeOptions::create<sensor_msgs::JointState>(
-          "/atlas/joint_states", 1,
-          boost::bind(&AtlasCommandController::GetJointStates, this, _1),
-          ros::VoidPtr(), this->rosNode->getCallbackQueue());
-        this->subJointStates =
-          this->rosNode->subscribe(jointStatesSo);
-      }
+      private: AtlasCommandController();
 
       /// \brief Destructor
-      private: ~AtlasCommandController()
-      {
-        this->rosNode->shutdown();
-        delete this->rosNode;
-      }
+      private: ~AtlasCommandController();
 
       /// \brief subscriber to joint_states of the atlas robot
-      private: void GetJointStates(const sensor_msgs::JointState::ConstPtr &_js)
-      {
-        /// \todo: implement joint state monitoring when setting configuration
-      }
+      private: void GetJointStates(
+        const sensor_msgs::JointState::ConstPtr &_js);
 
-      /// \brief sitting configuration of the robot when it enters
-      /// the vehicle.
-      /// \param[in] added pose offset when the robot is attached in the
-      /// seating position.
-      private: void SetSeatingConfiguration(physics::ModelPtr atlasModel)
-      {
-        // seated configuration
-        this->jc.header.stamp = ros::Time::now();
-        this->jc.position[0]  =   0.00;
-        this->jc.position[1]  =   0.00;
-        this->jc.position[2]  =   0.00;
-        this->jc.position[3]  =   0.00;
-        this->jc.position[4]  =   0.45;
-        this->jc.position[5]  =   0.00;
-        this->jc.position[6]  =  -1.60;
-        this->jc.position[7]  =   1.60;
-        this->jc.position[8]  =  -0.10;
-        this->jc.position[9]  =   0.00;
-        this->jc.position[10] =  -0.45;
-        this->jc.position[11] =   0.00;
-        this->jc.position[12] =  -1.60;
-        this->jc.position[13] =   1.60;
-        this->jc.position[14] =  -0.10;
-        this->jc.position[15] =   0.00;
-        this->jc.position[16] =   0.00;
-        this->jc.position[17] =   0.00;
-        this->jc.position[18] =   1.50;
-        this->jc.position[19] =   1.50;
-        this->jc.position[20] =  -3.00;
-        this->jc.position[21] =   0.00;
-        this->jc.position[22] =   0.00;
-        this->jc.position[23] =   0.00;
-        this->jc.position[24] =   1.50;
-        this->jc.position[25] =  -1.50;
-        this->jc.position[26] =  -3.00;
-        this->jc.position[27] =   0.00;
+      /// \brief stand configuration with PID controller
+      /// \param[in] pointer to atlas model
+      private: void SetPIDStand(physics::ModelPtr atlasModel);
 
-        // set joint positions
-        std::map<std::string, double> jps;
-        for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-          jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
+      /// \brief switch to StandPrep Mode
+      private: void SetBDIStandPrep();
 
-        atlasModel->SetJointPositions(jps);
+      /// \brief switch to Stand Mode
+      private: void SetBDIStand();
 
-        // publish AtlasCommand
-        this->pubAtlasCommand.publish(jc);
-      }
+      /// \brief sitting configuration of the robot when it enters the vehicle.
+      /// \param[in] pointer to atlas model
+      private: void SetSeatingConfiguration(physics::ModelPtr atlasModel);
 
-      /// \brief standing configuration of the robot when it exits
-      /// the vehicle.
-      /// \param[in] added pose offset when the robot is set down next
-      /// to the vehicle.
-      private: void SetStandingConfiguration(physics::ModelPtr atlasModel)
-      {
-        // standing configuration
-        this->jc.header.stamp = ros::Time::now();
-        this->jc.position[0]  =   0.00;
-        this->jc.position[1]  =   0.00;
-        this->jc.position[2]  =   0.00;
-        this->jc.position[3]  =   0.00;
-        this->jc.position[4]  =   0.00;
-        this->jc.position[5]  =   0.00;
-        this->jc.position[6]  =   0.00;
-        this->jc.position[7]  =   0.00;
-        this->jc.position[8]  =   0.00;
-        this->jc.position[9]  =   0.00;
-        this->jc.position[10] =   0.00;
-        this->jc.position[11] =   0.00;
-        this->jc.position[12] =   0.00;
-        this->jc.position[13] =   0.00;
-        this->jc.position[14] =   0.00;
-        this->jc.position[15] =   0.00;
-        this->jc.position[16] =   0.00;
-        this->jc.position[17] =  -1.60;
-        this->jc.position[18] =   0.00;
-        this->jc.position[19] =   0.00;
-        this->jc.position[20] =   0.00;
-        this->jc.position[21] =   0.00;
-        this->jc.position[22] =   0.00;
-        this->jc.position[23] =   1.60;
-        this->jc.position[24] =   0.00;
-        this->jc.position[25] =   0.00;
-        this->jc.position[26] =   0.00;
-        this->jc.position[27] =   0.00;
-
-        // set joint positions
-        std::map<std::string, double> jps;
-        for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-          jps.insert(std::make_pair(this->jointNames[i], this->jc.position[i]));
-
-        atlasModel->SetJointPositions(jps);
-
-        // publish AtlasCommand
-        this->pubAtlasCommand.publish(jc);
-      }
+      /// \brief standing configuration of the robot when it exits the vehicle.
+      /// \param[in] pointer to atlas model
+      private: void SetStandingConfiguration(physics::ModelPtr atlasModel);
 
       /// \brief subscriber to joint_states
       private: ros::Subscriber subJointStates;
@@ -522,11 +353,14 @@ namespace gazebo
       /// \brief publisher of joint_commands
       private: ros::Publisher pubAtlasCommand;
 
+      /// \brief publisher of AtlasSimInterfaceCommand
+      private: ros::Publisher pubAtlasSimInterfaceCommand;
+
       /// \brief ros node handle
       private: ros::NodeHandle* rosNode;
 
       /// \brief local copy of AtlasCommand message
-      private: atlas_msgs::AtlasCommand jc;
+      private: atlas_msgs::AtlasCommand ac;
 
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;
@@ -568,6 +402,9 @@ namespace gazebo
     // items below are used for deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
+
+    // mode flag to indicate StandPrep mode has already been called once.
+    private: bool bdiStandPrep;
   };
 /** \} */
 /// @}
