@@ -41,7 +41,7 @@ void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
   t0 = startTime;
   // for testing round trip time
   counter++;
-  if (counter >= 4)
+  if (counter >= 5)
   {
     counter = 0;
     as = *_as;
@@ -56,11 +56,10 @@ void Work()
     {
       boost::mutex::scoped_lock lock(mutex);
       conditionWait.wait(lock);
-
       ac.header.stamp = as.header.stamp;
     }
 
-    usleep(3000);  // working
+    usleep(1000);  // working
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jointNames.size(); i++)
     {

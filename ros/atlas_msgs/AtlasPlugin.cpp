@@ -55,6 +55,7 @@ AtlasPlugin::AtlasPlugin()
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
 
 
+  // default control synchronization delay settings
   this->delayWindowSize = common::Time(10.0);
   this->delayMaxPerWindow = common::Time(1.0);
   this->delayMaxPerStep = common::Time(0.1);
@@ -477,7 +478,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::Pause(
+void AtlasPlugin::Tic(
   const std_msgs::String::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
@@ -730,12 +731,12 @@ void AtlasPlugin::DeferredLoad()
     "atlas/atlas_state", 100, true);
 
   this->pubDelayStatistics =
-    this->rosNode->advertise<std_msgs::Float64MultiArray>(
-    "atlas/delay_statistics", 100, true);
+    this->rosNode->advertise<atlas_msgs::SynchronizationStatistics>(
+    "atlas/synchronization_statistics", 100, true);
   this->pubDelayStatisticsQueue =
-    this->pmq.addPub<std_msgs::Float64MultiArray>();
-  this->delayStatistics.data.resize(3);
+    this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
 
+  // read delay settings in param server and apply limits
   double delayValue;
   if (this->rosNode->getParam("atlas/delay_window_size", delayValue))
     this->delayWindowSize = delayValue;
@@ -780,11 +781,11 @@ void AtlasPlugin::DeferredLoad()
   ros::SubscribeOptions pauseSo =
     ros::SubscribeOptions::create<std_msgs::String>(
     "atlas/debug/sync_delay", 1,
-    boost::bind(&AtlasPlugin::Pause, this, _1),
+    boost::bind(&AtlasPlugin::Tic, this, _1),
     ros::VoidPtr(), &this->rosQueue);
   pauseSo.transport_hints =
     ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
-  this->subPause =
+  this->subTic =
     this->rosNode->subscribe(pauseSo);
 
   // ros topic subscribtions
@@ -1397,10 +1398,10 @@ void AtlasPlugin::UpdateStates()
         //   delayStepSum.Double(), this->delayMaxPerStep.Double(),
         //    this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
       }
-      this->delayStatistics.data[0] = delayStepSum.Double();
-      this->delayStatistics.data[1] =
+      this->delayStatistics.delay_in_step = delayStepSum.Double();
+      this->delayStatistics.delay_in_window =
         (this->delayMaxPerWindow - this->delayInWindow).Double();
-      this->delayStatistics.data[2] = 
+      this->delayStatistics.delay_window_remain = 
         ((this->delayWindowStart + this->delayWindowSize) -
          curWallTime).Double();
       this->pubDelayStatisticsQueue->push(
@@ -1409,8 +1410,6 @@ void AtlasPlugin::UpdateStates()
 
     {
       boost::mutex::scoped_lock lock(this->mutex);
-
-
       {
         // Keep track of age of atlasCommand age in seconds.
         // Note the value is invalid as a moving window average age
