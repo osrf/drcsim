@@ -20,32 +20,55 @@
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
 #include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
 #include <boost/algorithm/string.hpp>
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
 
 ros::Publisher pub_atlas_command_;
 atlas_msgs::AtlasCommand ac;
+atlas_msgs::AtlasState as;
 std::vector<std::string> jointNames;
+boost::condition conditionWait;
+boost::mutex mutex;
 int counter = 0;
+ros::Time t0;
 
-void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_js)
+void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
 {
+  boost::mutex::scoped_lock lock(mutex);
   static ros::Time startTime = ros::Time::now();
+  t0 = startTime;
   // for testing round trip time
-  ac.header.stamp = _js->header.stamp;
-
   counter++;
-  if (counter >= 3)
+  if (counter >= 4)
   {
     counter = 0;
+    as = *_as;
+    conditionWait.notify_one();
+  }
+}
+
+void Work()
+{
+  while(true)
+  {
+    {
+      boost::mutex::scoped_lock lock(mutex);
+      conditionWait.wait(lock);
+
+      ac.header.stamp = as.header.stamp;
+    }
+
+    usleep(3000);  // working
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jointNames.size(); i++)
     {
-      ac.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
+      ac.position[i] = 3.2* sin((ros::Time::now() - t0).toSec());
       ac.k_effort[i] = 255;
     }
     ac.desired_controller_period_ms = 5;
+
     pub_atlas_command_.publish(ac);
   }
 }
@@ -157,6 +180,8 @@ int main(int argc, char** argv)
   pub_atlas_command_ =
     rosnode->advertise<atlas_msgs::AtlasCommand>(
     "/atlas/atlas_command", 100, true);
+
+  boost::thread work = boost::thread(&Work);
 
   ros::spin();
 

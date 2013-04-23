@@ -206,7 +206,7 @@ namespace gazebo
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
     private: void Pause(const std_msgs::String::ConstPtr &_msg);
-    private: boost::condition pause;
+    private: boost::condition delayCondition;
     private: ros::Subscriber subPause;
     private: common::Time delayWindowSize;
     private: common::Time delayWindowStart;

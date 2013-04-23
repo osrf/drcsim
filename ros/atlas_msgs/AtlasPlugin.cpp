@@ -481,7 +481,7 @@ void AtlasPlugin::Pause(
   const std_msgs::String::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
-  this->pause.notify_one();
+  this->delayCondition.notify_one();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -577,8 +577,11 @@ void AtlasPlugin::SetAtlasCommand(
   this->atlasCommand.desired_controller_period_ms =
     _msg->desired_controller_period_ms;
 
-  // gzerr << "SetAtlasCommand " << this->atlasCommand.header.stamp.toSec()*1000 << "\n";
-  this->pause.notify_one();
+  // printf("SetAtlasCommand %f\n",
+  //   this->atlasCommand.header.stamp.toSec()*1000);
+  // fflush(stdout);
+
+  this->delayCondition.notify_one();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -776,7 +779,7 @@ void AtlasPlugin::DeferredLoad()
   // ros topic subscribtions
   ros::SubscribeOptions pauseSo =
     ros::SubscribeOptions::create<std_msgs::String>(
-    "atlas/pause", 1,
+    "atlas/debug/sync_delay", 1,
     boost::bind(&AtlasPlugin::Pause, this, _1),
     ros::VoidPtr(), &this->rosQueue);
   pauseSo.transport_hints =
@@ -1335,29 +1338,64 @@ void AtlasPlugin::UpdateStates()
       common::Time delayStepSum(0.0);
       if (this->delayInWindow < this->delayMaxPerWindow)
       {
-        boost::mutex::scoped_lock lock(this->mutex);
         while (delayStepSum < this->delayMaxPerStep &&
                this->delayInWindow < this->delayMaxPerWindow)
         {
+          boost::mutex::scoped_lock lock(this->mutex);
           double age = curTime.Double() -
             this->atlasCommand.header.stamp.toSec();
-          // gzerr << "age: " << age
-          //       << " stamp: " << this->atlasCommand.header.stamp.toSec()*1000
-          //       << "\n";
-          if (age < 0.001 * this->atlasCommand.desired_controller_period_ms)
+
+          // printf("age %f stamp %f\n", age,
+          //       this->atlasCommand.header.stamp.toSec()*1000);
+          // fflush(stdout);
+
+          if (age <= 0.001 * this->atlasCommand.desired_controller_period_ms)
             break;
           boost::system_time timeout = boost::get_system_time();
-          common::Time timeDelay(boost::detail::get_timespec(timeout));
-          timeout += boost::posix_time::seconds(std::min(
+          common::Time delayTime(boost::detail::get_timespec(timeout));
+          timeout += boost::posix_time::microseconds(1000000 * std::min(
               (this->delayMaxPerStep - delayStepSum).Double(),
               (this->delayMaxPerWindow - this->delayInWindow).Double()));
-          pause.timed_wait(lock, timeout);
-          timeDelay = common::Time::GetWallTime() - timeDelay;
-          delayStepSum += timeDelay;
-          this->delayInWindow += timeDelay;
-          // gzerr << "notified with "
-          //       << this->atlasCommand.header.stamp.toSec()*1000 << "\n";
+
+          common::Time tmp(boost::detail::get_timespec(timeout));
+          // printf("timeout %f wall %f min(%f, %f)\n",
+          //     tmp.Double(), delayTime.Double(),
+          //     (this->delayMaxPerStep - delayStepSum).Double(),
+          //     (this->delayMaxPerWindow - this->delayInWindow).Double());
+
+          if (!this->delayCondition.timed_wait(lock, timeout))
+          {
+            delayTime = common::Time::GetWallTime() - delayTime;
+            // printf("sim %f timed out with %f delayed %f\n",
+            //       curTime.Double()*1000,
+            //       this->atlasCommand.header.stamp.toSec()*1000,
+            //       delayTime.Double()*1000);
+            // fflush(stdout);
+          }
+          else
+          {
+            delayTime = common::Time::GetWallTime() - delayTime;
+            // printf("nsim %f otified with %f delayed %f\n",
+            //       curTime.Double()*1000,
+            //       this->atlasCommand.header.stamp.toSec()*1000,
+            //       delayTime.Double()*1000);
+            // fflush(stdout);
+          }
+
+          // printf(" sum before (%f, %f) ",
+          //   delayStepSum.Double(),
+          //   this->delayInWindow.Double());
+
+          delayStepSum += delayTime;
+          this->delayInWindow += delayTime;
+
+          // printf(" after (%f, %f)\n",
+          //   delayStepSum.Double(),
+          //   this->delayInWindow.Double());
         }
+        // printf(" out of while (%f < %f) (%f < %f)\n", 
+        //   delayStepSum.Double(), this->delayMaxPerStep.Double(),
+        //    this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
       }
       this->delayStatistics.data[0] = delayStepSum.Double();
       this->delayStatistics.data[1] =
@@ -1365,7 +1403,6 @@ void AtlasPlugin::UpdateStates()
       this->delayStatistics.data[2] = 
         ((this->delayWindowStart + this->delayWindowSize) -
          curWallTime).Double();
-
       this->pubDelayStatisticsQueue->push(
         this->delayStatistics, this->pubDelayStatistics);
     }
