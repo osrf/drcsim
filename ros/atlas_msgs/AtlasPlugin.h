@@ -250,7 +250,7 @@ namespace gazebo
     private: atlas_msgs::SynchronizationStatistics delayStatistics;
 
     /// \brief enforce delay policy
-    private: void EnforceDelay(const common::Time &_curTime);
+    private: void EnforceSynchronizationDelay(const common::Time &_curTime);
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //

@@ -56,9 +56,11 @@ AtlasPlugin::AtlasPlugin()
 
 
   // default control synchronization delay settings
-  this->delayWindowSize = common::Time(10.0);
-  this->delayMaxPerWindow = common::Time(1.0);
-  this->delayMaxPerStep = common::Time(0.1);
+  // to trigger synchronization delay, set
+  // atlas_msgs::AtlasCommand::desired_controller_period_ms to non-zero
+  this->delayWindowSize = common::Time(5.0);
+  this->delayMaxPerWindow = common::Time(0.25);
+  this->delayMaxPerStep = common::Time(0.025);
   this->delayWindowStart = common::Time(0.0);
   this->delayInWindow = common::Time(0.0);
 }
@@ -736,7 +738,9 @@ void AtlasPlugin::DeferredLoad()
   this->pubDelayStatisticsQueue =
     this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
 
-  // read delay settings in param server and apply limits
+  // read delay settings in param server and apply limits if
+  // atlas_msgs::AtlasCommand::desired_controller_period_ms is not zero
+  /// \TODO: if cheats enabled, don't load these parameters.
   double delayValue;
   if (this->rosNode->getParam("atlas/delay_window_size", delayValue))
     this->delayWindowSize = delayValue;
@@ -1116,7 +1120,7 @@ void AtlasPlugin::UpdateStates()
 
     // enforce delay for controller synchronization
     if (this->atlasCommand.desired_controller_period_ms != 0)
-      this->EnforceDelay(curTime);
+      this->EnforceSynchronizationDelay(curTime);
 
     // AtlasSimInterface: process controller updates
     this->UpdateAtlasSimInterface();
@@ -1770,7 +1774,7 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
+void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 {
   if (this->atlasCommand.desired_controller_period_ms != 0)
   {
@@ -1816,7 +1820,14 @@ void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
         if (!this->delayCondition.timed_wait(lock, timeout))
         {
           delayTime = common::Time::GetWallTime() - delayTime;
-          ROS_WARN("Controller timedout, lost message or controller stopped?");
+          if ((this->delayInWindow >= this->delayMaxPerWindow) ||
+              (delayInStepSum >= this->delayMaxPerStep))
+            ROS_WARN("AtlasPlugin controller synchronization timedout: "
+                     "delay budget exhausted.");
+          else
+            ROS_WARN("AtlasPlugin controller synchronization timedout: "
+                     "message lost or controller stopped.");
+
           // printf("sim %f timed out with %f delayed %f\n",
           //       _curTime.Double()*1000,
           //       this->atlasCommand.header.stamp.toSec()*1000,
@@ -1826,6 +1837,9 @@ void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
         else
         {
           delayTime = common::Time::GetWallTime() - delayTime;
+          if (delayTime >= this->delayMaxPerStep)
+            ROS_ERROR("AtlasPlugin controller synchronization timeout: "
+                      "waited full duration, but timed_wait returned true.");
           // printf("nsim %f otified with %f delayed %f\n",
           //       _curTime.Double()*1000,
           //       this->atlasCommand.header.stamp.toSec()*1000,
