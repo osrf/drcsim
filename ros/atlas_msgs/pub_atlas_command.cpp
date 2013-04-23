@@ -61,13 +61,19 @@ void Work()
       ac.header.stamp = as.header.stamp;
     }
 
-    usleep(1000);  // working
+    // simulate working
+    usleep(1000);
+
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < jointNames.size(); i++)
     {
       ac.position[i] = 3.2* sin((ros::Time::now() - t0).toSec());
       ac.k_effort[i] = 255;
     }
+    // Let AtlasPlugin driver know that a response over /atlas/atlas_command
+    // is expected every 5ms; and to wait for AtlasCommand published
+    // by this controller if one is not been received.
+    // Use up the delay budget if wait is needed in AtlasPlugin.
     ac.desired_controller_period_ms = 5;
 
     pub_atlas_command_.publish(ac);
