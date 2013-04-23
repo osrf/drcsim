@@ -1109,356 +1109,29 @@ void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
 
-  double dt = (curTime - this->lastControllerUpdateTime).Double();
-
   if (curTime > this->lastControllerUpdateTime)
   {
-
-    // get imu data from imu sensor
-    this->GetIMUState(curTime);
-
-    // get force torque sensor data from sensor
-    this->GetForceTorqueSensorState(curTime);
-
-    // AtlasSimInterface:
-    // populate atlasRobotState from robot
-    this->atlasRobotState.t = curTime.Double();
-
-    // populate atlasState from robot
-    this->atlasState.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-    this->jointStates.header.stamp = this->atlasState.header.stamp;
-
-    for (unsigned int i = 0; i < this->joints.size(); ++i)
-    {
-      // AtlasSimInterface:
-      this->atlasRobotState.j[i].q = this->joints[i]->GetAngle(0).Radian();
-      this->atlasRobotState.j[i].qd = this->joints[i]->GetVelocity(0);
-      // this->atlasRobotState.j[i].f cached from previous UpdateState cycle
-
-      this->atlasState.position[i] = this->atlasRobotState.j[i].q;
-      this->atlasState.velocity[i] = this->atlasRobotState.j[i].qd;
-      this->atlasState.effort[i] = this->atlasRobotState.j[i].f;
-
-      this->jointStates.position[i] = this->atlasRobotState.j[i].q;
-      this->jointStates.velocity[i] = this->atlasRobotState.j[i].qd;
-      this->jointStates.effort[i] = this->atlasRobotState.j[i].f;
-    }
-
-    // publish robot states
-    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
-    this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
+    // gather robot state data and publish them
+    this->GetAndPublishRobotStates(curTime);
 
     // enforce delay for controller synchronization
     if (this->atlasCommand.desired_controller_period_ms != 0)
       this->EnforceDelay(curTime);
 
-    // AtlasSimInterface:
-    {
-      boost::mutex::scoped_lock lock(this->asiMutex);
-
-      // Try and get desired behavior
-	    std::string behaviorStr;
-      this->asiState.error_code =
-        this->atlasSimInterface->get_desired_behavior(behaviorStr);
-      if (this->asiState.error_code != NO_ERRORS)
-        ROS_ERROR("AtlasSimInterface: getting desired behavior returned "
-                  "error [%s].",
-        this->atlasSimInterface->get_error_code_text(
-          (AtlasErrorCode)(this->asiState.error_code)).c_str());
-	    if (this->asiState.desired_behavior != this->behaviorMap[behaviorStr])
-	    {
-	      // debug bdi controller behavior
-	      ROS_DEBUG("setting desired behavior[%d] did not change result of "
-                  "get_desired_behavior[%d], not implemented?",
-                  this->asiState.desired_behavior,
-                  this->behaviorMap[behaviorStr]);
-	    }
-
-      // Try and get current behavior
-      this->asiState.error_code =
-        this->atlasSimInterface->get_current_behavior(behaviorStr);
-      if (this->asiState.error_code != NO_ERRORS)
-        ROS_ERROR("AtlasSimInterface: getting current behavior returned "
-                  "error [%s].",
-        this->atlasSimInterface->get_error_code_text(
-          (AtlasErrorCode)(this->asiState.error_code)).c_str());
-	    this->asiState.current_behavior = this->behaviorMap[behaviorStr];
-
-      // if current behavior is not desired behavior, controller is in
-      // a state of transition.
-
-      this->asiState.error_code =
-        this->atlasSimInterface->process_control_input(
-        this->atlasControlInput, this->atlasRobotState,
-        this->atlasControlOutput);
-
-      if (this->asiState.error_code != NO_ERRORS)
-        ROS_ERROR("AtlasSimInterface: process_control_input returned "
-                  "error [%s].",
-        this->atlasSimInterface->get_error_code_text(
-          (AtlasErrorCode)(this->asiState.error_code)).c_str());
-
-      // fill in rest of asiState
-      std::copy(this->atlasControlOutput.f_out,
-                this->atlasControlOutput.f_out+this->jointNames.size(),
-                this->asiState.f_out.begin());
-      {
-        // initialize AtlasSimInterfaceState
-        this->asiState.pos_est.position =
-          this->ToGeomVec3(this->atlasControlOutput.pos_est.position);
-        this->asiState.pos_est.velocity =
-          this->ToGeomVec3(this->atlasControlOutput.pos_est.velocity);
-        for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
-        {
-          this->asiState.foot_pos_est[i].position =
-            this->ToPoint(this->atlasControlOutput.foot_pos_est[i]);
-          this->asiState.foot_pos_est[i].orientation =
-            this->ToQ(math::Quaternion(
-            this->atlasRobotState.imu.orientation_estimate.m_qw,
-            this->atlasRobotState.imu.orientation_estimate.m_qx,
-            this->atlasRobotState.imu.orientation_estimate.m_qy,
-            this->atlasRobotState.imu.orientation_estimate.m_qz));
-        }
-
-        this->AtlasControlOutputToAtlasSimInterfaceState(
-          &(this->asiState.behavior_feedback),
-          &(this->atlasControlOutput.behavior_feedback));
-
-        // start with PID control
-        this->asiState.k_effort.resize(this->jointNames.size());
-        for(unsigned int i = 0; i < this->jointNames.size(); ++i)
-          this->asiState.k_effort[i] = 255;
-      }
-
-      // 80 characters
-      atlas_msgs::AtlasBehaviorFeedback *fb =
-        &(this->asiState.behavior_feedback);
-      AtlasBehaviorFeedback *fbOut =
-        &(this->atlasControlOutput.behavior_feedback);
-
-      // just copying
-      fb->status_flags = fbOut->status_flags;
-      fb->trans_from_behavior_index = fbOut->trans_from_behavior_index;
-      fb->trans_to_behavior_index = fbOut->trans_to_behavior_index;
-
-      // do something based on current_behavior
-      switch (this->asiState.current_behavior)
-      {
-        case atlas_msgs::AtlasSimInterfaceCommand::USER:
-          {
-          }
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::STAND:
-          {
-            fb->stand_feedback.status_flags =
-              fbOut->stand_feedback.status_flags;
-          }
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::WALK:
-          {
-            fb->walk_feedback.t_step_rem = fbOut->walk_feedback.t_step_rem;
-            fb->walk_feedback.current_step_index =
-              fbOut->walk_feedback.current_step_index;
-            fb->walk_feedback.next_step_index_needed =
-              fbOut->walk_feedback.next_step_index_needed;
-            fb->walk_feedback.status_flags = fbOut->walk_feedback.status_flags;
-            for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
-            {
-              atlas_msgs::AtlasBehaviorStepData *sd =
-                &(fb->walk_feedback.step_data_saturated[i]);
-              AtlasBehaviorStepData *sdOut =
-                &(fbOut->walk_feedback.step_data_saturated[i]);
-              sd->step_index = sdOut->step_index;
-              sd->foot_index = sdOut->foot_index;
-              sd->duration = sdOut->duration;
-
-              // compose geometry_msgs::Pose from position, yaw, normal
-              sd->pose.position = this->ToPoint(sdOut->position);
-              sd->pose.orientation = this->ToQ(
-                math::Quaternion(0, 0, sdOut->yaw));
-              // \TODO: further rotate rot based on normal
-              // sd->pose.rot = sdOut->normal ...;
-
-              sdOut->swing_height = sd->swing_height;
-            }
-            // gzdbg << " csi[" << fb->walk_feedback.current_step_index
-            //       << "] nsi[" << fb->walk_feedback.next_step_index_needed
-            //       << "] flag[" << fb->walk_feedback.status_flags
-            //       << "]\n";
-
-            // demo debug
-            if (this->atlasControlInput.walk_params.use_demo_walk)
-            {
-              static const unsigned int lastStep = 25;
-              // or if status_flag turns from 2 to 4
-              if (fb->walk_feedback.current_step_index == lastStep)
-              {
-                this->atlasSimInterface->set_desired_behavior("Stand");
-                this->asiState.desired_behavior =
-                  atlas_msgs::AtlasSimInterfaceCommand::STAND;
-              }
-            }
-          }
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::STEP:
-          {
-            fb->step_feedback.status_flags =
-              fbOut->step_feedback.status_flags;
-          }
-          break;
-        case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
-          {
-            fb->stand_feedback.status_flags =
-              fbOut->stand_feedback.status_flags;
-          }
-          break;
-        default:
-          break;
-      }
-      // set asiState and publish asiState
-      this->pubASIStateQueue->push(this->asiState, this->pubASIState);
-    }
+    // AtlasSimInterface: process controller updates
+    this->UpdateAtlasSimInterface();
 
     {
       boost::mutex::scoped_lock lock(this->mutex);
-      {
-        // Keep track of age of atlasCommand age in seconds.
-        // Note the value is invalid as a moving window average age
-        // until the buffer is full.
-        this->atlasCommandAge = curTime.Double() -
-          this->atlasCommand.header.stamp.toSec();
 
-        double weightedAtlasCommandAge = this->atlasCommandAge
-          / this->atlasCommandAgeBuffer.size();
+      this->CalculateControllerStatistics(curTime);
 
-        // for variance calculation, save delta before average is updated.
-        double delta = this->atlasCommandAge - this->atlasCommandAgeMean;
-
-        // update average
-        this->atlasCommandAgeMean += weightedAtlasCommandAge;
-        this->atlasCommandAgeMean -=
-          this->atlasCommandAgeBuffer[this->atlasCommandAgeBufferIndex];
-
-        // update variance with new average
-        double delta2 = delta *
-          (this->atlasCommandAge - this->atlasCommandAgeMean);
-        this->atlasCommandAgeVariance += delta2;
-        this->atlasCommandAgeVariance -=
-          this->atlasCommandAgeDelta2Buffer[
-          this->atlasCommandAgeBufferIndex];
-
-        // save weighted average in window
-        this->atlasCommandAgeBuffer[this->atlasCommandAgeBufferIndex] =
-          weightedAtlasCommandAge;
-
-        // save delta buffer for incremental variance calculation
-        this->atlasCommandAgeDelta2Buffer[
-          this->atlasCommandAgeBufferIndex] = delta2;
-
-        this->atlasCommandAgeBufferIndex =
-         (this->atlasCommandAgeBufferIndex + 1) %
-         this->atlasCommandAgeBuffer.size();
-      }
-
-      /// update pid with feedforward force
-      for (unsigned int i = 0; i < this->joints.size(); ++i)
-      {
-        // truncate joint position within range of motion
-        double positionTarget = math::clamp(
-          this->atlasCommand.position[i],
-          this->joints[i]->GetLowStop(0).Radian(),
-          this->joints[i]->GetHighStop(0).Radian());
-
-        double q_p = positionTarget - this->atlasState.position[i];
-
-        if (!math::equal(dt, 0.0))
-          this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
-
-        this->errorTerms[i].q_p = q_p;
-
-        this->errorTerms[i].qd_p =
-          this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
-
-        this->errorTerms[i].k_i_q_i = math::clamp(
-          this->errorTerms[i].k_i_q_i +
-          dt * this->atlasState.ki_position[i] * this->errorTerms[i].q_p,
-          static_cast<double>(this->atlasState.i_effort_min[i]),
-          static_cast<double>(this->atlasState.i_effort_max[i]));
-
-        // convert k_effort to a double between 0 and 1
-        double k_effort =
-          static_cast<double>(this->atlasState.k_effort[i])/255.0;
-
-        // use gain params to compute force cmd
-        // AtlasSimInterface:  also, add bdi controller feed forward force
-        // to overall control torque scaled by 1 - k_effort.
-        double forceUnclamped =
-          k_effort * (
-          this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
-                                            this->errorTerms[i].k_i_q_i +
-          this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-          this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
-                                            this->atlasCommand.effort[i]) +
-          (1.0 - k_effort)                * this->atlasControlOutput.f_out[i];
-
-        // keep unclamped force for integral tie-back calculation
-        double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
-          this->effortLimit[i]);
-
-        // integral tie-back during control saturation if using integral gain
-        if (!math::equal(forceClamped,forceUnclamped) &&
-            !math::equal((double)this->atlasState.ki_position[i],0.0) )
-        {
-          // lock integral term to provide continuous control as system moves
-          // out of staturation
-          this->errorTerms[i].k_i_q_i = math::clamp(
-            this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
-          static_cast<double>(this->atlasState.i_effort_min[i]),
-          static_cast<double>(this->atlasState.i_effort_max[i]));
-        }
-
-        // clamp force after integral tie-back
-        forceClamped = math::clamp(forceUnclamped,
-          -this->effortLimit[i], this->effortLimit[i]);
-
-        // apply force to joint
-        this->joints[i]->SetForce(0, forceClamped);
-
-        // fill in jointState efforts
-        this->atlasState.effort[i] = forceClamped;
-        this->jointStates.effort[i] = forceClamped;
-
-        // AtlasSimInterface: fill in atlasRobotState efforts.
-        // FIXME: Is this used by the controller?  i.e. should this happen
-        // before process_control_input?
-        this->atlasRobotState.j[i].f = forceClamped;
-      }
+      this->UpdatePIDControl(
+        (curTime - this->lastControllerUpdateTime).Double());
     }
     this->lastControllerUpdateTime = curTime;
 
-    /// controller statistics diagnostics, damages, etc.
-    if (this->pubControllerStatistics.getNumSubscribers() > 0)
-    {
-      if ((curTime - this->lastControllerStatisticsTime).Double() >=
-        1.0/this->statsUpdateRate)
-      {
-        atlas_msgs::ControllerStatistics msg;
-        msg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-        msg.command_age = this->atlasCommandAge;
-        msg.command_age_mean = this->atlasCommandAgeMean;
-        msg.command_age_variance = this->atlasCommandAgeVariance /
-          (this->atlasCommandAgeBuffer.size() - 1);
-        msg.command_age_window_size = this->atlasCommandAgeBufferDuration;
-
-        this->pubControllerStatisticsQueue->push(msg,
-          this->pubControllerStatistics);
-        this->lastControllerStatisticsTime = curTime;
-      }
-    }
+    this->PublishConstrollerStatistics(curTime);
   }
 }
 
@@ -2108,10 +1781,10 @@ void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
       this->delayInWindow = common::Time(0.0);
     }
 
-    common::Time delayStepSum(0.0);
+    common::Time delayInStepSum(0.0);
     if (this->delayInWindow < this->delayMaxPerWindow)
     {
-      while (delayStepSum < this->delayMaxPerStep &&
+      while (delayInStepSum < this->delayMaxPerStep &&
              this->delayInWindow < this->delayMaxPerWindow)
       {
         boost::mutex::scoped_lock lock(this->mutex);
@@ -2122,23 +1795,28 @@ void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
         //       this->atlasCommand.header.stamp.toSec()*1000);
         // fflush(stdout);
 
+        // if age is small enough, skip, otherwise, wait finite amount
+        // for AtlasCommand messages to catchup.
         if (age <= 0.001 * this->atlasCommand.desired_controller_period_ms)
           break;
+
+        // calculate amount of time to wait based on rules
         boost::system_time timeout = boost::get_system_time();
         common::Time delayTime(boost::detail::get_timespec(timeout));
         timeout += boost::posix_time::microseconds(1000000 * std::min(
-            (this->delayMaxPerStep - delayStepSum).Double(),
+            (this->delayMaxPerStep - delayInStepSum).Double(),
             (this->delayMaxPerWindow - this->delayInWindow).Double()));
 
-        common::Time tmp(boost::detail::get_timespec(timeout));
+        // common::Time tmp(boost::detail::get_timespec(timeout));
         // printf("timeout %f wall %f min(%f, %f)\n",
         //     tmp.Double(), delayTime.Double(),
-        //     (this->delayMaxPerStep - delayStepSum).Double(),
+        //     (this->delayMaxPerStep - delayInStepSum).Double(),
         //     (this->delayMaxPerWindow - this->delayInWindow).Double());
 
         if (!this->delayCondition.timed_wait(lock, timeout))
         {
           delayTime = common::Time::GetWallTime() - delayTime;
+          ROS_WARN("Controller timedout, lost message or controller stopped?");
           // printf("sim %f timed out with %f delayed %f\n",
           //       _curTime.Double()*1000,
           //       this->atlasCommand.header.stamp.toSec()*1000,
@@ -2156,21 +1834,21 @@ void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
         }
 
         // printf(" sum before (%f, %f) ",
-        //   delayStepSum.Double(),
+        //   delayInStepSum.Double(),
         //   this->delayInWindow.Double());
 
-        delayStepSum += delayTime;
+        delayInStepSum += delayTime;
         this->delayInWindow += delayTime;
 
         // printf(" after (%f, %f)\n",
-        //   delayStepSum.Double(),
+        //   delayInStepSum.Double(),
         //   this->delayInWindow.Double());
       }
       // printf(" out of while (%f < %f) (%f < %f)\n", 
-      //   delayStepSum.Double(), this->delayMaxPerStep.Double(),
-      //    this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
+      //   delayInStepSum.Double(), this->delayMaxPerStep.Double(),
+      //   this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
     }
-    this->delayStatistics.delay_in_step = delayStepSum.Double();
+    this->delayStatistics.delay_in_step = delayInStepSum.Double();
     this->delayStatistics.delay_in_window = this->delayInWindow.Double();
     this->delayStatistics.delay_window_remain = 
       ((this->delayWindowStart + this->delayWindowSize) -
@@ -2179,6 +1857,360 @@ void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
       this->delayStatistics, this->pubDelayStatistics);
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::UpdateAtlasSimInterface()
+{
+  boost::mutex::scoped_lock lock(this->asiMutex);
+
+  // Try and get desired behavior
+  std::string behaviorStr;
+  this->asiState.error_code =
+    this->atlasSimInterface->get_desired_behavior(behaviorStr);
+  if (this->asiState.error_code != NO_ERRORS)
+    ROS_ERROR("AtlasSimInterface: getting desired behavior returned "
+              "error [%s].",
+    this->atlasSimInterface->get_error_code_text(
+      (AtlasErrorCode)(this->asiState.error_code)).c_str());
+  if (this->asiState.desired_behavior != this->behaviorMap[behaviorStr])
+  {
+    // debug bdi controller behavior
+    ROS_DEBUG("setting desired behavior[%d] did not change result of "
+              "get_desired_behavior[%d], not implemented?",
+              this->asiState.desired_behavior,
+              this->behaviorMap[behaviorStr]);
+  }
+
+  // Try and get current behavior
+  this->asiState.error_code =
+    this->atlasSimInterface->get_current_behavior(behaviorStr);
+  if (this->asiState.error_code != NO_ERRORS)
+    ROS_ERROR("AtlasSimInterface: getting current behavior returned "
+              "error [%s].",
+    this->atlasSimInterface->get_error_code_text(
+      (AtlasErrorCode)(this->asiState.error_code)).c_str());
+  this->asiState.current_behavior = this->behaviorMap[behaviorStr];
+
+  // if current behavior is not desired behavior, controller is in
+  // a state of transition.
+
+  this->asiState.error_code =
+    this->atlasSimInterface->process_control_input(
+    this->atlasControlInput, this->atlasRobotState,
+    this->atlasControlOutput);
+
+  if (this->asiState.error_code != NO_ERRORS)
+    ROS_ERROR("AtlasSimInterface: process_control_input returned "
+              "error [%s].",
+    this->atlasSimInterface->get_error_code_text(
+      (AtlasErrorCode)(this->asiState.error_code)).c_str());
+
+  // fill in rest of asiState
+  std::copy(this->atlasControlOutput.f_out,
+            this->atlasControlOutput.f_out+this->jointNames.size(),
+            this->asiState.f_out.begin());
+  {
+    // initialize AtlasSimInterfaceState
+    this->asiState.pos_est.position =
+      this->ToGeomVec3(this->atlasControlOutput.pos_est.position);
+    this->asiState.pos_est.velocity =
+      this->ToGeomVec3(this->atlasControlOutput.pos_est.velocity);
+    for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
+    {
+      this->asiState.foot_pos_est[i].position =
+        this->ToPoint(this->atlasControlOutput.foot_pos_est[i]);
+      this->asiState.foot_pos_est[i].orientation =
+        this->ToQ(math::Quaternion(
+        this->atlasRobotState.imu.orientation_estimate.m_qw,
+        this->atlasRobotState.imu.orientation_estimate.m_qx,
+        this->atlasRobotState.imu.orientation_estimate.m_qy,
+        this->atlasRobotState.imu.orientation_estimate.m_qz));
+    }
+
+    this->AtlasControlOutputToAtlasSimInterfaceState(
+      &(this->asiState.behavior_feedback),
+      &(this->atlasControlOutput.behavior_feedback));
+
+    // start with PID control
+    this->asiState.k_effort.resize(this->jointNames.size());
+    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+      this->asiState.k_effort[i] = 255;
+  }
+
+  // 80 characters
+  atlas_msgs::AtlasBehaviorFeedback *fb =
+    &(this->asiState.behavior_feedback);
+  AtlasBehaviorFeedback *fbOut =
+    &(this->atlasControlOutput.behavior_feedback);
+
+  // just copying
+  fb->status_flags = fbOut->status_flags;
+  fb->trans_from_behavior_index = fbOut->trans_from_behavior_index;
+  fb->trans_to_behavior_index = fbOut->trans_to_behavior_index;
+
+  // do something based on current_behavior
+  switch (this->asiState.current_behavior)
+  {
+    case atlas_msgs::AtlasSimInterfaceCommand::USER:
+      {
+      }
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STAND:
+      {
+        fb->stand_feedback.status_flags =
+          fbOut->stand_feedback.status_flags;
+      }
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::WALK:
+      {
+        fb->walk_feedback.t_step_rem = fbOut->walk_feedback.t_step_rem;
+        fb->walk_feedback.current_step_index =
+          fbOut->walk_feedback.current_step_index;
+        fb->walk_feedback.next_step_index_needed =
+          fbOut->walk_feedback.next_step_index_needed;
+        fb->walk_feedback.status_flags = fbOut->walk_feedback.status_flags;
+        for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
+        {
+          atlas_msgs::AtlasBehaviorStepData *sd =
+            &(fb->walk_feedback.step_data_saturated[i]);
+          AtlasBehaviorStepData *sdOut =
+            &(fbOut->walk_feedback.step_data_saturated[i]);
+          sd->step_index = sdOut->step_index;
+          sd->foot_index = sdOut->foot_index;
+          sd->duration = sdOut->duration;
+
+          // compose geometry_msgs::Pose from position, yaw, normal
+          sd->pose.position = this->ToPoint(sdOut->position);
+          sd->pose.orientation = this->ToQ(
+            math::Quaternion(0, 0, sdOut->yaw));
+          // \TODO: further rotate rot based on normal
+          // sd->pose.rot = sdOut->normal ...;
+
+          sdOut->swing_height = sd->swing_height;
+        }
+        // gzdbg << " csi[" << fb->walk_feedback.current_step_index
+        //       << "] nsi[" << fb->walk_feedback.next_step_index_needed
+        //       << "] flag[" << fb->walk_feedback.status_flags
+        //       << "]\n";
+
+        // demo debug
+        if (this->atlasControlInput.walk_params.use_demo_walk)
+        {
+          static const unsigned int lastStep = 25;
+          // or if status_flag turns from 2 to 4
+          if (fb->walk_feedback.current_step_index == lastStep)
+          {
+            this->atlasSimInterface->set_desired_behavior("Stand");
+            this->asiState.desired_behavior =
+              atlas_msgs::AtlasSimInterfaceCommand::STAND;
+          }
+        }
+      }
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STEP:
+      {
+        fb->step_feedback.status_flags =
+          fbOut->step_feedback.status_flags;
+      }
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
+      {
+        fb->stand_feedback.status_flags =
+          fbOut->stand_feedback.status_flags;
+      }
+      break;
+    default:
+      break;
+  }
+  // set asiState and publish asiState
+  this->pubASIStateQueue->push(this->asiState, this->pubASIState);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
+{
+  // Keep track of age of atlasCommand age in seconds.
+  // Note the value is invalid as a moving window average age
+  // until the buffer is full.
+  this->atlasCommandAge = _curTime.Double() -
+    this->atlasCommand.header.stamp.toSec();
+
+  double weightedAtlasCommandAge = this->atlasCommandAge
+    / this->atlasCommandAgeBuffer.size();
+
+  // for variance calculation, save delta before average is updated.
+  double delta = this->atlasCommandAge - this->atlasCommandAgeMean;
+
+  // update average
+  this->atlasCommandAgeMean += weightedAtlasCommandAge;
+  this->atlasCommandAgeMean -=
+    this->atlasCommandAgeBuffer[this->atlasCommandAgeBufferIndex];
+
+  // update variance with new average
+  double delta2 = delta *
+    (this->atlasCommandAge - this->atlasCommandAgeMean);
+  this->atlasCommandAgeVariance += delta2;
+  this->atlasCommandAgeVariance -=
+    this->atlasCommandAgeDelta2Buffer[
+    this->atlasCommandAgeBufferIndex];
+
+  // save weighted average in window
+  this->atlasCommandAgeBuffer[this->atlasCommandAgeBufferIndex] =
+    weightedAtlasCommandAge;
+
+  // save delta buffer for incremental variance calculation
+  this->atlasCommandAgeDelta2Buffer[
+    this->atlasCommandAgeBufferIndex] = delta2;
+
+  this->atlasCommandAgeBufferIndex =
+   (this->atlasCommandAgeBufferIndex + 1) %
+   this->atlasCommandAgeBuffer.size();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::UpdatePIDControl(double _dt)
+{
+  /// update pid with feedforward force
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    // truncate joint position within range of motion
+    double positionTarget = math::clamp(
+      this->atlasCommand.position[i],
+      this->joints[i]->GetLowStop(0).Radian(),
+      this->joints[i]->GetHighStop(0).Radian());
+
+    double q_p = positionTarget - this->atlasState.position[i];
+
+    if (!math::equal(_dt, 0.0))
+      this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / _dt;
+
+    this->errorTerms[i].q_p = q_p;
+
+    this->errorTerms[i].qd_p =
+      this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
+
+    this->errorTerms[i].k_i_q_i = math::clamp(
+      this->errorTerms[i].k_i_q_i +
+      _dt * this->atlasState.ki_position[i] * this->errorTerms[i].q_p,
+      static_cast<double>(this->atlasState.i_effort_min[i]),
+      static_cast<double>(this->atlasState.i_effort_max[i]));
+
+    // convert k_effort to a double between 0 and 1
+    double k_effort =
+      static_cast<double>(this->atlasState.k_effort[i])/255.0;
+
+    // use gain params to compute force cmd
+    // AtlasSimInterface:  also, add bdi controller feed forward force
+    // to overall control torque scaled by 1 - k_effort.
+    double forceUnclamped =
+      k_effort * (
+      this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
+                                        this->errorTerms[i].k_i_q_i +
+      this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
+      this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
+                                        this->atlasCommand.effort[i]) +
+      (1.0 - k_effort)                * this->atlasControlOutput.f_out[i];
+
+    // keep unclamped force for integral tie-back calculation
+    double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
+      this->effortLimit[i]);
+
+    // integral tie-back during control saturation if using integral gain
+    if (!math::equal(forceClamped,forceUnclamped) &&
+        !math::equal((double)this->atlasState.ki_position[i],0.0) )
+    {
+      // lock integral term to provide continuous control as system moves
+      // out of staturation
+      this->errorTerms[i].k_i_q_i = math::clamp(
+        this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
+      static_cast<double>(this->atlasState.i_effort_min[i]),
+      static_cast<double>(this->atlasState.i_effort_max[i]));
+    }
+
+    // clamp force after integral tie-back
+    forceClamped = math::clamp(forceUnclamped,
+      -this->effortLimit[i], this->effortLimit[i]);
+
+    // apply force to joint
+    this->joints[i]->SetForce(0, forceClamped);
+
+    // fill in jointState efforts
+    this->atlasState.effort[i] = forceClamped;
+    this->jointStates.effort[i] = forceClamped;
+
+    // AtlasSimInterface: fill in atlasRobotState efforts.
+    // FIXME: Is this used by the controller?  i.e. should this happen
+    // before process_control_input?
+    this->atlasRobotState.j[i].f = forceClamped;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::PublishConstrollerStatistics(const common::Time &_curTime)
+{
+  /// publish controller statistics diagnostics, damages, etc.
+  if (this->pubControllerStatistics.getNumSubscribers() > 0)
+  {
+    if ((_curTime - this->lastControllerStatisticsTime).Double() >=
+      1.0/this->statsUpdateRate)
+    {
+      atlas_msgs::ControllerStatistics msg;
+      msg.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
+      msg.command_age = this->atlasCommandAge;
+      msg.command_age_mean = this->atlasCommandAgeMean;
+      msg.command_age_variance = this->atlasCommandAgeVariance /
+        (this->atlasCommandAgeBuffer.size() - 1);
+      msg.command_age_window_size = this->atlasCommandAgeBufferDuration;
+
+      this->pubControllerStatisticsQueue->push(msg,
+        this->pubControllerStatistics);
+      this->lastControllerStatisticsTime = _curTime;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
+{
+  // get imu data from imu sensor
+  this->GetIMUState(_curTime);
+
+  // get force torque sensor data from sensor
+  this->GetForceTorqueSensorState(_curTime);
+
+  // AtlasSimInterface:
+  // populate atlasRobotState from robot
+  this->atlasRobotState.t = _curTime.Double();
+
+  // populate atlasState from robot
+  this->atlasState.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
+  this->jointStates.header.stamp = this->atlasState.header.stamp;
+
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    // AtlasSimInterface:
+    this->atlasRobotState.j[i].q = this->joints[i]->GetAngle(0).Radian();
+    this->atlasRobotState.j[i].qd = this->joints[i]->GetVelocity(0);
+    // this->atlasRobotState.j[i].f cached from previous UpdateState cycle
+
+    this->atlasState.position[i] = this->atlasRobotState.j[i].q;
+    this->atlasState.velocity[i] = this->atlasRobotState.j[i].qd;
+    this->atlasState.effort[i] = this->atlasRobotState.j[i].f;
+
+    this->jointStates.position[i] = this->atlasRobotState.j[i].q;
+    this->jointStates.velocity[i] = this->atlasRobotState.j[i].qd;
+    this->jointStates.effort[i] = this->atlasRobotState.j[i].f;
+  }
+
+  // publish robot states
+  this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
+  this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::RosQueueThread()
 {

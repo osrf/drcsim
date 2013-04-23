@@ -107,6 +107,7 @@ namespace gazebo
     private: void RosQueueThread();
 
     /// \brief get data from IMU for robot state
+    /// \param[in] _curTime current simulation time
     private: void GetIMUState(const common::Time &_curTime);
 
     /// \brief get data from force torque sensor
@@ -156,6 +157,7 @@ namespace gazebo
     /// \brief A combined Joint state, IMU and ForceTorqueSensors Message
     /// for synchronous access.
     private: atlas_msgs::AtlasState atlasState;
+    private: void GetAndPublishRobotStates(const common::Time &_curTime);
 
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
@@ -293,6 +295,14 @@ namespace gazebo
     /// the command is passed to the AtlasSimInterface library.
     /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
     private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
+
+    /// \brief Process BDI contoller updates
+    /// \param[in] _curTime current simulation time
+    private: void UpdateAtlasSimInterface();
+
+    /// \brief Update PID Joint Servo Controllers
+    /// \param[in] _dt time step size since last update
+    private: void UpdatePIDControl(double _dt);
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -434,6 +444,8 @@ namespace gazebo
     private: double atlasCommandAgeMean;
     private: double atlasCommandAgeVariance;
     private: double atlasCommandAge;
+    private: void CalculateControllerStatistics(const common::Time &_curTime);
+    private: void PublishConstrollerStatistics(const common::Time &_curTime);
 
     private: void SetExperimentalDampingPID(
       const atlas_msgs::Test::ConstPtr &_msg);
