@@ -41,10 +41,11 @@ void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
   t0 = startTime;
   // for testing round trip time
   counter++;
-  if (counter >= 5)
+  if (counter >= 4)
   {
     counter = 0;
     as = *_as;
+    // kick off calculation
     conditionWait.notify_one();
   }
 }
@@ -55,6 +56,7 @@ void Work()
   {
     {
       boost::mutex::scoped_lock lock(mutex);
+      // wait for next state
       conditionWait.wait(lock);
       ac.header.stamp = as.header.stamp;
     }

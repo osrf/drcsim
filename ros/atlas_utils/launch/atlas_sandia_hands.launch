@@ -5,7 +5,7 @@
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
 
-  <param name="/atlas/delay_window_size" type="double" value="60.0"/>
+  <param name="/atlas/delay_window_size" type="double" value="25.0"/>
   <param name="/atlas/delay_max_per_window" type="double" value="1.0"/>
   <param name="/atlas/delay_max_per_step" type="double" value="0.1"/>
 

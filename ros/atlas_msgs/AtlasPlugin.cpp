@@ -1399,8 +1399,7 @@ void AtlasPlugin::UpdateStates()
         //    this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
       }
       this->delayStatistics.delay_in_step = delayStepSum.Double();
-      this->delayStatistics.delay_in_window =
-        (this->delayMaxPerWindow - this->delayInWindow).Double();
+      this->delayStatistics.delay_in_window = this->delayInWindow.Double();
       this->delayStatistics.delay_window_remain = 
         ((this->delayWindowStart + this->delayWindowSize) -
          curWallTime).Double();
