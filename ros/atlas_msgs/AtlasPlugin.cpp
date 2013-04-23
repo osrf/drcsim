@@ -139,7 +139,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->effortLimit[i] = this->joints[i]->GetEffortLimit(0);
 
   // JointController: Publish messages to reset joint controller gains
-  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  for (unsigned int i = 0; i < this->jointNames.size(); ++i)
   {
     msgs::JointCmd msg;
     msg.set_name(this->joints[i]->GetScopedName());
@@ -154,7 +154,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     // initialize PID states: error terms
-    this->errorTerms.resize(this->joints.size());
+    this->errorTerms.resize(this->jointNames.size());
     for (unsigned i = 0; i < this->errorTerms.size(); ++i)
     {
       this->errorTerms[i].q_p = 0;
@@ -167,58 +167,74 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   {
     // We are not sending names due to the fact that there is an enum
     // joint indices in AtlasState.msg.
-    this->atlasState.position.resize(this->joints.size());
-    this->atlasState.velocity.resize(this->joints.size());
-    this->atlasState.effort.resize(this->joints.size());
-    this->atlasState.kp_position.resize(this->joints.size());
-    this->atlasState.ki_position.resize(this->joints.size());
-    this->atlasState.kd_position.resize(this->joints.size());
-    this->atlasState.kp_velocity.resize(this->joints.size());
-    this->atlasState.i_effort_min.resize(this->joints.size());
-    this->atlasState.i_effort_max.resize(this->joints.size());
-    this->atlasState.k_effort.resize(this->joints.size());
+    this->atlasState.position.resize(this->jointNames.size());
+    this->atlasState.velocity.resize(this->jointNames.size());
+    this->atlasState.effort.resize(this->jointNames.size());
+    this->atlasState.kp_position.resize(this->jointNames.size());
+    this->atlasState.ki_position.resize(this->jointNames.size());
+    this->atlasState.kd_position.resize(this->jointNames.size());
+    this->atlasState.kp_velocity.resize(this->jointNames.size());
+    this->atlasState.i_effort_min.resize(this->jointNames.size());
+    this->atlasState.i_effort_max.resize(this->jointNames.size());
+    this->atlasState.k_effort.resize(this->jointNames.size());
 
-    this->jointStates.name.resize(this->joints.size());
-    this->jointStates.position.resize(this->joints.size());
-    this->jointStates.velocity.resize(this->joints.size());
-    this->jointStates.effort.resize(this->joints.size());
+    this->jointStates.name.resize(this->jointNames.size());
+    this->jointStates.position.resize(this->jointNames.size());
+    this->jointStates.velocity.resize(this->jointNames.size());
+    this->jointStates.effort.resize(this->jointNames.size());
 
     for (unsigned int i = 0; i < this->jointNames.size(); ++i)
       this->jointStates.name[i] = this->jointNames[i];
   }
 
+  /*{
+    this->atlasCommand.position.resize(this->jointNames.size());
+    this->atlasCommand.velocity.resize(this->jointNames.size());
+    this->atlasCommand.effort.resize(this->jointNames.size());
+    this->atlasCommand.kp_position.resize(this->jointNames.size());
+    this->atlasCommand.ki_position.resize(this->jointNames.size());
+    this->atlasCommand.kd_position.resize(this->jointNames.size());
+    this->atlasCommand.kp_velocity.resize(this->jointNames.size());
+    this->atlasCommand.i_effort_min.resize(this->jointNames.size());
+    this->atlasCommand.i_effort_max.resize(this->jointNames.size());
+    this->atlasCommand.k_effort.resize(this->jointNames.size());
+
+    this->ZeroAtlasCommand();
+  }*/
+
   {
-    this->atlasCommand.position.resize(this->joints.size());
-    this->atlasCommand.velocity.resize(this->joints.size());
-    this->atlasCommand.effort.resize(this->joints.size());
-    this->atlasCommand.kp_position.resize(this->joints.size());
-    this->atlasCommand.ki_position.resize(this->joints.size());
-    this->atlasCommand.kd_position.resize(this->joints.size());
-    this->atlasCommand.kp_velocity.resize(this->joints.size());
-    this->atlasCommand.i_effort_min.resize(this->joints.size());
-    this->atlasCommand.i_effort_max.resize(this->joints.size());
-    this->atlasCommand.k_effort.resize(this->joints.size());
+    this->atlasCommandFullState.position.resize(this->jointNames.size());
+    this->atlasCommandFullState.velocity.resize(this->jointNames.size());
+    this->atlasCommandFullState.effort.resize(this->jointNames.size());
+    this->atlasCommandFullState.kp_position.resize(this->jointNames.size());
+    this->atlasCommandFullState.ki_position.resize(this->jointNames.size());
+    this->atlasCommandFullState.kd_position.resize(this->jointNames.size());
+    this->atlasCommandFullState.kp_velocity.resize(this->jointNames.size());
+    for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+    this->atlasCommandFullState.i_effort_min.resize(this->jointNames.size());
+    this->atlasCommandFullState.i_effort_max.resize(this->jointNames.size());
+    this->atlasCommandFullState.k_effort.resize(this->jointNames.size());
 
     this->ZeroAtlasCommand();
   }
 
   {
-    this->jointCommands.position.resize(this->joints.size());
-    this->jointCommands.velocity.resize(this->joints.size());
-    this->jointCommands.effort.resize(this->joints.size());
-    this->jointCommands.kp_position.resize(this->joints.size());
-    this->jointCommands.ki_position.resize(this->joints.size());
-    this->jointCommands.kd_position.resize(this->joints.size());
-    this->jointCommands.kp_velocity.resize(this->joints.size());
-    this->jointCommands.i_effort_min.resize(this->joints.size());
-    this->jointCommands.i_effort_max.resize(this->joints.size());
+    this->jointCommands.position.resize(this->jointNames.size());
+    this->jointCommands.velocity.resize(this->jointNames.size());
+    this->jointCommands.effort.resize(this->jointNames.size());
+    this->jointCommands.kp_position.resize(this->jointNames.size());
+    this->jointCommands.ki_position.resize(this->jointNames.size());
+    this->jointCommands.kd_position.resize(this->jointNames.size());
+    this->jointCommands.kp_velocity.resize(this->jointNames.size());
+    this->jointCommands.i_effort_min.resize(this->jointNames.size());
+    this->jointCommands.i_effort_max.resize(this->jointNames.size());
 
     this->ZeroJointCommands();
   }
 
   {
     // AtlasSimInterface:  initialize controlOutput
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
       this->controlOutput.f_out[i] = 0;
     this->controlOutput.pos_est.position = AtlasVec3f(0, 0, 0);
     this->controlOutput.pos_est.velocity = AtlasVec3f(0, 0, 0);
@@ -266,7 +282,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   {
     // AtlasSimInterface:  initialize atlasRobotState joints data
     this->atlasRobotState.t = this->world->GetSimTime().Double();
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
     {
       this->atlasRobotState.j[i].q = 0;
       this->atlasRobotState.j[i].qd = 0;
@@ -308,7 +324,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     // internal pid params
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
+    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
     {
       this->atlasControlInput.j[i].q_d = 0.0;
       this->atlasControlInput.j[i].qd_d = 0.0;
@@ -1008,7 +1024,7 @@ void AtlasPlugin::SetASICommand(
 
   /// \TODO: Set atlasControlInput from _msg
   /*
-  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  for(unsigned int i = 0; i < this->jointNames.size(); ++i)
   {
     this->atlasControlInput.j[i].q_d = 0.0;
     this->atlasControlInput.j[i].qd_d = 0.0;
@@ -1580,14 +1596,17 @@ void AtlasPlugin::ZeroAtlasCommand()
 {
   for (unsigned i = 0; i < this->jointNames.size(); ++i)
   {
-    this->atlasCommand.position[i] = 0;
-    this->atlasCommand.velocity[i] = 0;
-    this->atlasCommand.effort[i] = 0;
+    this->atlasCommandFullState.position[i] = 0;
+    this->atlasCommandFullState.velocity[i] = 0;
+    this->atlasCommandFullState.effort[i] = 0;
     // store these directly on altasState, more efficient for pub later
-    this->atlasState.kp_position[i] = 0;
-    this->atlasState.ki_position[i] = 0;
-    this->atlasState.kd_position[i] = 0;
-    this->atlasState.kp_velocity[i] = 0;
+    for (unsigned int j = 0; j < this->jointNames.size(); ++j)
+    {
+      this->atlasState.kp_position[i][j] = 0;
+      this->atlasState.ki_position[i][j] = 0;
+      this->atlasState.kd_position[i][j] = 0;
+      this->atlasState.kp_velocity[i][j] = 0;
+    }
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
@@ -1617,11 +1636,11 @@ void AtlasPlugin::ZeroJointCommands()
 void AtlasPlugin::LoadPIDGainsFromParameter()
 {
   // pull down controller parameters
-  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  for (unsigned int i = 0; i < this->jointNames.size(); ++i)
   {
     char joint_ns[200] = "";
     snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
-             this->joints[i]->GetName().c_str());
+             this->jointNames[i]->GetName().c_str());
     // this is so ugly
     double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
     string p_str = string(joint_ns)+"p";
