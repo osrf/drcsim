@@ -247,6 +247,9 @@ namespace gazebo
       pubDelayStatisticsQueue;
     private: atlas_msgs::SynchronizationStatistics delayStatistics;
 
+    /// \brief enforce delay policy
+    private: void EnforceDelay(const common::Time &_curTime);
+
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //  BDI Controller AtlasSimInterface Internals                            //

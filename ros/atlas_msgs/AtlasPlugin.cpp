@@ -1114,21 +1114,15 @@ void AtlasPlugin::UpdateStates()
   if (curTime > this->lastControllerUpdateTime)
   {
 
-    // AtlasSimInterface:
-    // populate atlasRobotState from robot
-    this->atlasRobotState.t = curTime.Double();
-    for(unsigned int i = 0; i < this->joints.size(); ++i)
-    {
-      this->atlasRobotState.j[i].q = this->joints[i]->GetAngle(0).Radian();
-      this->atlasRobotState.j[i].qd = this->joints[i]->GetVelocity(0);
-      // wait to fill in this->atlasRobotState.j[i].f later
-    }
-
     // get imu data from imu sensor
     this->GetIMUState(curTime);
 
     // get force torque sensor data from sensor
     this->GetForceTorqueSensorState(curTime);
+
+    // AtlasSimInterface:
+    // populate atlasRobotState from robot
+    this->atlasRobotState.t = curTime.Double();
 
     // populate atlasState from robot
     this->atlasState.header.stamp = ros::Time(curTime.sec, curTime.nsec);
@@ -1136,25 +1130,27 @@ void AtlasPlugin::UpdateStates()
 
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      this->atlasState.position[i] = this->joints[i]->GetAngle(0).Radian();
-      this->atlasState.velocity[i] = this->joints[i]->GetVelocity(0);
+      // AtlasSimInterface:
+      this->atlasRobotState.j[i].q = this->joints[i]->GetAngle(0).Radian();
+      this->atlasRobotState.j[i].qd = this->joints[i]->GetVelocity(0);
+      // this->atlasRobotState.j[i].f cached from previous UpdateState cycle
+
+      this->atlasState.position[i] = this->atlasRobotState.j[i].q;
+      this->atlasState.velocity[i] = this->atlasRobotState.j[i].qd;
+      this->atlasState.effort[i] = this->atlasRobotState.j[i].f;
+
+      this->jointStates.position[i] = this->atlasRobotState.j[i].q;
+      this->jointStates.velocity[i] = this->atlasRobotState.j[i].qd;
+      this->jointStates.effort[i] = this->atlasRobotState.j[i].f;
     }
-    // copy from atlasState.position into jointStates.position
-    GZ_ASSERT(this->atlasState.position.size() ==
-              this->jointStates.position.size(),
-              "atlasState.position and "
-              "jointStates.position size mismatch.");
-    std::copy(this->atlasState.position.begin(),
-              this->atlasState.position.end(),
-              this->jointStates.position.begin());
-    // copy from atlasState.velocity into jointStates.velocity
-    GZ_ASSERT(this->atlasState.velocity.size() ==
-              this->jointStates.velocity.size(),
-              "atlasState.velocity and "
-              "jointStates.velocity size mismatch.");
-    std::copy(this->atlasState.velocity.begin(),
-              this->atlasState.velocity.end(),
-              this->jointStates.velocity.begin());
+
+    // publish robot states
+    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
+    this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
+
+    // enforce delay for controller synchronization
+    if (this->atlasCommand.desired_controller_period_ms != 0)
+      this->EnforceDelay(curTime);
 
     // AtlasSimInterface:
     {
@@ -1327,86 +1323,6 @@ void AtlasPlugin::UpdateStates()
       this->pubASIStateQueue->push(this->asiState, this->pubASIState);
     }
 
-    if (this->atlasCommand.desired_controller_period_ms != 0)
-    {
-      common::Time curWallTime = common::Time::GetWallTime();
-      if (curWallTime >= this->delayWindowStart + this->delayWindowSize)
-      {
-        this->delayWindowStart = curWallTime;
-        this->delayInWindow = common::Time(0.0);
-      }
-
-      common::Time delayStepSum(0.0);
-      if (this->delayInWindow < this->delayMaxPerWindow)
-      {
-        while (delayStepSum < this->delayMaxPerStep &&
-               this->delayInWindow < this->delayMaxPerWindow)
-        {
-          boost::mutex::scoped_lock lock(this->mutex);
-          double age = curTime.Double() -
-            this->atlasCommand.header.stamp.toSec();
-
-          // printf("age %f stamp %f\n", age,
-          //       this->atlasCommand.header.stamp.toSec()*1000);
-          // fflush(stdout);
-
-          if (age <= 0.001 * this->atlasCommand.desired_controller_period_ms)
-            break;
-          boost::system_time timeout = boost::get_system_time();
-          common::Time delayTime(boost::detail::get_timespec(timeout));
-          timeout += boost::posix_time::microseconds(1000000 * std::min(
-              (this->delayMaxPerStep - delayStepSum).Double(),
-              (this->delayMaxPerWindow - this->delayInWindow).Double()));
-
-          common::Time tmp(boost::detail::get_timespec(timeout));
-          // printf("timeout %f wall %f min(%f, %f)\n",
-          //     tmp.Double(), delayTime.Double(),
-          //     (this->delayMaxPerStep - delayStepSum).Double(),
-          //     (this->delayMaxPerWindow - this->delayInWindow).Double());
-
-          if (!this->delayCondition.timed_wait(lock, timeout))
-          {
-            delayTime = common::Time::GetWallTime() - delayTime;
-            // printf("sim %f timed out with %f delayed %f\n",
-            //       curTime.Double()*1000,
-            //       this->atlasCommand.header.stamp.toSec()*1000,
-            //       delayTime.Double()*1000);
-            // fflush(stdout);
-          }
-          else
-          {
-            delayTime = common::Time::GetWallTime() - delayTime;
-            // printf("nsim %f otified with %f delayed %f\n",
-            //       curTime.Double()*1000,
-            //       this->atlasCommand.header.stamp.toSec()*1000,
-            //       delayTime.Double()*1000);
-            // fflush(stdout);
-          }
-
-          // printf(" sum before (%f, %f) ",
-          //   delayStepSum.Double(),
-          //   this->delayInWindow.Double());
-
-          delayStepSum += delayTime;
-          this->delayInWindow += delayTime;
-
-          // printf(" after (%f, %f)\n",
-          //   delayStepSum.Double(),
-          //   this->delayInWindow.Double());
-        }
-        // printf(" out of while (%f < %f) (%f < %f)\n", 
-        //   delayStepSum.Double(), this->delayMaxPerStep.Double(),
-        //    this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
-      }
-      this->delayStatistics.delay_in_step = delayStepSum.Double();
-      this->delayStatistics.delay_in_window = this->delayInWindow.Double();
-      this->delayStatistics.delay_window_remain = 
-        ((this->delayWindowStart + this->delayWindowSize) -
-         curWallTime).Double();
-      this->pubDelayStatisticsQueue->push(
-        this->delayStatistics, this->pubDelayStatistics);
-    }
-
     {
       boost::mutex::scoped_lock lock(this->mutex);
       {
@@ -1523,9 +1439,6 @@ void AtlasPlugin::UpdateStates()
       }
     }
     this->lastControllerUpdateTime = curTime;
-
-    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
-    this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
 
     /// controller statistics diagnostics, damages, etc.
     if (this->pubControllerStatistics.getNumSubscribers() > 0)
@@ -2183,6 +2096,89 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
     _fbOut->manipulate_feedback.clamped.pelvis_lat;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::EnforceDelay(const common::Time &_curTime)
+{
+  if (this->atlasCommand.desired_controller_period_ms != 0)
+  {
+    common::Time curWallTime = common::Time::GetWallTime();
+    if (curWallTime >= this->delayWindowStart + this->delayWindowSize)
+    {
+      this->delayWindowStart = curWallTime;
+      this->delayInWindow = common::Time(0.0);
+    }
+
+    common::Time delayStepSum(0.0);
+    if (this->delayInWindow < this->delayMaxPerWindow)
+    {
+      while (delayStepSum < this->delayMaxPerStep &&
+             this->delayInWindow < this->delayMaxPerWindow)
+      {
+        boost::mutex::scoped_lock lock(this->mutex);
+        double age = _curTime.Double() -
+          this->atlasCommand.header.stamp.toSec();
+
+        // printf("age %f stamp %f\n", age,
+        //       this->atlasCommand.header.stamp.toSec()*1000);
+        // fflush(stdout);
+
+        if (age <= 0.001 * this->atlasCommand.desired_controller_period_ms)
+          break;
+        boost::system_time timeout = boost::get_system_time();
+        common::Time delayTime(boost::detail::get_timespec(timeout));
+        timeout += boost::posix_time::microseconds(1000000 * std::min(
+            (this->delayMaxPerStep - delayStepSum).Double(),
+            (this->delayMaxPerWindow - this->delayInWindow).Double()));
+
+        common::Time tmp(boost::detail::get_timespec(timeout));
+        // printf("timeout %f wall %f min(%f, %f)\n",
+        //     tmp.Double(), delayTime.Double(),
+        //     (this->delayMaxPerStep - delayStepSum).Double(),
+        //     (this->delayMaxPerWindow - this->delayInWindow).Double());
+
+        if (!this->delayCondition.timed_wait(lock, timeout))
+        {
+          delayTime = common::Time::GetWallTime() - delayTime;
+          // printf("sim %f timed out with %f delayed %f\n",
+          //       _curTime.Double()*1000,
+          //       this->atlasCommand.header.stamp.toSec()*1000,
+          //       delayTime.Double()*1000);
+          // fflush(stdout);
+        }
+        else
+        {
+          delayTime = common::Time::GetWallTime() - delayTime;
+          // printf("nsim %f otified with %f delayed %f\n",
+          //       _curTime.Double()*1000,
+          //       this->atlasCommand.header.stamp.toSec()*1000,
+          //       delayTime.Double()*1000);
+          // fflush(stdout);
+        }
+
+        // printf(" sum before (%f, %f) ",
+        //   delayStepSum.Double(),
+        //   this->delayInWindow.Double());
+
+        delayStepSum += delayTime;
+        this->delayInWindow += delayTime;
+
+        // printf(" after (%f, %f)\n",
+        //   delayStepSum.Double(),
+        //   this->delayInWindow.Double());
+      }
+      // printf(" out of while (%f < %f) (%f < %f)\n", 
+      //   delayStepSum.Double(), this->delayMaxPerStep.Double(),
+      //    this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
+    }
+    this->delayStatistics.delay_in_step = delayStepSum.Double();
+    this->delayStatistics.delay_in_window = this->delayInWindow.Double();
+    this->delayStatistics.delay_window_remain = 
+      ((this->delayWindowStart + this->delayWindowSize) -
+       curWallTime).Double();
+    this->pubDelayStatisticsQueue->push(
+      this->delayStatistics, this->pubDelayStatistics);
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::RosQueueThread()
 {
