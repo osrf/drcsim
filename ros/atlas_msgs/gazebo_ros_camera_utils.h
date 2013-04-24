@@ -67,7 +67,9 @@ namespace gazebo
 
     /// \brief Load the plugin
     /// \param take in SDF root element
-    public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
+    public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf,
+                      const std::string &_camera_name_suffix = "",
+                      double _hack_baseline = 0.0);
 
     private: void Init();
 
