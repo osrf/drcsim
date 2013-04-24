@@ -32,6 +32,7 @@ SandiaHandPlugin::SandiaHandPlugin()
 {
   this->leftImuLinkName = "l_hand";
   this->rightImuLinkName = "r_hand";
+  this->hasStumps = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,12 +90,23 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
   this->joints.resize(this->jointNames.size());
 
-  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  // Get hand joints
   {
-    this->joints[i] = this->model->GetJoint(this->jointNames[i]);
-    if (!this->joints[i])
+    unsigned int jointCount = 0;
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      ROS_ERROR("sandia hand not present, plugin not loaded");
+      this->joints[i] = this->model->GetJoint(this->jointNames[i]);
+      if (this->joints[i])
+        ++jointCount;
+    }
+    if (jointCount == 0)
+    {
+      this->hasStumps = true;
+      ROS_INFO("No sandia hand joints found, load as stumps");
+    }
+    else if (jointCount != this->joints.size())
+    {
+      ROS_ERROR("Error loading sandia hand joints, plugin not loaded");
       return;
     }
   }
@@ -141,7 +153,8 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     this->errorTerms[i].d_q_p_dt = 0;
     this->errorTerms[i].q_i = 0;
     this->errorTerms[i].qd_p = 0;
-    this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+    if (!this->hasStumps)
+      this->jointCommands.name[i] = this->joints[i]->GetScopedName();
     this->jointCommands.position[i] = 0;
     this->jointCommands.velocity[i] = 0;
     this->jointCommands.effort[i] = 0;
@@ -440,23 +453,39 @@ void SandiaHandPlugin::UpdateStates()
     this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      // The following is added to fix compiler warnings.
-      unsigned int i0 = 0;
       if (i < this->joints.size() / 2)
       {
-        this->leftJointStates.position[i] =
-          this->joints[i]->GetAngle(0).Radian();
-        this->leftJointStates.velocity[i] = this->joints[i]->GetVelocity(0);
-        // better to use GetForceTorque dot joint axis
-        this->leftJointStates.effort[i] = this->joints[i]->GetForce(i0);
+        if (this->hasStumps)
+        {
+          this->leftJointStates.position[i] = 0;
+          this->leftJointStates.velocity[i] = 0;
+          this->leftJointStates.effort[i] = 0;
+        }
+        else
+        {
+          this->leftJointStates.position[i] =
+            this->joints[i]->GetAngle(0).Radian();
+          this->leftJointStates.velocity[i] = this->joints[i]->GetVelocity(0);
+          // better to use GetForceTorque dot joint axis
+          this->leftJointStates.effort[i] = this->joints[i]->GetForce(0u);
+        }
       }
       else
       {
         unsigned j = i - this->joints.size() / 2;
-        this->rightJointStates.position[j] =
-          this->joints[i]->GetAngle(0).Radian();
-        this->rightJointStates.velocity[j] = this->joints[i]->GetVelocity(0);
-        this->rightJointStates.effort[j] = this->joints[i]->GetForce(i0);
+        if (this->hasStumps)
+        {
+          this->leftJointStates.position[j] = 0;
+          this->leftJointStates.velocity[j] = 0;
+          this->leftJointStates.effort[j] = 0;
+        }
+        else
+        {
+          this->rightJointStates.position[j] =
+            this->joints[i]->GetAngle(0).Radian();
+          this->rightJointStates.velocity[j] = this->joints[i]->GetVelocity(0);
+          this->rightJointStates.effort[j] = this->joints[i]->GetForce(0u);
+        }
       }
     }
     this->pubLeftJointStatesQueue->push(this->leftJointStates,
@@ -510,7 +539,8 @@ void SandiaHandPlugin::UpdateStates()
                      this->errorTerms[i].d_q_p_dt +
                      this->jointCommands.effort[i];
 
-      this->joints[i]->SetForce(0, force);
+      if (!this->hasStumps)
+        this->joints[i]->SetForce(0, force);
     }
     this->lastControllerUpdateTime = curTime;
   }
