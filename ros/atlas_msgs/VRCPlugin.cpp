@@ -17,6 +17,7 @@
 
 #include <map>
 #include <string>
+#include <stdlib.h>
 
 #include "VRCPlugin.h"
 
@@ -52,6 +53,13 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
   // save pointers
   this->world = _parent;
   this->sdf = _sdf;
+
+  // By default, cheats are off.  Allow override via environment variable.
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    this->cheatsEnabled = true;
+  else
+    this->cheatsEnabled = false;
 
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
@@ -905,38 +913,41 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::LoadVRCROSAPI()
 {
-  // ros subscription
-  std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
-  ros::SubscribeOptions robot_enter_car_so =
-    ros::SubscribeOptions::create<geometry_msgs::Pose>(
-    robot_enter_car_topic_name, 100,
-    boost::bind(&VRCPlugin::RobotEnterCar, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subRobotEnterCar = this->rosNode->subscribe(robot_enter_car_so);
-
-  std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
-  ros::SubscribeOptions robot_exit_car_so =
-    ros::SubscribeOptions::create<geometry_msgs::Pose>(
-    robot_exit_car_topic_name, 100,
-    boost::bind(&VRCPlugin::RobotExitCar, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subRobotExitCar = this->rosNode->subscribe(robot_exit_car_so);
-
-  std::string robot_grab_topic_name = "drc_world/robot_grab_link";
-  ros::SubscribeOptions robot_grab_so =
-    ros::SubscribeOptions::create<geometry_msgs::Pose>(
-    robot_grab_topic_name, 100,
-    boost::bind(&VRCPlugin::RobotGrabFireHose, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subRobotGrab = this->rosNode->subscribe(robot_grab_so);
-
-  std::string robot_release_topic_name = "drc_world/robot_release_link";
-  ros::SubscribeOptions robot_release_so =
-    ros::SubscribeOptions::create<geometry_msgs::Pose>(
-    robot_release_topic_name, 100,
-    boost::bind(&VRCPlugin::RobotReleaseLink, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subRobotRelease = this->rosNode->subscribe(robot_release_so);
+  if (this->cheatsEnabled)
+  {
+    // ros subscription
+    std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
+    ros::SubscribeOptions robot_enter_car_so =
+      ros::SubscribeOptions::create<geometry_msgs::Pose>(
+      robot_enter_car_topic_name, 100,
+      boost::bind(&VRCPlugin::RobotEnterCar, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subRobotEnterCar = this->rosNode->subscribe(robot_enter_car_so);
+  
+    std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
+    ros::SubscribeOptions robot_exit_car_so =
+      ros::SubscribeOptions::create<geometry_msgs::Pose>(
+      robot_exit_car_topic_name, 100,
+      boost::bind(&VRCPlugin::RobotExitCar, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subRobotExitCar = this->rosNode->subscribe(robot_exit_car_so);
+  
+    std::string robot_grab_topic_name = "drc_world/robot_grab_link";
+    ros::SubscribeOptions robot_grab_so =
+      ros::SubscribeOptions::create<geometry_msgs::Pose>(
+      robot_grab_topic_name, 100,
+      boost::bind(&VRCPlugin::RobotGrabFireHose, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subRobotGrab = this->rosNode->subscribe(robot_grab_so);
+  
+    std::string robot_release_topic_name = "drc_world/robot_release_link";
+    ros::SubscribeOptions robot_release_so =
+      ros::SubscribeOptions::create<geometry_msgs::Pose>(
+      robot_release_topic_name, 100,
+      boost::bind(&VRCPlugin::RobotReleaseLink, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subRobotRelease = this->rosNode->subscribe(robot_release_so);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -968,40 +979,42 @@ void VRCPlugin::LoadRobotROSAPI()
       atlas.startupMode.c_str());
   }
 
-
-  // ros subscription
-  std::string trajectory_topic_name = "atlas/cmd_vel";
-  ros::SubscribeOptions trajectory_so =
-    ros::SubscribeOptions::create<geometry_msgs::Twist>(
-    trajectory_topic_name, 100,
-    boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->atlas.subTrajectory = this->rosNode->subscribe(trajectory_so);
-
-  std::string pose_topic_name = "atlas/set_pose";
-  ros::SubscribeOptions pose_so =
-    ros::SubscribeOptions::create<geometry_msgs::Pose>(
-    pose_topic_name, 100,
-    boost::bind(&VRCPlugin::SetRobotPose, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->atlas.subPose = this->rosNode->subscribe(pose_so);
-
-  std::string configuration_topic_name = "atlas/configuration";
-  ros::SubscribeOptions configuration_so =
-    ros::SubscribeOptions::create<sensor_msgs::JointState>(
-    configuration_topic_name, 100,
-    boost::bind(&VRCPlugin::SetRobotConfiguration, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->atlas.subConfiguration =
-    this->rosNode->subscribe(configuration_so);
-
-  std::string mode_topic_name = "atlas/mode";
-  ros::SubscribeOptions mode_so =
-    ros::SubscribeOptions::create<std_msgs::String>(
-    mode_topic_name, 100,
-    boost::bind(&VRCPlugin::SetRobotModeTopic, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->atlas.subMode = this->rosNode->subscribe(mode_so);
+  if (this->cheatsEnabled)
+  {
+    // ros subscription
+    std::string trajectory_topic_name = "atlas/cmd_vel";
+    ros::SubscribeOptions trajectory_so =
+      ros::SubscribeOptions::create<geometry_msgs::Twist>(
+      trajectory_topic_name, 100,
+      boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->atlas.subTrajectory = this->rosNode->subscribe(trajectory_so);
+  
+    std::string pose_topic_name = "atlas/set_pose";
+    ros::SubscribeOptions pose_so =
+      ros::SubscribeOptions::create<geometry_msgs::Pose>(
+      pose_topic_name, 100,
+      boost::bind(&VRCPlugin::SetRobotPose, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->atlas.subPose = this->rosNode->subscribe(pose_so);
+  
+    std::string configuration_topic_name = "atlas/configuration";
+    ros::SubscribeOptions configuration_so =
+      ros::SubscribeOptions::create<sensor_msgs::JointState>(
+      configuration_topic_name, 100,
+      boost::bind(&VRCPlugin::SetRobotConfiguration, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->atlas.subConfiguration =
+      this->rosNode->subscribe(configuration_so);
+  
+    std::string mode_topic_name = "atlas/mode";
+    ros::SubscribeOptions mode_so =
+      ros::SubscribeOptions::create<std_msgs::String>(
+      mode_topic_name, 100,
+      boost::bind(&VRCPlugin::SetRobotModeTopic, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->atlas.subMode = this->rosNode->subscribe(mode_so);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
