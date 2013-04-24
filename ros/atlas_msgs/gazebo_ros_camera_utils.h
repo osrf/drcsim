@@ -81,6 +81,11 @@ namespace gazebo
     protected: void ImageConnect();
     protected: void ImageDisconnect();
 
+    /// \brief Keep track when we activate this camera through ros
+    /// subscription, was it already active?  resume state when
+    /// unsubscribed.
+    protected: bool was_active_;
+
     /// \brief: Camera modification functions
     private: void SetHFOV(const std_msgs::Float64::ConstPtr& hfov);
     private: void SetUpdateRate(const std_msgs::Float64::ConstPtr& update_rate);

@@ -316,9 +316,12 @@ void GazeboRosCameraUtils::SetUpdateRate(
 // Increment count
 void GazeboRosCameraUtils::ImageConnect()
 {
+  // upon first connection, remember if camera was active.
+  if (this->image_connect_count_ == 0)
+    this->was_active_ = this->parentSensor_->IsActive();
+
   this->image_connect_count_++;
-  // maintain for one more release for backwards compatibility
-  // with pr2_gazebo_plugins
+
   this->parentSensor_->SetActive(true);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,9 +329,11 @@ void GazeboRosCameraUtils::ImageConnect()
 void GazeboRosCameraUtils::ImageDisconnect()
 {
   this->image_connect_count_--;
-  // maintain for one more release for backwards compatibility with
-  // pr2_gazebo_plugins
-  if (this->image_connect_count_ <= 0)
+
+  // if there are no more subscribers, but camera was active to begin with,
+  // leave it active.  Use case:  this could be a multicamera, where
+  // each camera shares the same parentSensor_.
+  if (this->image_connect_count_ <= 0 && !this->was_active_)
     this->parentSensor_->SetActive(false);
 }
 
