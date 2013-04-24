@@ -1143,6 +1143,9 @@ void AtlasPlugin::UpdateStates()
               this->jointStates.velocity.begin());
 
     // AtlasSimInterface:
+    // skip the first step, or else, BDI controller might init with bad
+    // states and fail:
+    if (curTime.Double() > this->world->GetPhysicsEngine()->GetMaxStepSize())
     {
       boost::mutex::scoped_lock lock(this->asiMutex);
 
