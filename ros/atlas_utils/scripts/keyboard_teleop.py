@@ -90,7 +90,7 @@ class AtlasTeleop():
 
     def print_usage(self):
         msg = """
-        Keyboard Teleop for AtlasSimInterface 1.0.5
+        Keyboard Teleop for AtlasSimInterface 1.0.8
         Copyright (C) 2013 Open Source Robotics Foundation
         Released under the Apache 2 License
         --------------------------------------------------
@@ -101,11 +101,12 @@ class AtlasTeleop():
                 ,    
                 
         Turn movements:
-        o/u Turn around a point
-        m/. Turn in place
+        u/o Turn left/right around a point
+        m/. Turn left/right in place
         
         1-9: Change the length of step trajectory
         E: View and Edit Parameters
+        H: Print this menu
         R: Reset robot to standing pose
         Q: Quit
         """
@@ -120,14 +121,12 @@ class AtlasTeleop():
         self.mode.publish("nominal")
         rospy.sleep(0.3)
         self.control_mode.publish("Stand")
-
+        
     # Builds a trajectory of step commands. 
     # Param forward: 1 forward, -1 backward or 0 if no forward component
     # Param lateral: 1 left, -1 right, 0 if no lateral component
     # Param turn: 1 Counter clockwise turn, -1 clockwise turn    
     def twist(self, forward, lateral, turn):
-        self.loginfo("Walking " + \
-        str(self.params["Walk Sequence Length"]["value"]) + " steps")
         steps = []
         
         L = self.params["Forward Stride Length"]["value"]
@@ -268,6 +267,10 @@ class AtlasTeleop():
             self.debuginfo("foot: " + str(step.foot_index) + \
               " [" + str(step.pose.position.x) + \
               ", " + str(step.pose.position.y) + ", " + str(theta) + "]")   
+            
+        self.client.wait_for_result(\
+          rospy.Duration(2*self.params["Stride Duration"]["value"] * \
+                         len(steps) + 5))
 
     # Select binding values and call twist
     def process_movement(self, ch):
@@ -352,7 +355,7 @@ class AtlasTeleop():
             self.reset_to_standing()
         elif ch == 'h' or ch == 'H':
             self.print_usage()
-        elif ch == 'q' or ch == 'Q':
+        elif ch == 'q' or ch == 'Q' or ord(ch) == 3:
             self.loginfo("Quitting")
             rospy.signal_shutdown("Shutdown")
         try:
