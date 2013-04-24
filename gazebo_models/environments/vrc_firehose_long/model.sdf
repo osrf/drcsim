@@ -43,6 +43,7 @@
       <pose>0.1 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -99,6 +100,7 @@
       <pose>0.3 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -147,6 +149,7 @@
       <pose>0.5 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -195,6 +198,7 @@
       <pose>0.7 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -243,6 +247,7 @@
       <pose>0.9 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -291,6 +296,7 @@
       <pose>1.1 0 0 0 0 -.785</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -339,6 +345,7 @@
       <pose>1.227 -.127 0 0 0 -2.3415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -387,6 +394,7 @@
       <pose>1.1 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -435,6 +443,7 @@
       <pose>0.9 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -483,6 +492,7 @@
       <pose>0.7 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -531,6 +541,7 @@
       <pose>0.5 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -579,6 +590,7 @@
       <pose>0.3 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -627,6 +639,7 @@
       <pose>0.1 -.254 0 0 0 -2.356</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -675,6 +688,7 @@
       <pose>-0.027 -.381 0 0 0 -.785</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -723,6 +737,7 @@
       <pose>0.1 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -771,6 +786,7 @@
       <pose>0.3 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -819,6 +835,7 @@
       <pose>0.5 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -867,6 +884,7 @@
       <pose>0.7 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -915,6 +933,7 @@
       <pose>0.9 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
