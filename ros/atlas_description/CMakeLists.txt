@@ -1,11 +1,11 @@
 set (ROS_PACKAGE_NAME atlas_description)
 set (GAZEBO_INSTALL_PATH share/${PROJECT_NAME}-${DRC_SIM_VERSION}/gazebo_models/${ROS_PACKAGE_NAME})
 
-# set (ROS_PKG_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME})
-# set (files
-#   manifest.xml
-# )
-# install(FILES ${files} DESTINATION ${ROS_PKG_INSTALL_PATH}/)
+set (ROS_PKG_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME})
+set (files
+  manifest.xml
+)
+install(FILES ${files} DESTINATION ${ROS_PKG_INSTALL_PATH}/)
 
 add_subdirectory(robots)
 add_subdirectory(urdf)
