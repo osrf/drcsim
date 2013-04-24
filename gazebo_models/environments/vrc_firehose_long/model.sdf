@@ -301,19 +301,19 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
@@ -349,19 +349,19 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
@@ -637,19 +637,19 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
@@ -685,19 +685,19 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
+            <length>0.175</length>
             <radius>0.025</radius>
           </cylinder>
         </geometry>
