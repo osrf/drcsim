@@ -34,7 +34,7 @@ class PerformanceTest(unittest.TestCase):
         super(PerformanceTest, self).__init__(*args)
         self.success = False
         self.max_factor_reached = 0
-        self.factor_required = 0.81
+        self.factor_required = 0.50
 
         # test duration in real time seconds
         self.test_duration = 10.0
