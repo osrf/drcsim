@@ -160,12 +160,12 @@ class AtlasTeleop():
         
         # This home step doesn't currently do anything, but it's a 
         # response to bdi not visiting the first step in a trajectory
-        home_step = AtlasBehaviorStepData()
+        # home_step = AtlasBehaviorStepData()
         
         # If moving right, first dummy step is on the left
-        home_step.foot_index = 1*(lateral < 0)
-        home_step.pose.position.y = 0.1
-        steps.append(home_step)
+        # home_step.foot_index = 1*(lateral < 0)
+        # home_step.pose.position.y = 0.1
+        # steps.append(home_step)
         prevX = 0
         prevY = 0
         
@@ -184,7 +184,8 @@ class AtlasTeleop():
             
             if turn == 0:
                 X = (forward != 0) * (X + forward * L)
-                Y = (lateral != 0) * (Y + is_odd * lateral * L_lat) + foot * W / 2
+                Y = (lateral != 0) * (Y + is_odd * lateral * L_lat) + \
+                    foot * W / 2
             elif forward != 0:
                 # Radius from point to foot (if turning)
                 R_foot = R + foot * W/2
@@ -195,8 +196,8 @@ class AtlasTeleop():
                 
                 self.debuginfo("R: " + str(R) + " R_foot:" + \
                 str(R_foot) + " theta: " + str(theta) +  \
-               " math.sin(theta): " + str(math.sin(theta)) + \
-               " math.cos(theta) + " + str(math.cos(theta)))
+                " math.sin(theta): " + str(math.sin(theta)) + \
+                " math.cos(theta) + " + str(math.cos(theta)))
             elif turn != 0:
                 X = turn * W/2 * math.sin(theta)
                 Y = turn * W/2 * math.cos(theta)
@@ -205,7 +206,7 @@ class AtlasTeleop():
             step = AtlasBehaviorStepData()
             
             # One step already exists, so add one to index
-            step.step_index = i+1
+            step.step_index = i
             
             # Alternate between feet, start with left
             step.foot_index = is_right_foot

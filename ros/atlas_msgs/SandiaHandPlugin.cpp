@@ -441,14 +441,13 @@ void SandiaHandPlugin::UpdateStates()
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
       // The following is added to fix compiler warnings.
-      unsigned int i0 = 0;
       if (i < this->joints.size() / 2)
       {
         this->leftJointStates.position[i] =
           this->joints[i]->GetAngle(0).Radian();
         this->leftJointStates.velocity[i] = this->joints[i]->GetVelocity(0);
         // better to use GetForceTorque dot joint axis
-        this->leftJointStates.effort[i] = this->joints[i]->GetForce(i0);
+        this->leftJointStates.effort[i] = this->joints[i]->GetForce(0u);
       }
       else
       {
@@ -456,7 +455,7 @@ void SandiaHandPlugin::UpdateStates()
         this->rightJointStates.position[j] =
           this->joints[i]->GetAngle(0).Radian();
         this->rightJointStates.velocity[j] = this->joints[i]->GetVelocity(0);
-        this->rightJointStates.effort[j] = this->joints[i]->GetForce(i0);
+        this->rightJointStates.effort[j] = this->joints[i]->GetForce(0u);
       }
     }
     this->pubLeftJointStatesQueue->push(this->leftJointStates,

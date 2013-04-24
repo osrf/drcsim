@@ -22,6 +22,7 @@ ExternalProject_Add(atlas_msgs
                       -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       -DPLUGIN_LINK_DIRECTORIES=${CMAKE_BINARY_DIR}/plugins
                       -DROS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                      -DATLAS_SIM_INTERFACE_VERSION_FULL=${ATLAS_SIM_INTERFACE_VERSION_FULL}
                       ${CATKIN_BUILD_BINARY_PACKAGE_STRING}
                     INSTALL_COMMAND ""
                     )
