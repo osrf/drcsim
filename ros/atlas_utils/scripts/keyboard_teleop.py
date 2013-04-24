@@ -45,7 +45,8 @@ class AtlasTeleop():
                                 "type":"float"},
               "Lateral Stride Length":{ "value":0.15, "min":0, "max":1, \
                                 "type":"float"},
-              "Step Height":{"value":0, "min":-1, "max":1, "type":"float"},
+              "Step Height":{"value":0, "min":-1, "max":1, "type":"float"}, \
+              "Step Height Interval":{"value":0.05, "min":0, "max":1, "type":"float"},
               "Stride Duration":{ "value":0.63, "min": 0, "max":100, \
                                 "type":"float"},
               "Walk Sequence Length":{"value":5, "min":1, "max":sys.maxint, \
@@ -90,21 +91,33 @@ class AtlasTeleop():
 
     def print_usage(self):
         msg = """
-        Keyboard Teleop for AtlasSimInterface 1.0.8
+        Keyboard Teleop for AtlasSimInterface 1.1.0
         Copyright (C) 2013 Open Source Robotics Foundation
         Released under the Apache 2 License
         --------------------------------------------------
-        Linear movement:
+        Dynamic linear movement:
 
                 i    
            j         l
-                ,    
-                
-        Turn movements:
+                ,
+                                
+        Dynamic turn movements:
         u/o Turn left/right around a point
         m/. Turn left/right in place
         
+        
+        Static linear movement:
+        
+                I
+           J         L
+                <
+                
+        Static turn movements:
+        U/O Turn left/right around a point
+        M/> Turn left/right in place
+        
         1-9: Change the length of step trajectory
+        '-'/'=': Increase/Decrease Step Height
         E: View and Edit Parameters
         H: Print this menu
         R: Reset robot to standing pose
@@ -126,7 +139,7 @@ class AtlasTeleop():
     # Param forward: 1 forward, -1 backward or 0 if no forward component
     # Param lateral: 1 left, -1 right, 0 if no lateral component
     # Param turn: 1 Counter clockwise turn, -1 clockwise turn    
-    def twist(self, forward, lateral, turn):
+    def dynamic_twist(self, forward, lateral, turn):
         steps = []
         
         L = self.params["Forward Stride Length"]["value"]
@@ -272,10 +285,11 @@ class AtlasTeleop():
           rospy.Duration(2*self.params["Stride Duration"]["value"] * \
                          len(steps) + 5))
 
-    # Select binding values and call twist
+    def static_twist(self, forward, lateral, turn):
+    # Select binding values and call dynamic_twist
     def process_movement(self, ch):
         dir = self.directions[ch]       
-        self.twist(dir["forward"], dir["lateral"], dir["turn"])
+        self.dynamic_twist(dir["forward"], dir["lateral"], dir["turn"])
     
     # Puts teleop into edit param mode
     def edit_params(self):
@@ -358,6 +372,16 @@ class AtlasTeleop():
         elif ch == 'q' or ch == 'Q' or ord(ch) == 3:
             self.loginfo("Quitting")
             rospy.signal_shutdown("Shutdown")
+        elif ch == '=':
+            self.params["Step Height"]["value"] += \
+                self.params["Step Height Interval"]["value"]
+            self.loginfo("Step Height: " + \
+                         str(self.params["Step Height"]["value"]))     
+        elif ch == '-':
+            self.params["Step Height"]["value"] -= \
+                self.params["Step Height Interval"]["value"]
+            self.loginfo("Step Height: " + \
+                         str(self.params["Step Height"]["value"]))     
         try:
             if (int(ch) >= self.params["Walk Sequence Length"]["min"] and \
                 int(ch) <= self.params["Walk Sequence Length"]["max"]):
