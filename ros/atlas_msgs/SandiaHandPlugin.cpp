@@ -128,11 +128,17 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     if (i < this->joints.size() / 2)
     {
       this->leftJointStates.name[i] = this->jointNames[i];
+      this->leftJointStates.position[i] = 0;
+      this->leftJointStates.velocity[i] = 0;
+      this->leftJointStates.effort[i] = 0;
     }
     else
     {
       unsigned j = i - this->joints.size() / 2;
       this->rightJointStates.name[j] = this->jointNames[i];
+      this->rightJointStates.position[i] = 0;
+      this->rightJointStates.velocity[i] = 0;
+      this->rightJointStates.effort[i] = 0;
     }
   }
 
@@ -155,6 +161,8 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     this->errorTerms[i].qd_p = 0;
     if (!this->hasStumps)
       this->jointCommands.name[i] = this->joints[i]->GetScopedName();
+    else
+      this->jointCommands.name[i] = this->jointNames[i];
     this->jointCommands.position[i] = 0;
     this->jointCommands.velocity[i] = 0;
     this->jointCommands.effort[i] = 0;
@@ -455,13 +463,7 @@ void SandiaHandPlugin::UpdateStates()
     {
       if (i < this->joints.size() / 2)
       {
-        if (this->hasStumps)
-        {
-          this->leftJointStates.position[i] = 0;
-          this->leftJointStates.velocity[i] = 0;
-          this->leftJointStates.effort[i] = 0;
-        }
-        else
+        if (!this->hasStumps)
         {
           this->leftJointStates.position[i] =
             this->joints[i]->GetAngle(0).Radian();
@@ -473,13 +475,7 @@ void SandiaHandPlugin::UpdateStates()
       else
       {
         unsigned j = i - this->joints.size() / 2;
-        if (this->hasStumps)
-        {
-          this->leftJointStates.position[j] = 0;
-          this->leftJointStates.velocity[j] = 0;
-          this->leftJointStates.effort[j] = 0;
-        }
-        else
+        if (!this->hasStumps)
         {
           this->rightJointStates.position[j] =
             this->joints[i]->GetAngle(0).Radian();
