@@ -136,9 +136,9 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     {
       unsigned j = i - this->joints.size() / 2;
       this->rightJointStates.name[j] = this->jointNames[i];
-      this->rightJointStates.position[i] = 0;
-      this->rightJointStates.velocity[i] = 0;
-      this->rightJointStates.effort[i] = 0;
+      this->rightJointStates.position[j] = 0;
+      this->rightJointStates.velocity[j] = 0;
+      this->rightJointStates.effort[j] = 0;
     }
   }
 
