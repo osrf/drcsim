@@ -68,7 +68,7 @@ namespace gazebo
     private: bool CheckHoseConnected();
 
     /// \brief Check whether the valve is turned.
-    private: bool CheckValveTurned();
+    private: bool CheckValveOpen();
 
     /// \brief Write intermediate score data
     private: void WriteIntermediateScore(
@@ -179,7 +179,7 @@ namespace gazebo
     private: physics::LinkPtr standpipe;
 
     /// \brief Pointer to the valve. (V3)
-    private: physics::ModelPtr valve;
+    private: physics::JointPtr valve;
 
     /// \brief Whether the hose is currently aligned to the standpipe (V3)
     private: bool isHoseAligned;

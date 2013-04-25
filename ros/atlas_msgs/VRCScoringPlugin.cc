@@ -233,7 +233,7 @@ bool VRCScoringPlugin::CheckNextGate()
       default:
         GZ_ASSERT(false, "Unknown gate type");
     }
-    // Figure whether we're positioned before (-1), after (1), or 
+    // Figure whether we're positioned before (-1), after (1), or
     // neither (0), with respect to the gate.
     int gateSide = this->IsPoseInGate(pose,
                                       this->nextGate->pose,
@@ -378,13 +378,18 @@ bool VRCScoringPlugin::CheckHoseConnected()
   if (!this->isHoseAligned)
     return false;
 
-  // Check for a sufficient change in coupler position, which indicates that
-  // the hose coupler has threaded on to the standpipe screw joint.
-  math::Vector3 positionDiff = 
-    this->hoseCoupler->GetWorldPose().pos - this->hoseCouplerAlignedPose.pos;
-  double dist = positionDiff.GetLength();
+  // Check for a sufficient change in coupler position along its X axis,
+  // which indicates that the hose coupler has threaded on to the standpipe
+  // screw joint.
+
+  // Transform current position into frame of initial aligned pose
+  math::Vector3 couplerWorldPosition = this->hoseCoupler->GetWorldPose().pos; 
+  math::Vector3 couplerLocalPosition =
+    this->hoseCouplerAlignedPose.rot.GetInverse().RotateVector(
+      couplerWorldPosition - this->hoseCouplerAlignedPose.pos);
+  double dist = couplerLocalPosition.x;
   // Maximum depth is 2cm; let's get most of the way there.
-  if (dist >= 0.015)
+  if (dist <= -0.015)
   {
     if (!this->isHoseConnected)
     {
@@ -406,9 +411,23 @@ bool VRCScoringPlugin::CheckHoseConnected()
 }
 
 /////////////////////////////////////////////////
-bool VRCScoringPlugin::CheckValveTurned()
+bool VRCScoringPlugin::CheckValveOpen()
 {
-  return false;
+  // Doesn't count unless the hose is connected.  This check doesn't
+  // prevent out-of-order task execution; that should be done in
+  // the VRCPlugin, which should not allow alignment when the valve is open.
+  if (!this->isHoseConnected)
+    return false;
+
+  // The valve starts at 0 and can be turned CCW several rotations.
+  // We check that it's been turned at least one rotation.
+  if (this->valve->GetAngle(0) < math::Angle(-2.0*M_PI))
+  {
+    gzlog << "Successfully opened valve" << std::endl;
+    return true;
+  }
+  else
+    return false;
 }
 
 /////////////////////////////////////////////////
@@ -429,8 +448,8 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   }
   else if (this->worldType == VRC_3)
   {
-    // Check for alignment and connection every cycle, because the 
-    // competitor might align/connect and unalign/disconnect the hose 
+    // Check for alignment and connection every cycle, because the
+    // competitor might align/connect and unalign/disconnect the hose
     // multiple times.
     bool hoseAligned = this->CheckHoseAligned();
     bool hoseConnected = this->CheckHoseConnected();
@@ -456,7 +475,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
     else if (this->completionScore == 3)
     {
       // Step 3: Did we turn the valve?
-      if (this->CheckValveTurned())
+      if (this->CheckValveOpen())
         this->completionScore += 1;
     }
   }
@@ -464,7 +483,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   // Did we fall?
   if (this->CheckFall(_info.simTime))
     this->falls += 1;
-  
+
   // Write score data (it's throttled internally to write at a fixed rate)
   this->WriteIntermediateScore(_info.simTime, false);
 }
@@ -492,7 +511,7 @@ bool VRCScoringPlugin::FindQual2Stuff()
     gzerr << "Failed to find bin link" << std::endl;
     return false;
   }
-  physics::CollisionPtr bottomCollision = 
+  physics::CollisionPtr bottomCollision =
     binLink->GetCollision("bottom_collision");
   if (!bottomCollision)
   {
@@ -500,7 +519,7 @@ bool VRCScoringPlugin::FindQual2Stuff()
     return false;
   }
   math::Box bottomBbox = bottomCollision->GetBoundingBox();
-  physics::CollisionPtr side1Collision = 
+  physics::CollisionPtr side1Collision =
     binLink->GetCollision("side1_collision");
   if (!side1Collision)
   {
@@ -563,6 +582,19 @@ bool VRCScoringPlugin::FindVRC3Stuff()
     return false;
   }
 
+  physics::ModelPtr valveModel = this->world->GetModel("valve");
+  if (!valveModel)
+  {
+    gzerr << "Failed to find valve model" << std::endl;
+    return false;
+  }
+  this->valve = valveModel->GetJoint("joint");
+  if (!this->valve)
+  {
+    gzerr << "Failed to find valve joint" << std::endl;
+    return false;
+  }
+
   this->isHoseAligned = false;
   this->isHoseConnected = false;
 
@@ -583,7 +615,7 @@ bool VRCScoringPlugin::FindGates()
     std::string name = model->GetName();
     std::vector<std::string> parts;
     boost::split(parts, name, boost::is_any_of("_"));
-    if (parts.size() == 2 && 
+    if (parts.size() == 2 &&
         ((parts[0] == "gate") || (parts[0] == "vehiclegate")))
     {
       // Parse out the number; skip if it fails
