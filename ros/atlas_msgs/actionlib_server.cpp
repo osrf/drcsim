@@ -152,7 +152,7 @@ void ASIActionServer::ASIStateCB(
   {
     ROS_INFO("Switch to stand successful, ready for new goal");
     this->actionServerResult.success = true;
-    this->actionServer->setSucceeded();
+    this->actionServer->setSucceeded(this->actionServerResult);
   }
 
   // assuming there are no significant errors,
@@ -190,7 +190,7 @@ void ASIActionServer::ASIStateCB(
     // copy goal info into command to be dispatched over
     // AtlasSimInterfaceCommand
     command.header = this->activeGoal.header;
-    command.behavior = this->activeGoal.behavior;
+    //command.behavior = this->activeGoal.behavior;
     command.k_effort = this->activeGoal.k_effort;
     command.step_params = this->activeGoal.step_params;
     command.manipulate_params = this->activeGoal.manipulate_params;
@@ -232,14 +232,8 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::STEP:
         {
           atlas_msgs::AtlasSimInterfaceCommand command;
-          command.header = this->activeGoal.header;
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
-          command.header = this->activeGoal.header;
-          command.behavior = this->activeGoal.behavior;
-          command.k_effort = this->activeGoal.k_effort;
-          command.step_params = this->activeGoal.step_params;
-          command.manipulate_params = this->activeGoal.manipulate_params;
-          command.stand_params = this->activeGoal.stand_params;
+          command.step_params.desired_step.step_index = 1;
           this->atlasCommandPublisher.publish(command);
         }
         break;
@@ -281,7 +275,7 @@ void ASIActionServer::ASIStateCB(
     // copy goal info into command to be dispatched over
     // AtlasSimInterfaceCommand
     command.header = this->activeGoal.header;
-    command.behavior = this->activeGoal.behavior;
+    //command.behavior = this->activeGoal.behavior;
     command.k_effort = this->activeGoal.k_effort;
     command.step_params = this->activeGoal.step_params;
     command.manipulate_params = this->activeGoal.manipulate_params;
@@ -292,6 +286,7 @@ void ASIActionServer::ASIStateCB(
     {
       case atlas_msgs::WalkDemoGoal::WALK:
         {
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::WALK;
           int startIndex =
             std::min((long)msg->walk_feedback.next_step_index_needed,
               (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
@@ -340,10 +335,25 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
-        /// \TODO: check curretn_behavior == STAND
-        if (this->actionServer->isActive())
+        // If step_feedback is in swaying, the next step can be sent
+        if (this->actionServer->isActive() &&
+            msg->step_feedback.status_flags == 1 && !this->isSwaying)
         {
-          this->actionServer->setSucceeded();
+          this->isSwaying = true;
+          this->actionServerResult.success = true;
+          this->actionServer->setSucceeded(this->actionServerResult);
+          this->executingGoal = false;
+        }
+        if (msg->step_feedback.status_flags == 2)
+        {
+          this->isSwaying = false;
+        }
+        else
+        {
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
+          command.step_params.desired_step.step_index = 1;
+          this->atlasCommandPublisher.publish(command);
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -356,14 +366,18 @@ void ASIActionServer::ASIStateCB(
             msg->current_behavior ==
             atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP)
         {
-          this->actionServer->setSucceeded();
+          this->actionServerResult.success = true;
+          this->actionServer->setSucceeded(this->actionServerResult);
+          this->executingGoal = false;
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND:
         if (this->actionServer->isActive() &&
           msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND)
         {
-          this->actionServer->setSucceeded();
+          this->actionServerResult.success = true;
+          this->actionServer->setSucceeded(this->actionServerResult);
+          this->executingGoal = false;
         }
         break;
       case atlas_msgs::WalkDemoGoal::USER:
@@ -402,6 +416,7 @@ void ASIActionServer::ActionServerCB()
   if (!this->newGoal && !this->executingGoal)
   {
     this->activeGoal = *this->actionServer->acceptNewGoal();
+    this->actionServerResult.success = false;
     ROS_INFO("Received new goal, processing");
     this->executingGoal = false;
     this->newGoal = true;
@@ -424,59 +439,10 @@ void ASIActionServer::ActionServerCB()
                         " z: " << this->robotPosition.z);
         for (unsigned int i = 0; i < this->activeGoal.steps.size(); ++i)
         {
-          // Position vector of the robot
-          tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
-                                          this->robotPosition.y,
-                                          this->robotPosition.z);
-
-          // Create transform of this active goal step
-          tf::Quaternion agQ;
-          tf::quaternionMsgToTF(this->activeGoal.steps[i].pose.orientation,
-                                agQ);
-          tf::Transform aGTransform(agQ.normalize(),
-            tf::Vector3(this->activeGoal.steps[i].pose.position.x,
-                        this->activeGoal.steps[i].pose.position.y,
-                        this->activeGoal.steps[i].pose.position.z));
-
-          // We only want to transform with respect to the robot's yaw
-          double yaw = tf::getYaw(this->robotOrientation);
-
-          // Transform of the robot in world coordinates
-          tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
-
-          // Transform the active goal step to world pose.
-          tf::Transform newTransform = transform * aGTransform;
-
-          ROS_DEBUG_STREAM("Before xform. Step: " << i << " location- x: " <<
-             this->activeGoal.steps[i].pose.position.x <<
-             " y: " << this->activeGoal.steps[i].pose.position.y <<
-             " z: " << this->activeGoal.steps[i].pose.position.z);
-
-          // Create geometry_msgs transform msg and change the active goal to
-          // reflect the transform
-          geometry_msgs::Transform transformMsg;
-          tf::transformTFToMsg(newTransform, transformMsg);
-          this->activeGoal.steps[i].pose.orientation =
-              transformMsg.rotation;
-          this->activeGoal.steps[i].pose.position.x =
-              transformMsg.translation.x;
-          this->activeGoal.steps[i].pose.position.y =
-              transformMsg.translation.y;
-          this->activeGoal.steps[i].pose.position.z =
-              transformMsg.translation.z;
+          transformStepPose(this->activeGoal.steps[i].pose);
           this->currentStepIndex = 0;
 
-          // std::cout << "  building stepId : " << i
-          //   << "  traj id [" << this->currentStepIndex + i
-          //   << "] step_index["
-          //   << this->activeGoal.steps[i].step_index
-          //   << "]  isRight["
-          //   << this->activeGoal.steps[i].foot_index
-          //   << "]  pos ["
-          //   << this->activeGoal.steps[i].pose.position.x
-          //   << ", "
-          //   << this->activeGoal.steps[i].pose.position.y
-          //   << "]\n";
+
 
           ROS_DEBUG_STREAM("Step: " << i << " location- x: " <<
              this->activeGoal.steps[i].pose.position.x <<
@@ -498,7 +464,9 @@ void ASIActionServer::ActionServerCB()
         }
       }
     case atlas_msgs::WalkDemoGoal::STEP:
-      // no pre-processing of goal is needed
+      {
+        transformStepPose(this->activeGoal.step_params.desired_step.pose);
+      }
       break;
     case atlas_msgs::WalkDemoGoal::MANIPULATE:
       // no pre-processing of goal is needed
@@ -518,6 +486,67 @@ void ASIActionServer::ActionServerCB()
     default:
       break;
   }
+}
+
+void ASIActionServer::transformStepPose(geometry_msgs::Pose &pose)
+{
+    // Position vector of the robot
+    tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
+                                    this->robotPosition.y,
+                                        this->robotPosition.z);
+
+    // Create transform of this active goal step
+    tf::Quaternion agQ;
+    tf::quaternionMsgToTF(pose.orientation, agQ);
+
+    std::cout << "position [" <<
+                this->robotPosition.x << ", " <<
+                this->robotPosition.y << ", " <<
+                this->robotPosition.z << "] \norientation [" <<
+                this->robotOrientation.getX() << ", " <<
+                this->robotOrientation.getY() << ", " <<
+                this->robotOrientation.getZ() << ", " <<
+                this->robotOrientation.getW() << "]" << std::endl;
+
+
+    tf::Transform aGTransform(agQ.normalize(),
+      tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
+
+    // We only want to transform with respect to the robot's yaw
+    double yaw = tf::getYaw(this->robotOrientation);
+
+    // Transform of the robot in world coordinates
+    tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
+
+    // Transform the active goal step to world pose.
+    tf::Transform newTransform = transform * aGTransform;
+
+    ROS_DEBUG_STREAM("Before xform. location-" <<
+       " x: " << pose.position.x <<
+       " y: " << pose.position.y <<
+       " z: " << pose.position.z);
+
+    // Create geometry_msgs transform msg and change the active goal to
+    // reflect the transform
+    geometry_msgs::Transform transformMsg;
+    tf::transformTFToMsg(newTransform, transformMsg);
+    pose.orientation = transformMsg.rotation;
+    pose.position.x =
+        transformMsg.translation.x;
+    pose.position.y =
+        transformMsg.translation.y;
+    pose.position.z =
+        transformMsg.translation.z;
+
+
+    std::cout << " pose " <<
+                 " position: [ " << pose.position.x <<
+                 ", " << pose.position.y <<
+                 ", " << pose.position.z << "]\n quaternion: [" <<
+                 pose.orientation.x << ", " <<
+                 pose.orientation.y << ", " <<
+                 pose.orientation.z << ", " <<
+                 pose.orientation.w << "]" << std::endl;
 }
 
 void ASIActionServer::abortGoal(std::string reason)

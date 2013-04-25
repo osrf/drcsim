@@ -56,6 +56,9 @@ class ASIActionServer
   private: void ASIStateCB(
       const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
 
+  /// \brief Transforms a step pose based on current estimated robot world pose
+  public: void transformStepPose(geometry_msgs::Pose &pose);
+
   /// \brief Current robot position, pulled from ASIStateCB
   private: geometry_msgs::Vector3 robotPosition;
 
@@ -100,6 +103,8 @@ class ASIActionServer
   /// \brief used to determine if a new goal exists, during which conflicting
   /// information is relayed through atlas_sim_interface_state
   private: bool newGoal;
+
+  private: bool isSwaying;
 
   /// \brief Keeps track of the current step in process when walking
   private: unsigned int currentStepIndex;
