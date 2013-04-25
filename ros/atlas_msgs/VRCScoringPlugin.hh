@@ -29,6 +29,10 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 
+#include <atlas_msgs/VRCScore.h>
+
+#include "PubQueue.h"
+
 namespace gazebo
 {
   /// \brief A plugin that implements the VRC scoring algorithms.
@@ -49,30 +53,35 @@ namespace gazebo
     /// \param[in] _info Current world information.
     public: void OnUpdate(const common::UpdateInfo &_info);
 
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void DeferredLoad();
+
     /// \brief Check the next gate to see if we've passed it
-    private: bool CheckNextGate();
+    private: bool CheckNextGate(std::string &_msg);
 
     /// \brief Check whether we've fallen
-    private: bool CheckFall(const common::Time &_currTime);
+    private: bool CheckFall(const common::Time &_currTime,
+      std::string &_msg);
 
     /// \brief Check whether the drill is in the bin
-    private: bool CheckDrillInBin();
+    private: bool CheckDrillInBin(std::string &_msg);
 
     /// \brief Check whether the hose is off the table
-    private: bool CheckHoseOffTable();
+    private: bool CheckHoseOffTable(std::string &_msg);
 
     /// \brief Check whether the hose is aligned with the standpipe.
-    private: bool CheckHoseAligned();
+    private: bool CheckHoseAligned(std::string &_msg);
 
     /// \brief Check whether the hose is connected to the standpipe.
-    private: bool CheckHoseConnected();
+    private: bool CheckHoseConnected(std::string &_msg);
 
     /// \brief Check whether the valve is turned.
-    private: bool CheckValveOpen();
+    private: bool CheckValveOpen(std::string &_msg);
 
     /// \brief Write intermediate score data
-    private: void WriteIntermediateScore(
-      const gazebo::common::Time& _currTime, bool _force);
+    private: void WriteScore(const gazebo::common::Time& _currTime, 
+      const std::string &_msg, bool _force);
 
     /// \brief Is this world gate-based?
     private: bool IsGateBased();
@@ -163,6 +172,9 @@ namespace gazebo
     /// \brief Pointer to Atlas.
     private: physics::ModelPtr atlas;
 
+    /// \brief Pointer to Atlas's head link.
+    private: physics::LinkPtr atlasHead;
+
     /// \brief Pointer to drill. (Q2)
     private: physics::ModelPtr drill;
 
@@ -237,6 +249,17 @@ namespace gazebo
 
     /// \brief Which type of world we're scoring
     private: enum WorldType worldType;
+
+    /// \brief ros node handle
+    private: ros::NodeHandle* rosNode;
+
+    /// \brief publisher of vrc_score
+    private: ros::Publisher pubScore;
+    private: PubQueue<atlas_msgs::VRCScore>::Ptr pubScoreQueue;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
+    private: boost::thread deferredLoadThread;
   };
 }
 #endif

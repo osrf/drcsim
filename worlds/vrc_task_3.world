@@ -80,7 +80,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>start_gate</name>
+      <name>gate_0</name>
       <pose>-2.86 -15 2.0 0 0 0</pose>
     </include>
 
