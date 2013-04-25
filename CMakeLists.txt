@@ -5,11 +5,11 @@ project (drcsim)
 include(ExternalProject)
 
 set (DRC_SIM_MAJOR_VERSION 2)
-set (DRC_SIM_MINOR_VERSION 3)
+set (DRC_SIM_MINOR_VERSION 5)
 # The patch version may have been bumped for prerelease purposes; be sure to
 # check drcsim-release/ubuntu/debian/changelog@default to determine what the
 # next patch version should be for a regular release.
-set (DRC_SIM_PATCH_VERSION 1)
+set (DRC_SIM_PATCH_VERSION 2)
 set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
 set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
 message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
@@ -116,6 +116,9 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup-unversioned.sh.in ${PROJECT_BINARY_DIR}/unversioned/setup.sh @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/unversioned/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 add_subdirectory(gazebo_models)
 add_subdirectory(media)
