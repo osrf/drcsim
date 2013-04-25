@@ -221,7 +221,7 @@ namespace gazebo
     private: transport::PublisherPtr jointCmdPub;
 
     // AtlasSimInterface:
-    private: AtlasControlOutput atlasControlOutput;
+    private: AtlasControlOutput controlOutput;
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
@@ -270,8 +270,8 @@ namespace gazebo
 
     /// \brief helper function to copy states
     private: void AtlasControlOutputToAtlasSimInterfaceState(
-              atlas_msgs::AtlasBehaviorFeedback *_fb,
-              AtlasBehaviorFeedback *_fbOut);
+              atlas_msgs::AtlasSimInterfaceState *_fb,
+              AtlasControlOutput *_fbOut);
 
     /// \brief Conversion functions
     private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const

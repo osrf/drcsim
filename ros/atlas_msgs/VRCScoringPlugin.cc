@@ -341,13 +341,68 @@ bool VRCScoringPlugin::CheckHoseOffTable()
 /////////////////////////////////////////////////
 bool VRCScoringPlugin::CheckHoseAligned()
 {
-  return false;
+  // Check that the screw joint between the hose coupler and standpipe exists.
+  // That's true only when they're aligned (handled in VRCPlugin.cpp).
+  // We check indirectly by looking for a non-empty set of child links attached
+  // to the standpipe.
+  physics::Link_V childJointsLinks = this->standpipe->GetChildJointsLinks();
+  if (!childJointsLinks.empty())
+  {
+    // If we were not previously aligned, latch the current pose for later
+    // comparison to determine that rotation has succeeded.
+    if (!this->isHoseAligned)
+    {
+      gzlog << "Successfully aligned the hose with the standpipe" << std::endl;
+      this->hoseCouplerAlignedPose = this->hoseCoupler->GetWorldPose();
+      this->isHoseAligned = true;
+      this->isHoseConnected = false;
+    }
+    return true;
+  }
+  else
+  {
+    if (this->isHoseAligned)
+    {
+      gzlog << "Unaligned the hose from the standpipe" << std::endl;
+      this->isHoseAligned = false;
+      this->isHoseConnected = false;
+    }
+    return false;
+  }
 }
 
 /////////////////////////////////////////////////
 bool VRCScoringPlugin::CheckHoseConnected()
 {
-  return false;
+  // Must be aligned (i.e., the screw joint must exist)
+  if (!this->isHoseAligned)
+    return false;
+
+  // Check for a sufficient change in coupler position, which indicates that
+  // the hose coupler has threaded on to the standpipe screw joint.
+  math::Vector3 positionDiff = 
+    this->hoseCoupler->GetWorldPose().pos - this->hoseCouplerAlignedPose.pos;
+  double dist = positionDiff.GetLength();
+  // Maximum depth is 2cm; let's get most of the way there.
+  if (dist >= 0.015)
+  {
+    if (!this->isHoseConnected)
+    {
+      gzlog << "Successfully connected the hose to the standpipe" << std::endl;
+      // TODO: latch valve position
+      this->isHoseConnected = true;
+    }
+    return true;
+  }
+  else
+  {
+    if (this->isHoseConnected)
+    {
+      gzlog << "Disconnected the hose to the standpipe" << std::endl;
+      this->isHoseConnected = false;
+    }
+    return false;
+  }
 }
 
 /////////////////////////////////////////////////
@@ -374,6 +429,12 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   }
   else if (this->worldType == VRC_3)
   {
+    // Check for alignment and connection every cycle, because the 
+    // competitor might align/connect and unalign/disconnect the hose 
+    // multiple times.
+    bool hoseAligned = this->CheckHoseAligned();
+    bool hoseConnected = this->CheckHoseConnected();
+
     if (this->completionScore == 0)
     {
       // Step 1: Did we get the hose up off the table?
@@ -383,18 +444,18 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
     else if (this->completionScore == 1)
     {
       // Step 2: Did we align the hose?
-      if (this->CheckHoseAligned())
+      if (hoseAligned)
         this->completionScore += 1;
     }
     else if (this->completionScore == 2)
     {
-      // Step 2: Did we connect the hose?
-      if (this->CheckHoseConnected())
+      // Step 3: Did we connect the hose?
+      if (hoseConnected)
         this->completionScore += 1;
     }
     else if (this->completionScore == 3)
     {
-      // Step 2: Did we turn the valve?
+      // Step 3: Did we turn the valve?
       if (this->CheckValveTurned())
         this->completionScore += 1;
     }
@@ -489,12 +550,21 @@ bool VRCScoringPlugin::FindVRC3Stuff()
     return false;
   }
 
-  this->standpipe = this->world->GetModel("standpipe");
-  if (!this->standpipe)
+  physics::ModelPtr standpipeModel = this->world->GetModel("standpipe");
+  if (!standpipeModel)
   {
-    gzerr << "Failed to find standpipe" << std::endl;
+    gzerr << "Failed to find standpipe model" << std::endl;
     return false;
   }
+  this->standpipe = standpipeModel->GetLink("standpipe");
+  if (!this->standpipe)
+  {
+    gzerr << "Failed to find standpipe link" << std::endl;
+    return false;
+  }
+
+  this->isHoseAligned = false;
+  this->isHoseConnected = false;
 
   return true;
 }

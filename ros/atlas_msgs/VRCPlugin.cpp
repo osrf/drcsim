@@ -389,7 +389,8 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                                       std::string _type,
                                       math::Vector3 _anchor,
                                       math::Vector3 _axis,
-                                      double _upper, double _lower)
+                                      double _upper, double _lower,
+                                      bool _disableCollision)
 {
   physics::JointPtr joint = _world->GetPhysicsEngine()->CreateJoint(
     _type, _model);
@@ -410,13 +411,17 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                               _link2->GetName() + std::string("_joint"));
   joint->Init();
 
-/*
+
   // disable collision between the link pair
-  if (_link1)
-    _link1->SetCollideMode("fixed");
-  if (_link2)
-    _link2->SetCollideMode("fixed");
-*/
+  if (_disableCollision)
+  {
+    if (_link1)
+      _link1->SetCollideMode("fixed");
+    if (_link2)
+      _link2->SetCollideMode("fixed");
+  }
+
+
   return joint;
 }
 
@@ -756,6 +761,17 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->isInitialized = true;
 }
 
+void VRCPlugin::FireHose::SetInitialConfiguration()
+{
+  // this does not work yet, because SetAngle only works for Hinge and Slider
+  // joints, and fire hose is made of universal and ball joints.
+  for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
+  {
+    gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+    this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+  }
+}
+
 void VRCPlugin::CheckThreadStart()
 {
   if (!this->drcFireHose.isInitialized)
@@ -773,10 +789,16 @@ void VRCPlugin::CheckThreadStart()
   double rotErr = (relativePose.rot.GetZAxis() -
                    connectPose.rot.GetZAxis()).GetLength();
 
+  // gzdbg << " connectPose [" << connectPose << "]\n";
+  // gzdbg << " relativePose [" << relativePose << "]\n";
   // gzdbg << "connect offset [" << connectOffset
   //       << "] xyz [" << posErr
   //       << "] rpy [" << rotErr
   //       << "]\n";
+
+  // one way to check for existence of screw joint
+  // if (!this->drcFireHose.spoutLink->GetChildJointsLinks().empty())
+  //   gzdbg << "screw joint exists\n";
 
   if (!this->drcFireHose.screwJoint)
   {
@@ -788,16 +810,20 @@ void VRCPlugin::CheckThreadStart()
                        this->drcFireHose.couplingLink,
                        "screw",
                        math::Vector3(0, 0, 0),
-                       math::Vector3(0, 0, 1),
-                       20.0/1000, -0.5/1000);
-                       // 20.0, -0.5); // recover threadPitch
+                       math::Vector3(0, -1, 0),
+                       20, -0.5, true);
+
+      this->drcFireHose.screwJoint->SetAttribute("thread_pitch", 0,
+        this->drcFireHose.threadPitch);
+
+      // name of the joint
+      // gzerr << this->drcFireHose.screwJoint->GetScopedName() << "\n";
     }
   }
   else
   {
     // check joint position to disconnect
     double position = this->drcFireHose.screwJoint->GetAngle(0).Radian();
-    // gzerr << "position " << position << "\n";
     if (position < -0.0003)
       this->RemoveJoint(this->drcFireHose.screwJoint);
   }
@@ -875,7 +901,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->model)
   {
-    ROS_ERROR("atlas model not found.");
+    ROS_INFO("atlas model not found.");
     return;
   }
 

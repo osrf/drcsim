@@ -217,44 +217,50 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   {
-    // AtlasSimInterface:  initialize atlasControlOutput
+    // AtlasSimInterface:  initialize controlOutput
     for(unsigned int i = 0; i < this->joints.size(); ++i)
-      this->atlasControlOutput.f_out[i] = 0;
-    this->atlasControlOutput.pos_est.position = AtlasVec3f(0, 0, 0);
-    this->atlasControlOutput.pos_est.velocity = AtlasVec3f(0, 0, 0);
-    this->atlasControlOutput.foot_pos_est[0] = AtlasVec3f(0, 0, 0);
-    this->atlasControlOutput.foot_pos_est[1] = AtlasVec3f(0, 0, 0);
+      this->controlOutput.f_out[i] = 0;
+    this->controlOutput.pos_est.position = AtlasVec3f(0, 0, 0);
+    this->controlOutput.pos_est.velocity = AtlasVec3f(0, 0, 0);
+    this->controlOutput.foot_pos_est[0] = AtlasVec3f(0, 0, 0);
+    this->controlOutput.foot_pos_est[1] = AtlasVec3f(0, 0, 0);
   }
 
   {
-    AtlasBehaviorFeedback *fb = &(this->atlasControlOutput.behavior_feedback);
-    fb->status_flags = 0;
-    fb->trans_from_behavior_index = 0;
-    fb->trans_to_behavior_index = 0;
-    fb->stand_feedback.status_flags = 0;
-    fb->step_feedback.status_flags = 0;
-    fb->walk_feedback.t_step_rem = 0.0;
-    fb->walk_feedback.current_step_index = 0;
-    fb->walk_feedback.next_step_index_needed = 0;
-    fb->walk_feedback.status_flags = 0;
+    this->controlOutput.behavior_feedback.status_flags = 0;
+    this->controlOutput.behavior_feedback.trans_from_behavior_index = 0;
+    this->controlOutput.behavior_feedback.trans_to_behavior_index = 0;
+    this->controlOutput.stand_feedback.status_flags = 0;
+    this->controlOutput.step_feedback.status_flags = 0;
+    this->controlOutput.walk_feedback.t_step_rem = 0.0;
+    this->controlOutput.walk_feedback.current_step_index = 0;
+    this->controlOutput.walk_feedback.next_step_index_needed = 0;
+    this->controlOutput.walk_feedback.status_flags = 0;
     for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
     {
-      fb->walk_feedback.step_data_saturated[i].step_index = 0;
-      fb->walk_feedback.step_data_saturated[i].foot_index = 0;
-      fb->walk_feedback.step_data_saturated[i].duration = 0.0;
-      fb->walk_feedback.step_data_saturated[i].position.n[0] = 0.0;
-      fb->walk_feedback.step_data_saturated[i].position.n[1] = 0.0;
-      fb->walk_feedback.step_data_saturated[i].position.n[2] = 0.0;
-      fb->walk_feedback.step_data_saturated[i].yaw = 0.0;
-      fb->walk_feedback.step_data_saturated[i].normal.n[0] = 0.0;
-      fb->walk_feedback.step_data_saturated[i].normal.n[1] = 0.0;
-      fb->walk_feedback.step_data_saturated[i].normal.n[2] = 0.0;
-      fb->walk_feedback.step_data_saturated[i].swing_height = 0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].step_index = 0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].foot_index = 0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].duration = 0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].position.n[0] =
+        0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].position.n[1] =
+        0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].position.n[2] =
+        0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].yaw = 0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[0] =
+        0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[1] =
+        0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[2] =
+        0.0;
+      this->controlOutput.walk_feedback.step_queue_saturated[i].swing_height =
+        0.0;
     }
-    fb->manipulate_feedback.status_flags = 0;
-    fb->manipulate_feedback.clamped.pelvis_height = 0.0;
-    fb->manipulate_feedback.clamped.pelvis_yaw = 0.0;
-    fb->manipulate_feedback.clamped.pelvis_lat = 0.0;
+    this->controlOutput.manipulate_feedback.status_flags = 0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_height = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_yaw = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_lat = 0.0;
   }
 
   {
@@ -329,13 +335,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       &this->atlasControlInput.walk_params;
     for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
     {
-      walkParams->step_data[stepId].step_index = stepId + 1;
-      walkParams->step_data[stepId].foot_index = 0;
-      walkParams->step_data[stepId].duration = 0.0;
-      walkParams->step_data[stepId].position = AtlasVec3f(0, 0, 0);
-      walkParams->step_data[stepId].yaw = 0;
-      walkParams->step_data[stepId].normal = AtlasVec3f(0, 0, 0);
-      walkParams->step_data[stepId].swing_height = 0.0;
+      walkParams->step_queue[stepId].step_index = stepId + 1;
+      walkParams->step_queue[stepId].foot_index = 0;
+      walkParams->step_queue[stepId].duration = 0.0;
+      walkParams->step_queue[stepId].position = AtlasVec3f(0, 0, 0);
+      walkParams->step_queue[stepId].yaw = 0;
+      walkParams->step_queue[stepId].normal = AtlasVec3f(0, 0, 0);
+      walkParams->step_queue[stepId].swing_height = 0.0;
       walkParams->use_demo_walk = false;
     }
     walkParams->use_demo_walk = false;
@@ -373,11 +379,11 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       this->asiState.foot_pos_est[i].orientation.z = 0.0;
     }
     {
-      atlas_msgs::AtlasBehaviorFeedback *fb =
-        &(this->asiState.behavior_feedback);
-      fb->status_flags = atlas_msgs::AtlasBehaviorFeedback::STATUS_OK;
-      fb->trans_from_behavior_index = 0;
-      fb->trans_to_behavior_index = 0;
+      atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
+      fb->behavior_feedback.status_flags =
+        atlas_msgs::AtlasBehaviorFeedback::STATUS_OK;
+      fb->behavior_feedback.trans_from_behavior_index = 0;
+      fb->behavior_feedback.trans_to_behavior_index = 0;
       fb->stand_feedback.status_flags = 0;
       fb->step_feedback.status_flags = 0;
       fb->walk_feedback.t_step_rem = 0.0;
@@ -386,11 +392,11 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       fb->walk_feedback.status_flags = 0;
       for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
       {
-        fb->walk_feedback.step_data_saturated[i].step_index = 0;
-        fb->walk_feedback.step_data_saturated[i].foot_index = 0;
-        fb->walk_feedback.step_data_saturated[i].duration = 0.0;
-        fb->walk_feedback.step_data_saturated[i].pose = geometry_msgs::Pose();
-        fb->walk_feedback.step_data_saturated[i].swing_height = 0.0;
+        fb->walk_feedback.step_queue_saturated[i].step_index = 0;
+        fb->walk_feedback.step_queue_saturated[i].foot_index = 0;
+        fb->walk_feedback.step_queue_saturated[i].duration = 0.0;
+        fb->walk_feedback.step_queue_saturated[i].pose = geometry_msgs::Pose();
+        fb->walk_feedback.step_queue_saturated[i].swing_height = 0.0;
       }
       fb->manipulate_feedback.status_flags = 0;
       fb->manipulate_feedback.clamped.pelvis_height = 0.0;
@@ -957,23 +963,23 @@ void AtlasPlugin::SetASICommand(
     &this->atlasControlInput.walk_params;
   for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
   {
-    walkParams->step_data[stepId].step_index =
-      _msg->walk_params.step_data[stepId].step_index;
-    walkParams->step_data[stepId].foot_index =
-      _msg->walk_params.step_data[stepId].foot_index;
-    walkParams->step_data[stepId].duration =
-      _msg->walk_params.step_data[stepId].duration;
+    walkParams->step_queue[stepId].step_index =
+      _msg->walk_params.step_queue[stepId].step_index;
+    walkParams->step_queue[stepId].foot_index =
+      _msg->walk_params.step_queue[stepId].foot_index;
+    walkParams->step_queue[stepId].duration =
+      _msg->walk_params.step_queue[stepId].duration;
 
-    walkParams->step_data[stepId].position = this->ToVec3(
-      _msg->walk_params.step_data[stepId].pose.position);
-    walkParams->step_data[stepId].yaw = this->ToPose(
-      _msg->walk_params.step_data[stepId].pose).rot.GetYaw();
-    walkParams->step_data[stepId].normal = this->ToVec3(this->ToPose(
-      _msg->walk_params.step_data[stepId].pose).rot.RotateVector(
+    walkParams->step_queue[stepId].position = this->ToVec3(
+      _msg->walk_params.step_queue[stepId].pose.position);
+    walkParams->step_queue[stepId].yaw = this->ToPose(
+      _msg->walk_params.step_queue[stepId].pose).rot.GetYaw();
+    walkParams->step_queue[stepId].normal = this->ToVec3(this->ToPose(
+      _msg->walk_params.step_queue[stepId].pose).rot.RotateVector(
       math::Vector3(0, 0, 1)));
 
-    walkParams->step_data[stepId].swing_height =
-      _msg->walk_params.step_data[stepId].swing_height;
+    walkParams->step_queue[stepId].swing_height =
+      _msg->walk_params.step_queue[stepId].swing_height;
   }
   walkParams->use_demo_walk = _msg->walk_params.use_demo_walk;
 
@@ -1164,7 +1170,7 @@ void AtlasPlugin::UpdateStates()
       this->asiState.error_code =
         this->atlasSimInterface->process_control_input(
         this->atlasControlInput, this->atlasRobotState,
-        this->atlasControlOutput);
+        this->controlOutput);
 
       if (this->asiState.error_code != NO_ERRORS)
         ROS_ERROR("AtlasSimInterface: process_control_input returned "
@@ -1173,19 +1179,19 @@ void AtlasPlugin::UpdateStates()
           (AtlasErrorCode)(this->asiState.error_code)).c_str());
 
       // fill in rest of asiState
-      std::copy(this->atlasControlOutput.f_out,
-                this->atlasControlOutput.f_out+this->jointNames.size(),
+      std::copy(this->controlOutput.f_out,
+                this->controlOutput.f_out+this->jointNames.size(),
                 this->asiState.f_out.begin());
       {
         // initialize AtlasSimInterfaceState
         this->asiState.pos_est.position =
-          this->ToGeomVec3(this->atlasControlOutput.pos_est.position);
+          this->ToGeomVec3(this->controlOutput.pos_est.position);
         this->asiState.pos_est.velocity =
-          this->ToGeomVec3(this->atlasControlOutput.pos_est.velocity);
+          this->ToGeomVec3(this->controlOutput.pos_est.velocity);
         for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
         {
           this->asiState.foot_pos_est[i].position =
-            this->ToPoint(this->atlasControlOutput.foot_pos_est[i]);
+            this->ToPoint(this->controlOutput.foot_pos_est[i]);
           this->asiState.foot_pos_est[i].orientation =
             this->ToQ(math::Quaternion(
             this->atlasRobotState.imu.orientation_estimate.m_qw,
@@ -1195,8 +1201,7 @@ void AtlasPlugin::UpdateStates()
         }
 
         this->AtlasControlOutputToAtlasSimInterfaceState(
-          &(this->asiState.behavior_feedback),
-          &(this->atlasControlOutput.behavior_feedback));
+          &(this->asiState), &(this->controlOutput));
 
         // start with PID control
         this->asiState.k_effort.resize(this->jointNames.size());
@@ -1205,15 +1210,16 @@ void AtlasPlugin::UpdateStates()
       }
 
       // 80 characters
-      atlas_msgs::AtlasBehaviorFeedback *fb =
-        &(this->asiState.behavior_feedback);
-      AtlasBehaviorFeedback *fbOut =
-        &(this->atlasControlOutput.behavior_feedback);
+      atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
+      AtlasControlOutput *fbOut = &(this->controlOutput);
 
       // just copying
-      fb->status_flags = fbOut->status_flags;
-      fb->trans_from_behavior_index = fbOut->trans_from_behavior_index;
-      fb->trans_to_behavior_index = fbOut->trans_to_behavior_index;
+      fb->behavior_feedback.status_flags =
+        fbOut->behavior_feedback.status_flags;
+      fb->behavior_feedback.trans_from_behavior_index =
+        fbOut->behavior_feedback.trans_from_behavior_index;
+      fb->behavior_feedback.trans_to_behavior_index =
+        fbOut->behavior_feedback.trans_to_behavior_index;
 
       // do something based on current_behavior
       switch (this->asiState.current_behavior)
@@ -1243,9 +1249,9 @@ void AtlasPlugin::UpdateStates()
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
             {
               atlas_msgs::AtlasBehaviorStepData *sd =
-                &(fb->walk_feedback.step_data_saturated[i]);
+                &(fb->walk_feedback.step_queue_saturated[i]);
               AtlasBehaviorStepData *sdOut =
-                &(fbOut->walk_feedback.step_data_saturated[i]);
+                &(fbOut->walk_feedback.step_queue_saturated[i]);
               sd->step_index = sdOut->step_index;
               sd->foot_index = sdOut->foot_index;
               sd->duration = sdOut->duration;
@@ -1377,7 +1383,7 @@ void AtlasPlugin::UpdateStates()
           this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
           this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
                                             this->atlasCommand.effort[i]) +
-          (1.0 - k_effort)                * this->atlasControlOutput.f_out[i];
+          (1.0 - k_effort)                * this->controlOutput.f_out[i];
 
         // keep unclamped force for integral tie-back calculation
         double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
@@ -1789,16 +1795,16 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
       for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
       {
         int isRight = stepId % 2;
-        walkParams->step_data[stepId].step_index = stepId + 1;
-        walkParams->step_data[stepId].foot_index = (unsigned int)isRight;
-        walkParams->step_data[stepId].duration = stepDuration;
+        walkParams->step_queue[stepId].step_index = stepId + 1;
+        walkParams->step_queue[stepId].foot_index = (unsigned int)isRight;
+        walkParams->step_queue[stepId].duration = stepDuration;
         double stepX = static_cast<double>(stepId + 1)*strideSagittal;
         double stepY = stepWidth;
         if (isRight)
-          walkParams->step_data[stepId].position = AtlasVec3f(stepX, -stepY, 0);
+          walkParams->step_queue[stepId].position = AtlasVec3f(stepX, -stepY, 0);
         else
-          walkParams->step_data[stepId].position = AtlasVec3f(stepX, stepY, 0);
-        walkParams->step_data[stepId].yaw = 0;
+          walkParams->step_queue[stepId].position = AtlasVec3f(stepX, stepY, 0);
+        walkParams->step_queue[stepId].yaw = 0;
       }
     }
   }
@@ -1811,7 +1817,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     this->atlasSimInterface->set_desired_behavior("User");
     // clear out forces
     for (unsigned i = 0; i < this->jointNames.size(); ++i)
-      this->atlasControlOutput.f_out[i] = 0;
+      this->controlOutput.f_out[i] = 0;
   }
   else if (_mode->data == "ragdoll")
   {
@@ -1822,7 +1828,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     this->atlasSimInterface->set_desired_behavior("User");
     // clear out forces
     for (unsigned i = 0; i < this->jointNames.size(); ++i)
-      this->atlasControlOutput.f_out[i] = 0;
+      this->controlOutput.f_out[i] = 0;
   }
   else
   {
@@ -2037,12 +2043,14 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
-          atlas_msgs::AtlasBehaviorFeedback *_fb,
-          AtlasBehaviorFeedback *_fbOut)
+  atlas_msgs::AtlasSimInterfaceState *_fb,
+  AtlasControlOutput *_fbOut)
 {
-  _fb->status_flags = _fbOut->status_flags;
-  _fb->trans_from_behavior_index = _fbOut->trans_from_behavior_index;
-  _fb->trans_to_behavior_index = _fbOut->trans_to_behavior_index;
+  _fb->behavior_feedback.status_flags = _fbOut->behavior_feedback.status_flags;
+  _fb->behavior_feedback.trans_from_behavior_index =
+    _fbOut->behavior_feedback.trans_from_behavior_index;
+  _fb->behavior_feedback.trans_to_behavior_index =
+    _fbOut->behavior_feedback.trans_to_behavior_index;
   _fb->stand_feedback.status_flags = _fbOut->stand_feedback.status_flags;
   _fb->step_feedback.status_flags = _fbOut->step_feedback.status_flags;
   _fb->walk_feedback.t_step_rem = _fb->walk_feedback.t_step_rem;
@@ -2053,23 +2061,23 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
   _fb->walk_feedback.status_flags = _fbOut->walk_feedback.status_flags;
   for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
   {
-    _fb->walk_feedback.step_data_saturated[i].step_index =
-      _fbOut->walk_feedback.step_data_saturated[i].step_index;
-    _fb->walk_feedback.step_data_saturated[i].foot_index =
-      _fbOut->walk_feedback.step_data_saturated[i].foot_index;
-    _fb->walk_feedback.step_data_saturated[i].duration =
-      _fbOut->walk_feedback.step_data_saturated[i].duration;
-    _fb->walk_feedback.step_data_saturated[i].pose.position =
+    _fb->walk_feedback.step_queue_saturated[i].step_index =
+      _fbOut->walk_feedback.step_queue_saturated[i].step_index;
+    _fb->walk_feedback.step_queue_saturated[i].foot_index =
+      _fbOut->walk_feedback.step_queue_saturated[i].foot_index;
+    _fb->walk_feedback.step_queue_saturated[i].duration =
+      _fbOut->walk_feedback.step_queue_saturated[i].duration;
+    _fb->walk_feedback.step_queue_saturated[i].pose.position =
       this->ToPoint(
-      _fbOut->walk_feedback.step_data_saturated[i].position);
-    _fb->walk_feedback.step_data_saturated[i].pose.orientation =
+      _fbOut->walk_feedback.step_queue_saturated[i].position);
+    _fb->walk_feedback.step_queue_saturated[i].pose.orientation =
       this->ToQ(math::Quaternion(0, 0,
-      _fbOut->walk_feedback.step_data_saturated[i].yaw));
+      _fbOut->walk_feedback.step_queue_saturated[i].yaw));
       // \TODO: further rotate rot based on normal
       // sd->pose.rot = sdOut->normal ...;
 
-    _fb->walk_feedback.step_data_saturated[i].swing_height =
-      _fbOut->walk_feedback.step_data_saturated[i].swing_height;
+    _fb->walk_feedback.step_queue_saturated[i].swing_height =
+      _fbOut->walk_feedback.step_queue_saturated[i].swing_height;
   }
   _fb->manipulate_feedback.status_flags =
     _fbOut->manipulate_feedback.status_flags;

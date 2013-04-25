@@ -176,7 +176,19 @@ namespace gazebo
     private: physics::LinkPtr hoseCoupler;
 
     /// \brief Pointer to the standpipe. (V3)
-    private: physics::ModelPtr standpipe;
+    private: physics::LinkPtr standpipe;
+
+    /// \brief Pointer to the valve. (V3)
+    private: physics::ModelPtr valve;
+
+    /// \brief Whether the hose is currently aligned to the standpipe (V3)
+    private: bool isHoseAligned;
+
+    /// \brief Whether the hose is currently connected to the standpipe (V3)
+    private: bool isHoseConnected;
+
+    /// \brief Pose of the hose coupler at the time of initial alignment (V3)
+    private: math::Pose hoseCouplerAlignedPose;
 
     /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
