@@ -1067,7 +1067,7 @@
       <child>link_01</child>
       <parent>link_00</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>1 0 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
