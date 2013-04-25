@@ -52,7 +52,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>start_gate</name>
+      <name>gate_0</name>
       <pose>1 -38 2.0 0 0 0</pose>
     </include>
     <include>
@@ -69,7 +69,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>gate_2</name>
+      <name>gate_1</name>
       <pose>0 -22 2.0 0 0 1.5707</pose>
     </include>
     <include>
@@ -169,7 +169,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>gate_3</name>
+      <name>gate_2</name>
       <pose>0 -10.5 2.0 0 0 1.5707</pose>
     </include>
     <include>
@@ -188,7 +188,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>gate_4</name>
+      <name>gate_3</name>
       <pose>6.0 6.5 2.0 0 0 1.5707</pose>
     </include>
     <include>
@@ -204,7 +204,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>gate_5</name>
+      <name>gate_4</name>
       <pose>6 18 2 0 0 1.5707</pose>
     </include>
     <include>
@@ -323,7 +323,9 @@
       </drc_fire_hose>
     </plugin>
 
-    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring"/>
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring">
+      <score_file>/tmp/vrc_task_2/score.log</score_file>
+    </plugin>
 
   </world>
 </sdf>

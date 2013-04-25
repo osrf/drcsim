@@ -58,6 +58,18 @@ namespace gazebo
     /// \brief Check whether the drill is in the bin
     private: bool CheckDrillInBin();
 
+    /// \brief Check whether the hose is off the table
+    private: bool CheckHoseOffTable();
+
+    /// \brief Check whether the hose is aligned with the standpipe.
+    private: bool CheckHoseAligned();
+
+    /// \brief Check whether the hose is connected to the standpipe.
+    private: bool CheckHoseConnected();
+
+    /// \brief Check whether the valve is turned.
+    private: bool CheckValveTurned();
+
     /// \brief Write intermediate score data
     private: void WriteIntermediateScore(
       const gazebo::common::Time& _currTime, bool _force);
@@ -90,13 +102,21 @@ namespace gazebo
     /// \brief Data about a gate.
     private: class Gate
              {
+               /// \brief Types of gates that we know about
+               public: enum GateType
+               {
+                 PEDESTRIAN,
+                 VEHICLE
+               };
+
                public: Gate(const std::string &_name,
+                            GateType _type,
                             unsigned int _number,
                             const gazebo::math::Pose& _pose,
                             double _width)
-                         : name(_name), number(_number),
-                           pose(_pose), width(_width),
-                           passed(false) {}
+                         : name(_name), type(_type),
+                           number(_number), pose(_pose), 
+                           width(_width), passed(false) {}
 
                /// \brief Less-than operator to allow sorting of a list of
                /// gates by number.
@@ -107,6 +127,9 @@ namespace gazebo
 
                /// \brief Name of the gate
                public: std::string name;
+
+               /// \brief The type of the gate
+               public: GateType type;
 
                /// \brief Number of the gate
                public: unsigned int number;
@@ -140,14 +163,20 @@ namespace gazebo
     /// \brief Pointer to Atlas.
     private: physics::ModelPtr atlas;
 
-    /// \brief Pointer to drill.
+    /// \brief Pointer to drill. (Q2)
     private: physics::ModelPtr drill;
 
-    /// \brief The bin that will receive the drill
+    /// \brief The bin that will receive the drill (Q2)
     private: gazebo::math::Box bin;
 
-    /// \brief Pointer to vehicle.
+    /// \brief Pointer to vehicle. (V1)
     private: physics::ModelPtr vehicle;
+
+    /// \brief Pointer to the hose coupler. (V3)
+    private: physics::LinkPtr hoseCoupler;
+
+    /// \brief Pointer to the standpipe. (V3)
+    private: physics::ModelPtr standpipe;
 
     /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
