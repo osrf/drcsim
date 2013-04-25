@@ -147,6 +147,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
   }
   else if (_str == "feet")
   {
@@ -162,6 +164,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
   }
   else if (_str == "harnessed")
   {
@@ -171,6 +175,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // remove pin
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
 
     // raise robot, find ground height, set it down and upright it, then pin it
     math::Pose atlasPose = this->atlas.pinLink->GetWorldPose();
@@ -230,6 +236,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "pinned")
   {
     // pinning robot, and turning off effect of gravity
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
     if (!this->atlas.pinJoint)
       this->atlas.pinJoint = this->AddJoint(this->world,
                                         this->atlas.model,
@@ -250,6 +258,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "pinned_with_gravity")
   {
     // pinning robot, and turning off effect of gravity
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
     if (!this->atlas.pinJoint)
       this->atlas.pinJoint = this->AddJoint(this->world,
                                         this->atlas.model,
@@ -278,6 +288,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
   }
   else if (_str == "bdi_stand")
   {
@@ -290,6 +302,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
 
     // turn physics off while manipulating things
     bool physics = this->world->GetEnablePhysicsEngine();
