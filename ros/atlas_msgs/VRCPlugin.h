@@ -278,6 +278,8 @@ namespace gazebo
 
       private: physics::ModelPtr fireHoseModel;
       private: physics::ModelPtr standpipeModel;
+      private: physics::ModelPtr valveModel;
+      private: physics::JointPtr valveJoint;
 
       /// joint for pinning a link to the world
       private: physics::JointPtr fixedJoint;

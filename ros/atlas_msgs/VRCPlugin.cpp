@@ -751,6 +751,30 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     return;
   }
 
+  // Get the valve model and its joint
+  std::string valveModelName;
+  if (sdf->HasElement("valve_model"))
+    valveModelName = sdf->GetValueString("valve_model");
+  else
+    valveModelName = "valve";
+  this->valveModel = _world->GetModel(valveModelName);
+  if (!this->valveModel)
+  {
+    ROS_ERROR("valve model [%s] not found", valveModelName.c_str());
+    return;
+  }
+  std::string valveJointName;
+  if (sdf->HasElement("valve_joint"))
+    valveJointName = sdf->GetValueString("valve_joint");
+  else
+    valveJointName = "valve";
+  this->valveJoint = this->valveModel->GetJoint(valveJointName);
+  if (!this->valveJoint)
+  {
+    ROS_ERROR("valve joint [%s] not found", valveJointName.c_str());
+    return;
+  }
+
   this->threadPitch = sdf->GetValueDouble("thread_pitch");
 
   this->couplingRelativePose = sdf->GetValuePose("coupling_relative_pose");
@@ -796,13 +820,14 @@ void VRCPlugin::CheckThreadStart()
   //       << "] rpy [" << rotErr
   //       << "]\n";
 
-  // one way to check for existence of screw joint
-  // if (!this->drcFireHose.spoutLink->GetChildJointsLinks().empty())
-  //   gzdbg << "screw joint exists\n";
-
   if (!this->drcFireHose.screwJoint)
   {
-    if (posErr < 0.01 && rotErr < 0.01)
+    // Check that the hose coupler is positioned within tolerance
+    // and that the valve is not opened, because the water rushing out
+    // would prevent you from attaching a hose.  This check also
+    // prevents out-of-order execution that would confuse scoring in
+    // VRCScoringPlugin.
+    if (posErr < 0.01 && rotErr < 0.01 && this->drcFireHose.valveJoint->GetAngle(0) > -0.1)
     {
       this->drcFireHose.screwJoint =
         this->AddJoint(this->world, this->drcFireHose.fireHoseModel,
