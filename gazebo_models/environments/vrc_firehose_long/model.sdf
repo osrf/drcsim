@@ -60,6 +60,38 @@
       </collision>
     </link>
 
+    <link name="link_00">
+      <gravity>true</gravity>
+      <pose>0.1 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <visual name="sphere">
+        <geometry>
+          <sphere>
+            <radius>0.025</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
+      </visual>
+    </link>
+
     <link name="link_01">
       <gravity>true</gravity>
       <pose>0.1 0 0 0 0 0</pose>
@@ -99,21 +131,6 @@
             <name>vrc/firehose_canvas</name>
           </script>
         </material>
-      </visual>
-      <visual name="sphere">
-        <geometry>
-          <sphere>
-            <radius>0.025</radius>
-          </sphere>
-        </geometry>
-        <material>
-          <script>
-            <uri>model://vrc_firehose_long/materials/scripts</uri>
-            <uri>model://vrc_firehose_long/materials/textures</uri>
-            <name>vrc/firehose_canvas</name>
-          </script>
-        </material>
-
       </visual>
     </link>
 
@@ -1030,9 +1047,25 @@
       </visual>
     </link>
 
-    <joint name="joint_01" type="ball">
-      <child>link_01</child>
+    <joint name="joint_00" type="revolute">
       <parent>coupling</parent>
+      <child>link_00</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>1.0</damping>
+        </dynamics>
+      </axis>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
+    </joint>
+
+    <joint name="joint_01" type="universal">
+      <child>link_01</child>
+      <parent>link_00</parent>
       <axis>
         <xyz>0 1 0</xyz>
         <limit>
