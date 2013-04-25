@@ -403,24 +403,24 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   joint->SetHighStop(0, _upper);
   joint->SetLowStop(0, _lower);
 
-  if (_disableCollision)
-  {
-    if (_link1)
-      joint->SetName(_link1->GetName() + std::string("_") +
-                                _link2->GetName() + std::string("_joint"));
-    else
-      joint->SetName(std::string("world_") +
-                                _link2->GetName() + std::string("_joint"));
-  }
-
+  if (_link1)
+    joint->SetName(_link1->GetName() + std::string("_") +
+                              _link2->GetName() + std::string("_joint"));
+  else
+    joint->SetName(std::string("world_") +
+                              _link2->GetName() + std::string("_joint"));
   joint->Init();
 
 
   // disable collision between the link pair
-  if (_link1)
-    _link1->SetCollideMode("fixed");
-  if (_link2)
-    _link2->SetCollideMode("fixed");
+  if (_disableCollision)
+  {
+    if (_link1)
+      _link1->SetCollideMode("fixed");
+    if (_link2)
+      _link2->SetCollideMode("fixed");
+  }
+
 
   return joint;
 }
@@ -796,6 +796,10 @@ void VRCPlugin::CheckThreadStart()
   //       << "] rpy [" << rotErr
   //       << "]\n";
 
+  // one way to check for existence of screw joint
+  // if (!this->drcFireHose.spoutLink->GetChildJointsLinks().empty())
+  //   gzdbg << "screw joint exists\n";
+
   if (!this->drcFireHose.screwJoint)
   {
     if (posErr < 0.01 && rotErr < 0.01)
@@ -811,6 +815,9 @@ void VRCPlugin::CheckThreadStart()
 
       this->drcFireHose.screwJoint->SetAttribute("thread_pitch", 0,
         this->drcFireHose.threadPitch);
+
+      // name of the joint
+      // gzerr << this->drcFireHose.screwJoint->GetScopedName() << "\n";
     }
   }
   else
