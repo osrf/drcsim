@@ -19,11 +19,6 @@
 
 #include <string>
 
-// Custom Callback Queue
-#include <ros/callback_queue.h>
-#include <ros/subscribe_options.h>
-
-#include <ros/ros.h>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -59,24 +54,6 @@ namespace gazebo
     /// \brief Callback for contact messages from the physics engine.
     private: void OnContacts(ConstContactsPtr &_msg);
 
-/*    /// \brief Connect a signal that is triggered when the model is
-    /// updated.
-    /// \param[in] _subscriber Callback that receives the signal.
-    /// \return A pointer to the connection. This must be kept in scope.
-    /// \sa Sensor::DisconnectUpdated
-    public: template<typename T>
-            event::ConnectionPtr ConnectUpdated(T _subscriber)
-            {return this->updated.Connect(_subscriber);}
-
-    /// \brief Disconnect from a the updated signal.
-    /// \param[in] _c The connection to disconnect
-    /// \sa Sensor::ConnectUpdated
-    public: void DisconnectUpdated(event::ConnectionPtr &_c)
-            {this->updated.Disconnect(_c);}*/
-
-    /// \brief Pointer to the contact sensor
-    //private: sensors::ContactSensorPtr parentSensor;
-
     /// \brief Connection that maintains a link between the contact sensor's
     /// updated signal and the OnUpdate callback.
     private: event::ConnectionPtr updateConnection;
@@ -104,9 +81,6 @@ namespace gazebo
 
     /// \brief Output contact information.
     private: transport::PublisherPtr contactsPub;
-
-    /// \brief Event triggered when a model is updated.
-    //private: event::EventT<void()> updated;
 
     private: sdf::ElementPtr sdf;
 

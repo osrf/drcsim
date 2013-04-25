@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <boost/thread/mutex.hpp>
+#include <boost/unordered/unordered_map.hpp>
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
@@ -56,6 +57,10 @@
 
 namespace gazebo
 {
+  namespace physics {
+    class Collision;
+  }
+
   class SandiaHandPlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -79,6 +84,12 @@ namespace gazebo
     private: void CopyVectorIfValid(const std::vector<double> &from,
                                     std::vector<double> &to,
                                     const unsigned joint_offset);
+
+    /// \brief Callback for contact messages from right hand
+    private: void OnRContacts(ConstContactsPtr &_msg);
+
+    /// \brief Callback for contact messages from left hand
+    private: void OnLContacts(ConstContactsPtr &_msg);
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
@@ -104,6 +115,12 @@ namespace gazebo
     private: math::Vector3 rightImuLastLinearVel;
     private: ros::Publisher pubRightImu;
     private: PubQueue<sensor_msgs::Imu>::Ptr pubRightImuQueue;
+
+    // tactile sensor
+    private: ros::Publisher pubLeftTactile;
+    private: ros::Publisher pubRightTactile;
+    private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubRightTactileQueue;
+    private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubLeftTactileQueue;
 
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
@@ -144,6 +161,31 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
+
+    /// \brief Subscription to contact messages
+    private: transport::SubscriberPtr contactSub[2];
+
+    typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
+
+    private: ContactMsgs_L incomingRContacts;
+
+    private: ContactMsgs_L incomingLContacts;
+
+    /// \brief Transport node used for subscribing to contact sensor messages.
+    private: transport::NodePtr node;
+
+    /// \brief Mutex to protect reads and writes.
+    private: mutable boost::mutex contactRMutex;
+
+    /// \brief Mutex to protect reads and writes.
+    private: mutable boost::mutex contactLMutex;
+
+    private: boost::unordered_map<std::string, physics::Collision *>
+                contactCollisions;
+
+//    private: double fingerTactileArray[54];
+
+//    private: double palmTactileArray[96];
   };
 /** \} */
 /// @}

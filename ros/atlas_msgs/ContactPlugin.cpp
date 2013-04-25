@@ -25,7 +25,6 @@ GZ_REGISTER_MODEL_PLUGIN(ContactPlugin)
 /////////////////////////////////////////////////
 ContactPlugin::ContactPlugin() : ModelPlugin()
 {
-
 }
 
 /////////////////////////////////////////////////
@@ -57,11 +56,7 @@ void ContactPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     collisionName = collisionElem->GetValueString();
     this->collisions.push_back(_model->GetName() + "::" + collisionName);
     collisionElem = collisionElem->GetNextElement("collision");
-
-    gzerr << " collisionName " <<  collisionName << std::endl;
   }
-
-  gzerr << " contact model plugin init " << std::endl;
 }
 
 //////////////////////////////////////////////////
@@ -88,7 +83,7 @@ void ContactPlugin::Init()
     static int contactNum = 0;
     std::string topicName = "~/";
     topicName += this->model->GetName() + "/contact_" +
-        boost::lexical_cast<std::string>(contactNum++) + "/";
+        boost::lexical_cast<std::string>(contactNum++);
     boost::replace_all(topicName, "::", "/");
 
     this->contactsPub = this->node->Advertise<msgs::Contacts>(topicName);
@@ -99,7 +94,6 @@ void ContactPlugin::Init()
     this->contactSub = this->node->Subscribe("~/physics/contacts",
         &ContactPlugin::OnContacts, this);
   }
-
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&ContactPlugin::OnUpdate, this));
@@ -119,8 +113,6 @@ void ContactPlugin::OnUpdate()
 
   // Clear the outgoing contact message.
   this->contactsMsg.clear_contact();
-
-  gzerr << "size " << this->incomingContacts.size() << std::endl;
 
   // Iterate over all the contact messages
   for (ContactMsgs_L::iterator iter = this->incomingContacts.begin();
@@ -149,9 +141,6 @@ void ContactPlugin::OnUpdate()
       {
         int count = (*iter)->contact(i).position_size();
 
-        //gzerr << " got contact " << collision1 << " vs " <<
-        //   (*iter)->contact(i).collision2() << std::endl;
-
         // Check to see if the contact arrays all have the same size.
         if (count != (*iter)->contact(i).normal_size() ||
             count != (*iter)->contact(i).wrench_size() ||
@@ -169,8 +158,6 @@ void ContactPlugin::OnUpdate()
 
   // Clear the incoming contact list.
   this->incomingContacts.clear();
-
-//  this->lastMeasurementTime = this->world->GetSimTime();
 
   // Generate a outgoing message only if someone is listening.
   if (this->contactsPub && this->contactsPub->HasConnections())

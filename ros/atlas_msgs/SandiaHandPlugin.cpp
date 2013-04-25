@@ -17,7 +17,9 @@
 #include <string>
 #include <vector>
 #include <sensor_msgs/Imu.h>
+#include <sandia_hand_msgs/RawTactile.h>
 
+#include "gazebo/transport/Node.hh"
 #include "SandiaHandPlugin.h"
 
 using std::string;
@@ -26,12 +28,67 @@ namespace gazebo
 {
 GZ_REGISTER_MODEL_PLUGIN(SandiaHandPlugin)
 
+
+
+const static double fingerTactileArray[] = {-6.1, 46.0, 1.8,
+                                            0.0, 46.0, 3.8,
+                                            6.1, 46.0, 1.8,
+                                            -6.3, 37.0, 2.1,
+                                            0.0, 37.0, 4.2,
+                                            6.3, 37.0, 2.1,
+                                            -6.5, 28.0, 2.4,
+                                            0.0, 28.0, 4.5,
+                                            6.5, 28.0, 2.4,
+                                            -6.7, 18.9, 2.7,
+                                            0.0, 18.9, 4.9,
+                                            6.7, 18.9, 2.7,
+                                            -7.6, 30.0, 4.0,
+                                            0.0, 30.0, 6.5,
+                                            7.6, 30.0, 4.0,
+                                            -7.9, 20.0, 4.3,
+                                            0.0, 20.0, 6.9,
+                                            7.9, 20.0, 4.3};
+
+const static double palmTactileArray[] = {-68, 86.9, 35.8,
+                                          -36.7, 111.8, 35.8,
+                                          -5.5, 136.9, 35.8,
+                                          -68.2, 75.2, 36.5,
+                                          -56.5, 84.5, 36.5,
+                                          -37, 100.2, 36.5,
+                                          -25.3, 109.5, 36.5,
+                                          -5.8, 125.2, 36.5,
+                                          5.9, 134.5, 36.5,
+                                          -50.4, 78.5, 37.2,
+                                          -39.5, 87.3, 37.2,
+                                          -19.2, 103.5, 37.2,
+                                          -8.3, 112.3, 37.2,
+                                          -44.8, 71.5, 38,
+                                          -33.9, 80.3, 38,
+                                          -13.6, 96.5, 38,
+                                          -2.7, 5.3, 38,
+                                          -51.7, 54.5, 38.7,
+                                          -36.1, 67, 38.7,
+                                          -20.4, 79.5, 38.7,
+                                          -4.8, 92,38.7,
+                                          10.8, 104.5, 38.7,
+                                          -33.5, 57.8, 42.7,
+                                          0.1, 84.7, 42.7,
+                                          -30.8, 54.5, 50.5,
+                                          2.7, 81.4, 50.5,
+                                          -26.2, 48.7, 55.2,
+                                          7.4, 75.6,55.2,
+                                          -20.4, 41.5, 54.9,
+                                          13.2, 68.4, 54.9,
+                                          -15.4, 35.2, 50.4,
+                                          18.2, 62.1, 50.4};
+
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 SandiaHandPlugin::SandiaHandPlugin()
 {
   this->leftImuLinkName = "l_hand";
   this->rightImuLinkName = "r_hand";
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +233,17 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
       this->rightImuLink->GetWorldLinearVel());
   }
 
+  // Contact data
+  this->node.reset(new transport::Node());
+  this->node->Init(this->world->GetName());
+
+  // FIXME: remove hard coded topic names
+  this->contactSub[0] = this->node->Subscribe("~/atlas/contact_0",
+      &SandiaHandPlugin::OnRContacts, this);
+  this->contactSub[1] = this->node->Subscribe("~/atlas/contact_1",
+      &SandiaHandPlugin::OnLContacts, this);
+
+
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
 
   // ros callback queue for processing subscription
@@ -307,6 +375,16 @@ void SandiaHandPlugin::DeferredLoad()
   this->pubRightImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/r_hand/imu", 10);
+
+  // publish contact data
+  this->pubLeftTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
+  this->pubLeftTactile =
+    this->rosNode->advertise<sensor_msgs::Imu>(
+      "sandia_hands/l_hand/tactile_raw", 10);
+  this->pubRightTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
+  this->pubRightTactile =
+    this->rosNode->advertise<sensor_msgs::Imu>(
+      "sandia_hands/r_hand/tactile_raw", 10);
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
@@ -512,6 +590,80 @@ void SandiaHandPlugin::UpdateStates()
 
       this->joints[i]->SetForce(0, force);
     }
+
+
+    // publish tactile data
+    {
+      boost::mutex::scoped_lock lock(this->contactRMutex);
+
+      sandia_hand_msgs::RawTactile leftTactileMsg;
+      std::vector<std::string>::iterator collIter;
+      std::string collision1;
+
+      // Don't do anything if there is no new data to process.
+      if (!this->incomingRContacts.empty())
+      {
+        // Iterate over all the contact messages
+        for (ContactMsgs_L::iterator iter = this->incomingRContacts.begin();
+            iter != this->incomingRContacts.end(); ++iter)
+        {
+          // Iterate over all the contacts in the message
+          for (int i = 0; i < (*iter)->contact_size(); ++i)
+          {
+            // Get the collision pointer from name in contact msg
+            collision1 = (*iter)->contact(i).collision1();
+            if (collision1.find("right_f") ==  string::npos
+                && collision1.find("palm") ==  string::npos)
+              collision1 = (*iter)->contact(i).collision2();
+
+//            gzerr << " right got col  " << (*iter)->contact(i).collision1()
+//                << " " << (*iter)->contact(i).collision2() << std::endl;
+
+            physics::Collision *col = NULL;
+            if (!this->contactCollisions.count(collision1))
+            {
+              col = boost::dynamic_pointer_cast<physics::Collision>(
+                  this->world->GetEntity(collision1)).get();
+              this->contactCollisions[collision1] = col;
+            }
+            else
+            {
+              col = this->contactCollisions[collision1];
+            }
+//            gzerr << " right got col  " << collision1 << std::endl;
+
+            GZ_ASSERT(col, "Contact collision is Null!");
+
+            math::Vector3 pos;
+            math::Vector3 normal;
+            // Iterate all contact positions
+            for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
+            {
+              pos = msgs::Convert((*iter)->contact(i).position(j));
+              normal = msgs::Convert((*iter)->contact(i).normal(j));
+
+              // Use collision pose to transform contact msg position into
+              // local frame
+              // pos = col->GetWorldPose().rot.RotateVectorReverse(pos);
+              // normal = col->GetWorldPose().rot.RotateVectorReverse(normal);
+
+              // gzerr << " contact pos for " << collision1 << ": " << pos
+              //  << " world pose col " << col->GetWorldPose() << std::endl;
+
+              // check against tactile array positions
+
+              // Set it to on if it's within bounds
+            }
+          }
+        }
+      }
+      // Clear the incoming contact list.
+      this->incomingRContacts.clear();
+      this->pubLeftTactileQueue->push(leftTactileMsg, this->pubLeftTactile);
+    }
+
+    sandia_hand_msgs::RawTactile rightTactileMsg;
+    this->pubRightTactileQueue->push(rightTactileMsg, this->pubRightTactile);
     this->lastControllerUpdateTime = curTime;
   }
 }
@@ -525,4 +677,39 @@ void SandiaHandPlugin::RosQueueThread()
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
+
+//////////////////////////////////////////////////
+void SandiaHandPlugin::OnRContacts(ConstContactsPtr &_msg)
+{
+  boost::mutex::scoped_lock lock(this->contactRMutex);
+
+  // Only store information if the model is active
+  // if (this->IsActive())
+  {
+    // Store the contacts message for processing in UpdateImpl
+    this->incomingRContacts.push_back(_msg);
+
+    // Prevent the incomingContacts list to grow indefinitely.
+    if (this->incomingRContacts.size() > 100)
+      this->incomingRContacts.pop_front();
+  }
+}
+
+//////////////////////////////////////////////////
+void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
+{
+  boost::mutex::scoped_lock lock(this->contactLMutex);
+
+  // Only store information if the model is active
+  // if (this->IsActive())
+  {
+    // Store the contacts message for processing in UpdateImpl
+    this->incomingLContacts.push_back(_msg);
+
+    // Prevent the incomingContacts list to grow indefinitely.
+    if (this->incomingLContacts.size() > 100)
+      this->incomingLContacts.pop_front();
+  }
+}
+
 }
