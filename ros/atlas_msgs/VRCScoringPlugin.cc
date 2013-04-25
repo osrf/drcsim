@@ -173,7 +173,8 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     common::Time::GetWallTime().Double() << std::endl;
   this->scoreFileStream << "# Format: " << std::endl;
   this->scoreFileStream << "# wallTime(sec),simTime(sec),"
-    "simTimeElapsed(sec),completionScore(count),falls(count)" << std::endl;
+    "wallTimeElapsed(sec),simTimeElapsed(sec),completionScore(count),"
+    "falls(count)" << std::endl;
 
   this->deferredLoadThread =
     boost::thread(boost::bind(&VRCScoringPlugin::DeferredLoad, this));
@@ -222,21 +223,30 @@ void VRCScoringPlugin::WriteScore(const common::Time& _currTime,
     return;
   }
 
-  // If we've passed the first gate, compute elapsed time
-  gazebo::common::Time elapsedTime;
-  if (!math::equal(this->startTime.Double(), 0.0))
-    elapsedTime = _currTime - this->startTime;
+  common::Time currentWallTime = common::Time::GetWallTime();
 
-  this->scoreFileStream << std::fixed << std::setprecision(3) <<
-    common::Time::GetWallTime().Double() << "," << _currTime.Double()
-    << "," << elapsedTime.Double() << "," << this->completionScore << ","
+  // If we've passed the first gate, compute elapsed time
+  common::Time elapsedTimeSim;
+  if (!math::equal(this->startTimeSim.Double(), 0.0))
+    elapsedTimeSim = _currTime - this->startTimeSim;
+  common::Time elapsedTimeWall;
+  if (!math::equal(this->startTimeWall.Double(), 0.0))
+    elapsedTimeWall = currentWallTime - this->startTimeWall;
+
+  this->scoreFileStream << std::fixed << std::setprecision(3)
+    << currentWallTime.Double() << ","
+    << _currTime.Double() << ","
+    << elapsedTimeWall.Double() << ","
+    << elapsedTimeSim.Double() << ","
+    << this->completionScore << ","
     << this->falls << ",\"" << _msg << "\"" << std::endl;
 
   // Also publish via ROS
   atlas_msgs::VRCScore rosScoreMsg;
   rosScoreMsg.wall_time = ros::Time(common::Time::GetWallTime().Double());
   rosScoreMsg.sim_time = ros::Time(_currTime.Double());
-  rosScoreMsg.sim_time_elapsed = ros::Time(elapsedTime.Double());
+  rosScoreMsg.wall_time_elapsed = ros::Time(elapsedTimeWall.Double());
+  rosScoreMsg.sim_time_elapsed = ros::Time(elapsedTimeSim.Double());
   rosScoreMsg.completion_score = this->completionScore;
   rosScoreMsg.falls = this->falls;
   rosScoreMsg.message = _msg;
@@ -298,7 +308,10 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
 
       // If it's the first gate, note the time
       if (this->nextGate == this->gates.begin())
-        this->startTime = this->world->GetSimTime();
+      {
+        this->startTimeSim = this->world->GetSimTime();
+        this->startTimeWall = common::Time::GetWallTime();
+      }
 
       // Update state to look for the next gate
       ++this->nextGate;
@@ -502,6 +515,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   int prevScore = this->completionScore;
   int prevFalls = this->falls;
   std::string scoreMsg;
+  bool forceLogScore = false;
 
   // Did we pass through a gate?
   if (this->IsGateBased() && this->CheckNextGate(scoreMsg))
@@ -518,6 +532,14 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   }
   else if (this->worldType == VRC_3)
   {
+    // Check for passing the first gate; doesn't affect score, but we need to
+    // latch sim and wall time of that event.
+    if (this->CheckNextGate(scoreMsg))
+    {
+      // Force score output so that this event appears in the log
+      forceLogScore = true;
+    }
+
     // Check for alignment and connection every cycle, because the
     // competitor might align/connect and unalign/disconnect the hose
     // multiple times.
@@ -526,27 +548,23 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
 
     if (this->completionScore == 0)
     {
-      // Do nothing; waiting to go through the first gate
-    }
-    else if (this->completionScore == 1)
-    {
       // Step 1: Did we get the hose up off the table?
       if (this->CheckHoseOffTable(scoreMsg))
         this->completionScore += 1;
     }
-    else if (this->completionScore == 2)
+    else if (this->completionScore == 1)
     {
       // Step 2: Did we align the hose?
       if (hoseAligned)
         this->completionScore += 1;
     }
-    else if (this->completionScore == 3)
+    else if (this->completionScore == 2)
     {
       // Step 3: Did we connect the hose?
       if (hoseConnected)
         this->completionScore += 1;
     }
-    else if (this->completionScore == 4)
+    else if (this->completionScore == 3)
     {
       // Step 3: Did we turn the valve?
       if (this->CheckValveOpen(scoreMsg))
@@ -561,9 +579,10 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   // Write score data, forcing a write if any score changed;
   // when not forced, it's throttled internally to
   // write at a fixed rate.
-  bool force = (prevScore != this->completionScore) ||
-               (prevFalls != this->falls);
-  this->WriteScore(_info.simTime, scoreMsg, force);
+  if ((prevScore != this->completionScore) ||
+      (prevFalls != this->falls))
+    forceLogScore = true;
+  this->WriteScore(_info.simTime, scoreMsg, forceLogScore);
 }
 
 /////////////////////////////////////////////////
@@ -756,8 +775,7 @@ bool VRCScoringPlugin::IsGateBased()
       this->worldType == QUAL_3 ||
       this->worldType == QUAL_4 ||
       this->worldType == VRC_1 ||
-      this->worldType == VRC_2 ||
-      this->worldType == VRC_3)
+      this->worldType == VRC_2)
     return true;
   else
     return false;
