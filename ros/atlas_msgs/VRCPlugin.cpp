@@ -107,11 +107,11 @@ void VRCPlugin::DeferredLoad()
     {
       this->SetRobotMode("pinned");
       this->atlas.startupHarness = true;
-      ROS_INFO("Start robot with gravity turned off and harnessed.");
+      ROS_DEBUG("Start robot with gravity turned off and harnessed.");
       if (math::equal(this->atlas.startupHarnessDuration, 0.0))
-        ROS_INFO("Atlas will stay pinned.");
+        ROS_DEBUG("Atlas will stay pinned.");
       else
-        ROS_INFO("Resume to nominal mode after %f seconds.",
+        ROS_DEBUG("Resume to nominal mode after %f seconds.",
           this->atlas.startupHarnessDuration);
     }
   }
@@ -708,7 +708,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    ROS_INFO("fire_hose_model [%s] not found", fireHoseModelName.c_str());
+    ROS_DEBUG("fire_hose_model [%s] not found", fireHoseModelName.c_str());
     return;
   }
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
@@ -823,7 +823,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->model)
   {
-    ROS_INFO("drc vehicle not found.");
+    ROS_DEBUG("drc vehicle not found.");
     return;
   }
 
@@ -945,7 +945,7 @@ void VRCPlugin::LoadRobotROSAPI()
   if (!this->rosNode->getParam("atlas/time_to_unpin",
     atlas.startupHarnessDuration))
   {
-    ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
+    ROS_DEBUG("atlas/time_to_unpin not specified, default harness duration to"
              " %f seconds", atlas.startupHarnessDuration);
   }
 
