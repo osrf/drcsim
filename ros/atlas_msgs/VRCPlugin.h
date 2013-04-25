@@ -160,7 +160,8 @@ namespace gazebo
                                         std::string _type,
                                         math::Vector3 _anchor,
                                         math::Vector3 _axis,
-                                        double _upper, double _lower);
+                                        double _upper, double _lower,
+                                        bool _disableCollision = false);
 
     /// \brief Remove a joint.
     /// \param[in] _joint Joint to remove.
@@ -268,16 +269,7 @@ namespace gazebo
     private: class FireHose
     {
       /// \brief set initial configuration of the fire hose link
-      private: void SetInitialConfiguration()
-      {
-        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
-        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
-        // for (unsigned int i = 0; i < this->links.size(); ++i)
-        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
-        this->fireHoseModel->SetWorldPose(this->initialFireHosePose);
-        this->fireHoseJoints[fireHoseJoints.size()-4]->SetAngle(0, -M_PI/4.0);
-        this->fireHoseJoints[fireHoseJoints.size()-2]->SetAngle(0, -M_PI/4.0);
-      }
+      private: void SetInitialConfiguration();
 
       /// \brief Load the drc_fire_hose portion of plugin.
       /// \param[in] _parent Pointer to parent world.
