@@ -588,7 +588,7 @@ bool VRCScoringPlugin::FindVRC3Stuff()
     gzerr << "Failed to find valve model" << std::endl;
     return false;
   }
-  this->valve = valveModel->GetJoint("joint");
+  this->valve = valveModel->GetJoint("valve");
   if (!this->valve)
   {
     gzerr << "Failed to find valve joint" << std::endl;
