@@ -763,6 +763,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
 void VRCPlugin::FireHose::SetInitialConfiguration()
 {
+  // this does not work yet, because SetAngle only works for Hinge and Slider
+  // joints, and fire hose is made of universal and ball joints.
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
     gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
@@ -787,12 +789,12 @@ void VRCPlugin::CheckThreadStart()
   double rotErr = (relativePose.rot.GetZAxis() -
                    connectPose.rot.GetZAxis()).GetLength();
 
-  gzdbg << " connectPose [" << connectPose << "]\n";
-  gzdbg << " relativePose [" << relativePose << "]\n";
-  gzdbg << "connect offset [" << connectOffset
-        << "] xyz [" << posErr
-        << "] rpy [" << rotErr
-        << "]\n";
+  // gzdbg << " connectPose [" << connectPose << "]\n";
+  // gzdbg << " relativePose [" << relativePose << "]\n";
+  // gzdbg << "connect offset [" << connectOffset
+  //       << "] xyz [" << posErr
+  //       << "] rpy [" << rotErr
+  //       << "]\n";
 
   if (!this->drcFireHose.screwJoint)
   {
@@ -815,7 +817,6 @@ void VRCPlugin::CheckThreadStart()
   {
     // check joint position to disconnect
     double position = this->drcFireHose.screwJoint->GetAngle(0).Radian();
-    gzerr << "position " << position << "\n";
     if (position < -0.0003)
       this->RemoveJoint(this->drcFireHose.screwJoint);
   }
