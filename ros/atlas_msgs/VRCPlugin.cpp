@@ -767,7 +767,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   if (sdf->HasElement("valve_joint"))
     valveJointName = sdf->GetValueString("valve_joint");
   else
-    valveJointName = "joint";
+    valveJointName = "valve";
   this->valveJoint = this->valveModel->GetJoint(valveJointName);
   if (!this->valveJoint)
   {

@@ -59,7 +59,7 @@
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>
         <valve_model>valve</valve_model>
-        <valve_joint>joint</valve_joint>
+        <valve_joint>valve</valve_joint>
         <thread_pitch>-1000</thread_pitch>
         <coupling_relative_pose>
 -0.0019 1e-06 0.012836 -0.787193 1.57066 -2.35799

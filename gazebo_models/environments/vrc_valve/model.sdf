@@ -86,7 +86,7 @@
       </visual>
     </link>
 
-    <joint name="joint" type="revolute">
+    <joint name="valve" type="revolute">
       <parent>pipe</parent>
       <child>wheel</child>
       <axis>
