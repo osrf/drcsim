@@ -39,6 +39,11 @@
       <pose>-2.2019 2.307836 1.1 -1.5707 0 3.141593</pose>
     </include>
 
+    <include>
+      <uri>model://vrc_valve</uri>
+      <pose>-3.82 -3.5 1.2 -1.5707 0 0</pose>
+    </include>
+
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
          <model_name>atlas</model_name>
@@ -53,6 +58,8 @@
         <coupling_link>coupling</coupling_link>
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>
+        <valve_model>valve</valve_model>
+        <valve_joint>joint</valve_joint>
         <thread_pitch>-1000</thread_pitch>
         <coupling_relative_pose>
 -0.0019 1e-06 0.012836 -0.787193 1.57066 -2.35799
