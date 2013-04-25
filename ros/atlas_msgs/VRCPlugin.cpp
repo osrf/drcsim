@@ -767,7 +767,6 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   {
     gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
-    getchar();
   }
 }
 
