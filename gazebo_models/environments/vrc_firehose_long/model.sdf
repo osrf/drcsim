@@ -36,6 +36,28 @@
           <diffuse>0 0 1 1</diffuse>
         </material>
       </visual>
+
+      <visual name="attachment_vis">
+        <pose>-0.1225 0 0 0 -1.570790 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.025</length>
+            <radius>0.055</radius>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="attachment_col">
+        <pose>-0.1225 0 0 0 -1.570790 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.025</length>
+            <radius>0.055</radius>
+          </cylinder>
+        </geometry>
+      </collision>
     </link>
 
     <link name="link_01">
@@ -1008,7 +1030,7 @@
       </visual>
     </link>
 
-    <joint name="joint_01" type="universal">
+    <joint name="joint_01" type="ball">
       <child>link_01</child>
       <parent>coupling</parent>
       <axis>
