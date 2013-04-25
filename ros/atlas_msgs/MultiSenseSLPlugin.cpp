@@ -118,7 +118,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->multiCameraFrameRate = this->multiCameraSensor->GetUpdateRate();
 
   this->laserSensor =
-    boost::shared_dynamic_cast<sensors::RaySensor>(
+    boost::shared_dynamic_cast<sensors::GpuRaySensor>(
     sensors::SensorManager::Instance()->GetSensor("head_hokuyo_sensor"));
   if (!this->laserSensor)
     gzerr << "laser sensor not found\n";
