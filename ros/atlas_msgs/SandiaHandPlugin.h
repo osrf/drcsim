@@ -156,6 +156,9 @@ namespace gazebo
     private: sensor_msgs::JointState leftJointStates;
     private: sensor_msgs::JointState rightJointStates;
 
+    private: sandia_hand_msgs::RawTactile leftTactile;
+    private: sandia_hand_msgs::RawTactile rightTactile;
+
     // Controls stuff
     private: common::Time lastControllerUpdateTime;
 
@@ -182,6 +185,14 @@ namespace gazebo
 
     private: boost::unordered_map<std::string, physics::Collision *>
                 contactCollisions;
+
+    private: double fingerFLength[2];
+
+    private: double fingerFWidth[2];
+
+    private: int fingerFHor[2];
+
+    private: int fingerFVer[2];
 
 //    private: double fingerTactileArray[54];
 

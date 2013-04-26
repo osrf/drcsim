@@ -15,7 +15,6 @@
  *
 */
 
-
 #include "gazebo/transport/transport.hh"
 #include "ContactPlugin.h"
 

@@ -89,6 +89,17 @@ SandiaHandPlugin::SandiaHandPlugin()
   this->leftImuLinkName = "l_hand";
   this->rightImuLinkName = "r_hand";
 
+  this->fingerFLength[0] = 0.01;
+  this->fingerFWidth[0] = 0.0158;
+  this->fingerFLength[1] = 0.0271;
+  this->fingerFWidth[1] = 0.0134;
+
+  this->fingerFHor[0] = 3;
+  this->fingerFVer[0] = 2;
+  this->fingerFHor[1] = 3;
+  this->fingerFVer[1] = 4;
+
+  //fOffset  =
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,11 +390,11 @@ void SandiaHandPlugin::DeferredLoad()
   // publish contact data
   this->pubLeftTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
   this->pubLeftTactile =
-    this->rosNode->advertise<sensor_msgs::Imu>(
+    this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
       "sandia_hands/l_hand/tactile_raw", 10);
   this->pubRightTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
   this->pubRightTactile =
-    this->rosNode->advertise<sensor_msgs::Imu>(
+    this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
       "sandia_hands/r_hand/tactile_raw", 10);
 
   // initialize status pub time
@@ -593,10 +604,28 @@ void SandiaHandPlugin::UpdateStates()
 
 
     // publish tactile data
+
+    // first clear all previous tactile data, 18 on finger and 32 on palm
+    for (int i = 0; i < 18; ++i)
+    {
+      this->leftTactile.f0[i] = false;
+      this->leftTactile.f1[i] = false;
+      this->leftTactile.f2[i] = false;
+      this->leftTactile.f3[i] = false;
+      this->rightTactile.f0[i] = false;
+      this->rightTactile.f1[i] = false;
+      this->rightTactile.f2[i] = false;
+      this->rightTactile.f3[i] = false;
+    }
+    for (int i = 0; i < 32; ++i)
+    {
+      this->leftTactile.palm[i] = false;
+      this->rightTactile.palm[i] = false;
+    }
+
     {
       boost::mutex::scoped_lock lock(this->contactRMutex);
 
-      sandia_hand_msgs::RawTactile leftTactileMsg;
       std::vector<std::string>::iterator collIter;
       std::string collision1;
 
@@ -607,17 +636,16 @@ void SandiaHandPlugin::UpdateStates()
         for (ContactMsgs_L::iterator iter = this->incomingRContacts.begin();
             iter != this->incomingRContacts.end(); ++iter)
         {
+          bool isPalm = false;
           // Iterate over all the contacts in the message
           for (int i = 0; i < (*iter)->contact_size(); ++i)
           {
             // Get the collision pointer from name in contact msg
             collision1 = (*iter)->contact(i).collision1();
+
             if (collision1.find("right_f") ==  string::npos
                 && collision1.find("palm") ==  string::npos)
               collision1 = (*iter)->contact(i).collision2();
-
-//            gzerr << " right got col  " << (*iter)->contact(i).collision1()
-//                << " " << (*iter)->contact(i).collision2() << std::endl;
 
             physics::Collision *col = NULL;
             if (!this->contactCollisions.count(collision1))
@@ -630,9 +658,24 @@ void SandiaHandPlugin::UpdateStates()
             {
               col = this->contactCollisions[collision1];
             }
-//            gzerr << " right got col  " << collision1 << std::endl;
 
             GZ_ASSERT(col, "Contact collision is Null!");
+
+            // check if it's a palm or a finger
+            if (collision1.find("palm") !=  string::npos)
+              isPalm = true;
+
+            // get finger index if not palm
+            int fIdx = -1;
+            if (!isPalm)
+            {
+              // low link of the finger
+              if (collision1.find("_1") !=  string::npos)
+                fIdx = 0;
+              // upper link of the finger
+              else if (collision1.find("_2") !=  string::npos)
+                fIdx = 1;
+            }
 
             math::Vector3 pos;
             math::Vector3 normal;
@@ -642,28 +685,98 @@ void SandiaHandPlugin::UpdateStates()
               pos = msgs::Convert((*iter)->contact(i).position(j));
               normal = msgs::Convert((*iter)->contact(i).normal(j));
 
-              // Use collision pose to transform contact msg position into
-              // local frame
-              // pos = col->GetWorldPose().rot.RotateVectorReverse(pos);
-              // normal = col->GetWorldPose().rot.RotateVectorReverse(normal);
+              // transform pose into link frame
+              pos = col->GetLink()->GetWorldPose().rot.GetInverse()
+                  * (pos - col->GetLink()->GetWorldPose().pos);
 
-              // gzerr << " contact pos for " << collision1 << ": " << pos
-              //  << " world pose col " << col->GetWorldPose() << std::endl;
+              // if palm
+              if (isPalm)
+              {
+                // Collisions don't really match spec so the best we could do
+                // is approximate the locations of tactile sensors
 
-              // check against tactile array positions
+                // sensors on _5: 1; 4 5; 10
+                if (collision1.find("_5"))
+                {
+                }
+                // sensors on _4: 2; 6 7; 11 12
+                else if (collision1.find("_4"))
+                {
+                }
+                // sensors on _3: 3; 8 9; 13
+                else if (collision1.find("_3"))
+                {
+                }
+                // sensors on _1: 23 24; 25 26; 27 28; 29 30; 31 32
+                else if (collision1.find("_1"))
+                {
+                }
+                // sensors on (default): 14 15 16 17; 18 19 20 21 22
+                else
+                {
+                }
+//               gzerr << pos << std::endl;
+              }
+              // if finger: make sure finger index is valid and
+              // contact is on the inside of the hand (palm side)
+              else if (fIdx != -1 && pos.y > 0)
+              {
 
-              // Set it to on if it's within bounds
+                // find tactile array index
+                pos -= col->GetInitialRelativePose().pos*2;
+                double vPosInLink = math::clamp((pos.x + fingerFLength[fIdx]/2)
+                    /fingerFLength[fIdx], 0.0, 1.0);
+                double hPosInLink = math::clamp((pos.z + fingerFWidth[fIdx]/2)
+                    /fingerFWidth[fIdx], 0.0, 1.0);
+                int ai = this->fingerFVer[fIdx] -
+                    boost::math::round(vPosInLink * this->fingerFVer[fIdx]) - 1;
+                int aj =
+                    boost::math::round(hPosInLink * this->fingerFHor[fIdx]) - 1;
+
+                ai = std::max(ai, 0);
+                aj = std::max(aj, 0);
+
+                int aIndex = fIdx * fingerFHor[0] * fingerFVer[0] +
+                    ai * fingerFHor[fIdx] + aj;
+
+                // Set the corresponding tactile senor to true
+                if (collision1.find("f0"))
+                 this->rightTactile.f0[aIndex] = true;
+                else if (collision1.find("f1"))
+                 this->rightTactile.f1[aIndex] = true;
+                else if (collision1.find("f2"))
+                 this->rightTactile.f2[aIndex] = true;
+                else if (collision1.find("f3"))
+                 this->rightTactile.f3[aIndex] = true;
+
+  //              gzerr << "ai aj aIndex " << collision1 << " " <<  ai << " " << aj << " "
+    //                << aIndex << std::endl;
+  //              gzerr << "posInLink " << vPosInLink << " " <<
+  //                  hPosInLink << std::endl;
+  //              gzerr << "col " << col->GetInitialRelativePose() << std::endl;
+  //              gzerr << "link " << col->GetLink()->GetWorldPose() << std::endl;
+
+
+                // Use collision pose to transform contact msg position into
+                // local frame
+                //math::Vector3 pos2 = col->GetLink()->GetWorldPose().rot.RotateVectorReverse(pos);
+                // normal = col->GetWorldPose().rot.RotateVectorReverse(normal);
+
+  //               gzerr << pos << std::endl;
+                 // << " pos2 " << pos2 << std::endl;
+              }
+
             }
           }
         }
       }
       // Clear the incoming contact list.
       this->incomingRContacts.clear();
-      this->pubLeftTactileQueue->push(leftTactileMsg, this->pubLeftTactile);
+      this->pubRightTactileQueue->push(this->rightTactile,
+          this->pubRightTactile);
     }
 
-    sandia_hand_msgs::RawTactile rightTactileMsg;
-    this->pubRightTactileQueue->push(rightTactileMsg, this->pubRightTactile);
+
     this->lastControllerUpdateTime = curTime;
   }
 }
