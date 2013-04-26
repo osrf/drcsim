@@ -227,10 +227,10 @@ void VRCScoringPlugin::WriteScore(const common::Time& _currTime,
 
   // If we've passed the first gate, compute elapsed time
   common::Time elapsedTimeSim;
-  if (!math::equal(this->startTimeSim.Double(), 0.0))
+  if (this->startTimeSim != common::Time::Zero)
     elapsedTimeSim = _currTime - this->startTimeSim;
   common::Time elapsedTimeWall;
-  if (!math::equal(this->startTimeWall.Double(), 0.0))
+  if (this->startTimeWall != common::Time::Zero)
     elapsedTimeWall = currentWallTime - this->startTimeWall;
 
   this->scoreFileStream << std::fixed << std::setprecision(3)
@@ -347,7 +347,10 @@ bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
         (drillPosition.z >= this->bin.min.z) &&
         (drillPosition.z <= this->bin.max.z))
     {
-      gzlog << "Successfully placed drill in bin" << std::endl;
+      std::stringstream ss;
+      ss << "Successfully placed drill in bin";
+      _msg += ss.str();
+      gzlog << ss.str() << std::endl;
       return true;
     }
   }
