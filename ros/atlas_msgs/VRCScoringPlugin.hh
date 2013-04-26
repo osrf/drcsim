@@ -58,28 +58,46 @@ namespace gazebo
     private: void DeferredLoad();
 
     /// \brief Check the next gate to see if we've passed it
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the next gate was passed, false otherwise
     private: bool CheckNextGate(std::string &_msg);
 
     /// \brief Check whether we've fallen
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if we've fallen, false otherwise
     private: bool CheckFall(const common::Time &_currTime,
       std::string &_msg);
 
     /// \brief Check whether the drill is in the bin
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the drill was placed in the bin, false otherwise
     private: bool CheckDrillInBin(std::string &_msg);
 
     /// \brief Check whether the hose is off the table
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the hose off the table, false otherwise
     private: bool CheckHoseOffTable(std::string &_msg);
 
     /// \brief Check whether the hose is aligned with the standpipe.
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the hose is aligned to the standpipe, false otherwise
     private: bool CheckHoseAligned(std::string &_msg);
 
     /// \brief Check whether the hose is connected to the standpipe.
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the hose is threaded onto the standpipe, false otherwise
     private: bool CheckHoseConnected(std::string &_msg);
 
     /// \brief Check whether the valve is turned.
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the valve is open, false otherwise
     private: bool CheckValveOpen(std::string &_msg);
 
     /// \brief Write intermediate score data
+    /// \param _currTime Current simulation time
+    /// \param _msg Log message to include
+    /// \param _force If true, write output; otherwise write output only if
+    /// enough time has passed since the last write.
     private: void WriteScore(const gazebo::common::Time& _currTime, 
       const std::string &_msg, bool _force);
 
