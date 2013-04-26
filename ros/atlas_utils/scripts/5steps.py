@@ -17,13 +17,13 @@ def demo():
       rospy.sleep(0.1)
 
     mode.publish("harnessed")
-    control_mode.publish("stand-prep")
+    control_mode.publish("StandPrep")
     rospy.sleep(5.0)
     mode.publish("nominal")
     rospy.sleep(0.3)
-    control_mode.publish("stand")
+    control_mode.publish("Stand")
     rospy.sleep(1.0)
-    control_mode.publish("walk")
+    control_mode.publish("Walk")
 
 if __name__ == '__main__':
     try:

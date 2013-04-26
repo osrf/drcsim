@@ -8,8 +8,8 @@
         <solver>
           <type>quick</type>
           <dt>0.001</dt>
-          <iters>40</iters>
-          <sor>1.0</sor>
+          <iters>50</iters>
+          <sor>1.4</sor>
         </solver>
         <constraints>
           <cfm>0.0</cfm>
@@ -51,6 +51,8 @@
         </coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
+
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring"/>
 
   </world>
 </gazebo>

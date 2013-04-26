@@ -3,9 +3,12 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="qual_task_4.world"/>
 
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
+    <arg name="extra_gazebo_args" value="-r --record_path=/tmp/qual_task_4" />
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
 
