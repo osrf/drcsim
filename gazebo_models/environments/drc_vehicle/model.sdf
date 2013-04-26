@@ -23,5 +23,11 @@
       <max_speed>10</max_speed>
       <aero_load>0.1</aero_load>
     </plugin>
+    <plugin name="seat_mud" filename="libMudPlugin.so">
+      <contact_sensor_name>polaris_ranger_ev/chassis/seat_contact</contact_sensor_name>
+      <stiffness>0.0</stiffness>
+      <damping>100.0</damping>
+      <link_name>atlas::pelvis</link_name>
+    </plugin>
   </model>
 </sdf>
