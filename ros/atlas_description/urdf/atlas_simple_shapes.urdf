@@ -6,7 +6,7 @@
             <inertia ixx="0.004" ixy="0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="1.04719755 0 0" />
             <geometry>
                 <mesh filename="package://atlas/meshes/l_clav.dae" scale="1 1 1" />
             </geometry>
@@ -63,9 +63,9 @@
         </visual>
         <!-- bottom -->
         <collision group="default">
-          <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
           <geometry>
-            <box size="0.26 0.124887 0.01"/>
+            <box size="0.26 0.124887 0.05"/>
           </geometry>
         </collision>
         <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
@@ -177,15 +177,9 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 -0.06 0" xyz="-0.01 0.00295 -0.260"/>
+          <origin rpy="0 0.10 0" xyz="0.02 0.00295 -0.18"/>
           <geometry>
-            <cylinder radius="0.06" length="0.22"/>
-          </geometry>
-        </collision>
-        <collision group="other">
-          <origin rpy="0 0.18 0" xyz="0.01 0.00295 -0.07"/>
-          <geometry>
-            <cylinder radius="0.06" length="0.20"/>
+            <cylinder radius="0.07" length="0.40"/>
           </geometry>
         </collision>
     </link>
@@ -196,7 +190,7 @@
             <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.013" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <mesh filename="package://atlas/meshes/l_scap.dae" scale="1 1 1" />
             </geometry>
@@ -411,25 +405,31 @@
         <collision group="default">
           <origin rpy="1.5707963267949 0 0" xyz="0.046 0.0 -0.02"/>
           <geometry>
-            <cylinder radius="0.092" length="0.03"/>
+            <cylinder radius="0.11" length="0.06"/>
           </geometry>
         </collision>
         <collision group="other">
           <origin rpy="1.5707963267949 0 0" xyz="-0.03 0.0 -0.02"/>
           <geometry>
-            <cylinder radius="0.092" length="0.03"/>
+            <cylinder radius="0.11" length="0.06"/>
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="0 0 0" xyz="0 0.042 0.06"/>
+          <origin rpy="0 0 0" xyz="0.01 0.042 0.09"/>
           <geometry>
-            <cylinder radius="0.130" length="0.022"/>
+            <cylinder radius="0.16" length="0.05"/>
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="0 0 0" xyz="0 -0.042 0.06"/>
+          <origin rpy="0 0 0" xyz="0.01 -0.042 0.09"/>
           <geometry>
-            <cylinder radius="0.130" length="0.022"/>
+            <cylinder radius="0.16" length="0.05"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="-0.1 0 -0.05"/>
+          <geometry>
+            <box size="0.1 0.15 0.2"/>
           </geometry>
         </collision>
     </link>
@@ -440,7 +440,7 @@
             <inertia ixx="0.004" ixy="-0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="-1.04719755 0 0" />
             <geometry>
                 <mesh filename="package://atlas/meshes/r_clav.dae" scale="1 1 1" />
             </geometry>
@@ -497,9 +497,9 @@
         </visual>
         <!-- bottom -->
         <collision group="default">
-          <origin xyz="0.048 0 -0.076119" rpy="0 0 0"/>
+          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
           <geometry>
-            <box size="0.26 0.124887 0.01"/>
+            <box size="0.26 0.124887 0.05"/>
           </geometry>
         </collision>
         <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
@@ -611,15 +611,9 @@
             </geometry>
         </visual>
         <collision group="default">
-          <origin rpy="0 -0.06 0" xyz="-0.01 -0.00295 -0.260"/>
+          <origin rpy="0 0.10 0" xyz="0.02 -0.00295 -0.18"/>
           <geometry>
-            <cylinder radius="0.06" length="0.22"/>
-          </geometry>
-        </collision>
-        <collision group="other">
-          <origin rpy="0 0.18 0" xyz="0.01 -0.00295 -0.07"/>
-          <geometry>
-            <cylinder radius="0.06" length="0.20"/>
+            <cylinder radius="0.07" length="0.40"/>
           </geometry>
         </collision>
     </link>
@@ -933,8 +927,8 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.32" soft_upper_limit="11.14" />
     </joint>
     <joint name="neck_ay" type="revolute">
-        <!-- per slides on sensor head kinematics 2012-12-14 -->
-        <origin xyz="0.16555 0 0.50823" rpy="0 -0 0" />
+        <!-- per slides on sensor head kinematics 2013-02-13 -->
+        <origin xyz="0.21672 0 0.53796" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="utorso" />
         <child link="head" />
