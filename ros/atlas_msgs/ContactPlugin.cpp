@@ -61,7 +61,6 @@ void ContactPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 //////////////////////////////////////////////////
 void ContactPlugin::Init()
 {
-
   this->node.reset(new transport::Node());
   this->node->Init(this->world->GetName());
 
@@ -88,12 +87,6 @@ void ContactPlugin::Init()
     this->contactsPub = this->node->Advertise<msgs::Contacts>(topicName);
   }
 
-  if (!this->contactSub)
-  {
-    this->contactSub = this->node->Subscribe("~/physics/contacts",
-        &ContactPlugin::OnContacts, this);
-  }
-
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&ContactPlugin::OnUpdate, this));
 }
@@ -102,6 +95,20 @@ void ContactPlugin::Init()
 //////////////////////////////////////////////////
 void ContactPlugin::OnUpdate()
 {
+  // only subscribe when needed
+  if (this->contactsPub && this->contactsPub->HasConnections())
+  {
+    if (!this->contactSub)
+    {
+      this->contactSub = this->node->Subscribe("~/physics/contacts",
+        &ContactPlugin::OnContacts, this);
+    }
+  }
+  else
+  {
+    return;
+  }
+
   boost::mutex::scoped_lock lock(this->mutex);
   std::vector<std::string>::iterator collIter;
   std::string collision1;
@@ -172,14 +179,10 @@ void ContactPlugin::OnContacts(ConstContactsPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
-  // Only store information if the sensor is active
-  // if (this->IsActive())
-  {
-    // Store the contacts message for processing in UpdateImpl
-    this->incomingContacts.push_back(_msg);
+  // Store the contacts message for processing
+  this->incomingContacts.push_back(_msg);
 
-    // Prevent the incomingContacts list to grow indefinitely.
-    if (this->incomingContacts.size() > 100)
-      this->incomingContacts.pop_front();
-  }
+  // Prevent the incomingContacts list to grow indefinitely.
+  if (this->incomingContacts.size() > 100)
+    this->incomingContacts.pop_front();
 }

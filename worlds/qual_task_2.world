@@ -64,7 +64,7 @@
       <pose>0.51 0.2 1.013 0 0 3.1415</pose>
     </include>
 <!--    <model name="test_box">
-      <pose>0.51 0.25 1.013 0 0 0</pose>
+      <pose>0.58 0.28 1.013 0 0 0</pose>
       <link name="link">
         <collision name="t_collision">
            <geometry>
@@ -81,7 +81,7 @@
           </geometry>
         </visual>
       </link>
-    </model>-->
+    </model> -->
     <!--
     <model name="seat">
       <static>true</static>

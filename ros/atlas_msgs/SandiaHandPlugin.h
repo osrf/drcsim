@@ -198,13 +198,25 @@ namespace gazebo
     private: boost::unordered_map<std::string, physics::Collision *>
                 contactCollisions;
 
-    private: double fingerFLength[2];
+    private: double fingerColLength[2];
 
-    private: double fingerFWidth[2];
+    private: double fingerColWidth[2];
 
-    private: int fingerFHor[2];
+    private: int fingerHorSize[2];
 
-    private: int fingerFVer[2];
+    private: int fingerVerSize[2];
+
+    private: double palmColWidth[5];
+
+    private: double palmColLength[5];
+
+    private: int palmHorSize[5];
+
+    private: int palmVerSize[5];
+
+    private: int tactileFingerArraySize;
+
+    private: int tactilePalmArraySize;
 
   };
 /** \} */
