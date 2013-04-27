@@ -738,8 +738,8 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
         // Get the collision pointer from name in contact msg
         collision1 = (*iter)->contact(i).collision1();
 
-        if (collision1.find(sideStr + "_f") ==  string::npos
-            && collision1.find("palm") ==  string::npos)
+        if (collision1.find(sideStr + "_f") ==  std::string::npos
+            && collision1.find("palm") ==  std::string::npos)
           collision1 = (*iter)->contact(i).collision2();
 
         physics::Collision *col = NULL;
@@ -757,7 +757,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
         GZ_ASSERT(col, "Contact collision is Null!");
 
         // check if it's a palm or a finger
-        if (collision1.find("palm") !=  string::npos)
+        if (collision1.find("palm") !=  std::string::npos)
           isPalm = true;
 
         // get finger index if not palm
@@ -765,10 +765,10 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
         if (!isPalm)
         {
           // low link of the finger
-          if (collision1.find("_1") !=  string::npos)
+          if (collision1.find("_1") !=  std::string::npos)
             fIdx = 0;
           // upper link of the finger
-          else if (collision1.find("_2") !=  string::npos)
+          else if (collision1.find("_2") !=  std::string::npos)
             fIdx = 1;
         }
 
@@ -801,7 +801,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
             // is approximate the locations of tactile sensors
 
             // Index finger palm sensors: 3; 8 9; 13
-            if (collision1.find("_3") != string::npos)
+            if (collision1.find("_3") != std::string::npos)
             {
               if (pos.z > 0)
               {
@@ -830,7 +830,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
               }
             }
             // Middle finger palm sensors: 2; 6 7; 11 12
-            else if (collision1.find("_4") != string::npos)
+            else if (collision1.find("_4") != std::string::npos)
             {
               if (pos.z > 0)
               {
@@ -865,7 +865,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
               }
             }
             // Pinky palm sensors: 1; 4 5; 10
-            if (collision1.find("_5") != string::npos)
+            if (collision1.find("_5") != std::string::npos)
             {
               if (pos.z > 0)
               {
@@ -894,7 +894,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
               }
             }
             // Sensors on bottom palm: 23 24; 25 26; 27 28; 29 30; 31 32
-            else if (collision1.find("_1") != string::npos)
+            else if (collision1.find("_1") != std::string::npos)
             {
               int baseIndex = 22;
               if (pos.z > 0)
@@ -967,13 +967,13 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 ai * this->fingerHorSize[fIdx] + aj;
 
             // Set the corresponding tactile senor to 1
-            if (collision1.find("f0"))
+            if (collision1.find("f0") != std::string::npos)
              _tactileMsg->f0[aIndex] = 1;
-            else if (collision1.find("f1"))
+            else if (collision1.find("f1") != std::string::npos)
              _tactileMsg->f1[aIndex] = 1;
-            else if (collision1.find("f2"))
+            else if (collision1.find("f2") != std::string::npos)
              _tactileMsg->f2[aIndex] = 1;
-            else if (collision1.find("f3"))
+            else if (collision1.find("f3") != std::string::npos)
              _tactileMsg->f3[aIndex] = 1;
 
             // gzerr << "finger " << aIndex +1 << std::endl;
