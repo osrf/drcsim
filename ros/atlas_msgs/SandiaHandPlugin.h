@@ -176,6 +176,9 @@ namespace gazebo
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
 
+    // flag to indicate that stumps are in use
+    private: bool hasStumps;
+
     /// \brief Subscription to contact messages
     private: transport::SubscriberPtr contactSub[2];
 
