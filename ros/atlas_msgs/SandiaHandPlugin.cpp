@@ -199,7 +199,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
       this->rightImuLink->GetWorldLinearVel());
   }
 
-  // Contact data
+  // Tactile data
   if (!hasStumps)
   {
     // Sandia hand tactile dimensions taken from spec and adapted to fit on our
@@ -238,6 +238,33 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
     this->tactileFingerArraySize = 18;
     this->tactilePalmArraySize = 32;
+
+    this->leftTactile.f0.resize(this->tactileFingerArraySize);
+    this->leftTactile.f1.resize(this->tactileFingerArraySize);
+    this->leftTactile.f2.resize(this->tactileFingerArraySize);
+    this->leftTactile.f3.resize(this->tactileFingerArraySize);
+    this->rightTactile.f0.resize(this->tactileFingerArraySize);
+    this->rightTactile.f1.resize(this->tactileFingerArraySize);
+    this->rightTactile.f2.resize(this->tactileFingerArraySize);
+    this->rightTactile.f3.resize(this->tactileFingerArraySize);
+    this->leftTactile.palm.resize(this->tactilePalmArraySize);
+    this->rightTactile.palm.resize(this->tactilePalmArraySize);
+    for (int i = 0; i < this->tactileFingerArraySize; ++i)
+    {
+      this->leftTactile.f0[i] = 0;
+      this->leftTactile.f1[i] = 0;
+      this->leftTactile.f2[i] = 0;
+      this->leftTactile.f3[i] = 0;
+      this->rightTactile.f0[i] = 0;
+      this->rightTactile.f1[i] = 0;
+      this->rightTactile.f2[i] = 0;
+      this->rightTactile.f3[i] = 0;
+    }
+    for (int i = 0; i < this->tactilePalmArraySize; ++i)
+    {
+      this->leftTactile.palm[i] = 0;
+      this->rightTactile.palm[i] = 0;
+    }
 
     this->node.reset(new transport::Node());
     this->node->Init(this->world->GetName());
@@ -606,19 +633,19 @@ void SandiaHandPlugin::UpdateStates()
       // first clear all previous tactile data
       for (int i = 0; i < this->tactileFingerArraySize; ++i)
       {
-        this->leftTactile.f0[i] = false;
-        this->leftTactile.f1[i] = false;
-        this->leftTactile.f2[i] = false;
-        this->leftTactile.f3[i] = false;
-        this->rightTactile.f0[i] = false;
-        this->rightTactile.f1[i] = false;
-        this->rightTactile.f2[i] = false;
-        this->rightTactile.f3[i] = false;
+        this->leftTactile.f0[i] = 0;
+        this->leftTactile.f1[i] = 0;
+        this->leftTactile.f2[i] = 0;
+        this->leftTactile.f3[i] = 0;
+        this->rightTactile.f0[i] = 0;
+        this->rightTactile.f1[i] = 0;
+        this->rightTactile.f2[i] = 0;
+        this->rightTactile.f3[i] = 0;
       }
       for (int i = 0; i < this->tactilePalmArraySize; ++i)
       {
-        this->leftTactile.palm[i] = false;
-        this->rightTactile.palm[i] = false;
+        this->leftTactile.palm[i] = 0;
+        this->rightTactile.palm[i] = 0;
       }
 
       // Generate data and publish
@@ -799,7 +826,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 }
                 else if (ai == 2)
                   aIndex = 12;
-                _tactileMsg->palm[aIndex] = true;
+                _tactileMsg->palm[aIndex] = 1;
               }
             }
             // Middle finger palm sensors: 2; 6 7; 11 12
@@ -834,7 +861,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                     aIndex = 11;
                 }
                 //gzerr << aIndex + 1 <<  std::endl;
-                _tactileMsg->palm[aIndex] = true;
+                _tactileMsg->palm[aIndex] = 1;
               }
             }
             // Pinky palm sensors: 1; 4 5; 10
@@ -863,7 +890,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 else if (ai == 2)
                   aIndex = 9;
                 //gzerr << aIndex + 1 <<  std::endl;
-                _tactileMsg->palm[aIndex] = true;
+                _tactileMsg->palm[aIndex] = 1;
               }
             }
             // Sensors on bottom palm: 23 24; 25 26; 27 28; 29 30; 31 32
@@ -887,7 +914,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 aj = std::max(aj, 0);
                 aIndex = baseIndex + ai * this->palmHorSize[3] + aj;
                 //gzerr << aIndex + 1 << std::endl;
-                _tactileMsg->palm[aIndex] = true;
+                _tactileMsg->palm[aIndex] = 1;
               }
             }
             // Sensors on mid palm (default): 14 15 16 17; 18 19 20 21 22
@@ -916,7 +943,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
 
               //gzerr << aIndex + 1 << std::endl;
-              _tactileMsg->palm[aIndex] = true;
+              _tactileMsg->palm[aIndex] = 1;
             }
           }
           // if finger: make sure finger index is valid and
@@ -939,15 +966,15 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
             aIndex = fIdx * this->fingerHorSize[0] * this->fingerVerSize[0] +
                 ai * this->fingerHorSize[fIdx] + aj;
 
-            // Set the corresponding tactile senor to true
+            // Set the corresponding tactile senor to 1
             if (collision1.find("f0"))
-             _tactileMsg->f0[aIndex] = true;
+             _tactileMsg->f0[aIndex] = 1;
             else if (collision1.find("f1"))
-             _tactileMsg->f1[aIndex] = true;
+             _tactileMsg->f1[aIndex] = 1;
             else if (collision1.find("f2"))
-             _tactileMsg->f2[aIndex] = true;
+             _tactileMsg->f2[aIndex] = 1;
             else if (collision1.find("f3"))
-             _tactileMsg->f3[aIndex] = true;
+             _tactileMsg->f3[aIndex] = 1;
 
             // gzerr << "finger " << aIndex +1 << std::endl;
           }
