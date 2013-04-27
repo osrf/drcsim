@@ -63,6 +63,25 @@
       <uri>model://cordless_drill</uri>
       <pose>0.51 0.2 1.013 0 0 3.1415</pose>
     </include>
+    <model name="test_box">
+      <pose>0.51 0.25 1.013 0 0 0</pose>
+      <link name="link">
+        <collision name="t_collision">
+           <geometry>
+            <box>
+              <size>0.01 0.01 0.01</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="t_visual">
+           <geometry>
+            <box>
+              <size>0.01 0.01 0.01</size>
+            </box>
+          </geometry>
+        </visual>
+      </link>
+    </model>
     <!--
     <model name="seat">
       <static>true</static>

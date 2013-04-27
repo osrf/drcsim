@@ -63,6 +63,12 @@ namespace gazebo
 
   class SandiaHandPlugin : public ModelPlugin
   {
+    public: enum HandEnum
+    {
+      LEFT_HAND,
+      RIGHT_HAND
+    };
+
     /// \brief Constructor
     public: SandiaHandPlugin();
 
@@ -90,6 +96,11 @@ namespace gazebo
 
     /// \brief Callback for contact messages from left hand
     private: void OnLContacts(ConstContactsPtr &_msg);
+
+    typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
+    private: void FillTactileData(HandEnum _side,
+        ContactMsgs_L _incomingContacts,
+        sandia_hand_msgs::RawTactile *_tactileMsg);
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
@@ -168,8 +179,6 @@ namespace gazebo
     /// \brief Subscription to contact messages
     private: transport::SubscriberPtr contactSub[2];
 
-    typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
-
     private: ContactMsgs_L incomingRContacts;
 
     private: ContactMsgs_L incomingLContacts;
@@ -194,9 +203,6 @@ namespace gazebo
 
     private: int fingerFVer[2];
 
-//    private: double fingerTactileArray[54];
-
-//    private: double palmTactileArray[96];
   };
 /** \} */
 /// @}

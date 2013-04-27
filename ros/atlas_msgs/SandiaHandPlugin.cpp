@@ -28,60 +28,6 @@ namespace gazebo
 {
 GZ_REGISTER_MODEL_PLUGIN(SandiaHandPlugin)
 
-
-
-const static double fingerTactileArray[] = {-6.1, 46.0, 1.8,
-                                            0.0, 46.0, 3.8,
-                                            6.1, 46.0, 1.8,
-                                            -6.3, 37.0, 2.1,
-                                            0.0, 37.0, 4.2,
-                                            6.3, 37.0, 2.1,
-                                            -6.5, 28.0, 2.4,
-                                            0.0, 28.0, 4.5,
-                                            6.5, 28.0, 2.4,
-                                            -6.7, 18.9, 2.7,
-                                            0.0, 18.9, 4.9,
-                                            6.7, 18.9, 2.7,
-                                            -7.6, 30.0, 4.0,
-                                            0.0, 30.0, 6.5,
-                                            7.6, 30.0, 4.0,
-                                            -7.9, 20.0, 4.3,
-                                            0.0, 20.0, 6.9,
-                                            7.9, 20.0, 4.3};
-
-const static double palmTactileArray[] = {-68, 86.9, 35.8,
-                                          -36.7, 111.8, 35.8,
-                                          -5.5, 136.9, 35.8,
-                                          -68.2, 75.2, 36.5,
-                                          -56.5, 84.5, 36.5,
-                                          -37, 100.2, 36.5,
-                                          -25.3, 109.5, 36.5,
-                                          -5.8, 125.2, 36.5,
-                                          5.9, 134.5, 36.5,
-                                          -50.4, 78.5, 37.2,
-                                          -39.5, 87.3, 37.2,
-                                          -19.2, 103.5, 37.2,
-                                          -8.3, 112.3, 37.2,
-                                          -44.8, 71.5, 38,
-                                          -33.9, 80.3, 38,
-                                          -13.6, 96.5, 38,
-                                          -2.7, 5.3, 38,
-                                          -51.7, 54.5, 38.7,
-                                          -36.1, 67, 38.7,
-                                          -20.4, 79.5, 38.7,
-                                          -4.8, 92,38.7,
-                                          10.8, 104.5, 38.7,
-                                          -33.5, 57.8, 42.7,
-                                          0.1, 84.7, 42.7,
-                                          -30.8, 54.5, 50.5,
-                                          2.7, 81.4, 50.5,
-                                          -26.2, 48.7, 55.2,
-                                          7.4, 75.6,55.2,
-                                          -20.4, 41.5, 54.9,
-                                          13.2, 68.4, 54.9,
-                                          -15.4, 35.2, 50.4,
-                                          18.2, 62.1, 50.4};
-
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
 SandiaHandPlugin::SandiaHandPlugin()
@@ -623,157 +569,20 @@ void SandiaHandPlugin::UpdateStates()
       this->rightTactile.palm[i] = false;
     }
 
+    // Generate data and publish
     {
       boost::mutex::scoped_lock lock(this->contactRMutex);
-
-      std::vector<std::string>::iterator collIter;
-      std::string collision1;
-
-      // Don't do anything if there is no new data to process.
-      if (!this->incomingRContacts.empty())
-      {
-        // Iterate over all the contact messages
-        for (ContactMsgs_L::iterator iter = this->incomingRContacts.begin();
-            iter != this->incomingRContacts.end(); ++iter)
-        {
-          bool isPalm = false;
-          // Iterate over all the contacts in the message
-          for (int i = 0; i < (*iter)->contact_size(); ++i)
-          {
-            // Get the collision pointer from name in contact msg
-            collision1 = (*iter)->contact(i).collision1();
-
-            if (collision1.find("right_f") ==  string::npos
-                && collision1.find("palm") ==  string::npos)
-              collision1 = (*iter)->contact(i).collision2();
-
-            physics::Collision *col = NULL;
-            if (!this->contactCollisions.count(collision1))
-            {
-              col = boost::dynamic_pointer_cast<physics::Collision>(
-                  this->world->GetEntity(collision1)).get();
-              this->contactCollisions[collision1] = col;
-            }
-            else
-            {
-              col = this->contactCollisions[collision1];
-            }
-
-            GZ_ASSERT(col, "Contact collision is Null!");
-
-            // check if it's a palm or a finger
-            if (collision1.find("palm") !=  string::npos)
-              isPalm = true;
-
-            // get finger index if not palm
-            int fIdx = -1;
-            if (!isPalm)
-            {
-              // low link of the finger
-              if (collision1.find("_1") !=  string::npos)
-                fIdx = 0;
-              // upper link of the finger
-              else if (collision1.find("_2") !=  string::npos)
-                fIdx = 1;
-            }
-
-            math::Vector3 pos;
-            math::Vector3 normal;
-            // Iterate all contact positions
-            for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
-            {
-              pos = msgs::Convert((*iter)->contact(i).position(j));
-              normal = msgs::Convert((*iter)->contact(i).normal(j));
-
-              // transform pose into link frame
-              pos = col->GetLink()->GetWorldPose().rot.GetInverse()
-                  * (pos - col->GetLink()->GetWorldPose().pos);
-
-              // if palm
-              if (isPalm)
-              {
-                // Collisions don't really match spec so the best we could do
-                // is approximate the locations of tactile sensors
-
-                // sensors on _5: 1; 4 5; 10
-                if (collision1.find("_5"))
-                {
-                }
-                // sensors on _4: 2; 6 7; 11 12
-                else if (collision1.find("_4"))
-                {
-                }
-                // sensors on _3: 3; 8 9; 13
-                else if (collision1.find("_3"))
-                {
-                }
-                // sensors on _1: 23 24; 25 26; 27 28; 29 30; 31 32
-                else if (collision1.find("_1"))
-                {
-                }
-                // sensors on (default): 14 15 16 17; 18 19 20 21 22
-                else
-                {
-                }
-//               gzerr << pos << std::endl;
-              }
-              // if finger: make sure finger index is valid and
-              // contact is on the inside of the hand (palm side)
-              else if (fIdx != -1 && pos.y > 0)
-              {
-
-                // find tactile array index
-                pos -= col->GetInitialRelativePose().pos*2;
-                double vPosInLink = math::clamp((pos.x + fingerFLength[fIdx]/2)
-                    /fingerFLength[fIdx], 0.0, 1.0);
-                double hPosInLink = math::clamp((pos.z + fingerFWidth[fIdx]/2)
-                    /fingerFWidth[fIdx], 0.0, 1.0);
-                int ai = this->fingerFVer[fIdx] -
-                    boost::math::round(vPosInLink * this->fingerFVer[fIdx]) - 1;
-                int aj =
-                    boost::math::round(hPosInLink * this->fingerFHor[fIdx]) - 1;
-
-                ai = std::max(ai, 0);
-                aj = std::max(aj, 0);
-
-                int aIndex = fIdx * fingerFHor[0] * fingerFVer[0] +
-                    ai * fingerFHor[fIdx] + aj;
-
-                // Set the corresponding tactile senor to true
-                if (collision1.find("f0"))
-                 this->rightTactile.f0[aIndex] = true;
-                else if (collision1.find("f1"))
-                 this->rightTactile.f1[aIndex] = true;
-                else if (collision1.find("f2"))
-                 this->rightTactile.f2[aIndex] = true;
-                else if (collision1.find("f3"))
-                 this->rightTactile.f3[aIndex] = true;
-
-  //              gzerr << "ai aj aIndex " << collision1 << " " <<  ai << " " << aj << " "
-    //                << aIndex << std::endl;
-  //              gzerr << "posInLink " << vPosInLink << " " <<
-  //                  hPosInLink << std::endl;
-  //              gzerr << "col " << col->GetInitialRelativePose() << std::endl;
-  //              gzerr << "link " << col->GetLink()->GetWorldPose() << std::endl;
-
-
-                // Use collision pose to transform contact msg position into
-                // local frame
-                //math::Vector3 pos2 = col->GetLink()->GetWorldPose().rot.RotateVectorReverse(pos);
-                // normal = col->GetWorldPose().rot.RotateVectorReverse(normal);
-
-  //               gzerr << pos << std::endl;
-                 // << " pos2 " << pos2 << std::endl;
-              }
-
-            }
-          }
-        }
-      }
-      // Clear the incoming contact list.
-      this->incomingRContacts.clear();
+      this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
+          &this->rightTactile);
       this->pubRightTactileQueue->push(this->rightTactile,
           this->pubRightTactile);
+    }
+    {
+      boost::mutex::scoped_lock lock(this->contactLMutex);
+      this->FillTactileData(LEFT_HAND, this->incomingLContacts,
+          &this->leftTactile);
+      this->pubLeftTactileQueue->push(this->leftTactile,
+          this->pubLeftTactile);
     }
 
 
@@ -822,6 +631,290 @@ void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
     // Prevent the incomingContacts list to grow indefinitely.
     if (this->incomingLContacts.size() > 100)
       this->incomingLContacts.pop_front();
+  }
+}
+
+//////////////////////////////////////////////////
+void SandiaHandPlugin::FillTactileData(HandEnum _side,
+    ContactMsgs_L _incomingContacts,
+    sandia_hand_msgs::RawTactile *_tactileMsg)
+{
+    std::vector<std::string>::iterator collIter;
+    std::string collision1;
+
+  // Don't do anything if there is no new data to process.
+  if (!_incomingContacts.empty())
+  {
+    std::string sideStr = (_side == LEFT_HAND) ? "left" : "right";
+    // Iterate over all the contact messages
+    for (ContactMsgs_L::iterator iter = _incomingContacts.begin();
+        iter != _incomingContacts.end(); ++iter)
+    {
+      // Iterate over all the contacts in the message
+      for (int i = 0; i < (*iter)->contact_size(); ++i)
+      {
+        bool isPalm = false;
+        // Get the collision pointer from name in contact msg
+        collision1 = (*iter)->contact(i).collision1();
+
+        if (collision1.find(sideStr + "_f") ==  string::npos
+            && collision1.find("palm") ==  string::npos)
+          collision1 = (*iter)->contact(i).collision2();
+
+        physics::Collision *col = NULL;
+        if (!this->contactCollisions.count(collision1))
+        {
+          col = boost::dynamic_pointer_cast<physics::Collision>(
+              this->world->GetEntity(collision1)).get();
+          this->contactCollisions[collision1] = col;
+        }
+        else
+        {
+          col = this->contactCollisions[collision1];
+        }
+
+        GZ_ASSERT(col, "Contact collision is Null!");
+
+        // check if it's a palm or a finger
+        if (collision1.find("palm") !=  string::npos)
+          isPalm = true;
+
+        // get finger index if not palm
+        int fIdx = -1;
+        if (!isPalm)
+        {
+          // low link of the finger
+          if (collision1.find("_1") !=  string::npos)
+            fIdx = 0;
+          // upper link of the finger
+          else if (collision1.find("_2") !=  string::npos)
+            fIdx = 1;
+        }
+
+        math::Vector3 pos;
+        math::Vector3 normal;
+        // Iterate all contact positions
+        for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
+        {
+          pos = msgs::Convert((*iter)->contact(i).position(j));
+          normal = msgs::Convert((*iter)->contact(i).normal(j));
+
+          // transform pose into link frame
+          pos = col->GetLink()->GetWorldPose().rot.GetInverse()
+              * (pos - col->GetLink()->GetWorldPose().pos);
+
+         // transform pose into collision frame
+         math::Pose colPose = col->GetInitialRelativePose();
+         pos = colPose.rot.GetInverse() * (pos - colPose.pos);
+
+          // if palm
+          if (isPalm)
+          {
+            // Collisions don't really match spec so the best we could do
+            // is approximate the locations of tactile sensors
+
+            // transform pose into collision frame
+//            math::Pose colPose = col->GetInitialRelativePose();
+//            pos = colPose.rot.GetInverse() * (pos - colPose.pos);
+
+            // Pinky palm sensors: 1; 4 5; 10
+            if (collision1.find("_5") != string::npos)
+            {
+              if (pos.z > 0)
+              {
+                // distance apart = w 14.95, h 11.70
+                double pWidth = 0.01495;
+                double pHeight = 0.02341;
+                double vPosInCol =
+                  math::clamp(pos.x / pHeight, 0.0, 1.0);
+                double hPosInCol =
+                  math::clamp((-pos.y + pWidth/2.0) / pWidth, 0.0, 1.0);
+
+                int vSize = 3;
+                int hSize = 2;
+                int ai = vSize - std::ceil(vPosInCol * vSize) - 1;
+                int aj = std::ceil(hPosInCol * hSize) - 1;
+                ai = std::max(ai, 0);
+                aj = std::max(aj, 0);
+                int aIndex = 0;
+                if (ai == 1)
+                {
+                  if (aj == 0)
+                    aIndex =3;
+                  else
+                    aIndex = 4;
+                }
+                else if (ai == 2)
+                  aIndex = 9;
+                //gzerr << aIndex + 1 <<  std::endl;
+                _tactileMsg->palm[aIndex] = true;
+              }
+            }
+            // Middle finger palm sensors: 2; 6 7; 11 12
+            else if (collision1.find("_4") != string::npos)
+            {
+              if (pos.z > 0)
+              {
+                // distance apart = w 14.95, h 11.70
+                double pWidth = 0.01495;
+                double pHeight = 0.02341;
+                double vPosInCol =
+                  math::clamp(pos.x / pHeight, 0.0, 1.0);
+                double hPosInCol =
+                  math::clamp((-pos.y + pWidth/2.0) / pWidth, 0.0, 1.0);
+                int vSize = 3;
+                int hSize = 2;
+                int ai = vSize - std::ceil(vPosInCol * vSize) - 1;
+                int aj = std::ceil(hPosInCol * hSize) - 1;
+                ai = std::max(ai, 0);
+                aj = std::max(aj, 0);
+                int aIndex = 1;
+                if (ai == 1)
+                {
+                  if (aj == 0)
+                    aIndex =5;
+                  else
+                    aIndex = 6;
+                }
+                else if (ai == 2)
+                {
+                  if (aj == 0)
+                    aIndex =10;
+                  else
+                    aIndex = 11;
+                }
+                //gzerr << aIndex + 1 <<  std::endl;
+                _tactileMsg->palm[aIndex] = true;
+              }
+            }
+            // Index finger palm sensors: 3; 8 9; 13
+            else if (collision1.find("_3") != string::npos)
+            {
+              if (pos.z > 0)
+              {
+                // distance apart = w 14.95, h 11.70
+                double pWidth = 0.01495;
+                double pHeight = 0.02341;
+                double vPosInCol =
+                  math::clamp(pos.x / pHeight, 0.0, 1.0);
+                double hPosInCol =
+                  math::clamp((-pos.y + pWidth/2.0) / pWidth, 0.0, 1.0);
+
+                int vSize = 3;
+                int hSize = 2;
+                int ai = vSize - std::ceil(vPosInCol * vSize) - 1;
+                int aj = std::ceil(hPosInCol * hSize) - 1;
+                ai = std::max(ai, 0);
+                aj = std::max(aj, 0);
+                int aIndex = 2;
+                if (ai == 1)
+                {
+                  if (aj == 0)
+                    aIndex =7;
+                  else
+                    aIndex = 8;
+                }
+                else if (ai == 2)
+                  aIndex = 12;
+                //gzerr << aIndex + 1 << std::endl;
+                _tactileMsg->palm[aIndex] = true;
+              }
+            }
+            // Sensors on bottom palm: 23 24; 25 26; 27 28; 29 30; 31 32
+            else if (collision1.find("_1") != string::npos)
+            {
+              int baseIndex = 22;
+              if (pos.z > 0)
+              {
+                // distance apart = w 43.04, h 52.71
+                double pWidth = 0.04304;
+                double pHeight = 0.05271;
+                double vPosInCol =
+                  math::clamp((pos.y + pHeight/2.0) / pHeight, 0.0, 1.0);
+                double hPosInCol =
+                  math::clamp((pos.x + pWidth/2.0) / pWidth, 0.0, 1.0);
+
+                int vArraySize = 5;
+                int hArraySize = 2;
+                int ai = vArraySize - std::ceil(vPosInCol * vArraySize) - 1;
+                int aj = std::ceil(hPosInCol * hArraySize) - 1;
+                ai = std::max(ai, 0);
+                aj = std::max(aj, 0);
+                int aIndex = baseIndex + ai * hArraySize + aj;
+                //gzerr << aIndex + 1 << std::endl;
+                _tactileMsg->palm[aIndex] = true;
+              }
+            }
+            // Sensors on mid palm (default): 14 15 16 17; 18 19 20 21 22
+            else
+            {
+              // distance apart: w 0.08004, h 0.01170
+              double pWidth = 0.08004;
+              double pHeight = 0.01170;
+              double vPosInCol =
+                math::clamp(pos.y / pHeight, 0.0, 1.0);
+              double hPosInCol =
+                math::clamp((pos.z + pWidth/2.0) / pWidth, 0.0, 1.0);
+
+              int vSize = 2;
+              int hSize = 5;
+              int ai = vSize - std::ceil(vPosInCol * vSize) - 1;
+              int aj = std::ceil(hPosInCol * hSize) - 1;
+              ai = std::max(ai, 0);
+              aj = std::max(aj, 0);
+              int aIndex = 20;
+              int baseIndex = 13;
+              if (ai == 0)
+              {
+                aj = (aj > 2) ? aj - 1 : aj;
+                aIndex = baseIndex + aj;
+              }
+              else
+                aIndex = baseIndex + ai * (hSize-1) + aj;
+
+              //gzerr << aIndex + 1 << std::endl;
+              _tactileMsg->palm[aIndex] = true;
+            }
+          }
+          // if finger: make sure finger index is valid and
+          // contact is on the inside of the hand (palm side)
+          else if (fIdx != -1 && pos.y > 0)
+          {
+            // find tactile array index
+//                pos -= col->GetInitialRelativePose().pos*2;
+            double vPosInLink = math::clamp((pos.z + fingerFLength[fIdx]/2)
+                /fingerFLength[fIdx], 0.0, 1.0);
+            double hPosInLink = math::clamp((-pos.x + fingerFWidth[fIdx]/2)
+                /fingerFWidth[fIdx], 0.0, 1.0);
+
+            int ai = this->fingerFVer[fIdx] -
+                std::ceil(vPosInLink * this->fingerFVer[fIdx]) - 1;
+            int aj =
+                std::ceil(hPosInLink * this->fingerFHor[fIdx]) - 1;
+
+            ai = std::max(ai, 0);
+            aj = std::max(aj, 0);
+
+            int aIndex = fIdx * fingerFHor[0] * fingerFVer[0] +
+                ai * fingerFHor[fIdx] + aj;
+
+            // Set the corresponding tactile senor to true
+            if (collision1.find("f0"))
+             _tactileMsg->f0[aIndex] = true;
+            else if (collision1.find("f1"))
+             _tactileMsg->f1[aIndex] = true;
+            else if (collision1.find("f2"))
+             _tactileMsg->f2[aIndex] = true;
+            else if (collision1.find("f3"))
+             _tactileMsg->f3[aIndex] = true;
+
+            //gzerr << "finger " << aIndex +1 << std::endl;
+          }
+        }
+      }
+    }
+    // Clear the incoming contact list.
+    _incomingContacts.clear();
   }
 }
 
