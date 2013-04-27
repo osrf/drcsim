@@ -806,12 +806,12 @@ void AtlasPlugin::DeferredLoad()
     rate))
   {
     rate = math::clamp(rate, 1.0, 10000.0);
-    ROS_INFO("AtlasPlugin controller statistics %f kHz", rate);
+    ROS_DEBUG("AtlasPlugin controller statistics %f kHz", rate);
     this->statsUpdateRate = rate;
   }
   else
   {
-    ROS_INFO("AtlasPlugin default controller statistics 1kHz");
+    ROS_DEBUG("AtlasPlugin default controller statistics 1kHz");
     this->statsUpdateRate = 1000.0;
   }
 
@@ -1124,6 +1124,9 @@ void AtlasPlugin::UpdateStates()
               this->jointStates.velocity.begin());
 
     // AtlasSimInterface:
+    // skip the first step, or else, BDI controller might init with bad
+    // states and fail:
+    if (curTime.Double() > this->world->GetPhysicsEngine()->GetMaxStepSize())
     {
       boost::mutex::scoped_lock lock(this->asiMutex);
 
