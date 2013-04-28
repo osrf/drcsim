@@ -205,6 +205,21 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   // Tactile data
   if (!hasStumps)
   {
+/*    this->palmCollisionNames.push_back("palm");
+    this->palmCollisionNames.push_back("palm_1");
+    this->palmCollisionNames.push_back("palm_3");
+    this->palmCollisionNames.push_back("palm_4");
+    this->palmCollisionNames.push_back("palm_5");
+
+    this->fingerCollisionNames.push_back("f0_1_collision");
+    this->fingerCollisionNames.push_back("f0_2_collision");
+    this->fingerCollisionNames.push_back("f1_1_collision");
+    this->fingerCollisionNames.push_back("f1_2_collision");
+    this->fingerCollisionNames.push_back("f2_1_collision");
+    this->fingerCollisionNames.push_back("f2_2_collision");
+    this->fingerCollisionNames.push_back("f3_1_collision");
+    this->fingerCollisionNames.push_back("f3_2_collision");*/
+
     // Sandia hand tactile dimensions taken from spec and adapted to fit on our
     // sandia hand model
     this->palmColWidth[0] = 0.01495;
@@ -719,15 +734,44 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           isPalm = true;
 
         // get finger index if not palm
-        int fIdx = -1;
-        if (!isPalm)
+        int fingerIdx = -1;
+        int fingerColIdx = -1;
+        int palmIdx = -1;
+
+        if (isPalm)
         {
-          // low link of the finger
+          if (collision1.find("_3") !=  std::string::npos)
+            palmIdx = 0;
+          else if (collision1.find("_4") !=  std::string::npos)
+            palmIdx = 1;
+          else if (collision1.find("_5") !=  std::string::npos)
+            palmIdx = 2;
+          else if (collision1.find("_1") !=  std::string::npos)
+            palmIdx = 3;
+          else
+            palmIdx = 4;
+        }
+        else
+        {
+          // index finder
+          if (collision1.find("f0") !=  std::string::npos)
+            fingerIdx = 0;
+          // middle finder
+          else if (collision1.find("f1") !=  std::string::npos)
+            fingerIdx = 1;
+          // pinky
+          else if (collision1.find("f2") !=  std::string::npos)
+            fingerIdx = 2;
+          // thumb
+          else if (collision1.find("f3") !=  std::string::npos)
+            fingerIdx = 3;
+
+          // lower collision of the finger
           if (collision1.find("_1") !=  std::string::npos)
-            fIdx = 0;
-          // upper link of the finger
+            fingerColIdx = 0;
+          // upper collision of the finger
           else if (collision1.find("_2") !=  std::string::npos)
-            fIdx = 1;
+            fingerColIdx = 1;
         }
 
         math::Vector3 pos;
@@ -748,192 +792,226 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
 
           double vPosInCol = 0;
           double hPosInCol = 0;
+          // column
           int ai = 0;
+          // row
           int aj = 0;
+          // tactile sensor index
           int aIndex = -1;
 
           // if palm
           if (isPalm)
           {
-            // Collisions don't really match spec so the best we could do
-            // is approximate the locations of tactile sensors
-
-            // Index finger palm sensors: 3; 8 9; 13
-            if (collision1.find("_3") != std::string::npos)
+            // Collisions don't really match sandia hand spec so the best
+            // we could do is approximate the locations of tactile sensors
+            // on these collision. Idea as follows:
+            // Divide collision into smaller regions,
+            // Identify the region which the contact point lies,
+            // Set the corresponding tactile sensor output to 1
+            switch (palmIdx)
             {
-              if (pos.z > 0)
+              case 0:
               {
-                vPosInCol =
-                    math::clamp(pos.x / this->palmColLength[0], 0.0, 1.0);
-                hPosInCol =
-                    math::clamp((-pos.y + this->palmColWidth[0]/2.0)
-                    / this->palmColWidth[0], 0.0, 1.0);
+                // Index finger palm sensors: 3; 8 9; 13
+                // (numbers correspond to taxel sensor number in spec)
+                if (pos.z > 0)
+                {
+                  vPosInCol =
+                      math::clamp(pos.x / this->palmColLength[palmIdx],
+                      0.0, 1.0);
+                  hPosInCol =
+                      math::clamp((-pos.y + this->palmColWidth[palmIdx]/2.0)
+                      / this->palmColWidth[0], 0.0, 1.0);
 
-                ai = this->palmVerSize[0] -
-                    std::ceil(vPosInCol * this->palmVerSize[0]) - 1;
-                aj = std::ceil(hPosInCol * this->palmHorSize[0]) - 1;
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = 2;
+                  if (ai == 1)
+                  {
+                    if (aj == 0)
+                      aIndex =7;
+                    else
+                      aIndex = 8;
+                  }
+                  else if (ai == 2)
+                    aIndex = 12;
+                  _tactileMsg->palm[aIndex] = 1;
+                }
+                break;
+              }
+              case 1:
+              {
+                // Middle finger palm sensors: 2; 6 7; 11 12
+                // (numbers correspond to taxel sensor number in spec)
+                if (pos.z > 0)
+                {
+                  // distance apart = w 14.95, h 11.70
+                  vPosInCol =
+                      math::clamp(pos.x / this->palmColLength[palmIdx],
+                      0.0, 1.0);
+                  hPosInCol =
+                    math::clamp((-pos.y + this->palmColWidth[palmIdx]/2.0)
+                    / this->palmColWidth[palmIdx], 0.0, 1.0);
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = 1;
+                  if (ai == 1)
+                  {
+                    if (aj == 0)
+                      aIndex =5;
+                    else
+                      aIndex = 6;
+                  }
+                  else if (ai == 2)
+                  {
+                    if (aj == 0)
+                      aIndex =10;
+                    else
+                      aIndex = 11;
+                  }
+                  //gzerr << aIndex + 1 <<  std::endl;
+                  _tactileMsg->palm[aIndex] = 1;
+                }
+                break;
+              }
+              case 2:
+              {
+                // Pinky palm sensors: 1; 4 5; 10
+                // (numbers correspond to taxel sensor number in spec)
+                if (pos.z > 0)
+                {
+                  vPosInCol =
+                      math::clamp(pos.x / this->palmColLength[palmIdx],
+                      0.0, 1.0);
+                  hPosInCol =
+                    math::clamp((-pos.y + this->palmColWidth[palmIdx]/2.0) /
+                    this->palmColWidth[palmIdx], 0.0, 1.0);
+
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = 0;
+                  if (ai == 1)
+                  {
+                    if (aj == 0)
+                      aIndex =3;
+                    else
+                      aIndex = 4;
+                  }
+                  else if (ai == 2)
+                    aIndex = 9;
+                  //gzerr << aIndex + 1 <<  std::endl;
+                  _tactileMsg->palm[aIndex] = 1;
+                }
+                break;
+              }
+              case 3:
+              {
+                // Sensors on bottom palm: 23 24; 25 26; 27 28; 29 30; 31 32
+                // (numbers correspond to taxel sensor number in spec)
+                int baseIndex = 22;
+                if (pos.z > 0)
+                {
+                  // distance apart = w 0.04304, h 0.05271
+                  vPosInCol =
+                      math::clamp((pos.y + this->palmColLength[palmIdx]/2.0) /
+                      this->palmColLength[palmIdx], 0.0, 1.0);
+                  hPosInCol =
+                      math::clamp((pos.x + this->palmColWidth[palmIdx]/2.0) /
+                      this->palmColWidth[palmIdx], 0.0, 1.0);
+
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = baseIndex + ai * this->palmHorSize[palmIdx] + aj;
+                  //gzerr << aIndex + 1 << std::endl;
+                  _tactileMsg->palm[aIndex] = 1;
+                }
+                break;
+              }
+              default:
+              {
+                // Sensors on mid palm (default): 14 15 16 17; 18 19 20 21 22
+                // (numbers correspond to taxel sensor number in spec)
+
+                // distance apart: w 0.08004, h 0.01170
+                vPosInCol =
+                    math::clamp(pos.y / this->palmColLength[palmIdx], 0.0, 1.0);
+                hPosInCol =
+                    math::clamp((pos.z + this->palmColWidth[palmIdx]/2.0) /
+                    this->palmColWidth[palmIdx], 0.0, 1.0);
+
+                ai = this->palmVerSize[palmIdx] -
+                    std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
                 ai = std::max(ai, 0);
                 aj = std::max(aj, 0);
-                aIndex = 2;
-                if (ai == 1)
+                aIndex = 20;
+                int baseIndex = 13;
+                if (ai == 0)
                 {
-                  if (aj == 0)
-                    aIndex =7;
-                  else
-                    aIndex = 8;
+                  // four sensors on first row, and five on the second
+                  // so adjust aj for sensors 16 and 17
+                  aj = (aj > 2) ? aj - 1 : aj;
+                  aIndex = baseIndex + aj;
                 }
-                else if (ai == 2)
-                  aIndex = 12;
-                _tactileMsg->palm[aIndex] = 1;
-              }
-            }
-            // Middle finger palm sensors: 2; 6 7; 11 12
-            else if (collision1.find("_4") != std::string::npos)
-            {
-              if (pos.z > 0)
-              {
-                // distance apart = w 14.95, h 11.70
-                vPosInCol =
-                    math::clamp(pos.x / this->palmColLength[1], 0.0, 1.0);
-                hPosInCol =
-                  math::clamp((-pos.y + this->palmColWidth[1]/2.0)
-                  / this->palmColWidth[1], 0.0, 1.0);
-                ai = this->palmVerSize[1] -
-                    std::ceil(vPosInCol * this->palmVerSize[1]) - 1;
-                aj = std::ceil(hPosInCol * this->palmHorSize[1]) - 1;
-                ai = std::max(ai, 0);
-                aj = std::max(aj, 0);
-                aIndex = 1;
-                if (ai == 1)
-                {
-                  if (aj == 0)
-                    aIndex =5;
-                  else
-                    aIndex = 6;
-                }
-                else if (ai == 2)
-                {
-                  if (aj == 0)
-                    aIndex =10;
-                  else
-                    aIndex = 11;
-                }
-                //gzerr << aIndex + 1 <<  std::endl;
-                _tactileMsg->palm[aIndex] = 1;
-              }
-            }
-            // Pinky palm sensors: 1; 4 5; 10
-            else if (collision1.find("_5") != std::string::npos)
-            {
-              if (pos.z > 0)
-              {
-                vPosInCol =
-                    math::clamp(pos.x / this->palmColLength[2], 0.0, 1.0);
-                hPosInCol =
-                  math::clamp((-pos.y + this->palmColWidth[2]/2.0) /
-                  this->palmColWidth[2], 0.0, 1.0);
+                else
+                  aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
 
-                ai = this->palmVerSize[2] -
-                    std::ceil(vPosInCol * this->palmVerSize[2]) - 1;
-                aj = std::ceil(hPosInCol * this->palmHorSize[2]) - 1;
-                ai = std::max(ai, 0);
-                aj = std::max(aj, 0);
-                if (ai == 1)
-                {
-                  if (aj == 0)
-                    aIndex =3;
-                  else
-                    aIndex = 4;
-                }
-                else if (ai == 2)
-                  aIndex = 9;
-                //gzerr << aIndex + 1 <<  std::endl;
+                // gzerr << collision1 << std::endl;
                 _tactileMsg->palm[aIndex] = 1;
+                break;
               }
-            }
-            // Sensors on bottom palm: 23 24; 25 26; 27 28; 29 30; 31 32
-            else if (collision1.find("_1") != std::string::npos)
-            {
-              int baseIndex = 22;
-              if (pos.z > 0)
-              {
-                // distance apart = w 0.04304, h 0.05271
-                vPosInCol =
-                    math::clamp((pos.y + this->palmColLength[3]/2.0) /
-                    this->palmColLength[3], 0.0, 1.0);
-                hPosInCol =
-                    math::clamp((pos.x + this->palmColWidth[3]/2.0) /
-                    this->palmColWidth[3], 0.0, 1.0);
-
-                ai = this->palmVerSize[3] -
-                    std::ceil(vPosInCol * this->palmVerSize[3]) - 1;
-                aj = std::ceil(hPosInCol * this->palmHorSize[3]) - 1;
-                ai = std::max(ai, 0);
-                aj = std::max(aj, 0);
-                aIndex = baseIndex + ai * this->palmHorSize[3] + aj;
-                //gzerr << aIndex + 1 << std::endl;
-                _tactileMsg->palm[aIndex] = 1;
-              }
-            }
-            // Sensors on mid palm (default): 14 15 16 17; 18 19 20 21 22
-            else
-            {
-              // distance apart: w 0.08004, h 0.01170
-              vPosInCol =
-                  math::clamp(pos.y / this->palmColLength[4], 0.0, 1.0);
-              hPosInCol =
-                  math::clamp((pos.z + this->palmColWidth[4]/2.0) /
-                  this->palmColWidth[4], 0.0, 1.0);
-
-              ai = this->palmVerSize[4] -
-                  std::ceil(vPosInCol * this->palmVerSize[4]) - 1;
-              aj = std::ceil(hPosInCol * this->palmHorSize[4]) - 1;
-              ai = std::max(ai, 0);
-              aj = std::max(aj, 0);
-              aIndex = 20;
-              int baseIndex = 13;
-              if (ai == 0)
-              {
-                aj = (aj > 2) ? aj - 1 : aj;
-                aIndex = baseIndex + aj;
-              }
-              else
-                aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
-
-              // gzerr << collision1 << std::endl;
-              _tactileMsg->palm[aIndex] = 1;
             }
           }
           // if finger: make sure finger index is valid and
           // contact is on the inside of the hand (palm side)
-          else if (fIdx != -1 && pos.y > 0)
+          else if (fingerIdx != -1 && pos.y > 0)
           {
             // compute finger tactile array index
-            vPosInCol = math::clamp((pos.z + this->fingerColLength[fIdx]/2)
-                /fingerColLength[fIdx], 0.0, 1.0);
-            hPosInCol = math::clamp((-pos.x + this->fingerColWidth[fIdx]/2)
-                /fingerColWidth[fIdx], 0.0, 1.0);
+            vPosInCol = math::clamp((pos.z +
+                this->fingerColLength[fingerColIdx]/2)
+                / fingerColLength[fingerColIdx], 0.0, 1.0);
+            hPosInCol = math::clamp((-pos.x +
+                this->fingerColWidth[fingerColIdx]/2)
+                / fingerColWidth[fingerColIdx], 0.0, 1.0);
 
-            ai = this->fingerVerSize[fIdx] -
-                std::ceil(vPosInCol * this->fingerVerSize[fIdx]) - 1;
-            aj =
-                std::ceil(hPosInCol * this->fingerHorSize[fIdx]) - 1;
+            ai = this->fingerVerSize[fingerColIdx] -
+                std::ceil(vPosInCol * this->fingerVerSize[fingerColIdx]) - 1;
+            aj = std::ceil(hPosInCol * this->fingerHorSize[fingerColIdx]) - 1;
             ai = std::max(ai, 0);
             aj = std::max(aj, 0);
 
-            aIndex = fIdx * this->fingerHorSize[0] * this->fingerVerSize[0] +
-                ai * this->fingerHorSize[fIdx] + aj;
+            aIndex = fingerColIdx * this->fingerHorSize[0]
+                * this->fingerVerSize[0] +
+                ai * this->fingerHorSize[fingerColIdx] + aj;
 
-            // Set the corresponding tactile senor to 1
-            if (collision1.find("f0") != std::string::npos)
-             _tactileMsg->f0[aIndex] = 1;
-            else if (collision1.find("f1") != std::string::npos)
-             _tactileMsg->f1[aIndex] = 1;
-            else if (collision1.find("f2") != std::string::npos)
-             _tactileMsg->f2[aIndex] = 1;
-            else if (collision1.find("f3") != std::string::npos)
-             _tactileMsg->f3[aIndex] = 1;
-
+            // Set the corresponding index in tactile senor array to 1
+            switch (fingerIdx)
+            {
+              case 0:
+                 _tactileMsg->f0[aIndex] = 1;
+                break;
+              case 1:
+                 _tactileMsg->f1[aIndex] = 1;
+                break;
+              case 2:
+                 _tactileMsg->f2[aIndex] = 1;
+                break;
+              case 3:
+                 _tactileMsg->f3[aIndex] = 1;
+                break;
+            }
             // gzerr << "finger " << aIndex +1 << std::endl;
           }
 //          if (aIndex != -1)
