@@ -205,21 +205,6 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   // Tactile data
   if (!hasStumps)
   {
-/*    this->palmCollisionNames.push_back("palm");
-    this->palmCollisionNames.push_back("palm_1");
-    this->palmCollisionNames.push_back("palm_3");
-    this->palmCollisionNames.push_back("palm_4");
-    this->palmCollisionNames.push_back("palm_5");
-
-    this->fingerCollisionNames.push_back("f0_1_collision");
-    this->fingerCollisionNames.push_back("f0_2_collision");
-    this->fingerCollisionNames.push_back("f1_1_collision");
-    this->fingerCollisionNames.push_back("f1_2_collision");
-    this->fingerCollisionNames.push_back("f2_1_collision");
-    this->fingerCollisionNames.push_back("f2_2_collision");
-    this->fingerCollisionNames.push_back("f3_1_collision");
-    this->fingerCollisionNames.push_back("f3_2_collision");*/
-
     // Sandia hand tactile dimensions taken from spec and adapted to fit on our
     // sandia hand model
     this->palmColWidth[0] = 0.01495;
@@ -675,16 +660,12 @@ void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->contactLMutex);
 
-  // Only store information if the model is active
-  // if (this->IsActive())
-  {
-    // Store the contacts message for processing in UpdateImpl
-    this->incomingLContacts.push_back(_msg);
+  // Store the contacts message for processing in UpdateImpl
+  this->incomingLContacts.push_back(_msg);
 
-    // Prevent the incomingContacts list to grow indefinitely.
-    if (this->incomingLContacts.size() > 100)
-      this->incomingLContacts.pop_front();
-  }
+  // Prevent the incomingContacts list to grow indefinitely.
+  if (this->incomingLContacts.size() > 100)
+    this->incomingLContacts.pop_front();
 }
 
 //////////////////////////////////////////////////
@@ -720,7 +701,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           col = boost::dynamic_pointer_cast<physics::Collision>(
               this->world->GetEntity(collision1)).get();
           this->contactCollisions[collision1] = col;
-          // gzerr << " contactCollisions " << this->contactCollisions.size() << std::endl;
         }
         else
         {
@@ -782,12 +762,9 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           pos = msgs::Convert((*iter)->contact(i).position(j));
           normal = msgs::Convert((*iter)->contact(i).normal(j));
 
-          // transform pose into link frame
-          pos = col->GetLink()->GetWorldPose().rot.GetInverse()
-              * (pos - col->GetLink()->GetWorldPose().pos);
-
-          // transform pose into collision frame
-          math::Pose colPose = col->GetInitialRelativePose();
+          // transfrom into collision frame
+          math::Pose colPose = col->GetInitialRelativePose() +
+              col->GetLink()->GetWorldPose();
           pos = colPose.rot.GetInverse() * (pos - colPose.pos);
 
           double vPosInCol = 0;
@@ -875,7 +852,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                     else
                       aIndex = 11;
                   }
-                  //gzerr << aIndex + 1 <<  std::endl;
                   _tactileMsg->palm[aIndex] = 1;
                 }
                 break;
@@ -908,7 +884,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                   }
                   else if (ai == 2)
                     aIndex = 9;
-                  //gzerr << aIndex + 1 <<  std::endl;
                   _tactileMsg->palm[aIndex] = 1;
                 }
                 break;
@@ -934,7 +909,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                   ai = std::max(ai, 0);
                   aj = std::max(aj, 0);
                   aIndex = baseIndex + ai * this->palmHorSize[palmIdx] + aj;
-                  //gzerr << aIndex + 1 << std::endl;
                   _tactileMsg->palm[aIndex] = 1;
                 }
                 break;
@@ -968,7 +942,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 else
                   aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
 
-                // gzerr << collision1 << std::endl;
                 _tactileMsg->palm[aIndex] = 1;
                 break;
               }
@@ -1012,7 +985,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                  _tactileMsg->f3[aIndex] = 1;
                 break;
             }
-            // gzerr << "finger " << aIndex +1 << std::endl;
           }
 //          if (aIndex != -1)
 //            gzerr << aIndex + 1 << std::endl;
