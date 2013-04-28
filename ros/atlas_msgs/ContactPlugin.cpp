@@ -53,7 +53,7 @@ void ContactPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   {
     // get collision name
     collisionName = collisionElem->GetValueString();
-    this->collisions.push_back(_model->GetName() + "::" + collisionName);
+    this->collisions.insert(_model->GetName() + "::" + collisionName);
     collisionElem = collisionElem->GetNextElement("collision");
   }
 }
@@ -110,7 +110,7 @@ void ContactPlugin::OnUpdate()
   }
 
   boost::mutex::scoped_lock lock(this->mutex);
-  std::vector<std::string>::iterator collIter;
+  boost::unordered_set<std::string>::iterator collIter;
   std::string collision1;
 
   // Don't do anything if there is no new data to process.
@@ -130,15 +130,13 @@ void ContactPlugin::OnUpdate()
       collision1 = (*iter)->contact(i).collision1();
 
       // Try to find the first collision's name
-      collIter = std::find(this->collisions.begin(),
-          this->collisions.end(), collision1);
+      collIter = this->collisions.find(collision1);
 
       // If unable to find the first collision's name, try the second
       if (collIter == this->collisions.end())
       {
         collision1 = (*iter)->contact(i).collision2();
-        collIter = std::find(this->collisions.begin(),
-            this->collisions.end(), collision1);
+        collIter = this->collisions.find(collision1);
       }
 
       // If this model is monitoring one of the collision's in the
@@ -168,7 +166,6 @@ void ContactPlugin::OnUpdate()
   // Generate a outgoing message only if someone is listening.
   if (this->contactsPub && this->contactsPub->HasConnections())
   {
-//    msgs::Set(this->contactsMsg.mutable_time(), this->lastMeasurementTime);
     msgs::Set(this->contactsMsg.mutable_time(), this->world->GetSimTime());
     this->contactsPub->Publish(this->contactsMsg);
   }

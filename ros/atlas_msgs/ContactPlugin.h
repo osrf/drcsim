@@ -21,6 +21,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/unordered/unordered_set.hpp>
 
 #include "gazebo/physics/physics.hh"
 #include "gazebo/physics/Contact.hh"
@@ -74,7 +75,7 @@ namespace gazebo
     private: ContactMsgs_L incomingContacts;
 
     /// \brief Collisions this plugin monitors for contacts
-    private: std::vector<std::string> collisions;
+    private: boost::unordered_set<std::string> collisions;
 
     /// \brief Pointer to world.
     private: physics::WorldPtr world;
