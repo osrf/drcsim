@@ -454,7 +454,7 @@ void SandiaHandPlugin::UpdateStates()
 
         sensor_msgs::Imu leftImuMsg;
         leftImuMsg.header.frame_id = this->leftImuLinkName;
-        leftImuMsg.header.stamp = ros::Time(curTime.Double());
+        leftImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
 
         leftImuMsg.angular_velocity.x = angularVel.x;
         leftImuMsg.angular_velocity.y = angularVel.y;
@@ -480,7 +480,7 @@ void SandiaHandPlugin::UpdateStates()
 
         sensor_msgs::Imu rightImuMsg;
         rightImuMsg.header.frame_id = this->rightImuLinkName;
-        rightImuMsg.header.stamp = ros::Time(curTime.Double());
+        rightImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
 
         rightImuMsg.angular_velocity.x = angularVel.x;
         rightImuMsg.angular_velocity.y = angularVel.y;
@@ -606,21 +606,23 @@ void SandiaHandPlugin::UpdateStates()
       // Generate data and publish
       {
         boost::mutex::scoped_lock lock(this->contactRMutex);
+        this->rightTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
         this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
             &this->rightTactile);
 
       }
       {
         boost::mutex::scoped_lock lock(this->contactLMutex);
+        this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
         this->FillTactileData(LEFT_HAND, this->incomingLContacts,
             &this->leftTactile);
       }
     }
+
     this->pubRightTactileQueue->push(this->rightTactile,
         this->pubRightTactile);
     this->pubLeftTactileQueue->push(this->leftTactile,
         this->pubLeftTactile);
-
 
     this->lastControllerUpdateTime = curTime;
   }
@@ -672,7 +674,7 @@ void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
 
 //////////////////////////////////////////////////
 void SandiaHandPlugin::FillTactileData(HandEnum _side,
-    ContactMsgs_L _incomingContacts,
+    ContactMsgs_L &_incomingContacts,
     sandia_hand_msgs::RawTactile *_tactileMsg)
 {
     std::vector<std::string>::iterator collIter;
@@ -703,7 +705,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           col = boost::dynamic_pointer_cast<physics::Collision>(
               this->world->GetEntity(collision1)).get();
           this->contactCollisions[collision1] = col;
-          gzerr << " contactCollisions " << this->contactCollisions.size() << std::endl;
+          // gzerr << " contactCollisions " << this->contactCollisions.size() << std::endl;
         }
         else
         {
@@ -748,7 +750,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           double hPosInCol = 0;
           int ai = 0;
           int aj = 0;
-          int aIndex = 0;
+          int aIndex = -1;
 
           // if palm
           if (isPalm)
@@ -821,7 +823,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
               }
             }
             // Pinky palm sensors: 1; 4 5; 10
-            if (collision1.find("_5") != std::string::npos)
+            else if (collision1.find("_5") != std::string::npos)
             {
               if (pos.z > 0)
               {
@@ -898,7 +900,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
               else
                 aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
 
-              //gzerr << aIndex + 1 << std::endl;
+              // gzerr << collision1 << std::endl;
               _tactileMsg->palm[aIndex] = 1;
             }
           }
@@ -934,7 +936,8 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
 
             // gzerr << "finger " << aIndex +1 << std::endl;
           }
-          // gzerr << aIndex + 1 << std::endl;
+//          if (aIndex != -1)
+//            gzerr << aIndex + 1 << std::endl;
         }
       }
     }

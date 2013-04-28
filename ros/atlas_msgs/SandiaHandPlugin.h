@@ -100,7 +100,7 @@ namespace gazebo
 
     typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
     private: void FillTactileData(HandEnum _side,
-        ContactMsgs_L _incomingContacts,
+        ContactMsgs_L &_incomingContacts,
         sandia_hand_msgs::RawTactile *_tactileMsg);
 
     private: physics::WorldPtr world;
