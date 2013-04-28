@@ -180,24 +180,27 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->leftImuLink = this->model->GetLink(this->leftImuLinkName);
   if (!this->leftImuLink)
     gzerr << this->leftImuLinkName << " not found\n";
-  else
-  {
-    // initialize imu reference pose
-    this->leftImuReferencePose = this->leftImuLink->GetWorldPose();
-    this->leftImuLastLinearVel = leftImuReferencePose.rot.RotateVector(
-      this->leftImuLink->GetWorldLinearVel());
-  }
 
   this->rightImuLink = this->model->GetLink(this->rightImuLinkName);
   if (!this->rightImuLink)
     gzerr << this->rightImuLinkName << " not found\n";
-  else
-  {
-    // initialize imu reference pose
-    this->rightImuReferencePose = this->rightImuLink->GetWorldPose();
-    this->rightImuLastLinearVel = rightImuReferencePose.rot.RotateVector(
-      this->rightImuLink->GetWorldLinearVel());
-  }
+
+  // Get imu sensors
+  this->leftImuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->leftImuLink->GetScopedName()
+        + "::imu_sensor"));
+  if (!this->leftImuSensor)
+    gzerr << "left imu_sensor not found\n" << "\n";
+
+  this->rightImuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->rightImuLink->GetScopedName()
+        + "::imu_sensor"));
+  if (!this->rightImuSensor)
+    gzerr << "right imu_sensor not found\n" << "\n";
 
   // Tactile data
   if (!hasStumps)
@@ -443,102 +446,54 @@ void SandiaHandPlugin::UpdateStates()
     // get imu data from imu link
     if (curTime > this->lastImuTime)
     {
-      if (this->leftImuLink)
+      if (this->leftImuSensor)
       {
-        // Get imuLnk Pose/Orientation
-        math::Pose leftImuPose = this->leftImuLink->GetWorldPose();
-        math::Vector3 leftImuLinearVel = leftImuPose.rot.RotateVector(
-          this->leftImuLink->GetWorldLinearVel());
+        math::Vector3 angularVel = this->leftImuSensor->GetAngularVelocity();
+        math::Vector3 linearAcc = this->leftImuSensor->GetLinearAcceleration();
+        math::Quaternion orientation = this->leftImuSensor->GetOrientation();
 
         sensor_msgs::Imu leftImuMsg;
         leftImuMsg.header.frame_id = this->leftImuLinkName;
         leftImuMsg.header.stamp = ros::Time(curTime.Double());
 
-        // compute angular rates
-        {
-          // get world twist and convert to local frame
-          math::Vector3 wLocal = leftImuPose.rot.RotateVector(
-            this->leftImuLink->GetWorldAngularVel());
-          leftImuMsg.angular_velocity.x = wLocal.x;
-          leftImuMsg.angular_velocity.y = wLocal.y;
-          leftImuMsg.angular_velocity.z = wLocal.z;
-        }
+        leftImuMsg.angular_velocity.x = angularVel.x;
+        leftImuMsg.angular_velocity.y = angularVel.y;
+        leftImuMsg.angular_velocity.z = angularVel.z;
 
-        // compute acceleration
-        {
-          math::Vector3 accel = leftImuLinearVel - this->leftImuLastLinearVel;
-          double leftImuDdx = accel.x;
-          double leftImuDdy = accel.y;
-          double leftImuDdz = accel.z;
+        leftImuMsg.linear_acceleration.x = linearAcc.x;
+        leftImuMsg.linear_acceleration.y = linearAcc.y;
+        leftImuMsg.linear_acceleration.z = linearAcc.z;
 
-          leftImuMsg.linear_acceleration.x = leftImuDdx;
-          leftImuMsg.linear_acceleration.y = leftImuDdy;
-          leftImuMsg.linear_acceleration.z = leftImuDdz;
-
-          this->leftImuLastLinearVel = leftImuLinearVel;
-        }
-
-        // compute orientation
-        {
-          // Get IMU rotation relative to Initial IMU Reference Pose
-          math::Quaternion leftImuRot =
-            leftImuPose.rot * this->leftImuReferencePose.rot.GetInverse();
-
-          leftImuMsg.orientation.x = leftImuRot.x;
-          leftImuMsg.orientation.y = leftImuRot.y;
-          leftImuMsg.orientation.z = leftImuRot.z;
-          leftImuMsg.orientation.w = leftImuRot.w;
-        }
+        leftImuMsg.orientation.x = orientation.x;
+        leftImuMsg.orientation.y = orientation.y;
+        leftImuMsg.orientation.z = orientation.z;
+        leftImuMsg.orientation.w = orientation.w;
 
         this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
       }
 
-      if (this->rightImuLink)
+      if (this->rightImuSensor)
       {
-        // Get imuLnk Pose/Orientation
-        math::Pose rightImuPose = this->rightImuLink->GetWorldPose();
-        math::Vector3 rightImuLinearVel = rightImuPose.rot.RotateVector(
-          this->rightImuLink->GetWorldLinearVel());
+        math::Vector3 angularVel = this->rightImuSensor->GetAngularVelocity();
+        math::Vector3 linearAcc = this->rightImuSensor->GetLinearAcceleration();
+        math::Quaternion orientation = this->rightImuSensor->GetOrientation();
 
         sensor_msgs::Imu rightImuMsg;
         rightImuMsg.header.frame_id = this->rightImuLinkName;
         rightImuMsg.header.stamp = ros::Time(curTime.Double());
 
-        // compute angular rates
-        {
-          // get world twist and convert to local frame
-          math::Vector3 wLocal = rightImuPose.rot.RotateVector(
-            this->rightImuLink->GetWorldAngularVel());
-          rightImuMsg.angular_velocity.x = wLocal.x;
-          rightImuMsg.angular_velocity.y = wLocal.y;
-          rightImuMsg.angular_velocity.z = wLocal.z;
-        }
+        rightImuMsg.angular_velocity.x = angularVel.x;
+        rightImuMsg.angular_velocity.y = angularVel.y;
+        rightImuMsg.angular_velocity.z = angularVel.z;
 
-        // compute acceleration
-        {
-          math::Vector3 accel = rightImuLinearVel - this->rightImuLastLinearVel;
-          double rightImuDdx = accel.x;
-          double rightImuDdy = accel.y;
-          double rightImuDdz = accel.z;
+        rightImuMsg.linear_acceleration.x = linearAcc.x;
+        rightImuMsg.linear_acceleration.y = linearAcc.y;
+        rightImuMsg.linear_acceleration.z = linearAcc.z;
 
-          rightImuMsg.linear_acceleration.x = rightImuDdx;
-          rightImuMsg.linear_acceleration.y = rightImuDdy;
-          rightImuMsg.linear_acceleration.z = rightImuDdz;
-
-          this->rightImuLastLinearVel = rightImuLinearVel;
-        }
-
-        // compute orientation
-        {
-          // Get IMU rotation relative to Initial IMU Reference Pose
-          math::Quaternion rightImuRot =
-            rightImuPose.rot * this->rightImuReferencePose.rot.GetInverse();
-
-          rightImuMsg.orientation.x = rightImuRot.x;
-          rightImuMsg.orientation.y = rightImuRot.y;
-          rightImuMsg.orientation.z = rightImuRot.z;
-          rightImuMsg.orientation.w = rightImuRot.w;
-        }
+        rightImuMsg.orientation.x = orientation.x;
+        rightImuMsg.orientation.y = orientation.y;
+        rightImuMsg.orientation.z = orientation.z;
+        rightImuMsg.orientation.w = orientation.w;
 
         this->pubRightImuQueue->push(rightImuMsg, this->pubRightImu);
       }
@@ -748,6 +703,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           col = boost::dynamic_pointer_cast<physics::Collision>(
               this->world->GetEntity(collision1)).get();
           this->contactCollisions[collision1] = col;
+          gzerr << " contactCollisions " << this->contactCollisions.size() << std::endl;
         }
         else
         {

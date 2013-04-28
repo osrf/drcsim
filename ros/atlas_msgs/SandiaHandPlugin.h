@@ -48,6 +48,7 @@
 #include <gazebo/sensors/SensorManager.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ContactSensor.hh>
+#include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
 
 #include <osrf_msgs/JointCommands.h>
@@ -113,17 +114,15 @@ namespace gazebo
     private: double updateRate;
 
     // IMU sensor
+    private: boost::shared_ptr<sensors::ImuSensor> leftImuSensor;
+    private: boost::shared_ptr<sensors::ImuSensor> rightImuSensor;
     private: common::Time lastImuTime;
     private: std::string leftImuLinkName;
     private: physics::LinkPtr leftImuLink;
-    private: math::Pose leftImuReferencePose;
-    private: math::Vector3 leftImuLastLinearVel;
     private: ros::Publisher pubLeftImu;
     private: PubQueue<sensor_msgs::Imu>::Ptr pubLeftImuQueue;
     private: std::string rightImuLinkName;
     private: physics::LinkPtr rightImuLink;
-    private: math::Pose rightImuReferencePose;
-    private: math::Vector3 rightImuLastLinearVel;
     private: ros::Publisher pubRightImu;
     private: PubQueue<sensor_msgs::Imu>::Ptr pubRightImuQueue;
 
