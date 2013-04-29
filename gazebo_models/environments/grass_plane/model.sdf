@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<sdf version="1.3">
+<sdf version="1.4">
   <model name="grass_plane">
     <static>true</static>
     <link name="link">
@@ -29,7 +29,8 @@
         </geometry>
         <material>
           <script>
-            <uri>model://grass_plane/materials/scripts/grass.material</uri>
+            <uri>model://grass_plane/materials/scripts</uri>
+            <uri>model://grass_plane/materials/textures</uri>
             <name>vrc/grass</name>
           </script>
         </material>

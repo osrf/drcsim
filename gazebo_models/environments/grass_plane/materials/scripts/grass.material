@@ -4,14 +4,15 @@ material vrc/grass
 	{
 		pass
 		{
-			ambient 1.0 1.0 1.0 1.0
-			diffuse 1.0 1.0 1.0 1.0
+			ambient 0.8 1.0 0.8 1.0
+			diffuse 0.8 1.0 0.8 1.0
 			specular 0.2 0.2 0.2 1.0 12.5
 
 			texture_unit
 			{
-				texture grass.jpg
-				filtering trilinear
+				texture grass_dry.jpg
+				filtering anistropic
+        max_anisotropy 16
         scale 0.05 0.05
 			}
 		}
