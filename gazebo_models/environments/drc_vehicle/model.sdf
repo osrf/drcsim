@@ -28,6 +28,8 @@
       <stiffness>0.0</stiffness>
       <damping>100.0</damping>
       <link_name>atlas::pelvis</link_name>
+      <link_name>atlas::r_uleg</link_name>
+      <link_name>atlas::l_uleg</link_name>
     </plugin>
   </model>
 </sdf>
