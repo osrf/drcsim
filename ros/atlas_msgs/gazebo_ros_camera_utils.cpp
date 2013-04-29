@@ -76,7 +76,9 @@ GazeboRosCameraUtils::~GazeboRosCameraUtils()
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
 void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
-  sdf::ElementPtr _sdf)
+  sdf::ElementPtr _sdf,
+  const std::string &_camera_name_suffix,
+  double _hack_baseline)
 {
   // Get the world name.
   std::string world_name = _parent->GetWorldName();
@@ -105,18 +107,19 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
       this->sdf->GetValueString("cameraInfoTopicName");
 
   if (!this->sdf->HasElement("cameraName"))
-    ROS_INFO("Camera plugin missing <cameraName>, default to empty");
+    ROS_DEBUG("Camera plugin missing <cameraName>, default to empty");
   else
     this->camera_name_ = this->sdf->GetValueString("cameraName");
+  this->camera_name_ += _camera_name_suffix;
 
   if (!this->sdf->HasElement("frameName"))
-    ROS_INFO("Camera plugin missing <frameName>, defaults to /world");
+    ROS_DEBUG("Camera plugin missing <frameName>, defaults to /world");
   else
     this->frame_name_ = this->sdf->GetValueString("frameName");
 
   if (!this->sdf->HasElement("updateRate"))
   {
-    ROS_INFO("Camera plugin missing <updateRate>, defaults to unlimited (0).");
+    ROS_DEBUG("Camera plugin missing <updateRate>, defaults to unlimited (0).");
     this->update_rate_ = 0;
   }
   else
@@ -124,7 +127,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("CxPrime"))
   {
-    ROS_INFO("Camera plugin missing <CxPrime>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <CxPrime>, defaults to 0");
     this->cx_prime_ = 0;
   }
   else
@@ -132,7 +135,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("Cx"))
   {
-    ROS_INFO("Camera plugin missing <Cx>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <Cx>, defaults to 0");
     this->cx_= 0;
   }
   else
@@ -140,7 +143,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("Cy"))
   {
-    ROS_INFO("Camera plugin missing <Cy>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <Cy>, defaults to 0");
     this->cy_= 0;
   }
   else
@@ -148,23 +151,28 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("focalLength"))
   {
-    ROS_INFO("Camera plugin missing <focalLength>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <focalLength>, defaults to 0");
     this->focal_length_= 0;
   }
   else
     this->focal_length_ = this->sdf->GetValueDouble("focalLength");
 
-  if (!this->sdf->HasElement("hackBaseline"))
-  {
-    ROS_INFO("Camera plugin missing <hackBaseline>, defaults to 0");
-    this->hack_baseline_= 0;
-  }
+  if (!gazebo::math::equal(_hack_baseline, 0.0))
+    this->hack_baseline_ = _hack_baseline;
   else
-    this->hack_baseline_ = this->sdf->GetValueDouble("hackBaseline");
+  {
+    if (!this->sdf->HasElement("hackBaseline"))
+    {
+      ROS_DEBUG("Camera plugin missing <hackBaseline>, defaults to 0");
+      this->hack_baseline_= 0;
+    }
+    else
+      this->hack_baseline_ = this->sdf->GetValueDouble("hackBaseline");
+  }
 
   if (!this->sdf->HasElement("distortionK1"))
   {
-    ROS_INFO("Camera plugin missing <distortionK1>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <distortionK1>, defaults to 0");
     this->distortion_k1_= 0;
   }
   else
@@ -172,7 +180,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("distortionK2"))
   {
-    ROS_INFO("Camera plugin missing <distortionK2>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <distortionK2>, defaults to 0");
     this->distortion_k2_= 0;
   }
   else
@@ -180,7 +188,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("distortionK3"))
   {
-    ROS_INFO("Camera plugin missing <distortionK3>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <distortionK3>, defaults to 0");
     this->distortion_k3_= 0;
   }
   else
@@ -188,7 +196,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("distortionT1"))
   {
-    ROS_INFO("Camera plugin missing <distortionT1>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <distortionT1>, defaults to 0");
     this->distortion_t1_= 0;
   }
   else
@@ -196,7 +204,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 
   if (!this->sdf->HasElement("distortionT2"))
   {
-    ROS_INFO("Camera plugin missing <distortionT2>, defaults to 0");
+    ROS_DEBUG("Camera plugin missing <distortionT2>, defaults to 0");
     this->distortion_t2_= 0;
   }
   else
@@ -227,6 +235,10 @@ void GazeboRosCameraUtils::LoadThread()
           << "  gazebo -s libgazebo_ros_api_plugin.so\n";
     return;
   }
+
+  // Sensor generation off by default.  Must do this before advertising the
+  // associated ROS topics.
+  this->parentSensor_->SetActive(false);
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_ +
     "/" + this->camera_name_);
@@ -316,9 +328,12 @@ void GazeboRosCameraUtils::SetUpdateRate(
 // Increment count
 void GazeboRosCameraUtils::ImageConnect()
 {
+  // upon first connection, remember if camera was active.
+  if (this->image_connect_count_ == 0)
+    this->was_active_ = this->parentSensor_->IsActive();
+
   this->image_connect_count_++;
-  // maintain for one more release for backwards compatibility
-  // with pr2_gazebo_plugins
+
   this->parentSensor_->SetActive(true);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,9 +341,11 @@ void GazeboRosCameraUtils::ImageConnect()
 void GazeboRosCameraUtils::ImageDisconnect()
 {
   this->image_connect_count_--;
-  // maintain for one more release for backwards compatibility with
-  // pr2_gazebo_plugins
-  if (this->image_connect_count_ <= 0)
+
+  // if there are no more subscribers, but camera was active to begin with,
+  // leave it active.  Use case:  this could be a multicamera, where
+  // each camera shares the same parentSensor_.
+  if (this->image_connect_count_ <= 0 && !this->was_active_)
     this->parentSensor_->SetActive(false);
 }
 
@@ -343,10 +360,6 @@ void GazeboRosCameraUtils::Init()
     this->update_period_ = 1.0/this->update_rate_;
   else
     this->update_period_ = 0.0;
-
-
-  // sensor generation off by default
-  this->parentSensor_->SetActive(false);
 
   // set buffer size
   if (this->format_ == "L8")
