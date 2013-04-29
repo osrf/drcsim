@@ -47,10 +47,11 @@ class AtlasTeleop():
     # BDI Controller bindings
     params = {"Forward Stride Length":{ "value":0.15, "min":0, "max":1, \
                                 "type":"float"},
+              "Stride Length Interval":{"value":0.05, "min":0, "max":1, \
+                                "type":"float"},
               "Lateral Stride Length":{ "value":0.15, "min":0, "max":1, \
                                 "type":"float"},
               "Step Height":{"value":0, "min":-1, "max":1, "type":"float"}, \
-              "Step Height Interval":{"value":0.05, "min":0, "max":1, "type":"float"},
               "Stride Duration":{ "value":0.63, "min": 0, "max":100, \
                                 "type":"float"},
               "Walk Sequence Length":{"value":5, "min":1, "max":sys.maxint, \
@@ -121,7 +122,7 @@ class AtlasTeleop():
         M/> Turn left/right in place
         
         1-9: Change the length of step trajectory
-        '-'/'=': Increase/Decrease Step Height
+        '-'/'=': Increase/Decrease Stride Length
         E: View and Edit Parameters
         H: Print this menu
         R: Reset robot to standing pose
@@ -153,7 +154,7 @@ class AtlasTeleop():
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
         for step in steps:
-            self.loginfo("foot: " + str(step.foot_index) + \
+            self.debuginfo("foot: " + str(step.foot_index) + \
               " [" + str(step.pose.position.x) + \
               ", " + str(step.pose.position.y) + "]") 
                
@@ -187,14 +188,14 @@ class AtlasTeleop():
         rospy.sleep(0.3)
         for step in steps:
             step.step_index = 1
-            self.loginfo("step: " + str(step))  
+            self.debuginfo("step: " + str(step))  
             walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
               AtlasBehaviorStepParams(step, False), AtlasBehaviorStandParams(), \
               AtlasBehaviorManipulateParams(),  k_effort )
             
             
             self.client.send_goal(walk_goal)
-            self.client.wait_for_result()
+            self.client.wait_for_result(rospy.Duration(5))
             result = self.client.get_result()
             rospy.sleep(4)
             if result.success == False:
@@ -448,15 +449,15 @@ class AtlasTeleop():
         elif ch == 'q' or ch == 'Q' or ord(ch) == 3:
             self.loginfo("Quitting")
             rospy.signal_shutdown("Shutdown")
-        elif ch == '=':
-            self.params["Step Height"]["value"] += \
-                self.params["Step Height Interval"]["value"]
-            self.loginfo("Step Height: " + \
+        elif ch == '=' or ch == '+':
+            self.params["Forward Stride Length"]["value"] += \
+                self.params["Stride Length Interval"]["value"]
+            self.loginfo("Forward Stride Length: " + \
                          str(self.params["Step Height"]["value"]))     
-        elif ch == '-':
-            self.params["Step Height"]["value"] -= \
-                self.params["Step Height Interval"]["value"]
-            self.loginfo("Step Height: " + \
+        elif ch == '-' or ch == "_":
+            self.params["Forward Stride Length"]["value"] -= \
+                self.params["Stride Length Interval"]["value"]
+            self.loginfo("Forward Stride Length: " + \
                          str(self.params["Step Height"]["value"]))     
         try:
             if (int(ch) >= self.params["Walk Sequence Length"]["min"] and \
