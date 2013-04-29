@@ -182,6 +182,8 @@ class AtlasTeleop():
               AtlasBehaviorManipulateParams(),  k_effort )
             
         self.client.send_goal(stand_goal)
+        self.client.wait_for_result()
+        
         rospy.sleep(0.3)
         for step in steps:
             step.step_index = 1
@@ -194,6 +196,7 @@ class AtlasTeleop():
             self.client.send_goal(walk_goal)
             self.client.wait_for_result()
             result = self.client.get_result()
+            rospy.sleep(4)
             if result.success == False:
                 self.loginfo("Static walk failed: \n" + "Goal: \n " + str(walk_goal) + "\nResult: " + str(result))
                 break
@@ -248,7 +251,7 @@ class AtlasTeleop():
             # left = 1, right = -1            
             foot = 1 - 2 * is_right_foot
             
-            if False:
+            if self.is_static:
                 theta = (turn != 0) * dTheta
                 if turn == 0:
                     X = (forward != 0) * (forward * L)

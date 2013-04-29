@@ -234,7 +234,27 @@ void ASIActionServer::ASIStateCB(
           atlas_msgs::AtlasSimInterfaceCommand command;
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
           command.step_params.desired_step.step_index = 1;
+          command.step_params.desired_step.pose.position.x =
+                  this->activeGoal.step_params.desired_step.pose.position.x;
+          command.step_params.desired_step.pose.position.y =
+                  this->activeGoal.step_params.desired_step.pose.position.y;
+          command.step_params.desired_step.pose.position.z =
+                  this->activeGoal.step_params.desired_step.pose.position.z;
+
+          command.step_params.desired_step.pose.orientation.x =
+                  this->activeGoal.step_params.desired_step.pose.orientation.x;
+          command.step_params.desired_step.pose.orientation.y =
+                  this->activeGoal.step_params.desired_step.pose.orientation.y;
+          command.step_params.desired_step.pose.orientation.z =
+                  this->activeGoal.step_params.desired_step.pose.orientation.z;
+          command.step_params.desired_step.pose.orientation.w =
+                  this->activeGoal.step_params.desired_step.pose.orientation.w;
+
+          command.step_params.desired_step.foot_index =
+                  this->activeGoal.step_params.desired_step.foot_index;
+
           this->atlasCommandPublisher.publish(command);
+          this->is_stepping = false;
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -337,23 +357,21 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::STEP:
         // If step_feedback is in swaying, the next step can be sent
         if (this->actionServer->isActive() &&
-            msg->step_feedback.status_flags == 1 && !this->isSwaying)
+            msg->step_feedback.status_flags == 1 &&
+            this->is_stepping)
         {
-          this->isSwaying = true;
+          this->is_stepping = false;
           this->actionServerResult.success = true;
           this->actionServer->setSucceeded(this->actionServerResult);
           this->executingGoal = false;
         }
-        if (msg->step_feedback.status_flags == 2)
+        else if (msg->step_feedback.status_flags == 2)
         {
-          this->isSwaying = false;
+          this->is_stepping = true;
         }
         else
         {
-          atlas_msgs::AtlasSimInterfaceCommand command;
-          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
-          command.step_params.desired_step.step_index = 1;
-          this->atlasCommandPublisher.publish(command);
+
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -465,6 +483,8 @@ void ASIActionServer::ActionServerCB()
       }
     case atlas_msgs::WalkDemoGoal::STEP:
       {
+        this->is_stepping = false;
+        this->pubCount = 0;
         transformStepPose(this->activeGoal.step_params.desired_step.pose);
       }
       break;
@@ -493,7 +513,7 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &pose)
     // Position vector of the robot
     tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
                                     this->robotPosition.y,
-                                        this->robotPosition.z);
+                                    0);
 
     // Create transform of this active goal step
     tf::Quaternion agQ;
