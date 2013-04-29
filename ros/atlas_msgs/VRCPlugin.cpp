@@ -767,7 +767,7 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   // joints, and fire hose is made of universal and ball joints.
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
-    gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+    // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
   }
 }
@@ -811,7 +811,7 @@ void VRCPlugin::CheckThreadStart()
                        "screw",
                        math::Vector3(0, 0, 0),
                        math::Vector3(0, -1, 0),
-                       20, -0.5, true);
+                       20, -0.5, false);
 
       this->drcFireHose.screwJoint->SetAttribute("thread_pitch", 0,
         this->drcFireHose.threadPitch);
