@@ -453,12 +453,12 @@ class AtlasTeleop():
             self.params["Forward Stride Length"]["value"] += \
                 self.params["Stride Length Interval"]["value"]
             self.loginfo("Forward Stride Length: " + \
-                         str(self.params["Step Height"]["value"]))     
+                         str(self.params["Forward Stride Length"]["value"]))     
         elif ch == '-' or ch == "_":
             self.params["Forward Stride Length"]["value"] -= \
                 self.params["Stride Length Interval"]["value"]
             self.loginfo("Forward Stride Length: " + \
-                         str(self.params["Step Height"]["value"]))     
+                         str(self.params["Forward Stride Length"]["value"]))     
         try:
             if (int(ch) >= self.params["Walk Sequence Length"]["min"] and \
                 int(ch) <= self.params["Walk Sequence Length"]["max"]):
