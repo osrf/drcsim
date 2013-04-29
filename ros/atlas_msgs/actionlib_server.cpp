@@ -10,7 +10,7 @@ ASIActionServer::ASIActionServer()
                                         false);
   // Register goal callback
   this->actionServer->registerGoalCallback(
-        boost::bind(&ASIActionServer::ActionServerCB, this));
+    boost::bind(&ASIActionServer::ActionServerCB, this));
 
 
   this->ASIStateSubscriber =
@@ -22,8 +22,8 @@ ASIActionServer::ASIActionServer()
                               &ASIActionServer::atlasStateCB, this);
 
   this->atlasCommandPublisher =
-      this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
-        "atlas/atlas_sim_interface_command", 1);
+    this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
+      "atlas/atlas_sim_interface_command", 1);
 
   this->newGoal = false;
   this->executingGoal = false;
@@ -41,9 +41,6 @@ void ASIActionServer::ASIStateCB(
   this->robotPosition.z = msg->pos_est.position.z;
 
   // 80 characters
-  const atlas_msgs::AtlasBehaviorFeedback *fb =
-      &(msg->behavior_feedback);
-
   typedef atlas_msgs::AtlasBehaviorFeedback ABFeedback;
 
   this->actionServerResult.end_state = *msg;
@@ -97,9 +94,11 @@ void ASIActionServer::ASIStateCB(
   // Does the message contain bad news?
   // and should we do something about it other than letting the user
   // know we are in a bad state?
-  switch (fb->status_flags)
+  switch (msg->behavior_feedback.status_flags)
   {
     case ABFeedback::STATUS_OK:
+      ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
+                "STATUS_OK]");
       break;
     case ABFeedback::STATUS_TRANSITION_IN_PROGRESS:
       ROS_INFO("ActionServer: AtlasBehaviorFeedback error: ["
@@ -130,6 +129,8 @@ void ASIActionServer::ASIStateCB(
                       "STATUS_FAILED_TRANS_VEL");
       return;
     case ABFeedback::STATUS_WARNING_AUTO_TRANS:
+      ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
+                "STATUS_WARNING_AUTO_TRANS]");
       return;
     case ABFeedback::STATUS_ERROR_FALLING:
       this->abortGoal("ActionServer: AtlasBehaviorFeedback error: "
@@ -201,28 +202,28 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::WALK:
         {
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
-          //   (int)fb->walk_feedback.current_step_index,
-          //   (int)fb->walk_feedback.next_step_index_needed,
-          //   fb->walk_feedback.t_step_rem,
+          //   (int)msg->walk_feedback.current_step_index,
+          //   (int)msg->walk_feedback.next_step_index_needed,
+          //   msg->walk_feedback.t_step_rem,
           //   (int)this->currentStepIndex,
           //   (int)this->activeGoal.steps.size());
 
           // if needed, publish next set of 4 commands
           for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
           {
-            command.walk_params.step_data[i] =
-                this->activeGoal.steps[this->currentStepIndex + i];
+            command.walk_params.step_queue[i] =
+              this->activeGoal.steps[this->currentStepIndex + i];
             ROS_DEBUG_STREAM("  building stepId : " << i
-                             << "  traj id [" << this->currentStepIndex + i
-                             << "] step_index["
-                             << command.walk_params.step_data[i].step_index
-                             << "]  isRight["
-                             << command.walk_params.step_data[i].foot_index
-                             << "]  pos ["
-                             << command.walk_params.step_data[i].pose.position.x
-                             << ", "
-                             << command.walk_params.step_data[i].pose.position.y
-                             << "]\n");
+                << "  traj id [" << this->currentStepIndex + i
+                << "] step_index["
+                << command.walk_params.step_queue[i].step_index
+                << "]  isRight["
+                << command.walk_params.step_queue[i].foot_index
+                << "]  pos ["
+                << command.walk_params.step_queue[i].pose.position.x
+                << ", "
+                << command.walk_params.step_queue[i].pose.position.y
+                << "]");
           }
           // publish new set of commands
           this->atlasCommandPublisher.publish(command);
@@ -243,7 +244,9 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
-        // Nothing to do before switching to execute
+        {
+          // fill in manipulate command and pbulish it
+        }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
         {
@@ -290,25 +293,24 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::WALK:
         {
           int startIndex =
-            std::min((long)fb->walk_feedback.next_step_index_needed,
+            std::min((long)msg->walk_feedback.next_step_index_needed,
               (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
 
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
-          //   (int)fb->walk_feedback.current_step_index,
-          //   (int)fb->walk_feedback.next_step_index_needed,
-          //   fb->walk_feedback.t_step_rem,
+          //   (int)msg->walk_feedback.current_step_index,
+          //   (int)msg->walk_feedback.next_step_index_needed,
+          //   msg->walk_feedback.t_step_rem,
           //   (int)this->currentStepIndex,
           //   (int)this->activeGoal.steps.size());
 
           //Is the sequence completed?
-          if (fb->walk_feedback.current_step_index >=
-              this->activeGoal.steps.size() - 1)
+          if (msg->walk_feedback.current_step_index >=
+                this->activeGoal.steps.size() - 1)
           {
             ROS_INFO("Walk trajectory completed, switching to stand mode.");
             command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
             this->atlasCommandPublisher.publish(command);
             this->executingGoal = false;
-
             return;
           }
 
@@ -318,19 +320,19 @@ void ASIActionServer::ASIStateCB(
             this->currentStepIndex = static_cast<unsigned int>(startIndex);
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
             {
-              command.walk_params.step_data[i] =
-                  this->activeGoal.steps[this->currentStepIndex + i];
+              command.walk_params.step_queue[i] =
+                this->activeGoal.steps[this->currentStepIndex + i];
               ROS_DEBUG_STREAM("  building stepId : " << i
-               << "  traj id [" << this->currentStepIndex + i
-               << "] step_index["
-               << command.walk_params.step_data[i].step_index
-               << "]  isRight["
-               << command.walk_params.step_data[i].foot_index
-               << "]  pos ["
-               << command.walk_params.step_data[i].pose.position.x
-               << ", "
-               << command.walk_params.step_data[i].pose.position.y
-               << "]\n");
+                  << "  traj id [" << this->currentStepIndex + i
+                  << "] step_index["
+                  << command.walk_params.step_queue[i].step_index
+                  << "]  isRight["
+                  << command.walk_params.step_queue[i].foot_index
+                  << "]  pos ["
+                  << command.walk_params.step_queue[i].pose.position.x
+                  << ", "
+                  << command.walk_params.step_queue[i].pose.position.y
+                  << "]");
             }
             // publish new set of commands
             this->atlasCommandPublisher.publish(command);
@@ -338,8 +340,7 @@ void ASIActionServer::ASIStateCB(
         }
         break;
       case atlas_msgs::WalkDemoGoal::STEP:
-        // This isn't yet implemented on the BDI side; set succeeded immediately
-        // TODO when implemented, check curretn_behavior == STAND
+        /// \TODO: check curretn_behavior == STAND
         if (this->actionServer->isActive())
         {
           this->actionServer->setSucceeded();
@@ -450,7 +451,6 @@ void ASIActionServer::ActionServerCB()
              this->activeGoal.steps[i].pose.position.x <<
              " y: " << this->activeGoal.steps[i].pose.position.y <<
              " z: " << this->activeGoal.steps[i].pose.position.z);
-
 
           // Create geometry_msgs transform msg and change the active goal to
           // reflect the transform

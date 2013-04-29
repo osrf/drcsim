@@ -37,6 +37,10 @@ geometry_msgs/Pose[2] foot_pos_est      # World position estimate for feet
                                          # 0 - left, 1 - right
 
 atlas_msgs/AtlasBehaviorFeedback behavior_feedback
+atlas_msgs/AtlasBehaviorStepFeedback step_feedback
+atlas_msgs/AtlasBehaviorStandFeedback stand_feedback
+atlas_msgs/AtlasBehaviorWalkFeedback walk_feedback
+atlas_msgs/AtlasBehaviorManipulateFeedback manipulate_feedback
 
 # additional vector for transitioning from servo model in AtlasPlugin
 # to BDI servo.
