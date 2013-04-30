@@ -205,6 +205,11 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   // Tactile data
   if (!hasStumps)
   {
+    // Approximate output range of the tactile sensor
+    // determined by experimenting with the actual physical hand
+    this->maxTactileOut = 33500;
+    this->minTactileOut = 26500;
+
     // Sandia hand tactile dimensions taken from spec and adapted to fit on our
     // sandia hand model
     this->palmColWidth[0] = 0.01495;
@@ -254,25 +259,20 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     this->rightTactile.palm.resize(this->tactilePalmArraySize);
     for (int i = 0; i < this->tactileFingerArraySize; ++i)
     {
-      this->leftTactile.f0[i] = 0;
-      this->leftTactile.f1[i] = 0;
-      this->leftTactile.f2[i] = 0;
-      this->leftTactile.f3[i] = 0;
-      this->rightTactile.f0[i] = 0;
-      this->rightTactile.f1[i] = 0;
-      this->rightTactile.f2[i] = 0;
-      this->rightTactile.f3[i] = 0;
+      this->leftTactile.f0[i] = this->minTactileOut;
+      this->leftTactile.f1[i] = this->minTactileOut;
+      this->leftTactile.f2[i] = this->minTactileOut;
+      this->leftTactile.f3[i] = this->minTactileOut;
+      this->rightTactile.f0[i] = this->minTactileOut;
+      this->rightTactile.f1[i] = this->minTactileOut;
+      this->rightTactile.f2[i] = this->minTactileOut;
+      this->rightTactile.f3[i] = this->minTactileOut;
     }
     for (int i = 0; i < this->tactilePalmArraySize; ++i)
     {
-      this->leftTactile.palm[i] = 0;
-      this->rightTactile.palm[i] = 0;
+      this->leftTactile.palm[i] = this->minTactileOut;
+      this->rightTactile.palm[i] = this->minTactileOut;
     }
-
-    // Approximate output range of the tactile sensor
-    // determined by experimenting with the actual physical hand
-    this->maxTactileOut = 33500;
-    this->minTactileOut = 26500;
 
     this->node.reset(new transport::Node());
     this->node->Init(this->world->GetName());
@@ -593,19 +593,19 @@ void SandiaHandPlugin::UpdateStates()
       // first clear all previous tactile data
       for (int i = 0; i < this->tactileFingerArraySize; ++i)
       {
-        this->leftTactile.f0[i] = 0;
-        this->leftTactile.f1[i] = 0;
-        this->leftTactile.f2[i] = 0;
-        this->leftTactile.f3[i] = 0;
-        this->rightTactile.f0[i] = 0;
-        this->rightTactile.f1[i] = 0;
-        this->rightTactile.f2[i] = 0;
-        this->rightTactile.f3[i] = 0;
+        this->leftTactile.f0[i] = this->minTactileOut;
+        this->leftTactile.f1[i] = this->minTactileOut;
+        this->leftTactile.f2[i] = this->minTactileOut;
+        this->leftTactile.f3[i] = this->minTactileOut;
+        this->rightTactile.f0[i] = this->minTactileOut;
+        this->rightTactile.f1[i] = this->minTactileOut;
+        this->rightTactile.f2[i] = this->minTactileOut;
+        this->rightTactile.f3[i] = this->minTactileOut;
       }
       for (int i = 0; i < this->tactilePalmArraySize; ++i)
       {
-        this->leftTactile.palm[i] = 0;
-        this->rightTactile.palm[i] = 0;
+        this->leftTactile.palm[i] = this->minTactileOut;
+        this->rightTactile.palm[i] = this->minTactileOut;
       }
 
       // Generate data and publish
