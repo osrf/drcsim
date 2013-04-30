@@ -99,8 +99,13 @@ namespace gazebo
     private: void OnLContacts(ConstContactsPtr &_msg);
 
     typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
+
+    /// \brief Fill ROS tactile message using Gazebo contact message
+    /// \param[in] _side LEFT or RIGHT hand
+    /// \param [in] _incomingContacts Gazebo contact message
+    /// \param[in] _tactileMsg ROS tactile message
     private: void FillTactileData(HandEnum _side,
-        ContactMsgs_L &_incomingContacts,
+        ContactMsgs_L _incomingContacts,
         sandia_hand_msgs::RawTactile *_tactileMsg);
 
     private: physics::WorldPtr world;
@@ -127,9 +132,16 @@ namespace gazebo
     private: PubQueue<sensor_msgs::Imu>::Ptr pubRightImuQueue;
 
     // tactile sensor
+    /// \brief ROS publisher for the left hand tactile message
     private: ros::Publisher pubLeftTactile;
+
+    /// \brief ROS publisher for the right hand tactile message
     private: ros::Publisher pubRightTactile;
+
+    /// \brief ROS tactile message publisher queue for right hand
     private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubRightTactileQueue;
+
+    /// \brief ROS tactile message publisher queue for left hand
     private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubLeftTactileQueue;
 
     // deferred loading in case ros is blocking
@@ -166,7 +178,10 @@ namespace gazebo
     private: sensor_msgs::JointState leftJointStates;
     private: sensor_msgs::JointState rightJointStates;
 
+    /// \brief Left hand ROS tactile message to be published
     private: sandia_hand_msgs::RawTactile leftTactile;
+
+    /// \brief Right hand ROS tactile message to be published
     private: sandia_hand_msgs::RawTactile rightTactile;
 
     // Controls stuff
@@ -181,8 +196,10 @@ namespace gazebo
     /// \brief Subscription to contact messages
     private: transport::SubscriberPtr contactSub[2];
 
+    /// \brief Incoming Gazebo contact messages for the right hand.
     private: ContactMsgs_L incomingRContacts;
 
+    /// \brief Incoming Gazebo contact messages for the left hand.
     private: ContactMsgs_L incomingLContacts;
 
     /// \brief Transport node used for subscribing to contact sensor messages.
@@ -194,28 +211,60 @@ namespace gazebo
     /// \brief Mutex to protect reads and writes.
     private: mutable boost::mutex contactLMutex;
 
+    /// \brief List of contact collisions used for generating tactile sensor
+    /// output
     private: boost::unordered_map<std::string, physics::Collision *>
                 contactCollisions;
 
+    /// \brief Length of finger collision:
+    /// index 0 is the lower link collision,
+    /// index 1 is the upper link collision.
     private: double fingerColLength[2];
 
+    /// \brief Width of finger collision:
+    /// index 0 is the lower link collision,
+    /// index 1 is the upper link collision.
     private: double fingerColWidth[2];
 
+    /// \brief Tactile sensor column size on the finger collision
     private: int fingerHorSize[2];
 
+    /// \brief Tactile sensor row size on the finger collision
     private: int fingerVerSize[2];
 
+    /// \brief Width of palm collision:
+    /// index 0 is the index finger palm collision,
+    /// index 1 is the middle finger palm collision,
+    /// index 2 is the pinky palm collision,
+    /// index 3 is the bottom palm collision,
+    /// index 4 is the mid palm collision.
     private: double palmColWidth[5];
 
+    /// \brief Length of palm collision:
+    /// index 0 is the index finger palm collision,
+    /// index 1 is the middle finger palm collision,
+    /// index 2 is the pinky palm collision,
+    /// index 3 is the bottom palm collision,
+    /// index 4 is the mid palm collision.
     private: double palmColLength[5];
 
+    /// \brief Tactile sensor column size on the palm collision.
     private: int palmHorSize[5];
 
+    /// \brief Tactile sensor row size on the palm collision.
     private: int palmVerSize[5];
 
+    /// \brief Total number of tactile sensors on each finger.
     private: int tactileFingerArraySize;
 
+    /// \brief Total number of tactile sensors on the palm.
     private: int tactilePalmArraySize;
+
+    /// \brief Max tactile sensor data output
+    private: int maxTactileOut;
+
+    /// \brief min tactile sensor data output
+    private: int minTactileOut;
 
   };
 /** \} */

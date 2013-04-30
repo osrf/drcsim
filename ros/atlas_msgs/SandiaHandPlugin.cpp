@@ -269,6 +269,11 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
       this->rightTactile.palm[i] = 0;
     }
 
+    // Approximate output range of the tactile sensor
+    // determined by experimenting with the actual physical hand
+    this->maxTactileOut = 33500;
+    this->minTactileOut = 26500;
+
     this->node.reset(new transport::Node());
     this->node->Init(this->world->GetName());
 
@@ -609,6 +614,8 @@ void SandiaHandPlugin::UpdateStates()
         this->rightTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
         this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
             &this->rightTactile);
+      // Clear the incoming contact list.
+      this->incomingRContacts.clear();
 
       }
       {
@@ -616,6 +623,7 @@ void SandiaHandPlugin::UpdateStates()
         this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
         this->FillTactileData(LEFT_HAND, this->incomingLContacts,
             &this->leftTactile);
+        this->incomingLContacts.clear();
       }
     }
 
@@ -643,16 +651,12 @@ void SandiaHandPlugin::OnRContacts(ConstContactsPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->contactRMutex);
 
-  // Only store information if the model is active
-  // if (this->IsActive())
-  {
-    // Store the contacts message for processing in UpdateImpl
-    this->incomingRContacts.push_back(_msg);
+  // Store the contacts message for processing in UpdateImpl
+  this->incomingRContacts.push_back(_msg);
 
-    // Prevent the incomingContacts list to grow indefinitely.
-    if (this->incomingRContacts.size() > 100)
-      this->incomingRContacts.pop_front();
-  }
+  // Prevent the incomingContacts list to grow indefinitely.
+  if (this->incomingRContacts.size() > 50)
+    this->incomingRContacts.pop_front();
 }
 
 //////////////////////////////////////////////////
@@ -664,15 +668,25 @@ void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
   this->incomingLContacts.push_back(_msg);
 
   // Prevent the incomingContacts list to grow indefinitely.
-  if (this->incomingLContacts.size() > 100)
+  if (this->incomingLContacts.size() > 50)
     this->incomingLContacts.pop_front();
 }
 
 //////////////////////////////////////////////////
 void SandiaHandPlugin::FillTactileData(HandEnum _side,
-    ContactMsgs_L &_incomingContacts,
+    ContactMsgs_L _incomingContacts,
     sandia_hand_msgs::RawTactile *_tactileMsg)
 {
+  // The method of generating tactile sensor output is specific
+  // to the current sandia hand collisions. This is because the collisions
+  // do not really match the actual sandia hand so it was not possible to
+  // directly use the position of the sensors from the spec sheet. The best
+  // we could do is approximate the locations of tactile sensors
+  // on these collision. Idea as follows:
+  // Divide each collision into smaller regions,
+  // Identify the region which the contact point lies,
+  // Set the corresponding (closest) tactile sensor's output value.
+
     std::vector<std::string>::iterator collIter;
     std::string collision1;
 
@@ -688,12 +702,16 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
       for (int i = 0; i < (*iter)->contact_size(); ++i)
       {
         bool isPalm = false;
+        bool isBody1 = true;
         // Get the collision pointer from name in contact msg
         collision1 = (*iter)->contact(i).collision1();
 
         if (collision1.find(sideStr + "_f") ==  std::string::npos
             && collision1.find("palm") ==  std::string::npos)
+        {
           collision1 = (*iter)->contact(i).collision2();
+          isBody1 = false;
+        }
 
         physics::Collision *col = NULL;
         if (!this->contactCollisions.count(collision1))
@@ -720,14 +738,19 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
 
         if (isPalm)
         {
+          // index finder palm
           if (collision1.find("_3") !=  std::string::npos)
             palmIdx = 0;
+          // middle finder palm
           else if (collision1.find("_4") !=  std::string::npos)
             palmIdx = 1;
+          // pinky palm
           else if (collision1.find("_5") !=  std::string::npos)
             palmIdx = 2;
+          // bottom palm
           else if (collision1.find("_1") !=  std::string::npos)
             palmIdx = 3;
+          // mid palm
           else
             palmIdx = 4;
         }
@@ -755,12 +778,21 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
         }
 
         math::Vector3 pos;
-        math::Vector3 normal;
+        math::Vector3 force;
+        int tactileOuput = 0;
         // Iterate all contact positions
         for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
         {
           pos = msgs::Convert((*iter)->contact(i).position(j));
-          normal = msgs::Convert((*iter)->contact(i).normal(j));
+          if (isBody1)
+            force = msgs::Convert((*iter)->contact(i).wrench(j).body_1_force());
+          else
+            force = msgs::Convert((*iter)->contact(i).wrench(j).body_2_force());
+
+          // Scaling formula taken from Gazebo's ContactVisual class
+          tactileOuput = (2.0 * (this->maxTactileOut - this->minTactileOut))
+              / (1 + exp(-force.GetSquaredLength() / 100)) -
+              (this->maxTactileOut - 2*this->minTactileOut);
 
           // transfrom into collision frame
           math::Pose colPose = col->GetInitialRelativePose() +
@@ -779,12 +811,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
           // if palm
           if (isPalm)
           {
-            // Collisions don't really match sandia hand spec so the best
-            // we could do is approximate the locations of tactile sensors
-            // on these collision. Idea as follows:
-            // Divide collision into smaller regions,
-            // Identify the region which the contact point lies,
-            // Set the corresponding tactile sensor output to 1
             switch (palmIdx)
             {
               case 0:
@@ -815,7 +841,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                   }
                   else if (ai == 2)
                     aIndex = 12;
-                  _tactileMsg->palm[aIndex] = 1;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
                 }
                 break;
               }
@@ -852,7 +878,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                     else
                       aIndex = 11;
                   }
-                  _tactileMsg->palm[aIndex] = 1;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
                 }
                 break;
               }
@@ -884,7 +910,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                   }
                   else if (ai == 2)
                     aIndex = 9;
-                  _tactileMsg->palm[aIndex] = 1;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
                 }
                 break;
               }
@@ -895,7 +921,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 int baseIndex = 22;
                 if (pos.z > 0)
                 {
-                  // distance apart = w 0.04304, h 0.05271
                   vPosInCol =
                       math::clamp((pos.y + this->palmColLength[palmIdx]/2.0) /
                       this->palmColLength[palmIdx], 0.0, 1.0);
@@ -909,7 +934,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                   ai = std::max(ai, 0);
                   aj = std::max(aj, 0);
                   aIndex = baseIndex + ai * this->palmHorSize[palmIdx] + aj;
-                  _tactileMsg->palm[aIndex] = 1;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
                 }
                 break;
               }
@@ -917,8 +942,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
               {
                 // Sensors on mid palm (default): 14 15 16 17; 18 19 20 21 22
                 // (numbers correspond to taxel sensor number in spec)
-
-                // distance apart: w 0.08004, h 0.01170
                 vPosInCol =
                     math::clamp(pos.y / this->palmColLength[palmIdx], 0.0, 1.0);
                 hPosInCol =
@@ -942,7 +965,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 else
                   aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
 
-                _tactileMsg->palm[aIndex] = 1;
+                _tactileMsg->palm[aIndex] = tactileOuput;
                 break;
               }
             }
@@ -973,26 +996,22 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
             switch (fingerIdx)
             {
               case 0:
-                 _tactileMsg->f0[aIndex] = 1;
+                 _tactileMsg->f0[aIndex] = tactileOuput;
                 break;
               case 1:
-                 _tactileMsg->f1[aIndex] = 1;
+                 _tactileMsg->f1[aIndex] = tactileOuput;
                 break;
               case 2:
-                 _tactileMsg->f2[aIndex] = 1;
+                 _tactileMsg->f2[aIndex] = tactileOuput;
                 break;
               case 3:
-                 _tactileMsg->f3[aIndex] = 1;
+                 _tactileMsg->f3[aIndex] = tactileOuput;
                 break;
             }
           }
-//          if (aIndex != -1)
-//            gzerr << aIndex + 1 << std::endl;
         }
       }
     }
-    // Clear the incoming contact list.
-    _incomingContacts.clear();
   }
 }
 
