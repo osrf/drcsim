@@ -19,7 +19,7 @@
         <pose>-0.01 0 0 0 -1.570790 0</pose>
         <geometry>
           <mesh>
-            <scale>0.5 0.5 0.8</scale>
+            <scale>0.4 0.4 0.8</scale>
             <uri>model://vrc_firehose_long/meshes/coupling_hexagon.stl</uri>
           </mesh>
         </geometry>
@@ -28,7 +28,7 @@
         <pose>-0.01 0 0 0 -1.570790 0</pose>
         <geometry>
           <mesh>
-            <scale>0.5 0.5 0.8</scale>
+            <scale>0.4 0.4 0.8</scale>
             <uri>model://vrc_firehose_long/meshes/coupling_hexagon.stl</uri>
           </mesh>
         </geometry>
