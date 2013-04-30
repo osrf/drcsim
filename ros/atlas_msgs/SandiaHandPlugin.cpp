@@ -614,9 +614,8 @@ void SandiaHandPlugin::UpdateStates()
         this->rightTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
         this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
             &this->rightTactile);
-      // Clear the incoming contact list.
-      this->incomingRContacts.clear();
-
+        // Clear the incoming contact list.
+        this->incomingRContacts.clear();
       }
       {
         boost::mutex::scoped_lock lock(this->contactLMutex);

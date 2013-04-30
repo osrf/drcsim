@@ -92,7 +92,7 @@ rosbuild_add_library(gazebo_ros_force gazebo_ros_force.cpp)
 
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
 rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
-rosbuild_add_library(ContactPlugin ContactPlugin.cpp)
+rosbuild_add_library(ContactModelPlugin ContactModelPlugin.cpp)
 
 # compile AtlasPlugin with AtlasSimInterface
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
@@ -121,6 +121,6 @@ install(TARGETS pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 # for backwards compatibility, also install pub_atlas_command globally; to
 # remove this, we need to update some launch files and scripts in atlas_msgs
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin ContactPlugin AtlasPlugin VRCPlugin VRCScoringPlugin DRCVehicleROSPlugin pub_atlas_command
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin ContactModelPlugin AtlasPlugin VRCPlugin VRCScoringPlugin DRCVehicleROSPlugin pub_atlas_command
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -14,8 +14,8 @@
  * limitations under the License.
  *
 */
-#ifndef _GAZEBO_CONTACT_PLUGIN_HH_
-#define _GAZEBO_CONTACT_PLUGIN_HH_
+#ifndef _GAZEBO_CONTACT_MODEL_PLUGIN_H_
+#define _GAZEBO_CONTACT_MODEL_PLUGIN_H_
 
 #include <string>
 
@@ -31,14 +31,14 @@
 
 namespace gazebo
 {
-  /// \brief A plugin for a contact sensor.
-  class ContactPlugin : public ModelPlugin
+  /// \brief Contact Model Plugin
+  class ContactModelPlugin : public ModelPlugin
   {
     /// \brief Constructor.
-    public: ContactPlugin();
+    public: ContactModelPlugin();
 
     /// \brief Destructor.
-    public: virtual ~ContactPlugin();
+    public: virtual ~ContactModelPlugin();
 
     /// \brief Load the model plugin.
     /// \param[in] _model Pointer to the model that loaded this plugin.
@@ -49,17 +49,17 @@ namespace gazebo
     // Documentation Inherited.
     public: virtual void Init();
 
-    /// \brief Callback that recieves the contact sensor's update signal.
+    /// \brief Callback that receives the world's update begin signal.
     private: virtual void OnUpdate();
 
     /// \brief Callback for contact messages from the physics engine.
     private: void OnContacts(ConstContactsPtr &_msg);
 
-    /// \brief Connection that maintains a link between the contact sensor's
-    /// updated signal and the OnUpdate callback.
+    /// \brief Connection that maintains a link between the world's update
+    /// begin signal and the OnUpdate callback.
     private: event::ConnectionPtr updateConnection;
 
-    /// \brief Transport node used for subscribing to contact sensor messages.
+    /// \brief Transport node used for subscribing to contact messages.
     private: transport::NodePtr node;
 
     /// \brief Subscription to contact messages from the physics engine
@@ -68,10 +68,12 @@ namespace gazebo
     /// \brief Mutex to protect reads and writes.
     private: mutable boost::mutex mutex;
 
-    /// \brief Contacts message used to output sensor data.
+    /// \brief Contacts message used to output contact data.
     private: msgs::Contacts contactsMsg;
 
     typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
+
+    /// \brief A list of incoming contact messages.
     private: ContactMsgs_L incomingContacts;
 
     /// \brief Collisions this plugin monitors for contacts
@@ -83,8 +85,10 @@ namespace gazebo
     /// \brief Output contact information.
     private: transport::PublisherPtr contactsPub;
 
+    /// \brief SDF for this plugin
     private: sdf::ElementPtr sdf;
 
+    /// \brief Model this plugin is attached to.
     private: physics::ModelPtr model;
   };
 }

@@ -16,18 +16,18 @@
 */
 
 #include "gazebo/transport/transport.hh"
-#include "ContactPlugin.h"
+#include "ContactModelPlugin.h"
 
 using namespace gazebo;
-GZ_REGISTER_MODEL_PLUGIN(ContactPlugin)
+GZ_REGISTER_MODEL_PLUGIN(ContactModelPlugin)
 
 /////////////////////////////////////////////////
-ContactPlugin::ContactPlugin() : ModelPlugin()
+ContactModelPlugin::ContactModelPlugin() : ModelPlugin()
 {
 }
 
 /////////////////////////////////////////////////
-ContactPlugin::~ContactPlugin()
+ContactModelPlugin::~ContactModelPlugin()
 {
   this->contactSub.reset();
   this->contactsPub.reset();
@@ -36,7 +36,7 @@ ContactPlugin::~ContactPlugin()
 }
 
 /////////////////////////////////////////////////
-void ContactPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
+void ContactModelPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
   this->model = _model;
   this->world = _model->GetWorld();
@@ -45,21 +45,23 @@ void ContactPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   std::string collisionName;
   std::string collisionScopedName;
 
-  sdf::ElementPtr collisionElem =
-    _sdf->GetElement("contact")->GetElement("collision");
-
-  // Get all the collision elements
-  while (collisionElem)
+  if (_sdf->HasElement("contact"))
   {
-    // get collision name
-    collisionName = collisionElem->GetValueString();
-    this->collisions.insert(_model->GetName() + "::" + collisionName);
-    collisionElem = collisionElem->GetNextElement("collision");
+    sdf::ElementPtr collisionElem =
+        _sdf->GetElement("contact")->GetElement("collision");
+    // Get all the collision elements
+    while (collisionElem)
+    {
+      // get collision name
+      collisionName = collisionElem->GetValueString();
+      this->collisions.insert(_model->GetName() + "::" + collisionName);
+      collisionElem = collisionElem->GetNextElement("collision");
+    }
   }
 }
 
 //////////////////////////////////////////////////
-void ContactPlugin::Init()
+void ContactModelPlugin::Init()
 {
   this->node.reset(new transport::Node());
   this->node->Init(this->world->GetName());
@@ -88,12 +90,12 @@ void ContactPlugin::Init()
   }
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-      boost::bind(&ContactPlugin::OnUpdate, this));
+      boost::bind(&ContactModelPlugin::OnUpdate, this));
 }
 
 
 //////////////////////////////////////////////////
-void ContactPlugin::OnUpdate()
+void ContactModelPlugin::OnUpdate()
 {
   // only subscribe when needed
   if (this->contactsPub && this->contactsPub->HasConnections())
@@ -101,7 +103,7 @@ void ContactPlugin::OnUpdate()
     if (!this->contactSub)
     {
       this->contactSub = this->node->Subscribe("~/physics/contacts",
-        &ContactPlugin::OnContacts, this);
+        &ContactModelPlugin::OnContacts, this);
     }
   }
   else
@@ -114,7 +116,7 @@ void ContactPlugin::OnUpdate()
   std::string collision1;
 
   // Don't do anything if there is no new data to process.
-  if (this->incomingContacts.size() == 0)
+  if (this->incomingContacts.empty())
     return;
 
   // Clear the outgoing contact message.
@@ -172,7 +174,7 @@ void ContactPlugin::OnUpdate()
 }
 
 //////////////////////////////////////////////////
-void ContactPlugin::OnContacts(ConstContactsPtr &_msg)
+void ContactModelPlugin::OnContacts(ConstContactsPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
 
