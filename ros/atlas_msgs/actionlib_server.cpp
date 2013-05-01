@@ -19,7 +19,7 @@ ASIActionServer::ASIActionServer()
 
   this->atlasStateSubscriber =
       this->rosNode.subscribe("atlas/atlas_state", 10,
-                              &ASIActionServer::atlasStateCB, this);
+                              &ASIActionServer::AtlasStateCB, this);
 
   this->atlasCommandPublisher =
     this->rosNode.advertise<atlas_msgs::AtlasSimInterfaceCommand>(
@@ -33,22 +33,27 @@ ASIActionServer::ASIActionServer()
 
 ////////////////////////////////////////////////////////////////////////////////
 void ASIActionServer::ASIStateCB(
-    const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg)
+    const atlas_msgs::AtlasSimInterfaceState::ConstPtr &_msg)
 {
+  // lock and use mode and params from goal
   boost::mutex::scoped_lock lock(this->actionServerMutex);
-  this->robotPosition.x = msg->pos_est.position.x;
-  this->robotPosition.y = msg->pos_est.position.y;
-  this->robotPosition.z = msg->pos_est.position.z;
+
+  {
+    boost::mutex::scoped_lock lock(this->robotStateMutex);
+    this->robotPosition.x = _msg->pos_est.position.x;
+    this->robotPosition.y = _msg->pos_est.position.y;
+    this->robotPosition.z = _msg->pos_est.position.z;
+  }
 
   // 80 characters
   typedef atlas_msgs::AtlasBehaviorFeedback ABFeedback;
 
-  this->actionServerResult.end_state = *msg;
+  this->actionServerResult.end_state = *_msg;
   // If result is actually successful flag will be set right before
   // claiming success
   this->actionServerResult.success = false;
 
-  int error_code = msg->error_code;
+  int error_code = _msg->error_code;
   switch (error_code)
   {
     case atlas_msgs::AtlasSimInterfaceState::NO_ERRORS:
@@ -94,7 +99,7 @@ void ASIActionServer::ASIStateCB(
   // Does the message contain bad news?
   // and should we do something about it other than letting the user
   // know we are in a bad state?
-  switch (msg->behavior_feedback.status_flags)
+  switch (_msg->behavior_feedback.status_flags)
   {
     case ABFeedback::STATUS_OK:
       ROS_DEBUG("ActionServer: AtlasBehaviorFeedback error: ["
@@ -145,7 +150,7 @@ void ASIActionServer::ASIStateCB(
 
   // more check
   atlas_msgs::AtlasSimInterfaceCommand command;
-  if (msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND &&
+  if (_msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND &&
       this->activeGoal.behavior == atlas_msgs::WalkDemoGoal::WALK &&
       this->actionServer->isActive() &&
       (!this->newGoal && !this->executingGoal))
@@ -202,9 +207,9 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::WALK:
         {
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
-          //   (int)msg->walk_feedback.current_step_index,
-          //   (int)msg->walk_feedback.next_step_index_needed,
-          //   msg->walk_feedback.t_step_rem,
+          //   (int)_msg->walk_feedback.current_step_index,
+          //   (int)_msg->walk_feedback.next_step_index_needed,
+          //   _msg->walk_feedback.t_step_rem,
           //   (int)this->currentStepIndex,
           //   (int)this->activeGoal.steps.size());
 
@@ -309,18 +314,18 @@ void ASIActionServer::ASIStateCB(
         {
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::WALK;
           int startIndex =
-            std::min((long)msg->walk_feedback.next_step_index_needed,
+            std::min((long)_msg->walk_feedback.next_step_index_needed,
               (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
 
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
-          //   (int)msg->walk_feedback.current_step_index,
-          //   (int)msg->walk_feedback.next_step_index_needed,
-          //   msg->walk_feedback.t_step_rem,
+          //   (int)_msg->walk_feedback.current_step_index,
+          //   (int)_msg->walk_feedback.next_step_index_needed,
+          //   _msg->walk_feedback.t_step_rem,
           //   (int)this->currentStepIndex,
           //   (int)this->activeGoal.steps.size());
 
           //Is the sequence completed?
-          if (msg->walk_feedback.current_step_index >=
+          if (_msg->walk_feedback.current_step_index >=
                 this->activeGoal.steps.size() - 1)
           {
             ROS_INFO("Walk trajectory completed, switching to stand mode.");
@@ -359,7 +364,7 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::STEP:
         // If step_feedback is in swaying, the next step can be sent
         if (this->actionServer->isActive() &&
-            msg->step_feedback.status_flags == 1 &&
+            _msg->step_feedback.status_flags == 1 &&
             this->isStepping)
         {
           this->isStepping = false;
@@ -367,7 +372,7 @@ void ASIActionServer::ASIStateCB(
           this->actionServer->setSucceeded(this->actionServerResult);
           this->executingGoal = false;
         }
-        else if (msg->step_feedback.status_flags == 2)
+        else if (_msg->step_feedback.status_flags == 2)
         {
           this->isStepping = true;
         }
@@ -383,7 +388,7 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
         if (this->actionServer->isActive() &&
-            msg->current_behavior ==
+            _msg->current_behavior ==
             atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP)
         {
           this->actionServerResult.success = true;
@@ -393,7 +398,7 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::STAND:
         if (this->actionServer->isActive() &&
-          msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND)
+          _msg->current_behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND)
         {
           this->actionServerResult.success = true;
           this->actionServer->setSucceeded(this->actionServerResult);
@@ -418,10 +423,10 @@ void ASIActionServer::ASIStateCB(
 
 //TODO use this subscriber to get where the feet are located
 ////////////////////////////////////////////////////////////////////////////////
-void ASIActionServer::atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg)
+void ASIActionServer::AtlasStateCB(const atlas_msgs::AtlasState::ConstPtr &_msg)
 {
-  boost::mutex::scoped_lock lock(this->actionServerMutex);
-  tf::quaternionMsgToTF(msg->orientation, this->robotOrientation);
+  boost::mutex::scoped_lock lock(this->robotStateMutex);
+  tf::quaternionMsgToTF(_msg->orientation, this->robotOrientation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -454,15 +459,10 @@ void ASIActionServer::ActionServerCB()
           return;
         }
 
-        ROS_INFO_STREAM("Current position - x: " << this->robotPosition.x <<
-                        " y: " << this->robotPosition.y <<
-                        " z: " << this->robotPosition.z);
         for (unsigned int i = 0; i < this->activeGoal.steps.size(); ++i)
         {
           transformStepPose(this->activeGoal.steps[i].pose);
           this->currentStepIndex = 0;
-
-
 
           ROS_DEBUG_STREAM("Step: " << i << " location- x: " <<
              this->activeGoal.steps[i].pose.position.x <<
@@ -510,62 +510,57 @@ void ASIActionServer::ActionServerCB()
   }
 }
 
-void ASIActionServer::transformStepPose(geometry_msgs::Pose &pose)
+void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
 {
+  tf::Vector3 rOPos;
+  tf::Quaternion agQ;
+  double yaw;
+  {
+    boost::mutex::scoped_lock lock(this->robotStateMutex);
     // Position vector of the robot
-    tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
+    rOPos = tf::Vector3(this->robotPosition.x,
                                     this->robotPosition.y,
                                     this->robotPosition.z);
 
-    // Create transform of this active goal step
-    tf::Quaternion agQ;
-    tf::quaternionMsgToTF(pose.orientation, agQ);
-
-    std::cout << "position [" <<
-                this->robotPosition.x << ", " <<
-                this->robotPosition.y << ", " <<
-                this->robotPosition.z << "] \norientation [" <<
-                this->robotOrientation.getX() << ", " <<
-                this->robotOrientation.getY() << ", " <<
-                this->robotOrientation.getZ() << ", " <<
-                this->robotOrientation.getW() << "]" << std::endl;
-
-
-    tf::Transform aGTransform(agQ.normalize(),
-      tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
-
     // We only want to transform with respect to the robot's yaw
-    double yaw = tf::getYaw(this->robotOrientation);
+    yaw = tf::getYaw(this->robotOrientation);
 
-    // Transform of the robot in world coordinates
-    tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
+    ROS_ERROR("robot pose [%f, %f, %f] [%f, %f, %f, %f]",
+                this->robotPosition.x, this->robotPosition.y,
+                this->robotPosition.z, this->robotOrientation.getX(),
+                this->robotOrientation.getY(), this->robotOrientation.getZ(),
+                this->robotOrientation.getW());
+  }
 
-    // Transform the active goal step to world pose.
-    tf::Transform newTransform = transform * aGTransform;
+  // Create transform of this active goal step
+  tf::quaternionMsgToTF(_pose.orientation, agQ);
+  tf::Transform aGTransform(agQ.normalize(),
+    tf::Vector3(_pose.position.x, _pose.position.y, _pose.position.z));
 
-    ROS_DEBUG_STREAM("Before xform. location-" <<
-       " x: " << pose.position.x <<
-       " y: " << pose.position.y <<
-       " z: " << pose.position.z);
+  // Transform of the robot in world coordinates
+  tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
 
-    // Create geometry_msgs transform msg and change the active goal to
-    // reflect the transform
-    geometry_msgs::Transform transformMsg;
-    tf::transformTFToMsg(newTransform, transformMsg);
-    pose.orientation = transformMsg.rotation;
-    pose.position.x = transformMsg.translation.x;
-    pose.position.y = transformMsg.translation.y;
-    pose.position.z = transformMsg.translation.z;
+  // Transform the active goal step to world pose.
+  tf::Transform newTransform = transform * aGTransform;
 
+  ROS_ERROR("After xform pose [%f, %f, %f] [%f, %f, %f, %f]",
+            _pose.position.x, _pose.position.y, _pose.position.z,
+            _pose.orientation.x, _pose.orientation.y, _pose.orientation.z,
+            _pose.orientation.w);
 
-    std::cout << " pose " <<
-                 " position: [ " << pose.position.x <<
-                 ", " << pose.position.y <<
-                 ", " << pose.position.z << "]\n quaternion: [" <<
-                 pose.orientation.x << ", " <<
-                 pose.orientation.y << ", " <<
-                 pose.orientation.z << ", " <<
-                 pose.orientation.w << "]" << std::endl;
+  // Create geometry_msgs transform msg and change the active goal to
+  // reflect the transform
+  geometry_msgs::Transform transformMsg;
+  tf::transformTFToMsg(newTransform, transformMsg);
+  _pose.orientation = transformMsg.rotation;
+  _pose.position.x = transformMsg.translation.x;
+  _pose.position.y = transformMsg.translation.y;
+  _pose.position.z = transformMsg.translation.z;
+
+  ROS_ERROR("After xform pose [%f, %f, %f] [%f, %f, %f, %f]",
+            _pose.position.x, _pose.position.y, _pose.position.z,
+            _pose.orientation.x, _pose.orientation.y, _pose.orientation.z,
+            _pose.orientation.w);
 }
 
 void ASIActionServer::abortGoal(std::string reason)

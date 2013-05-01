@@ -165,9 +165,12 @@ class AtlasTeleop():
         self.client.send_goal(walk_goal)
           
             
-        self.client.wait_for_result(\
-          rospy.Duration(self.params["Stride Duration"]["value"] * \
-                         len(steps) + 5))
+        # should make a callback that subscribes to the actionlib results topic
+        # rather than a blocking wait here, so user can dispatch new goals
+        # while last goal is being executed.
+        # self.client.wait_for_result(\
+        #   rospy.Duration(self.params["Stride Duration"]["value"] * \
+        #                  len(steps) + 5))
 
     def static_twist(self, forward, lateral, turn):
         self.is_static = True
