@@ -15,6 +15,9 @@
       <brake_pedal>polaris_ranger_ev::brake_joint</brake_pedal>
       <steering_wheel>polaris_ranger_ev::steering_joint</steering_wheel>
       <hand_brake>polaris_ranger_ev::hand_brake_joint</hand_brake>
+      <fnr_switch>polaris_ranger_ev::FNR_switch_joint</fnr_switch>
+      <fnr_switch_f>polaris_ranger_ev::FNR_switch::FNR_switch_F</fnr_switch_f>
+      <fnr_switch_r>polaris_ranger_ev::FNR_switch::FNR_switch_R</fnr_switch_r>
       <front_torque>0</front_torque>
       <back_torque>2000</back_torque>
       <front_brake_torque>2000</front_brake_torque>
