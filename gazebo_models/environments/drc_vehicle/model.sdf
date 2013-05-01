@@ -23,8 +23,10 @@
       <front_brake_torque>2000</front_brake_torque>
       <back_brake_torque>2000</back_brake_torque>
       <tire_angle_range>0.5</tire_angle_range>
-      <max_speed>10</max_speed>
+      <!-- 15 km/hr ~= 4.2 m/s -->
+      <max_speed>4.2</max_speed>
       <aero_load>0.1</aero_load>
+      <min_brake_percent>0.04</min_brake_percent>
     </plugin>
     <plugin name="seat_mud" filename="libMudPlugin.so">
       <contact_sensor_name>polaris_ranger_ev/chassis/seat_contact</contact_sensor_name>
