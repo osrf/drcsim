@@ -12,21 +12,6 @@
           </box>
         </geometry>
       </collision>
-      <visual name="right_visual">
-        <pose>0 -4.0 0 0 0 0</pose>
-        <geometry>
-          <box>
-            <size>0.2 0.2 4.0</size>
-          </box>
-        </geometry>
-        <material>
-          <script>
-            <uri>model://gate/materials/scripts/gate.material</uri>
-            <uri>model://gate/materials/textures</uri>
-            <name>vrc/red_gate</name>
-          </script>
-        </material>
-      </visual>
 
       <collision name="left_collision">
         <pose>0 4.0 0 0 0 0</pose>
@@ -36,21 +21,6 @@
           </box>
         </geometry>
       </collision>
-      <visual name="left_visual">
-        <pose>0 4.0 0 0 0 0</pose>
-        <geometry>
-          <box>
-            <size>0.2 0.2 4.0</size>
-          </box>
-        </geometry>
-        <material>
-          <script>
-            <uri>model://gate/materials/scripts/gate.material</uri>
-            <uri>model://gate/materials/textures</uri>
-            <name>vrc/blue_gate</name>
-          </script>
-        </material>
-      </visual>
 
       <collision name="top_collision">
         <pose>0 0 2.1 0 0 0</pose>
@@ -60,21 +30,23 @@
           </box>
         </geometry>
       </collision>
-      <visual name="top_visual">
-        <pose>0 0 2.1 0 0 0</pose>
+
+      <visual name="visual">
+        <pose>0 0 -2.0 0 0 0</pose>
         <geometry>
-          <box>
-            <size>0.2 8.2 0.2</size>
-          </box>
+          <mesh>
+            <uri>model://vehicle_gate/meshes/vehicle_gate.dae</uri>
+          </mesh>
         </geometry>
         <material>
           <script>
             <uri>model://gate/materials/scripts/gate.material</uri>
             <uri>model://gate/materials/textures</uri>
-            <name>vrc/green_gate</name>
+            <name>vrc/gate</name>
           </script>
         </material>
       </visual>
+
     </link>
   </model>
 </sdf>
