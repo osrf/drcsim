@@ -512,15 +512,30 @@ void ASIActionServer::ActionServerCB()
 
 void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
 {
-  tf::Vector3 rOPos;
+  // for debugging
+  ROS_ERROR("Before xform pose [%f, %f, %f] [%f, %f, %f, %f]",
+            _pose.position.x, _pose.position.y, _pose.position.z,
+            _pose.orientation.x, _pose.orientation.y, _pose.orientation.z,
+            _pose.orientation.w);
+  //
+  // convert incoming goal pose to tf::Transform
+  //
   tf::Quaternion agQ;
+  tf::quaternionMsgToTF(_pose.orientation, agQ);
+  tf::Transform goalTransform(agQ.normalize(),
+    tf::Vector3(_pose.position.x, _pose.position.y, _pose.position.z));
+
+  //
+  // transform current robot pose into tf::Transform
+  //
+  tf::Vector3 rOPos;
   double yaw;
   {
     boost::mutex::scoped_lock lock(this->robotStateMutex);
     // Position vector of the robot
     rOPos = tf::Vector3(this->robotPosition.x,
-                                    this->robotPosition.y,
-                                    this->robotPosition.z);
+                        this->robotPosition.y,
+                        this->robotPosition.z);
 
     // We only want to transform with respect to the robot's yaw
     yaw = tf::getYaw(this->robotOrientation);
@@ -531,25 +546,16 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
                 this->robotOrientation.getY(), this->robotOrientation.getZ(),
                 this->robotOrientation.getW());
   }
+  tf::Transform robotTransform(tf::createQuaternionFromYaw(yaw), rOPos);
 
-  // Create transform of this active goal step
-  tf::quaternionMsgToTF(_pose.orientation, agQ);
-  tf::Transform aGTransform(agQ.normalize(),
-    tf::Vector3(_pose.position.x, _pose.position.y, _pose.position.z));
-
-  // Transform of the robot in world coordinates
-  tf::Transform transform(tf::createQuaternionFromYaw(yaw), rOPos);
-
+  //
   // Transform the active goal step to world pose.
-  tf::Transform newTransform = transform * aGTransform;
+  //
+  tf::Transform newTransform = robotTransform * goalTransform;
 
-  ROS_ERROR("After xform pose [%f, %f, %f] [%f, %f, %f, %f]",
-            _pose.position.x, _pose.position.y, _pose.position.z,
-            _pose.orientation.x, _pose.orientation.y, _pose.orientation.z,
-            _pose.orientation.w);
-
-  // Create geometry_msgs transform msg and change the active goal to
-  // reflect the transform
+  //
+  // Convert new tf::Transform'd goals back into geometry_msgs::Pose
+  //
   geometry_msgs::Transform transformMsg;
   tf::transformTFToMsg(newTransform, transformMsg);
   _pose.orientation = transformMsg.rotation;
