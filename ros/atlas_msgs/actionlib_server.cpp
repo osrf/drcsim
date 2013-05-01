@@ -329,6 +329,7 @@ void ASIActionServer::ASIStateCB(
             return;
           }
 
+          // TODO adjust logic here to fix things.
           // if needed, publish next set of 4 commands
           if (true)
           {
