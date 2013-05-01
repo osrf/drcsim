@@ -166,7 +166,7 @@ class AtlasTeleop():
           
             
         self.client.wait_for_result(\
-          rospy.Duration(2*self.params["Stride Duration"]["value"] * \
+          rospy.Duration(self.params["Stride Duration"]["value"] * \
                          len(steps) + 5))
 
     def static_twist(self, forward, lateral, turn):
@@ -195,12 +195,13 @@ class AtlasTeleop():
             
             
             self.client.send_goal(walk_goal)
-            self.client.wait_for_result(rospy.Duration(5))
-            result = self.client.get_result()
-            rospy.sleep(4)
-            if result.success == False:
-                self.loginfo("Static walk failed: \n" + "Goal: \n " + str(walk_goal) + "\nResult: " + str(result))
-                break
+            result_status = self.client.wait_for_result(rospy.Duration(5))
+            if result_status != 0:
+                result = self.client.get_result()
+                rospy.sleep(4)
+                if result.success == False:
+                    self.loginfo("Static walk failed: \n" + "Goal: \n " + str(walk_goal) + "\nResult: " + str(result))
+                    break
             #if self.client.get_result() != SUCCEEDED:
             #    self.loginfo("Static walk trajectory timed out, cancelling")
             #    break
