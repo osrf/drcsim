@@ -190,7 +190,7 @@ void ASIActionServer::ASIStateCB(
     // copy goal info into command to be dispatched over
     // AtlasSimInterfaceCommand
     command.header = this->activeGoal.header;
-    //command.behavior = this->activeGoal.behavior;
+    command.behavior = this->activeGoal.behavior;
     command.k_effort = this->activeGoal.k_effort;
     command.step_params = this->activeGoal.step_params;
     command.manipulate_params = this->activeGoal.manipulate_params;
@@ -232,6 +232,7 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::STEP:
         {
           atlas_msgs::AtlasSimInterfaceCommand command;
+          command.header = this->activeGoal.header;
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STEP;
           command.step_params.desired_step.step_index = 1;
           command.step_params.desired_step.pose.position.x =
@@ -254,7 +255,7 @@ void ASIActionServer::ASIStateCB(
                   this->activeGoal.step_params.desired_step.foot_index;
 
           this->atlasCommandPublisher.publish(command);
-          this->is_stepping = false;
+          this->isStepping = false;
         }
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
@@ -292,10 +293,10 @@ void ASIActionServer::ASIStateCB(
   {
     // continue executing current goal
 
-    // copy goal info into command to be dispatched over
+    /// \TODO: copy goal info into command to be dispatched over (do we need to dispatch here?)
     // AtlasSimInterfaceCommand
     command.header = this->activeGoal.header;
-    //command.behavior = this->activeGoal.behavior;
+    command.behavior = this->activeGoal.behavior;
     command.k_effort = this->activeGoal.k_effort;
     command.step_params = this->activeGoal.step_params;
     command.manipulate_params = this->activeGoal.manipulate_params;
@@ -329,9 +330,9 @@ void ASIActionServer::ASIStateCB(
             return;
           }
 
-          // TODO adjust logic here to fix things.
-          // if needed, publish next set of 4 commands
-          if (true)
+          /// \TODO: walk behavior sometimes fails/stalls, and no status_flags appear
+          /// to be triggered/updated?  need to investigate.
+          if (static_cast<int>(this->currentStepIndex) < startIndex)
           {
             this->currentStepIndex = static_cast<unsigned int>(startIndex);
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
@@ -359,16 +360,16 @@ void ASIActionServer::ASIStateCB(
         // If step_feedback is in swaying, the next step can be sent
         if (this->actionServer->isActive() &&
             msg->step_feedback.status_flags == 1 &&
-            this->is_stepping)
+            this->isStepping)
         {
-          this->is_stepping = false;
+          this->isStepping = false;
           this->actionServerResult.success = true;
           this->actionServer->setSucceeded(this->actionServerResult);
           this->executingGoal = false;
         }
         else if (msg->step_feedback.status_flags == 2)
         {
-          this->is_stepping = true;
+          this->isStepping = true;
         }
         else
         {
@@ -484,7 +485,7 @@ void ASIActionServer::ActionServerCB()
       }
     case atlas_msgs::WalkDemoGoal::STEP:
       {
-        this->is_stepping = false;
+        this->isStepping = false;   /// change to isStepping
         this->pubCount = 0;
         transformStepPose(this->activeGoal.step_params.desired_step.pose);
       }
@@ -514,7 +515,7 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &pose)
     // Position vector of the robot
     tf::Vector3 rOPos = tf::Vector3(this->robotPosition.x,
                                     this->robotPosition.y,
-                                    0);
+                                    this->robotPosition.z);
 
     // Create transform of this active goal step
     tf::Quaternion agQ;
@@ -552,12 +553,9 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &pose)
     geometry_msgs::Transform transformMsg;
     tf::transformTFToMsg(newTransform, transformMsg);
     pose.orientation = transformMsg.rotation;
-    pose.position.x =
-        transformMsg.translation.x;
-    pose.position.y =
-        transformMsg.translation.y;
-    pose.position.z =
-        transformMsg.translation.z;
+    pose.position.x = transformMsg.translation.x;
+    pose.position.y = transformMsg.translation.y;
+    pose.position.z = transformMsg.translation.z;
 
 
     std::cout << " pose " <<

@@ -15,6 +15,8 @@ int32 ERROR_NO_SUCH_BEHAVIOR           = -6    # behavior doesn't exist
 int32 ERROR_BEHAVIOR_NOT_IMPLEMENTED   = -7    # behavior exists but not implemented
 int32 ERROR_TIME_RAN_BACKWARD          = -8    # a time earlier than previous times was given
 
+Header header
+
 int32 error_code                         # error code returned by
                                          # process_control_input.
                                          # See AtlasSimInterfaceTypes.h

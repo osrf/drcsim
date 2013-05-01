@@ -67,7 +67,9 @@ namespace gazebo
 
     /// \brief Load the plugin
     /// \param take in SDF root element
-    public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
+    public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf,
+                      const std::string &_camera_name_suffix = "",
+                      double _hack_baseline = 0.0);
 
     private: void Init();
 
@@ -80,6 +82,11 @@ namespace gazebo
     protected: int image_connect_count_;
     protected: void ImageConnect();
     protected: void ImageDisconnect();
+
+    /// \brief Keep track when we activate this camera through ros
+    /// subscription, was it already active?  resume state when
+    /// unsubscribed.
+    protected: bool was_active_;
 
     /// \brief: Camera modification functions
     private: void SetHFOV(const std_msgs::Float64::ConstPtr& hfov);
