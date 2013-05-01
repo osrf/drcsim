@@ -159,9 +159,15 @@ namespace gazebo
     ///        joint limits.
     public: double GetHandBrakePercent();
 
+    /// \brief Update the handBrakeTime variable with the current time.
+    public: void UpdateHandBrakeTime();
+
     /// \brief Returns the percent utilization of the FNR switch relative to
     ///        joint limits.
     public: double GetFNRSwitchPercent();
+
+    /// \brief Update the fnrSwitchTime variable with the current time.
+    public: void UpdateFNRSwitchTime();
 
     /// \brief Specify front wheel orientation in radians (Note: this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
@@ -232,12 +238,24 @@ namespace gazebo
     public: double GetBrakePedalPercent();
 
     /// Default plugin init call.
-    public: void Init();
+    public: virtual void Init();
 
     private: double GetGasTorqueMultiplier();
     private: double get_collision_radius(physics::CollisionPtr _collision);
     private: math::Vector3 get_collision_position(physics::LinkPtr _link,
                                                   unsigned int _id);
+
+    /// \brief Transport node used for publishing visual messages.
+    private: transport::NodePtr node;
+
+    /// \brief Publisher for visual messages for FNR switch.
+    private: transport::PublisherPtr visualPub;
+
+    /// \brief Message for FNR switch visual indicating forward.
+    private: msgs::Visual msgForward;
+
+    /// \brief Message for FNR switch visual indicating reverse.
+    private: msgs::Visual msgReverse;
 
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
@@ -304,7 +322,14 @@ namespace gazebo
     private: common::PID flWheelSteeringPID;
     private: common::PID frWheelSteeringPID;
 
+    /// \brief Time of last update, used to detect resets.
     private: common::Time lastTime;
+
+    /// \brief Time of last teleoperation command for hand brake.
+    private: common::Time handBrakeTime;
+
+    /// \brief Time of last teleoperation command for FNR switch.
+    private: common::Time fnrSwitchTime;
 
     /// joint information from model
     private: double gasPedalHigh;

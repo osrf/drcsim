@@ -20,6 +20,7 @@
 #include <gazebo/physics/Base.hh>
 #include <gazebo/physics/CylinderShape.hh>
 #include <gazebo/physics/SphereShape.hh>
+#include <gazebo/transport/transport.hh>
 #include "DRCVehiclePlugin.hh"
 
 namespace gazebo
@@ -75,6 +76,10 @@ DRCVehiclePlugin::~DRCVehiclePlugin()
 // Initialize
 void DRCVehiclePlugin::Init()
 {
+  this->node.reset(new transport::Node());
+  this->node->Init(this->world->GetName());
+
+  this->visualPub = this->node->Advertise<msgs::Visual>("~/visual");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -319,6 +324,12 @@ double DRCVehiclePlugin::GetHandBrakePercent()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::UpdateHandBrakeTime()
+{
+  this->handBrakeTime = this->world->GetSimTime();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 double DRCVehiclePlugin::GetFNRSwitchPercent()
 {
   double min, max;
@@ -331,6 +342,37 @@ void DRCVehiclePlugin::GetFNRSwitchLimits(double &_min, double &_max)
 {
   _max = this->fnrSwitchHigh;
   _min = this->fnrSwitchLow;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void DRCVehiclePlugin::UpdateFNRSwitchTime()
+{
+  this->fnrSwitchTime = this->world->GetSimTime();
+  switch (this->directionState)
+  {
+    case FORWARD:
+      this->fnrSwitchCmd = this->fnrSwitchLow;
+      if (!this->fnrSwitchF.empty() && !fnrSwitchR.empty() && this->visualPub
+         && this->fnrSwitchTime.sec > 0)
+      {
+        this->msgForward.set_transparency(0.0);
+        this->msgReverse.set_transparency(1.0);
+        this->visualPub->Publish(this->msgForward);
+        this->visualPub->Publish(this->msgReverse);
+      }
+      break;
+    case REVERSE:
+      this->fnrSwitchCmd = this->fnrSwitchHigh;
+      if (!this->fnrSwitchF.empty() && !fnrSwitchR.empty() && this->visualPub
+         && this->fnrSwitchTime.sec > 0)
+      {
+        this->msgForward.set_transparency(1.0);
+        this->msgReverse.set_transparency(0.0);
+        this->visualPub->Publish(this->msgForward);
+        this->visualPub->Publish(this->msgReverse);
+      }
+      break;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -446,8 +488,11 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
       + _sdf->GetValueString("fnr_switch_f");
 
   if (_sdf->HasElement("fnr_switch_r"))
-    this->fnrSwitchF = this->model->GetName() + "::"
+    this->fnrSwitchR = this->model->GetName() + "::"
       + _sdf->GetValueString("fnr_switch_r");
+
+  this->msgForward.set_name(this->fnrSwitchF);
+  this->msgReverse.set_name(this->fnrSwitchR);
 
   // Put some deadband at the end of range for gas and brake pedals
   // and hand brake
@@ -490,7 +535,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->fnrSwitchLow = jointCenter +
     (1 - this->jointDeadbandPercent) * (this->fnrSwitchLow - jointCenter);
   this->fnrSwitchRange   = this->fnrSwitchHigh - this->fnrSwitchLow;
-  this->fnrSwitchCmd = this->fnrSwitchHigh;
+  this->UpdateFNRSwitchTime();
 
   // get some vehicle parameters
   std::string paramName;
@@ -634,6 +679,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
       boost::bind(&DRCVehiclePlugin::UpdateStates, this));
 
   this->lastTime = this->world->GetSimTime();
+  this->handBrakeTime = this->lastTime;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -670,14 +716,14 @@ void DRCVehiclePlugin::UpdateStates()
     double handBrakeCmdEps = 0.01;
     if (this->handBrakeCmd < (this->handBrakeLow + handBrakeCmdEps) &&
         this->GetHandBrakePercent() > (0.5 + handBrakeHysteresis) &&
-        curTime.sec >= 1)
+        (curTime-this->handBrakeTime).Double() > 0.5)
     {
       this->handBrakeCmd = this->handBrakeHigh;
       gzdbg << "Hand brake manually enabled\n";
     }
     else if (this->handBrakeCmd > (this->handBrakeHigh - handBrakeCmdEps) &&
         this->GetHandBrakePercent() < (0.5 - handBrakeHysteresis) &&
-        curTime.sec >= 1)
+        (curTime-this->handBrakeTime).Double() > 0.5)
     {
       this->handBrakeCmd = this->handBrakeLow;
       gzdbg << "Hand brake manually disabled\n";
@@ -693,19 +739,19 @@ void DRCVehiclePlugin::UpdateStates()
     double fnrSwitchCmdEps = handBrakeCmdEps;
     if (this->fnrSwitchCmd < (fnrSwitchLow + fnrSwitchCmdEps) &&
         this->GetFNRSwitchPercent() > (0.5 + fnrSwitchHysteresis) &&
-        curTime.sec >= 1)
+        (curTime-this->fnrSwitchTime).Double() > 0.5)
     {
-      this->fnrSwitchCmd = this->fnrSwitchHigh;
-      this->SetDirectionState(FORWARD);
-      gzdbg << "FNR switch manually set to forward\n";
+      this->SetDirectionState(REVERSE);
+      this->UpdateFNRSwitchTime();
+      gzdbg << "FNR switch manually set to reverse\n";
     }
     else if (this->fnrSwitchCmd > (fnrSwitchHigh - fnrSwitchCmdEps) &&
         this->GetFNRSwitchPercent() < (0.5 - fnrSwitchHysteresis) &&
-        curTime.sec >= 1)
+        (curTime-this->fnrSwitchTime).Double() > 0.5)
     {
-      this->fnrSwitchCmd = this->fnrSwitchLow;
-      this->SetDirectionState(REVERSE);
-      gzdbg << "FNR switch manually set to reverse\n";
+      this->SetDirectionState(FORWARD);
+      this->UpdateFNRSwitchTime();
+      gzdbg << "FNR switch manually set to forward\n";
     }
 
     // PID (position) FNR switch
