@@ -53,6 +53,7 @@ namespace gazebo
     private: virtual void OnUpdate();
 
     /// \brief Callback for contact messages from the physics engine.
+    /// \param[in] _msg Gazebo contact message
     private: void OnContacts(ConstContactsPtr &_msg);
 
     /// \brief Connection that maintains a link between the world's update

@@ -686,12 +686,12 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
   // Identify the region which the contact point lies,
   // Set the corresponding (closest) tactile sensor's output value.
 
-    std::vector<std::string>::iterator collIter;
-    std::string collision1;
-
   // Don't do anything if there is no new data to process.
   if (!_incomingContacts.empty())
   {
+    std::vector<std::string>::iterator collIter;
+    std::string collision1;
+
     std::string sideStr = (_side == LEFT_HAND) ? "left" : "right";
     // Iterate over all the contact messages
     for (ContactMsgs_L::iterator iter = _incomingContacts.begin();
@@ -991,7 +991,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
                 * this->fingerVerSize[0] +
                 ai * this->fingerHorSize[fingerColIdx] + aj;
 
-            // Set the corresponding index in tactile senor array to 1
+            // Set the corresponding index in tactile sensor array to 1
             switch (fingerIdx)
             {
               case 0:

@@ -165,7 +165,7 @@ void ContactModelPlugin::OnUpdate()
   // Clear the incoming contact list.
   this->incomingContacts.clear();
 
-  // Generate a outgoing message only if someone is listening.
+  // Generate an outgoing message only if someone is listening.
   if (this->contactsPub && this->contactsPub->HasConnections())
   {
     msgs::Set(this->contactsMsg.mutable_time(), this->world->GetSimTime());

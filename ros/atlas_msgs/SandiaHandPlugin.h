@@ -93,9 +93,11 @@ namespace gazebo
                                     const unsigned joint_offset);
 
     /// \brief Callback for contact messages from right hand
+    /// \param[in] _msg Gazebo contact message
     private: void OnRContacts(ConstContactsPtr &_msg);
 
     /// \brief Callback for contact messages from left hand
+    /// \param[in] _msg Gazebo contact message
     private: void OnLContacts(ConstContactsPtr &_msg);
 
     typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
