@@ -812,12 +812,14 @@ void VRCPlugin::CheckThreadStart()
   double posErr = (relativePose.pos - connectPose.pos).GetLength();
   double rotErr = (relativePose.rot.GetZAxis() -
                    connectPose.rot.GetZAxis()).GetLength();
+  double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
 
   // gzdbg << " connectPose [" << connectPose << "]\n";
   // gzdbg << " relativePose [" << relativePose << "]\n";
   // gzdbg << "connect offset [" << connectOffset
   //       << "] xyz [" << posErr
   //       << "] rpy [" << rotErr
+  //       << "] valve [" << valveAng
   //       << "]\n";
 
   if (!this->drcFireHose.screwJoint)
@@ -827,7 +829,7 @@ void VRCPlugin::CheckThreadStart()
     // would prevent you from attaching a hose.  This check also
     // prevents out-of-order execution that would confuse scoring in
     // VRCScoringPlugin.
-    if (posErr < 0.01 && rotErr < 0.01 && this->drcFireHose.valveJoint->GetAngle(0) > -0.1)
+    if (posErr < 0.01 && rotErr < 0.01 && valveAng > -0.1)
     {
       this->drcFireHose.screwJoint =
         this->AddJoint(this->world, this->drcFireHose.fireHoseModel,
@@ -849,6 +851,7 @@ void VRCPlugin::CheckThreadStart()
   {
     // check joint position to disconnect
     double position = this->drcFireHose.screwJoint->GetAngle(0).Radian();
+    // gzdbg << "unscrew if [" <<  position << "] < -0.003\n";
     if (position < -0.0003)
       this->RemoveJoint(this->drcFireHose.screwJoint);
   }
