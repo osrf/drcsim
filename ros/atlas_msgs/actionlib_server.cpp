@@ -330,7 +330,7 @@ void ASIActionServer::ASIStateCB(
           }
 
           // if needed, publish next set of 4 commands
-          if (static_cast<int>(this->currentStepIndex) < startIndex)
+          if (true)
           {
             this->currentStepIndex = static_cast<unsigned int>(startIndex);
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
