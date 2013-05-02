@@ -23,8 +23,8 @@
       <front_brake_torque>2000</front_brake_torque>
       <back_brake_torque>2000</back_brake_torque>
       <tire_angle_range>0.5</tire_angle_range>
-      <!-- 15 km/hr ~= 4.2 m/s -->
-      <max_speed>4.2</max_speed>
+      <!-- 16 km/hr ~= 4.5 m/s -->
+      <max_speed>4.5</max_speed>
       <aero_load>0.1</aero_load>
       <min_brake_percent>0.04</min_brake_percent>
     </plugin>
