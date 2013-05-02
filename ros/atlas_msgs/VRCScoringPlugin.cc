@@ -209,7 +209,7 @@ void VRCScoringPlugin::DeferredLoad()
 }
 
 /////////////////////////////////////////////////
-void VRCScoringPlugin::WriteScore(const common::Time& _currTime,
+void VRCScoringPlugin::WriteScore(const common::Time &_currTime,
   const std::string &_msg, bool _force)
 {
   // Write at 1Hz

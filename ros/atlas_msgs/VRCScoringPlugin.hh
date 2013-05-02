@@ -98,7 +98,7 @@ namespace gazebo
     /// \param _msg Log message to include
     /// \param _force If true, write output; otherwise write output only if
     /// enough time has passed since the last write.
-    private: void WriteScore(const gazebo::common::Time& _currTime, 
+    private: void WriteScore(const gazebo::common::Time& _currTime,
       const std::string &_msg, bool _force);
 
     /// \brief Is this world gate-based?
@@ -142,7 +142,7 @@ namespace gazebo
                             const gazebo::math::Pose& _pose,
                             double _width)
                          : name(_name), type(_type),
-                           number(_number), pose(_pose), 
+                           number(_number), pose(_pose),
                            width(_width), passed(false) {}
 
                /// \brief Less-than operator to allow sorting of a list of
@@ -272,7 +272,7 @@ namespace gazebo
     private: enum WorldType worldType;
 
     /// \brief ros node handle
-    private: ros::NodeHandle* rosNode;
+    private: ros::NodeHandle *rosNode;
 
     /// \brief publisher of vrc_score
     private: ros::Publisher pubScore;
