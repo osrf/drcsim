@@ -60,6 +60,7 @@
 #include <atlas_msgs/ForceTorqueSensors.h>
 
 #include <atlas_msgs/ResetControls.h>
+#include <atlas_msgs/SetJointDamping.h>
 #include <atlas_msgs/ControllerStatistics.h>
 
 // don't use these to control
@@ -116,6 +117,13 @@ namespace gazebo
     /// \param[in] _res Outgoing ros service response
     private: bool ResetControls(atlas_msgs::ResetControls::Request &_req,
       atlas_msgs::ResetControls::Response &_res);
+
+    /// \brief ros service callback to set only joint damping
+    /// all other elementes ignored.
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
+      atlas_msgs::SetJointDamping::Response &_res);
 
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
@@ -268,6 +276,9 @@ namespace gazebo
     /// \brief ros service to reset controls internal states
     private: ros::ServiceServer resetControlsService;
 
+    /// \brief ros service to change joint damping
+    private: ros::ServiceServer setJointDampingService;
+
     /// \brief helper function to copy states
     private: void AtlasControlOutputToAtlasSimInterfaceState(
               atlas_msgs::AtlasBehaviorFeedback *_fb,
@@ -385,8 +396,9 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
-    private: double kp_velocityMax;
-    private: double kp_velocityMin;
+
+    private: std::vector<double> jointDampingMax;
+    private: std::vector<double> jointDampingMin;
   };
 }
 #endif

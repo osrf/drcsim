@@ -53,10 +53,6 @@ AtlasPlugin::AtlasPlugin()
   this->behaviorMap["Step"] = atlas_msgs::AtlasSimInterfaceCommand::STEP;
   this->behaviorMap["Manipulate"] =
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
-
-  // kp_velocity bounds Nms/rad
-  this->kp_velocityMax = 10.0;
-  this->kp_velocityMin = 0.1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +162,67 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       this->errorTerms[i].k_i_q_i = 0;
       this->errorTerms[i].qd_p = 0;
     }
+  }
+
+  {
+    // kp_velocity bounds Nms/rad
+    this->jointDampingMax.push_back(10.0);  // back_lbz
+    this->jointDampingMax.push_back(10.0);  // back_mby
+    this->jointDampingMax.push_back(10.0);  // back_ubx
+    this->jointDampingMax.push_back(10.0);  // neck_ay
+    this->jointDampingMax.push_back(10.0);  // l_leg_uhz
+    this->jointDampingMax.push_back(10.0);  // l_leg_mhx
+    this->jointDampingMax.push_back(10.0);  // l_leg_lhy
+    this->jointDampingMax.push_back(1.0);  // l_leg_kny
+    this->jointDampingMax.push_back(1.0);  // l_leg_uay
+    this->jointDampingMax.push_back(1.0);  // l_leg_lax
+    this->jointDampingMax.push_back(10.0);  // r_leg_uhz
+    this->jointDampingMax.push_back(10.0);  // r_leg_mhx
+    this->jointDampingMax.push_back(10.0);  // r_leg_lhy
+    this->jointDampingMax.push_back(1.0);  // r_leg_kny
+    this->jointDampingMax.push_back(1.0);  // r_leg_uay
+    this->jointDampingMax.push_back(1.0);  // r_leg_lax
+    this->jointDampingMax.push_back(1.0);  // l_arm_usy
+    this->jointDampingMax.push_back(1.0);  // l_arm_shx
+    this->jointDampingMax.push_back(1.0);  // l_arm_ely
+    this->jointDampingMax.push_back(1.0);  // l_arm_elx
+    this->jointDampingMax.push_back(1.0);  // l_arm_uwy
+    this->jointDampingMax.push_back(1.0);  // l_arm_mwx
+    this->jointDampingMax.push_back(1.0);  // r_arm_usy
+    this->jointDampingMax.push_back(1.0);  // r_arm_shx
+    this->jointDampingMax.push_back(1.0);  // r_arm_ely
+    this->jointDampingMax.push_back(1.0);  // r_arm_elx
+    this->jointDampingMax.push_back(1.0);  // r_arm_uwy
+    this->jointDampingMax.push_back(1.0);  // r_arm_mwx
+
+    this->jointDampingMin.push_back(0.1);  // back_lbz
+    this->jointDampingMin.push_back(0.1);  // back_mby
+    this->jointDampingMin.push_back(0.1);  // back_ubx
+    this->jointDampingMin.push_back(0.1);  // neck_ay
+    this->jointDampingMin.push_back(0.1);  // l_leg_uhz
+    this->jointDampingMin.push_back(0.1);  // l_leg_mhx
+    this->jointDampingMin.push_back(0.1);  // l_leg_lhy
+    this->jointDampingMin.push_back(0.1);  // l_leg_kny
+    this->jointDampingMin.push_back(0.1);  // l_leg_uay
+    this->jointDampingMin.push_back(0.1);  // l_leg_lax
+    this->jointDampingMin.push_back(0.1);  // r_leg_uhz
+    this->jointDampingMin.push_back(0.1);  // r_leg_mhx
+    this->jointDampingMin.push_back(0.1);  // r_leg_lhy
+    this->jointDampingMin.push_back(0.1);  // r_leg_kny
+    this->jointDampingMin.push_back(0.1);  // r_leg_uay
+    this->jointDampingMin.push_back(0.1);  // r_leg_lax
+    this->jointDampingMin.push_back(0.1);  // l_arm_usy
+    this->jointDampingMin.push_back(0.1);  // l_arm_shx
+    this->jointDampingMin.push_back(0.1);  // l_arm_ely
+    this->jointDampingMin.push_back(0.1);  // l_arm_elx
+    this->jointDampingMin.push_back(0.1);  // l_arm_uwy
+    this->jointDampingMin.push_back(0.1);  // l_arm_mwx
+    this->jointDampingMin.push_back(0.1);  // r_arm_usy
+    this->jointDampingMin.push_back(0.1);  // r_arm_shx
+    this->jointDampingMin.push_back(0.1);  // r_arm_ely
+    this->jointDampingMin.push_back(0.1);  // r_arm_elx
+    this->jointDampingMin.push_back(0.1);  // r_arm_uwy
+    this->jointDampingMin.push_back(0.1);  // r_arm_mwx
   }
 
   {
@@ -871,6 +928,40 @@ void AtlasPlugin::DeferredLoad()
         ros::VoidPtr(), &this->rosQueue);
   this->resetControlsService = this->rosNode->advertiseService(
     resetControlsAso);
+
+  // Offer teams ability to change pid between preset bounds
+  ros::AdvertiseServiceOptions setJointDampingAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
+      "atlas/joint_dmaping", boost::bind(
+        &AtlasPlugin::SetJointDamping, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->setJointDampingService = this->rosNode->advertiseService(
+    setJointDampingAso);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
+  atlas_msgs::SetJointDamping::Response &_res)
+{
+
+  ROS_INFO("WARNING: this call is allowed once per minute. It directly sets "
+           "joint damping coefficients of the Atlas robot.  For per-joint"
+           "bounds, see AtlasPlugin.cpp.");
+
+  _res.success = true;
+  _res.status_message = "success";
+
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+      this->joints[i]->SetDamping(0, math::clamp(_req.damping_coefficients[i],
+       this->jointDampingMin[i], this->jointDampingMax[i]));
+  }
+
+  sleep(60); // prevent changing joint damping values too fast.
+
+  return _res.success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1358,28 +1449,8 @@ void AtlasPlugin::UpdateStates()
 
         this->errorTerms[i].q_p = q_p;
 
-        // apply kp_velocity as cfm damping
-        // (infinite bandwidth derivative term) with hardcoded bound
-        // whatever is within range of allowable joint damping is
-        // passed to joint viscous damping internally, and left over
-        // values are applied normally.
-        double kp_velocityCFM = math::clamp(
-          static_cast<double>(this->atlasState.kp_velocity[i]) +
-          this->kp_velocityMin,  // add kp_velocityMin so minimum joint damping
-                                 // is always applied.
-          this->kp_velocityMin, this->kp_velocityMax);
         this->errorTerms[i].qd_p =
           this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
-        // limit 
-        double kp_velocityPID =
-          this->atlasState.kp_velocity[i] -
-          (kp_velocityCFM - this->kp_velocityMin);  // subtract kp_velocityMin
-                                                    // becasue it was added
-                                                    // artificially.
-        double force_kp_velocity =
-          this->atlasState.kp_velocity[i] * this->atlasCommand.velocity[i] -
-          kp_velocityPID * this->atlasState.velocity[i];
-        this->joints[i]->SetDamping(0, kp_velocityCFM);
 
         this->errorTerms[i].k_i_q_i = math::clamp(
           this->errorTerms[i].k_i_q_i +
@@ -1399,7 +1470,7 @@ void AtlasPlugin::UpdateStates()
           this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
                                             this->errorTerms[i].k_i_q_i +
           this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-                                            force_kp_velocity +
+          this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
                                             this->atlasCommand.effort[i]) +
           (1.0 - k_effort)                * this->atlasControlOutput.f_out[i];
 
