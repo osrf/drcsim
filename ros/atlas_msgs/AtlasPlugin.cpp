@@ -951,22 +951,26 @@ void AtlasPlugin::DeferredLoad()
   // Offer teams ability to change pid between preset bounds
   ros::AdvertiseServiceOptions setJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
-      "atlas/joint_dmaping", boost::bind(
+      "atlas/set_joint_dmaping", boost::bind(
         &AtlasPlugin::SetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->setJointDampingService = this->rosNode->advertiseService(
     setJointDampingAso);
+
+  // Offer teams ability to change pid between preset bounds
+  ros::AdvertiseServiceOptions getJointDampingAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
+      "atlas/get_joint_dmaping", boost::bind(
+        &AtlasPlugin::GetJointDamping, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->getJointDampingService = this->rosNode->advertiseService(
+    getJointDampingAso);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
   atlas_msgs::SetJointDamping::Response &_res)
 {
-
-  ROS_INFO("WARNING: this call is allowed once per minute. It directly sets "
-           "joint damping coefficients of the Atlas robot.  For per-joint"
-           "bounds, see AtlasPlugin.cpp.");
-
   _res.success = true;
   _res.status_message = "success";
 
@@ -982,6 +986,27 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
         ROS_WARN("requested joint damping for joint [%s] of [%f] is "
                  "truncated to [%f]", this->jointNames[i].c_str(),
                  _req.damping_coefficients[i], d);
+    }
+  }
+
+  return _res.success;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
+  atlas_msgs::GetJointDamping::Response &_res)
+{
+  _res.success = true;
+  _res.status_message = "success";
+
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      _res.damping_coefficients[i] = this->joints[i]->GetDamping(0);
+      _res.damping_coefficients_max[i] = this->jointDampingMax[i];
+      _res.damping_coefficients_min[i] = this->jointDampingMin[i];
     }
   }
 

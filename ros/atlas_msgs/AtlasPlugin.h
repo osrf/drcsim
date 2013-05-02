@@ -61,6 +61,7 @@
 
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/SetJointDamping.h>
+#include <atlas_msgs/GetJointDamping.h>
 #include <atlas_msgs/ControllerStatistics.h>
 
 // don't use these to control
@@ -118,12 +119,17 @@ namespace gazebo
     private: bool ResetControls(atlas_msgs::ResetControls::Request &_req,
       atlas_msgs::ResetControls::Response &_res);
 
-    /// \brief ros service callback to set only joint damping
-    /// all other elementes ignored.
+    /// \brief ros service callback to set joint damping
     /// \param[in] _req Incoming ros service request
     /// \param[in] _res Outgoing ros service response
     private: bool SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
       atlas_msgs::SetJointDamping::Response &_res);
+
+    /// \brief ros service callback to get joint damping
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
+      atlas_msgs::GetJointDamping::Response &_res);
 
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
@@ -278,6 +284,9 @@ namespace gazebo
 
     /// \brief ros service to change joint damping
     private: ros::ServiceServer setJointDampingService;
+
+    /// \brief ros service to retrieve joint damping
+    private: ros::ServiceServer getJointDampingService;
 
     /// \brief helper function to copy states
     private: void AtlasControlOutputToAtlasSimInterfaceState(
