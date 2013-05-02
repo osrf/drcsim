@@ -17,6 +17,7 @@
 
 #include <string>
 #include <algorithm>
+#include <stdlib.h>
 
 #include <gazebo/transport/Node.hh>
 #include <gazebo/common/Assert.hh>
@@ -82,6 +83,13 @@ AtlasPlugin::~AtlasPlugin()
 void AtlasPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
+  // By default, cheats are off.  Allow override via environment variable.
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    this->cheatsEnabled = true;
+  else
+    this->cheatsEnabled = false;
+
   this->model = _parent;
 
   // Get the world name.
@@ -580,10 +588,6 @@ void AtlasPlugin::SetAtlasCommand(
   this->atlasCommand.desired_controller_period_ms =
     _msg->desired_controller_period_ms;
 
-  // printf("SetAtlasCommand %f\n",
-  //   this->atlasCommand.header.stamp.toSec()*1000);
-  // fflush(stdout);
-
   this->delayCondition.notify_one();
 }
 
@@ -769,28 +773,33 @@ void AtlasPlugin::DeferredLoad()
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10);
 
-  // these topics are used for debugging only
-  this->pubLFootContact =
-    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
-      "atlas/debug/l_foot_contact", 10);
-  this->pubLFootContactQueue = this->pmq.addPub<geometry_msgs::WrenchStamped>();
+  if (this->cheatsEnabled)
+  {
+    // these topics are used for debugging only
+    this->pubLFootContact =
+      this->rosNode->advertise<geometry_msgs::WrenchStamped>(
+        "atlas/debug/l_foot_contact", 10);
+    this->pubLFootContactQueue = 
+      this->pmq.addPub<geometry_msgs::WrenchStamped>();
+  
+    // these topics are used for debugging only
+    this->pubRFootContact =
+      this->rosNode->advertise<geometry_msgs::WrenchStamped>(
+        "atlas/debug/r_foot_contact", 10);
+    this->pubRFootContactQueue = 
+      this->pmq.addPub<geometry_msgs::WrenchStamped>();
 
-  // these topics are used for debugging only
-  this->pubRFootContact =
-    this->rosNode->advertise<geometry_msgs::WrenchStamped>(
-      "atlas/debug/r_foot_contact", 10);
-  this->pubRFootContactQueue = this->pmq.addPub<geometry_msgs::WrenchStamped>();
-
-  // ros topic subscribtions
-  ros::SubscribeOptions pauseSo =
-    ros::SubscribeOptions::create<std_msgs::String>(
-    "atlas/debug/sync_delay", 1,
-    boost::bind(&AtlasPlugin::Tic, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  pauseSo.transport_hints =
-    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
-  this->subTic =
-    this->rosNode->subscribe(pauseSo);
+    // ros topic subscribtions
+    ros::SubscribeOptions pauseSo =
+      ros::SubscribeOptions::create<std_msgs::String>(
+      "atlas/debug/sync_delay", 1,
+      boost::bind(&AtlasPlugin::Tic, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    pauseSo.transport_hints =
+      ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
+    this->subTic =
+      this->rosNode->subscribe(pauseSo);
+  }
 
   // ros topic subscribtions
   ros::SubscribeOptions atlasCommandSo =
@@ -799,12 +808,7 @@ void AtlasPlugin::DeferredLoad()
     boost::bind(&AtlasPlugin::SetAtlasCommand, this, _1),
     ros::VoidPtr(), &this->rosQueue);
 
-  // Because TCP causes bursty communication with high jitter,
-  // declare a preference on UDP connections for receiving
-  // joint commands, which we want to get at a high rate.
-  // Note that we'll still accept TCP connections for this topic
-  // (e.g., from rospy nodes, which don't support UDP);
-  // we just prefer UDP.
+  // Disable TCP_NODELAY because TCP causes bursty communication with high jitter,
   atlasCommandSo.transport_hints =
     ros::TransportHints().reliable().tcpNoDelay(true);
 
@@ -825,13 +829,16 @@ void AtlasPlugin::DeferredLoad()
   this->subJointCommands =
     this->rosNode->subscribe(jointCommandsSo);
 
-  // ros topic subscribtions
-  ros::SubscribeOptions testSo =
-    ros::SubscribeOptions::create<atlas_msgs::Test>(
-    "atlas/debug/test", 1,
-    boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subTest = this->rosNode->subscribe(testSo);
+  if (this->cheatsEnabled)
+  {
+    // ros topic subscribtions
+    ros::SubscribeOptions testSo =
+      ros::SubscribeOptions::create<atlas_msgs::Test>(
+      "atlas/debug/test", 1,
+      boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subTest = this->rosNode->subscribe(testSo);
+  }
 
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
@@ -843,12 +850,12 @@ void AtlasPlugin::DeferredLoad()
     rate))
   {
     rate = math::clamp(rate, 1.0, 10000.0);
-    ROS_INFO("AtlasPlugin controller statistics %f kHz", rate);
+    ROS_DEBUG("AtlasPlugin controller statistics %f kHz", rate);
     this->statsUpdateRate = rate;
   }
   else
   {
-    ROS_INFO("AtlasPlugin default controller statistics 1kHz");
+    ROS_DEBUG("AtlasPlugin default controller statistics 1kHz");
     this->statsUpdateRate = 1000.0;
   }
 
@@ -889,12 +896,15 @@ void AtlasPlugin::DeferredLoad()
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&AtlasPlugin::UpdateStates, this));
 
-  // on contact
-  this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
-     boost::bind(&AtlasPlugin::OnLContactUpdate, this));
-
-  this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
-     boost::bind(&AtlasPlugin::OnRContactUpdate, this));
+  if (this->cheatsEnabled)
+  {
+    // on contact
+    this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
+       boost::bind(&AtlasPlugin::OnLContactUpdate, this));
+  
+    this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
+       boost::bind(&AtlasPlugin::OnRContactUpdate, this));
+  }
 
   // Advertise services on the custom queue
   ros::AdvertiseServiceOptions resetControlsAso =
