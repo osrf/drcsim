@@ -372,6 +372,12 @@ void DRCVehiclePlugin::UpdateFNRSwitchTime()
         this->visualPub->Publish(this->msgReverse);
       }
       break;
+    case NEUTRAL:
+      gzdbg << "The FNR switch does not support Neutral.\n";
+      break;
+    default:
+      gzerr << "Invalid direction state " << this->directionState << "\n";
+      break;
   }
 }
 
@@ -719,14 +725,14 @@ void DRCVehiclePlugin::UpdateStates()
         (curTime-this->handBrakeTime).Double() > 0.5)
     {
       this->handBrakeCmd = this->handBrakeHigh;
-      gzdbg << "Hand brake manually enabled\n";
+      gzlog << "Hand brake manually enabled\n";
     }
     else if (this->handBrakeCmd > (this->handBrakeHigh - handBrakeCmdEps) &&
         this->GetHandBrakePercent() < (0.5 - handBrakeHysteresis) &&
         (curTime-this->handBrakeTime).Double() > 0.5)
     {
       this->handBrakeCmd = this->handBrakeLow;
-      gzdbg << "Hand brake manually disabled\n";
+      gzlog << "Hand brake manually disabled\n";
     }
 
     // PID (position) hand brake
@@ -743,7 +749,7 @@ void DRCVehiclePlugin::UpdateStates()
     {
       this->SetDirectionState(REVERSE);
       this->UpdateFNRSwitchTime();
-      gzdbg << "FNR switch manually set to reverse\n";
+      gzlog << "FNR switch manually set to reverse\n";
     }
     else if (this->fnrSwitchCmd > (fnrSwitchHigh - fnrSwitchCmdEps) &&
         this->GetFNRSwitchPercent() < (0.5 - fnrSwitchHysteresis) &&
@@ -751,7 +757,7 @@ void DRCVehiclePlugin::UpdateStates()
     {
       this->SetDirectionState(FORWARD);
       this->UpdateFNRSwitchTime();
-      gzdbg << "FNR switch manually set to forward\n";
+      gzlog << "FNR switch manually set to forward\n";
     }
 
     // PID (position) FNR switch
