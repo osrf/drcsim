@@ -218,7 +218,13 @@
       <pose>8.15 18 3.75 0 0 1.5707</pose>
     </include>
 
+    <include>
+      <uri>model://mud_atlas</uri>
+      <name>mud_atlas</name>
+      <pose>-0.08 -16.22 -.58 0 0 0</pose>
+    </include>
 
+<!--
     <model name="box">
       <pose>-0.08 -16.22 -.58 0 0 0</pose>
       <static>true</static>
@@ -233,7 +239,7 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>8 10 0.2</size>
+              <size>8 10 5.2</size>
             </box>
           </geometry>
           <material>
@@ -243,7 +249,7 @@
         </visual>
       </link>
     </model>
-
+-->
 
     <!--
     <include>
