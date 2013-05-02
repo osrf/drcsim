@@ -63,7 +63,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->world = _parent->GetWorld();
   this->sdf = _sdf;
 
-  ROS_INFO("Loading MultiSense ROS node.");
+  ROS_DEBUG("Loading MultiSense ROS node.");
 
   this->lastTime = this->world->GetSimTime();
 

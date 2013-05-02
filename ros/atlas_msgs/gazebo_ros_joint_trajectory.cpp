@@ -16,6 +16,7 @@
 */
 
 #include <string>
+#include <stdlib.h>
 #include <tf/tf.h>
 
 #include "gazebo_ros_joint_trajectory.h"
@@ -53,6 +54,17 @@ GazeboRosJointTrajectory::~GazeboRosJointTrajectory()
 void GazeboRosJointTrajectory::Load(physics::ModelPtr _model,
   sdf::ElementPtr _sdf)
 {
+  // By default, cheats are off.  Allow override via environment variable.
+  bool cheatsEnabled;
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    cheatsEnabled = true;
+  else
+    cheatsEnabled = false;
+
+  if (!cheatsEnabled)
+    return;
+
   // save pointers
   this->model_ = _model;
   this->sdf = _sdf;
