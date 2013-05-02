@@ -38,15 +38,18 @@ class AutoAtlasTeleop(AtlasTeleop):
         rospy.loginfo("Waiting for atlas/bdi_control")
         self.client.wait_for_server()
 
+    def debuginfo(self, str):
+        rospy.logdebug(str)
+ 
     def fini(self):
         pass
 
     def run(self, input_keys):
         self.init()
-        while not rospy.is_shutdown():
-            for k in input_keys:
-                rospy.loginfo("Processing key: " + k)
-                self.process_key(k)
+        #while not rospy.is_shutdown():
+        for k in input_keys:
+            rospy.loginfo("Processing key: " + k)
+            self.process_key(k)
 
         self.commander.publish(True)
         rospy.signal_shutdown("Shutdown")
@@ -69,7 +72,15 @@ class AutoAtlasTeleop(AtlasTeleop):
 if __name__ == '__main__':
     rospy.init_node('atlas_commander')
     teleop = AutoAtlasTeleop()
-    if len(argv) < 1:
+    # Wait until /clock is being published; this can take an unpredictable
+    # amount of time when we're downloading models.
+    while rospy.Time.now().to_sec() == 0.0:
+        print('Waiting for Gazebo to start...')
+        rospy.sleep(1.0)
+    # Take an extra nap, to allow plugins to be loaded
+    rospy.sleep(5.0)
+    print('OK, starting test.')
+    if len(sys.argv) < 1:
         print "Parameters needed"
         exit(-1)
     teleop.run(sys.argv)

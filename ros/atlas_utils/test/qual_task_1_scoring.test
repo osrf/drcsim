@@ -1,10 +1,10 @@
 <launch>
   <include file="$(find atlas_utils)/launch/qual_task_1.launch">
-    <arg name="gzname" value="gzserver"/>
+    <arg name="gzname" value="gazebo"/>
   </include>
+  <!-- Walking controller -->
+  <node pkg="atlas_msgs" type="actionlib_server" name="walking_actionlib_server"/>
   <!-- Send movement -->
   <node pkg="atlas_utils" type="atlas_commander.py" name="atlas_commander"
         args="9 i i" />
-  <test pkg="atlas_utils" type="ros_api_checker" test-name="qual_task_1_rosapi" 
-        time-limit="360.0"/>
 </launch>
