@@ -438,12 +438,12 @@ void ASIActionServer::ActionServerCB()
 
   // When accepteNewGoal() is called, active goal (if any) is automatically
   // preempted.
-  if (!this->newGoal && !this->executingGoal)
+  // if (!this->newGoal && !this->executingGoal)
   {
     this->activeGoal = *this->actionServer->acceptNewGoal();
     this->actionServerResult.success = false;
     ROS_INFO("Received new goal, processing");
-    this->executingGoal = false;
+    // this->executingGoal = false;
     this->newGoal = true;
   }
 
@@ -483,6 +483,7 @@ void ASIActionServer::ActionServerCB()
           this->activeGoal.steps.push_back(repeatStep);
         }
       }
+      break;
     case atlas_msgs::WalkDemoGoal::STEP:
       {
         this->isStepping = false;   /// change to isStepping
@@ -513,7 +514,7 @@ void ASIActionServer::ActionServerCB()
 void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
 {
   // for debugging
-  ROS_ERROR("Before xform pose [%f, %f, %f] [%f, %f, %f, %f]",
+  ROS_DEBUG("Before xform pose [%f, %f, %f] [%f, %f, %f, %f]",
             _pose.position.x, _pose.position.y, _pose.position.z,
             _pose.orientation.x, _pose.orientation.y, _pose.orientation.z,
             _pose.orientation.w);
@@ -540,7 +541,7 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
     // We only want to transform with respect to the robot's yaw
     yaw = tf::getYaw(this->robotOrientation);
 
-    ROS_ERROR("robot pose [%f, %f, %f] [%f, %f, %f, %f]",
+    ROS_DEBUG("robot pose [%f, %f, %f] [%f, %f, %f, %f]",
                 this->robotPosition.x, this->robotPosition.y,
                 this->robotPosition.z, this->robotOrientation.getX(),
                 this->robotOrientation.getY(), this->robotOrientation.getZ(),
@@ -563,7 +564,7 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
   _pose.position.y = transformMsg.translation.y;
   _pose.position.z = transformMsg.translation.z;
 
-  ROS_ERROR("After xform pose [%f, %f, %f] [%f, %f, %f, %f]",
+  ROS_DEBUG("After xform pose [%f, %f, %f] [%f, %f, %f, %f]",
             _pose.position.x, _pose.position.y, _pose.position.z,
             _pose.orientation.x, _pose.orientation.y, _pose.orientation.z,
             _pose.orientation.w);
