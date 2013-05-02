@@ -978,8 +978,6 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
        this->jointDampingMin[i], this->jointDampingMax[i]));
   }
 
-  sleep(60); // prevent changing joint damping values too fast.
-
   return _res.success;
 }
 
