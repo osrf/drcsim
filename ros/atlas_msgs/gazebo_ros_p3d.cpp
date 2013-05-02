@@ -17,6 +17,7 @@
 
 #include <string>
 #include <tf/tf.h>
+#include <stdlib.h>
 
 #include "gazebo_ros_p3d.h"
 
@@ -48,6 +49,17 @@ GazeboRosP3D::~GazeboRosP3D()
 // Load the controller
 void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
+  // By default, cheats are off.  Allow override via environment variable.
+  bool cheatsEnabled;
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    cheatsEnabled = true;
+  else
+    cheatsEnabled = false;
+
+  if (!cheatsEnabled)
+    return;
+
   // Get the world name.
   this->world_ = _parent->GetWorld();
   this->model_ = _parent;
