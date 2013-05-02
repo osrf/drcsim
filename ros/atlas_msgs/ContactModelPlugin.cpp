@@ -15,7 +15,7 @@
  *
 */
 
-#include "gazebo/transport/transport.hh"
+#include <gazebo/transport/transport.hh>
 #include "ContactModelPlugin.h"
 
 using namespace gazebo;

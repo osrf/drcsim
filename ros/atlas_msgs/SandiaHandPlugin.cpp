@@ -19,7 +19,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sandia_hand_msgs/RawTactile.h>
 
-#include "gazebo/transport/Node.hh"
+#include <gazebo/transport/Node.hh>
 #include "SandiaHandPlugin.h"
 
 using std::string;
@@ -202,14 +202,45 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   if (!this->rightImuSensor)
     gzerr << "right imu_sensor not found\n" << "\n";
 
+
   // Tactile data
+  this->tactileFingerArraySize = 18;
+  this->tactilePalmArraySize = 32;
+
+  // Approximate output range of the tactile sensor
+  // determined by experimenting with the actual physical hand
+  this->maxTactileOut = 33500;
+  this->minTactileOut = 26500;
+
+  this->leftTactile.f0.resize(this->tactileFingerArraySize);
+  this->leftTactile.f1.resize(this->tactileFingerArraySize);
+  this->leftTactile.f2.resize(this->tactileFingerArraySize);
+  this->leftTactile.f3.resize(this->tactileFingerArraySize);
+  this->rightTactile.f0.resize(this->tactileFingerArraySize);
+  this->rightTactile.f1.resize(this->tactileFingerArraySize);
+  this->rightTactile.f2.resize(this->tactileFingerArraySize);
+  this->rightTactile.f3.resize(this->tactileFingerArraySize);
+  this->leftTactile.palm.resize(this->tactilePalmArraySize);
+  this->rightTactile.palm.resize(this->tactilePalmArraySize);
+  for (int i = 0; i < this->tactileFingerArraySize; ++i)
+  {
+    this->leftTactile.f0[i] = this->minTactileOut;
+    this->leftTactile.f1[i] = this->minTactileOut;
+    this->leftTactile.f2[i] = this->minTactileOut;
+    this->leftTactile.f3[i] = this->minTactileOut;
+    this->rightTactile.f0[i] = this->minTactileOut;
+    this->rightTactile.f1[i] = this->minTactileOut;
+    this->rightTactile.f2[i] = this->minTactileOut;
+    this->rightTactile.f3[i] = this->minTactileOut;
+  }
+  for (int i = 0; i < this->tactilePalmArraySize; ++i)
+  {
+    this->leftTactile.palm[i] = this->minTactileOut;
+    this->rightTactile.palm[i] = this->minTactileOut;
+  }
+
   if (!hasStumps)
   {
-    // Approximate output range of the tactile sensor
-    // determined by experimenting with the actual physical hand
-    this->maxTactileOut = 33500;
-    this->minTactileOut = 26500;
-
     // Sandia hand tactile dimensions taken from spec and adapted to fit on our
     // sandia hand model
     this->palmColWidth[0] = 0.01495;
@@ -243,36 +274,6 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     this->fingerVerSize[0] = 2;
     this->fingerHorSize[1] = 3;
     this->fingerVerSize[1] = 4;
-
-    this->tactileFingerArraySize = 18;
-    this->tactilePalmArraySize = 32;
-
-    this->leftTactile.f0.resize(this->tactileFingerArraySize);
-    this->leftTactile.f1.resize(this->tactileFingerArraySize);
-    this->leftTactile.f2.resize(this->tactileFingerArraySize);
-    this->leftTactile.f3.resize(this->tactileFingerArraySize);
-    this->rightTactile.f0.resize(this->tactileFingerArraySize);
-    this->rightTactile.f1.resize(this->tactileFingerArraySize);
-    this->rightTactile.f2.resize(this->tactileFingerArraySize);
-    this->rightTactile.f3.resize(this->tactileFingerArraySize);
-    this->leftTactile.palm.resize(this->tactilePalmArraySize);
-    this->rightTactile.palm.resize(this->tactilePalmArraySize);
-    for (int i = 0; i < this->tactileFingerArraySize; ++i)
-    {
-      this->leftTactile.f0[i] = this->minTactileOut;
-      this->leftTactile.f1[i] = this->minTactileOut;
-      this->leftTactile.f2[i] = this->minTactileOut;
-      this->leftTactile.f3[i] = this->minTactileOut;
-      this->rightTactile.f0[i] = this->minTactileOut;
-      this->rightTactile.f1[i] = this->minTactileOut;
-      this->rightTactile.f2[i] = this->minTactileOut;
-      this->rightTactile.f3[i] = this->minTactileOut;
-    }
-    for (int i = 0; i < this->tactilePalmArraySize; ++i)
-    {
-      this->leftTactile.palm[i] = this->minTactileOut;
-      this->rightTactile.palm[i] = this->minTactileOut;
-    }
 
     this->node.reset(new transport::Node());
     this->node->Init(this->world->GetName());

@@ -23,11 +23,11 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered/unordered_set.hpp>
 
-#include "gazebo/physics/physics.hh"
-#include "gazebo/physics/Contact.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
+#include <gazebo/physics/physics.hh>
+#include <gazebo/physics/Contact.hh>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Events.hh>
 
 namespace gazebo
 {
@@ -44,7 +44,8 @@ namespace gazebo
     /// \param[in] _model Pointer to the model that loaded this plugin.
     /// \param[in] _sdf SDF element that describes the plugin.
     // Documentation inherited
-    protected: void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
+    protected: virtual void Load(physics::ModelPtr _model,
+        sdf::ElementPtr _sdf);
 
     // Documentation Inherited.
     public: virtual void Init();
