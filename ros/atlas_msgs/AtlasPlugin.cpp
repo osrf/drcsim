@@ -974,8 +974,15 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
     boost::mutex::scoped_lock lock(this->mutex);
 
     for (unsigned int i = 0; i < this->joints.size(); ++i)
-      this->joints[i]->SetDamping(0, math::clamp(_req.damping_coefficients[i],
-       this->jointDampingMin[i], this->jointDampingMax[i]));
+    {
+      double d = math::clamp(_req.damping_coefficients[i],
+       this->jointDampingMin[i], this->jointDampingMax[i]);
+      this->joints[i]->SetDamping(0, d);
+      if (!math::equal(d, _req.damping_coefficients[i]))
+        ROS_WARN("requested joint damping for joint [%s] of [%f] is "
+                 "truncated to [%f]", this->jointNames[i].c_str(),
+                 _req.damping_coefficients[i], d);
+    }
   }
 
   return _res.success;
