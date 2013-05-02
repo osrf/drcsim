@@ -397,6 +397,10 @@ namespace gazebo
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
 
+    /// \brief Are cheats enabled?
+    private: bool cheatsEnabled;
+
+    /// \brief joint damping coefficient bounds
     private: std::vector<double> jointDampingMax;
     private: std::vector<double> jointDampingMin;
   };
