@@ -53,6 +53,10 @@ AtlasPlugin::AtlasPlugin()
   this->behaviorMap["Step"] = atlas_msgs::AtlasSimInterfaceCommand::STEP;
   this->behaviorMap["Manipulate"] =
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
+
+  // kp_velocity bounds Nms/rad
+  this->kp_velocityMax = 20.0;
+  this->kp_velocityMin = 0.1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1354,8 +1358,21 @@ void AtlasPlugin::UpdateStates()
 
         this->errorTerms[i].q_p = q_p;
 
+        // apply kp_velocity as cfm damping
+        // (infinite bandwidth derivative term) with hardcoded bound
+        // whatever is within range of allowable joint damping is
+        // passed to joint viscous damping internally, and left over
+        // values are applied normally.
+        double kp_velocityCFM = math::clamp(
+          static_cast<double>(this->atlasState.kp_velocity[i]),
+          this->kp_velocityMin, this->kp_velocityMax);
         this->errorTerms[i].qd_p =
           this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
+        double force_kp_velocity =
+          this->atlasState.kp_velocity[i] * this->atlasCommand.velocity[i] -
+          (this->atlasState.kp_velocity[i] - kp_velocityCFM) *
+          this->atlasState.velocity[i];
+        this->joints[i]->SetDamping(0, kp_velocityCFM);
 
         this->errorTerms[i].k_i_q_i = math::clamp(
           this->errorTerms[i].k_i_q_i +
@@ -1375,7 +1392,7 @@ void AtlasPlugin::UpdateStates()
           this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
                                             this->errorTerms[i].k_i_q_i +
           this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-          this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
+                                            force_kp_velocity +
                                             this->atlasCommand.effort[i]) +
           (1.0 - k_effort)                * this->atlasControlOutput.f_out[i];
 
@@ -1584,7 +1601,10 @@ void AtlasPlugin::ZeroAtlasCommand()
     this->atlasState.kp_position[i] = 0;
     this->atlasState.ki_position[i] = 0;
     this->atlasState.kd_position[i] = 0;
-    this->atlasState.kp_velocity[i] = 0;
+    // implementing joint damping as kp_velocity, preset to urdf defined
+    /// \TODO: switch to gazebo::Joint::GetDamping(0) when added
+    /// \TODO: hardcoded for now, see issue #194
+    this->atlasState.kp_velocity[i] = 1.0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
@@ -1603,7 +1623,10 @@ void AtlasPlugin::ZeroJointCommands()
     this->atlasState.kp_position[i] = 0;
     this->atlasState.ki_position[i] = 0;
     this->atlasState.kd_position[i] = 0;
-    this->atlasState.kp_velocity[i] = 0;
+    // implementing joint damping as kp_velocity, preset to urdf defined
+    /// \TODO: switch to gazebo::Joint::GetDamping(0) when added
+    /// \TODO: hardcoded for now, see issue #194
+    this->atlasState.kp_velocity[i] = 1.0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;

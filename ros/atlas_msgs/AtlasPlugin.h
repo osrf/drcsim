@@ -385,6 +385,8 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
+    private: double kp_velocityMax;
+    private: double kp_velocityMin;
   };
 }
 #endif
