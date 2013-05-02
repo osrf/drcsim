@@ -951,7 +951,7 @@ void AtlasPlugin::DeferredLoad()
   // Offer teams ability to change pid between preset bounds
   ros::AdvertiseServiceOptions setJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
-      "atlas/set_joint_dmaping", boost::bind(
+      "atlas/set_joint_damping", boost::bind(
         &AtlasPlugin::SetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->setJointDampingService = this->rosNode->advertiseService(
@@ -960,7 +960,7 @@ void AtlasPlugin::DeferredLoad()
   // Offer teams ability to change pid between preset bounds
   ros::AdvertiseServiceOptions getJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
-      "atlas/get_joint_dmaping", boost::bind(
+      "atlas/get_joint_damping", boost::bind(
         &AtlasPlugin::GetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->getJointDampingService = this->rosNode->advertiseService(

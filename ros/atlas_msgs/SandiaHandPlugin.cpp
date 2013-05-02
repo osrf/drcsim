@@ -99,6 +99,59 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     }
   }
 
+  {
+    // kp_velocity bounds Nms/rad
+    this->jointDampingMax.push_back(30.0);  // left_f0_j0
+    this->jointDampingMax.push_back(30.0);  // left_f0_j1
+    this->jointDampingMax.push_back(30.0);  // left_f0_j2
+    this->jointDampingMax.push_back(30.0);  // left_f1_j0
+    this->jointDampingMax.push_back(30.0);  // left_f1_j1
+    this->jointDampingMax.push_back(30.0);  // left_f1_j2
+    this->jointDampingMax.push_back(30.0);  // left_f2_j0
+    this->jointDampingMax.push_back(30.0);  // left_f2_j1
+    this->jointDampingMax.push_back(30.0);  // left_f2_j2
+    this->jointDampingMax.push_back(30.0);  // left_f3_j0
+    this->jointDampingMax.push_back(30.0);  // left_f3_j1
+    this->jointDampingMax.push_back(30.0);  // left_f3_j2
+    this->jointDampingMax.push_back(30.0);  // right_f0_j0
+    this->jointDampingMax.push_back(30.0);  // right_f0_j1
+    this->jointDampingMax.push_back(30.0);  // right_f0_j2
+    this->jointDampingMax.push_back(30.0);  // right_f1_j0
+    this->jointDampingMax.push_back(30.0);  // right_f1_j1
+    this->jointDampingMax.push_back(30.0);  // right_f1_j2
+    this->jointDampingMax.push_back(30.0);  // right_f2_j0
+    this->jointDampingMax.push_back(30.0);  // right_f2_j1
+    this->jointDampingMax.push_back(30.0);  // right_f2_j2
+    this->jointDampingMax.push_back(30.0);  // right_f3_j0
+    this->jointDampingMax.push_back(30.0);  // right_f3_j1
+    this->jointDampingMax.push_back(30.0);  // right_f3_j2
+
+    this->jointDampingMin.push_back(1.0);  // left_f0_j0
+    this->jointDampingMin.push_back(1.0);  // left_f0_j1
+    this->jointDampingMin.push_back(1.0);  // left_f0_j2
+    this->jointDampingMin.push_back(1.0);  // left_f1_j0
+    this->jointDampingMin.push_back(1.0);  // left_f1_j1
+    this->jointDampingMin.push_back(1.0);  // left_f1_j2
+    this->jointDampingMin.push_back(1.0);  // left_f2_j0
+    this->jointDampingMin.push_back(1.0);  // left_f2_j1
+    this->jointDampingMin.push_back(1.0);  // left_f2_j2
+    this->jointDampingMin.push_back(1.0);  // left_f3_j0
+    this->jointDampingMin.push_back(1.0);  // left_f3_j1
+    this->jointDampingMin.push_back(1.0);  // left_f3_j2
+    this->jointDampingMin.push_back(1.0);  // right_f0_j0
+    this->jointDampingMin.push_back(1.0);  // right_f0_j1
+    this->jointDampingMin.push_back(1.0);  // right_f0_j2
+    this->jointDampingMin.push_back(1.0);  // right_f1_j0
+    this->jointDampingMin.push_back(1.0);  // right_f1_j1
+    this->jointDampingMin.push_back(1.0);  // right_f1_j2
+    this->jointDampingMin.push_back(1.0);  // right_f2_j0
+    this->jointDampingMin.push_back(1.0);  // right_f2_j1
+    this->jointDampingMin.push_back(1.0);  // right_f2_j2
+    this->jointDampingMin.push_back(1.0);  // right_f3_j0
+    this->jointDampingMin.push_back(1.0);  // right_f3_j1
+    this->jointDampingMin.push_back(1.0);  // right_f3_j2
+  }
+
   this->errorTerms.resize(this->joints.size());
 
   this->leftJointStates.name.resize(this->joints.size() / 2);
@@ -202,6 +255,7 @@ void SandiaHandPlugin::SetJointCommands(
   const osrf_msgs::JointCommands::ConstPtr &_msg,
   const unsigned ofs)  // ofs = joint offset
 {
+  boost::mutex::scoped_lock lock(this->mutex);
   // this implementation does not check the ordering of the joints. they must
   // agree with the structure initialized above!
   CopyVectorIfValid(_msg->position, this->jointCommands.position, ofs);
@@ -318,6 +372,72 @@ void SandiaHandPlugin::DeferredLoad()
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&SandiaHandPlugin::UpdateStates, this));
+
+  // Offer teams ability to change pid between preset bounds
+  ros::AdvertiseServiceOptions setJointDampingAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
+      "sandia_hands/set_joint_damping", boost::bind(
+        &SandiaHandPlugin::SetJointDamping, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->setJointDampingService = this->rosNode->advertiseService(
+    setJointDampingAso);
+
+  // Offer teams ability to change pid between preset bounds
+  ros::AdvertiseServiceOptions getJointDampingAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
+      "sandia_hands/get_joint_damping", boost::bind(
+        &SandiaHandPlugin::GetJointDamping, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->getJointDampingService = this->rosNode->advertiseService(
+    getJointDampingAso);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool SandiaHandPlugin::SetJointDamping(
+  atlas_msgs::SetJointDamping::Request &_req,
+  atlas_msgs::SetJointDamping::Response &_res)
+{
+  _res.success = true;
+  _res.status_message = "success";
+
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      double d = math::clamp(_req.damping_coefficients[i],
+       this->jointDampingMin[i], this->jointDampingMax[i]);
+      this->joints[i]->SetDamping(0, d);
+      if (!math::equal(d, _req.damping_coefficients[i]))
+        ROS_WARN("requested joint damping for joint [%s] of [%f] is "
+                 "truncated to [%f]", this->jointNames[i].c_str(),
+                 _req.damping_coefficients[i], d);
+    }
+  }
+
+  return _res.success;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool SandiaHandPlugin::GetJointDamping(
+  atlas_msgs::GetJointDamping::Request &_req,
+  atlas_msgs::GetJointDamping::Response &_res)
+{
+  _res.success = true;
+  _res.status_message = "success";
+
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      _res.damping_coefficients[i] = this->joints[i]->GetDamping(0);
+      _res.damping_coefficients_max[i] = this->jointDampingMax[i];
+      _res.damping_coefficients_min[i] = this->jointDampingMin[i];
+    }
+  }
+
+  return _res.success;
 }
 
 void SandiaHandPlugin::UpdateStates()
@@ -483,32 +603,36 @@ void SandiaHandPlugin::UpdateStates()
         velocity = this->rightJointStates.velocity[j];
       }
 
-      double q_p =
-         this->jointCommands.position[i] - position;
+      double force;
+      {
+        boost::mutex::scoped_lock lock(this->mutex);
+        double q_p =
+           this->jointCommands.position[i] - position;
 
-      if (!math::equal(dt, 0.0))
-        this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
+        if (!math::equal(dt, 0.0))
+          this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / dt;
 
-      this->errorTerms[i].q_p = q_p;
+        this->errorTerms[i].q_p = q_p;
 
-      this->errorTerms[i].qd_p =
-         this->jointCommands.velocity[i] - velocity;
+        this->errorTerms[i].qd_p =
+           this->jointCommands.velocity[i] - velocity;
 
-      this->errorTerms[i].q_i = math::clamp(
-        this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
-        static_cast<double>(this->jointCommands.i_effort_min[i]),
-        static_cast<double>(this->jointCommands.i_effort_max[i]));
+        this->errorTerms[i].q_i = math::clamp(
+          this->errorTerms[i].q_i + dt * this->errorTerms[i].q_p,
+          static_cast<double>(this->jointCommands.i_effort_min[i]),
+          static_cast<double>(this->jointCommands.i_effort_max[i]));
 
-      // use gain params to compute force cmd
-      double force = this->jointCommands.kp_position[i] *
-                     this->errorTerms[i].q_p +
-                     this->jointCommands.kp_velocity[i] *
-                     this->errorTerms[i].qd_p +
-                     this->jointCommands.ki_position[i] *
-                     this->errorTerms[i].q_i +
-                     this->jointCommands.kd_position[i] *
-                     this->errorTerms[i].d_q_p_dt +
-                     this->jointCommands.effort[i];
+        // use gain params to compute force cmd
+        force = this->jointCommands.kp_position[i] *
+                this->errorTerms[i].q_p +
+                this->jointCommands.kp_velocity[i] *
+                this->errorTerms[i].qd_p +
+                this->jointCommands.ki_position[i] *
+                this->errorTerms[i].q_i +
+                this->jointCommands.kd_position[i] *
+                this->errorTerms[i].d_q_p_dt +
+                this->jointCommands.effort[i];
+      }
 
       this->joints[i]->SetForce(0, force);
     }

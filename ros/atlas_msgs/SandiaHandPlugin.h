@@ -28,6 +28,8 @@
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
 
+#include <atlas_msgs/SetJointDamping.h>
+#include <atlas_msgs/GetJointDamping.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Vector3.h>
@@ -144,6 +146,31 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
+
+    /// \brief ros service callback to set joint damping
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
+      atlas_msgs::SetJointDamping::Response &_res);
+
+    /// \brief ros service callback to get joint damping
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
+      atlas_msgs::GetJointDamping::Response &_res);
+
+    /// \brief ros service to change joint damping
+    private: ros::ServiceServer setJointDampingService;
+
+    /// \brief ros service to retrieve joint damping
+    private: ros::ServiceServer getJointDampingService;
+
+    /// \brief joint damping coefficient bounds
+    private: std::vector<double> jointDampingMax;
+    private: std::vector<double> jointDampingMin;
+
+    /// \breif prevent overwriting commadns
+    private: boost::mutex mutex;
   };
 /** \} */
 /// @}
