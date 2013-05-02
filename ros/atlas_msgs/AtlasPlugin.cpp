@@ -1364,14 +1364,21 @@ void AtlasPlugin::UpdateStates()
         // passed to joint viscous damping internally, and left over
         // values are applied normally.
         double kp_velocityCFM = math::clamp(
-          static_cast<double>(this->atlasState.kp_velocity[i]),
+          static_cast<double>(this->atlasState.kp_velocity[i]) +
+          this->kp_velocityMin,  // add kp_velocityMin so minimum joint damping
+                                 // is always applied.
           this->kp_velocityMin, this->kp_velocityMax);
         this->errorTerms[i].qd_p =
           this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
+        // limit 
+        double kp_velocityPID =
+          this->atlasState.kp_velocity[i] -
+          (kp_velocityCFM - this->kp_velocityMin);  // subtract kp_velocityMin
+                                                    // becasue it was added
+                                                    // artificially.
         double force_kp_velocity =
           this->atlasState.kp_velocity[i] * this->atlasCommand.velocity[i] -
-          (this->atlasState.kp_velocity[i] - kp_velocityCFM) *
-          this->atlasState.velocity[i];
+          kp_velocityPID * this->atlasState.velocity[i];
         this->joints[i]->SetDamping(0, kp_velocityCFM);
 
         this->errorTerms[i].k_i_q_i = math::clamp(
