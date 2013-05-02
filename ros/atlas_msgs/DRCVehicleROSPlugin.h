@@ -110,6 +110,9 @@ namespace gazebo
     private: ros::Subscriber subDirectionCmd;
     private: common::Time rosPublishPeriod;
     private: common::Time lastRosPublishTime;
+
+    /// \brief Are cheats enabled?
+    private: bool cheatsEnabled;
   };
 /** \} */
 /// @}
