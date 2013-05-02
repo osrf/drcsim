@@ -55,7 +55,7 @@ AtlasPlugin::AtlasPlugin()
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
 
   // kp_velocity bounds Nms/rad
-  this->kp_velocityMax = 20.0;
+  this->kp_velocityMax = 10.0;
   this->kp_velocityMin = 0.1;
 }
 
