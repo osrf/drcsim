@@ -385,6 +385,9 @@ namespace gazebo
 
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
+
+    /// \brief Are cheats enabled?
+    private: bool cheatsEnabled;
   };
 }
 #endif
