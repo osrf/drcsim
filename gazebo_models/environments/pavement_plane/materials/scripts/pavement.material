@@ -1,17 +1,17 @@
-material vrc/grass
+material vrc/pavement
 {
   receive_shadows on
 	technique
 	{
 		pass
 		{
-			ambient 0.8 1.0 0.8 1.0
-			diffuse 0.8 1.0 0.8 1.0
-			specular 0.1 0.1 0.1 1.0 12.5
+			ambient 0.8 0.8 0.8 1.0
+			diffuse 0.4 0.4 0.4 1.0
+			specular 0.01 0.01 0.01 1.0 12.5
 
 			texture_unit
 			{
-				texture grass_dry.jpg
+				texture tarmac.jpg
 				filtering anistropic
         max_anisotropy 16
 			}
