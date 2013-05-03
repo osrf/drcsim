@@ -287,7 +287,7 @@
     </model>
 -->
 
-    <plugin filename="libRubblePlugin.so" name="rubble">
+<!--    <plugin filename="libRubblePlugin.so" name="rubble">
       <bottom_right>4 7.0 0.0</bottom_right>
       <top_left>10 17 0.4</top_left>
       <min_size>0.05 0.05 0.05</min_size>
@@ -295,7 +295,4161 @@
       <min_mass>0.1</min_mass>
       <max_mass>1.0</max_mass>
       <count>50</count>
-    </plugin>
+    </plugin> -->
+    <model name='cinder_block'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 12.554800 0.000000 1.57 0.000000 1.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_0'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.00000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 13.571900 0.000000 0.000000 0.000000 0.200000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_1'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 11.000000 0.000000 0.000000 1.57 -1.300000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_2'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>4.000000 10.000000 0.000000 0.000000 0.000000 1.200000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_3'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>6.000000 11.000000 0.000000 0.000000 1.57 0.200000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_4'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.417030 14.528900 0.000000 1.57 0.000000 0.050000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_5'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>7.443130 15.000000 0.000000 0.000000 1.57 0.800000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_6'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>7.000000 12.487500 0.000000 0.000000 0.000000 2.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_7'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 8.000000 0.000000 0.000000 0.000000 3.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_8'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 8.000000 0.000000 0.000000 1.57 -2.00000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_9'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>10.000000 14.000000 0.000000 1.57 0.000000 -0.500000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_10'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>7.000000 9.000000 0.000000 0.000000 0.000000 2.60000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_11'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>4.000000 16.452500 0.000000 0.000000 0.000000 1.200000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_12'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>4.443480 9.510620 0.000000 1.57 0.000000 0.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_13'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>9.000000 16.000000 0.000000 0.000000 0.000000 0.300000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_14'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>4.520650 16.000000 0.000000 0.000000 0.000000 0.100000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_15'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>10.000000 12.528900 0.000000 1.57 0.000000 1.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_16'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 9.579940 0.000000 0.000000 0.000000 0.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_17'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 16.000000 0.000000 0.000000 0.000000 0.800000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_18'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 16.594800 0.000000 0.000000 1.57 -0.800000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_19'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 11.000000 0.000000 0.000000 0.000000 -0.00500</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_20'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 7.586660 0.000000 0.000000 1.57 0.50000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_21'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>3.530910 8.500470 0.000000 0.000000 0.000000 -0.100000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_22'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>9.000000 8.598240 0.000000 0.000000 1.57 2.300000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_23'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>9.000000 15.402400 0.000000 0.000000 0.000000 2.800000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_24'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 14.000000 0.000000 0.000000 1.57 -1.900000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_25'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 12.000000 0.000000 0.000000 0.000000 1.900000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_26'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>10.000000 13.000000 0.000000 0.000000 0.000000 0.300000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_27'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>5.000000 7.000000 0.000000 0.000000 0.000000 0.100000</pose>
+      <static>0</static>
+    </model>
+    <model name='cinder_block_28'>
+      <link name='link'>
+        <inertial>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <mass>17.000000</mass>
+          <inertia>
+            <ixx>0.097600</ixx>
+            <ixy>0.000000</ixy>
+            <iyy>0.250800</iyy>
+            <ixz>0.000000</ixz>
+            <iyz>0.000000</iyz>
+            <izz>0.234800</izz>
+          </inertia>
+        </inertial>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='left'>
+          <pose>0.000000 -0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right'>
+          <pose>0.000000 0.084650 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.434950 0.033900 0.203200</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='front'>
+          <pose>0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='middle'>
+          <pose>0.000000 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='back'>
+          <pose>-0.186250 0.000000 0.101600 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.033900 0.135400 0.203000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>7.421570 9.000000 0.000000 0.000000 0.000000 0.000000</pose>
+      <static>0</static>
+    </model>
+    <model name='jersey_barrier'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://jersey_barrier/meshes/jersey_barrier.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='upright'>
+          <pose>0.000000 0.000000 0.571500 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.306300 1.143000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base'>
+          <pose>0.000000 0.000000 0.032258 0.000000 1.57 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.810700 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base2'>
+          <pose>0.000000 0.000000 0.100000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.650000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base3'>
+          <pose>0.000000 0.000000 0.200000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='left-angle'>
+          <pose>0.000000 -0.224000 0.240100 0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right-angle'>
+          <pose>0.000000 0.224000 0.240100 -0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>8.000000 1.000000 0.000000 0.000000 0.000000 1.57</pose>
+    </model>
+    <model name='jersey_barrier_0'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://jersey_barrier/meshes/jersey_barrier.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='upright'>
+          <pose>0.000000 0.000000 0.571500 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.306300 1.143000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base'>
+          <pose>0.000000 0.000000 0.032258 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.810700 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base2'>
+          <pose>0.000000 0.000000 0.100000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.650000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base3'>
+          <pose>0.000000 0.000000 0.200000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='left-angle'>
+          <pose>0.000000 -0.224000 0.240100 0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='right-angle'>
+          <pose>0.000000 0.224000 0.240100 -0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>3.486150 -12.000000 0.000000 0.000000 0.000000 1.57</pose>
+    </model>
+    <model name='jersey_barrier_1'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://jersey_barrier/meshes/jersey_barrier.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='upright'>
+          <pose>0.000000 0.000000 0.571500 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.306300 1.143000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base'>
+          <pose>0.000000 0.000000 0.032258 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.810700 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base2'>
+          <pose>0.000000 0.000000 0.100000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.650000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base3'>
+          <pose>0.000000 0.000000 0.200000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='left-angle'>
+          <pose>0.000000 -0.224000 0.240100 0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='right-angle'>
+          <pose>0.000000 0.224000 0.240100 -0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>-1.000000 -16.000000 0.000000 0.000000 0.000000 1.57</pose>
+    </model>
+    <model name='jersey_barrier_2'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://jersey_barrier/meshes/jersey_barrier.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='upright'>
+          <pose>0.000000 0.000000 0.571500 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.306300 1.143000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base'>
+          <pose>0.000000 0.000000 0.032258 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.810700 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base2'>
+          <pose>0.000000 0.000000 0.100000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.650000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='base3'>
+          <pose>0.000000 0.000000 0.200000 0.000000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.100000</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='left-angle'>
+          <pose>0.000000 -0.224000 0.240100 0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <collision name='right-angle'>
+          <pose>0.000000 0.224000 0.240100 -0.900000 0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>4.065420 0.500000 0.064516</size>
+            </box>
+          </geometry>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <velocity_decay>
+          <linear>0.000000</linear>
+          <angular>0.000000</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <pose>-1.000000 -19.000000 0.000000 0.000000 0.000000 1.57</pose>
+    </model>
+
 
     <include>
       <uri>model://atlas_sandia_hands</uri>
