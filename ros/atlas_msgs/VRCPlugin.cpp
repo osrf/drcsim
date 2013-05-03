@@ -923,7 +923,7 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotEnterCar, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotEnterCar = this->rosNode->subscribe(robot_enter_car_so);
-  
+
     std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
     ros::SubscribeOptions robot_exit_car_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -931,7 +931,7 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotExitCar, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotExitCar = this->rosNode->subscribe(robot_exit_car_so);
-  
+
     std::string robot_grab_topic_name = "drc_world/robot_grab_link";
     ros::SubscribeOptions robot_grab_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -939,7 +939,7 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotGrabFireHose, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotGrab = this->rosNode->subscribe(robot_grab_so);
-  
+
     std::string robot_release_topic_name = "drc_world/robot_release_link";
     ros::SubscribeOptions robot_release_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -989,7 +989,7 @@ void VRCPlugin::LoadRobotROSAPI()
       boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subTrajectory = this->rosNode->subscribe(trajectory_so);
-  
+
     std::string pose_topic_name = "atlas/set_pose";
     ros::SubscribeOptions pose_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -997,7 +997,7 @@ void VRCPlugin::LoadRobotROSAPI()
       boost::bind(&VRCPlugin::SetRobotPose, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subPose = this->rosNode->subscribe(pose_so);
-  
+
     std::string configuration_topic_name = "atlas/configuration";
     ros::SubscribeOptions configuration_so =
       ros::SubscribeOptions::create<sensor_msgs::JointState>(
@@ -1006,7 +1006,7 @@ void VRCPlugin::LoadRobotROSAPI()
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subConfiguration =
       this->rosNode->subscribe(configuration_so);
-  
+
     std::string mode_topic_name = "atlas/mode";
     ros::SubscribeOptions mode_so =
       ros::SubscribeOptions::create<std_msgs::String>(
@@ -1089,7 +1089,7 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
   this->ac.i_effort_max.resize(n);
   this->ac.k_effort.resize(n);
 
-  for (unsigned int i = 0; i < n; i++)
+  for (unsigned int i = 0; i < n; ++i)
   {
     std::vector<std::string> pieces;
     boost::split(pieces, this->jointNames[i], boost::is_any_of(":"));
