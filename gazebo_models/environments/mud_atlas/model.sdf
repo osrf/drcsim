@@ -8,19 +8,20 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>4.0 4.0 0.5</size>
+            <size>8.0 10.0 0.5</size>
           </box>
         </geometry>
         <surface>
           <contact>
             <collide_without_contact>true</collide_without_contact>
+            <collide_without_contact_bitmask>2</collide_without_contact_bitmask>
           </contact>
         </surface>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>4.0 4.0 0.5</size>
+            <size>8.0 10.0 0.5</size>
           </box>
         </geometry>
         <material>
@@ -40,6 +41,7 @@
       <contact_sensor_name>link/mud_contact</contact_sensor_name>
       <stiffness>0.0</stiffness>
       <damping>100.0</damping>
+      <contact_surface_bitmask>2</contact_surface_bitmask>
       <link_name>atlas::l_foot</link_name>
       <link_name>atlas::r_foot</link_name>
       <link_name>atlas::l_lleg</link_name>

@@ -218,32 +218,11 @@
       <pose>8.15 18 3.75 0 0 1.5707</pose>
     </include>
 
-
-    <model name="box">
+    <include>
+      <uri>model://mud_atlas</uri>
+      <name>mud_atlas</name>
       <pose>-0.08 -16.22 -.58 0 0 0</pose>
-      <static>true</static>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>8 10 0.2</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box>
-              <size>8 10 0.2</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1.0</ambient>
-            <diffuse>.421 0.225 0.0 1.0</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
+    </include>
 
     <!--
     <include>
