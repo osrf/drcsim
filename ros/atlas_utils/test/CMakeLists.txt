@@ -29,6 +29,7 @@ set (rostests
   vrc_task_2_cheats_rosapi.test
   vrc_task_3_cheats_rosapi.test
   vrc_task_1_scoring.test
+  vrc_task_2_scoring.test
 )
 
 # Only enable tests if we have a working GPU, which we use as a proxy for
@@ -71,6 +72,7 @@ set(scripts
   parse_logs.sh
   meanvar.py
   vrc_task_1_scoring_test
+  vrc_task_2_scoring_test
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)

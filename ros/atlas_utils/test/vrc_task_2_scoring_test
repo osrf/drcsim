@@ -12,7 +12,7 @@ import tempfile
 import subprocess
 from geometry_msgs.msg import Pose
 
-LOGDIR = '/tmp/vrc_task_1'
+LOGDIR = '/tmp/vrc_task_2'
 
 class Tester(unittest.TestCase):
 
@@ -57,35 +57,77 @@ class Tester(unittest.TestCase):
 
     def test_scoring(self):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
-        enter_car_pub = rospy.Publisher('drc_world/robot_enter_car', Pose)
+        pose = Pose()
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
         # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
-        after_gate_0_pose = Pose()
-        after_gate_0_pose.position.x = -9.75
-        after_gate_0_pose.position.y = -4.11
-        after_gate_0_pose.position.z = 0.91
-        pose_pub.publish(after_gate_0_pose)
+        pose.position.x = 2.81
+        pose.position.y = -38.07
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 0'))
 
-        # Jump in the car
+        # Teleport through second gate
         self.assertFalse(self._grep('score.log', 
-          'Successfully moved Atlas into vehicle'))
-        in_car_pose = Pose()
-        enter_car_pub.publish(in_car_pose)
+          'Successfully passed through gate 1'))
+        pose.position.x = -0.03
+        pose.position.y = -27.76
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
+        time.sleep(3.0)
+        pose.position.x = 1.36
+        pose.position.y = -19.71
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully moved Atlas into vehicle'))
+          'Successfully passed through gate 1'))
 
-        # TODO: Later phases of task
+        # Teleport through third gate
+        self.assertFalse(self._grep('score.log', 
+          'Successfully passed through gate 2'))
+        pose.position.x = 0.644
+        pose.position.y = -7.35
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
+        time.sleep(3.0)
+        self.assertTrue(self._grep('score.log', 
+          'Successfully passed through gate 2'))
+
+        # Teleport through fourth gate
+        self.assertFalse(self._grep('score.log', 
+          'Successfully passed through gate 3'))
+        pose.position.x = 6.68
+        pose.position.y = 4.44
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
+        time.sleep(3.0)
+        pose.position.x = 7.00
+        pose.position.y = 12.07
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
+        time.sleep(3.0)
+        self.assertTrue(self._grep('score.log', 
+          'Successfully passed through gate 3'))
+
+        # Teleport through fifth gate
+        self.assertFalse(self._grep('score.log', 
+          'Successfully passed through gate 4'))
+        pose.position.x = 6.30
+        pose.position.y = 20.31
+        pose.position.z = 1.00
+        pose_pub.publish(pose)
+        time.sleep(3.0)
+        self.assertTrue(self._grep('score.log', 
+          'Successfully passed through gate 4'))
 
 if __name__ == '__main__':
-    rospy.init_node('vrc_task_1_scoring_test', anonymous=True)
+    rospy.init_node('vrc_task_2_scoring_test', anonymous=True)
 
     # Wait until /clock is being published; this can take an unpredictable
     # amount of time when we're downloading models.
@@ -96,5 +138,5 @@ if __name__ == '__main__':
     time.sleep(5.0)
     print('OK, starting test.')
 
-    rostest.run('atlas_utils', 'vrc_task_1_scoring_test', Tester, sys.argv)
+    rostest.run('atlas_utils', 'vrc_task_2_scoring_test', Tester, sys.argv)
 
