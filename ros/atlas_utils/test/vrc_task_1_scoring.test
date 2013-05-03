@@ -1,7 +1,7 @@
 <launch>
   <env name="VRC_CHEATS_ENABLED" value="1"/>
   <include file="$(find atlas_utils)/launch/vrc_task_1.launch">
-    <arg name="gzname" value="gazebo"/>
+    <arg name="gzname" value="gzserver"/>
   </include>
   <test pkg="atlas_utils" type="vrc_task_1_scoring_test" 
         test-name="vrc_task_1_scoring" 
