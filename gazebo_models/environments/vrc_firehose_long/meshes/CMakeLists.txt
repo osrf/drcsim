@@ -1,5 +1,5 @@
 set (files 
-  coupling_hexagon.stl
+  coupling_hexagon.dae
   nozzle.stl
 )
 
