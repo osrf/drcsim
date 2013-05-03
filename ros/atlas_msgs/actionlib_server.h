@@ -41,20 +41,23 @@ class ASIActionServer
 
   /// \brief Subscriber callback for BDI_interface topic
   public: void BDIStateCallback(
-    const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
+    const atlas_msgs::AtlasSimInterfaceState::ConstPtr &_msg);
 
   /// \brief Aborts current goal
   public: void abortGoal(std::string reason);
 
   /// \brief Subscriber to AtlasState topic
-  private: void atlasStateCB(const atlas_msgs::AtlasState::ConstPtr &msg);
+  private: void AtlasStateCB(const atlas_msgs::AtlasState::ConstPtr &_msg);
 
   /// \brief action server callback
   private: void ActionServerCB();
 
   /// \brief action server callback
   private: void ASIStateCB(
-      const atlas_msgs::AtlasSimInterfaceState::ConstPtr &msg);
+      const atlas_msgs::AtlasSimInterfaceState::ConstPtr &_msg);
+
+  /// \brief Transforms a step pose based on current estimated robot world pose
+  public: void transformStepPose(geometry_msgs::Pose &_pose);
 
   /// \brief Current robot position, pulled from ASIStateCB
   private: geometry_msgs::Vector3 robotPosition;
@@ -64,6 +67,9 @@ class ASIActionServer
 
   /// \brief lock while updating control modes
   private: boost::mutex actionServerMutex;
+
+  /// \brief lock while updating robot state
+  private: boost::mutex robotStateMutex;
 
   /// \brief ROS action server
   private: ActionServer *actionServer;
@@ -100,6 +106,12 @@ class ASIActionServer
   /// \brief used to determine if a new goal exists, during which conflicting
   /// information is relayed through atlas_sim_interface_state
   private: bool newGoal;
+
+  /// \brief internal state variable
+  private: bool isStepping;
+
+  /// \brief internal state variable
+  private: int pubCount;
 
   /// \brief Keeps track of the current step in process when walking
   private: unsigned int currentStepIndex;

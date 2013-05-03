@@ -3,10 +3,10 @@
   <include filename="$(find atlas_description)/urdf/atlas_simple_shapes.urdf" />
   <include filename="$(find sandia_hand_description)/urdf/sandia_hand_simple_shapes.urdf.xacro" />
 
-  <xacro:sandia_hand side="right" parent="r_hand" reflect="1" joint_type="revolute" thumb_angle="0">
+  <xacro:sandia_hand side="right" parent="r_hand" reflect="1" joint_type="fixed" thumb_angle="1.57">
     <origin xyz="0 -0.1 0" rpy="-1.57079 0 -1.57079"/>
   </xacro:sandia_hand>
-  <xacro:sandia_hand side="left" parent="l_hand" reflect="-1" joint_type="revolute" thumb_angle="0">
+  <xacro:sandia_hand side="left" parent="l_hand" reflect="-1" joint_type="fixed" thumb_angle="1.57">
     <origin xyz="0  0.1 0" rpy=" 1.57079 0  1.57079"/>
   </xacro:sandia_hand>
 
