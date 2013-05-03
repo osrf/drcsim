@@ -148,8 +148,6 @@ class AtlasTeleop():
         self.is_static = False
         steps = self.build_steps(forward, lateral, turn)
         
-        self.loginfo("Dynamic walking")
-
         # 0 for full BDI control, 255 for PID control
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
@@ -176,38 +174,41 @@ class AtlasTeleop():
         self.is_static = True
         steps = self.build_steps(forward, lateral, turn)
 
-        self.loginfo("Static walking")
+        # step needs index to be 1
+        steps[0].step_index = 1
+        steps[0].swing_height = 0.05
+
         # 0 for full BDI control, 255 for PID control
         k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
         
-        stand_goal = WalkDemoGoal(Header(), WalkDemoGoal.STAND, None, \
+        stand_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
               AtlasBehaviorStepParams(steps[0], False), AtlasBehaviorStandParams(), \
               AtlasBehaviorManipulateParams(),  k_effort )
             
         self.client.send_goal(stand_goal)
-        self.client.wait_for_result()
+        # self.client.wait_for_result()
         
         rospy.sleep(0.3)
-        for step in steps:
-            step.step_index = 1
-            self.debuginfo("step: " + str(step))  
-            walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
-              AtlasBehaviorStepParams(step, False), AtlasBehaviorStandParams(), \
-              AtlasBehaviorManipulateParams(),  k_effort )
-            
-            
-            self.client.send_goal(walk_goal)
-            result_status = self.client.wait_for_result(rospy.Duration(5))
-            if result_status != 0:
-                result = self.client.get_result()
-                rospy.sleep(4)
-                if result.success == False:
-                    self.loginfo("Static walk failed: \n" + "Goal: \n " + str(walk_goal) + "\nResult: " + str(result))
-                    break
-            #if self.client.get_result() != SUCCEEDED:
-            #    self.loginfo("Static walk trajectory timed out, cancelling")
-            #    break
+        # for step in steps:
+        #     step.step_index = 1
+        #     self.debuginfo("step: " + str(step))  
+        #     walk_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
+        #       AtlasBehaviorStepParams(step, False), AtlasBehaviorStandParams(), \
+        #       AtlasBehaviorManipulateParams(),  k_effort )
+        #     
+        #     
+        #     self.client.send_goal(walk_goal)
+        #     result_status = self.client.wait_for_result(rospy.Duration(5))
+        #     if result_status != 0:
+        #         result = self.client.get_result()
+        #         rospy.sleep(4)
+        #         if result.success == False:
+        #             self.loginfo("Static walk failed: \n" + "Goal: \n " + str(walk_goal) + "\nResult: " + str(result))
+        #             break
+        #     #if self.client.get_result() != SUCCEEDED:
+        #     #    self.loginfo("Static walk trajectory timed out, cancelling")
+        #     #    break
         
     def build_steps(self, forward, lateral, turn):        
         L = self.params["Forward Stride Length"]["value"]
