@@ -16,31 +16,61 @@
         </inertia>
       </inertial>
       <collision name="coupling_collision">
+        <pose>-0.01 0 0 0 -1.570790 0</pose>
         <geometry>
           <mesh>
-            <scale>0.002 0.002 0.002</scale>
-            <uri>model://vrc_firehose_long/meshes/coupling.stl</uri>
+            <scale>0.4 0.4 0.8</scale>
+            <uri>model://vrc_firehose_long/meshes/coupling_hexagon.dae</uri>
           </mesh>
         </geometry>
       </collision>
       <visual name="coupling_vis">
+        <pose>-0.01 0 0 0 -1.570790 0</pose>
         <geometry>
           <mesh>
-            <scale>0.002 0.002 0.002</scale>
-            <uri>model://vrc_firehose_long/meshes/coupling.stl</uri>
+            <scale>0.4 0.4 0.8</scale>
+            <uri>model://vrc_firehose_long/meshes/coupling_hexagon.dae</uri>
           </mesh>
         </geometry>
         <material>
-          <diffuse>0 0 1 1</diffuse>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_coupling</name>
+          </script>
         </material>
       </visual>
+
+      <visual name="attachment_vis">
+        <pose>-0.1225 0 0 0 -1.570790 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.025</length>
+            <radius>0.055</radius>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>1 0 0 1</diffuse>
+          <ambient>1 .5 .5 1</ambient>
+        </material>
+      </visual>
+      <collision name="attachment_col">
+        <pose>-0.1225 0 0 0 -1.570790 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.025</length>
+            <radius>0.055</radius>
+          </cylinder>
+        </geometry>
+      </collision>
     </link>
 
-    <link name="link_01">
+    <link name="link_00">
       <gravity>true</gravity>
       <pose>0.1 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -50,35 +80,10 @@
           <izz>0.01</izz>
         </inertia>
       </inertial>
-      <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
-        <geometry>
-          <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
-          </cylinder>
-        </geometry>
-      </collision>
-      <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
-        <geometry>
-          <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
-          </cylinder>
-        </geometry>
-        <material>
-          <script>
-            <uri>model://vrc_firehose_long/materials/scripts</uri>
-            <uri>model://vrc_firehose_long/materials/textures</uri>
-            <name>vrc/firehose_canvas</name>
-          </script>
-        </material>
-      </visual>
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
         <material>
@@ -92,11 +97,12 @@
       </visual>
     </link>
 
-    <link name="link_02">
+    <link name="link_01">
       <gravity>true</gravity>
-      <pose>0.3 0 0 0 0 0</pose>
+      <pose>0.1 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -111,7 +117,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -120,7 +126,49 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    <link name="link_02">
+      <gravity>true</gravity>
+      <pose>0.3 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <pose>0.1 0 0 0 1.570790 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.2</length>
+            <radius>0.025</radius>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose>0.1 0 0 0 1.570790 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.2</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -134,7 +182,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -145,6 +193,7 @@
       <pose>0.5 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -159,7 +208,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -168,7 +217,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -182,7 +231,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -193,6 +242,7 @@
       <pose>0.7 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -207,7 +257,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -216,7 +266,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -230,7 +280,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -241,6 +291,7 @@
       <pose>0.9 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -255,7 +306,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -264,7 +315,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -278,7 +329,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -289,6 +340,7 @@
       <pose>1.1 0 0 0 0 -.785</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -299,20 +351,20 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -326,7 +378,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -337,6 +389,7 @@
       <pose>1.227 -.127 0 0 0 -2.3415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -347,20 +400,20 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -374,7 +427,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -385,6 +438,7 @@
       <pose>1.1 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -399,7 +453,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -408,7 +462,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -422,7 +476,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -433,6 +487,7 @@
       <pose>0.9 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -447,7 +502,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -456,7 +511,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -470,7 +525,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -481,6 +536,7 @@
       <pose>0.7 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -495,7 +551,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -504,7 +560,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -518,7 +574,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -529,6 +585,7 @@
       <pose>0.5 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -543,7 +600,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -552,7 +609,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -566,7 +623,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -577,6 +634,7 @@
       <pose>0.3 -.254 0 0 0 -3.1415</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -591,7 +649,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -600,7 +658,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -614,7 +672,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -625,6 +683,7 @@
       <pose>0.1 -.254 0 0 0 -2.356</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -635,20 +694,20 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -662,7 +721,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -673,6 +732,7 @@
       <pose>-0.027 -.381 0 0 0 -.785</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.0875 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -683,20 +743,20 @@
         </inertia>
       </inertial>
       <collision name="collision">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0.1 0 0 0 1.570790 0</pose>
+        <pose>0.0875 0 0 0 1.570790 0</pose>
         <geometry>
           <cylinder>
-            <length>0.2</length>
-            <radius>0.05</radius>
+            <length>0.175</length>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -710,7 +770,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -721,6 +781,7 @@
       <pose>0.1 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -735,7 +796,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -744,7 +805,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -758,7 +819,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -769,6 +830,7 @@
       <pose>0.3 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -783,7 +845,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -792,7 +854,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -806,7 +868,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -817,6 +879,7 @@
       <pose>0.5 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -831,7 +894,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -840,7 +903,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -854,7 +917,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -865,6 +928,7 @@
       <pose>0.7 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -879,7 +943,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -888,7 +952,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -902,7 +966,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -913,6 +977,7 @@
       <pose>0.9 -.508 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
+        <pose>0.1 0 0 0 0 0</pose>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -927,7 +992,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
       </collision>
@@ -936,7 +1001,7 @@
         <geometry>
           <cylinder>
             <length>0.2</length>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </cylinder>
         </geometry>
         <material>
@@ -950,7 +1015,7 @@
       <visual name="sphere">
         <geometry>
           <sphere>
-            <radius>0.05</radius>
+            <radius>0.025</radius>
           </sphere>
         </geometry>
       </visual>
@@ -972,6 +1037,7 @@
       <collision name="nozzle_collision">
         <geometry>
           <mesh>
+            <scale>1.0 0.5 0.5</scale>
             <uri>model://vrc_firehose_long/meshes/nozzle.stl</uri>
           </mesh>
         </geometry>
@@ -979,17 +1045,34 @@
       <visual name="nozzle_vis">
         <geometry>
           <mesh>
+            <scale>1.0 0.5 0.5</scale>
             <uri>model://vrc_firehose_long/meshes/nozzle.stl</uri>
           </mesh>
         </geometry>
       </visual>
     </link>
 
+    <joint name="joint_00" type="revolute">
+      <parent>coupling</parent>
+      <child>link_00</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>1.0</damping>
+        </dynamics>
+      </axis>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+        </ode>
+      </physics>
+    </joint>
+
     <joint name="joint_01" type="universal">
       <child>link_01</child>
-      <parent>coupling</parent>
+      <parent>link_00</parent>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>1 0 0</xyz>
         <limit>
           <lower>-1.57</lower>
           <upper>1.57</upper>
