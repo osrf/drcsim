@@ -46,7 +46,7 @@
 
 #include <gazebo/sensors/SensorManager.hh>
 #include <gazebo/sensors/MultiCameraSensor.hh>
-#include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/GpuRaySensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
@@ -150,7 +150,7 @@ namespace gazebo
     private: int imagerMode;
 
     // laser sensor control
-    private: sensors::RaySensorPtr laserSensor;
+    private: sensors::GpuRaySensorPtr laserSensor;
 
     // spindle control
     private: double spindleSpeed;
