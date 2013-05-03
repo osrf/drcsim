@@ -1220,7 +1220,7 @@ void AtlasPlugin::UpdateStates()
         // start with PID control
         this->asiState.k_effort.resize(this->jointNames.size());
         for(unsigned int i = 0; i < this->jointNames.size(); ++i)
-          this->asiState.k_effort[i] = 255;
+          this->asiState.k_effort[i] = this->atlasState.k_effort[i];
       }
 
       // 80 characters
