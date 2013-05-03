@@ -15,7 +15,15 @@ topics:
     num_publishers: 1
     num_subscribers: -1
 
-  # TODO: /sandia_hands/l_hand/tactile_raw (not yet implemented)
+  - topic: /sandia_hands/r_hand/tactile_raw
+    type: sandia_hand_msgs/RawTactile
+    num_publishers: 1
+    num_subscribers: -1
+    
+  - topic: /sandia_hands/l_hand/tactile_raw
+    type: sandia_hand_msgs/RawTactile
+    num_publishers: 1
+    num_subscribers: -1              
 
   - topic: /sandia_hands/l_hand/camera/left/image_raw
     type: sensor_msgs/Image
@@ -1217,7 +1225,7 @@ topics:
   - topic: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_right/parameter_updates
     type: dynamic_reconfigure/Config
     num_publishers: 1
-    num_subscribers: -1
+    num_subscribers: -1    
 
   ##########################################################
   # Subscribed topics
