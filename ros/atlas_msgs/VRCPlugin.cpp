@@ -799,7 +799,7 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   // joints, and fire hose is made of universal and ball joints.
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
-    gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+    // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
   }
 }
@@ -820,12 +820,14 @@ void VRCPlugin::CheckThreadStart()
   double posErr = (relativePose.pos - connectPose.pos).GetLength();
   double rotErr = (relativePose.rot.GetZAxis() -
                    connectPose.rot.GetZAxis()).GetLength();
+  double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
 
   // gzdbg << " connectPose [" << connectPose << "]\n";
   // gzdbg << " relativePose [" << relativePose << "]\n";
   // gzdbg << "connect offset [" << connectOffset
   //       << "] xyz [" << posErr
   //       << "] rpy [" << rotErr
+  //       << "] valve [" << valveAng
   //       << "]\n";
 
   if (!this->drcFireHose.screwJoint)
@@ -835,7 +837,7 @@ void VRCPlugin::CheckThreadStart()
     // would prevent you from attaching a hose.  This check also
     // prevents out-of-order execution that would confuse scoring in
     // VRCScoringPlugin.
-    if (posErr < 0.01 && rotErr < 0.01 && this->drcFireHose.valveJoint->GetAngle(0) > -0.1)
+    if (posErr < 0.01 && rotErr < 0.01 && valveAng > -0.1)
     {
       this->drcFireHose.screwJoint =
         this->AddJoint(this->world, this->drcFireHose.fireHoseModel,
@@ -844,7 +846,7 @@ void VRCPlugin::CheckThreadStart()
                        "screw",
                        math::Vector3(0, 0, 0),
                        math::Vector3(0, -1, 0),
-                       20, -0.5, true);
+                       20, -0.5, false);
 
       this->drcFireHose.screwJoint->SetAttribute("thread_pitch", 0,
         this->drcFireHose.threadPitch);
@@ -857,6 +859,7 @@ void VRCPlugin::CheckThreadStart()
   {
     // check joint position to disconnect
     double position = this->drcFireHose.screwJoint->GetAngle(0).Radian();
+    // gzdbg << "unscrew if [" <<  position << "] < -0.003\n";
     if (position < -0.0003)
       this->RemoveJoint(this->drcFireHose.screwJoint);
   }
@@ -974,7 +977,7 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotEnterCar, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotEnterCar = this->rosNode->subscribe(robot_enter_car_so);
-  
+
     std::string robot_exit_car_topic_name = "drc_world/robot_exit_car";
     ros::SubscribeOptions robot_exit_car_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -982,7 +985,7 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotExitCar, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotExitCar = this->rosNode->subscribe(robot_exit_car_so);
-  
+
     std::string robot_grab_topic_name = "drc_world/robot_grab_link";
     ros::SubscribeOptions robot_grab_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -990,7 +993,7 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotGrabFireHose, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotGrab = this->rosNode->subscribe(robot_grab_so);
-  
+
     std::string robot_release_topic_name = "drc_world/robot_release_link";
     ros::SubscribeOptions robot_release_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -1040,7 +1043,7 @@ void VRCPlugin::LoadRobotROSAPI()
       boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subTrajectory = this->rosNode->subscribe(trajectory_so);
-  
+
     std::string pose_topic_name = "atlas/set_pose";
     ros::SubscribeOptions pose_so =
       ros::SubscribeOptions::create<geometry_msgs::Pose>(
@@ -1048,7 +1051,7 @@ void VRCPlugin::LoadRobotROSAPI()
       boost::bind(&VRCPlugin::SetRobotPose, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subPose = this->rosNode->subscribe(pose_so);
-  
+
     std::string configuration_topic_name = "atlas/configuration";
     ros::SubscribeOptions configuration_so =
       ros::SubscribeOptions::create<sensor_msgs::JointState>(
@@ -1057,7 +1060,7 @@ void VRCPlugin::LoadRobotROSAPI()
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subConfiguration =
       this->rosNode->subscribe(configuration_so);
-  
+
     std::string mode_topic_name = "atlas/mode";
     ros::SubscribeOptions mode_so =
       ros::SubscribeOptions::create<std_msgs::String>(
@@ -1140,7 +1143,7 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
   this->ac.i_effort_max.resize(n);
   this->ac.k_effort.resize(n);
 
-  for (unsigned int i = 0; i < n; i++)
+  for (unsigned int i = 0; i < n; ++i)
   {
     std::vector<std::string> pieces;
     boost::split(pieces, this->jointNames[i], boost::is_any_of(":"));

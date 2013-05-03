@@ -40,8 +40,8 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts</uri>
-            <name>Gazebo/Green</name>
+            <uri>model://vrc_valve/materials/scripts</uri>
+            <uri>model://vrc_valve/materials/textures</uri>
           </script>
         </material>
       </visual>

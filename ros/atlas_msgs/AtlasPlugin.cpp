@@ -365,6 +365,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     // initialize AtlasSimInterfaceState
+    this->asiState.header.stamp = ros::Time();
     this->asiState.error_code = atlas_msgs::AtlasSimInterfaceState::NO_ERRORS;
     this->asiState.current_behavior = -1;
     this->asiState.desired_behavior = -1;
@@ -1155,6 +1156,8 @@ void AtlasPlugin::UpdateStates()
     {
       boost::mutex::scoped_lock lock(this->asiMutex);
 
+      this->asiState.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+
       // Try and get desired behavior
 	    std::string behaviorStr;
       this->asiState.error_code =
@@ -1225,7 +1228,7 @@ void AtlasPlugin::UpdateStates()
         // start with PID control
         this->asiState.k_effort.resize(this->jointNames.size());
         for(unsigned int i = 0; i < this->jointNames.size(); ++i)
-          this->asiState.k_effort[i] = 255;
+          this->asiState.k_effort[i] = this->atlasState.k_effort[i];
       }
 
       // 80 characters
