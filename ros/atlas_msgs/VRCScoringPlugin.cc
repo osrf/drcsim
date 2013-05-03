@@ -326,12 +326,16 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
     // Get the pose of the robot or the vehicle, depending on the type of the
     // gate.
     math::Pose pose;
+    std::string tmpString;
     switch (this->nextGate->type)
     {
       case Gate::PEDESTRIAN:
         pose = this->atlas->GetWorldPose();
         break;
       case Gate::VEHICLE:
+        // We require that Atlas is in the vehicle when it crosses a gate
+        if (!this->CheckAtlasInVehicle(tmpString))
+          return false;
         pose = this->vehicle->GetWorldPose();
         break;
       default:
