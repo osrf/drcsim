@@ -334,6 +334,37 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
 }
 
 /////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckAtlasInVehicle(std::string &_msg)
+{
+  // Where is Atlas?
+  math::Vector3 robotPosition = this->atlas->GetWorldPose().pos;
+  // Construct bounding box above the seat, using the footprint of the "seat"
+  // and the height of the "seat_back"
+  math::Box seatBox = this->vehicleSeat->GetBoundingBox();
+  math::Box seatBackBox = this->vehicleSeatBack->GetBoundingBox();
+  // Extrude by the height of the seat back
+  seatBox.min.z = seatBackBox.min.z;
+  seatBox.max.z = seatBackBox.max.z;
+
+  // Check whether Atlas is in the target zone
+  if ((robotPosition.x >= seatBox.min.x) &&
+      (robotPosition.x <= seatBox.max.x) &&
+      (robotPosition.y >= seatBox.min.y) &&
+      (robotPosition.y <= seatBox.max.y) &&
+      (robotPosition.z >= seatBox.min.z) &&
+      (robotPosition.z <= seatBox.max.z))
+  {
+    std::stringstream ss;
+    ss << "Successfully moved Atlas into vehicle";
+    _msg += ss.str();
+    gzlog << ss.str() << std::endl;
+    return true;
+  }
+  else
+    return false;
+}
+
+/////////////////////////////////////////////////
 bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 {
   // Only report the first time
@@ -521,15 +552,66 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   bool forceLogScore = false;
 
   // Did we pass through a gate?
-  if (this->IsGateBased() && this->CheckNextGate(scoreMsg))
-    this->completionScore += 1;
-
-  if (this->worldType == QUAL_2)
+  if (this->worldType == QUAL_1 ||
+      this->worldType == QUAL_3 ||
+      this->worldType == QUAL_4)
+  {
+    if (this->CheckNextGate(scoreMsg))
+      this->completionScore += 1;
+  }
+  else if (this->worldType == QUAL_2)
   {
     if (this->completionScore == 0)
     {
       // Did we put the drill in the bin?
       if (this->CheckDrillInBin(scoreMsg))
+        this->completionScore += 1;
+    }
+  }
+  else if (this->worldType == VRC_1)
+  {
+    bool firstGate = (this->nextGate == this->gates.begin());
+    // We don't count the first gate in the score.
+    if (firstGate)
+    {
+      if (this->CheckNextGate(scoreMsg))
+      {
+        // Force score output so that this event appears in the log
+        forceLogScore = true;
+      }
+    }
+    else
+    {
+      // Step 0: get the pelvis in the car
+      if (this->completionScore == 0)
+      {
+        if (this->CheckAtlasInVehicle(scoreMsg))
+          this->completionScore += 1;
+      }
+      // Steps 1-3: go through gates
+      else
+      {
+        if (this->CheckNextGate(scoreMsg))
+          this->completionScore += 1;
+      }
+    }
+  }
+  else if (this->worldType == VRC_2)
+  {
+    bool firstGate = (this->nextGate == this->gates.begin());
+    // We don't count the first gate in the score.
+    if (firstGate)
+    {
+      if (this->CheckNextGate(scoreMsg))
+      {
+        // Force score output so that this event appears in the log
+        forceLogScore = true;
+      }
+    }
+    else
+    {
+      // Steps 0-3: go through gates
+      if (this->CheckNextGate(scoreMsg))
         this->completionScore += 1;
     }
   }
@@ -646,6 +728,25 @@ bool VRCScoringPlugin::FindVRC1Stuff()
   if (!this->vehicle)
   {
     gzerr << "Failed to find vehicle" << std::endl;
+    return false;
+  }
+  physics::LinkPtr chassisLink = 
+    this->vehicle->GetLink("polaris_ranger_ev::chassis");
+  if (!chassisLink)
+  {
+    gzerr << "Failed to find chassis link" << std::endl;
+    return false;
+  }
+  this->vehicleSeat = chassisLink->GetCollision("seat");
+  if (!this->vehicleSeat)
+  {
+    gzerr << "Failed to find vehicle seat collision" << std::endl;
+    return false;
+  }
+  this->vehicleSeatBack = chassisLink->GetCollision("seat_back");
+  if (!this->vehicleSeatBack)
+  {
+    gzerr << "Failed to find vehicle seat back collision" << std::endl;
     return false;
   }
   if (!this->FindGates())
@@ -769,19 +870,6 @@ bool VRCScoringPlugin::FindGates()
   this->nextGateSide = -1;
 
   return true;
-}
-
-/////////////////////////////////////////////////
-bool VRCScoringPlugin::IsGateBased()
-{
-  if (this->worldType == QUAL_1 ||
-      this->worldType == QUAL_3 ||
-      this->worldType == QUAL_4 ||
-      this->worldType == VRC_1 ||
-      this->worldType == VRC_2)
-    return true;
-  else
-    return false;
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCScoringPlugin)
