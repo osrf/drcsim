@@ -2,6 +2,7 @@
 
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas_sandia_hands.world"/>
+  <arg name="hand_suffix" default=""/>
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
 
@@ -12,7 +13,7 @@
   </include>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas_sandia_hands)/atlas_sandia_hands.urdf"/>
+  <param name="robot_description" textfile="$(find atlas_sandia_hands)$(arg hand_suffix)/atlas_sandia_hands$(arg hand_suffix).urdf"/>
 
   <include file="$(find atlas_utils)/launch/atlas_sandia_hands_bringup.launch"/>
 </launch>

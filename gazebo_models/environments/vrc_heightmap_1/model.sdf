@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<sdf version="1.3">
+<sdf version="1.4">
   <model name="heightmap_1">
     <static>true</static>
     <link name="link">
@@ -19,17 +19,17 @@
             <texture>
               <diffuse>file://media/materials/textures/dirt_diffusespecular.png</diffuse>
               <normal>file://media/materials/textures/flat_normal.png</normal>
-              <size>50</size>
+              <size>10</size>
             </texture>
             <texture>
               <diffuse>file://media/materials/textures/grass_diffusespecular.png</diffuse>
               <normal>file://media/materials/textures/flat_normal.png</normal>
-              <size>20</size>
+              <size>10</size>
             </texture>
             <texture>
               <diffuse>file://media/materials/textures/fungus_diffusespecular.png</diffuse>
               <normal>file://media/materials/textures/flat_normal.png</normal>
-              <size>80</size>
+              <size>10</size>
             </texture>
             <blend>
               <min_height>15</min_height>
