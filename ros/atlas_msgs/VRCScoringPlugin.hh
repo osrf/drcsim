@@ -260,13 +260,13 @@ namespace gazebo
     /// \brief Which side of the next gate we were the last time we checked.
     private: int nextGateSide;
 
-    /// \brief Sim tim at which Atlas passed through the first gate.
+    /// \brief Sim time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTimeSim;
 
     /// \brief Wall time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTimeWall;
 
-    /// \brief Sim tim at which Atlas achieved the last checkpoint.
+    /// \brief Sim time at which Atlas achieved the last checkpoint.
     private: gazebo::common::Time stopTimeSim;
 
     /// \brief Wall time at which Atlas achieved the last checkpoint.
