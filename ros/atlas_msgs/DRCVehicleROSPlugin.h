@@ -83,7 +83,7 @@ namespace gazebo
     public: void SetRosPublishRate(double _hz);
 
     /// Default plugin init call.
-    public: void Init();
+    public: virtual void Init();
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;

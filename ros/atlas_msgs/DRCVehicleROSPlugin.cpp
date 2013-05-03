@@ -48,6 +48,7 @@ DRCVehicleROSPlugin::~DRCVehicleROSPlugin()
 // Initialize
 void DRCVehicleROSPlugin::Init()
 {
+  DRCVehiclePlugin::Init();
 }
 
 
@@ -76,6 +77,8 @@ void DRCVehicleROSPlugin::SetDirectionState(
   else
     ROS_ERROR("Invalid Direction State: %d, expected -1, 0, or 1\n",
       static_cast<int16_t>(_msg->data));
+
+  this->UpdateFNRSwitchTime();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +90,7 @@ void DRCVehicleROSPlugin::SetHandBrakePercent(const std_msgs::Float64::ConstPtr
   DRCVehiclePlugin::GetHandBrakeLimits(min, max);
   cmd = min + percent * (max - min);
   DRCVehiclePlugin::SetHandBrakeState(cmd);
+  this->UpdateHandBrakeTime();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
