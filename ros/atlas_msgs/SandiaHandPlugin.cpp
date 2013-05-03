@@ -17,7 +17,9 @@
 #include <string>
 #include <vector>
 #include <sensor_msgs/Imu.h>
+#include <sandia_hand_msgs/RawTactile.h>
 
+#include <gazebo/transport/Node.hh>
 #include "SandiaHandPlugin.h"
 
 using std::string;
@@ -178,23 +180,111 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->leftImuLink = this->model->GetLink(this->leftImuLinkName);
   if (!this->leftImuLink)
     gzerr << this->leftImuLinkName << " not found\n";
-  else
-  {
-    // initialize imu reference pose
-    this->leftImuReferencePose = this->leftImuLink->GetWorldPose();
-    this->leftImuLastLinearVel = leftImuReferencePose.rot.RotateVector(
-      this->leftImuLink->GetWorldLinearVel());
-  }
 
   this->rightImuLink = this->model->GetLink(this->rightImuLinkName);
   if (!this->rightImuLink)
     gzerr << this->rightImuLinkName << " not found\n";
-  else
+
+  // Get imu sensors
+  this->leftImuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->leftImuLink->GetScopedName()
+        + "::imu_sensor"));
+  if (!this->leftImuSensor)
+    gzerr << "left imu_sensor not found\n" << "\n";
+
+  this->rightImuSensor =
+    boost::shared_dynamic_cast<sensors::ImuSensor>
+      (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->rightImuLink->GetScopedName()
+        + "::imu_sensor"));
+  if (!this->rightImuSensor)
+    gzerr << "right imu_sensor not found\n" << "\n";
+
+
+  // Tactile data
+  this->tactileFingerArraySize = 18;
+  this->tactilePalmArraySize = 32;
+
+  // Approximate output range of the tactile sensor
+  // determined by experimenting with the actual physical hand
+  this->maxTactileOut = 33500;
+  this->minTactileOut = 26500;
+
+  this->leftTactile.f0.resize(this->tactileFingerArraySize);
+  this->leftTactile.f1.resize(this->tactileFingerArraySize);
+  this->leftTactile.f2.resize(this->tactileFingerArraySize);
+  this->leftTactile.f3.resize(this->tactileFingerArraySize);
+  this->rightTactile.f0.resize(this->tactileFingerArraySize);
+  this->rightTactile.f1.resize(this->tactileFingerArraySize);
+  this->rightTactile.f2.resize(this->tactileFingerArraySize);
+  this->rightTactile.f3.resize(this->tactileFingerArraySize);
+  this->leftTactile.palm.resize(this->tactilePalmArraySize);
+  this->rightTactile.palm.resize(this->tactilePalmArraySize);
+  for (int i = 0; i < this->tactileFingerArraySize; ++i)
   {
-    // initialize imu reference pose
-    this->rightImuReferencePose = this->rightImuLink->GetWorldPose();
-    this->rightImuLastLinearVel = rightImuReferencePose.rot.RotateVector(
-      this->rightImuLink->GetWorldLinearVel());
+    this->leftTactile.f0[i] = this->minTactileOut;
+    this->leftTactile.f1[i] = this->minTactileOut;
+    this->leftTactile.f2[i] = this->minTactileOut;
+    this->leftTactile.f3[i] = this->minTactileOut;
+    this->rightTactile.f0[i] = this->minTactileOut;
+    this->rightTactile.f1[i] = this->minTactileOut;
+    this->rightTactile.f2[i] = this->minTactileOut;
+    this->rightTactile.f3[i] = this->minTactileOut;
+  }
+  for (int i = 0; i < this->tactilePalmArraySize; ++i)
+  {
+    this->leftTactile.palm[i] = this->minTactileOut;
+    this->rightTactile.palm[i] = this->minTactileOut;
+  }
+
+  if (!hasStumps)
+  {
+    // Sandia hand tactile dimensions taken from spec and adapted to fit on our
+    // sandia hand model
+    this->palmColWidth[0] = 0.01495;
+    this->palmColLength[0] = 0.02341;
+    this->palmColWidth[1] = 0.01495;
+    this->palmColLength[1] = 0.02341;
+    this->palmColWidth[2] = 0.01495;
+    this->palmColLength[2] = 0.02341;
+    this->palmColWidth[3] = 0.04304;
+    this->palmColLength[3] = 0.05271;
+    this->palmColWidth[4] = 0.08004;
+    this->palmColLength[4] = 0.01170;
+
+    this->palmHorSize[0] = 2;
+    this->palmVerSize[0] = 3;
+    this->palmHorSize[1] = 2;
+    this->palmVerSize[1] = 3;
+    this->palmHorSize[2] = 2;
+    this->palmVerSize[2] = 3;
+    this->palmHorSize[3] = 2;
+    this->palmVerSize[3] = 5;
+    this->palmHorSize[4] = 5;
+    this->palmVerSize[4] = 2;
+
+    this->fingerColLength[0] = 0.01;
+    this->fingerColWidth[0] = 0.0158;
+    this->fingerColLength[1] = 0.0271;
+    this->fingerColWidth[1] = 0.0134;
+
+    this->fingerHorSize[0] = 3;
+    this->fingerVerSize[0] = 2;
+    this->fingerHorSize[1] = 3;
+    this->fingerVerSize[1] = 4;
+
+    this->node.reset(new transport::Node());
+    this->node->Init(this->world->GetName());
+
+    std::string modelName = this->model->GetName();
+    this->contactSub[0] =
+        this->node->Subscribe("~/" + modelName + "/contact_0",
+        &SandiaHandPlugin::OnRContacts, this);
+    this->contactSub[1] =
+        this->node->Subscribe("~/" + modelName + "/contact_1",
+        &SandiaHandPlugin::OnLContacts, this);
   }
 
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
@@ -329,6 +419,16 @@ void SandiaHandPlugin::DeferredLoad()
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/r_hand/imu", 10);
 
+  // publish contact data
+  this->pubLeftTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
+  this->pubLeftTactile =
+    this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
+      "sandia_hands/l_hand/tactile_raw", 10);
+  this->pubRightTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
+  this->pubRightTactile =
+    this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
+      "sandia_hands/r_hand/tactile_raw", 10);
+
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
   this->updateRate = 1.0;
@@ -352,102 +452,54 @@ void SandiaHandPlugin::UpdateStates()
     // get imu data from imu link
     if (curTime > this->lastImuTime)
     {
-      if (this->leftImuLink)
+      if (this->leftImuSensor)
       {
-        // Get imuLnk Pose/Orientation
-        math::Pose leftImuPose = this->leftImuLink->GetWorldPose();
-        math::Vector3 leftImuLinearVel = leftImuPose.rot.RotateVector(
-          this->leftImuLink->GetWorldLinearVel());
+        math::Vector3 angularVel = this->leftImuSensor->GetAngularVelocity();
+        math::Vector3 linearAcc = this->leftImuSensor->GetLinearAcceleration();
+        math::Quaternion orientation = this->leftImuSensor->GetOrientation();
 
         sensor_msgs::Imu leftImuMsg;
         leftImuMsg.header.frame_id = this->leftImuLinkName;
-        leftImuMsg.header.stamp = ros::Time(curTime.Double());
+        leftImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
 
-        // compute angular rates
-        {
-          // get world twist and convert to local frame
-          math::Vector3 wLocal = leftImuPose.rot.RotateVector(
-            this->leftImuLink->GetWorldAngularVel());
-          leftImuMsg.angular_velocity.x = wLocal.x;
-          leftImuMsg.angular_velocity.y = wLocal.y;
-          leftImuMsg.angular_velocity.z = wLocal.z;
-        }
+        leftImuMsg.angular_velocity.x = angularVel.x;
+        leftImuMsg.angular_velocity.y = angularVel.y;
+        leftImuMsg.angular_velocity.z = angularVel.z;
 
-        // compute acceleration
-        {
-          math::Vector3 accel = leftImuLinearVel - this->leftImuLastLinearVel;
-          double leftImuDdx = accel.x;
-          double leftImuDdy = accel.y;
-          double leftImuDdz = accel.z;
+        leftImuMsg.linear_acceleration.x = linearAcc.x;
+        leftImuMsg.linear_acceleration.y = linearAcc.y;
+        leftImuMsg.linear_acceleration.z = linearAcc.z;
 
-          leftImuMsg.linear_acceleration.x = leftImuDdx;
-          leftImuMsg.linear_acceleration.y = leftImuDdy;
-          leftImuMsg.linear_acceleration.z = leftImuDdz;
-
-          this->leftImuLastLinearVel = leftImuLinearVel;
-        }
-
-        // compute orientation
-        {
-          // Get IMU rotation relative to Initial IMU Reference Pose
-          math::Quaternion leftImuRot =
-            leftImuPose.rot * this->leftImuReferencePose.rot.GetInverse();
-
-          leftImuMsg.orientation.x = leftImuRot.x;
-          leftImuMsg.orientation.y = leftImuRot.y;
-          leftImuMsg.orientation.z = leftImuRot.z;
-          leftImuMsg.orientation.w = leftImuRot.w;
-        }
+        leftImuMsg.orientation.x = orientation.x;
+        leftImuMsg.orientation.y = orientation.y;
+        leftImuMsg.orientation.z = orientation.z;
+        leftImuMsg.orientation.w = orientation.w;
 
         this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
       }
 
-      if (this->rightImuLink)
+      if (this->rightImuSensor)
       {
-        // Get imuLnk Pose/Orientation
-        math::Pose rightImuPose = this->rightImuLink->GetWorldPose();
-        math::Vector3 rightImuLinearVel = rightImuPose.rot.RotateVector(
-          this->rightImuLink->GetWorldLinearVel());
+        math::Vector3 angularVel = this->rightImuSensor->GetAngularVelocity();
+        math::Vector3 linearAcc = this->rightImuSensor->GetLinearAcceleration();
+        math::Quaternion orientation = this->rightImuSensor->GetOrientation();
 
         sensor_msgs::Imu rightImuMsg;
         rightImuMsg.header.frame_id = this->rightImuLinkName;
-        rightImuMsg.header.stamp = ros::Time(curTime.Double());
+        rightImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
 
-        // compute angular rates
-        {
-          // get world twist and convert to local frame
-          math::Vector3 wLocal = rightImuPose.rot.RotateVector(
-            this->rightImuLink->GetWorldAngularVel());
-          rightImuMsg.angular_velocity.x = wLocal.x;
-          rightImuMsg.angular_velocity.y = wLocal.y;
-          rightImuMsg.angular_velocity.z = wLocal.z;
-        }
+        rightImuMsg.angular_velocity.x = angularVel.x;
+        rightImuMsg.angular_velocity.y = angularVel.y;
+        rightImuMsg.angular_velocity.z = angularVel.z;
 
-        // compute acceleration
-        {
-          math::Vector3 accel = rightImuLinearVel - this->rightImuLastLinearVel;
-          double rightImuDdx = accel.x;
-          double rightImuDdy = accel.y;
-          double rightImuDdz = accel.z;
+        rightImuMsg.linear_acceleration.x = linearAcc.x;
+        rightImuMsg.linear_acceleration.y = linearAcc.y;
+        rightImuMsg.linear_acceleration.z = linearAcc.z;
 
-          rightImuMsg.linear_acceleration.x = rightImuDdx;
-          rightImuMsg.linear_acceleration.y = rightImuDdy;
-          rightImuMsg.linear_acceleration.z = rightImuDdz;
-
-          this->rightImuLastLinearVel = rightImuLinearVel;
-        }
-
-        // compute orientation
-        {
-          // Get IMU rotation relative to Initial IMU Reference Pose
-          math::Quaternion rightImuRot =
-            rightImuPose.rot * this->rightImuReferencePose.rot.GetInverse();
-
-          rightImuMsg.orientation.x = rightImuRot.x;
-          rightImuMsg.orientation.y = rightImuRot.y;
-          rightImuMsg.orientation.z = rightImuRot.z;
-          rightImuMsg.orientation.w = rightImuRot.w;
-        }
+        rightImuMsg.orientation.x = orientation.x;
+        rightImuMsg.orientation.y = orientation.y;
+        rightImuMsg.orientation.z = orientation.z;
+        rightImuMsg.orientation.w = orientation.w;
 
         this->pubRightImuQueue->push(rightImuMsg, this->pubRightImu);
       }
@@ -459,11 +511,11 @@ void SandiaHandPlugin::UpdateStates()
     // populate FromRobot from robot
     this->leftJointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
     this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
-    for (unsigned int i = 0; i < this->joints.size(); ++i)
+    if (!this->hasStumps)
     {
-      if (i < this->joints.size() / 2)
+      for (unsigned int i = 0; i < this->joints.size(); ++i)
       {
-        if (!this->hasStumps)
+        if (i < this->joints.size() / 2)
         {
           this->leftJointStates.position[i] =
             this->joints[i]->GetAngle(0).Radian();
@@ -471,12 +523,9 @@ void SandiaHandPlugin::UpdateStates()
           // better to use GetForceTorque dot joint axis
           this->leftJointStates.effort[i] = this->joints[i]->GetForce(0u);
         }
-      }
-      else
-      {
-        unsigned j = i - this->joints.size() / 2;
-        if (!this->hasStumps)
+        else
         {
+          unsigned j = i - this->joints.size() / 2;
           this->rightJointStates.position[j] =
             this->joints[i]->GetAngle(0).Radian();
           this->rightJointStates.velocity[j] = this->joints[i]->GetVelocity(0);
@@ -538,6 +587,51 @@ void SandiaHandPlugin::UpdateStates()
       if (!this->hasStumps)
         this->joints[i]->SetForce(0, force);
     }
+
+    // publish tactile data
+    if (!this->hasStumps)
+    {
+      // first clear all previous tactile data
+      for (int i = 0; i < this->tactileFingerArraySize; ++i)
+      {
+        this->leftTactile.f0[i] = this->minTactileOut;
+        this->leftTactile.f1[i] = this->minTactileOut;
+        this->leftTactile.f2[i] = this->minTactileOut;
+        this->leftTactile.f3[i] = this->minTactileOut;
+        this->rightTactile.f0[i] = this->minTactileOut;
+        this->rightTactile.f1[i] = this->minTactileOut;
+        this->rightTactile.f2[i] = this->minTactileOut;
+        this->rightTactile.f3[i] = this->minTactileOut;
+      }
+      for (int i = 0; i < this->tactilePalmArraySize; ++i)
+      {
+        this->leftTactile.palm[i] = this->minTactileOut;
+        this->rightTactile.palm[i] = this->minTactileOut;
+      }
+
+      // Generate data and publish
+      {
+        boost::mutex::scoped_lock lock(this->contactRMutex);
+        this->rightTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+        this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
+            &this->rightTactile);
+        // Clear the incoming contact list.
+        this->incomingRContacts.clear();
+      }
+      {
+        boost::mutex::scoped_lock lock(this->contactLMutex);
+        this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+        this->FillTactileData(LEFT_HAND, this->incomingLContacts,
+            &this->leftTactile);
+        this->incomingLContacts.clear();
+      }
+    }
+
+    this->pubRightTactileQueue->push(this->rightTactile,
+        this->pubRightTactile);
+    this->pubLeftTactileQueue->push(this->leftTactile,
+        this->pubLeftTactile);
+
     this->lastControllerUpdateTime = curTime;
   }
 }
@@ -551,4 +645,374 @@ void SandiaHandPlugin::RosQueueThread()
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
+
+//////////////////////////////////////////////////
+void SandiaHandPlugin::OnRContacts(ConstContactsPtr &_msg)
+{
+  boost::mutex::scoped_lock lock(this->contactRMutex);
+
+  // Store the contacts message for processing in UpdateImpl
+  this->incomingRContacts.push_back(_msg);
+
+  // Prevent the incomingContacts list to grow indefinitely.
+  if (this->incomingRContacts.size() > 50)
+    this->incomingRContacts.pop_front();
+}
+
+//////////////////////////////////////////////////
+void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
+{
+  boost::mutex::scoped_lock lock(this->contactLMutex);
+
+  // Store the contacts message for processing in UpdateImpl
+  this->incomingLContacts.push_back(_msg);
+
+  // Prevent the incomingContacts list to grow indefinitely.
+  if (this->incomingLContacts.size() > 50)
+    this->incomingLContacts.pop_front();
+}
+
+//////////////////////////////////////////////////
+void SandiaHandPlugin::FillTactileData(HandEnum _side,
+    ContactMsgs_L _incomingContacts,
+    sandia_hand_msgs::RawTactile *_tactileMsg)
+{
+  // The method of generating tactile sensor output is specific
+  // to the current sandia hand collisions. This is because the collisions
+  // do not really match the actual sandia hand so it was not possible to
+  // directly use the position of the sensors from the spec sheet. The best
+  // we could do is approximate the locations of tactile sensors
+  // on these collision. Idea as follows:
+  // Divide each collision into smaller regions,
+  // Identify the region which the contact point lies,
+  // Set the corresponding (closest) tactile sensor's output value.
+
+  // Don't do anything if there is no new data to process.
+  if (!_incomingContacts.empty())
+  {
+    std::vector<std::string>::iterator collIter;
+    std::string collision1;
+
+    std::string sideStr = (_side == LEFT_HAND) ? "left" : "right";
+    // Iterate over all the contact messages
+    for (ContactMsgs_L::iterator iter = _incomingContacts.begin();
+        iter != _incomingContacts.end(); ++iter)
+    {
+      // Iterate over all the contacts in the message
+      for (int i = 0; i < (*iter)->contact_size(); ++i)
+      {
+        bool isPalm = false;
+        bool isBody1 = true;
+        // Get the collision pointer from name in contact msg
+        collision1 = (*iter)->contact(i).collision1();
+
+        if (collision1.find(sideStr + "_f") ==  std::string::npos
+            && collision1.find("palm") ==  std::string::npos)
+        {
+          collision1 = (*iter)->contact(i).collision2();
+          isBody1 = false;
+        }
+
+        physics::Collision *col = NULL;
+        if (!this->contactCollisions.count(collision1))
+        {
+          col = boost::dynamic_pointer_cast<physics::Collision>(
+              this->world->GetEntity(collision1)).get();
+          this->contactCollisions[collision1] = col;
+        }
+        else
+        {
+          col = this->contactCollisions[collision1];
+        }
+
+        GZ_ASSERT(col, "Contact collision is Null!");
+
+        // check if it's a palm or a finger
+        if (collision1.find("palm") !=  std::string::npos)
+          isPalm = true;
+
+        // get finger index if not palm
+        int fingerIdx = -1;
+        int fingerColIdx = -1;
+        int palmIdx = -1;
+
+        if (isPalm)
+        {
+          // index finder palm
+          if (collision1.find("_3") !=  std::string::npos)
+            palmIdx = 0;
+          // middle finder palm
+          else if (collision1.find("_4") !=  std::string::npos)
+            palmIdx = 1;
+          // pinky palm
+          else if (collision1.find("_5") !=  std::string::npos)
+            palmIdx = 2;
+          // bottom palm
+          else if (collision1.find("_1") !=  std::string::npos)
+            palmIdx = 3;
+          // mid palm
+          else
+            palmIdx = 4;
+        }
+        else
+        {
+          // index finder
+          if (collision1.find("f0") !=  std::string::npos)
+            fingerIdx = 0;
+          // middle finder
+          else if (collision1.find("f1") !=  std::string::npos)
+            fingerIdx = 1;
+          // pinky
+          else if (collision1.find("f2") !=  std::string::npos)
+            fingerIdx = 2;
+          // thumb
+          else if (collision1.find("f3") !=  std::string::npos)
+            fingerIdx = 3;
+
+          // lower collision of the finger
+          if (collision1.find("_1") !=  std::string::npos)
+            fingerColIdx = 0;
+          // upper collision of the finger
+          else if (collision1.find("_2") !=  std::string::npos)
+            fingerColIdx = 1;
+        }
+
+        math::Vector3 pos;
+        math::Vector3 force;
+        int tactileOuput = 0;
+        // Iterate all contact positions
+        for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
+        {
+          pos = msgs::Convert((*iter)->contact(i).position(j));
+          if (isBody1)
+            force = msgs::Convert((*iter)->contact(i).wrench(j).body_1_force());
+          else
+            force = msgs::Convert((*iter)->contact(i).wrench(j).body_2_force());
+
+          // Scaling formula taken from Gazebo's ContactVisual class
+          tactileOuput = (2.0 * (this->maxTactileOut - this->minTactileOut))
+              / (1 + exp(-force.GetSquaredLength() / 100)) -
+              (this->maxTactileOut - 2*this->minTactileOut);
+
+          // transfrom into collision frame
+          math::Pose colPose = col->GetInitialRelativePose() +
+              col->GetLink()->GetWorldPose();
+          pos = colPose.rot.GetInverse() * (pos - colPose.pos);
+
+          double vPosInCol = 0;
+          double hPosInCol = 0;
+          // column
+          int ai = 0;
+          // row
+          int aj = 0;
+          // tactile sensor index
+          int aIndex = -1;
+
+          // if palm
+          if (isPalm)
+          {
+            switch (palmIdx)
+            {
+              case 0:
+              {
+                // Index finger palm sensors: 3; 8 9; 13
+                // (numbers correspond to taxel sensor number in spec)
+                if (pos.z > 0)
+                {
+                  vPosInCol =
+                      math::clamp(pos.x / this->palmColLength[palmIdx],
+                      0.0, 1.0);
+                  hPosInCol =
+                      math::clamp((-pos.y + this->palmColWidth[palmIdx]/2.0)
+                      / this->palmColWidth[0], 0.0, 1.0);
+
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = 2;
+                  if (ai == 1)
+                  {
+                    if (aj == 0)
+                      aIndex =7;
+                    else
+                      aIndex = 8;
+                  }
+                  else if (ai == 2)
+                    aIndex = 12;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
+                }
+                break;
+              }
+              case 1:
+              {
+                // Middle finger palm sensors: 2; 6 7; 11 12
+                // (numbers correspond to taxel sensor number in spec)
+                if (pos.z > 0)
+                {
+                  // distance apart = w 14.95, h 11.70
+                  vPosInCol =
+                      math::clamp(pos.x / this->palmColLength[palmIdx],
+                      0.0, 1.0);
+                  hPosInCol =
+                    math::clamp((-pos.y + this->palmColWidth[palmIdx]/2.0)
+                    / this->palmColWidth[palmIdx], 0.0, 1.0);
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = 1;
+                  if (ai == 1)
+                  {
+                    if (aj == 0)
+                      aIndex =5;
+                    else
+                      aIndex = 6;
+                  }
+                  else if (ai == 2)
+                  {
+                    if (aj == 0)
+                      aIndex =10;
+                    else
+                      aIndex = 11;
+                  }
+                  _tactileMsg->palm[aIndex] = tactileOuput;
+                }
+                break;
+              }
+              case 2:
+              {
+                // Pinky palm sensors: 1; 4 5; 10
+                // (numbers correspond to taxel sensor number in spec)
+                if (pos.z > 0)
+                {
+                  vPosInCol =
+                      math::clamp(pos.x / this->palmColLength[palmIdx],
+                      0.0, 1.0);
+                  hPosInCol =
+                    math::clamp((-pos.y + this->palmColWidth[palmIdx]/2.0) /
+                    this->palmColWidth[palmIdx], 0.0, 1.0);
+
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = 0;
+                  if (ai == 1)
+                  {
+                    if (aj == 0)
+                      aIndex =3;
+                    else
+                      aIndex = 4;
+                  }
+                  else if (ai == 2)
+                    aIndex = 9;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
+                }
+                break;
+              }
+              case 3:
+              {
+                // Sensors on bottom palm: 23 24; 25 26; 27 28; 29 30; 31 32
+                // (numbers correspond to taxel sensor number in spec)
+                int baseIndex = 22;
+                if (pos.z > 0)
+                {
+                  vPosInCol =
+                      math::clamp((pos.y + this->palmColLength[palmIdx]/2.0) /
+                      this->palmColLength[palmIdx], 0.0, 1.0);
+                  hPosInCol =
+                      math::clamp((pos.x + this->palmColWidth[palmIdx]/2.0) /
+                      this->palmColWidth[palmIdx], 0.0, 1.0);
+
+                  ai = this->palmVerSize[palmIdx] -
+                      std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                  aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                  ai = std::max(ai, 0);
+                  aj = std::max(aj, 0);
+                  aIndex = baseIndex + ai * this->palmHorSize[palmIdx] + aj;
+                  _tactileMsg->palm[aIndex] = tactileOuput;
+                }
+                break;
+              }
+              default:
+              {
+                // Sensors on mid palm (default): 14 15 16 17; 18 19 20 21 22
+                // (numbers correspond to taxel sensor number in spec)
+                vPosInCol =
+                    math::clamp(pos.y / this->palmColLength[palmIdx], 0.0, 1.0);
+                hPosInCol =
+                    math::clamp((pos.z + this->palmColWidth[palmIdx]/2.0) /
+                    this->palmColWidth[palmIdx], 0.0, 1.0);
+
+                ai = this->palmVerSize[palmIdx] -
+                    std::ceil(vPosInCol * this->palmVerSize[palmIdx]) - 1;
+                aj = std::ceil(hPosInCol * this->palmHorSize[palmIdx]) - 1;
+                ai = std::max(ai, 0);
+                aj = std::max(aj, 0);
+                aIndex = 20;
+                int baseIndex = 13;
+                if (ai == 0)
+                {
+                  // four sensors on first row, and five on the second
+                  // so adjust aj for sensors 16 and 17
+                  aj = (aj > 2) ? aj - 1 : aj;
+                  aIndex = baseIndex + aj;
+                }
+                else
+                  aIndex = baseIndex + ai * (this->palmHorSize[4]-1) + aj;
+
+                _tactileMsg->palm[aIndex] = tactileOuput;
+                break;
+              }
+            }
+          }
+          // if finger: make sure finger index is valid and
+          // contact is on the inside of the hand (palm side)
+          else if (fingerIdx != -1 && pos.y > 0)
+          {
+            // compute finger tactile array index
+            vPosInCol = math::clamp((pos.z +
+                this->fingerColLength[fingerColIdx]/2)
+                / fingerColLength[fingerColIdx], 0.0, 1.0);
+            hPosInCol = math::clamp((-pos.x +
+                this->fingerColWidth[fingerColIdx]/2)
+                / fingerColWidth[fingerColIdx], 0.0, 1.0);
+
+            ai = this->fingerVerSize[fingerColIdx] -
+                std::ceil(vPosInCol * this->fingerVerSize[fingerColIdx]) - 1;
+            aj = std::ceil(hPosInCol * this->fingerHorSize[fingerColIdx]) - 1;
+            ai = std::max(ai, 0);
+            aj = std::max(aj, 0);
+
+            aIndex = fingerColIdx * this->fingerHorSize[0]
+                * this->fingerVerSize[0] +
+                ai * this->fingerHorSize[fingerColIdx] + aj;
+
+            // Set the corresponding index in tactile sensor array to 1
+            switch (fingerIdx)
+            {
+              case 0:
+                 _tactileMsg->f0[aIndex] = tactileOuput;
+                break;
+              case 1:
+                 _tactileMsg->f1[aIndex] = tactileOuput;
+                break;
+              case 2:
+                 _tactileMsg->f2[aIndex] = tactileOuput;
+                break;
+              case 3:
+                 _tactileMsg->f3[aIndex] = tactileOuput;
+                break;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 }

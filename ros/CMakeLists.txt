@@ -4,7 +4,8 @@ add_subdirectory(irobot_hand_description)
 add_subdirectory(multisense_sl_description)
 
 # Construct the ROS_PACKAGE_PATH that we'll need, both at configure and build time.
-set(ROS_PACKAGE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/atlas_msgs:${OSRF_COMMON_ROS_PACKAGE_PATH}:$ENV{ROS_PACKAGE_PATH})
+set(ROS_PACKAGE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/atlas_msgs:${OSRF_COMMON_ROS_PACKAGE_PATH}:${SANDIA_HAND_ROS_PACKAGE_PATH}:$ENV{ROS_PACKAGE_PATH})
+
 ExternalProject_Add(atlas_msgs
                     UPDATE_COMMAND true
                     PATCH_COMMAND true
