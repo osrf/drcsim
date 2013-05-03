@@ -107,7 +107,10 @@ class ASIActionServer
   /// information is relayed through atlas_sim_interface_state
   private: bool newGoal;
 
+  /// \brief internal state variable
   private: bool isStepping;
+
+  /// \brief internal state variable
   private: int pubCount;
 
   /// \brief Keeps track of the current step in process when walking

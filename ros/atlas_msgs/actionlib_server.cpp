@@ -265,7 +265,8 @@ void ASIActionServer::ASIStateCB(
         break;
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
         {
-          // fill in manipulate command and pbulish it
+          /// \TODO: fill in manipulate command and pbulish it
+          ROS_ERROR("MANIPULATE mode not yet implemented in actionlib_server.");
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
@@ -534,9 +535,10 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
   {
     boost::mutex::scoped_lock lock(this->robotStateMutex);
     // Position vector of the robot
+    // z-value is ignored in this demo actionlib, z set to 0
     rOPos = tf::Vector3(this->robotPosition.x,
                         this->robotPosition.y,
-                      0*this->robotPosition.z);  // foot height
+                      0*this->robotPosition.z);
 
     // We only want to transform with respect to the robot's yaw
     yaw = tf::getYaw(this->robotOrientation);
@@ -584,6 +586,15 @@ void ASIActionServer::abortGoal(std::string reason)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "atlas_bdi_control");
+
+  ROS_INFO("This demo actionlib server for the AtlasSimInterface is "
+           "intended to serve as a demo skeleton for a real actionlib "
+           "server and for developmenet use only.  Not all functionalities "
+           "are fully supported.  For details, please refer to "
+           "documentations http://gazebosim.org/drc/api/ and "
+           "http://gazebosim.org/wiki/DRC/UserGuide#Boston_Dynamics_Atlas_"
+           "Simulation_Behavior_Library_.28AtlasSimInterface.29.");
+
   ASIActionServer();
 
   // actionlib simple action server
