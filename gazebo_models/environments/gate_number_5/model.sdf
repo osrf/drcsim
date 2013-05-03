@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<sdf version="1.5">
+<sdf version="1.4">
   <model name="gate_number_5">
     <pose>0 0 .25 0 0 0</pose>
     <static>true</static>
@@ -19,6 +19,6 @@
           </mesh>
         </geometry>
       </visual>
-    </link> 
+    </link>
   </model>
 </sdf>
