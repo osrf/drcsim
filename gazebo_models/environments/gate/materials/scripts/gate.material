@@ -1,4 +1,4 @@
-material vrc/red_gate
+material vrc/gate
 {
   receive_shadows off
 	technique
@@ -8,54 +8,11 @@ material vrc/red_gate
 			ambient 1.0 1.0 1.0 1.0
 			diffuse 1.0 1.0 1.0 1.0
 			specular 0.1 0.1 0.1 1.0 12.5
+      emissive 0.2 0.2 0.2 1.0
 
 			texture_unit
 			{
-				texture red_grid.png
-				filtering trilinear
-        scale 4.00 0.20
-			}
-		}
-	}
-}
-
-material vrc/green_gate
-{
-  receive_shadows off
-	technique
-	{
-		pass
-		{
-			ambient 1.0 1.0 1.0 1.0
-			diffuse 1.0 1.0 1.0 1.0
-			specular 0.2 0.2 0.2 1.0 12.5
-
-			texture_unit
-			{
-				texture green_grid.png
-				filtering trilinear
-        scale 0.20 4.00
-			}
-		}
-	}
-}
-
-material vrc/blue_gate
-{
-  receive_shadows off
-	technique
-	{
-		pass
-		{
-			ambient 1.0 1.0 1.0 1.0
-			diffuse 1.0 1.0 1.0 1.0
-			specular 0.2 0.2 0.2 1.0 12.5
-
-			texture_unit
-			{
-				texture blue_grid.png
-				filtering trilinear
-        scale 4.00 0.20
+				texture gate.png
 			}
 		}
 	}
