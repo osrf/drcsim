@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <gazebo version="1.2">
-  <world name="default">
+  <world name="vrc_task_3">
     <physics type="ode">
       <gravity>0 0 0</gravity>
       <ode>
@@ -44,6 +44,11 @@
       <pose>-3.82 -3.5 1.2 -1.5707 0 0</pose>
     </include>
 
+    <include>
+      <uri>model://atlas_sandia_hands</uri>
+      <pose>-7 -15 1.0 0 0 0</pose>
+    </include>
+
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
          <model_name>atlas</model_name>
@@ -65,6 +70,10 @@
 -0.0019 1e-06 0.012836 -0.787193 1.57066 -2.35799
         </coupling_relative_pose>
       </drc_fire_hose>
+    </plugin>
+
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring">
+      <score_file>/tmp/vrc_task_3/score.log</score_file>
     </plugin>
   </world>
 </gazebo>

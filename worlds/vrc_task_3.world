@@ -80,7 +80,7 @@
 
     <include>
       <uri>model://gate</uri>
-      <name>start_gate</name>
+      <name>gate_0</name>
       <pose>-2.86 -15 2.0 0 0 0</pose>
     </include>
 
@@ -175,7 +175,9 @@
       </drc_fire_hose>
     </plugin>
 
-    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring"/>
+    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring">
+      <score_file>/tmp/vrc_task_3/score.log</score_file>
+    </plugin>
 
   </world>
 </sdf>
