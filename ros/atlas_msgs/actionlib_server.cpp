@@ -536,7 +536,7 @@ void ASIActionServer::transformStepPose(geometry_msgs::Pose &_pose)
     // Position vector of the robot
     rOPos = tf::Vector3(this->robotPosition.x,
                         this->robotPosition.y,
-                        this->robotPosition.z);
+                      0*this->robotPosition.z);  // foot height
 
     // We only want to transform with respect to the robot's yaw
     yaw = tf::getYaw(this->robotOrientation);
