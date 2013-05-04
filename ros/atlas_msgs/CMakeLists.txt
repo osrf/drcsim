@@ -33,15 +33,15 @@ endif()
 include_directories(
   ${GAZEBO_INCLUDE_DIRS}
   ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.8/include
-  ${CMAKE_INSTALL_PREFIX}/include/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.8
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include
+  ${CMAKE_INSTALL_PREFIX}/include/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
 )
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
   ${PLUGIN_LINK_DIRECTORIES}
-  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_1.0.8/lib64
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_1.0.8/lib64
-  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_1.0.8
+  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
+  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
 )
 
 #set the default path for built executables to the "bin" directory
@@ -94,6 +94,7 @@ rosbuild_add_library(gazebo_ros_force gazebo_ros_force.cpp)
 
 rosbuild_add_library(MultiSenseSLPlugin MultiSenseSLPlugin.cpp)
 rosbuild_add_library(SandiaHandPlugin SandiaHandPlugin.cpp)
+rosbuild_add_library(ContactModelPlugin ContactModelPlugin.cpp)
 
 # compile AtlasPlugin with AtlasSimInterface
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
@@ -122,6 +123,6 @@ install(TARGETS pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 # for backwards compatibility, also install pub_atlas_command globally; to
 # remove this, we need to update some launch files and scripts in atlas_msgs
-install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin AtlasPlugin VRCPlugin VRCScoringPlugin DRCVehicleROSPlugin pub_atlas_command pub_atlas_command_fast
+install(TARGETS gazebo_ros_controller_manager gazebo_ros_camera_utils gazebo_ros_camera MultiCameraPlugin gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_imu gazebo_ros_joint_trajectory gazebo_ros_api_plugin gazebo_ros_force gazebo_ros_p3d MultiSenseSLPlugin SandiaHandPlugin ContactModelPlugin AtlasPlugin VRCPlugin VRCScoringPlugin DRCVehicleROSPlugin pub_atlas_command pub_atlas_command_fast
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

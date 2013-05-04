@@ -154,8 +154,8 @@ namespace gazebo
     private: physics::JointPtr rWristJoint;
     private: physics::JointPtr lWristJoint;
 
-    /// \brief A combined Joint state, IMU and ForceTorqueSensors Message
-    /// for synchronous access.
+    /// \brief A combined AtlasState, IMU and ForceTorqueSensors Message
+    /// for accessing all these states synchronously.
     private: atlas_msgs::AtlasState atlasState;
     private: void GetAndPublishRobotStates(const common::Time &_curTime);
 
@@ -175,7 +175,7 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
-    // ROS basic setup
+    // ROS internal stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
@@ -258,7 +258,7 @@ namespace gazebo
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     // AtlasSimInterface:
-    private: AtlasControlOutput atlasControlOutput;
+    private: AtlasControlOutput controlOutput;
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
@@ -283,8 +283,8 @@ namespace gazebo
 
     /// \brief helper function to copy states
     private: void AtlasControlOutputToAtlasSimInterfaceState(
-              atlas_msgs::AtlasBehaviorFeedback *_fb,
-              AtlasBehaviorFeedback *_fbOut);
+              atlas_msgs::AtlasSimInterfaceState *_fb,
+              AtlasControlOutput *_fbOut);
 
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
@@ -298,7 +298,7 @@ namespace gazebo
 
     /// \brief Process BDI contoller updates
     /// \param[in] _curTime current simulation time
-    private: void UpdateAtlasSimInterface();
+    private: void UpdateAtlasSimInterface(const common::Time &_curTime);
 
     /// \brief Update PID Joint Servo Controllers
     /// \param[in] _dt time step size since last update
@@ -350,7 +350,6 @@ namespace gazebo
 
     /// \brief: for keeping track of internal controller update rates.
     private: common::Time lastControllerUpdateTime;
-
 
     /// \brief Conversion functions
     private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
