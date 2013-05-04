@@ -1759,7 +1759,7 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
     _fbOut->behavior_feedback.trans_to_behavior_index;
   _fb->stand_feedback.status_flags = _fbOut->stand_feedback.status_flags;
   _fb->step_feedback.status_flags = _fbOut->step_feedback.status_flags;
-  _fb->walk_feedback.t_step_rem = _fb->walk_feedback.t_step_rem;
+  _fb->walk_feedback.t_step_rem = _fbOut->walk_feedback.t_step_rem;
   _fb->walk_feedback.current_step_index =
     _fbOut->walk_feedback.current_step_index;
   _fb->walk_feedback.next_step_index_needed =
