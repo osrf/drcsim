@@ -815,7 +815,7 @@ void AtlasPlugin::DeferredLoad()
     boost::bind(&AtlasPlugin::SetAtlasCommand, this, _1),
     ros::VoidPtr(), &this->rosQueue);
 
-  // Disable TCP_NODELAY because TCP causes bursty communication with high jitter,
+  // Enable TCP_NODELAY because TCP causes bursty communication with high jitter,
   atlasCommandSo.transport_hints =
     ros::TransportHints().reliable().tcpNoDelay(true);
 
