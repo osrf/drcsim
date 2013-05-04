@@ -80,3 +80,17 @@ topics:
     type: geometry_msgs/Pose
     num_publishers: -1
     num_subscribers: 1
+
+services:
+
+  - service: /gazebo/pause_physics
+    type: std_srvs/Empty
+
+  - service: /gazebo/unpause_physics
+    type: std_srvs/Empty
+
+  - service: /gazebo/reset_models
+    type: std_srvs/Empty
+
+  - service: /gazebo/reset_simulation
+    type: std_srvs/Empty

@@ -113,3 +113,35 @@ topics:
     num_publishers: -1
     num_subscribers: 1
 
+services:
+
+  - service: /atlas/reset_controls
+    type: atlas_msgs/ResetControls
+
+  - service: /atlas_robot_state_publisher/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /atlas_robot_state_publisher/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /gazebo/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /gazebo/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /rosout/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /rosout/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /tf2_buffer_server/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /tf2_buffer_server/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /tf2_buffer_server/tf2_frames
+    type: tf2_msgs/FrameGraph
+
