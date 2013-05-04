@@ -1425,10 +1425,7 @@ void AtlasPlugin::ZeroAtlasCommand()
     this->atlasState.kp_position[i] = 0;
     this->atlasState.ki_position[i] = 0;
     this->atlasState.kd_position[i] = 0;
-    // implementing joint damping as kp_velocity, preset to urdf defined
-    /// \TODO: switch to gazebo::Joint::GetDamping(0) when added
-    /// \TODO: hardcoded for now, see issue #194
-    this->atlasState.kp_velocity[i] = 1.0;
+    this->atlasState.kp_velocity[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
@@ -1448,10 +1445,7 @@ void AtlasPlugin::ZeroJointCommands()
     this->atlasState.kp_position[i] = 0;
     this->atlasState.ki_position[i] = 0;
     this->atlasState.kd_position[i] = 0;
-    // implementing joint damping as kp_velocity, preset to urdf defined
-    /// \TODO: switch to gazebo::Joint::GetDamping(0) when added
-    /// \TODO: hardcoded for now, see issue #194
-    this->atlasState.kp_velocity[i] = 1.0;
+    this->atlasState.kp_velocity[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
