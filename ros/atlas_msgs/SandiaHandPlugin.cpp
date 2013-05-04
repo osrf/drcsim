@@ -494,7 +494,7 @@ void SandiaHandPlugin::DeferredLoad()
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&SandiaHandPlugin::UpdateStates, this));
 
-  // Offer teams ability to change pid between preset bounds
+  // Offer teams ability to change damping coef. between preset bounds
   ros::AdvertiseServiceOptions setJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
       "sandia_hands/set_joint_damping", boost::bind(
@@ -503,7 +503,7 @@ void SandiaHandPlugin::DeferredLoad()
   this->setJointDampingService = this->rosNode->advertiseService(
     setJointDampingAso);
 
-  // Offer teams ability to change pid between preset bounds
+  // Offer teams ability to get damping coef.
   ros::AdvertiseServiceOptions getJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
       "sandia_hands/get_joint_damping", boost::bind(
