@@ -519,8 +519,7 @@ bool SandiaHandPlugin::SetJointDamping(
   atlas_msgs::SetJointDamping::Response &_res)
 {
   _res.success = true;
-  _res.status_message = "success";
-
+  std::stringstream statusStream;
   {
     boost::mutex::scoped_lock lock(this->mutex);
 
@@ -530,11 +529,17 @@ bool SandiaHandPlugin::SetJointDamping(
        this->jointDampingMin[i], this->jointDampingMax[i]);
       this->joints[i]->SetDamping(0, d);
       if (!math::equal(d, _req.damping_coefficients[i]))
-        ROS_WARN("requested joint damping for joint [%s] of [%f] is "
-                 "truncated to [%f]", this->jointNames[i].c_str(),
-                 _req.damping_coefficients[i], d);
+      {
+        statusStream << "requested joint damping for joint ["
+                     << this->jointNames[i] << "] of ["
+                     << _req.damping_coefficients[i] << "] is "
+                     << "truncated to [" << d << "].\n";
+        _res.success = false;
+      }
     }
   }
+  ROS_WARN("%s", statusStream.str().c_str());
+  _res.status_message = statusStream.str();
 
   return _res.success;
 }
