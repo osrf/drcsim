@@ -31,25 +31,9 @@ boost::mutex mutex;
 ros::Time t0;
 unsigned int numJoints = 28;
 
-void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
+void UpdateControl()
 {
-  static ros::Time startTime = ros::Time::now();
-  t0 = startTime;
-
-  // lock to copy incoming AtlasState
-  {
-    boost::mutex::scoped_lock lock(mutex);
-    as = *_as;
-  }
-
-  // uncomment to simulate state filtering
-  // usleep(1000);
-}
-
-void Work()
-{
-  // simulated worker thread
-  while(true)
+  // simulated controller thread
   {
     // lock to get data from AtlasState
     {
@@ -59,7 +43,7 @@ void Work()
     }
 
     // simulate working
-    usleep(2000);
+    usleep(500);
 
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < numJoints; i++)
@@ -71,10 +55,26 @@ void Work()
     // Let AtlasPlugin driver know that a response over /atlas/atlas_command
     // is expected every 5ms; and to wait for AtlasCommand if none has been
     // received yet. Use up the delay budget if wait is needed.
-    ac.desired_controller_period_ms = 5;
+    ac.desired_controller_period_ms = 2;
 
     pubAtlasCommand.publish(ac);
   }
+}
+
+void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
+{
+  static ros::Time startTime = ros::Time::now();
+  t0 = startTime;
+
+  // lock to copy incoming AtlasState
+  {
+    boost::mutex::scoped_lock lock(mutex);
+    as = *_as;
+  }
+  UpdateControl();
+
+  // uncomment to simulate state filtering
+  // usleep(1000);
 }
 
 int main(int argc, char** argv)
@@ -114,9 +114,6 @@ int main(int argc, char** argv)
   // ros topic publisher
   pubAtlasCommand = rosnode->advertise<atlas_msgs::AtlasCommand>(
     "/atlas/atlas_command", 100, true);
-
-  // simulated worker thread
-  boost::thread work = boost::thread(&Work);
 
   ros::spin();
 
