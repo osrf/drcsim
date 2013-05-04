@@ -63,10 +63,16 @@ namespace gazebo
     private: bool CheckNextGate(std::string &_msg);
 
     /// \brief Check whether we've fallen
+    /// \param _simTime Current simulation time
     /// \param _msg Log messages (e.g., "passed gate") will be appended here
     /// \return true if we've fallen, false otherwise
-    private: bool CheckFall(const common::Time &_currTime,
+    private: bool CheckFall(const common::Time &_simTime,
       std::string &_msg);
+
+    /// \brief Check whether Atlas is in the vehicle
+    /// \param _msg Log messages (e.g., "entered vehicle") will be appended here
+    /// \return true if Atlas is in the vehicle, false otherwise
+    private: bool CheckAtlasInVehicle(std::string &_msg);
 
     /// \brief Check whether the drill is in the bin
     /// \param _msg Log messages (e.g., "passed gate") will be appended here
@@ -93,16 +99,30 @@ namespace gazebo
     /// \return true if the valve is open, false otherwise
     private: bool CheckValveOpen(std::string &_msg);
 
+    /// \brief Start the clock, used in computing elapsed time for the run
+    /// \param _simTime Current simulation time
+    /// \param _wallTime Current wallclock time
+    /// \param _msg Log messages (e.g., "starting clock") will be appended
+    private: void StartClock(const common::Time &_simTime,
+                             const common::Time &_wallTime,
+                             std::string &_msg);
+
+    /// \brief Stop the clock, used in computing elapsed time for the run
+    /// \param _simTime Current simulation time
+    /// \param _wallTime Current wallclock time
+    /// \param _msg Log messages (e.g., "stopping clock") will be appended
+    private: void StopClock(const common::Time &_simTime,
+                            const common::Time &_wallTime,
+                            std::string &_msg);
+
     /// \brief Write intermediate score data
-    /// \param _currTime Current simulation time
+    /// \param _simTime Current simulation time
+    /// \param _wallTime Current wallclock time
     /// \param _msg Log message to include
     /// \param _force If true, write output; otherwise write output only if
     /// enough time has passed since the last write.
-    private: void WriteScore(const gazebo::common::Time& _currTime,
-      const std::string &_msg, bool _force);
-
-    /// \brief Is this world gate-based?
-    private: bool IsGateBased();
+    private: void WriteScore(const gazebo::common::Time& _simTime,
+      const common::Time &_wallTime, const std::string &_msg, bool _force);
 
     /// \brief Find the gates in the world and store them in this->gates.
     private: bool FindGates();
@@ -202,6 +222,12 @@ namespace gazebo
     /// \brief Pointer to vehicle. (V1)
     private: physics::ModelPtr vehicle;
 
+    /// \brief Pointer to "seat" collision. (V1)
+    private: physics::CollisionPtr vehicleSeat;
+
+    /// \brief Pointer to "seat_back" collision. (V1)
+    private: physics::CollisionPtr vehicleSeatBack;
+
     /// \brief Pointer to the hose coupler. (V3)
     private: physics::LinkPtr hoseCoupler;
 
@@ -234,11 +260,17 @@ namespace gazebo
     /// \brief Which side of the next gate we were the last time we checked.
     private: int nextGateSide;
 
-    /// \brief Sim tim at which Atlas passed through the first gate.
+    /// \brief Sim time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTimeSim;
 
     /// \brief Wall time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTimeWall;
+
+    /// \brief Sim time at which Atlas achieved the last checkpoint.
+    private: gazebo::common::Time stopTimeSim;
+
+    /// \brief Wall time at which Atlas achieved the last checkpoint.
+    private: gazebo::common::Time stopTimeWall;
 
     /// \brief The completion score, called 'C' in the VRC docs
     private: int completionScore;
