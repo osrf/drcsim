@@ -160,7 +160,8 @@ namespace gazebo
                                         std::string _type,
                                         math::Vector3 _anchor,
                                         math::Vector3 _axis,
-                                        double _upper, double _lower);
+                                        double _upper, double _lower,
+                                        bool _disableCollision = false);
 
     /// \brief Remove a joint.
     /// \param[in] _joint Joint to remove.
@@ -268,16 +269,7 @@ namespace gazebo
     private: class FireHose
     {
       /// \brief set initial configuration of the fire hose link
-      private: void SetInitialConfiguration()
-      {
-        // for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
-        //   gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
-        // for (unsigned int i = 0; i < this->links.size(); ++i)
-        //   gzerr << "link [" << this->links[i]->GetName() << "]\n";
-        this->fireHoseModel->SetWorldPose(this->initialFireHosePose);
-        this->fireHoseJoints[fireHoseJoints.size()-4]->SetAngle(0, -M_PI/4.0);
-        this->fireHoseJoints[fireHoseJoints.size()-2]->SetAngle(0, -M_PI/4.0);
-      }
+      private: void SetInitialConfiguration();
 
       /// \brief Load the drc_fire_hose portion of plugin.
       /// \param[in] _parent Pointer to parent world.
@@ -286,6 +278,8 @@ namespace gazebo
 
       private: physics::ModelPtr fireHoseModel;
       private: physics::ModelPtr standpipeModel;
+      private: physics::ModelPtr valveModel;
+      private: physics::JointPtr valveJoint;
 
       /// joint for pinning a link to the world
       private: physics::JointPtr fixedJoint;
@@ -344,8 +338,8 @@ namespace gazebo
       private: void SetSeatingConfiguration(physics::ModelPtr atlasModel);
 
       /// \brief standing configuration of the robot when it exits the vehicle.
-      /// \param[in] pointer to atlas model
-      private: void SetStandingConfiguration(physics::ModelPtr atlasModel);
+      /// \param[in] _atlasModel pointer to atlas model
+      private: void SetStandingConfiguration(physics::ModelPtr _atlasModel);
 
       /// \brief subscriber to joint_states
       private: ros::Subscriber subJointStates;

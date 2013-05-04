@@ -24,22 +24,56 @@
 #include <atlas_msgs/AtlasState.h>
 #include <atlas_msgs/AtlasCommand.h>
 
-ros::Publisher pub_atlas_command_;
+ros::Publisher pubAtlasCommand;
 atlas_msgs::AtlasCommand ac;
-std::vector<std::string> jointNames;
+atlas_msgs::AtlasState as;
+boost::mutex mutex;
+ros::Time t0;
+unsigned int numJoints = 28;
 
-void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_js)
+void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
 {
   static ros::Time startTime = ros::Time::now();
+  t0 = startTime;
+
+  // lock to copy incoming AtlasState
   {
-    // for testing round trip time
-    ac.header.stamp = _js->header.stamp;
+    boost::mutex::scoped_lock lock(mutex);
+    as = *_as;
+  }
+
+  // uncomment to simulate state filtering
+  // usleep(1000);
+}
+
+void Work()
+{
+  // simulated worker thread
+  while(true)
+  {
+    // lock to get data from AtlasState
+    {
+      boost::mutex::scoped_lock lock(mutex);
+      // for testing round trip time
+      ac.header.stamp = as.header.stamp;
+    }
+
+    // simulate working
+    usleep(2000);
 
     // assign arbitrary joint angle targets
-    for (unsigned int i = 0; i < jointNames.size(); i++)
-      ac.position[i] = 3.2* sin((ros::Time::now() - startTime).toSec());
+    for (unsigned int i = 0; i < numJoints; i++)
+    {
+      ac.position[i] = 3.2* sin((ros::Time::now() - t0).toSec());
+      ac.k_effort[i] = 255;
+    }
 
-    pub_atlas_command_.publish(ac);
+    // Let AtlasPlugin driver know that a response over /atlas/atlas_command
+    // is expected every 5ms; and to wait for AtlasCommand if none has been
+    // received yet. Use up the delay budget if wait is needed.
+    ac.desired_controller_period_ms = 5;
+
+    pubAtlasCommand.publish(ac);
   }
 }
 
@@ -49,6 +83,9 @@ int main(int argc, char** argv)
 
   ros::NodeHandle* rosnode = new ros::NodeHandle();
 
+  // this wait is needed to ensure this ros node has gotten
+  // simulation published /clock message, containing
+  // simulation time.
   ros::Time last_ros_time_;
   bool wait = true;
   while (wait)
@@ -58,98 +95,28 @@ int main(int argc, char** argv)
       wait = false;
   }
 
-  // must match those inside AtlasPlugin
-  jointNames.push_back("atlas::back_lbz");
-  jointNames.push_back("atlas::back_mby");
-  jointNames.push_back("atlas::back_ubx");
-  jointNames.push_back("atlas::neck_ay");
-  jointNames.push_back("atlas::l_leg_uhz");
-  jointNames.push_back("atlas::l_leg_mhx");
-  jointNames.push_back("atlas::l_leg_lhy");
-  jointNames.push_back("atlas::l_leg_kny");
-  jointNames.push_back("atlas::l_leg_uay");
-  jointNames.push_back("atlas::l_leg_lax");
-  jointNames.push_back("atlas::r_leg_uhz");
-  jointNames.push_back("atlas::r_leg_mhx");
-  jointNames.push_back("atlas::r_leg_lhy");
-  jointNames.push_back("atlas::r_leg_kny");
-  jointNames.push_back("atlas::r_leg_uay");
-  jointNames.push_back("atlas::r_leg_lax");
-  jointNames.push_back("atlas::l_arm_usy");
-  jointNames.push_back("atlas::l_arm_shx");
-  jointNames.push_back("atlas::l_arm_ely");
-  jointNames.push_back("atlas::l_arm_elx");
-  jointNames.push_back("atlas::l_arm_uwy");
-  jointNames.push_back("atlas::l_arm_mwx");
-  jointNames.push_back("atlas::r_arm_usy");
-  jointNames.push_back("atlas::r_arm_shx");
-  jointNames.push_back("atlas::r_arm_ely");
-  jointNames.push_back("atlas::r_arm_elx");
-  jointNames.push_back("atlas::r_arm_uwy");
-  jointNames.push_back("atlas::r_arm_mwx");
+  ac.position.resize(numJoints);
+  ac.k_effort.resize(numJoints);
 
-  unsigned int n = jointNames.size();
-  ac.position.resize(n);
-  ac.velocity.resize(n);
-  ac.effort.resize(n);
-  ac.kp_position.resize(n);
-  ac.ki_position.resize(n);
-  ac.kd_position.resize(n);
-  ac.kp_velocity.resize(n);
-  ac.i_effort_min.resize(n);
-  ac.i_effort_max.resize(n);
-  ac.k_effort.resize(n);
-
-  for (unsigned int i = 0; i < n; i++)
-  {
-    std::vector<std::string> pieces;
-    boost::split(pieces, jointNames[i], boost::is_any_of(":"));
-
-    double val;
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/p", val);
-    ac.kp_position[i] = val;
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i", val);
-    ac.ki_position[i] = val;
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/d", val);
-    ac.kd_position[i] = val;
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp", val);
-    ac.i_effort_min[i] = val;
-    ac.i_effort_min[i] = -ac.i_effort_min[i];
-
-    rosnode->getParam("atlas_controller/gains/" + pieces[2] + "/i_clamp", val);
-    ac.i_effort_max[i] = val;
-
-    ac.velocity[i]     = 0;
-    ac.effort[i]       = 0;
-    ac.kp_velocity[i]  = 0;
+  // default values for AtlasCommand
+  for (unsigned int i = 0; i < numJoints; i++)
     ac.k_effort[i]     = 255;
-  }
 
   // ros topic subscribtions
   ros::SubscribeOptions atlasStateSo =
     ros::SubscribeOptions::create<atlas_msgs::AtlasState>(
-    "/atlas/atlas_state", 1, SetAtlasState,
+    "/atlas/atlas_state", 100, SetAtlasState,
     ros::VoidPtr(), rosnode->getCallbackQueue());
-
-  // Because TCP causes bursty communication with high jitter,
-  // declare a preference on UDP connections for receiving
-  // joint states, which we want to get at a high rate.
-  // Note that we'll still accept TCP connections for this topic
-  // (e.g., from rospy nodes, which don't support UDP);
-  // we just prefer UDP.
   atlasStateSo.transport_hints =
-    ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
-
+    ros::TransportHints().reliable().tcpNoDelay(true);
   ros::Subscriber subAtlasState = rosnode->subscribe(atlasStateSo);
-  // ros::Subscriber subAtlasState =
-  //   rosnode->subscribe("/atlas/joint_states", 1000, SetAtlasState);
 
-  pub_atlas_command_ =
-    rosnode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/atlas_command", 1, true);
+  // ros topic publisher
+  pubAtlasCommand = rosnode->advertise<atlas_msgs::AtlasCommand>(
+    "/atlas/atlas_command", 100, true);
+
+  // simulated worker thread
+  boost::thread work = boost::thread(&Work);
 
   ros::spin();
 
