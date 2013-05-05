@@ -64,6 +64,12 @@ AtlasPlugin::AtlasPlugin()
   this->delayMaxPerStep = common::Time(0.025);
   this->delayWindowStart = common::Time(0.0);
   this->delayInWindow = common::Time(0.0);
+
+  // option to filter velocity or position
+  this->filterVelocity = false;
+
+  // option to filter velocity or position
+  this->filterPosition = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -759,7 +765,6 @@ void AtlasPlugin::DeferredLoad()
     this->delayMaxPerWindow = delayValue;
   if (this->rosNode->getParam("atlas/delay_max_per_step", delayValue))
     this->delayMaxPerStep = delayValue;
-  
 
   // publish separate /atlas/imu topic, to be deprecated
   this->pubImu =
@@ -786,14 +791,14 @@ void AtlasPlugin::DeferredLoad()
     this->pubLFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/l_foot_contact", 10);
-    this->pubLFootContactQueue = 
+    this->pubLFootContactQueue =
       this->pmq.addPub<geometry_msgs::WrenchStamped>();
-  
+
     // these topics are used for debugging only
     this->pubRFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/r_foot_contact", 10);
-    this->pubRFootContactQueue = 
+    this->pubRFootContactQueue =
       this->pmq.addPub<geometry_msgs::WrenchStamped>();
 
     // ros topic subscribtions
@@ -908,10 +913,20 @@ void AtlasPlugin::DeferredLoad()
     // on contact
     this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
        boost::bind(&AtlasPlugin::OnLContactUpdate, this));
-  
+
     this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
        boost::bind(&AtlasPlugin::OnRContactUpdate, this));
   }
+
+  // Advertise services on the custom queue
+  ros::AdvertiseServiceOptions atlasFiltersAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::AtlasFilters>(
+      "atlas/atlas_filters", boost::bind(
+        &AtlasPlugin::AtlasFilters, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->atlasFiltersService = this->rosNode->advertiseService(
+    atlasFiltersAso);
+  this->InitFilter();
 
   // Advertise services on the custom queue
   ros::AdvertiseServiceOptions resetControlsAso =
@@ -921,6 +936,27 @@ void AtlasPlugin::DeferredLoad()
         ros::VoidPtr(), &this->rosQueue);
   this->resetControlsService = this->rosNode->advertiseService(
     resetControlsAso);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
+  atlas_msgs::AtlasFilters::Response &_res)
+{
+  boost::mutex::scoped_lock lock(this->filterMutex);
+
+  if (_req.filter_velocity)
+    this->filterVelocity = true;
+  else
+    this->filterVelocity = false;
+
+  if (_req.filter_position)
+    this->filterPosition = true;
+  else
+    this->filterPosition = false;
+
+  _res.success = true;
+  _res.status_message = "success";
+  return _res.success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1880,13 +1916,13 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
         //   delayInStepSum.Double(),
         //   this->delayInWindow.Double());
       }
-      // printf(" out of while (%f < %f) (%f < %f)\n", 
+      // printf(" out of while (%f < %f) (%f < %f)\n",
       //   delayInStepSum.Double(), this->delayMaxPerStep.Double(),
       //   this->delayInWindow.Double(), this->delayMaxPerWindow.Double());
     }
     this->delayStatistics.delay_in_step = delayInStepSum.Double();
     this->delayStatistics.delay_in_window = this->delayInWindow.Double();
-    this->delayStatistics.delay_window_remain = 
+    this->delayStatistics.delay_window_remain =
       ((this->delayWindowStart + this->delayWindowSize) -
        curWallTime).Double();
     this->pubDelayStatisticsQueue->push(
@@ -2245,6 +2281,17 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
     this->jointStates.effort[i] = this->atlasRobotState.j[i].f;
   }
 
+  {
+    boost::mutex::scoped_lock lock(this->filterMutex);
+    // option to filter atlasState.velocity
+    if (this->filterVelocity)
+      this->FilterVelocity();
+
+    // option to filter atlasState.position
+    if (this->filterPosition)
+      this->FilterPosition();
+  }
+
   // publish robot states
   this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
@@ -2258,6 +2305,88 @@ void AtlasPlugin::RosQueueThread()
   while (this->rosNode->ok())
   {
     this->rosQueue.callAvailable(ros::WallDuration(timeout));
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::InitFilter()
+{
+  // filter design from Matlab
+  //  [b,a] = butter(1,0.025) // 12.5Hz
+  this->filCoefA[0] = 1.0;
+  this->filCoefA[1] = -0.924390491658207;
+  this->filCoefB[0] = 0.037804754170897;
+  this->filCoefB[1] = 0.037804754170897;
+
+  // initialize velocity filters
+  for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
+  {
+    for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
+    {
+      this->filVelIn[i][j] = 0;
+      this->filVelOut[i][j] = 0;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::FilterVelocity()
+{
+  // Actually do filtering on each tick for each joint:
+  // filter velocities: assume a(0) is 1.0
+  // a(0)*y(0) = b(0)*x(0) + b(1)*x(1) + ... + b(n-1)*x(n-1)
+  //                       - a(1)*y(1) - ... - a(n-1)*y(n-1)
+  // filter each joint velocity
+  for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
+  {
+    // move data back one step in time.
+    for (int j = FIL_N_STEPS - 2; j >= 0; --j)
+    {
+      this->filVelIn[i][j+1] = this->filVelIn[i][j];
+      this->filVelOut[i][j+1] = this->filVelOut[i][j];
+    }
+    // load new input
+    this->filVelIn[i][0] = this->atlasState.velocity[i];
+    // do filtering
+    double tmp = 0;
+    for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
+      tmp += this->filCoefB[j]*this->filVelIn[i][j];
+    for (unsigned int j = 1; j < FIL_N_STEPS; ++j)
+      tmp -= this->filCoefA[j]*this->filVelOut[i][j];
+    // stash filtered value;
+    this->atlasState.velocity[i] = this->jointStates.velocity[i] =
+      this->filVelOut[i][0] = tmp;
+    
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::FilterPosition()
+{
+  // Actually do filtering on each tick for each joint:
+  // filter positions: assume a(0) is 1.0
+  // a(0)*y(0) = b(0)*x(0) + b(1)*x(1) + ... + b(n-1)*x(n-1)
+  //                       - a(1)*y(1) - ... - a(n-1)*y(n-1)
+  // filter each joint position
+  for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
+  {
+    // move data back one step in time.
+    for (int j = FIL_N_STEPS - 2; j >= 0; --j)
+    {
+      this->filPosIn[i][j+1] = this->filPosIn[i][j];
+      this->filPosOut[i][j+1] = this->filPosOut[i][j];
+    }
+    // load new input
+    this->filPosIn[i][0] = this->atlasState.position[i];
+    // do filtering
+    double tmp = 0;
+    for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
+      tmp += this->filCoefB[j]*this->filPosIn[i][j];
+    for (unsigned int j = 1; j < FIL_N_STEPS; ++j)
+      tmp -= this->filCoefA[j]*this->filPosOut[i][j];
+    // stash filtered value;
+    this->atlasState.position[i] = this->jointStates.position[i] =
+      this->filPosOut[i][0] = tmp;
   }
 }
 }

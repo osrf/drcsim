@@ -1,0 +1,6 @@
+bool filter_velocity                  # turn velocity filter on or off
+bool filter_position                  # turn position filter on or off
+
+---
+bool success
+string status_message
