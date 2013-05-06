@@ -265,14 +265,14 @@ class AtlasTeleop():
                         foot * W / 2
                 elif forward != 0:
                     # Radius from point to foot (if turning)
-                    R_foot = R + foot * W/2
+                    R_turn = R
                     
                     # turn > 0 for CCW, turn < 0 for CW
-                    X = forward * turn * R_foot * math.sin(theta)
-                    Y = forward * turn * (R - R_foot*math.cos(theta))
+                    X = forward * turn * R_turn * math.sin(theta)
+                    Y = forward * turn * (R - R_turn*math.cos(theta))
                     
-                    self.debuginfo("R: " + str(R) + " R_foot:" + \
-                    str(R_foot) + " theta: " + str(theta) +  \
+                    self.debuginfo("R: " + str(R) + " R_turn:" + \
+                    str(R_turn) + " theta: " + str(theta) +  \
                     " math.sin(theta): " + str(math.sin(theta)) + \
                     " math.cos(theta) + " + str(math.cos(theta)))
                 elif turn != 0:
@@ -286,14 +286,15 @@ class AtlasTeleop():
                         foot * W / 2
                 elif forward != 0:
                     # Radius from point to foot (if turning)
-                    R_foot = R + foot * W/2
+                    R_turn = R
                     
                     # turn > 0 for CCW, turn < 0 for CW
-                    X = forward * turn * R_foot * math.sin(theta)
-                    Y = forward * turn * (R - R_foot*math.cos(theta))
+                    X = forward * turn * R_turn * math.sin(theta)
+                    Y = forward * turn * R_turn * (1 - math.cos(theta))
+                    print X, Y
                     
-                    self.debuginfo("R: " + str(R) + " R_foot:" + \
-                    str(R_foot) + " theta: " + str(theta) +  \
+                    self.debuginfo("R: " + str(R) + " R_turn:" + \
+                    str(R_turn) + " theta: " + str(theta) +  \
                     " math.sin(theta): " + str(math.sin(theta)) + \
                     " math.cos(theta) + " + str(math.cos(theta)))
                 elif turn != 0:
@@ -337,16 +338,16 @@ class AtlasTeleop():
         if turn == 0:
             Y = Y + foot * W
         elif forward != 0:
-            self.debuginfo("R: " + str(R) + " R_foot:" + \
-            str(R_foot) + " theta: " + str(theta) +  \
+            self.debuginfo("R: " + str(R) + " R_turn:" + \
+            str(R_turn) + " theta: " + str(theta) +  \
            " math.sin(theta): " + str(math.sin(theta)) + \
            " math.cos(theta) + " + str(math.cos(theta)))
             
-            # R_foot is radius to foot
-            R_foot = R + foot * W/2
+            # R_turn is radius to foot
+            R_turn = R
             #turn > 0 for counter clockwise
-            X = forward * turn * R_foot * math.sin(theta)
-            Y = forward * turn * (R - R_foot*math.cos(theta))
+            X = forward * turn * R_turn * math.sin(theta)
+            Y = forward * turn * (R - R_turn*math.cos(theta))
         else:
             X = turn * W/2 * math.sin(theta)
             Y = turn * W/2 * math.cos(theta)
