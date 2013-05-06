@@ -16,6 +16,20 @@ set (rostests
   vrc_task_2_rosapi.test
   vrc_task_3_rosapi.test
   performance_test1.test
+  atlas_cheats_rosapi.test
+  atlas_drc_vehicle_fire_hose_cheats_rosapi.test
+  atlas_golf_cart_fire_hose_cheats_rosapi.test
+  atlas_sandia_hands_cheats_rosapi.test
+  drc_sim_v0_cheats_rosapi.test
+  qual_task_1_cheats_rosapi.test
+  qual_task_2_cheats_rosapi.test
+  qual_task_3_cheats_rosapi.test
+  qual_task_4_cheats_rosapi.test
+  vrc_task_1_cheats_rosapi.test
+  vrc_task_2_cheats_rosapi.test
+  vrc_task_3_cheats_rosapi.test
+  vrc_task_1_scoring.test
+  vrc_task_2_scoring.test
 )
 
 # Only enable tests if we have a working GPU, which we use as a proxy for
@@ -48,6 +62,7 @@ set(files
   ros_subscribers.launch
   pub_atlas_command.launch
   perf_test.launch
+  perf_test_local.launch
 )
 set(scripts
   ros_api_checker
@@ -57,6 +72,8 @@ set(scripts
   run_rosbag.sh
   parse_logs.sh
   meanvar.py
+  vrc_task_1_scoring_test
+  vrc_task_2_scoring_test
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)

@@ -18,6 +18,7 @@ set (files
   vrc_task_1.launch
   vrc_task_2.launch
   vrc_task_3.launch
+  vrc_fire_hose.launch
   atlas_arm_slider_teleop.launch
   keyboard_teleop.launch
 )

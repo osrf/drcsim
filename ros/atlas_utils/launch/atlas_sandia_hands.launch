@@ -2,6 +2,7 @@
 
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas_sandia_hands.world"/>
+  <arg name="hand_suffix" default=""/>
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
 
@@ -11,8 +12,14 @@
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
 
+  <!-- to trigger synchronization delay, set
+       atlas_msgs::AtlasCommand::desired_controller_period_ms to non-zero -->
+  <param name="/atlas/delay_window_size" type="double" value="5.0"/>
+  <param name="/atlas/delay_max_per_window" type="double" value="0.25"/>
+  <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
+
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas_sandia_hands)/atlas_sandia_hands.urdf"/>
+  <param name="robot_description" textfile="$(find atlas_sandia_hands)$(arg hand_suffix)/atlas_sandia_hands$(arg hand_suffix).urdf"/>
 
   <include file="$(find atlas_utils)/launch/atlas_sandia_hands_bringup.launch"/>
 </launch>

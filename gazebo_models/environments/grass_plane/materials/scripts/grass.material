@@ -1,18 +1,19 @@
 material vrc/grass
 {
+  receive_shadows on
 	technique
 	{
 		pass
 		{
-			ambient 1.0 1.0 1.0 1.0
-			diffuse 1.0 1.0 1.0 1.0
-			specular 0.2 0.2 0.2 1.0 12.5
+			ambient 0.8 1.0 0.8 1.0
+			diffuse 0.8 1.0 0.8 1.0
+			specular 0.1 0.1 0.1 1.0 12.5
 
 			texture_unit
 			{
-				texture grass.jpg
-				filtering trilinear
-        scale 0.05 0.05
+				texture grass_dry.jpg
+				filtering anistropic
+        max_anisotropy 16
 			}
 		}
 	}
