@@ -8,6 +8,7 @@ set (rostests
   atlas_drc_vehicle_fire_hose_rosapi.test
   atlas_golf_cart_fire_hose_rosapi.test
   drc_sim_v0_rosapi.test
+  qual_task_1_scoring.test
   qual_task_1_rosapi.test
   qual_task_2_rosapi.test
   qual_task_3_rosapi.test

@@ -54,21 +54,6 @@ class AutoAtlasTeleop(AtlasTeleop):
         self.commander.publish(True)
         rospy.signal_shutdown("Shutdown")
 
-    # For everything that can't be a binding, use if/elif instead
-    def process_key(self, ch):
-        if self.directions.has_key(ch):
-            self.process_movement(ch)
-        elif ch == 'r':
-            self.reset_to_standing()
-        try:
-            if (int(ch) >= self.params["Walk Sequence Length"]["min"] and \
-                int(ch) <= self.params["Walk Sequence Length"]["max"]):
-                self.params["Walk Sequence Length"]["value"] = int(ch)
-                rospy.loginfo("Walk Sequence Length: " + \
-                  str(self.params["Walk Sequence Length"]["value"]))
-        except ValueError:
-            pass
-
 if __name__ == '__main__':
     rospy.init_node('atlas_commander')
     teleop = AutoAtlasTeleop()
