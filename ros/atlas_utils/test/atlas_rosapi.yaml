@@ -113,3 +113,10 @@ topics:
     num_publishers: -1
     num_subscribers: 1
 
+services:
+
+  - service: atlas/set_joint_damping
+    type: atlas_msgs/SetJointDamping
+
+  - service: atlas/get_joint_damping
+    type: atlas_msgs/GetJointDamping
