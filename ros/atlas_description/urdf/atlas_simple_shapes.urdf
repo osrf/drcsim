@@ -927,8 +927,11 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.32" soft_upper_limit="11.14" />
     </joint>
     <joint name="neck_ay" type="revolute">
-        <!-- per slides on sensor head kinematics 2013-02-13 -->
+        <!-- per slides on sensor head kinematics 2013-02-13, to be used after VRC
         <origin xyz="0.21672 0 0.53796" rpy="0 -0 0" />
+        -->
+        <!-- per slides on sensor head kinematics 2012-12-14 -->
+        <origin xyz="0.16555 0 0.50823" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="utorso" />
         <child link="head" />
