@@ -88,6 +88,11 @@ topics:
     num_publishers: 1
     num_subscribers: -1
 
+  - topic: /atlas/synchronization_statistics
+    type: atlas_msgs/SynchronizationStatistics
+    num_publishers: 1
+    num_subscribers: -1    
+
   ##########################################################
   # Subscribed topics
 
@@ -145,8 +150,8 @@ services:
   - service: /tf2_buffer_server/tf2_frames
     type: tf2_msgs/FrameGraph
 
-  - service: atlas/set_joint_damping
+  - service: /atlas/set_joint_damping
     type: atlas_msgs/SetJointDamping
 
-  - service: atlas/get_joint_damping
+  - service: /atlas/get_joint_damping
     type: atlas_msgs/GetJointDamping
