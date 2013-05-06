@@ -1079,6 +1079,17 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
   else
     this->filterVelocity = false;
 
+  if (_req.coef_a.size() == 2)
+  {
+    this->filCoefA[0] = _req.coef_a[0];
+    this->filCoefA[1] = _req.coef_a[1];
+  }
+  if (_req.coef_b.size() == 2)
+  {
+    this->filCoefB[0] = _req.coef_b[0];
+    this->filCoefB[1] = _req.coef_b[1];
+  }
+
   if (_req.filter_position)
     this->filterPosition = true;
   else
