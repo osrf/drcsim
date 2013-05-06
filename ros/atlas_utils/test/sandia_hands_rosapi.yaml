@@ -1251,3 +1251,11 @@ topics:
     type: sandia_hand_msgs/SimpleGrasp
     num_publishers: -1
     num_subscribers: 1
+
+services:
+
+  - service: sandia_hands/set_joint_damping
+    type: atlas_msgs/SetJointDamping
+
+  - service: sandia_hands/get_joint_damping
+    type: atlas_msgs/GetJointDamping
