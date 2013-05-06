@@ -189,6 +189,67 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   {
+    // kp_velocity bounds Nms/rad
+    this->jointDampingMax.push_back(10.0);  // back_lbz
+    this->jointDampingMax.push_back(10.0);  // back_mby
+    this->jointDampingMax.push_back(10.0);  // back_ubx
+    this->jointDampingMax.push_back(10.0);  // neck_ay
+    this->jointDampingMax.push_back(10.0);  // l_leg_uhz
+    this->jointDampingMax.push_back(10.0);  // l_leg_mhx
+    this->jointDampingMax.push_back(10.0);  // l_leg_lhy
+    this->jointDampingMax.push_back(1.0);  // l_leg_kny
+    this->jointDampingMax.push_back(1.0);  // l_leg_uay
+    this->jointDampingMax.push_back(1.0);  // l_leg_lax
+    this->jointDampingMax.push_back(10.0);  // r_leg_uhz
+    this->jointDampingMax.push_back(10.0);  // r_leg_mhx
+    this->jointDampingMax.push_back(10.0);  // r_leg_lhy
+    this->jointDampingMax.push_back(1.0);  // r_leg_kny
+    this->jointDampingMax.push_back(1.0);  // r_leg_uay
+    this->jointDampingMax.push_back(1.0);  // r_leg_lax
+    this->jointDampingMax.push_back(1.0);  // l_arm_usy
+    this->jointDampingMax.push_back(1.0);  // l_arm_shx
+    this->jointDampingMax.push_back(1.0);  // l_arm_ely
+    this->jointDampingMax.push_back(1.0);  // l_arm_elx
+    this->jointDampingMax.push_back(1.0);  // l_arm_uwy
+    this->jointDampingMax.push_back(1.0);  // l_arm_mwx
+    this->jointDampingMax.push_back(1.0);  // r_arm_usy
+    this->jointDampingMax.push_back(1.0);  // r_arm_shx
+    this->jointDampingMax.push_back(1.0);  // r_arm_ely
+    this->jointDampingMax.push_back(1.0);  // r_arm_elx
+    this->jointDampingMax.push_back(1.0);  // r_arm_uwy
+    this->jointDampingMax.push_back(1.0);  // r_arm_mwx
+
+    this->jointDampingMin.push_back(0.1);  // back_lbz
+    this->jointDampingMin.push_back(0.1);  // back_mby
+    this->jointDampingMin.push_back(0.1);  // back_ubx
+    this->jointDampingMin.push_back(0.1);  // neck_ay
+    this->jointDampingMin.push_back(0.1);  // l_leg_uhz
+    this->jointDampingMin.push_back(0.1);  // l_leg_mhx
+    this->jointDampingMin.push_back(0.1);  // l_leg_lhy
+    this->jointDampingMin.push_back(0.1);  // l_leg_kny
+    this->jointDampingMin.push_back(0.1);  // l_leg_uay
+    this->jointDampingMin.push_back(0.1);  // l_leg_lax
+    this->jointDampingMin.push_back(0.1);  // r_leg_uhz
+    this->jointDampingMin.push_back(0.1);  // r_leg_mhx
+    this->jointDampingMin.push_back(0.1);  // r_leg_lhy
+    this->jointDampingMin.push_back(0.1);  // r_leg_kny
+    this->jointDampingMin.push_back(0.1);  // r_leg_uay
+    this->jointDampingMin.push_back(0.1);  // r_leg_lax
+    this->jointDampingMin.push_back(0.1);  // l_arm_usy
+    this->jointDampingMin.push_back(0.1);  // l_arm_shx
+    this->jointDampingMin.push_back(0.1);  // l_arm_ely
+    this->jointDampingMin.push_back(0.1);  // l_arm_elx
+    this->jointDampingMin.push_back(0.1);  // l_arm_uwy
+    this->jointDampingMin.push_back(0.1);  // l_arm_mwx
+    this->jointDampingMin.push_back(0.1);  // r_arm_usy
+    this->jointDampingMin.push_back(0.1);  // r_arm_shx
+    this->jointDampingMin.push_back(0.1);  // r_arm_ely
+    this->jointDampingMin.push_back(0.1);  // r_arm_elx
+    this->jointDampingMin.push_back(0.1);  // r_arm_uwy
+    this->jointDampingMin.push_back(0.1);  // r_arm_mwx
+  }
+
+  {
     // We are not sending names due to the fact that there is an enum
     // joint indices in AtlasState.msg.
     this->atlasState.position.resize(this->joints.size());
@@ -936,6 +997,75 @@ void AtlasPlugin::DeferredLoad()
         ros::VoidPtr(), &this->rosQueue);
   this->resetControlsService = this->rosNode->advertiseService(
     resetControlsAso);
+
+  // Offer teams ability to change damping coef. between preset bounds
+  ros::AdvertiseServiceOptions setJointDampingAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
+      "atlas/set_joint_damping", boost::bind(
+        &AtlasPlugin::SetJointDamping, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->setJointDampingService = this->rosNode->advertiseService(
+    setJointDampingAso);
+
+  // Offer teams ability to get damping coef.
+  ros::AdvertiseServiceOptions getJointDampingAso =
+    ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
+      "atlas/get_joint_damping", boost::bind(
+        &AtlasPlugin::GetJointDamping, this, _1, _2),
+        ros::VoidPtr(), &this->rosQueue);
+  this->getJointDampingService = this->rosNode->advertiseService(
+    getJointDampingAso);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
+  atlas_msgs::SetJointDamping::Response &_res)
+{
+  _res.success = true;
+  std::stringstream statusStream;
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      double d = math::clamp(_req.damping_coefficients[i],
+       this->jointDampingMin[i], this->jointDampingMax[i]);
+      this->joints[i]->SetDamping(0, d);
+      if (!math::equal(d, _req.damping_coefficients[i]))
+      {
+        statusStream << "requested joint damping for joint ["
+                     << this->jointNames[i] << "] of ["
+                     << _req.damping_coefficients[i] << "] is "
+                     << "truncated to [" << d << "].\n";
+        _res.success = false;
+      }
+    }
+  }
+  ROS_WARN("%s", statusStream.str().c_str());
+  _res.status_message = statusStream.str();
+
+  return _res.success;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool AtlasPlugin::GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
+  atlas_msgs::GetJointDamping::Response &_res)
+{
+  _res.success = true;
+  _res.status_message = "success";
+
+  {
+    boost::mutex::scoped_lock lock(this->mutex);
+
+    for (unsigned int i = 0; i < this->joints.size(); ++i)
+    {
+      _res.damping_coefficients[i] = this->joints[i]->GetDamping(0);
+      _res.damping_coefficients_max[i] = this->jointDampingMax[i];
+      _res.damping_coefficients_min[i] = this->jointDampingMin[i];
+    }
+  }
+
+  return _res.success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1795,7 +1925,7 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
     _fbOut->behavior_feedback.trans_to_behavior_index;
   _fb->stand_feedback.status_flags = _fbOut->stand_feedback.status_flags;
   _fb->step_feedback.status_flags = _fbOut->step_feedback.status_flags;
-  _fb->walk_feedback.t_step_rem = _fb->walk_feedback.t_step_rem;
+  _fb->walk_feedback.t_step_rem = _fbOut->walk_feedback.t_step_rem;
   _fb->walk_feedback.current_step_index =
     _fbOut->walk_feedback.current_step_index;
   _fb->walk_feedback.next_step_index_needed =
