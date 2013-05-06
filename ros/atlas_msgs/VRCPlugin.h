@@ -338,8 +338,8 @@ namespace gazebo
       private: void SetSeatingConfiguration(physics::ModelPtr atlasModel);
 
       /// \brief standing configuration of the robot when it exits the vehicle.
-      /// \param[in] pointer to atlas model
-      private: void SetStandingConfiguration(physics::ModelPtr atlasModel);
+      /// \param[in] _atlasModel pointer to atlas model
+      private: void SetStandingConfiguration(physics::ModelPtr _atlasModel);
 
       /// \brief subscriber to joint_states
       private: ros::Subscriber subJointStates;
@@ -399,6 +399,9 @@ namespace gazebo
 
     // mode flag to indicate StandPrep mode has already been called once.
     private: bool bdiStandPrep;
+
+    /// \brief Are cheats enabled?
+    private: bool cheatsEnabled;
   };
 /** \} */
 /// @}

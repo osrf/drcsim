@@ -19,8 +19,8 @@
         <pose>-0.01 0 0 0 -1.570790 0</pose>
         <geometry>
           <mesh>
-            <scale>0.5 0.5 0.8</scale>
-            <uri>model://vrc_firehose_long/meshes/coupling_hexagon.stl</uri>
+            <scale>0.4 0.4 0.8</scale>
+            <uri>model://vrc_firehose_long/meshes/coupling_hexagon.dae</uri>
           </mesh>
         </geometry>
       </collision>
@@ -28,12 +28,16 @@
         <pose>-0.01 0 0 0 -1.570790 0</pose>
         <geometry>
           <mesh>
-            <scale>0.5 0.5 0.8</scale>
-            <uri>model://vrc_firehose_long/meshes/coupling_hexagon.stl</uri>
+            <scale>0.4 0.4 0.8</scale>
+            <uri>model://vrc_firehose_long/meshes/coupling_hexagon.dae</uri>
           </mesh>
         </geometry>
         <material>
-          <diffuse>0 0 1 1</diffuse>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_coupling</name>
+          </script>
         </material>
       </visual>
 
@@ -47,6 +51,7 @@
         </geometry>
         <material>
           <diffuse>1 0 0 1</diffuse>
+          <ambient>1 .5 .5 1</ambient>
         </material>
       </visual>
       <collision name="attachment_col">

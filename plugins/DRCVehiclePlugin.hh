@@ -147,12 +147,27 @@ namespace gazebo
     /// \param[out] _max Upper hand-brake limit (radians).
     public: void GetHandBrakeLimits(double &_min, double &_max);
 
+    /// \brief Returns the lower and upper limits of the FNR switch angle.
+    /// \param[out] _min Lower FNR switch brake limit (radians).
+    /// \param[out] _max Upper FNR switch brake limit (radians).
+    public: void GetFNRSwitchLimits(double &_min, double &_max);
+
     /// \brief Returns the hand-brake angle (rad).
     public: double GetHandBrakeState();
 
     /// \brief Returns the percent utilization of the handbrake relative to
     ///        joint limits.
     public: double GetHandBrakePercent();
+
+    /// \brief Update the handBrakeTime variable with the current time.
+    public: void UpdateHandBrakeTime();
+
+    /// \brief Returns the percent utilization of the FNR switch relative to
+    ///        joint limits.
+    public: double GetFNRSwitchPercent();
+
+    /// \brief Update the fnrSwitchTime variable with the current time.
+    public: void UpdateFNRSwitchTime();
 
     /// \brief Specify front wheel orientation in radians (Note: this sets
     /// the vehicle wheels as oppsed to the steering wheel angle set by
@@ -223,23 +238,42 @@ namespace gazebo
     public: double GetBrakePedalPercent();
 
     /// Default plugin init call.
-    public: void Init();
+    public: virtual void Init();
 
     private: double GetGasTorqueMultiplier();
     private: double get_collision_radius(physics::CollisionPtr _collision);
     private: math::Vector3 get_collision_position(physics::LinkPtr _link,
                                                   unsigned int _id);
 
+    /// \brief Transport node used for publishing visual messages.
+    private: transport::NodePtr node;
+
+    /// \brief Publisher for visual messages for FNR switch.
+    private: transport::PublisherPtr visualPub;
+
+    /// \brief Message for FNR switch visual indicating forward.
+    private: msgs::Visual msgForward;
+
+    /// \brief Message for FNR switch visual indicating reverse.
+    private: msgs::Visual msgReverse;
+
     private: physics::JointPtr gasPedalJoint;
     private: physics::JointPtr brakePedalJoint;
     private: physics::JointPtr handWheelJoint;
     private: physics::JointPtr handBrakeJoint;
+    private: physics::JointPtr fnrSwitchJoint;
     private: physics::JointPtr flWheelJoint;
     private: physics::JointPtr frWheelJoint;
     private: physics::JointPtr blWheelJoint;
     private: physics::JointPtr brWheelJoint;
     private: physics::JointPtr flWheelSteeringJoint;
     private: physics::JointPtr frWheelSteeringJoint;
+
+    /// \brief Name of visual for FNR switch to indicate forward.
+    private: std::string fnrSwitchF;
+
+    /// \brief Name of visual for FNR switch to indicate reverse.
+    private: std::string fnrSwitchR;
 
     /// \brief The gas/brake pedals and handbrake apply torque to the wheels
     ///        based on their joint position as a percentage of the total
@@ -259,12 +293,14 @@ namespace gazebo
     private: double pedalForce;
     private: double handWheelForce;
     private: double handBrakeForce;
+    private: double fnrSwitchForce;
     private: double steeredWheelForce;
 
     protected: double gasPedalCmd;
     protected: double brakePedalCmd;
     protected: double handWheelCmd;
     protected: double handBrakeCmd;
+    protected: double fnrSwitchCmd;
     private: double flWheelCmd;
     private: double frWheelCmd;
     private: double blWheelCmd;
@@ -276,10 +312,18 @@ namespace gazebo
     private: common::PID brakePedalPID;
     private: common::PID handWheelPID;
     private: common::PID handBrakePID;
+    private: common::PID fnrSwitchPID;
     private: common::PID flWheelSteeringPID;
     private: common::PID frWheelSteeringPID;
 
+    /// \brief Time of last update, used to detect resets.
     private: common::Time lastTime;
+
+    /// \brief Time of last teleoperation command for hand brake.
+    private: common::Time handBrakeTime;
+
+    /// \brief Time of last teleoperation command for FNR switch.
+    private: common::Time fnrSwitchTime;
 
     /// joint information from model
     private: double gasPedalHigh;
@@ -294,6 +338,9 @@ namespace gazebo
     private: double handBrakeHigh;
     private: double handBrakeLow;
     private: double handBrakeRange;
+    private: double fnrSwitchHigh;
+    private: double fnrSwitchLow;
+    private: double fnrSwitchRange;
     private: double wheelRadius;
     private: double flWheelRadius;
     private: double frWheelRadius;
@@ -308,6 +355,7 @@ namespace gazebo
     private: DirectionType directionState;
     private: double handWheelState;
     private: double handBrakeState;
+    private: double fnrSwitchState;
     private: double flSteeringState;
     private: double frSteeringState;
     private: double gasPedalState;

@@ -29,6 +29,10 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 
+#include <atlas_msgs/VRCScore.h>
+
+#include "PubQueue.h"
+
 namespace gazebo
 {
   /// \brief A plugin that implements the VRC scoring algorithms.
@@ -49,21 +53,76 @@ namespace gazebo
     /// \param[in] _info Current world information.
     public: void OnUpdate(const common::UpdateInfo &_info);
 
+    /// \brief: thread out Load function with
+    /// with anything that might be blocking.
+    private: void DeferredLoad();
+
     /// \brief Check the next gate to see if we've passed it
-    private: bool CheckNextGate();
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the next gate was passed, false otherwise
+    private: bool CheckNextGate(std::string &_msg);
 
     /// \brief Check whether we've fallen
-    private: bool CheckFall(const common::Time &_currTime);
+    /// \param _simTime Current simulation time
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if we've fallen, false otherwise
+    private: bool CheckFall(const common::Time &_simTime,
+      std::string &_msg);
+
+    /// \brief Check whether Atlas is in the vehicle
+    /// \param _msg Log messages (e.g., "entered vehicle") will be appended here
+    /// \return true if Atlas is in the vehicle, false otherwise
+    private: bool CheckAtlasInVehicle(std::string &_msg);
 
     /// \brief Check whether the drill is in the bin
-    private: bool CheckDrillInBin();
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the drill was placed in the bin, false otherwise
+    private: bool CheckDrillInBin(std::string &_msg);
+
+    /// \brief Check whether the hose is off the table
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the hose off the table, false otherwise
+    private: bool CheckHoseOffTable(std::string &_msg);
+
+    /// \brief Check whether the hose is aligned with the standpipe.
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the hose is aligned to the standpipe, false otherwise
+    private: bool CheckHoseAligned(std::string &_msg);
+
+    /// \brief Check whether the hose is connected to the standpipe.
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the hose is threaded onto the standpipe, false otherwise
+    private: bool CheckHoseConnected(std::string &_msg);
+
+    /// \brief Check whether the valve is turned.
+    /// \param _msg Log messages (e.g., "passed gate") will be appended here
+    /// \return true if the valve is open, false otherwise
+    private: bool CheckValveOpen(std::string &_msg);
+
+    /// \brief Start the clock, used in computing elapsed time for the run
+    /// \param _simTime Current simulation time
+    /// \param _wallTime Current wallclock time
+    /// \param _msg Log messages (e.g., "starting clock") will be appended
+    private: void StartClock(const common::Time &_simTime,
+                             const common::Time &_wallTime,
+                             std::string &_msg);
+
+    /// \brief Stop the clock, used in computing elapsed time for the run
+    /// \param _simTime Current simulation time
+    /// \param _wallTime Current wallclock time
+    /// \param _msg Log messages (e.g., "stopping clock") will be appended
+    private: void StopClock(const common::Time &_simTime,
+                            const common::Time &_wallTime,
+                            std::string &_msg);
 
     /// \brief Write intermediate score data
-    private: void WriteIntermediateScore(
-      const gazebo::common::Time& _currTime, bool _force);
-
-    /// \brief Is this world gate-based?
-    private: bool IsGateBased();
+    /// \param _simTime Current simulation time
+    /// \param _wallTime Current wallclock time
+    /// \param _msg Log message to include
+    /// \param _force If true, write output; otherwise write output only if
+    /// enough time has passed since the last write.
+    private: void WriteScore(const gazebo::common::Time& _simTime,
+      const common::Time &_wallTime, const std::string &_msg, bool _force);
 
     /// \brief Find the gates in the world and store them in this->gates.
     private: bool FindGates();
@@ -90,13 +149,21 @@ namespace gazebo
     /// \brief Data about a gate.
     private: class Gate
              {
+               /// \brief Types of gates that we know about
+               public: enum GateType
+               {
+                 PEDESTRIAN,
+                 VEHICLE
+               };
+
                public: Gate(const std::string &_name,
+                            GateType _type,
                             unsigned int _number,
                             const gazebo::math::Pose& _pose,
                             double _width)
-                         : name(_name), number(_number),
-                           pose(_pose), width(_width),
-                           passed(false) {}
+                         : name(_name), type(_type),
+                           number(_number), pose(_pose),
+                           width(_width), passed(false) {}
 
                /// \brief Less-than operator to allow sorting of a list of
                /// gates by number.
@@ -107,6 +174,9 @@ namespace gazebo
 
                /// \brief Name of the gate
                public: std::string name;
+
+               /// \brief The type of the gate
+               public: GateType type;
 
                /// \brief Number of the gate
                public: unsigned int number;
@@ -140,14 +210,41 @@ namespace gazebo
     /// \brief Pointer to Atlas.
     private: physics::ModelPtr atlas;
 
-    /// \brief Pointer to drill.
+    /// \brief Pointer to Atlas's head link.
+    private: physics::LinkPtr atlasHead;
+
+    /// \brief Pointer to drill. (Q2)
     private: physics::ModelPtr drill;
 
-    /// \brief The bin that will receive the drill
+    /// \brief The bin that will receive the drill (Q2)
     private: gazebo::math::Box bin;
 
-    /// \brief Pointer to vehicle.
+    /// \brief Pointer to vehicle. (V1)
     private: physics::ModelPtr vehicle;
+
+    /// \brief Pointer to "seat" collision. (V1)
+    private: physics::CollisionPtr vehicleSeat;
+
+    /// \brief Pointer to "seat_back" collision. (V1)
+    private: physics::CollisionPtr vehicleSeatBack;
+
+    /// \brief Pointer to the hose coupler. (V3)
+    private: physics::LinkPtr hoseCoupler;
+
+    /// \brief Pointer to the standpipe. (V3)
+    private: physics::LinkPtr standpipe;
+
+    /// \brief Pointer to the valve. (V3)
+    private: physics::JointPtr valve;
+
+    /// \brief Whether the hose is currently aligned to the standpipe (V3)
+    private: bool isHoseAligned;
+
+    /// \brief Whether the hose is currently connected to the standpipe (V3)
+    private: bool isHoseConnected;
+
+    /// \brief Pose of the hose coupler at the time of initial alignment (V3)
+    private: math::Pose hoseCouplerAlignedPose;
 
     /// \brief Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
@@ -163,8 +260,17 @@ namespace gazebo
     /// \brief Which side of the next gate we were the last time we checked.
     private: int nextGateSide;
 
-    /// \brief Time at which Atlas passed through the first gate.
-    private: gazebo::common::Time startTime;
+    /// \brief Sim time at which Atlas passed through the first gate.
+    private: gazebo::common::Time startTimeSim;
+
+    /// \brief Wall time at which Atlas passed through the first gate.
+    private: gazebo::common::Time startTimeWall;
+
+    /// \brief Sim time at which Atlas achieved the last checkpoint.
+    private: gazebo::common::Time stopTimeSim;
+
+    /// \brief Wall time at which Atlas achieved the last checkpoint.
+    private: gazebo::common::Time stopTimeWall;
 
     /// \brief The completion score, called 'C' in the VRC docs
     private: int completionScore;
@@ -196,6 +302,17 @@ namespace gazebo
 
     /// \brief Which type of world we're scoring
     private: enum WorldType worldType;
+
+    /// \brief ros node handle
+    private: ros::NodeHandle *rosNode;
+
+    /// \brief publisher of vrc_score
+    private: ros::Publisher pubScore;
+    private: PubQueue<atlas_msgs::VRCScore>::Ptr pubScoreQueue;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
+    private: boost::thread deferredLoadThread;
   };
 }
 #endif
