@@ -115,6 +115,9 @@ topics:
 
 services:
 
+  - service: atlas/reset_controls
+    type: atlas_msgs/ResetControls
+
   - service: atlas/set_joint_damping
     type: atlas_msgs/SetJointDamping
 
