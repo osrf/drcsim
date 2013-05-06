@@ -1780,13 +1780,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 
   void GazeboRosApiPlugin::spin()
   {
-    // todo: make a wait loop that does not provide extra ros::spin()
-    ros::Rate r(1000);
-    while (ros::ok())
-    {
-      ros::spinOnce();
-      r.sleep();
-    }
+    ros::spin();
   }
 
   // utilites for checking incoming string URDF/XML/Param

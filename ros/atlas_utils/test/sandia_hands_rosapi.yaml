@@ -1254,6 +1254,12 @@ topics:
 
 services:
 
+  - service: sandia_hands/set_joint_damping
+    type: atlas_msgs/SetJointDamping
+
+  - service: sandia_hands/get_joint_damping
+    type: atlas_msgs/GetJointDamping
+
   - service: /sandia_hands/l_hand/camera/left/image_color/compressed/set_parameters
     type: dynamic_reconfigure/Reconfigure
 
