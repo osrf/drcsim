@@ -1,7 +1,0 @@
-set (files 
-  red_grid.png
-  green_grid.png
-  blue_grid.png
-)
-
-install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/gazebo_models/environments/${MODEL_NAME}/materials/textures)

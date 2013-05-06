@@ -15,327 +15,175 @@
  *
 */
 
-#include <iostream>
-#include <fstream>
 #include <algorithm>
+#include <string>
 #include <assert.h>
 
-#include <boost/thread/thread.hpp>
-#include <boost/bind.hpp>
+#include "gazebo/physics/World.hh"
+#include "gazebo/physics/HingeJoint.hh"
+#include "gazebo/sensors/Sensor.hh"
+#include "gazebo/sdf/interface/SDF.hh"
+#include "gazebo/sdf/interface/Param.hh"
+#include "gazebo/common/Exception.hh"
+#include "gazebo/sensors/GpuRaySensor.hh"
+#include "gazebo/sensors/SensorTypes.hh"
 
-#include <gazebo/sensors/Sensor.hh>
-#include <gazebo/sensors/GpuRaySensor.hh>
-#include <gazebo/sdf/interface/SDF.hh>
-#include <gazebo/sensors/SensorTypes.hh>
-
-#include <tf/tf.h>
-#include <sensor_msgs/fill_image.h>
-#include <image_transport/image_transport.h>
+#include "tf/tf.h"
 
 #include "gazebo_ros_gpu_laser.h"
-
 
 namespace gazebo
 {
 // Register this plugin with the simulator
-GZ_REGISTER_SENSOR_PLUGIN(GazeboRosGpuLaser)
+GZ_REGISTER_SENSOR_PLUGIN(GazeboRosLaser)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor
-GazeboRosGpuLaser::GazeboRosGpuLaser()
+GazeboRosLaser::GazeboRosLaser()
 {
-  this->laserConnectCount = 0;
+  this->seed = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Destructor
-GazeboRosGpuLaser::~GazeboRosGpuLaser()
+GazeboRosLaser::~GazeboRosLaser()
 {
-  this->parentSensor->SetActive(false);
-  this->rosnode->shutdown();
-  this->queue.clear();
-  this->queue.disable();
-  this->callbackQueueThread.join();
-  delete this->rosnode;
+  this->rosnode_->shutdown();
+  delete this->rosnode_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosGpuLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
+void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 {
-  GpuRayPlugin::Load(_parent, _sdf);
+  // load plugin
+  GpuRayPlugin::Load(_parent, this->sdf);
+  // Get the world name.
+  std::string worldName = _parent->GetWorldName();
+  this->world_ = physics::get_world(worldName);
+  // save pointers
+  this->sdf = _sdf;
 
-  //GazeboRosCameraUtils::Load(_parent, _sdf);
-  this->robotNamespace = "";
-  if (_sdf->HasElement("robotNamespace"))
-    this->robotNamespace = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+  this->parent_ray_sensor_ =
+    boost::shared_dynamic_cast<sensors::GpuRaySensor>(_parent);
 
-  // point cloud stuff
-  if (!_sdf->GetElement("topicName"))
-    this->laserTopicName = "scan";
-  else
-    this->laserTopicName = _sdf->GetElement("topicName")->GetValueString();
+  if (!this->parent_ray_sensor_)
+    gzthrow("GazeboRosLaser controller requires a Ray Sensor as its parent");
 
-  if (!_sdf->GetElement("pointCloudCutoff"))
-    this->pointCloudCutoff = 0.4;
-  else
-    this->pointCloudCutoff = _sdf->GetElement("pointCloudCutoff")->GetValueDouble();
+  this->robot_namespace_ = "";
+  if (this->sdf->HasElement("robotNamespace"))
+    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
 
-  this->frameName = "/world";
-  if (_sdf->HasElement("frameName"))
-    this->frameName = _sdf->GetElement("frameName")->GetValueString();
-
-  if (!_sdf->HasElement("gaussianNoise"))
+  if (!this->sdf->HasElement("frameName"))
   {
-    ROS_INFO("Block laser plugin missing <gaussianNoise>, defaults to 0.0");
-    this->gaussianNoise = 0;
+    ROS_INFO("Laser plugin missing <frameName>, defaults to /world");
+    this->frame_name_ = "/world";
   }
   else
-    this->gaussianNoise = _sdf->GetElement("gaussianNoise")->GetValueDouble();
+    this->frame_name_ = this->sdf->GetValueString("frameName");
 
-  if (!_sdf->HasElement("hokuyoMinIntensity"))
+  if (!this->sdf->HasElement("topicName"))
   {
-    ROS_INFO("Block laser plugin missing <hokuyoMinIntensity>, defaults to 101");
-    this->hokuyoMinIntensity = 101;
+    ROS_INFO("Laser plugin missing <topicName>, defaults to /world");
+    this->topic_name_ = "/world";
   }
   else
-    this->hokuyoMinIntensity = _sdf->GetElement("hokuyoMinIntensity")->GetValueDouble();
+    this->topic_name_ = this->sdf->GetValueString("topicName");
 
-  ROS_INFO("INFO: gazebo_ros_laser plugin should set minimum intensity to %f due to cutoff in hokuyo filters." , this->hokuyoMinIntensity);
+  this->laser_connect_count_ = 0;
 
-  if (!_sdf->GetElement("updateRate"))
+  // Init ROS
+  if (ros::isInitialized())
   {
-    ROS_INFO("Camera plugin missing <updateRate>, defaults to 0");
-    this->updateRate = 0;
+    // ros callback queue for processing subscription
+    this->deferred_load_thread_ = boost::thread(
+      boost::bind(&GazeboRosLaser::LoadThread, this));
   }
   else
-    this->updateRate = _sdf->GetElement("updateRate")->GetValueDouble();
-
-
-  // Exit if no ROS
-  if (!ros::isInitialized())
   {
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
           << "  gazebo -s libgazebo_ros_api_plugin.so\n";
-    return;
   }
+}
 
-  this->rosnode = new ros::NodeHandle(this->robotNamespace);
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosLaser::LoadThread()
+{
+  this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
+  this->gazebo_node_ = gazebo::transport::NodePtr(new gazebo::transport::Node());
+  this->gazebo_node_->Init(this->world_name_);
+
+  this->pmq.startServiceThread();
 
   // resolve tf prefix
   std::string prefix;
-  this->rosnode->getParam(std::string("tf_prefix"), prefix);
-  this->frameName = tf::resolve(prefix, this->frameName);
+  this->rosnode_->getParam(std::string("tf_prefix"), prefix);
+  this->frame_name_ = tf::resolve(prefix, this->frame_name_);
 
-  ros::AdvertiseOptions laser_scan_ao;
+  if (this->topic_name_ != "")
+  {
+    ros::AdvertiseOptions ao =
+      ros::AdvertiseOptions::create<sensor_msgs::LaserScan>(
+      this->topic_name_, 1,
+      boost::bind(&GazeboRosLaser::LaserConnect, this),
+      boost::bind(&GazeboRosLaser::LaserDisconnect, this),
+      ros::VoidPtr(), NULL);
+    this->pub_ = this->rosnode_->advertise(ao);
+    this->pub_queue_ = this->pmq.addPub<sensor_msgs::LaserScan>();
+  }
 
-  if (this->parentSensor->GetVerticalRangeCount() != 1)
-    laser_scan_ao = ros::AdvertiseOptions::create<pcl::PointCloud<pcl::PointXYZI> >(
-      this->laserTopicName,1,
-      boost::bind( &GazeboRosGpuLaser::LaserConnect,this),
-      boost::bind( &GazeboRosGpuLaser::LaserDisconnect,this),
-      ros::VoidPtr(), &this->queue);
-  else
-    laser_scan_ao = ros::AdvertiseOptions::create<sensor_msgs::LaserScan>(
-      this->laserTopicName,1,
-      boost::bind( &GazeboRosGpuLaser::LaserConnect,this),
-      boost::bind( &GazeboRosGpuLaser::LaserDisconnect,this),
-      ros::VoidPtr(), &this->queue);
-  this->pubLaserScan = this->rosnode->advertise(laser_scan_ao);
+  // Initialize the controller
 
-  this->Init();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void GazeboRosGpuLaser::SetUpdateRate(double _rate)
-{
-  // set parent sensor update rate
-  this->parentSensor->SetUpdateRate(_rate);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void GazeboRosGpuLaser::Init()
-{
-  // prepare to throttle this plugin at the same rate
-  // ideally, we should invoke a plugin update when the sensor updates,
-  // have to think about how to do that properly later
-  if (this->updateRate > 0.0)
-    this->updatePeriod = 1.0/this->updateRate;
-  else
-    this->updatePeriod = 0.0;
-
-  // start custom queue for camera_
-  this->callbackQueueThread = boost::thread(boost::bind(&GazeboRosGpuLaser::QueueThread, this));
-
-  this->lastPubTime = ros::WallTime::now();
-  // this->logCount_ = 0;
+  // sensor generation off by default
+  this->parent_ray_sensor_->SetActive(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Increment count
-void GazeboRosGpuLaser::LaserConnect()
+void GazeboRosLaser::LaserConnect()
 {
-  this->laserConnectCount++;
-  this->parentSensor->SetActive(true);
+  this->laser_connect_count_++;
+  if (this->laser_connect_count_ == 1)
+    this->laser_scan_sub_ = 
+      this->gazebo_node_->Subscribe(this->parent_ray_sensor_->GetTopic(), 
+                                    &GazeboRosLaser::OnScan, this);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Decrement count
-void GazeboRosGpuLaser::LaserDisconnect()
+void GazeboRosLaser::LaserDisconnect()
 {
-  this->laserConnectCount--;
-
-  if (this->laserConnectCount <= 0)
-    this->parentSensor->SetActive(false);
+  this->laser_connect_count_--;
+  if (this->laser_connect_count_ == 0)
+    this->laser_scan_sub_.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update the controller
-void GazeboRosGpuLaser::OnNewLaserFrame(const float *_image,
-    unsigned int _width, unsigned int _height, unsigned int _depth,
-    const std::string &_format)
+// Convert new Gazebo message to ROS message and publish it
+void GazeboRosLaser::OnScan(ConstLaserScanStampedPtr &_msg)
 {
-  this->sensorUpdateTime = this->parentSensor->GetLastUpdateTime();
-  if (!this->parentSensor->IsActive())
-  {
-    if (this->laserConnectCount > 0)
-      // do this first so there's chance for sensor to run 1 frame after activate
-      this->parentSensor->SetActive(true);
-  }
-  else
-  {
-    if (this->laserConnectCount > 0)
-    {
-      if (this->parentSensor->GetVerticalRangeCount() == 1)
-        PublishLaserScan(_image, width);
-      else
-        PublishPointCloud(_image, width, height);
-    }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void GazeboRosGpuLaser::PublishLaserScan(const float *_scan,
-    unsigned int _width)
-{
-  math::Angle maxAngle = this->parentSensor->GetAngleMax();
-  math::Angle minAngle = this->parentSensor->GetAngleMin();
-
-  this->laserScanMsg.header.frame_id = this->frameName;
-  this->laserScanMsg.header.stamp.sec = this->sensorUpdateTime.sec;
-  this->laserScanMsg.header.stamp.nsec = this->sensorUpdateTime.nsec;
-
-  this->laserScanMsg.angle_min = minAngle.GetAsRadian();
-  this->laserScanMsg.angle_max = maxAngle.GetAsRadian();
-  this->laserScanMsg.angle_increment = (maxAngle.GetAsRadian() - minAngle.GetAsRadian())/((double)(_width -1)); // for computing yaw
-  this->laserScanMsg.time_increment  = 0; // instantaneous simulator scan
-  this->laserScanMsg.scan_time       = 0; // FIXME: what's this?
-  this->laserScanMsg.range_min = this->parentSensor->GetRangeMin();
-  this->laserScanMsg.range_max = this->parentSensor->GetRangeMax();
-  this->laserScanMsg.ranges.clear();
-  this->laserScanMsg.intensities.clear();
-
-  for(unsigned int i=0; i < width; i++)
-  {
-    float range = _scan[3 * i];
-    if (range < this->parentSensor->GetRangeMin())
-      range = this->parentSensor->GetRangeMax();
-    this->laserScanMsg.ranges.push_back(range + this->GaussianKernel(0,this->gaussianNoise));
-    this->laserScanMsg.intensities.push_back(_scan[3*i+1]);
-  }
-
-  this->pubLaserScan.publish(this->laserScanMsg);
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void GazeboRosGpuLaser::PublishPointCloud(const float *_scan,
-    unsigned int _width, unsigned int _height)
-{
-  this->pointCloudMsg.header.frame_id = this->frameName;
-  this->pointCloudMsg.header.stamp.sec = this->sensorUpdateTime.sec;
-  this->pointCloudMsg.header.stamp.nsec = this->sensorUpdateTime.nsec;
-
-  this->pointCloudMsg.points.clear();
-  this->pointCloudMsg.is_dense = true;
-
-  math::Angle maxAngle = this->parentSensor->GetAngleMax();
-  math::Angle minAngle = this->parentSensor->GetAngleMin();
-
-  math::Angle verticalMaxAngle = this->parentSensor->GetVerticalAngleMax();
-  math::Angle verticalMinAngle = this->parentSensor->GetVerticalAngleMin();
-
-  double dH = (maxAngle.GetAsRadian() - minAngle.GetAsRadian()) / (_width - 1) ;
-  double dV = (verticalMaxAngle.GetAsRadian() - verticalMinAngle.GetAsRadian()) / (_height - 1);
-
-  double alpha = ((minAngle + maxAngle) / 2.0).GetAsRadian();
-
-  for (unsigned int j = 0; j < _height; j++)
-    for (unsigned int i = 0; i < _width; i++)
-    {
-      double hAngle = (i * dH) + minAngle.GetAsRadian() - alpha;
-      double vAngle = (j * dV) + verticalMinAngle.GetAsRadian();
-      float r = _scan[3 * (i + j * _width)];
-
-      pcl::PointXYZI pr;
-
-      if ((r < this->parentSensor->GetRangeMin()) ||
-          (r >= this->parentSensor->GetRangeMax()))
-        r = this->parentSensor->GetRangeMax();
-
-      pcl::PointXYZI p;
-
-      if (this->parentSensor->IsHorizontal())
-      {
-        p.x = r * cos(vAngle) * cos(hAngle) + this->GaussianKernel(0,this->gaussianNoise);
-        p.y = r *               sin(hAngle) + this->GaussianKernel(0,this->gaussianNoise);
-        p.z = r * sin(vAngle) * cos(hAngle) + this->GaussianKernel(0,this->gaussianNoise);
-      }
-      else
-      {
-        p.x = r * cos(vAngle) * cos(hAngle) + this->GaussianKernel(0,this->gaussianNoise);
-        p.y = r * cos(vAngle) * sin(hAngle) + this->GaussianKernel(0,this->gaussianNoise);
-        p.z = r * sin(vAngle) + this->GaussianKernel(0,this->gaussianNoise);
-      }
-
-      pr.x = cos(alpha)*p.x - sin(alpha)*p.y;
-      pr.y = sin(alpha)*p.x + cos(alpha)*p.y;
-      pr.z = p.z;
-      pr.intensity = _scan[3 * (i + j * _width) + 1];
-
-      this->pointCloudMsg.points.push_back(pr);
-    }
-
-  this->pubLaserScan.publish(this->pointCloudMsg);
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Utility for adding noise
-double GazeboRosGpuLaser::GaussianKernel(double mu,double sigma)
-{
-  // using Box-Muller transform to generate two independent standard normally disbributed normal variables
-  // see wikipedia
-  double U = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-  double V = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-  double X = sqrt(-2.0 * ::log(U)) * cos( 2.0*M_PI * V);
-  //double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V); // the other indep. normal variable
-  // we'll just use X
-  // scale to our mu and sigma
-  X = sigma * X + mu;
-  return X;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Put camera_ data to the interface
-void GazeboRosGpuLaser::QueueThread()
-{
-  static const double timeout = 0.001;
-
-  while (this->rosnode->ok())
-  {
-    /// take care of callback queue
-    this->queue.callAvailable(ros::WallDuration(timeout));
-  }
+  // We got a new message from the Gazebo sensor.  Stuff a
+  // corresponding ROS message and publish it.
+  sensor_msgs::LaserScan laser_msg;
+  laser_msg.header.stamp = ros::Time(_msg->time().sec(), _msg->time().nsec());
+  laser_msg.header.frame_id = this->frame_name_;
+  laser_msg.angle_min = _msg->scan().angle_min();
+  laser_msg.angle_max = _msg->scan().angle_max();
+  laser_msg.angle_increment = _msg->scan().angle_step();
+  laser_msg.time_increment = 0;  // instantaneous simulator scan
+  laser_msg.scan_time = 0;  // not sure whether this is correct
+  laser_msg.range_min = _msg->scan().range_min();
+  laser_msg.range_max = _msg->scan().range_max();
+  laser_msg.ranges.resize(_msg->scan().ranges_size());
+  std::copy(_msg->scan().ranges().begin(), 
+            _msg->scan().ranges().end(), 
+            laser_msg.ranges.begin());
+  laser_msg.intensities.resize(_msg->scan().intensities_size());
+  std::copy(_msg->scan().intensities().begin(), 
+            _msg->scan().intensities().end(), 
+            laser_msg.intensities.begin());
+  this->pub_queue_->push(laser_msg, this->pub_);
 }
 }
