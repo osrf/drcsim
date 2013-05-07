@@ -1078,20 +1078,37 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
 {
   boost::mutex::scoped_lock lock(this->filterMutex);
 
+  _res.success = true;
+
   if (_req.filter_velocity)
     this->filterVelocity = true;
   else
     this->filterVelocity = false;
+
+  std::stringstream statusStream;
 
   if (_req.coef_a.size() == 2)
   {
     this->filCoefA[0] = _req.coef_a[0];
     this->filCoefA[1] = _req.coef_a[1];
   }
+  else if (_req.coef_a.size() != 0)
+  {
+    _res.success = false;
+    statusStream << "AtlasFilters: coef_a has size [" << _req.coef_a.size()
+                 << "], only be 0 or 2 is allowed.\n";
+  }
+
   if (_req.coef_b.size() == 2)
   {
     this->filCoefB[0] = _req.coef_b[0];
     this->filCoefB[1] = _req.coef_b[1];
+  }
+  else if (_req.coef_b.size() != 0)
+  {
+    _res.success = false;
+    statusStream << "AtlasFilters: coef_b has size [" << _req.coef_b.size()
+                 << "], only be 0 or 2 is allowed.\n";
   }
 
   if (_req.filter_position)
@@ -1099,8 +1116,8 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
   else
     this->filterPosition = false;
 
-  _res.success = true;
-  _res.status_message = "success";
+  ROS_WARN("%s", statusStream.str().c_str());
+  _res.status_message = statusStream.str();
   return _res.success;
 }
 
