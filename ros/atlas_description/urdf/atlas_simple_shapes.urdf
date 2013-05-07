@@ -173,7 +173,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_lleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/l_lleg.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -298,7 +298,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_uleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/l_uleg.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -399,7 +399,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/pelvis.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/pelvis.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -551,7 +551,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_larm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/r_larm.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -582,7 +582,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_lglut.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/r_lglut.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -607,7 +607,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_lleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/r_lleg.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -682,7 +682,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_uarm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/r_uarm.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -707,7 +707,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_uglut.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/r_uglut.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
@@ -732,7 +732,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_uleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/r_uleg.dae" scale="100. 100. 100." />
             </geometry>
         </visual>
         <collision group="default">
