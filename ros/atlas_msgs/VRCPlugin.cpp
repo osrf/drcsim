@@ -361,18 +361,20 @@ void VRCPlugin::RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd)
   math::Pose relPose(math::Vector3(0, -0.3, -0.1),
                math::Quaternion(0, 0, 0));
 
-  if (this->fireHoseModel && this->couplingLink)
+  if (this->drcFireHose.fireHoseModel && this->drcFireHose.couplingLink)
   {
     physics::LinkPtr gripper = this->atlas.model->GetLink(gripperName);
     if (gripper)
     {
       // teleports the object being attached together
       pose = pose + relPose + gripper->GetWorldPose();
-      this->fireHoseModel->SetLinkWorldPose(pose, this->couplingLink);
+      this->drcFireHose.fireHoseModel->SetLinkWorldPose(pose,
+        this->drcFireHose.couplingLink);
 
       if (!this->grabJoint)
         this->grabJoint = this->AddJoint(this->world, this->atlas.model,
-                                         gripper, this->couplingLink,
+                                         gripper,
+                                         this->drcFireHose.couplingLink,
                                          "revolute",
                                          math::Vector3(0, 0, 0),
                                          math::Vector3(0, 0, 1),
