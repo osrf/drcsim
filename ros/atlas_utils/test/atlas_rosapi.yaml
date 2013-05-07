@@ -120,6 +120,9 @@ topics:
 
 services:
 
+  - service: /atlas/atlas_filters
+    type: atlas_msgs/AtlasFilters
+
   - service: /atlas/reset_controls
     type: atlas_msgs/ResetControls
 
