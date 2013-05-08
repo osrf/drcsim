@@ -20,6 +20,16 @@ class TestStopLog(unittest.TestCase):
         # Take an extra nap, to allow plugins to be loaded
         time.sleep(5.0)
 
+    def wait_until_gazebo_unpaused(self):
+        not_finished = True
+        while (not_finished):
+            p1 = Popen(["timeout", "1", "gzstats", "-p", "2>/dev/null"], stdout=PIPE, stderr=STDOUT)
+            p2 = Popen(["cut", "-d", "," , "-f", "4" ], stdin=p1.stdout, stdout=PIPE)
+            p3 = Popen(["tail", "-n", "1"], stdin=p2.stdout, stdout=PIPE)
+            output = p3.communicate()[0]
+            if output.strip() == "F":
+                not_finished = False
+
     def run_gzstop(self):
         cmd = ['gzlog', 'stop']
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, \
@@ -68,8 +78,10 @@ class TestStopLog(unittest.TestCase):
         self.wait_gazebo_to_start()
         time.sleep(time_to_publish)
         self.run_gzstop()
-        time.sleep(5)
-        self.kill_gzserver()
+        time.sleep(2)
+        # Need to wait until gazebo back from paused to give time to write log
+        self.wait_until_gazebo_unpaused()
+        #self.kill_gzserver()
         self.assertTrue(self.check_closing_log(logfilename), "Can not find closing tag in log file")
          
 if __name__ == '__main__':
