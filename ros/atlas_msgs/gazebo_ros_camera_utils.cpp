@@ -80,6 +80,23 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   const std::string &_camera_name_suffix,
   double _hack_baseline)
 {
+  // default Load
+  this->Load(_parent, _sdf);
+
+  // overwrite hack baseline if specified at load
+  // example usage in gazebo_ros_multicamera
+  this->hack_baseline_ = _hack_baseline;
+
+  // overwrite camera suffix
+  // example usage in gazebo_ros_multicamera
+  this->camera_name_ += _camera_name_suffix;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Load the controller
+void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
+  sdf::ElementPtr _sdf)
+{
   // Get the world name.
   std::string world_name = _parent->GetWorldName();
 
@@ -110,7 +127,6 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
     ROS_DEBUG("Camera plugin missing <cameraName>, default to empty");
   else
     this->camera_name_ = this->sdf->GetValueString("cameraName");
-  this->camera_name_ += _camera_name_suffix;
 
   if (!this->sdf->HasElement("frameName"))
     ROS_DEBUG("Camera plugin missing <frameName>, defaults to /world");
@@ -157,18 +173,13 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   else
     this->focal_length_ = this->sdf->GetValueDouble("focalLength");
 
-  if (!gazebo::math::equal(_hack_baseline, 0.0))
-    this->hack_baseline_ = _hack_baseline;
-  else
+  if (!this->sdf->HasElement("hackBaseline"))
   {
-    if (!this->sdf->HasElement("hackBaseline"))
-    {
-      ROS_DEBUG("Camera plugin missing <hackBaseline>, defaults to 0");
-      this->hack_baseline_= 0;
-    }
-    else
-      this->hack_baseline_ = this->sdf->GetValueDouble("hackBaseline");
+    ROS_DEBUG("Camera plugin missing <hackBaseline>, defaults to 0");
+    this->hack_baseline_= 0;
   }
+  else
+    this->hack_baseline_ = this->sdf->GetValueDouble("hackBaseline");
 
   if (!this->sdf->HasElement("distortionK1"))
   {
