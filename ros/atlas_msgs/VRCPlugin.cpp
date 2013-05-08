@@ -348,36 +348,37 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
+void VRCPlugin::RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
+  math::Quaternion q(_cmd->orientation.w, _cmd->orientation.x,
+                     _cmd->orientation.y, _cmd->orientation.z);
+  q.Normalize();
+  math::Pose pose(math::Vector3(_cmd->position.x,
+                                _cmd->position.y,
+                                _cmd->position.z), q);
   /// \todo: get these from incoming message
-  std::string modelName = "fire_hose";
-  std::string linkName = "coupling";
   std::string gripperName = "r_hand";
   math::Pose relPose(math::Vector3(0, -0.3, -0.1),
                math::Quaternion(0, 0, 0));
 
-  physics::ModelPtr grabModel = this->world->GetModel(modelName);
-  if (grabModel)
+  if (this->drcFireHose.fireHoseModel && this->drcFireHose.couplingLink)
   {
-    physics::LinkPtr object = grabModel->GetLink(linkName);
-    if (object)
+    physics::LinkPtr gripper = this->atlas.model->GetLink(gripperName);
+    if (gripper)
     {
-      physics::LinkPtr gripper = this->atlas.model->GetLink(gripperName);
-      if (gripper)
-      {
-        // teleports the object being attached together
-        math::Pose pose = relPose + gripper->GetWorldPose();
-        grabModel->SetLinkWorldPose(pose, object);
+      // teleports the object being attached together
+      pose = pose + relPose + gripper->GetWorldPose();
+      this->drcFireHose.fireHoseModel->SetLinkWorldPose(pose,
+        this->drcFireHose.couplingLink);
 
-        if (!this->grabJoint)
-          this->grabJoint = this->AddJoint(this->world, this->atlas.model,
-                                           gripper, object,
-                                           "revolute",
-                                           math::Vector3(0, 0, 0),
-                                           math::Vector3(0, 0, 1),
-                                           0.0, 0.0);
-      }
+      if (!this->grabJoint)
+        this->grabJoint = this->AddJoint(this->world, this->atlas.model,
+                                         gripper,
+                                         this->drcFireHose.couplingLink,
+                                         "revolute",
+                                         math::Vector3(0, 0, 0),
+                                         math::Vector3(0, 0, 1),
+                                         0.0, 0.0);
     }
   }
 }
