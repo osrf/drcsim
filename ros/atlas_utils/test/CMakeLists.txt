@@ -17,7 +17,11 @@ if(VALID_DRI_DISPLAY)
          atlas_drc_vehicle_fire_hose_rosapi.test
          atlas_golf_cart_fire_hose_rosapi.test
          drc_sim_v0_rosapi.test
-	 gzlog_closing.test
+	 gzlog_qual_1_log.test
+	 gzlog_qual_2_log.test
+	 gzlog_qual_3_log.test
+	 gzlog_qual_4_log.test
+	 gzlog_long_run.test
          qual_task_1_rosapi.test
          qual_task_2_rosapi.test
          qual_task_3_rosapi.test

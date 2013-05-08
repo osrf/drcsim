@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find atlas_utils)/launch/qual_task_2.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <include file="$(find atlas_utils)/test/pub_atlas_command.launch" />
+
+  <param name="/gzstop_checker/time_to_publish" value="5" />
+  <param name="/gzstop_checker/logfile"         value="/tmp/qual_task_2/state.log" /> 
+  <test pkg="atlas_utils" type="gzlog_stop_checker.py" 
+        test-name="gzstop_checker" 
+        time-limit="360" />
+</launch>
