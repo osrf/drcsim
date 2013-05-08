@@ -18,6 +18,11 @@
 #ifndef GAZEBO_ATLAS_PLUGIN_HH
 #define GAZEBO_ATLAS_PLUGIN_HH
 
+// filter coefficients
+#define FIL_N_GJOINTS 28
+#define FIL_N_STEPS 2
+#define FIL_MAX_FILT_COEFF 10
+
 #include <string>
 #include <vector>
 
@@ -33,6 +38,7 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/String.h>
+#include <atlas_msgs/SynchronizationStatistics.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
@@ -59,7 +65,10 @@
 // publish separate /atlas/force_torque_sensors topic, to be deprecated
 #include <atlas_msgs/ForceTorqueSensors.h>
 
+#include <atlas_msgs/AtlasFilters.h>
 #include <atlas_msgs/ResetControls.h>
+#include <atlas_msgs/SetJointDamping.h>
+#include <atlas_msgs/GetJointDamping.h>
 #include <atlas_msgs/ControllerStatistics.h>
 
 // don't use these to control
@@ -106,6 +115,7 @@ namespace gazebo
     private: void RosQueueThread();
 
     /// \brief get data from IMU for robot state
+    /// \param[in] _curTime current simulation time
     private: void GetIMUState(const common::Time &_curTime);
 
     /// \brief get data from force torque sensor
@@ -117,11 +127,26 @@ namespace gazebo
     private: bool ResetControls(atlas_msgs::ResetControls::Request &_req,
       atlas_msgs::ResetControls::Response &_res);
 
+    /// \brief ros service callback to set joint damping
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
+      atlas_msgs::SetJointDamping::Response &_res);
+
+    /// \brief ros service callback to get joint damping
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
+      atlas_msgs::GetJointDamping::Response &_res);
+
     /// \brief: thread out Load function with
     /// with anything that might be blocking.
     private: void DeferredLoad();
 
+    /// \brief pointer to gazebo world
     private: physics::WorldPtr world;
+
+    /// \brief pointer to gazebo Atlas model
     private: physics::ModelPtr model;
 
     /// Pointer to the update event connections
@@ -152,6 +177,7 @@ namespace gazebo
     /// \brief A combined AtlasState, IMU and ForceTorqueSensors Message
     /// for accessing all these states synchronously.
     private: atlas_msgs::AtlasState atlasState;
+    private: void GetAndPublishRobotStates(const common::Time &_curTime);
 
     // IMU sensor
     private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
@@ -165,7 +191,7 @@ namespace gazebo
     private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr
       pubForceTorqueSensorsQueue;
 
-    // deferred loading in case ros is blocking
+    /// Deferred loading in case ros is blocking, \TODO: not working for now.
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
 
@@ -179,56 +205,87 @@ namespace gazebo
     private: PubQueue<atlas_msgs::ControllerStatistics>::Ptr
       pubControllerStatisticsQueue;
 
-    /// \brief ros publisher for force atlas joint states
+    /// \brief ROS publisher for atlas joint states
     private: ros::Publisher pubJointStates;
     private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
 
-    /// \brief ros publisher for atlas states, currently it contains
+    /// \brief ROS publisher for atlas state, currently it contains
     /// joint index enums
-    /// sensor_msgs::JointState
-    /// sensor_msgs::Imu
-    /// atlas_msgs::FroceTorqueSensors
+    /// atlas_msgs::AtlasState
     private: ros::Publisher pubAtlasState;
     private: PubQueue<atlas_msgs::AtlasState>::Ptr pubAtlasStateQueue;
 
     private: ros::Subscriber subAtlasCommand;
     private: ros::Subscriber subJointCommands;
 
-    /// \brief ros topic callback to update Joint Commands
+    /// \brief ros topic callback to update Atlas Commands
     /// \param[in] _msg Incoming ros message
     private: void SetAtlasCommand(
       const atlas_msgs::AtlasCommand::ConstPtr &_msg);
 
-    /// \brief ros topic callback to update Joint Commands
+    /// \brief ros topic callback to update Joint Commands slowly.
+    /// Control conmmands received through /atlas/joint_commands are
+    /// not expected to be able to close near 1kHz.
     /// \param[in] _msg Incoming ros message
     private: void SetJointCommands(
       const osrf_msgs::JointCommands::ConstPtr &_msg);
 
-    private: void Pause(const std_msgs::String::ConstPtr &_msg);
-    private: boost::condition pause;
-    private: ros::Subscriber subPause;
-    private: boost::mutex pauseMutex;
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //  Controller Synchronization Control                                    //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Step simulation once.
+    private: void Tic(const std_msgs::String::ConstPtr &_msg);
 
-    private: void LoadPIDGainsFromParameter();
-    private: void ZeroAtlasCommand();
-    private: void ZeroJointCommands();
+    /// \brief Special topic for advancing simulation by a ROS topic.
+    private: ros::Subscriber subTic;
 
-    private: std::vector<std::string> jointNames;
+    /// \brief Condition variable for tic-ing simulation step.
+    private: boost::condition delayCondition;
 
-    // JointController: pointer to a copy of the joint controller in gazebo
-    private: physics::JointControllerPtr jointController;
-    private: transport::NodePtr node;
-    private: transport::PublisherPtr jointCmdPub;
+    /// \brief a non-moving window is used, every delayWindowSize-seconds
+    /// the user is allotted delayMaxPerWindow seconds of delay budget.
+    private: common::Time delayWindowSize;
 
+    /// \brief Marks the start of a non-moving delay window.
+    private: common::Time delayWindowStart;
+
+    /// \brief Within each window, simulation will wait at
+    /// most a total of delayMaxPerWindow seconds.
+    private: common::Time delayMaxPerWindow;
+
+    /// \brief Within each simulation step, simulation will wait at
+    /// most delayMaxPerStep seconds to receive information from controller.
+    private: common::Time delayMaxPerStep;
+
+    /// \brief Within each window, simulation will wait at
+    /// most a total of delayMaxPerWindow seconds.
+    private: common::Time delayInWindow;
+
+    /// \brief Publish controller synchronization delay information.
+    private: ros::Publisher pubDelayStatistics;
+    private: PubQueue<atlas_msgs::SynchronizationStatistics>::Ptr
+      pubDelayStatisticsQueue;
+    private: atlas_msgs::SynchronizationStatistics delayStatistics;
+
+    /// \brief enforce delay policy
+    private: void EnforceSynchronizationDelay(const common::Time &_curTime);
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //  BDI Controller AtlasSimInterface Internals                            //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
     // AtlasSimInterface:
     private: AtlasControlOutput controlOutput;
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
 
-    /// \brief AtlasSimInterface:
+    /// \brief AtlasSimInterface: ROS subscriber
     private: ros::Subscriber subASICommand;
-    /// \brief AtlasSimInterface:
+    /// \brief AtlasSimInterface: ROS callback
     private: void SetASICommand(
       const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg);
     private: ros::Publisher pubASIState;
@@ -243,6 +300,52 @@ namespace gazebo
 
     /// \brief helper functions converting behavior int to string
     private: std::string GetBehavior(int _behavior);
+
+    /// \brief helper function to copy states
+    private: void AtlasControlOutputToAtlasSimInterfaceState(
+              atlas_msgs::AtlasSimInterfaceState *_fb,
+              AtlasControlOutput *_fbOut);
+
+    // AtlasSimInterface:  Controls ros interface
+    private: ros::Subscriber subAtlasControlMode;
+
+    /// \brief AtlasSimInterface:
+    /// subscribe to a control_mode string message, current valid commands are:
+    ///   walk, stand, safety, stand-prep, none
+    /// the command is passed to the AtlasSimInterface library.
+    /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
+    private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
+
+    /// \brief Process BDI contoller updates
+    /// \param[in] _curTime current simulation time
+    private: void UpdateAtlasSimInterface(const common::Time &_curTime);
+
+    /// \brief Update PID Joint Servo Controllers
+    /// \param[in] _dt time step size since last update
+    private: void UpdatePIDControl(double _dt);
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                                                                        //
+    //  Some Helper Functions                                                 //
+    //                                                                        //
+    ////////////////////////////////////////////////////////////////////////////
+    private: void LoadPIDGainsFromParameter();
+    private: void ZeroAtlasCommand();
+    private: void ZeroJointCommands();
+
+    /// \brief keep a list of hard coded Atlas joint names.
+    private: std::vector<std::string> jointNames;
+
+    /// \brief internal bufferred controller states
+    private: atlas_msgs::AtlasCommand atlasCommand;
+    private: osrf_msgs::JointCommands jointCommands;
+    private: sensor_msgs::JointState jointStates;
+
+    // JointController: pointer to a copy of the joint controller in gazebo
+    // \TODO: not yet functional
+    private: physics::JointControllerPtr jointController;
+    private: transport::NodePtr node;
+    private: transport::PublisherPtr jointCmdPub;
 
     /// \brief Internal list of pointers to Joints
     private: physics::Joint_V joints;
@@ -260,19 +363,79 @@ namespace gazebo
       };
     private: std::vector<ErrorTerms> errorTerms;
 
-    private: atlas_msgs::AtlasCommand atlasCommand;
-    private: osrf_msgs::JointCommands jointCommands;
-    private: sensor_msgs::JointState jointStates;
     private: boost::mutex mutex;
 
     /// \brief ros service to reset controls internal states
     private: ros::ServiceServer resetControlsService;
 
-    /// \brief helper function to copy states
-    private: void AtlasControlOutputToAtlasSimInterfaceState(
-              atlas_msgs::AtlasSimInterfaceState *_fb,
-              AtlasControlOutput *_fbOut);
+    /// \brief: for keeping track of internal controller update rates.
+    private: common::Time lastControllerUpdateTime;
 
+    /// \brief ros service to change joint damping
+    private: ros::ServiceServer setJointDampingService;
+
+    /// \brief ros service to retrieve joint damping
+    private: ros::ServiceServer getJointDampingService;
+
+    ////////////////////////////////////////////////////////////////////
+    //                                                                //
+    //  filters                                                       //
+    //                                                                //
+    //  To test, run                                                  //
+    //  rosservice call /atlas/atlas_filters                          //
+    //    '{ filter_velocity: true, filter_position: false }'         //
+    //                                                                //
+    ////////////////////////////////////////////////////////////////////
+    /// \brief mutex for filter setting
+    boost::mutex filterMutex;
+
+    /// \brief ROS service control for velocity and position filters
+    private: ros::ServiceServer atlasFiltersService;
+
+    /// \brief ros service callback to reset joint control internal states
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
+      atlas_msgs::AtlasFilters::Response &_res);
+
+    /// \brief turn on velocity filtering
+    private: bool filterVelocity;
+
+    /// \brief turn on position filtering
+    private: bool filterPosition;
+
+    /// \brief filter coefficients
+    private: double filCoefA[FIL_MAX_FILT_COEFF];
+
+    /// \brief filter coefficients
+    private: double filCoefB[FIL_MAX_FILT_COEFF];
+
+    /// \brief unfiltered velocity
+    private: double filVelIn[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief filtered velocity
+    private: double filVelOut[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief unfiltered position
+    private: double filPosIn[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief filtered position
+    private: double filPosOut[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief initialize filter
+    private: void InitFilter();
+
+    /// \brief do velocity`filtering
+    private: void FilterVelocity();
+
+    /// \brief do position filtering
+    private: void FilterPosition();
+
+    ////////////////////////////////////////////////////////////////////
+    //                                                                //
+    //   helper conversion functions                                  //
+    //                                                                //
+    ////////////////////////////////////////////////////////////////////
     /// \brief Conversion functions
     private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
     {
@@ -356,19 +519,6 @@ namespace gazebo
       return result;
     }
 
-    // AtlasSimInterface:  Controls ros interface
-    private: ros::Subscriber subAtlasControlMode;
-
-    /// \brief AtlasSimInterface:
-    /// subscribe to a control_mode string message, current valid commands are:
-    ///   walk, stand, safety, stand-prep, none
-    /// the command is passed to the AtlasSimInterface library.
-    /// \param[in] _mode Can be "walk", "stand", "safety", "stand-prep", "none".
-    private: void OnRobotMode(const std_msgs::String::ConstPtr &_mode);
-
-    /// \brief: for keeping track of internal controller update rates.
-    private: common::Time lastControllerUpdateTime;
-
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
     private: std::vector<double> atlasCommandAgeBuffer;
@@ -378,6 +528,8 @@ namespace gazebo
     private: double atlasCommandAgeMean;
     private: double atlasCommandAgeVariance;
     private: double atlasCommandAge;
+    private: void CalculateControllerStatistics(const common::Time &_curTime);
+    private: void PublishConstrollerStatistics(const common::Time &_curTime);
 
     private: void SetExperimentalDampingPID(
       const atlas_msgs::Test::ConstPtr &_msg);
@@ -388,6 +540,10 @@ namespace gazebo
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
+
+    /// \brief joint damping coefficient bounds
+    private: std::vector<double> jointDampingMax;
+    private: std::vector<double> jointDampingMin;
   };
 }
 #endif

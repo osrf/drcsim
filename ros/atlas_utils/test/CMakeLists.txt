@@ -28,6 +28,8 @@ set (rostests
   vrc_task_1_cheats_rosapi.test
   vrc_task_2_cheats_rosapi.test
   vrc_task_3_cheats_rosapi.test
+  vrc_task_1_scoring.test
+  vrc_task_2_scoring.test
 )
 
 # Only enable tests if we have a working GPU, which we use as a proxy for
@@ -57,9 +59,11 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
+  vrc_rosapi.yaml
   ros_subscribers.launch
   pub_atlas_command.launch
   perf_test.launch
+  perf_test_local.launch
 )
 set(scripts
   ros_api_checker
@@ -69,6 +73,8 @@ set(scripts
   run_rosbag.sh
   parse_logs.sh
   meanvar.py
+  vrc_task_1_scoring_test
+  vrc_task_2_scoring_test
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)

@@ -18,6 +18,7 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <gazebo/common/common.hh>
+#include <gazebo/util/util.hh>
 #include <gazebo/physics/physics.hh>
 #include "VRCScoringPlugin.hh"
 
@@ -37,10 +38,17 @@ VRCScoringPlugin::VRCScoringPlugin()
 /////////////////////////////////////////////////
 VRCScoringPlugin::~VRCScoringPlugin()
 {
+  // TODO: As of right now, this desctructor is never being called.  Shutdown
+  // behavior needs to be fixed for this code to actually run.
+
+  // Be sure to write the final score data before quitting
+  this->WriteScore(this->world->GetSimTime(), 
+                   common::Time::GetWallTime(),
+                   "Shutting down", true);
+  // Also force the Gazebo state logger to write
+  util::LogRecord::Instance()->Notify();
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   this->deferredLoadThread.join();
-  // Be sure to write the final score data before quitting
-  this->WriteScore(this->world->GetSimTime(), "Shutting down", true);
 }
 
 /////////////////////////////////////////////////
@@ -208,13 +216,48 @@ void VRCScoringPlugin::DeferredLoad()
     "vrc_score", 1, true);
 }
 
+
 /////////////////////////////////////////////////
-void VRCScoringPlugin::WriteScore(const common::Time &_currTime,
-  const std::string &_msg, bool _force)
+void VRCScoringPlugin::StartClock(const common::Time &_simTime,
+                                  const common::Time &_wallTime,
+                                  std::string &_msg)
+{
+  this->startTimeSim = _simTime;
+  this->startTimeWall = _wallTime;
+  std::stringstream ss;
+  ss << "Starting clock. ";
+  gzlog << ss.str() << std::endl;
+  _msg += ss.str();
+}
+
+/////////////////////////////////////////////////
+void VRCScoringPlugin::StopClock(const common::Time &_simTime,
+                                 const common::Time &_wallTime,
+                                 std::string &_msg)
+{
+  this->stopTimeSim = _simTime;
+  this->stopTimeWall = _wallTime;
+  std::stringstream ss;
+  ss << "Stopping clock. ";
+  gzlog << ss.str() << std::endl;
+  _msg += ss.str();
+}
+
+/////////////////////////////////////////////////
+void VRCScoringPlugin::WriteScore(const common::Time &_simTime,
+  const common::Time &_wallTime, const std::string &_msg, bool _force)
 {
   // Write at 1Hz
-  if (!_force && (_currTime - this->prevScoreTime).Double() < 1.0)
+  if (!_force && (_simTime - this->prevScoreTime).Double() < 1.0)
     return;
+
+  // If we're being forced, that means that something interesting happened.
+  // Also force the gazebo state logger to write.
+  if (_force)
+  {
+     gzdbg << "VRCScoringPlugin forcing LogRecord to write" << std::endl;
+     util::LogRecord::Instance()->Notify();
+  }
 
   if (!this->scoreFileStream.is_open())
   {
@@ -223,19 +266,22 @@ void VRCScoringPlugin::WriteScore(const common::Time &_currTime,
     return;
   }
 
-  common::Time currentWallTime = common::Time::GetWallTime();
-
   // If we've passed the first gate, compute elapsed time
   common::Time elapsedTimeSim;
-  if (this->startTimeSim != common::Time::Zero)
-    elapsedTimeSim = _currTime - this->startTimeSim;
+  if (this->stopTimeSim != common::Time::Zero)
+    elapsedTimeSim = stopTimeSim - startTimeSim;
+  else if (this->startTimeSim != common::Time::Zero)
+    elapsedTimeSim = _simTime - this->startTimeSim;
+
   common::Time elapsedTimeWall;
-  if (this->startTimeWall != common::Time::Zero)
-    elapsedTimeWall = currentWallTime - this->startTimeWall;
+  if (this->stopTimeWall != common::Time::Zero)
+    elapsedTimeWall = stopTimeWall - startTimeWall;
+  else if (this->startTimeWall != common::Time::Zero)
+    elapsedTimeWall = _wallTime - this->startTimeWall;
 
   this->scoreFileStream << std::fixed << std::setprecision(3)
-    << currentWallTime.Double() << ","
-    << _currTime.Double() << ","
+    << _wallTime.Double() << ","
+    << _simTime.Double() << ","
     << elapsedTimeWall.Double() << ","
     << elapsedTimeSim.Double() << ","
     << this->completionScore << ","
@@ -243,8 +289,8 @@ void VRCScoringPlugin::WriteScore(const common::Time &_currTime,
 
   // Also publish via ROS
   atlas_msgs::VRCScore rosScoreMsg;
-  rosScoreMsg.wall_time = ros::Time(common::Time::GetWallTime().Double());
-  rosScoreMsg.sim_time = ros::Time(_currTime.Double());
+  rosScoreMsg.wall_time = ros::Time(_wallTime.Double());
+  rosScoreMsg.sim_time = ros::Time(_simTime.Double());
   rosScoreMsg.wall_time_elapsed = ros::Time(elapsedTimeWall.Double());
   rosScoreMsg.sim_time_elapsed = ros::Time(elapsedTimeSim.Double());
   rosScoreMsg.completion_score = this->completionScore;
@@ -252,7 +298,7 @@ void VRCScoringPlugin::WriteScore(const common::Time &_currTime,
   rosScoreMsg.message = _msg;
   this->pubScoreQueue->push(rosScoreMsg, this->pubScore);
 
-  this->prevScoreTime = _currTime;
+  this->prevScoreTime = _simTime;
 }
 
 /////////////////////////////////////////////////
@@ -280,12 +326,16 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
     // Get the pose of the robot or the vehicle, depending on the type of the
     // gate.
     math::Pose pose;
+    std::string tmpString;
     switch (this->nextGate->type)
     {
       case Gate::PEDESTRIAN:
         pose = this->atlas->GetWorldPose();
         break;
       case Gate::VEHICLE:
+        // We require that Atlas is in the vehicle when it crosses a gate
+        if (!this->CheckAtlasInVehicle(tmpString))
+          return false;
         pose = this->vehicle->GetWorldPose();
         break;
       default:
@@ -302,16 +352,9 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
       // Log it
       std::stringstream ss;
       ss << "Successfully passed through gate " <<
-        this->nextGate->number;
+        this->nextGate->number << ". ";
       gzlog << ss.str() << std::endl;
       _msg += ss.str();
-
-      // If it's the first gate, note the time
-      if (this->nextGate == this->gates.begin())
-      {
-        this->startTimeSim = this->world->GetSimTime();
-        this->startTimeWall = common::Time::GetWallTime();
-      }
 
       // Update state to look for the next gate
       ++this->nextGate;
@@ -334,6 +377,37 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
 }
 
 /////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckAtlasInVehicle(std::string &_msg)
+{
+  // Where is Atlas?
+  math::Vector3 robotPosition = this->atlas->GetWorldPose().pos;
+  // Construct bounding box above the seat, using the footprint of the "seat"
+  // and the height of the "seat_back"
+  math::Box seatBox = this->vehicleSeat->GetBoundingBox();
+  math::Box seatBackBox = this->vehicleSeatBack->GetBoundingBox();
+  // Extrude by the height of the seat back
+  seatBox.min.z = seatBackBox.min.z;
+  seatBox.max.z = seatBackBox.max.z;
+
+  // Check whether Atlas is in the target zone
+  if ((robotPosition.x >= seatBox.min.x) &&
+      (robotPosition.x <= seatBox.max.x) &&
+      (robotPosition.y >= seatBox.min.y) &&
+      (robotPosition.y <= seatBox.max.y) &&
+      (robotPosition.z >= seatBox.min.z) &&
+      (robotPosition.z <= seatBox.max.z))
+  {
+    std::stringstream ss;
+    ss << "Successfully moved Atlas into vehicle. ";
+    _msg += ss.str();
+    gzlog << ss.str() << std::endl;
+    return true;
+  }
+  else
+    return false;
+}
+
+/////////////////////////////////////////////////
 bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 {
   // Only report the first time
@@ -348,7 +422,7 @@ bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
         (drillPosition.z <= this->bin.max.z))
     {
       std::stringstream ss;
-      ss << "Successfully placed drill in bin";
+      ss << "Successfully placed drill in bin. ";
       _msg += ss.str();
       gzlog << ss.str() << std::endl;
       return true;
@@ -358,7 +432,7 @@ bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 }
 
 /////////////////////////////////////////////////
-bool VRCScoringPlugin::CheckFall(const common::Time &_currTime,
+bool VRCScoringPlugin::CheckFall(const common::Time &_simTime,
   std::string &_msg)
 {
   // Get head velocity
@@ -367,26 +441,26 @@ bool VRCScoringPlugin::CheckFall(const common::Time &_currTime,
   // Don't declare a fall if we had one recently.  This check also handles
   // initial conditions, which currently include dropping the robot onto
   // the ground at t=10
-  if ((_currTime - this->prevFallTime).Double() < 15.0)
+  if ((_simTime - this->prevFallTime).Double() < 15.0)
   {
-    this->prevVelTime = _currTime;
+    this->prevVelTime = _simTime;
     this->prevLinearVel = currVel;
     return false;
   }
 
   // Differentiate to get acceleration
-  double dt = (_currTime - this->prevVelTime).Double();
+  double dt = (_simTime - this->prevVelTime).Double();
   double accel = (currVel.z - prevLinearVel.z) / dt;
-  this->prevVelTime = _currTime;
+  this->prevVelTime = _simTime;
   this->prevLinearVel = currVel;
   if (fabs(accel) > this->fallAccelThreshold)
   {
     std::stringstream ss;
     ss << "Damaging fall detected, acceleration of: " << accel <<
-      " m/s^2";
+      " m/s^2. ";
     gzlog << ss.str() << std::endl;
     _msg += ss.str();
-    this->prevFallTime = _currTime;
+    this->prevFallTime = _simTime;
     return true;
   }
   else
@@ -403,7 +477,7 @@ bool VRCScoringPlugin::CheckHoseOffTable(std::string &_msg)
   if (hoseCouplerPosition.z >= (standpipePosition.z - 0.05))
   {
     std::stringstream ss;
-    ss << "Successfully picked hose up off table";
+    ss << "Successfully picked hose up off table. ";
     gzlog << ss.str() << std::endl;
     _msg += ss.str();
     return true;
@@ -427,7 +501,7 @@ bool VRCScoringPlugin::CheckHoseAligned(std::string &_msg)
     if (!this->isHoseAligned)
     {
       std::stringstream ss;
-      ss << "Successfully aligned the hose with the standpipe";
+      ss << "Successfully aligned the hose with the standpipe. ";
       gzlog << ss.str() << std::endl;
       _msg += ss.str();
       this->hoseCouplerAlignedPose = this->hoseCoupler->GetWorldPose();
@@ -471,7 +545,7 @@ bool VRCScoringPlugin::CheckHoseConnected(std::string &_msg)
     if (!this->isHoseConnected)
     {
       std::stringstream ss;
-      ss << "Successfully connected the hose to the standpipe";
+      ss << "Successfully connected the hose to the standpipe. ";
       gzlog << ss.str() << std::endl;
       _msg += ss.str();
       this->isHoseConnected = true;
@@ -503,7 +577,7 @@ bool VRCScoringPlugin::CheckValveOpen(std::string &_msg)
   if (this->valve->GetAngle(0) < math::Angle(-2.0*M_PI))
   {
     std::stringstream ss;
-    ss << "Successfully opened valve";
+    ss << "Successfully opened valve. ";
     gzlog << ss.str() << std::endl;
     _msg += ss.str();
     return true;
@@ -520,17 +594,83 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   std::string scoreMsg;
   bool forceLogScore = false;
 
-  // Did we pass through a gate?
-  if (this->IsGateBased() && this->CheckNextGate(scoreMsg))
-    this->completionScore += 1;
+  common::Time simTime = _info.simTime;
+  common::Time wallTime = common::Time::GetWallTime();
 
-  if (this->worldType == QUAL_2)
+  // Did we pass through a gate?
+  if (this->worldType == QUAL_1 ||
+      this->worldType == QUAL_3 ||
+      this->worldType == QUAL_4)
+  {
+    if (this->CheckNextGate(scoreMsg))
+      this->completionScore += 1;
+  }
+  else if (this->worldType == QUAL_2)
   {
     if (this->completionScore == 0)
     {
       // Did we put the drill in the bin?
       if (this->CheckDrillInBin(scoreMsg))
         this->completionScore += 1;
+    }
+  }
+  else if (this->worldType == VRC_1)
+  {
+    bool firstGate = (this->nextGate == this->gates.begin());
+    // We don't count the first gate in the score.
+    if (firstGate)
+    {
+      if (this->CheckNextGate(scoreMsg))
+      {
+        // Force score output so that this event appears in the log
+        forceLogScore = true;
+        this->StartClock(simTime, wallTime, scoreMsg);
+      }
+    }
+    else
+    {
+      // Step 0: get the pelvis in the car
+      if (this->completionScore == 0)
+      {
+        if (this->CheckAtlasInVehicle(scoreMsg))
+          this->completionScore += 1;
+      }
+      // Steps 1-3: go through gates
+      else
+      {
+        if (this->CheckNextGate(scoreMsg))
+        {
+          this->completionScore += 1;
+          // If it's the last gate, we're done
+          if (this->nextGate == this->gates.end())
+            this->StopClock(simTime, wallTime, scoreMsg);
+        }
+      }
+    }
+  }
+  else if (this->worldType == VRC_2)
+  {
+    bool firstGate = (this->nextGate == this->gates.begin());
+    // We don't count the first gate in the score.
+    if (firstGate)
+    {
+      if (this->CheckNextGate(scoreMsg))
+      {
+        // Force score output so that this event appears in the log
+        forceLogScore = true;
+        this->StartClock(simTime, wallTime, scoreMsg);
+      }
+    }
+    else
+    {
+      // Steps 0-3: go through gates
+      if (this->CheckNextGate(scoreMsg))
+      {
+        this->completionScore += 1;
+        // If it's the last gate, we're done
+        if (this->nextGate == this->gates.end())
+          this->StopClock(simTime, wallTime, scoreMsg);
+      }
     }
   }
   else if (this->worldType == VRC_3)
@@ -541,6 +681,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
     {
       // Force score output so that this event appears in the log
       forceLogScore = true;
+      this->StartClock(simTime, wallTime, scoreMsg);
     }
 
     // Check for alignment and connection every cycle, because the
@@ -571,7 +712,11 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
     {
       // Step 3: Did we turn the valve?
       if (this->CheckValveOpen(scoreMsg))
+      {
         this->completionScore += 1;
+        // We're done
+        this->StopClock(simTime, wallTime, scoreMsg);
+      }
     }
   }
 
@@ -585,7 +730,7 @@ void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
   if ((prevScore != this->completionScore) ||
       (prevFalls != this->falls))
     forceLogScore = true;
-  this->WriteScore(_info.simTime, scoreMsg, forceLogScore);
+  this->WriteScore(simTime, wallTime, scoreMsg, forceLogScore);
 }
 
 /////////////////////////////////////////////////
@@ -646,6 +791,25 @@ bool VRCScoringPlugin::FindVRC1Stuff()
   if (!this->vehicle)
   {
     gzerr << "Failed to find vehicle" << std::endl;
+    return false;
+  }
+  physics::LinkPtr chassisLink = 
+    this->vehicle->GetLink("polaris_ranger_ev::chassis");
+  if (!chassisLink)
+  {
+    gzerr << "Failed to find chassis link" << std::endl;
+    return false;
+  }
+  this->vehicleSeat = chassisLink->GetCollision("seat");
+  if (!this->vehicleSeat)
+  {
+    gzerr << "Failed to find vehicle seat collision" << std::endl;
+    return false;
+  }
+  this->vehicleSeatBack = chassisLink->GetCollision("seat_back");
+  if (!this->vehicleSeatBack)
+  {
+    gzerr << "Failed to find vehicle seat back collision" << std::endl;
     return false;
   }
   if (!this->FindGates())
@@ -769,19 +933,6 @@ bool VRCScoringPlugin::FindGates()
   this->nextGateSide = -1;
 
   return true;
-}
-
-/////////////////////////////////////////////////
-bool VRCScoringPlugin::IsGateBased()
-{
-  if (this->worldType == QUAL_1 ||
-      this->worldType == QUAL_3 ||
-      this->worldType == QUAL_4 ||
-      this->worldType == VRC_1 ||
-      this->worldType == VRC_2)
-    return true;
-  else
-    return false;
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCScoringPlugin)
