@@ -17,6 +17,7 @@ if(VALID_DRI_DISPLAY)
          atlas_drc_vehicle_fire_hose_rosapi.test
          atlas_golf_cart_fire_hose_rosapi.test
          drc_sim_v0_rosapi.test
+	 gzlog_closing.test
          qual_task_1_rosapi.test
          qual_task_2_rosapi.test
          qual_task_3_rosapi.test
@@ -60,6 +61,7 @@ set(scripts
   run_rosbag.sh
   parse_logs.sh
   meanvar.py
+  gzlog_stop_checker.py
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
