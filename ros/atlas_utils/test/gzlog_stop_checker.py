@@ -23,9 +23,12 @@ class TestStopLog(unittest.TestCase):
     def wait_until_gazebo_unpaused(self):
         not_finished = True
         while (not_finished):
-            p1 = Popen(["timeout", "1", "gzstats", "-p", "2>/dev/null"], stdout=PIPE, stderr=STDOUT)
-            p2 = Popen(["cut", "-d", "," , "-f", "4" ], stdin=p1.stdout, stdout=PIPE)
-            p3 = Popen(["tail", "-n", "1"], stdin=p2.stdout, stdout=PIPE)
+            p1 = subprocess.Popen(["timeout", "1", "gzstats", "-p"], \
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p2 = subprocess.Popen(["cut", "-d", "," , "-f", "4" ], \
+                    stdin=p1.stdout, stdout=subprocess.PIPE)
+            p3 = subprocess.Popen(["tail", "-n", "1"], \
+                    stdin=p2.stdout, stdout=subprocess.PIPE)
             output = p3.communicate()[0]
             if output.strip() == "F":
                 not_finished = False
