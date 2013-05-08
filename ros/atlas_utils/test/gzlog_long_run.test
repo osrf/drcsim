@@ -4,9 +4,9 @@
   </include>
   <include file="$(find atlas_utils)/test/pub_atlas_command.launch" />
 
-  <param name="/gzstop_checker/time_to_publish" value="10" />
+  <param name="/gzstop_checker/time_to_publish" value="300" />
   <param name="/gzstop_checker/logfile"         value="/tmp/qual_task_1/state.log" /> 
   <test pkg="atlas_utils" type="gzlog_stop_checker.py" 
         test-name="gzstop_checker" 
-        time-limit="360" />
+        time-limit="400" />
 </launch>
