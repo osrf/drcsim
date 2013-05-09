@@ -77,61 +77,61 @@
       <uri>model://construction_cone</uri>
       <name>cone_0</name>
       <static>true</static>
-      <pose>15.763 -4.704 2.36 0 0 0</pose>
+      <pose>15.763 -4.704 2.66 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_1</name>
       <static>true</static>
-      <pose>-4.82 7.6 2.41  0 0 0</pose>
+      <pose>-4.82 7.6 2.75  0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_2</name>
       <static>true</static>
-      <pose>-0.271239 10.978891 2.039053 0 0 0</pose>
+      <pose>-0.271239 10.978891 2.65053 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_3</name>
       <static>true</static>
-      <pose>-10.430363 -1.794219 2.777281 0 0 0</pose>
+      <pose>-10.430363 -1.794219 2.84281 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_4</name>
       <static>true</static>
-      <pose>14.481933 5.461687 2.351944 0 0 0</pose>
+      <pose>14.481933 5.461687 2.651944 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_5</name>
       <static>true</static>
-      <pose>16.632443 2.107978 2.42098 0 0 0</pose>
+      <pose>16.632443 2.107978 2.72098 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_6</name>
       <static>true</static>
-      <pose>13.247138 -10.905164 2.249825 0 0 0</pose>
+      <pose>13.247138 -10.905164 2.549825 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_7</name>
       <static>true</static>
-      <pose>7.977997 -14.508799 1.572939 0 0 0</pose>
+      <pose>9.107997 -14.508799 2.6829 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_8</name>
       <static>true</static>
-      <pose>-6.052604 -13.905914 1.479020 0 0 0</pose>
+      <pose>-6.052604 -13.905914 2.1020 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_cone</uri>
       <name>cone_9</name>
       <static>true</static>
-      <pose>-7.950964 -8.615575 1.529553 0 0 0</pose>
+      <pose>-7.950964 -8.615575 2.20553 0 0 0</pose>
     </include>
     <include>
       <uri>model://house_2</uri>
@@ -231,8 +231,8 @@
           </geometry>
         </visual>
       </link>
-    </model> -->
-
+    </model>
+-->
 
     <!--
     <model name="start_platform">
@@ -416,7 +416,7 @@
       <name>cinder_block_28</name>
       <pose>4.000000 10.000000 0.000000 0.000000 0.000000 1.200000</pose>
     </include>
-
+<!--
     <include>
       <uri>model://jersey_barrier</uri>
       <name>jersey_barrier8</name>
@@ -513,7 +513,7 @@
       <name>jersey_barrier25</name>
       <pose>6.0 -9.559 0.000000 0.000000 0.000000 0.72</pose>
     </include>
-
+-->
 
     <include>
       <uri>model://atlas_sandia_hands</uri>
