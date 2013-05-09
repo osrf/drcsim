@@ -21,7 +21,7 @@ import sys
 import termios
 import tty
 
-class AtlasTeleop():
+class AtlasTeleop(object):
     
     # Keyboard teleop bindings
     dynamic_dir = {'u': {"forward":1, "lateral":0, "turn": 1}, \

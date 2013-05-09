@@ -38,17 +38,30 @@ class AutoAtlasTeleop(AtlasTeleop):
         rospy.loginfo("Waiting for atlas/bdi_control")
         self.client.wait_for_server()
 
+    def loginfo(self, str):
+        rospy.loginfo(str)
+
     def debuginfo(self, str):
         rospy.logdebug(str)
  
     def fini(self):
         pass
+    
+    def dynamic_twist(self, forward, lateral, turn):
+        super(AutoAtlasTeleop, self).dynamic_twist(forward, lateral, turn)
+        # while last goal is being executed.
+        steps = self.build_steps(forward, lateral, turn)
+        self.client.wait_for_result(\
+           rospy.Duration(self.params["Stride Duration"]["value"] * \
+                          len(steps) + 5))
 
     def run(self, input_keys):
         self.init()
         #while not rospy.is_shutdown():
         for k in input_keys:
-            rospy.loginfo("Processing key: " + k)
+            if k[:2] == '--' or k[:2] == '__':
+                continue
+            self.loginfo("Processing key: " + k)
             self.process_key(k)
 
         self.commander.publish(True)
@@ -68,4 +81,4 @@ if __name__ == '__main__':
     if len(sys.argv) < 1:
         print "Parameters needed"
         exit(-1)
-    teleop.run(sys.argv)
+    teleop.run(sys.argv[1:])

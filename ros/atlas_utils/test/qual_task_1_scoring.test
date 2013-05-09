@@ -5,6 +5,7 @@
   <!-- Walking controller -->
   <node pkg="atlas_msgs" type="actionlib_server" name="walking_actionlib_server"/>
   <!-- Send movement -->
-  <node pkg="atlas_utils" type="atlas_commander.py" name="atlas_commander"
+  <node pkg="atlas_utils" type="atlas_commander.py" name="atlas_commander" 
+        output="screen"
         args="9 i i" />
 </launch>
