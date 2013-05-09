@@ -41,14 +41,6 @@ class TestStopLog(unittest.TestCase):
         self.assertEqual(po.returncode, 0, \
           'gzlog stop failed (%s). stdout: %s stderr: %s'%(cmd, out, err))
 
-    def kill_gzserver(self):
-        cmd = ['killall', '-INT', 'gzserver']
-        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, \
-                                   stderr=subprocess.PIPE)
-        out, err = po.communicate()
-        self.assertEqual(po.returncode, 0, \
-          'kill roslaunch failed (%s). stdout: %s stderr: %s'%(cmd, out, err))
-
     def check_closing_log(self,logfile):
         try:
             file = open(logfile, "r")
