@@ -8,5 +8,5 @@
   <param name="/gzstop_checker/logfile"         value="/tmp/qual_task_1/state.log" /> 
   <test pkg="atlas_utils" type="gzlog_stop_checker.py" 
         test-name="gzstop_checker" 
-        time-limit="360" />
+        time-limit="500" />
 </launch>
