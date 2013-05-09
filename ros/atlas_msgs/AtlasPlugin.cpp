@@ -2356,16 +2356,28 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
       this->effortLimit[i]);
 
-    // integral tie-back during control saturation if using integral gain
-    if (!math::equal(forceClamped,forceUnclamped) &&
-        !math::equal((double)this->atlasState.ki_position[i],0.0) )
+    // integral tie-back
+    // reduce integral accumulation during control saturation
+    // subtract integral accumulation by amount of force command truncated.
+    if (!math::equal((double)this->atlasState.ki_position[i], 0.0))
     {
+      // tie-back correction force
+      double tieBackCorrectionForce = forceClamped - forceUnclamped;
+
+      // tie-back correction force should not cause k_i_q_i to change sign
+      if (this->errorTerms[i].k_i_q_i > 0.0)
+        tieBackCorrectionForce = std::max(-this->errorTerms[i].k_i_q_i,
+          tieBackCorrectionForce);
+      else
+        tieBackCorrectionForce = std::min(-this->errorTerms[i].k_i_q_i,
+          tieBackCorrectionForce);
+
       // lock integral term to provide continuous control as system moves
-      // out of staturation
+      // out of staturation.
       this->errorTerms[i].k_i_q_i = math::clamp(
-        this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
-      static_cast<double>(this->atlasState.i_effort_min[i]),
-      static_cast<double>(this->atlasState.i_effort_max[i]));
+        this->errorTerms[i].k_i_q_i + tieBackCorrectionForce,
+        static_cast<double>(this->atlasState.i_effort_min[i]),
+        static_cast<double>(this->atlasState.i_effort_max[i]));
     }
 
     // clamp force after integral tie-back
