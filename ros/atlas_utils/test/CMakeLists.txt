@@ -60,6 +60,7 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   golf_cart_cheats_rosapi.yaml
+  vrc_rosapi.yaml
   ros_subscribers.launch
   pub_atlas_command.launch
   perf_test.launch

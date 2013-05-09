@@ -155,6 +155,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
   }
   else if (_str == "feet")
   {
@@ -170,6 +172,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
   }
   else if (_str == "harnessed")
   {
@@ -179,6 +183,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // remove pin
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
 
     // raise robot, find ground height, set it down and upright it, then pin it
     math::Pose atlasPose = this->atlas.pinLink->GetWorldPose();
@@ -238,6 +244,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "pinned")
   {
     // pinning robot, and turning off effect of gravity
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
     if (!this->atlas.pinJoint)
       this->atlas.pinJoint = this->AddJoint(this->world,
                                         this->atlas.model,
@@ -258,6 +266,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   else if (_str == "pinned_with_gravity")
   {
     // pinning robot, and turning off effect of gravity
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
     if (!this->atlas.pinJoint)
       this->atlas.pinJoint = this->AddJoint(this->world,
                                         this->atlas.model,
@@ -286,6 +296,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
   }
   else if (_str == "bdi_stand")
   {
@@ -298,6 +310,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
+    if (this->vehicleRobotJoint)
+      this->RemoveJoint(this->vehicleRobotJoint);
 
     // turn physics off while manipulating things
     bool physics = this->world->GetEnablePhysicsEngine();
@@ -348,36 +362,37 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &/*_cmd*/)
+void VRCPlugin::RobotGrabFireHose(const geometry_msgs::Pose::ConstPtr &_cmd)
 {
+  math::Quaternion q(_cmd->orientation.w, _cmd->orientation.x,
+                     _cmd->orientation.y, _cmd->orientation.z);
+  q.Normalize();
+  math::Pose pose(math::Vector3(_cmd->position.x,
+                                _cmd->position.y,
+                                _cmd->position.z), q);
   /// \todo: get these from incoming message
-  std::string modelName = "fire_hose";
-  std::string linkName = "coupling";
   std::string gripperName = "r_hand";
   math::Pose relPose(math::Vector3(0, -0.3, -0.1),
                math::Quaternion(0, 0, 0));
 
-  physics::ModelPtr grabModel = this->world->GetModel(modelName);
-  if (grabModel)
+  if (this->drcFireHose.fireHoseModel && this->drcFireHose.couplingLink)
   {
-    physics::LinkPtr object = grabModel->GetLink(linkName);
-    if (object)
+    physics::LinkPtr gripper = this->atlas.model->GetLink(gripperName);
+    if (gripper)
     {
-      physics::LinkPtr gripper = this->atlas.model->GetLink(gripperName);
-      if (gripper)
-      {
-        // teleports the object being attached together
-        math::Pose pose = relPose + gripper->GetWorldPose();
-        grabModel->SetLinkWorldPose(pose, object);
+      // teleports the object being attached together
+      pose = pose + relPose + gripper->GetWorldPose();
+      this->drcFireHose.fireHoseModel->SetLinkWorldPose(pose,
+        this->drcFireHose.couplingLink);
 
-        if (!this->grabJoint)
-          this->grabJoint = this->AddJoint(this->world, this->atlas.model,
-                                           gripper, object,
-                                           "revolute",
-                                           math::Vector3(0, 0, 0),
-                                           math::Vector3(0, 0, 1),
-                                           0.0, 0.0);
-      }
+      if (!this->grabJoint)
+        this->grabJoint = this->AddJoint(this->world, this->atlas.model,
+                                         gripper,
+                                         this->drcFireHose.couplingLink,
+                                         "revolute",
+                                         math::Vector3(0, 0, 0),
+                                         math::Vector3(0, 0, 1),
+                                         0.0, 0.0);
     }
   }
 }

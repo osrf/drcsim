@@ -18,6 +18,11 @@
 #ifndef GAZEBO_ATLAS_PLUGIN_HH
 #define GAZEBO_ATLAS_PLUGIN_HH
 
+// filter coefficients
+#define FIL_N_GJOINTS 28
+#define FIL_N_STEPS 2
+#define FIL_MAX_FILT_COEFF 10
+
 #include <string>
 #include <vector>
 
@@ -60,6 +65,7 @@
 // publish separate /atlas/force_torque_sensors topic, to be deprecated
 #include <atlas_msgs/ForceTorqueSensors.h>
 
+#include <atlas_msgs/AtlasFilters.h>
 #include <atlas_msgs/ResetControls.h>
 #include <atlas_msgs/SetJointDamping.h>
 #include <atlas_msgs/GetJointDamping.h>
@@ -371,7 +377,65 @@ namespace gazebo
     /// \brief ros service to retrieve joint damping
     private: ros::ServiceServer getJointDampingService;
 
+    ////////////////////////////////////////////////////////////////////
+    //                                                                //
+    //  filters                                                       //
+    //                                                                //
+    //  To test, run                                                  //
+    //  rosservice call /atlas/atlas_filters                          //
+    //    '{ filter_velocity: true, filter_position: false }'         //
+    //                                                                //
+    ////////////////////////////////////////////////////////////////////
+    /// \brief mutex for filter setting
+    boost::mutex filterMutex;
 
+    /// \brief ROS service control for velocity and position filters
+    private: ros::ServiceServer atlasFiltersService;
+
+    /// \brief ros service callback to reset joint control internal states
+    /// \param[in] _req Incoming ros service request
+    /// \param[in] _res Outgoing ros service response
+    private: bool AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
+      atlas_msgs::AtlasFilters::Response &_res);
+
+    /// \brief turn on velocity filtering
+    private: bool filterVelocity;
+
+    /// \brief turn on position filtering
+    private: bool filterPosition;
+
+    /// \brief filter coefficients
+    private: double filCoefA[FIL_MAX_FILT_COEFF];
+
+    /// \brief filter coefficients
+    private: double filCoefB[FIL_MAX_FILT_COEFF];
+
+    /// \brief unfiltered velocity
+    private: double filVelIn[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief filtered velocity
+    private: double filVelOut[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief unfiltered position
+    private: double filPosIn[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief filtered position
+    private: double filPosOut[FIL_N_GJOINTS][FIL_N_STEPS];
+
+    /// \brief initialize filter
+    private: void InitFilter();
+
+    /// \brief do velocity`filtering
+    private: void FilterVelocity();
+
+    /// \brief do position filtering
+    private: void FilterPosition();
+
+    ////////////////////////////////////////////////////////////////////
+    //                                                                //
+    //   helper conversion functions                                  //
+    //                                                                //
+    ////////////////////////////////////////////////////////////////////
     /// \brief Conversion functions
     private: inline math::Pose ToPose(const geometry_msgs::Pose &_pose) const
     {

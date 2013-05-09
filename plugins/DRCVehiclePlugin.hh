@@ -282,6 +282,7 @@ namespace gazebo
     ///        values reported by Get[GasPedal|BrakePedal|HandBrake]Percent()
     private: const double jointDeadbandPercent;
 
+    // SDF parameters
     private: double frontTorque;
     private: double backTorque;
     private: double frontBrakeTorque;
@@ -289,6 +290,11 @@ namespace gazebo
     private: double tireAngleRange;
     private: double maxSpeed;
     private: double aeroLoad;
+
+    /// \brief Minimum braking percentage, used to approximate
+    ///        rolling resistance and engine braking.
+    private: double minBrakePercent;
+
     private: double steeringRatio;
     private: double pedalForce;
     private: double handWheelForce;
