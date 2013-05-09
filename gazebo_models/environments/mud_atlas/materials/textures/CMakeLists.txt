@@ -1,5 +1,5 @@
 set (files
-  mud.png
+  mud_soft_leaves.jpg
 )
 
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/gazebo_models/environments/${MODEL_NAME}/materials/textures)
