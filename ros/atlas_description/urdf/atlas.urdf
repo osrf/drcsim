@@ -2,7 +2,7 @@
     <link name="l_clav">
         <inertial>
             <mass value="2.369" />
-            <origin xyz="0.014 0.058 0.029" rpy="0 -0 0" />
+            <origin xyz="0.014 0.058 0.029" rpy="1.04719755 0 0" />
             <inertia ixx="0.004" ixy="0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
@@ -287,7 +287,7 @@
     <link name="r_clav">
         <inertial>
             <mass value="2.369" />
-            <origin xyz="0.014 -0.058 0.029" rpy="0 -0 0" />
+            <origin xyz="0.014 -0.058 0.029" rpy="-1.04719755 0 0" />
             <inertia ixx="0.004" ixy="-0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>

@@ -151,7 +151,7 @@
         <seat_link>chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
-        <fire_hose_model>fire_hose</fire_hose_model>
+        <fire_hose_model>vrc_firehose_long</fire_hose_model>
         <coupling_link>coupling</coupling_link>
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>
