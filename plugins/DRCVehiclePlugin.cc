@@ -54,6 +54,15 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->handBrakeForce = 10;
   this->fnrSwitchForce = .2;
   this->steeredWheelForce = 200;
+
+  this->frontTorque = 0;
+  this->backTorque = 0;
+  this->frontBrakeTorque = 0;
+  this->backBrakeTorque = 0;
+  this->tireAngleRange = 0;
+  this->maxSpeed = 0;
+  this->aeroLoad = 0;
+  this->minBrakePercent = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -535,12 +544,57 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->UpdateFNRSwitchTime();
 
   // get some vehicle parameters
-  this->frontTorque = _sdf->GetValueDouble("front_torque");
-  this->backTorque = _sdf->GetValueDouble("back_torque");
-  this->frontBrakeTorque = _sdf->GetValueDouble("front_brake_torque");
-  this->backBrakeTorque = _sdf->GetValueDouble("back_brake_torque");
-  this->maxSpeed = _sdf->GetValueDouble("max_speed");
-  this->aeroLoad = _sdf->GetValueDouble("aero_load");
+  std::string paramName;
+  double paramDefault;
+
+  paramName = "front_torque";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->frontTorque = _sdf->GetValueDouble(paramName);
+  else
+    this->frontTorque = paramDefault;
+
+  paramName = "back_torque";
+  paramDefault = 2000;
+  if (_sdf->HasElement(paramName))
+    this->backTorque = _sdf->GetValueDouble(paramName);
+  else
+    this->backTorque = paramDefault;
+
+  paramName = "front_brake_torque";
+  paramDefault = 2000;
+  if (_sdf->HasElement(paramName))
+    this->frontBrakeTorque = _sdf->GetValueDouble(paramName);
+  else
+    this->frontBrakeTorque = paramDefault;
+
+  paramName = "back_brake_torque";
+  paramDefault = 2000;
+  if (_sdf->HasElement(paramName))
+    this->backBrakeTorque = _sdf->GetValueDouble(paramName);
+  else
+    this->backBrakeTorque = paramDefault;
+
+  paramName = "max_speed";
+  paramDefault = 10;
+  if (_sdf->HasElement(paramName))
+    this->maxSpeed = _sdf->GetValueDouble(paramName);
+  else
+    this->maxSpeed = paramDefault;
+
+  paramName = "aero_load";
+  paramDefault = 0.1;
+  if (_sdf->HasElement(paramName))
+    this->aeroLoad = _sdf->GetValueDouble(paramName);
+  else
+    this->aeroLoad = paramDefault;
+
+  paramName = "min_brake_percent";
+  paramDefault = 0.02;
+  if (_sdf->HasElement(paramName))
+    this->minBrakePercent = _sdf->GetValueDouble(paramName);
+  else
+    this->minBrakePercent = paramDefault;
 
   this->UpdateHandWheelRatio();
 
@@ -617,6 +671,8 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->handWheelForce, -this->handWheelForce);
   this->handBrakePID.Init(30, 0, 0, 0, 0,
                          this->handBrakeForce, -this->handBrakeForce);
+  this->fnrSwitchPID.Init(30, 0, 0, 0, 0,
+                         this->fnrSwitchForce, -this->fnrSwitchForce);
   this->flWheelSteeringPID.Init(500, 0, 50, 0, 0,
                          this->steeredWheelForce, -this->steeredWheelForce);
   this->frWheelSteeringPID.Init(500, 0, 50, 0, 0,
@@ -768,7 +824,7 @@ void DRCVehiclePlugin::UpdateStates()
     // Compute percents and add together, saturating at 100%
     double brakePercent = this->GetBrakePedalPercent()
       + this->GetHandBrakePercent();
-    brakePercent = math::clamp(brakePercent, 0.0, 1.0);
+    brakePercent = math::clamp(brakePercent, this->minBrakePercent, 1.0);
     // Map brake torques to individual wheels.
     // Apply brake torque in opposition to wheel spin direction.
     double flBrakeTorque, frBrakeTorque, blBrakeTorque, brBrakeTorque;
@@ -787,22 +843,22 @@ void DRCVehiclePlugin::UpdateStates()
     if (brakePercent > 0.7 && fabs(this->flWheelState) < smoothingSpeed)
       this->flWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
     else
-      this->flWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+      this->flWheelJoint->SetAttribute("stop_cfm", 0, 1.0);
 
     if (brakePercent > 0.7 && fabs(this->frWheelState) < smoothingSpeed)
       this->frWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
     else
-      this->frWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+      this->frWheelJoint->SetAttribute("stop_cfm", 0, 1.0);
 
     if (brakePercent > 0.7 && fabs(this->blWheelState) < smoothingSpeed)
       this->blWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
     else
-      this->blWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+      this->blWheelJoint->SetAttribute("stop_cfm", 0, 1.0);
 
     if (brakePercent > 0.7 && fabs(this->brWheelState) < smoothingSpeed)
       this->brWheelJoint->SetAttribute("stop_cfm", 0, 0.0);
     else
-      this->brWheelJoint->SetAttribute("stop_cfm", 0, 10.0);
+      this->brWheelJoint->SetAttribute("stop_cfm", 0, 1.0);
 
     this->flWheelJoint->SetForce(0, flGasTorque + flBrakeTorque);
     this->frWheelJoint->SetForce(0, frGasTorque + frBrakeTorque);
