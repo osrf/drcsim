@@ -30,5 +30,13 @@
       <aero_load>0.1</aero_load>
       <min_brake_percent>0.04</min_brake_percent>
     </plugin>
+    <plugin name="seat_mud" filename="libMudPlugin.so">
+      <contact_sensor_name>polaris_ranger_ev/chassis/seat_contact</contact_sensor_name>
+      <stiffness>0.0</stiffness>
+      <damping>100.0</damping>
+      <link_name>atlas::pelvis</link_name>
+      <link_name>atlas::r_uleg</link_name>
+      <link_name>atlas::l_uleg</link_name>
+    </plugin>
   </model>
 </sdf>
