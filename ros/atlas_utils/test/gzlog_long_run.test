@@ -7,6 +7,6 @@
   <param name="/gzstop_checker/time_to_publish" value="180" />
   <param name="/gzstop_checker/logfile"         value="/tmp/qual_task_1/state.log" /> 
   <test pkg="atlas_utils" type="gzlog_stop_checker.py" 
-        test-name="gzstop_checker" 
+        test-name="$(anon gzstop_checker)" 
         time-limit="500" />
 </launch>
