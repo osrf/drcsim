@@ -25,8 +25,11 @@
           </box>
         </geometry>
         <material>
-          <ambient>0.2 0.2 0.2 1.0</ambient>
-          <diffuse>.421 0.225 0.0 1.0</diffuse>
+          <script>
+            <uri>model://mud_atlas/materials/scripts</uri>
+            <uri>model://mud_atlas/materials/textures</uri>
+            <name>vrc/mud</name>
+          </script>
         </material>
       </visual>
       <sensor name="mud_contact" type="contact">
