@@ -133,6 +133,14 @@ namespace gazebo
     private: bool SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
       atlas_msgs::SetJointDamping::Response &_res);
 
+    /// \brief keep track of number of times damping coefficients has been
+    /// updated.
+    private: int setJointDampingCount;
+
+    /// \brief hard coded number of times one is allowed to change joint damping
+    /// currently, it's set to 3.
+    private: int setJointDampingLimit;
+
     /// \brief ros service callback to get joint damping
     /// \param[in] _req Incoming ros service request
     /// \param[in] _res Outgoing ros service response

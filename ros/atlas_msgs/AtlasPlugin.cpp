@@ -70,6 +70,11 @@ AtlasPlugin::AtlasPlugin()
 
   // option to filter velocity or position
   this->filterPosition = false;
+
+  /// hard coded number of times one is allowed to change joint damping
+  /// currently, it's set to 3.
+  this->setJointDampingLimit = 3;
+  this->setJointDampingCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -189,64 +194,38 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   {
-    // kp_velocity bounds Nms/rad
-    this->jointDampingMax.push_back(30.0);  // back_lbz
-    this->jointDampingMax.push_back(30.0);  // back_mby
-    this->jointDampingMax.push_back(30.0);  // back_ubx
-    this->jointDampingMax.push_back(30.0);  // neck_ay
-    this->jointDampingMax.push_back(30.0);  // l_leg_uhz
-    this->jointDampingMax.push_back(30.0);  // l_leg_mhx
-    this->jointDampingMax.push_back(30.0);  // l_leg_lhy
-    this->jointDampingMax.push_back(30.0);  // l_leg_kny
-    this->jointDampingMax.push_back(30.0);  // l_leg_uay
-    this->jointDampingMax.push_back(30.0);  // l_leg_lax
-    this->jointDampingMax.push_back(30.0);  // r_leg_uhz
-    this->jointDampingMax.push_back(30.0);  // r_leg_mhx
-    this->jointDampingMax.push_back(30.0);  // r_leg_lhy
-    this->jointDampingMax.push_back(30.0);  // r_leg_kny
-    this->jointDampingMax.push_back(30.0);  // r_leg_uay
-    this->jointDampingMax.push_back(30.0);  // r_leg_lax
-    this->jointDampingMax.push_back(30.0);  // l_arm_usy
-    this->jointDampingMax.push_back(30.0);  // l_arm_shx
-    this->jointDampingMax.push_back(30.0);  // l_arm_ely
-    this->jointDampingMax.push_back(30.0);  // l_arm_elx
-    this->jointDampingMax.push_back(30.0);  // l_arm_uwy
-    this->jointDampingMax.push_back(30.0);  // l_arm_mwx
-    this->jointDampingMax.push_back(30.0);  // r_arm_usy
-    this->jointDampingMax.push_back(30.0);  // r_arm_shx
-    this->jointDampingMax.push_back(30.0);  // r_arm_ely
-    this->jointDampingMax.push_back(30.0);  // r_arm_elx
-    this->jointDampingMax.push_back(30.0);  // r_arm_uwy
-    this->jointDampingMax.push_back(30.0);  // r_arm_mwx
+    /// TODO: hardcoded for now
+    static const double jointDampingLowerBound = 0.1;
+    ROS_INFO("Bounds for dynamically changing joint damping coefficients "
+             "is computed from ratio of max allowed joint command effort "
+             "to max allowed joint velocity.");
+    // joint damping coefficient bounds Nms/rad
+    for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+    {
+      // set max allowable damping coefficient to
+      //  max effort allowed / max velocity allowed
+      double maxEffort = this->joints[i]->GetEffortLimit(0);
+      double maxVelocity = this->joints[i]->GetVelocityLimit(0);
+      if (math::equal(maxVelocity, 0.0))
+      {
+        ROS_ERROR("Set Joint Damping Upper Limit: Joint[%s] " 
+                  "effort limit [%f] velocity limit[%f]: "
+                  "velocity limit is unbounded, artificially setting "
+                  "damping coefficient max limit to 1.0.  This should not"
+                  "have happened for Atlas robot, please check your model.",
+                 this->jointNames[i].c_str(), maxEffort, maxVelocity);
+        maxVelocity = maxEffort;
+      }
 
-    this->jointDampingMin.push_back(0.1);  // back_lbz
-    this->jointDampingMin.push_back(0.1);  // back_mby
-    this->jointDampingMin.push_back(0.1);  // back_ubx
-    this->jointDampingMin.push_back(0.1);  // neck_ay
-    this->jointDampingMin.push_back(0.1);  // l_leg_uhz
-    this->jointDampingMin.push_back(0.1);  // l_leg_mhx
-    this->jointDampingMin.push_back(0.1);  // l_leg_lhy
-    this->jointDampingMin.push_back(0.1);  // l_leg_kny
-    this->jointDampingMin.push_back(0.1);  // l_leg_uay
-    this->jointDampingMin.push_back(0.1);  // l_leg_lax
-    this->jointDampingMin.push_back(0.1);  // r_leg_uhz
-    this->jointDampingMin.push_back(0.1);  // r_leg_mhx
-    this->jointDampingMin.push_back(0.1);  // r_leg_lhy
-    this->jointDampingMin.push_back(0.1);  // r_leg_kny
-    this->jointDampingMin.push_back(0.1);  // r_leg_uay
-    this->jointDampingMin.push_back(0.1);  // r_leg_lax
-    this->jointDampingMin.push_back(0.1);  // l_arm_usy
-    this->jointDampingMin.push_back(0.1);  // l_arm_shx
-    this->jointDampingMin.push_back(0.1);  // l_arm_ely
-    this->jointDampingMin.push_back(0.1);  // l_arm_elx
-    this->jointDampingMin.push_back(0.1);  // l_arm_uwy
-    this->jointDampingMin.push_back(0.1);  // l_arm_mwx
-    this->jointDampingMin.push_back(0.1);  // r_arm_usy
-    this->jointDampingMin.push_back(0.1);  // r_arm_shx
-    this->jointDampingMin.push_back(0.1);  // r_arm_ely
-    this->jointDampingMin.push_back(0.1);  // r_arm_elx
-    this->jointDampingMin.push_back(0.1);  // r_arm_uwy
-    this->jointDampingMin.push_back(0.1);  // r_arm_mwx
+      this->jointDampingMax.push_back(maxEffort / maxVelocity);
+
+      this->jointDampingMin.push_back(jointDampingLowerBound);
+
+      ROS_INFO("Bounds for joint[%s] is [%f, %f], model default is [%f]",
+               this->jointNames[i].c_str(), 
+               this->jointDampingMin[i], this->jointDampingMax[i],
+               this->joints[i]->GetDamping(i));
+    }
   }
 
   {
@@ -1025,8 +1004,21 @@ void AtlasPlugin::DeferredLoad()
 bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
   atlas_msgs::SetJointDamping::Response &_res)
 {
-  _res.success = true;
   std::stringstream statusStream;
+
+  if (this->setJointDampingCount >= this->setJointDampingLimit)
+  {
+    statusStream << "Changes to joint damping parameters has been called "
+                 << this->setJointDampingLimit
+                 << " times, additional changes not allowed.";
+    ROS_ERROR("%s", statusStream.str().c_str());
+    _res.status_message = statusStream.str();
+    _res.success = false;
+    return false;
+  }
+
+
+  _res.success = true;
   {
     boost::mutex::scoped_lock lock(this->mutex);
 
@@ -1047,6 +1039,12 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
   }
   ROS_WARN("%s", statusStream.str().c_str());
   _res.status_message = statusStream.str();
+
+  if (_res.success)
+  {
+    ROS_INFO("You have successfully changed model damping parameters, "
+             "times remaining [%d]", ++this->setJointDampingCount);
+  }
 
   return _res.success;
 }
