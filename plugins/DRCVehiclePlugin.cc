@@ -53,7 +53,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->handWheelForce = 1;
   this->handBrakeForce = 10;
   this->fnrSwitchForce = .2;
-  this->steeredWheelForce = 200;
+  this->steeredWheelForce = 5000;
 
   this->frontTorque = 0;
   this->backTorque = 0;
@@ -61,6 +61,7 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->backBrakeTorque = 0;
   this->tireAngleRange = 0;
   this->maxSpeed = 0;
+  this->maxSteer = 0;
   this->aeroLoad = 0;
   this->minBrakePercent = 0;
 }
@@ -220,9 +221,11 @@ void DRCVehiclePlugin::UpdateHandWheelRatio()
   this->handWheelRange = this->handWheelHigh - this->handWheelLow;
   double high = std::min(this->flWheelSteeringJoint->GetHighStop(0).Radian(),
                          this->frWheelSteeringJoint->GetHighStop(0).Radian());
+  high = std::min(high, this->maxSteer);
   double low = std::max(this->flWheelSteeringJoint->GetLowStop(0).Radian(),
                         this->frWheelSteeringJoint->GetLowStop(0).Radian());
-  this->tireAngleRange = std::min(fabs(high), fabs(low));
+  low = std::max(low, -this->maxSteer);
+  this->tireAngleRange = high - low;
 
   // Compute the angle ratio between the steering wheel and the tires
   this->steeringRatio = this->tireAngleRange / this->handWheelRange;
@@ -581,6 +584,13 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     this->maxSpeed = _sdf->GetValueDouble(paramName);
   else
     this->maxSpeed = paramDefault;
+
+  paramName = "max_steer";
+  paramDefault = 0.6;
+  if (_sdf->HasElement(paramName))
+    this->maxSteer = _sdf->GetValueDouble(paramName);
+  else
+    this->maxSteer = paramDefault;
 
   paramName = "aero_load";
   paramDefault = 0.1;
