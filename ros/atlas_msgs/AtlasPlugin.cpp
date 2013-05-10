@@ -1009,7 +1009,7 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
   if (this->setJointDampingCount >= this->setJointDampingLimit)
   {
     statusStream << "Changes to joint damping parameters has been called "
-                 << this->setJointDampingLimit
+                 << this->setJointDampingCount
                  << " times, additional changes not allowed.";
     ROS_ERROR("%s", statusStream.str().c_str());
     _res.status_message = statusStream.str();
