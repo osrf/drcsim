@@ -20,8 +20,8 @@
       <fnr_switch>polaris_ranger_ev::FNR_switch_joint</fnr_switch>
       <fnr_switch_f>polaris_ranger_ev::FNR_switch::FNR_switch_F</fnr_switch_f>
       <fnr_switch_r>polaris_ranger_ev::FNR_switch::FNR_switch_R</fnr_switch_r>
-      <front_torque>0</front_torque>
-      <back_torque>2000</back_torque>
+      <front_torque>1000</front_torque>
+      <back_torque>1000</back_torque>
       <front_brake_torque>2000</front_brake_torque>
       <back_brake_torque>2000</back_brake_torque>
       <tire_angle_range>0.5</tire_angle_range>
