@@ -1042,8 +1042,9 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
 
   if (_res.success)
   {
-    ROS_INFO("You have successfully changed model damping parameters, "
-             "times remaining [%d]", ++this->setJointDampingCount);
+    ROS_INFO("You have successfully changed model damping parameters "
+             "[%d/%d] times.", ++this->setJointDampingCount,
+             this->setJointDampingLimit);
   }
 
   return _res.success;
