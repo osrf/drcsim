@@ -10,6 +10,7 @@
   <url>http://gazebosim.org/wiki/atlas_teleop</url>
   <depend package="osrf_msgs"/>
   <depend package="rospy"/>
+  <depend package="atlas_msgs"/>
 </package>
 
 
