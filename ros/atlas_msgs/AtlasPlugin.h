@@ -527,29 +527,33 @@ namespace gazebo
       const AtlasVec3f &_normal, double _yaw)
     {
       // compute rotation about x, y and z axis from normal and yaw
-      // given normal = (x, y, z)
-      // rotation about x is pi/2 - asin(z / sqrt(y^2 + z^2))
-      // rotation about y is pi/2 - asin(z / sqrt(x^2 + z^2))
-      // rotation about z is yaw
-      // check normal is not zero lengthed
-      double xz = sqrt(_normal.n[0]*_normal.n[0] +
-                       _normal.n[2]*_normal.n[2]);
-      double yz = sqrt(_normal.n[1]*_normal.n[1] +
-                       _normal.n[2]*_normal.n[2]);
+      // given normal = (nx, ny, nz)
+
+      // rotation about x is pi/2 - asin(nz / sqrt(ny^2 + nz^2))
       double rx = 0;
-      if (math::equal(xz, 0.0))
-        ROS_WARN("AtlasSimInterface: surface normal for foot placement is zero "
-                 "lengthed or is parallel to the y-axis");
-      else
-        rx = 0.5*M_PI - asin(_normal.n[2] / yz);
+      {
+        double yz = sqrt(_normal.n[1]*_normal.n[1] +
+                         _normal.n[2]*_normal.n[2]);
+        if (math::equal(yz, 0.0))
+          ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+                   "zero length or is parallel to the x-axis");
+        else
+          rx = 0.5*M_PI - asin(_normal.n[2] / yz);
+      }
 
+      // rotation about y is pi/2 - asin(nz / sqrt(nx^2 + nz^2))
       double ry = 0;
-      if (math::equal(xz, 0.0))
-        ROS_WARN("AtlasSimInterface: surface normal for foot placement is zero "
-                 "lengthed or is parallel to the x-axis");
-      else
-        ry = 0.5*M_PI - asin(_normal.n[2] / xz);
+      {
+        double xz = sqrt(_normal.n[0]*_normal.n[0] +
+                         _normal.n[2]*_normal.n[2]);
+        if (math::equal(xz, 0.0))
+          ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+                   "zero length or is parallel to the y-axis");
+        else
+          ry = 0.5*M_PI - asin(_normal.n[2] / xz);
+      }
 
+      // rotation about z is yaw
       double rz = _yaw;
 
       return this->ToQ(math::Quaternion(rx, ry, rz));
