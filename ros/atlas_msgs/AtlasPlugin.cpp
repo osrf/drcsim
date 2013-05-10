@@ -190,34 +190,34 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     // kp_velocity bounds Nms/rad
-    this->jointDampingMax.push_back(10.0);  // back_lbz
-    this->jointDampingMax.push_back(10.0);  // back_mby
-    this->jointDampingMax.push_back(10.0);  // back_ubx
-    this->jointDampingMax.push_back(10.0);  // neck_ay
-    this->jointDampingMax.push_back(10.0);  // l_leg_uhz
-    this->jointDampingMax.push_back(10.0);  // l_leg_mhx
-    this->jointDampingMax.push_back(10.0);  // l_leg_lhy
-    this->jointDampingMax.push_back(1.0);  // l_leg_kny
-    this->jointDampingMax.push_back(1.0);  // l_leg_uay
-    this->jointDampingMax.push_back(1.0);  // l_leg_lax
-    this->jointDampingMax.push_back(10.0);  // r_leg_uhz
-    this->jointDampingMax.push_back(10.0);  // r_leg_mhx
-    this->jointDampingMax.push_back(10.0);  // r_leg_lhy
-    this->jointDampingMax.push_back(1.0);  // r_leg_kny
-    this->jointDampingMax.push_back(1.0);  // r_leg_uay
-    this->jointDampingMax.push_back(1.0);  // r_leg_lax
-    this->jointDampingMax.push_back(1.0);  // l_arm_usy
-    this->jointDampingMax.push_back(1.0);  // l_arm_shx
-    this->jointDampingMax.push_back(1.0);  // l_arm_ely
-    this->jointDampingMax.push_back(1.0);  // l_arm_elx
-    this->jointDampingMax.push_back(1.0);  // l_arm_uwy
-    this->jointDampingMax.push_back(1.0);  // l_arm_mwx
-    this->jointDampingMax.push_back(1.0);  // r_arm_usy
-    this->jointDampingMax.push_back(1.0);  // r_arm_shx
-    this->jointDampingMax.push_back(1.0);  // r_arm_ely
-    this->jointDampingMax.push_back(1.0);  // r_arm_elx
-    this->jointDampingMax.push_back(1.0);  // r_arm_uwy
-    this->jointDampingMax.push_back(1.0);  // r_arm_mwx
+    this->jointDampingMax.push_back(30.0);  // back_lbz
+    this->jointDampingMax.push_back(30.0);  // back_mby
+    this->jointDampingMax.push_back(30.0);  // back_ubx
+    this->jointDampingMax.push_back(30.0);  // neck_ay
+    this->jointDampingMax.push_back(30.0);  // l_leg_uhz
+    this->jointDampingMax.push_back(30.0);  // l_leg_mhx
+    this->jointDampingMax.push_back(30.0);  // l_leg_lhy
+    this->jointDampingMax.push_back(30.0);  // l_leg_kny
+    this->jointDampingMax.push_back(30.0);  // l_leg_uay
+    this->jointDampingMax.push_back(30.0);  // l_leg_lax
+    this->jointDampingMax.push_back(30.0);  // r_leg_uhz
+    this->jointDampingMax.push_back(30.0);  // r_leg_mhx
+    this->jointDampingMax.push_back(30.0);  // r_leg_lhy
+    this->jointDampingMax.push_back(30.0);  // r_leg_kny
+    this->jointDampingMax.push_back(30.0);  // r_leg_uay
+    this->jointDampingMax.push_back(30.0);  // r_leg_lax
+    this->jointDampingMax.push_back(30.0);  // l_arm_usy
+    this->jointDampingMax.push_back(30.0);  // l_arm_shx
+    this->jointDampingMax.push_back(30.0);  // l_arm_ely
+    this->jointDampingMax.push_back(30.0);  // l_arm_elx
+    this->jointDampingMax.push_back(30.0);  // l_arm_uwy
+    this->jointDampingMax.push_back(30.0);  // l_arm_mwx
+    this->jointDampingMax.push_back(30.0);  // r_arm_usy
+    this->jointDampingMax.push_back(30.0);  // r_arm_shx
+    this->jointDampingMax.push_back(30.0);  // r_arm_ely
+    this->jointDampingMax.push_back(30.0);  // r_arm_elx
+    this->jointDampingMax.push_back(30.0);  // r_arm_uwy
+    this->jointDampingMax.push_back(30.0);  // r_arm_mwx
 
     this->jointDampingMin.push_back(0.1);  // back_lbz
     this->jointDampingMin.push_back(0.1);  // back_mby
