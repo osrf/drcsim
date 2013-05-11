@@ -1950,13 +1950,36 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
   atlas_msgs::AtlasSimInterfaceState *_fb,
   AtlasControlOutput *_fbOut)
 {
+  // behavior_feedback
   _fb->behavior_feedback.status_flags = _fbOut->behavior_feedback.status_flags;
   _fb->behavior_feedback.trans_from_behavior_index =
     _fbOut->behavior_feedback.trans_from_behavior_index;
   _fb->behavior_feedback.trans_to_behavior_index =
     _fbOut->behavior_feedback.trans_to_behavior_index;
+
   _fb->stand_feedback.status_flags = _fbOut->stand_feedback.status_flags;
+
+  // step_feedback
   _fb->step_feedback.status_flags = _fbOut->step_feedback.status_flags;
+  _fb->step_feedback.t_step_rem = _fbOut->step_feedback.t_step_rem;
+  _fb->step_feedback.current_step_index =
+    _fbOut->step_feedback.current_step_index;
+  _fb->step_feedback.next_step_index_needed =
+    _fbOut->step_feedback.next_step_index_needed;
+  _fb->step_feedback.desired_step_saturated.step_index =
+    _fbOut->step_feedback.desired_step_saturated.step_index;
+  _fb->step_feedback.desired_step_saturated.foot_index =
+    _fbOut->step_feedback.desired_step_saturated.foot_index;
+  _fb->step_feedback.desired_step_saturated.duration =
+    _fbOut->step_feedback.desired_step_saturated.duration;
+  _fb->step_feedback.desired_step_saturated.pose.position =
+    this->ToPoint(_fbOut->step_feedback.desired_step_saturated.position);
+  _fb->step_feedback.desired_step_saturated.pose.orientation =
+    this->OrientationFromNormalAndYaw(
+    _fbOut->step_feedback.desired_step_saturated.normal,
+    _fbOut->step_feedback.desired_step_saturated.yaw);
+
+  // walk_feedback
   _fb->walk_feedback.t_step_rem = _fbOut->walk_feedback.t_step_rem;
   _fb->walk_feedback.current_step_index =
     _fbOut->walk_feedback.current_step_index;
@@ -1975,14 +1998,15 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
       this->ToPoint(
       _fbOut->walk_feedback.step_queue_saturated[i].position);
     _fb->walk_feedback.step_queue_saturated[i].pose.orientation =
-      this->ToQ(math::Quaternion(0, 0,
-      _fbOut->walk_feedback.step_queue_saturated[i].yaw));
-      // \TODO: further rotate rot based on normal
-      // sd->pose.rot = sdOut->normal ...;
+      this->OrientationFromNormalAndYaw(
+      _fbOut->walk_feedback.step_queue_saturated[i].normal,
+      _fbOut->walk_feedback.step_queue_saturated[i].yaw);
 
     _fb->walk_feedback.step_queue_saturated[i].swing_height =
       _fbOut->walk_feedback.step_queue_saturated[i].swing_height;
   }
+
+  // manipulate_feedback
   _fb->manipulate_feedback.status_flags =
     _fbOut->manipulate_feedback.status_flags;
   _fb->manipulate_feedback.clamped.pelvis_height =
