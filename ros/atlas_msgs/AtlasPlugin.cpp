@@ -556,9 +556,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
-  // ros callback queue for processing subscription
-  this->deferredLoadThread = boost::thread(
-    boost::bind(&AtlasPlugin::DeferredLoad, this));
+  this->LoadROS();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -752,7 +750,7 @@ void AtlasPlugin::SetJointCommands(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::DeferredLoad()
+void AtlasPlugin::LoadROS()
 {
   // initialize ros
   if (!ros::isInitialized())
