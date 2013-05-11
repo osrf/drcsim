@@ -1006,7 +1006,8 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
 {
   std::stringstream statusStream;
 
-  if (this->setJointDampingCount >= this->setJointDampingLimit)
+  if (this->setJointDampingCount >= this->setJointDampingLimit &&
+      !this->cheatsEnabled)
   {
     statusStream << "Changes to joint damping parameters has been called "
                  << this->setJointDampingCount
