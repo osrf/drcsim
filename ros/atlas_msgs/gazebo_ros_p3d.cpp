@@ -141,8 +141,6 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
           << "  gazebo -s libgazebo_ros_api.so\n";
     return;
-   }
-
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
