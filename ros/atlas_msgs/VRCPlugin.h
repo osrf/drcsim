@@ -400,6 +400,9 @@ namespace gazebo
     // mode flag to indicate StandPrep mode has already been called once.
     private: bool bdiStandPrep;
 
+    // mode flag to indicate PID stand mode
+    private: bool pidStand;
+
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
   };

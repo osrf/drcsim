@@ -32,6 +32,7 @@ VRCPlugin::VRCPlugin()
   /// initial anchor pose
   this->warpRobotWithCmdVel = false;
   this->bdiStandPrep = false;
+  this->pidStand = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,8 +63,9 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
     this->cheatsEnabled = false;
 
   // ros callback queue for processing subscription
-  this->deferredLoadThread = boost::thread(
-    boost::bind(&VRCPlugin::DeferredLoad, this));
+  // this->deferredLoadThread = boost::thread(
+  //   boost::bind(&VRCPlugin::DeferredLoad, this));
+  this->DeferredLoad();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +111,6 @@ void VRCPlugin::DeferredLoad()
     if (atlas.startupMode == "bdi_stand")
     {
       this->atlas.startupBDIStand = true;
-      this->SetRobotMode("bdi_stand");
     }
     else
     {
@@ -666,6 +667,12 @@ void VRCPlugin::UpdateStates()
     {
       this->atlasCommandController.SetBDIStandPrep();
       this->bdiStandPrep = true;
+    }
+    else if (!this->pidStand && curTime >
+      atlas.startupStandPrepDuration - 2)
+    {
+      this->SetRobotMode("bdi_stand");
+      this->pidStand = true;
     }
   }
 
