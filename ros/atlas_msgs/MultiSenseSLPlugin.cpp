@@ -63,7 +63,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->world = _parent->GetWorld();
   this->sdf = _sdf;
 
-  ROS_INFO("Loading MultiSense ROS node.");
+  ROS_DEBUG("Loading MultiSense ROS node.");
 
   this->lastTime = this->world->GetSimTime();
 
@@ -118,7 +118,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->multiCameraFrameRate = this->multiCameraSensor->GetUpdateRate();
 
   this->laserSensor =
-    boost::shared_dynamic_cast<sensors::RaySensor>(
+    boost::shared_dynamic_cast<sensors::GpuRaySensor>(
     sensors::SensorManager::Instance()->GetSensor("head_hokuyo_sensor"));
   if (!this->laserSensor)
     gzerr << "laser sensor not found\n";
@@ -141,11 +141,16 @@ void MultiSenseSL::LoadThread()
   // create ros node
   this->rosnode_ = new ros::NodeHandle("");
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // ros publication
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
     "multisense_sl/joint_states", 10);
 
   // publish imu data
+  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
   this->pubImu =
     this->rosnode_->advertise<sensor_msgs::Imu>(
       "multisense_sl/imu", 10);
@@ -287,7 +292,7 @@ void MultiSenseSL::UpdateStates()
       imuMsg.orientation.w = imuRot.w;
     }
 
-    this->pubImu.publish(imuMsg);
+    this->pubImuQueue->push(imuMsg, this->pubImu);
   }
 
   double dt = (curTime - this->lastTime).Double();
@@ -315,7 +320,7 @@ void MultiSenseSL::UpdateStates()
     {
       this->spindlePID.Reset();
     }
-    this->pubJointStates.publish(this->jointStates);
+    this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   }
 }
 

@@ -2,6 +2,9 @@
 
   <arg name="gzname" default="gazebo"/>
 
+  <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
+  <param name="/atlas/startup_mode" type="string" value="pinned"/>
+
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
@@ -11,11 +14,5 @@
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find atlas_sandia_hands)/atlas_sandia_hands.urdf"/>
 
-  <rosparam file="$(find sandia_hand_description)/config/sandia_hand_gazebo_gains.yaml" ns="sandia_hands"/>
-  
-  <!-- launch some simple grasp controllers just for a strawman -->
-  <node pkg="sandia_hand_teleop" type="simple_grasp.py" name="simple_grasp_left"  ns="sandia_hands/l_hand"/>
-  <node pkg="sandia_hand_teleop" type="simple_grasp.py" name="simple_grasp_right" ns="sandia_hands/r_hand"/>
-
-  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
+  <include file="$(find atlas_utils)/launch/atlas_sandia_hands_bringup.launch"/>
 </launch>

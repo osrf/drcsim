@@ -46,10 +46,12 @@
 
 #include <gazebo/sensors/SensorManager.hh>
 #include <gazebo/sensors/MultiCameraSensor.hh>
-#include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/GpuRaySensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/ImuSensor.hh>
 #include <gazebo/sensors/Sensor.hh>
+
+#include "PubQueue.h"
 
 namespace gazebo
 {
@@ -82,6 +84,7 @@ namespace gazebo
     private: std::string imuLinkName;
     private: physics::LinkPtr imuLink;
     private: ros::Publisher pubImu;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pubImuQueue;
 
     // reset of ros stuff
     private: ros::NodeHandle* rosnode_;
@@ -136,6 +139,7 @@ namespace gazebo
 
     // joint state
     private: ros::Publisher pubJointStates;
+    private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
     private: sensor_msgs::JointState jointStates;
 
     // camera control
@@ -146,7 +150,7 @@ namespace gazebo
     private: int imagerMode;
 
     // laser sensor control
-    private: sensors::RaySensorPtr laserSensor;
+    private: sensors::GpuRaySensorPtr laserSensor;
 
     // spindle control
     private: double spindleSpeed;
@@ -160,6 +164,9 @@ namespace gazebo
     /// Throttle update rate
     private: double lastUpdateTime;
     private: double updateRate;
+
+    // ros publish multi queue, prevents publish() blocking
+    private: PubMultiQueue pmq;
   };
 }
 #endif

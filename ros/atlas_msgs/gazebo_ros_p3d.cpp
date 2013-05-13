@@ -17,6 +17,7 @@
 
 #include <string>
 #include <tf/tf.h>
+#include <stdlib.h>
 
 #include "gazebo_ros_p3d.h"
 
@@ -48,6 +49,17 @@ GazeboRosP3D::~GazeboRosP3D()
 // Load the controller
 void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
+  // By default, cheats are off.  Allow override via environment variable.
+  bool cheatsEnabled;
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    cheatsEnabled = true;
+  else
+    cheatsEnabled = false;
+
+  if (!cheatsEnabled)
+    return;
+
   // Get the world name.
   this->world_ = _parent->GetWorld();
   this->model_ = _parent;
@@ -84,7 +96,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("frameName"))
   {
-    ROS_INFO("p3d plugin missing <frameName>, defaults to world");
+    ROS_DEBUG("p3d plugin missing <frameName>, defaults to world");
     this->frame_name_ = "world";
   }
   else
@@ -92,7 +104,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("xyzOffset"))
   {
-    ROS_INFO("p3d plugin missing <xyzOffset>, defaults to 0s");
+    ROS_DEBUG("p3d plugin missing <xyzOffset>, defaults to 0s");
     this->offset_.pos = math::Vector3(0, 0, 0);
   }
   else
@@ -100,7 +112,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("rpyOffset"))
   {
-    ROS_INFO("p3d plugin missing <rpyOffset>, defaults to 0s");
+    ROS_DEBUG("p3d plugin missing <rpyOffset>, defaults to 0s");
     this->offset_.rot = math::Vector3(0, 0, 0);
   }
   else
@@ -108,7 +120,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("gaussianNoise"))
   {
-    ROS_INFO("p3d plugin missing <gaussianNoise>, defaults to 0.0");
+    ROS_DEBUG("p3d plugin missing <gaussianNoise>, defaults to 0.0");
     this->gaussian_noise_ = 0;
   }
   else
@@ -116,7 +128,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("updateRate"))
   {
-    ROS_INFO("p3d plugin missing <updateRate>, defaults to 0.0"
+    ROS_DEBUG("p3d plugin missing <updateRate>, defaults to 0.0"
              " (as fast as possible)");
     this->update_rate_ = 0;
   }
@@ -139,6 +151,9 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
+  // publish multi queue
+  this->pmq.startServiceThread();
+
   // resolve tf prefix
   std::string prefix;
   this->rosnode_->getParam(std::string("tf_prefix"), prefix);
@@ -146,6 +161,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (this->topic_name_ != "")
   {
+    this->pub_Queue = this->pmq.addPub<nav_msgs::Odometry>();
     this->pub_ =
       this->rosnode_->advertise<nav_msgs::Odometry>(this->topic_name_, 1);
   }
@@ -310,7 +326,7 @@ void GazeboRosP3D::UpdateChild()
         this->pose_msg_.twist.covariance[35] = gn2;
 
         // publish to ros
-        this->pub_.publish(this->pose_msg_);
+        this->pub_Queue->push(this->pose_msg_, this->pub_);
       }
 
       this->lock.unlock();

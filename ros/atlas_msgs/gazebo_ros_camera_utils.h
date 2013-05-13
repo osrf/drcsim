@@ -65,9 +65,19 @@ namespace gazebo
     /// \brief Destructor
     public: ~GazeboRosCameraUtils();
 
-    /// \brief Load the plugin
-    /// \param take in SDF root element
+    /// \brief Load the plugin.
+    /// \param[in] _parent Take in SDF root element.
+    /// \param[in] _sdf SDF values.
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
+
+    /// \brief Load the plugin.
+    /// \param[in] _parent Take in SDF root element.
+    /// \param[in] _sdf SDF values.
+    /// \param[in] _camera_name_suffix Suffix of the camera name.
+    /// \param[in] _hack_baseline Multiple camera baseline.
+    public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf,
+                      const std::string &_camera_name_suffix,
+                      double _hack_baseline);
 
     private: void Init();
 
@@ -80,6 +90,11 @@ namespace gazebo
     protected: int image_connect_count_;
     protected: void ImageConnect();
     protected: void ImageDisconnect();
+
+    /// \brief Keep track when we activate this camera through ros
+    /// subscription, was it already active?  resume state when
+    /// unsubscribed.
+    protected: bool was_active_;
 
     /// \brief: Camera modification functions
     private: void SetHFOV(const std_msgs::Float64::ConstPtr& hfov);

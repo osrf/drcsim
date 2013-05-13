@@ -20,17 +20,19 @@
 #include <string>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "physics/physics.hh"
-#include "transport/TransportTypes.hh"
-#include "common/Time.hh"
-#include "common/Plugin.hh"
-#include "common/Events.hh"
-
-#include "boost/thread/mutex.hpp"
+#include "gazebo/physics/physics.hh"
+#include "gazebo/transport/TransportTypes.hh"
+#include "gazebo/common/Time.hh"
+#include "gazebo/common/Plugin.hh"
+#include "gazebo/common/Events.hh"
 
 namespace gazebo
 {
+  /// \defgroup drc_plugin DRC Plugins
+  /// \addtogroup drc_plugin
+  /// \{
   class DRCBuildingPlugin : public ModelPlugin
   {
     /// \brief Constructor
@@ -74,7 +76,6 @@ namespace gazebo
     private: double handleCmd;
     private: common::Time lastTime;
   };
-/** \} */
-/// @}
+/// \}
 }
 #endif

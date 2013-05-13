@@ -1,0 +1,756 @@
+topics:
+
+  ##########################################################
+  # Published topics
+
+  #####################################
+  # Multisense-SL
+  - topic: /multisense_sl/imu
+    type: sensor_msgs/Imu
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/joint_states
+    type: sensor_msgs/JointState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/laser/scan
+    type: sensor_msgs/LaserScan
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/camera_info
+    type: sensor_msgs/CameraInfo
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/disparity
+    type: stereo_msgs/DisparityImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_mono/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_raw/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/left/image_rect/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/points
+    type: sensor_msgs/PointCloud
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/points2
+    type: sensor_msgs/PointCloud2
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_mono/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_raw/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color
+    type: sensor_msgs/Image
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect_color/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/compressed
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/compressedDepth
+    type: sensor_msgs/CompressedImage
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/compressedDepth/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/compressedDepth/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/compressed/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/compressed/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/theora
+    type: theora_image_transport/Packet
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/theora/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/right/image_rect/theora/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_debayer_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_debayer_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_debayer_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_debayer_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_color_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_color_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_color_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_color_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_mono_left/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_mono_left/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_mono_right/parameter_descriptions
+    type: dynamic_reconfigure/ConfigDescription
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /multisense_sl/camera/stereo_proc_rectify_mono_right/parameter_updates
+    type: dynamic_reconfigure/Config
+    num_publishers: 1
+    num_subscribers: -1
+
+  ##########################################################
+  # Subscribed topics
+
+  #####################################
+  # Multisense-SL
+  - topic: /multisense_sl/set_spindle_speed
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /multisense_sl/fps
+    type: std_msgs/Float64
+    num_publishers: -1
+    num_subscribers: 1
+
+services:
+
+  - service: /multisense_sl/camera/left/image_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_mono/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_mono/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_mono/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_raw/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_raw/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_raw/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_rect/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_rect/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_rect/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_rect_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_rect_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/left/image_rect_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_mono/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_mono/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_mono/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_raw/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_raw/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_raw/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_rect/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_rect/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_rect/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_rect_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_rect_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/right/image_rect_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /multisense_sl/camera/stereo_proc/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /multisense_sl/camera/stereo_proc/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc_debayer_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc_debayer_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc_rectify_color_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc_rectify_color_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc_rectify_mono_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl/camera/stereo_proc_rectify_mono_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /multisense_sl_robot_state_publisher/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /multisense_sl_robot_state_publisher/set_logger_level
+    type: roscpp/SetLoggerLevel

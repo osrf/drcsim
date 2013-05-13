@@ -58,18 +58,23 @@ namespace gazebo
     /// \param[in] _msg ROS std_msgs::Float64 message.
     public: void SetHandWheelState(const std_msgs::Float64::ConstPtr &_msg);
 
-    /// \brief Set the steering wheel angle; this will also update the front
-    ///        wheel steering angle.
-    /// \param[in] _msg ROS std_msgs::Float64 message.
-    public: void SetHandBrakeState(const std_msgs::Float64::ConstPtr &_msg);
+    /// \brief Specify the desired hand brake position, as a percentage of
+    ///        the range of travel.
+    /// \param[in] _msg ROS std_msgs::Float64 message, with data representing
+    ///                 the desired percent.
+    public: void SetHandBrakePercent(const std_msgs::Float64::ConstPtr &_msg);
 
-    /// \brief Specify gas pedal position in meters.
-    /// \param[in] _msg ROS std_msgs::Float64 message.
-    public: void SetGasPedalState(const std_msgs::Float64::ConstPtr &_msg);
+    /// \brief Specify the desired gas pedal position, as a percentage of
+    ///        the range of travel.
+    /// \param[in] _msg ROS std_msgs::Float64 message, with data representing
+    ///                 the desired percent.
+    public: void SetGasPedalPercent(const std_msgs::Float64::ConstPtr &_msg);
 
-    /// \brief Specify brake pedal position in meters.
-    /// \param[in] _msg ROS std_msgs::Float64 message.
-    public: void SetBrakePedalState(const std_msgs::Float64::ConstPtr &_msg);
+    /// \brief Specify the desired brake pedal position, as a percentage of
+    ///        the range of travel.
+    /// \param[in] _msg ROS std_msgs::Float64 message, with data representing
+    ///                 the desired percent.
+    public: void SetBrakePedalPercent(const std_msgs::Float64::ConstPtr &_msg);
 
     /// Returns the ROS publish period (seconds).
     public: common::Time GetRosPublishPeriod();
@@ -78,7 +83,7 @@ namespace gazebo
     public: void SetRosPublishRate(double _hz);
 
     /// Default plugin init call.
-    public: void Init();
+    public: virtual void Init();
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
@@ -105,6 +110,9 @@ namespace gazebo
     private: ros::Subscriber subDirectionCmd;
     private: common::Time rosPublishPeriod;
     private: common::Time lastRosPublishTime;
+
+    /// \brief Are cheats enabled?
+    private: bool cheatsEnabled;
   };
 /** \} */
 /// @}

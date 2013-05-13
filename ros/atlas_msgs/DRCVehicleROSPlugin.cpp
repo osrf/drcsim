@@ -16,6 +16,7 @@
 */
 
 #include <math.h>
+#include <stdlib.h>
 #include "DRCVehicleROSPlugin.h"
 #include "gazebo/common/common.hh"
 #include "gazebo/physics/Base.hh"
@@ -28,7 +29,7 @@ namespace gazebo
 // Constructor
 DRCVehicleROSPlugin::DRCVehicleROSPlugin()
 {
-  this->rosPublishPeriod = common::Time(1.0);
+  this->rosPublishPeriod = common::Time(0.05);
   this->lastRosPublishTime = common::Time(0.0);
 }
 
@@ -48,6 +49,7 @@ DRCVehicleROSPlugin::~DRCVehicleROSPlugin()
 // Initialize
 void DRCVehicleROSPlugin::Init()
 {
+  DRCVehiclePlugin::Init();
 }
 
 
@@ -76,13 +78,20 @@ void DRCVehicleROSPlugin::SetDirectionState(
   else
     ROS_ERROR("Invalid Direction State: %d, expected -1, 0, or 1\n",
       static_cast<int16_t>(_msg->data));
+
+  this->UpdateFNRSwitchTime();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetHandBrakeState(const std_msgs::Float64::ConstPtr
+void DRCVehicleROSPlugin::SetHandBrakePercent(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetHandBrakeState(static_cast<double>(_msg->data));
+  double min, max, percent, cmd;
+  percent = math::clamp(static_cast<double>(_msg->data), 0.0, 1.0);
+  DRCVehiclePlugin::GetHandBrakeLimits(min, max);
+  cmd = min + percent * (max - min);
+  DRCVehiclePlugin::SetHandBrakeState(cmd);
+  this->UpdateHandBrakeTime();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,17 +102,25 @@ void DRCVehicleROSPlugin::SetHandWheelState(const std_msgs::Float64::ConstPtr
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetGasPedalState(const std_msgs::Float64::ConstPtr
+void DRCVehicleROSPlugin::SetGasPedalPercent(const std_msgs::Float64::ConstPtr
                                                 &_msg)
 {
-  DRCVehiclePlugin::SetGasPedalState(static_cast<double>(_msg->data));
+  double min, max, percent, cmd;
+  percent = math::clamp(static_cast<double>(_msg->data), 0.0, 1.0);
+  DRCVehiclePlugin::GetGasPedalLimits(min, max);
+  cmd = min + percent * (max - min);
+  DRCVehiclePlugin::SetGasPedalState(cmd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
+void DRCVehicleROSPlugin::SetBrakePedalPercent(const std_msgs::Float64::ConstPtr
     &_msg)
 {
-  DRCVehiclePlugin::SetBrakePedalState(static_cast<double>(_msg->data));
+  double min, max, percent, cmd;
+  percent = math::clamp(static_cast<double>(_msg->data), 0.0, 1.0);
+  DRCVehiclePlugin::GetBrakePedalLimits(min, max);
+  cmd = min + percent * (max - min);
+  DRCVehiclePlugin::SetBrakePedalState(cmd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +128,24 @@ void DRCVehicleROSPlugin::SetBrakePedalState(const std_msgs::Float64::ConstPtr
 void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
 {
+  // By default, cheats are off.  Allow override via environment variable.
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    this->cheatsEnabled = true;
+  else
+    this->cheatsEnabled = false;
+
+  try
+  {
   DRCVehiclePlugin::Load(_parent, _sdf);
+  }
+  catch(gazebo::common::Exception &_e)
+  {
+    gzerr << "Error loading plugin."
+          << "Please ensure that your vehicle model is correct and up-to-date."
+          << '\n';
+    return;
+  }
 
   // initialize ros
   if (!ros::isInitialized())
@@ -129,79 +163,82 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
   this->world = _parent->GetWorld();
   this->model = _parent;
 
-  ros::SubscribeOptions hand_wheel_cmd_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    this->model->GetName() + "/hand_wheel/cmd", 100,
-    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetHandWheelState), this, _1),
-    ros::VoidPtr(), &this->queue);
-  this->subHandWheelCmd = this->rosNode->subscribe(hand_wheel_cmd_so);
+  if (this->cheatsEnabled)
+  {
+    ros::SubscribeOptions hand_wheel_cmd_so =
+      ros::SubscribeOptions::create<std_msgs::Float64>(
+      this->model->GetName() + "/hand_wheel/cmd", 100,
+      boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
+        (const std_msgs::Float64::ConstPtr&) >(
+          &DRCVehicleROSPlugin::SetHandWheelState), this, _1),
+      ros::VoidPtr(), &this->queue);
+    this->subHandWheelCmd = this->rosNode->subscribe(hand_wheel_cmd_so);
+  
+    ros::SubscribeOptions hand_brake_cmd_so =
+      ros::SubscribeOptions::create< std_msgs::Float64 >(
+      this->model->GetName() + "/hand_brake/cmd", 100,
+      boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
+        (const std_msgs::Float64::ConstPtr&) >(
+          &DRCVehicleROSPlugin::SetHandBrakePercent), this, _1),
+      ros::VoidPtr(), &this->queue);
+    this->subHandBrakeCmd = this->rosNode->subscribe(hand_brake_cmd_so);
+  
+    ros::SubscribeOptions gas_pedal_cmd_so =
+      ros::SubscribeOptions::create< std_msgs::Float64 >(
+      this->model->GetName() + "/gas_pedal/cmd", 100,
+      boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
+        (const std_msgs::Float64::ConstPtr&) >(
+          &DRCVehicleROSPlugin::SetGasPedalPercent), this, _1),
+      ros::VoidPtr(), &this->queue);
+    this->subGasPedalCmd = this->rosNode->subscribe(gas_pedal_cmd_so);
+  
+    ros::SubscribeOptions brake_pedal_cmd_so =
+      ros::SubscribeOptions::create< std_msgs::Float64 >(
+      this->model->GetName() + "/brake_pedal/cmd", 100,
+      boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
+        (const std_msgs::Float64::ConstPtr&) >(
+          &DRCVehicleROSPlugin::SetBrakePedalPercent), this, _1),
+      ros::VoidPtr(), &this->queue);
+    this->subBrakePedalCmd = this->rosNode->subscribe(brake_pedal_cmd_so);
+  
+    ros::SubscribeOptions key_cmd_so =
+      ros::SubscribeOptions::create< std_msgs::Int8 >(
+      this->model->GetName() + "/key/cmd", 100,
+      boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
+        (const std_msgs::Int8::ConstPtr&) >(
+          &DRCVehicleROSPlugin::SetKeyState), this, _1),
+      ros::VoidPtr(), &this->queue);
+    this->subKeyCmd = this->rosNode->subscribe(key_cmd_so);
+  
+    ros::SubscribeOptions direction_cmd_so =
+      ros::SubscribeOptions::create< std_msgs::Int8 >(
+      this->model->GetName() + "/direction/cmd", 100,
+      boost::bind(static_cast< void (DRCVehicleROSPlugin::*)
+        (const std_msgs::Int8::ConstPtr&) >(
+          &DRCVehicleROSPlugin::SetDirectionState), this, _1),
+      ros::VoidPtr(), &this->queue);
+    this->subDirectionCmd = this->rosNode->subscribe(direction_cmd_so);
 
-  ros::SubscribeOptions hand_brake_cmd_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    this->model->GetName() + "/hand_brake/cmd", 100,
-    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetHandBrakeState), this, _1),
-    ros::VoidPtr(), &this->queue);
-  this->subHandBrakeCmd = this->rosNode->subscribe(hand_brake_cmd_so);
+    this->pubHandWheelState = this->rosNode->advertise<std_msgs::Float64>(
+      this->model->GetName() + "/hand_wheel/state", 10);
+    this->pubHandBrakeState = this->rosNode->advertise<std_msgs::Float64>(
+      this->model->GetName() + "/hand_brake/state", 10);
+    this->pubGasPedalState = this->rosNode->advertise<std_msgs::Float64>(
+      this->model->GetName() + "/gas_pedal/state", 10);
+    this->pubBrakePedalState = this->rosNode->advertise<std_msgs::Float64>(
+      this->model->GetName() + "/brake_pedal/state", 10);
+    this->pubKeyState = this->rosNode->advertise<std_msgs::Int8>(
+      this->model->GetName() + "/key/state", 10);
+    this->pubDirectionState = this->rosNode->advertise<std_msgs::Int8>(
+      this->model->GetName() + "/direction/state", 10);
 
-  ros::SubscribeOptions gas_pedal_cmd_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    this->model->GetName() + "/gas_pedal/cmd", 100,
-    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetGasPedalState), this, _1),
-    ros::VoidPtr(), &this->queue);
-  this->subGasPedalCmd = this->rosNode->subscribe(gas_pedal_cmd_so);
+    // ros callback queue for processing subscription
+    this->callbackQueueThread = boost::thread(
+      boost::bind(&DRCVehicleROSPlugin::QueueThread, this));
 
-  ros::SubscribeOptions brake_pedal_cmd_so =
-    ros::SubscribeOptions::create<std_msgs::Float64>(
-    this->model->GetName() + "/brake_pedal/cmd", 100,
-    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
-      (const std_msgs::Float64::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetBrakePedalState), this, _1),
-    ros::VoidPtr(), &this->queue);
-  this->subBrakePedalCmd = this->rosNode->subscribe(brake_pedal_cmd_so);
-
-  ros::SubscribeOptions key_cmd_so =
-    ros::SubscribeOptions::create<std_msgs::Int8>(
-    this->model->GetName() + "/key/cmd", 100,
-    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
-      (const std_msgs::Int8::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetKeyState), this, _1),
-    ros::VoidPtr(), &this->queue);
-  this->subKeyCmd = this->rosNode->subscribe(key_cmd_so);
-
-  ros::SubscribeOptions direction_cmd_so =
-    ros::SubscribeOptions::create<std_msgs::Int8>(
-    this->model->GetName() + "/direction/cmd", 100,
-    boost::bind(static_cast<void (DRCVehicleROSPlugin::*)
-      (const std_msgs::Int8::ConstPtr&)>(
-        &DRCVehicleROSPlugin::SetDirectionState), this, _1),
-    ros::VoidPtr(), &this->queue);
-  this->subDirectionCmd = this->rosNode->subscribe(direction_cmd_so);
-
-  this->pubHandWheelState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/hand_wheel/state", 10);
-  this->pubHandBrakeState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/hand_brake/state", 10);
-  this->pubGasPedalState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/gas_pedal/state", 10);
-  this->pubBrakePedalState = this->rosNode->advertise<std_msgs::Float64>(
-    this->model->GetName() + "/brake_pedal/state", 10);
-  this->pubKeyState = this->rosNode->advertise<std_msgs::Int8>(
-    this->model->GetName() + "/key/state", 10);
-  this->pubDirectionState = this->rosNode->advertise<std_msgs::Int8>(
-    this->model->GetName() + "/direction/state", 10);
-
-  // ros callback queue for processing subscription
-  this->callbackQueueThread = boost::thread(
-    boost::bind(&DRCVehicleROSPlugin::QueueThread, this));
-
-  this->ros_publish_connection_ = event::Events::ConnectWorldUpdateBegin(
-      boost::bind(&DRCVehicleROSPlugin::RosPublishStates, this));
+    this->ros_publish_connection_ = event::Events::ConnectWorldUpdateBegin(
+        boost::bind(&DRCVehicleROSPlugin::RosPublishStates, this));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -234,11 +271,11 @@ void DRCVehicleROSPlugin::RosPublishStates()
     std_msgs::Float64 msg_steer, msg_brake, msg_gas, msg_hand_brake;
     msg_steer.data = GetHandWheelState();
     this->pubHandWheelState.publish(msg_steer);
-    msg_brake.data = GetBrakePedalState();
+    msg_brake.data = GetBrakePedalPercent();
     this->pubBrakePedalState.publish(msg_brake);
-    msg_gas.data = GetGasPedalState();
+    msg_gas.data = GetGasPedalPercent();
     this->pubGasPedalState.publish(msg_gas);
-    msg_hand_brake.data = GetHandBrakeState();
+    msg_hand_brake.data = GetHandBrakePercent();
     this->pubHandBrakeState.publish(msg_hand_brake);
     // Publish Int8
     std_msgs::Int8 msg_key, msg_direction;

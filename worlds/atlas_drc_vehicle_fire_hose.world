@@ -7,8 +7,8 @@
         <solver>
           <type>quick</type>
           <dt>0.001</dt>
-          <iters>40</iters>
-          <sor>1.0</sor>
+          <iters>50</iters>
+          <sor>1.4</sor>
         </solver>
         <constraints>
           <cfm>0.0</cfm>
@@ -35,13 +35,18 @@
     </include>
 
     <include>
-      <uri>model://fire_hose</uri>
-      <pose>0 -1.967 0.208562 0 0 1.57079</pose>
+      <uri>model://vrc_firehose_long</uri>
+      <pose>-2.2 2.295 1.1 0 0 1.5707</pose>
     </include>
 
     <include>
-      <uri>model://standpipe</uri>
-      <pose>0 0 0 0 0 0</pose>
+      <uri>model://vrc_standpipe</uri>
+      <pose>-2.2019 2.307836 1.1 -1.5707 0 3.141593</pose>
+    </include>
+
+    <include>
+      <uri>model://vrc_valve</uri>
+      <pose>-3.82 -3.5 1.2 -1.5707 0 0</pose>
     </include>
 
     <include>
@@ -59,13 +64,15 @@
         <seat_link>polaris_ranger_ev::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
-        <fire_hose_model>fire_hose</fire_hose_model>
+        <fire_hose_model>vrc_firehose_long</fire_hose_model>
         <coupling_link>coupling</coupling_link>
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>
+        <valve_model>valve</valve_model>
+        <valve_joint>valve</valve_joint>
         <thread_pitch>-1000</thread_pitch>
         <coupling_relative_pose>
-          1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199
+-0.0019 1e-06 0.012836 -0.787193 1.57066 -2.35799
         </coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
