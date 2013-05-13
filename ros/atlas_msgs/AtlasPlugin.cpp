@@ -557,8 +557,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
   // ros callback queue for processing subscription
-  this->deferredLoadThread = boost::thread(
-    boost::bind(&AtlasPlugin::DeferredLoad, this));
+  // this->deferredLoadThread = boost::thread(
+  //   boost::bind(&AtlasPlugin::DeferredLoad, this));
+  // try unthreaded loading
+  this->DeferredLoad();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
