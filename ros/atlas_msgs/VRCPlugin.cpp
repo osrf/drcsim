@@ -1202,13 +1202,13 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceCommand>(
     "/atlas/atlas_sim_interface_command", 1, true);
 
-  ros::SubscribeOptions jointStatesSo =
-    ros::SubscribeOptions::create<sensor_msgs::JointState>(
-    "/atlas/joint_states", 1,
-    boost::bind(&AtlasCommandController::GetJointStates, this, _1),
-    ros::VoidPtr(), this->rosNode->getCallbackQueue());
-  this->subJointStates =
-    this->rosNode->subscribe(jointStatesSo);
+  // ros::SubscribeOptions jointStatesSo =
+  //   ros::SubscribeOptions::create<sensor_msgs::JointState>(
+  //   "/atlas/joint_states", 1,
+  //   boost::bind(&AtlasCommandController::GetJointStates, this, _1),
+  //   ros::VoidPtr(), this->rosNode->getCallbackQueue());
+  // this->subJointStates =
+  //   this->rosNode->subscribe(jointStatesSo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
