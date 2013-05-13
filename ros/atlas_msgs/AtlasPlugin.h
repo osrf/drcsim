@@ -141,6 +141,7 @@ namespace gazebo
 
     /// \brief: Load ROS related stuff
     private: void LoadROS();
+    private: boost::thread deferredLoadThread;
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;
@@ -300,9 +301,7 @@ namespace gazebo
     private: std::string GetBehavior(int _behavior);
 
     /// \brief helper function to copy states
-    private: void AtlasControlOutputToAtlasSimInterfaceState(
-              atlas_msgs::AtlasSimInterfaceState *_fb,
-              AtlasControlOutput *_fbOut);
+    private: void AtlasControlOutputToAtlasSimInterfaceState();
 
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
