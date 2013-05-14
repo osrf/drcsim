@@ -328,6 +328,9 @@ namespace gazebo
       private: void SetPIDStand(physics::ModelPtr atlasModel);
 
       /// \brief switch to StandPrep Mode
+      private: void SetBDIFREEZE();
+
+      /// \brief switch to StandPrep Mode
       private: void SetBDIStandPrep();
 
       /// \brief switch to Stand Mode
@@ -398,10 +401,7 @@ namespace gazebo
     private: boost::thread deferredLoadThread;
 
     // mode flag to indicate StandPrep mode has already been called once.
-    private: bool bdiStandPrep;
-
-    // mode flag to indicate PID stand mode
-    private: bool pidStand;
+    private: bool bdiStandNominal;
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
