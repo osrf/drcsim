@@ -668,14 +668,14 @@ void VRCPlugin::UpdateStates()
   {
     if (curTime > atlas.startupStandPrepDuration)
     {
-      ROS_INFO("going into Stand");
+      ROS_DEBUG("going into Stand");
       this->atlasCommandController.SetBDIStand();
       this->atlas.startupBDIStand = false;
     }
     else if (!this->bdiStandNominal && curTime >
       atlas.startupStandPrepDuration - 1.0)
     {
-      ROS_INFO("going into Nominal");
+      ROS_DEBUG("going into Nominal");
       this->SetRobotMode("nominal");
       this->bdiStandNominal = true;
     }
