@@ -847,12 +847,19 @@ void AtlasPlugin::LoadROS()
   // ros callback queue for processing subscription
   this->deferredLoadThread = boost::thread(
     boost::bind(&AtlasPlugin::LoadROS2, this));
+
+  // this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+  //    boost::bind(&AtlasPlugin::UpdateStates, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::LoadROS2()
 {
-  sleep(1.0);
+  /// FIXME \TODO: what are we waiting for?
+  while (this->world->GetSimTime().Double() <
+    300.0*this->world->GetPhysicsEngine()->GetMaxStepSize())
+    usleep(100);
+
   ////////////////////////////////////////////////////////////////
   //                                                            //
   //  coonect to gazebo periodic updates                        //
@@ -1292,7 +1299,6 @@ void AtlasPlugin::SetASICommand(
 
 
     /// \TODO: Set atlasControlInput from _msg
-    /*
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
       this->atlasControlInput.j[i].q_d = 0.0;
@@ -1302,7 +1308,6 @@ void AtlasPlugin::SetASICommand(
       this->atlasControlInput.jparams[i].k_q_i = 0.0;
       this->atlasControlInput.jparams[i].k_qd_p = 0.0;
     }
-    */
 
     // Try and set desired behavior (reverse map of behaviorMap)
     switch (this->asiState.desired_behavior)
@@ -1367,6 +1372,7 @@ void AtlasPlugin::SetASICommand(
 void AtlasPlugin::UpdateStates()
 {
   common::Time curTime = this->world->GetSimTime();
+
   if (curTime > this->lastControllerUpdateTime)
   {
     // gather robot state data and publish them
