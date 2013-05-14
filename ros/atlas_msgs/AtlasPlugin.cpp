@@ -1018,7 +1018,6 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
     return false;
   }
 
-
   _res.success = true;
   {
     boost::mutex::scoped_lock lock(this->mutex);
@@ -1038,10 +1037,9 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
       }
     }
   }
-  ROS_WARN("%s", statusStream.str().c_str());
-  _res.status_message = statusStream.str();
-
-  if (_res.success)
+  if (!_res.success)
+    ROS_WARN("%s", statusStream.str().c_str());
+  else
   {
     statusStream << "You have successfully changed model damping parameters "
              << "[" << ++this->setJointDampingCount
@@ -1049,6 +1047,7 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
     ROS_INFO("%s", statusStream.str().c_str());
   }
 
+  _res.status_message = statusStream.str();
   return _res.success;
 }
 
