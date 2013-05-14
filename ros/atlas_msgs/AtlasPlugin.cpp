@@ -558,9 +558,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
-  // ros callback queue for processing subscription
-  // this->deferredLoadThread = boost::thread(
-  //   boost::bind(&AtlasPlugin::LoadROS, this));
   this->LoadROS();
 }
 
@@ -654,49 +651,6 @@ void AtlasPlugin::LoadROS()
   //  ROS Publishers                                            //
   //                                                            //
   ////////////////////////////////////////////////////////////////
-  // ROS Controller API
-  /// brief broadcasts the robot states
-  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
-  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-    "atlas/joint_states", 1);
-
-  this->pubAtlasStateQueue = this->pmq.addPub<atlas_msgs::AtlasState>();
-  this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
-    "atlas/atlas_state", 100, true);
-
-  this->pubDelayStatisticsQueue =
-    this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
-  this->pubDelayStatistics =
-    this->rosNode->advertise<atlas_msgs::SynchronizationStatistics>(
-    "atlas/synchronization_statistics", 100, true);
-
-  // publish separate /atlas/imu topic, to be deprecated
-  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
-  this->pubImu =
-    this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
-
-  // publish separate /atlas/force_torque_sensors topic, to be deprecated
-  this->pubForceTorqueSensorsQueue =
-    this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
-  this->pubForceTorqueSensors =
-    this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
-    "atlas/force_torque_sensors", 10);
-
-  // ros publication
-  this->pubControllerStatisticsQueue =
-    this->pmq.addPub<atlas_msgs::ControllerStatistics>();
-  this->pubControllerStatistics =
-    this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
-    "atlas/controller_statistics", 10);
-
-  // AtlasSimInterface:
-  // closing the loop on BDI Dynamic Behavior Library
-  this->pubASIStateQueue =
-    this->pmq.addPub<atlas_msgs::AtlasSimInterfaceState>();
-  this->pubASIState =
-    this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
-    "atlas/atlas_sim_interface_state", 1);
-
   if (this->cheatsEnabled)
   {
     // these topics are used for debugging only
@@ -721,13 +675,49 @@ void AtlasPlugin::LoadROS()
        boost::bind(&AtlasPlugin::OnRContactUpdate, this));
   }
 
-  ////////////////////////////////////////////////////////////////
-  //                                                            //
-  //  coonect to gazebo periodic updates                        //
-  //                                                            //
-  ////////////////////////////////////////////////////////////////
-  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-     boost::bind(&AtlasPlugin::UpdateStates, this));
+  // controller synchronization statistics
+  this->pubDelayStatisticsQueue =
+    this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
+  this->pubDelayStatistics =
+    this->rosNode->advertise<atlas_msgs::SynchronizationStatistics>(
+    "atlas/synchronization_statistics", 100, true);
+
+  // ros publication
+  this->pubControllerStatisticsQueue =
+    this->pmq.addPub<atlas_msgs::ControllerStatistics>();
+  this->pubControllerStatistics =
+    this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
+    "atlas/controller_statistics", 10);
+
+  // publish separate /atlas/imu topic, to be deprecated
+  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
+  this->pubImu = this->rosNode->advertise<sensor_msgs::Imu>(
+    "atlas/imu", 10);
+
+  // publish separate /atlas/force_torque_sensors topic, to be deprecated
+  this->pubForceTorqueSensorsQueue =
+    this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
+  this->pubForceTorqueSensors =
+    this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
+    "atlas/force_torque_sensors", 10);
+
+  // broadcasts the robot joint states
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+    "atlas/joint_states", 1);
+
+  //broadcasts atlas states
+  this->pubAtlasStateQueue = this->pmq.addPub<atlas_msgs::AtlasState>();
+  this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
+    "atlas/atlas_state", 100, true);
+
+  // AtlasSimInterface:
+  // closing the loop on BDI Dynamic Behavior Library
+  this->pubASIStateQueue =
+    this->pmq.addPub<atlas_msgs::AtlasSimInterfaceState>();
+  this->pubASIState =
+    this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
+    "atlas/atlas_sim_interface_state", 1);
 
   ////////////////////////////////////////////////////////////////
   //                                                            //
@@ -746,6 +736,14 @@ void AtlasPlugin::LoadROS()
       ros::TransportHints().unreliable().reliable().tcpNoDelay(true);
     this->subTic =
       this->rosNode->subscribe(pauseSo);
+
+    // ros topic subscribtions
+    ros::SubscribeOptions testSo =
+      ros::SubscribeOptions::create<atlas_msgs::Test>(
+      "atlas/debug/test", 1,
+      boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subTest = this->rosNode->subscribe(testSo);
   }
 
   // ros topic subscribtions
@@ -773,17 +771,6 @@ void AtlasPlugin::LoadROS()
     ros::TransportHints().reliable().tcpNoDelay(true);
   this->subJointCommands =
     this->rosNode->subscribe(jointCommandsSo);
-
-  if (this->cheatsEnabled)
-  {
-    // ros topic subscribtions
-    ros::SubscribeOptions testSo =
-      ros::SubscribeOptions::create<atlas_msgs::Test>(
-      "atlas/debug/test", 1,
-      boost::bind(&AtlasPlugin::SetExperimentalDampingPID, this, _1),
-      ros::VoidPtr(), &this->rosQueue);
-    this->subTest = this->rosNode->subscribe(testSo);
-  }
 
   // AtlasSimInterface:
   // subscribe to a control_mode string message, current valid commands are:
@@ -856,6 +843,23 @@ void AtlasPlugin::LoadROS()
   ////////////////////////////////////////////////////////////////
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
+
+  // ros callback queue for processing subscription
+  this->deferredLoadThread = boost::thread(
+    boost::bind(&AtlasPlugin::LoadROS2, this));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::LoadROS2()
+{
+  sleep(1.0);
+  ////////////////////////////////////////////////////////////////
+  //                                                            //
+  //  coonect to gazebo periodic updates                        //
+  //                                                            //
+  ////////////////////////////////////////////////////////////////
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+     boost::bind(&AtlasPlugin::UpdateStates, this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1373,7 +1377,10 @@ void AtlasPlugin::UpdateStates()
       this->EnforceSynchronizationDelay(curTime);
 
     // AtlasSimInterface: process controller updates
-    if (curTime.Double() >= 3*this->world->GetPhysicsEngine()->GetMaxStepSize())
+    // if (curTime.Double() >=
+    //     this->world->GetPhysicsEngine()->GetMaxStepSize())
+    // if (this->asiState.desired_behavior !=
+    //     atlas_msgs::AtlasSimInterfaceCommand::USER)
       this->UpdateAtlasSimInterface(curTime);
 
     {
@@ -2197,7 +2204,7 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 
   // AtlasSimInterface:
   this->asiState.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
-/*
+
   // Try and get desired behavior
   std::string behaviorStr;
   this->asiState.error_code =
@@ -2216,7 +2223,8 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
               this->behaviorMap[behaviorStr]);
   }
 
-  // Try and get current behavior
+  // warn if current behavior is not desired behavior, controller is in
+  // a state of transition.
   this->asiState.error_code =
     this->atlasSimInterface->get_current_behavior(behaviorStr);
   if (this->asiState.error_code != NO_ERRORS)
@@ -2225,10 +2233,8 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
     this->atlasSimInterface->get_error_code_text(
       (AtlasErrorCode)(this->asiState.error_code)).c_str());
   this->asiState.current_behavior = this->behaviorMap[behaviorStr];
-*/
-  // if current behavior is not desired behavior, controller is in
-  // a state of transition.
 
+  // main controller update call
   this->asiState.error_code =
     this->atlasSimInterface->process_control_input(
     this->atlasControlInput, this->atlasRobotState,
