@@ -68,11 +68,16 @@ namespace gazebo
     /// \brief Load the plugin.
     /// \param[in] _parent Take in SDF root element.
     /// \param[in] _sdf SDF values.
+    public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf);
+
+    /// \brief Load the plugin.
+    /// \param[in] _parent Take in SDF root element.
+    /// \param[in] _sdf SDF values.
     /// \param[in] _camera_name_suffix Suffix of the camera name.
     /// \param[in] _hack_baseline Multiple camera baseline.
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf,
-                      const std::string &_camera_name_suffix = "",
-                      double _hack_baseline = 0.0);
+                      const std::string &_camera_name_suffix,
+                      double _hack_baseline);
 
     private: void Init();
 

@@ -21,12 +21,15 @@
       <visual name="visual">
         <geometry>
           <box>
-            <size>8.0 10.0 0.5</size>
+            <size>8.0 9.0 0.5</size>
           </box>
         </geometry>
         <material>
-          <ambient>0.2 0.2 0.2 1.0</ambient>
-          <diffuse>.421 0.225 0.0 1.0</diffuse>
+          <script>
+            <uri>model://mud_atlas/materials/scripts</uri>
+            <uri>model://mud_atlas/materials/textures</uri>
+            <name>vrc/mud</name>
+          </script>
         </material>
       </visual>
       <sensor name="mud_contact" type="contact">

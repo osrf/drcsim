@@ -289,6 +289,7 @@ namespace gazebo
     private: double backBrakeTorque;
     private: double tireAngleRange;
     private: double maxSpeed;
+    private: double maxSteer;
     private: double aeroLoad;
 
     /// \brief Minimum braking percentage, used to approximate
