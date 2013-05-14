@@ -141,8 +141,6 @@ namespace gazebo
 
     /// \brief: Load ROS related stuff
     private: void LoadROS();
-    private: void LoadROS2();
-    private: boost::thread deferredLoadThread;
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;

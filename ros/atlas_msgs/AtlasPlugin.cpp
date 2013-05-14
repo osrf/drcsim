@@ -111,8 +111,11 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // save sdf
   this->sdf = _sdf;
 
-  // initialize update time
-  this->lastControllerUpdateTime = this->world->GetSimTime();
+  // initialize update time, this will be the first update step for
+  // UpdateStates as well - i.e. current setting skips the first
+  // update.
+  this->lastControllerUpdateTime =
+    common::Time(this->world->GetPhysicsEngine()->GetMaxStepSize());
 
   // init joints, hardcoded for Atlas
   this->jointNames.push_back("back_lbz");
@@ -497,18 +500,23 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   // AtlasSimInterface:
-  // Calling into the behavior library to reset controls and set startup
-  // behavior.
+  // Calling into the behavior library to reset controls (FREEZE Mode).
   this->asiState.error_code = this->atlasSimInterface->reset_control();
+  this->asiState.desired_behavior =
+    atlas_msgs::AtlasSimInterfaceCommand::FREEZE;
   if (this->asiState.error_code != NO_ERRORS)
     ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
               "error code (%d).", this->asiState.error_code);
+
+  // AtlasSimInterface:
+  // Calling into the behavior library to set control mode to USER.
   this->asiState.error_code =
     this->atlasSimInterface->set_desired_behavior("User");
   if (this->asiState.error_code != NO_ERRORS)
     ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
               "error code (%d).", this->asiState.error_code);
   this->asiState.desired_behavior = atlas_msgs::AtlasSimInterfaceCommand::USER;
+
 
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint("l_arm_mwx");
@@ -844,29 +852,49 @@ void AtlasPlugin::LoadROS()
   this->callbackQueeuThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
 
-  // ros callback queue for processing subscription
-  this->deferredLoadThread = boost::thread(
-    boost::bind(&AtlasPlugin::LoadROS2, this));
-
-  // this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-  //    boost::bind(&AtlasPlugin::UpdateStates, this));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::LoadROS2()
-{
-  /// FIXME \TODO: what are we waiting for?
-  while (this->world->GetSimTime().Double() <
-    300.0*this->world->GetPhysicsEngine()->GetMaxStepSize())
-    usleep(100);
-
   ////////////////////////////////////////////////////////////////
   //                                                            //
-  //  coonect to gazebo periodic updates                        //
+  //  Hook up to gazebo periodic updates                        //
   //                                                            //
   ////////////////////////////////////////////////////////////////
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&AtlasPlugin::UpdateStates, this));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::UpdateStates()
+{
+  common::Time curTime = this->world->GetSimTime();
+
+  if (curTime > this->lastControllerUpdateTime)
+  {
+    // gather robot state data and publish them
+    this->GetAndPublishRobotStates(curTime);
+
+    // enforce delay for controller synchronization
+    if (this->atlasCommand.desired_controller_period_ms != 0)
+      this->EnforceSynchronizationDelay(curTime);
+
+    // AtlasSimInterface: process controller updates
+    // if (curTime.Double() >=
+    //     this->world->GetPhysicsEngine()->GetMaxStepSize())
+    // if (this->asiState.desired_behavior !=
+    //     atlas_msgs::AtlasSimInterfaceCommand::USER)
+      this->UpdateAtlasSimInterface(curTime);
+
+    {
+      boost::mutex::scoped_lock lock(this->mutex);
+
+      this->CalculateControllerStatistics(curTime);
+
+      this->UpdatePIDControl(
+        (curTime - this->lastControllerUpdateTime).Double());
+    }
+
+    this->lastControllerUpdateTime = curTime;
+
+    this->PublishConstrollerStatistics(curTime);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1365,42 +1393,6 @@ void AtlasPlugin::SetASICommand(
         gzerr << "Unrecognized behavior\n";
         break;
     }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::UpdateStates()
-{
-  common::Time curTime = this->world->GetSimTime();
-
-  if (curTime > this->lastControllerUpdateTime)
-  {
-    // gather robot state data and publish them
-    this->GetAndPublishRobotStates(curTime);
-
-    // enforce delay for controller synchronization
-    if (this->atlasCommand.desired_controller_period_ms != 0)
-      this->EnforceSynchronizationDelay(curTime);
-
-    // AtlasSimInterface: process controller updates
-    // if (curTime.Double() >=
-    //     this->world->GetPhysicsEngine()->GetMaxStepSize())
-    // if (this->asiState.desired_behavior !=
-    //     atlas_msgs::AtlasSimInterfaceCommand::USER)
-      this->UpdateAtlasSimInterface(curTime);
-
-    {
-      boost::mutex::scoped_lock lock(this->mutex);
-
-      this->CalculateControllerStatistics(curTime);
-
-      this->UpdatePIDControl(
-        (curTime - this->lastControllerUpdateTime).Double());
-    }
-
-    this->lastControllerUpdateTime = curTime;
-
-    this->PublishConstrollerStatistics(curTime);
   }
 }
 

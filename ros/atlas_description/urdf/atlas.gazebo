@@ -246,13 +246,15 @@
       </contact>
     </sensor>
   </gazebo>
+
+  <!-- not used for competition, uncomment for testing
   <gazebo>
     <plugin filename="libgazebo_ros_force.so" name="gazebo_ros_force">
       <bodyName>pelvis</bodyName>
       <topicName>/atlas/apply_pelvis_force</topicName>
     </plugin>
   </gazebo>
-
+  -->
 
   <gazebo reference="back_lbz">
     <cfmDamping>1</cfmDamping>
