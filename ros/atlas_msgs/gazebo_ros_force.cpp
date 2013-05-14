@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "gazebo_ros_force.h"
 
@@ -66,6 +67,17 @@ GazeboRosForce::~GazeboRosForce()
 // Load the controller
 void GazeboRosForce::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
+  // By default, cheats are off.  Allow override via environment variable.
+  bool cheatsEnabled;
+  char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+  if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+    cheatsEnabled = true;
+  else
+    cheatsEnabled = false;
+
+  if (!cheatsEnabled)
+    return;
+
   // Get the world name.
   this->world = _model->GetWorld();
   

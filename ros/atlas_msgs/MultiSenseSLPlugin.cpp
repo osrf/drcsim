@@ -63,7 +63,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->world = _parent->GetWorld();
   this->sdf = _sdf;
 
-  ROS_INFO("Loading MultiSense ROS node.");
+  ROS_DEBUG("Loading MultiSense ROS node.");
 
   this->lastTime = this->world->GetSimTime();
 
@@ -118,7 +118,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->multiCameraFrameRate = this->multiCameraSensor->GetUpdateRate();
 
   this->laserSensor =
-    boost::shared_dynamic_cast<sensors::RaySensor>(
+    boost::shared_dynamic_cast<sensors::GpuRaySensor>(
     sensors::SensorManager::Instance()->GetSensor("head_hokuyo_sensor"));
   if (!this->laserSensor)
     gzerr << "laser sensor not found\n";

@@ -18,6 +18,7 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <gazebo/common/common.hh>
+#include <gazebo/util/util.hh>
 #include <gazebo/physics/physics.hh>
 #include "VRCScoringPlugin.hh"
 
@@ -37,9 +38,17 @@ VRCScoringPlugin::VRCScoringPlugin()
 /////////////////////////////////////////////////
 VRCScoringPlugin::~VRCScoringPlugin()
 {
-  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  // TODO: As of right now, this desctructor is never being called.  Shutdown
+  // behavior needs to be fixed for this code to actually run.
+
   // Be sure to write the final score data before quitting
-  this->WriteIntermediateScore(this->world->GetSimTime(), true);
+  this->WriteScore(this->world->GetSimTime(), 
+                   common::Time::GetWallTime(),
+                   "Shutting down", true);
+  // Also force the Gazebo state logger to write
+  util::LogRecord::Instance()->Notify();
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  this->deferredLoadThread.join();
 }
 
 /////////////////////////////////////////////////
@@ -75,6 +84,12 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   if (!this->atlas)
   {
     gzerr << "Failed to find atlas" << std::endl;
+    return;
+  }
+  this->atlasHead = this->atlas->GetLink("head");
+  if (!this->atlasHead)
+  {
+    gzerr << "Unable to find head for scoring falls" << std::endl;
     return;
   }
 
@@ -134,7 +149,6 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     // \todo getenv is not portable, and there is no generic cross-platform
     // method. Must check OS and choose a method
     char *homePath = getenv("HOME");
-    GZ_ASSERT(homePath, "HOME environment variable is missing");
 
     if (!homePath)
       this->scoreFilePath = boost::filesystem::path("/tmp/gazebo");
@@ -166,8 +180,12 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     std::fixed << std::setprecision(3) <<
     common::Time::GetWallTime().Double() << std::endl;
   this->scoreFileStream << "# Format: " << std::endl;
-  this->scoreFileStream << "# wallTime(sec) simTime(sec) "
-    "completionScore(count) falls(count)" << std::endl;
+  this->scoreFileStream << "# wallTime(sec),simTime(sec),"
+    "wallTimeElapsed(sec),simTimeElapsed(sec),completionScore(count),"
+    "falls(count)" << std::endl;
+
+  this->deferredLoadThread =
+    boost::thread(boost::bind(&VRCScoringPlugin::DeferredLoad, this));
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -175,13 +193,71 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
       boost::bind(&VRCScoringPlugin::OnUpdate, this, _1));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void VRCScoringPlugin::DeferredLoad()
+{
+  // initialize ros
+  if (!ros::isInitialized())
+  {
+    gzerr << "Not loading VRC scoring plugin because ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
+    return;
+  }
+
+  // ros stuff
+  this->rosNode = new ros::NodeHandle("");
+
+  // publish multi queue
+  this->pmq.startServiceThread();
+
+  this->pubScoreQueue = this->pmq.addPub<atlas_msgs::VRCScore>();
+  this->pubScore = this->rosNode->advertise<atlas_msgs::VRCScore>(
+    "vrc_score", 1, true);
+}
+
+
 /////////////////////////////////////////////////
-void VRCScoringPlugin::WriteIntermediateScore(
-  const common::Time& _currTime, bool _force)
+void VRCScoringPlugin::StartClock(const common::Time &_simTime,
+                                  const common::Time &_wallTime,
+                                  std::string &_msg)
+{
+  this->startTimeSim = _simTime;
+  this->startTimeWall = _wallTime;
+  std::stringstream ss;
+  ss << "Starting clock. ";
+  gzlog << ss.str() << std::endl;
+  _msg += ss.str();
+}
+
+/////////////////////////////////////////////////
+void VRCScoringPlugin::StopClock(const common::Time &_simTime,
+                                 const common::Time &_wallTime,
+                                 std::string &_msg)
+{
+  this->stopTimeSim = _simTime;
+  this->stopTimeWall = _wallTime;
+  std::stringstream ss;
+  ss << "Stopping clock. ";
+  gzlog << ss.str() << std::endl;
+  _msg += ss.str();
+}
+
+/////////////////////////////////////////////////
+void VRCScoringPlugin::WriteScore(const common::Time &_simTime,
+  const common::Time &_wallTime, const std::string &_msg, bool _force)
 {
   // Write at 1Hz
-  if (!_force && (_currTime - this->prevScoreTime).Double() < 1.0)
+  if (!_force && (_simTime - this->prevScoreTime).Double() < 1.0)
     return;
+
+  // If we're being forced, that means that something interesting happened.
+  // Also force the gazebo state logger to write.
+  if (_force)
+  {
+     gzdbg << "VRCScoringPlugin forcing LogRecord to write" << std::endl;
+     util::LogRecord::Instance()->Notify();
+  }
 
   if (!this->scoreFileStream.is_open())
   {
@@ -190,12 +266,39 @@ void VRCScoringPlugin::WriteIntermediateScore(
     return;
   }
 
-  this->scoreFileStream << std::fixed << std::setprecision(3) <<
-    common::Time::GetWallTime().Double() <<
-    " " << _currTime.Double() << " " << this->completionScore << " " <<
-    this->falls << std::endl;
+  // If we've passed the first gate, compute elapsed time
+  common::Time elapsedTimeSim;
+  if (this->stopTimeSim != common::Time::Zero)
+    elapsedTimeSim = stopTimeSim - startTimeSim;
+  else if (this->startTimeSim != common::Time::Zero)
+    elapsedTimeSim = _simTime - this->startTimeSim;
 
-  this->prevScoreTime = _currTime;
+  common::Time elapsedTimeWall;
+  if (this->stopTimeWall != common::Time::Zero)
+    elapsedTimeWall = stopTimeWall - startTimeWall;
+  else if (this->startTimeWall != common::Time::Zero)
+    elapsedTimeWall = _wallTime - this->startTimeWall;
+
+  this->scoreFileStream << std::fixed << std::setprecision(3)
+    << _wallTime.Double() << ","
+    << _simTime.Double() << ","
+    << elapsedTimeWall.Double() << ","
+    << elapsedTimeSim.Double() << ","
+    << this->completionScore << ","
+    << this->falls << ",\"" << _msg << "\"" << std::endl;
+
+  // Also publish via ROS
+  atlas_msgs::VRCScore rosScoreMsg;
+  rosScoreMsg.wall_time = ros::Time(_wallTime.Double());
+  rosScoreMsg.sim_time = ros::Time(_simTime.Double());
+  rosScoreMsg.wall_time_elapsed = ros::Time(elapsedTimeWall.Double());
+  rosScoreMsg.sim_time_elapsed = ros::Time(elapsedTimeSim.Double());
+  rosScoreMsg.completion_score = this->completionScore;
+  rosScoreMsg.falls = this->falls;
+  rosScoreMsg.message = _msg;
+  this->pubScoreQueue->push(rosScoreMsg, this->pubScore);
+
+  this->prevScoreTime = _simTime;
 }
 
 /////////////////////////////////////////////////
@@ -216,21 +319,46 @@ int VRCScoringPlugin::IsPoseInGate(const math::Pose& _robotWorldPose,
 }
 
 /////////////////////////////////////////////////
-bool VRCScoringPlugin::CheckNextGate()
+bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
 {
   if (this->nextGate != this->gates.end())
   {
-    int gateSide = this->IsPoseInGate(this->atlas->GetWorldPose(),
-                                     this->nextGate->pose,
-                                     this->nextGate->width);
+    // Get the pose of the robot or the vehicle, depending on the type of the
+    // gate.
+    math::Pose pose;
+    std::string tmpString;
+    switch (this->nextGate->type)
+    {
+      case Gate::PEDESTRIAN:
+        pose = this->atlas->GetWorldPose();
+        break;
+      case Gate::VEHICLE:
+        // We require that Atlas is in the vehicle when it crosses a gate
+        if (!this->CheckAtlasInVehicle(tmpString))
+          return false;
+        pose = this->vehicle->GetWorldPose();
+        break;
+      default:
+        GZ_ASSERT(false, "Unknown gate type");
+    }
+    // Figure whether we're positioned before (-1), after (1), or
+    // neither (0), with respect to the gate.
+    int gateSide = this->IsPoseInGate(pose,
+                                      this->nextGate->pose,
+                                      this->nextGate->width);
     // Did we go forward through the gate?
     if ((this->nextGateSide < 0) && (gateSide > 0))
     {
-      gzlog << "Successfully passed through gate " <<
-        this->nextGate->number << std::endl;
+      // Log it
+      std::stringstream ss;
+      ss << "Successfully passed through gate " <<
+        this->nextGate->number << ". ";
+      gzlog << ss.str() << std::endl;
+      _msg += ss.str();
+
       // Update state to look for the next gate
       ++this->nextGate;
-      this->nextGateSide = -1;
+      this->nextGateSide = 0;
       return true;
     }
     else
@@ -238,7 +366,7 @@ bool VRCScoringPlugin::CheckNextGate()
       // Just checking: did we go backward through the gate?
       if ((this->nextGateSide > 0) && (gateSide < 0))
       {
-        gzwarn << "Went backward through gate " <<
+        gzlog << "Went backward through gate " <<
           this->nextGate->number << std::endl;
       }
       // Remember which side we're on now (which might be 0)
@@ -249,7 +377,38 @@ bool VRCScoringPlugin::CheckNextGate()
 }
 
 /////////////////////////////////////////////////
-bool VRCScoringPlugin::CheckDrillInBin()
+bool VRCScoringPlugin::CheckAtlasInVehicle(std::string &_msg)
+{
+  // Where is Atlas?
+  math::Vector3 robotPosition = this->atlas->GetWorldPose().pos;
+  // Construct bounding box above the seat, using the footprint of the "seat"
+  // and the height of the "seat_back"
+  math::Box seatBox = this->vehicleSeat->GetBoundingBox();
+  math::Box seatBackBox = this->vehicleSeatBack->GetBoundingBox();
+  // Extrude by the height of the seat back
+  seatBox.min.z = seatBackBox.min.z;
+  seatBox.max.z = seatBackBox.max.z;
+
+  // Check whether Atlas is in the target zone
+  if ((robotPosition.x >= seatBox.min.x) &&
+      (robotPosition.x <= seatBox.max.x) &&
+      (robotPosition.y >= seatBox.min.y) &&
+      (robotPosition.y <= seatBox.max.y) &&
+      (robotPosition.z >= seatBox.min.z) &&
+      (robotPosition.z <= seatBox.max.z))
+  {
+    std::stringstream ss;
+    ss << "Successfully moved Atlas into vehicle. ";
+    _msg += ss.str();
+    gzlog << ss.str() << std::endl;
+    return true;
+  }
+  else
+    return false;
+}
+
+/////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 {
   // Only report the first time
   if (this->completionScore == 0)
@@ -262,7 +421,10 @@ bool VRCScoringPlugin::CheckDrillInBin()
         (drillPosition.z >= this->bin.min.z) &&
         (drillPosition.z <= this->bin.max.z))
     {
-      gzlog << "Successfully placed drill in bin" << std::endl;
+      std::stringstream ss;
+      ss << "Successfully placed drill in bin. ";
+      _msg += ss.str();
+      gzlog << ss.str() << std::endl;
       return true;
     }
   }
@@ -270,37 +432,154 @@ bool VRCScoringPlugin::CheckDrillInBin()
 }
 
 /////////////////////////////////////////////////
-bool VRCScoringPlugin::CheckFall(const common::Time &_currTime)
+bool VRCScoringPlugin::CheckFall(const common::Time &_simTime,
+  std::string &_msg)
 {
-  // Find the head and get its velocity
-  physics::LinkPtr link = this->atlas->GetLink("head");
-  if (!link)
-  {
-    gzerr << "Unable to find head for scoring falls" << std::endl;
-    return true;
-  }
-  math::Vector3 currVel = link->GetWorldLinearVel();
+  // Get head velocity
+  math::Vector3 currVel = this->atlasHead->GetWorldLinearVel();
 
   // Don't declare a fall if we had one recently.  This check also handles
   // initial conditions, which currently include dropping the robot onto
   // the ground at t=10
-  if ((_currTime - this->prevFallTime).Double() < 15.0)
+  if ((_simTime - this->prevFallTime).Double() < 15.0)
   {
-    this->prevVelTime = _currTime;
+    this->prevVelTime = _simTime;
     this->prevLinearVel = currVel;
     return false;
   }
 
   // Differentiate to get acceleration
-  double dt = (_currTime - this->prevVelTime).Double();
+  double dt = (_simTime - this->prevVelTime).Double();
   double accel = (currVel.z - prevLinearVel.z) / dt;
-  this->prevVelTime = _currTime;
+  this->prevVelTime = _simTime;
   this->prevLinearVel = currVel;
   if (fabs(accel) > this->fallAccelThreshold)
   {
-    gzwarn << "Damaging fall detected, acceleration of: " << accel <<
-      " m/s^2" << std::endl;
-    this->prevFallTime = _currTime;
+    std::stringstream ss;
+    ss << "Damaging fall detected, acceleration of: " << accel <<
+      " m/s^2. ";
+    gzlog << ss.str() << std::endl;
+    _msg += ss.str();
+    this->prevFallTime = _simTime;
+    return true;
+  }
+  else
+    return false;
+}
+
+/////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckHoseOffTable(std::string &_msg)
+{
+  // Check that the height of the hose couple is within a few cm
+  // of the standpipe.
+  math::Vector3 standpipePosition = this->standpipe->GetWorldPose().pos;
+  math::Vector3 hoseCouplerPosition = this->hoseCoupler->GetWorldPose().pos;
+  if (hoseCouplerPosition.z >= (standpipePosition.z - 0.05))
+  {
+    std::stringstream ss;
+    ss << "Successfully picked hose up off table. ";
+    gzlog << ss.str() << std::endl;
+    _msg += ss.str();
+    return true;
+  }
+  else
+    return false;
+}
+
+/////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckHoseAligned(std::string &_msg)
+{
+  // Check that the screw joint between the hose coupler and standpipe exists.
+  // That's true only when they're aligned (handled in VRCPlugin.cpp).
+  // We check indirectly by looking for a non-empty set of child links attached
+  // to the standpipe.
+  physics::Link_V childJointsLinks = this->standpipe->GetChildJointsLinks();
+  if (!childJointsLinks.empty())
+  {
+    // If we were not previously aligned, latch the current pose for later
+    // comparison to determine that rotation has succeeded.
+    if (!this->isHoseAligned)
+    {
+      std::stringstream ss;
+      ss << "Successfully aligned the hose with the standpipe. ";
+      gzlog << ss.str() << std::endl;
+      _msg += ss.str();
+      this->hoseCouplerAlignedPose = this->hoseCoupler->GetWorldPose();
+      this->isHoseAligned = true;
+      this->isHoseConnected = false;
+    }
+    return true;
+  }
+  else
+  {
+    if (this->isHoseAligned)
+    {
+      gzlog << "Unaligned the hose from the standpipe" << std::endl;
+      this->isHoseAligned = false;
+      this->isHoseConnected = false;
+    }
+    return false;
+  }
+}
+
+/////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckHoseConnected(std::string &_msg)
+{
+  // Must be aligned (i.e., the screw joint must exist)
+  if (!this->isHoseAligned)
+    return false;
+
+  // Check for a sufficient change in coupler position along its X axis,
+  // which indicates that the hose coupler has threaded on to the standpipe
+  // screw joint.
+
+  // Transform current position into frame of initial aligned pose
+  math::Vector3 couplerWorldPosition = this->hoseCoupler->GetWorldPose().pos;
+  math::Vector3 couplerLocalPosition =
+    this->hoseCouplerAlignedPose.rot.GetInverse().RotateVector(
+      couplerWorldPosition - this->hoseCouplerAlignedPose.pos);
+  double dist = couplerLocalPosition.x;
+  // Maximum depth is 2cm; let's get most of the way there.
+  if (dist <= -0.015)
+  {
+    if (!this->isHoseConnected)
+    {
+      std::stringstream ss;
+      ss << "Successfully connected the hose to the standpipe. ";
+      gzlog << ss.str() << std::endl;
+      _msg += ss.str();
+      this->isHoseConnected = true;
+    }
+    return true;
+  }
+  else
+  {
+    if (this->isHoseConnected)
+    {
+      gzlog << "Disconnected the hose to the standpipe" << std::endl;
+      this->isHoseConnected = false;
+    }
+    return false;
+  }
+}
+
+/////////////////////////////////////////////////
+bool VRCScoringPlugin::CheckValveOpen(std::string &_msg)
+{
+  // Doesn't count unless the hose is connected.  This check doesn't
+  // prevent out-of-order task execution; that should be done in
+  // the VRCPlugin, which should not allow alignment when the valve is open.
+  if (!this->isHoseConnected)
+    return false;
+
+  // The valve starts at 0 and can be turned CCW several rotations.
+  // We check that it's been turned at least one rotation.
+  if (this->valve->GetAngle(0) < math::Angle(-2.0*M_PI))
+  {
+    std::stringstream ss;
+    ss << "Successfully opened valve. ";
+    gzlog << ss.str() << std::endl;
+    _msg += ss.str();
     return true;
   }
   else
@@ -310,20 +589,148 @@ bool VRCScoringPlugin::CheckFall(const common::Time &_currTime)
 /////////////////////////////////////////////////
 void VRCScoringPlugin::OnUpdate(const common::UpdateInfo &_info)
 {
-  // Did we pass through a gate?
-  if (this->IsGateBased() && this->CheckNextGate())
-    this->completionScore += 1;
+  int prevScore = this->completionScore;
+  int prevFalls = this->falls;
+  std::string scoreMsg;
+  bool forceLogScore = false;
 
-  // Did we put the drill in the bin?
-  if (this->worldType == QUAL_2 && this->CheckDrillInBin())
-    this->completionScore += 1;
+  common::Time simTime = _info.simTime;
+  common::Time wallTime = common::Time::GetWallTime();
+
+  // Did we pass through a gate?
+  if (this->worldType == QUAL_1 ||
+      this->worldType == QUAL_3 ||
+      this->worldType == QUAL_4)
+  {
+    if (this->CheckNextGate(scoreMsg))
+      this->completionScore += 1;
+  }
+  else if (this->worldType == QUAL_2)
+  {
+    if (this->completionScore == 0)
+    {
+      // Did we put the drill in the bin?
+      if (this->CheckDrillInBin(scoreMsg))
+        this->completionScore += 1;
+    }
+  }
+  else if (this->worldType == VRC_1)
+  {
+    bool firstGate = (this->nextGate == this->gates.begin());
+    // We don't count the first gate in the score.
+    if (firstGate)
+    {
+      if (this->CheckNextGate(scoreMsg))
+      {
+        // Force score output so that this event appears in the log
+        forceLogScore = true;
+        this->StartClock(simTime, wallTime, scoreMsg);
+      }
+    }
+    else
+    {
+      // Step 0: get the pelvis in the car
+      if (this->completionScore == 0)
+      {
+        if (this->CheckAtlasInVehicle(scoreMsg))
+          this->completionScore += 1;
+      }
+      // Steps 1-3: go through gates
+      else
+      {
+        if (this->CheckNextGate(scoreMsg))
+        {
+          this->completionScore += 1;
+          // If it's the last gate, we're done
+          if (this->nextGate == this->gates.end())
+            this->StopClock(simTime, wallTime, scoreMsg);
+        }
+      }
+    }
+  }
+  else if (this->worldType == VRC_2)
+  {
+    bool firstGate = (this->nextGate == this->gates.begin());
+    // We don't count the first gate in the score.
+    if (firstGate)
+    {
+      if (this->CheckNextGate(scoreMsg))
+      {
+        // Force score output so that this event appears in the log
+        forceLogScore = true;
+        this->StartClock(simTime, wallTime, scoreMsg);
+      }
+    }
+    else
+    {
+      // Steps 0-3: go through gates
+      if (this->CheckNextGate(scoreMsg))
+      {
+        this->completionScore += 1;
+        // If it's the last gate, we're done
+        if (this->nextGate == this->gates.end())
+          this->StopClock(simTime, wallTime, scoreMsg);
+      }
+    }
+  }
+  else if (this->worldType == VRC_3)
+  {
+    // Check for passing the first gate; doesn't affect score, but we need to
+    // latch sim and wall time of that event.
+    if (this->CheckNextGate(scoreMsg))
+    {
+      // Force score output so that this event appears in the log
+      forceLogScore = true;
+      this->StartClock(simTime, wallTime, scoreMsg);
+    }
+
+    // Check for alignment and connection every cycle, because the
+    // competitor might align/connect and unalign/disconnect the hose
+    // multiple times.
+    bool hoseAligned = this->CheckHoseAligned(scoreMsg);
+    bool hoseConnected = this->CheckHoseConnected(scoreMsg);
+
+    if (this->completionScore == 0)
+    {
+      // Step 1: Did we get the hose up off the table?
+      if (this->CheckHoseOffTable(scoreMsg))
+        this->completionScore += 1;
+    }
+    else if (this->completionScore == 1)
+    {
+      // Step 2: Did we align the hose?
+      if (hoseAligned)
+        this->completionScore += 1;
+    }
+    else if (this->completionScore == 2)
+    {
+      // Step 3: Did we connect the hose?
+      if (hoseConnected)
+        this->completionScore += 1;
+    }
+    else if (this->completionScore == 3)
+    {
+      // Step 3: Did we turn the valve?
+      if (this->CheckValveOpen(scoreMsg))
+      {
+        this->completionScore += 1;
+        // We're done
+        this->StopClock(simTime, wallTime, scoreMsg);
+      }
+    }
+  }
 
   // Did we fall?
-  if (this->CheckFall(_info.simTime))
+  if (this->CheckFall(_info.simTime, scoreMsg))
     this->falls += 1;
-  
-  // Write score data (it's throttled internally to write at a fixed rate)
-  this->WriteIntermediateScore(_info.simTime, false);
+
+  // Write score data, forcing a write if any score changed;
+  // when not forced, it's throttled internally to
+  // write at a fixed rate.
+  if ((prevScore != this->completionScore) ||
+      (prevFalls != this->falls))
+    forceLogScore = true;
+  this->WriteScore(simTime, wallTime, scoreMsg, forceLogScore);
 }
 
 /////////////////////////////////////////////////
@@ -349,7 +756,7 @@ bool VRCScoringPlugin::FindQual2Stuff()
     gzerr << "Failed to find bin link" << std::endl;
     return false;
   }
-  physics::CollisionPtr bottomCollision = 
+  physics::CollisionPtr bottomCollision =
     binLink->GetCollision("bottom_collision");
   if (!bottomCollision)
   {
@@ -357,7 +764,7 @@ bool VRCScoringPlugin::FindQual2Stuff()
     return false;
   }
   math::Box bottomBbox = bottomCollision->GetBoundingBox();
-  physics::CollisionPtr side1Collision = 
+  physics::CollisionPtr side1Collision =
     binLink->GetCollision("side1_collision");
   if (!side1Collision)
   {
@@ -386,15 +793,79 @@ bool VRCScoringPlugin::FindVRC1Stuff()
     gzerr << "Failed to find vehicle" << std::endl;
     return false;
   }
+  physics::LinkPtr chassisLink = 
+    this->vehicle->GetLink("polaris_ranger_ev::chassis");
+  if (!chassisLink)
+  {
+    gzerr << "Failed to find chassis link" << std::endl;
+    return false;
+  }
+  this->vehicleSeat = chassisLink->GetCollision("seat");
+  if (!this->vehicleSeat)
+  {
+    gzerr << "Failed to find vehicle seat collision" << std::endl;
+    return false;
+  }
+  this->vehicleSeatBack = chassisLink->GetCollision("seat_back");
+  if (!this->vehicleSeatBack)
+  {
+    gzerr << "Failed to find vehicle seat back collision" << std::endl;
+    return false;
+  }
   if (!this->FindGates())
     return false;
-  return false;
+  return true;
 }
 
 /////////////////////////////////////////////////
 bool VRCScoringPlugin::FindVRC3Stuff()
 {
-  return false;
+  physics::ModelPtr hose = this->world->GetModel("vrc_firehose_long");
+  if (!hose)
+  {
+    gzerr << "Failed to find hose" << std::endl;
+    return false;
+  }
+  this->hoseCoupler = hose->GetLink("coupling");
+  if (!this->hoseCoupler)
+  {
+    gzerr << "Failed to find hose coupler" << std::endl;
+    return false;
+  }
+
+  physics::ModelPtr standpipeModel = this->world->GetModel("standpipe");
+  if (!standpipeModel)
+  {
+    gzerr << "Failed to find standpipe model" << std::endl;
+    return false;
+  }
+  this->standpipe = standpipeModel->GetLink("standpipe");
+  if (!this->standpipe)
+  {
+    gzerr << "Failed to find standpipe link" << std::endl;
+    return false;
+  }
+
+  physics::ModelPtr valveModel = this->world->GetModel("valve");
+  if (!valveModel)
+  {
+    gzerr << "Failed to find valve model" << std::endl;
+    return false;
+  }
+  this->valve = valveModel->GetJoint("valve");
+  if (!this->valve)
+  {
+    gzerr << "Failed to find valve joint" << std::endl;
+    return false;
+  }
+
+  this->isHoseAligned = false;
+  this->isHoseConnected = false;
+
+  if (!this->FindGates())
+    return false;
+
+  return true;
 }
 
 /////////////////////////////////////////////////
@@ -406,12 +877,13 @@ bool VRCScoringPlugin::FindGates()
        it != models.end();
        ++it)
   {
-    // Parse the name, assuming that gates are named 'gate_<int>'
+    // Parse the name, assuming that gates are named '[vehicle]gate_<int>'
     physics::ModelPtr model = *it;
     std::string name = model->GetName();
     std::vector<std::string> parts;
     boost::split(parts, name, boost::is_any_of("_"));
-    if (parts.size() == 2 && parts[0] == "gate")
+    if (parts.size() == 2 &&
+        ((parts[0] == "gate") || (parts[0] == "vehiclegate")))
     {
       // Parse out the number; skip if it fails
       unsigned int gateNum;
@@ -431,17 +903,24 @@ bool VRCScoringPlugin::FindGates()
       math::Vector3 bboxSize = bbox.GetSize();
       double gateWidth = std::max(bboxSize.x, bboxSize.y);
 
+      Gate::GateType gateType;
+      if (parts[0] == "vehiclegate")
+        gateType = Gate::VEHICLE;
+      else
+        gateType = Gate::PEDESTRIAN;
+
       // Store this gate
-      Gate g(name, gateNum, model->GetWorldPose(), gateWidth);
+      Gate g(name, gateType, gateNum, model->GetWorldPose(), gateWidth);
       this->gates.push_back(g);
-      gzlog << "Stored gate named " << g.name << " with index " << g.number
-        << " at pose " << g.pose << " and width " << g.width << std::endl;
+      gzlog << "Stored gate named " << g.name << " of type " << g.type
+        << " with index " << g.number << " at pose " << g.pose
+        << " and width " << g.width << std::endl;
     }
   }
 
   if (this->gates.empty())
   {
-    gzwarn << "Found no gates." << std::endl;
+    gzerr << "Found no gates." << std::endl;
     this->nextGate = this->gates.end();
     return false;
   }
@@ -454,19 +933,6 @@ bool VRCScoringPlugin::FindGates()
   this->nextGateSide = -1;
 
   return true;
-}
-
-/////////////////////////////////////////////////
-bool VRCScoringPlugin::IsGateBased()
-{
-  if (this->worldType == QUAL_1 ||
-      this->worldType == QUAL_3 ||
-      this->worldType == QUAL_4 ||
-      this->worldType == VRC_1 ||
-      this->worldType == VRC_2)
-    return true;
-  else
-    return false;
 }
 
 GZ_REGISTER_WORLD_PLUGIN(VRCScoringPlugin)

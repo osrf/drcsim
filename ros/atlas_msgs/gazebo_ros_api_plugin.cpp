@@ -194,6 +194,14 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
   // advertise services
   void GazeboRosApiPlugin::AdvertiseServices()
   {
+    // By default, cheats are off.  Allow override via environment variable.
+    bool cheatsEnabled;
+    char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
+    if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
+      cheatsEnabled = true;
+    else
+      cheatsEnabled = false;
+
     // publish clock for simulated ros time
     pub_clock_ = this->rosnode_->advertise<rosgraph_msgs::Clock>("/clock", 10);
     pub_clock_queue_ = this->pmq.addPub<rosgraph_msgs::Clock>();
@@ -379,44 +387,47 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
       set_link_state_aso);
 #endif
 
-    // Advertise more services on the custom queue
-    std::string reset_simulation_service_name("reset_simulation");
-    ros::AdvertiseServiceOptions reset_simulation_aso =
-      ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-        reset_simulation_service_name, boost::bind(
-          &GazeboRosApiPlugin::resetSimulation, this, _1, _2),
-          ros::VoidPtr(), &this->gazebo_queue_);
-    reset_simulation_service_ = this->rosnode_->advertiseService(
-      reset_simulation_aso);
-
-    // Advertise more services on the custom queue
-    std::string reset_world_service_name("reset_models");
-    ros::AdvertiseServiceOptions reset_world_aso =
-      ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-        reset_world_service_name, boost::bind(
-          &GazeboRosApiPlugin::resetWorld, this, _1, _2),
-          ros::VoidPtr(), &this->gazebo_queue_);
-    reset_world_service_ = this->rosnode_->advertiseService(reset_world_aso);
-
-    // Advertise more services on the custom queue
-    std::string pause_physics_service_name("pause_physics");
-    ros::AdvertiseServiceOptions pause_physics_aso =
-      ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-        pause_physics_service_name, boost::bind(
-          &GazeboRosApiPlugin::pausePhysics, this, _1, _2),
-          ros::VoidPtr(), &this->gazebo_queue_);
-    pause_physics_service_ = this->rosnode_->advertiseService(
-      pause_physics_aso);
-
-    // Advertise more services on the custom queue
-    std::string unpause_physics_service_name("unpause_physics");
-    ros::AdvertiseServiceOptions unpause_physics_aso =
-      ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-        unpause_physics_service_name, boost::bind(
-          &GazeboRosApiPlugin::unpausePhysics, this, _1, _2),
-          ros::VoidPtr(), &this->gazebo_queue_);
-    unpause_physics_service_ = this->rosnode_->advertiseService(
-      unpause_physics_aso);
+    if (cheatsEnabled)
+    {
+      // Advertise more services on the custom queue
+      std::string reset_simulation_service_name("reset_simulation");
+      ros::AdvertiseServiceOptions reset_simulation_aso =
+        ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+          reset_simulation_service_name, boost::bind(
+            &GazeboRosApiPlugin::resetSimulation, this, _1, _2),
+            ros::VoidPtr(), &this->gazebo_queue_);
+      reset_simulation_service_ = this->rosnode_->advertiseService(
+        reset_simulation_aso);
+  
+      // Advertise more services on the custom queue
+      std::string reset_world_service_name("reset_models");
+      ros::AdvertiseServiceOptions reset_world_aso =
+        ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+          reset_world_service_name, boost::bind(
+            &GazeboRosApiPlugin::resetWorld, this, _1, _2),
+            ros::VoidPtr(), &this->gazebo_queue_);
+      reset_world_service_ = this->rosnode_->advertiseService(reset_world_aso);
+  
+      // Advertise more services on the custom queue
+      std::string pause_physics_service_name("pause_physics");
+      ros::AdvertiseServiceOptions pause_physics_aso =
+        ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+          pause_physics_service_name, boost::bind(
+            &GazeboRosApiPlugin::pausePhysics, this, _1, _2),
+            ros::VoidPtr(), &this->gazebo_queue_);
+      pause_physics_service_ = this->rosnode_->advertiseService(
+        pause_physics_aso);
+  
+      // Advertise more services on the custom queue
+      std::string unpause_physics_service_name("unpause_physics");
+      ros::AdvertiseServiceOptions unpause_physics_aso =
+        ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
+          unpause_physics_service_name, boost::bind(
+            &GazeboRosApiPlugin::unpausePhysics, this, _1, _2),
+            ros::VoidPtr(), &this->gazebo_queue_);
+      unpause_physics_service_ = this->rosnode_->advertiseService(
+        unpause_physics_aso);
+    }
 
 #ifdef GAZEBO_MSGS
     // Advertise more services on the custom queue
@@ -1769,13 +1780,7 @@ GZ_REGISTER_SYSTEM_PLUGIN(GazeboRosApiPlugin)
 
   void GazeboRosApiPlugin::spin()
   {
-    // todo: make a wait loop that does not provide extra ros::spin()
-    ros::Rate r(1000);
-    while (ros::ok())
-    {
-      ros::spinOnce();
-      r.sleep();
-    }
+    ros::spin();
   }
 
   // utilites for checking incoming string URDF/XML/Param

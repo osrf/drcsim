@@ -83,6 +83,16 @@ topics:
     num_publishers: 1
     num_subscribers: -1
 
+  - topic: /atlas/atlas_sim_interface_state
+    type: atlas_msgs/AtlasSimInterfaceState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/synchronization_statistics
+    type: atlas_msgs/SynchronizationStatistics
+    num_publishers: 1
+    num_subscribers: -1    
+
   ##########################################################
   # Subscribed topics
 
@@ -103,3 +113,48 @@ topics:
     num_publishers: -1
     num_subscribers: 1
 
+  - topic: /atlas/atlas_sim_interface_command
+    type: atlas_msgs/AtlasSimInterfaceCommand
+    num_publishers: -1
+    num_subscribers: 1
+
+services:
+
+  - service: /atlas/atlas_filters
+    type: atlas_msgs/AtlasFilters
+
+  - service: /atlas/reset_controls
+    type: atlas_msgs/ResetControls
+
+  - service: /atlas_robot_state_publisher/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /atlas_robot_state_publisher/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /gazebo/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /gazebo/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /rosout/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /rosout/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /tf2_buffer_server/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /tf2_buffer_server/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /tf2_buffer_server/tf2_frames
+    type: tf2_msgs/FrameGraph
+
+  - service: /atlas/set_joint_damping
+    type: atlas_msgs/SetJointDamping
+
+  - service: /atlas/get_joint_damping
+    type: atlas_msgs/GetJointDamping
