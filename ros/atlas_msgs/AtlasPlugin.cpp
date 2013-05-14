@@ -217,7 +217,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
         maxVelocity = maxEffort;
       }
 
-      this->jointDampingMax.push_back(maxEffort / maxVelocity);
+      this->jointDampingMax.push_back(maxEffort / maxVelocity * 50);
 
       this->jointDampingMin.push_back(jointDampingLowerBound);
 
@@ -2327,8 +2327,11 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
 
     this->errorTerms[i].q_p = q_p;
 
-    this->errorTerms[i].qd_p =
-      this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
+    double damping = math::clamp(
+      static_cast<double>(this->atlasState.kp_velocity[i]),
+      this->jointDampingMin[i], this->jointDampingMax[i]);
+    this->joints[i]->SetDamping(0, damping);
+    double dampingEffort = damping * this->atlasState.velocity[i];
 
     this->errorTerms[i].k_i_q_i = math::clamp(
       this->errorTerms[i].k_i_q_i +
@@ -2348,7 +2351,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
                                         this->errorTerms[i].k_i_q_i +
       this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-      this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
+                              damping * this->atlasCommand.velocity[i] +
                                         this->atlasCommand.effort[i]) +
       (1.0 - k_effort)                * this->controlOutput.f_out[i];
 
@@ -2370,7 +2373,8 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
 
     // clamp force after integral tie-back
     forceClamped = math::clamp(forceUnclamped,
-      -this->effortLimit[i], this->effortLimit[i]);
+      -this->effortLimit[i] + dampingEffort,
+       this->effortLimit[i] + dampingEffort);
 
     // apply force to joint
     this->joints[i]->SetForce(0, forceClamped);
