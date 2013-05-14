@@ -309,7 +309,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block</name>
-      <pose>5.000000 12.554800 0.000000 1.57 0.000000 1.000000</pose>
+      <pose>5.000000 12.554800 0.118705 1.57 0.000000 1.000000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
@@ -329,7 +329,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block_3</name>
-      <pose>5.417030 14.528900 0.000000 1.57 0.000000 0.050000</pose>
+      <pose>5.417030 14.528900 0.118279 1.57 0.000000 0.050000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
@@ -369,7 +369,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block_11</name>
-      <pose>4.443480 9.510620 0.000000 1.57 0.000000 0.000000</pose>
+      <pose>4.443480 9.510620 0.118530 1.57 0.000000 0.000000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
@@ -384,7 +384,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block_14</name>
-      <pose>9.000000 11.528900 0.000000 1.57 0.000000 1.000000</pose>
+      <pose>9.000000 11.528900 0.118707 1.57 0.000000 1.000000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
