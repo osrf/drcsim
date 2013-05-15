@@ -2626,10 +2626,6 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
   /// update pid with feedforward force
   for (unsigned int i = 0; i < nJ; ++i)
   {
-  for (unsigned int j = 0; j < nJ; ++j)
-  {
-    // calculate contribution to jth-effort from ith-joint
-
     // truncate joint position within range of motion
     double positionTarget = math::clamp(
       this->atlasCommand.position[i],
@@ -2646,15 +2642,20 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     this->errorTerms[i].qd_p =
       this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
 
+    // convert k_effort to a double between 0 and 1
+    double k_effort =
+      static_cast<double>(this->atlasState.k_effort[i])/255.0;
+
+    for (unsigned int j = 0; j < nJ; ++j)
+    {
+    // calculate contribution to jth-effort from ith-joint
+
+    // integrate integral term
     this->errorTerms[i].k_i_q_i = math::clamp(
       this->errorTerms[i].k_i_q_i +
       _dt * this->atlasState.ki_position[i] * this->errorTerms[i].q_p,
       static_cast<double>(this->atlasState.i_effort_min[i]),
       static_cast<double>(this->atlasState.i_effort_max[i]));
-
-    // convert k_effort to a double between 0 and 1
-    double k_effort =
-      static_cast<double>(this->atlasState.k_effort[i])/255.0;
 
     // use gain params to compute force cmd
     // AtlasSimInterface:  also, add bdi controller feed forward force
@@ -2699,6 +2700,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // FIXME: Is this used by the controller?  i.e. should this happen
     // before process_control_input?
     this->atlasRobotState.j[i].f = forceClamped;
+    }
   }
 }
 
