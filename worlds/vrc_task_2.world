@@ -36,6 +36,21 @@
       </attenuation>
       <direction>0.2 0.0 -1.0</direction>
     </light>
+
+    <light type="point" name="light_bulb">
+      <cast_shadows>false</cast_shadows>
+      <pose>-7.5 -41 5 0 0 0</pose>
+      <diffuse>0.3 0.3 0.3 1</diffuse>
+      <specular>0.0 0.0 0.0 1</specular>
+
+      <attenuation>
+        <range>80</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+    </light>
+
     <include>
       <uri>model://vrc_heightmap_2</uri>
     </include>
