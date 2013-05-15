@@ -31,7 +31,7 @@ VRCPlugin::VRCPlugin()
 {
   /// initial anchor pose
   this->warpRobotWithCmdVel = false;
-  this->bdiStandPrep = false;
+  this->bdiStandNominal = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,8 +62,9 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
     this->cheatsEnabled = false;
 
   // ros callback queue for processing subscription
-  this->deferredLoadThread = boost::thread(
-    boost::bind(&VRCPlugin::DeferredLoad, this));
+  // this->deferredLoadThread = boost::thread(
+  //   boost::bind(&VRCPlugin::DeferredLoad, this));
+  this->DeferredLoad();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +236,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     else
     {
-      gzwarn << "No entity below robot, or GetEntityBelowPoint returned NULL pointer.\n";
+      gzwarn << "No entity below robot, or GetEntityBelowPoint "
+             << "returned NULL pointer.\n";
       // put atlas back
       this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
     }
@@ -301,17 +303,25 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "bdi_stand")
   {
-    // nominal
-    this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(true);
-    }
+    // pin robot
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
       this->RemoveJoint(this->vehicleRobotJoint);
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+    // turning off effect of gravity
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
 
     // turn physics off while manipulating things
     bool physics = this->world->GetEnablePhysicsEngine();
@@ -327,6 +337,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 
     this->world->EnablePhysicsEngine(physics);
     this->world->SetPaused(paused);
+    // this->atlasCommandController.SetBDIFREEZE();
   }
   else
   {
@@ -649,7 +660,6 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
 void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
-
   // if user chooses bdi_stand mode, robot will be initialized
   // with PID stand in BDI stand pose.
   // After startupStandPrepDuration - 1 seconds, start StandPrep mode
@@ -658,14 +668,16 @@ void VRCPlugin::UpdateStates()
   {
     if (curTime > atlas.startupStandPrepDuration)
     {
+      ROS_DEBUG("going into Stand");
       this->atlasCommandController.SetBDIStand();
       this->atlas.startupBDIStand = false;
     }
-    else if (!this->bdiStandPrep && curTime >
-      atlas.startupStandPrepDuration - 1)
+    else if (!this->bdiStandNominal && curTime >
+      atlas.startupStandPrepDuration - 1.0)
     {
-      this->atlasCommandController.SetBDIStandPrep();
-      this->bdiStandPrep = true;
+      ROS_DEBUG("going into Nominal");
+      this->SetRobotMode("nominal");
+      this->bdiStandNominal = true;
     }
   }
 
@@ -1195,13 +1207,13 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceCommand>(
     "/atlas/atlas_sim_interface_command", 1, true);
 
-  ros::SubscribeOptions jointStatesSo =
-    ros::SubscribeOptions::create<sensor_msgs::JointState>(
-    "/atlas/joint_states", 1,
-    boost::bind(&AtlasCommandController::GetJointStates, this, _1),
-    ros::VoidPtr(), this->rosNode->getCallbackQueue());
-  this->subJointStates =
-    this->rosNode->subscribe(jointStatesSo);
+  // ros::SubscribeOptions jointStatesSo =
+  //   ros::SubscribeOptions::create<sensor_msgs::JointState>(
+  //   "/atlas/joint_states", 1,
+  //   boost::bind(&AtlasCommandController::GetJointStates, this, _1),
+  //   ros::VoidPtr(), this->rosNode->getCallbackQueue());
+  // this->subJointStates =
+  //   this->rosNode->subscribe(jointStatesSo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1224,6 +1236,40 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
 {
   // seated configuration
   this->ac.header.stamp = ros::Time::now();
+
+  /*
+  // StandPrep initial pose
+  this->ac.position[0]  = -1.8823047867044806e-05;
+  this->ac.position[1]  =  0.0016903011128306389;
+  this->ac.position[2]  =  9.384587610838935e-05;
+  this->ac.position[3]  =  -0.6108658313751221;
+  this->ac.position[4]  =  0.30274710059165955;
+  this->ac.position[5]  =  0.05022283270955086;
+  this->ac.position[6]  =  -0.25109854340553284;
+  this->ac.position[7]  =  0.5067367553710938;
+  this->ac.position[8]  =  -0.2464604675769806;
+  this->ac.position[9]  =  -0.05848940089344978;
+  this->ac.position[10] =  -0.30258211493492126;
+  this->ac.position[11] =  -0.07534884661436081;
+  this->ac.position[12] =  -0.2539609372615814;
+  this->ac.position[13] =  0.5230700969696045;
+  this->ac.position[14] =  -0.2662496864795685;
+  this->ac.position[15] =  0.0634056106209755;
+  this->ac.position[16] =  0.29979637265205383;
+  this->ac.position[17] =  -1.303655982017517;
+  this->ac.position[18] =  2.000823736190796;
+  this->ac.position[19] =  0.4982665777206421;
+  this->ac.position[20] =  0.00030532144592143595;
+  this->ac.position[21] =  -0.004383780527859926;
+  this->ac.position[22] =  0.2997862696647644;
+  this->ac.position[23] =  1.303290843963623;
+  this->ac.position[24] =  2.0007426738739014;
+  this->ac.position[25] =  -0.4982258975505829;
+  this->ac.position[26] =  0.0002723461075220257;
+  this->ac.position[27] =  0.004452839493751526;
+  */
+
+  // StandPrep end pose --> Stand  pose
   this->ac.position[0]  =   2.438504816382192e-05;
   this->ac.position[1]  =   0.0015186156379058957;
   this->ac.position[2]  =   9.983908967114985e-06;
@@ -1253,6 +1299,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[26] =  0.0003156556049361825;
   this->ac.position[27] =   0.004448802210390568;
 
+
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->ac.k_effort[i] =  255;
 
@@ -1268,11 +1315,23 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::AtlasCommandController::SetBDIFREEZE()
+{
+  atlas_msgs::AtlasSimInterfaceCommand ac;
+  ac.header.stamp = ros::Time::now();
+  ac.behavior = ac.FREEZE;
+  this->pubAtlasSimInterfaceCommand.publish(ac);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::AtlasCommandController::SetBDIStandPrep()
 {
   atlas_msgs::AtlasSimInterfaceCommand ac;
   ac.header.stamp = ros::Time::now();
   ac.behavior = ac.STAND_PREP;
+  ac.k_effort.resize(this->jointNames.size());
+  for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+    this->ac.k_effort[i] =  0;
   this->pubAtlasSimInterfaceCommand.publish(ac);
 }
 
