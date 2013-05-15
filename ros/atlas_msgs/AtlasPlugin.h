@@ -580,6 +580,14 @@ namespace gazebo
     /// \brief joint damping coefficient bounds
     private: std::vector<double> jointDampingMax;
     private: std::vector<double> jointDampingMin;
+
+    /// \brief AtlasSimInterface: startup steps for BDI controller
+    private: int startupStep;
+    private: enum StartupSteps {
+               FREEZE = 0,
+               USER = 1,
+               NOMINAL = 2,
+             };
   };
 }
 #endif
