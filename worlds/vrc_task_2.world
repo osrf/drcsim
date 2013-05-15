@@ -193,6 +193,46 @@
       <name>mud_atlas</name>
       <pose>0.5 -16.6 -.38 0 0 0</pose>
     </include>
+
+    <model name="mud_ground_plane">
+      <static>true</static>
+      <pose>0.0 0.0 -0.59 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+          <script>
+            <uri>model://mud_atlas/materials/scripts</uri>
+            <uri>model://mud_atlas/materials/textures</uri>
+            <name>vrc/mud_bottom</name>
+          </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
     <!--
     <include>
       <uri>model://gate</uri>
@@ -269,7 +309,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block</name>
-      <pose>5.000000 12.554800 0.000000 1.57 0.000000 1.000000</pose>
+      <pose>5.000000 12.554800 0.118705 1.57 0.000000 1.000000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
@@ -289,7 +329,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block_3</name>
-      <pose>5.417030 14.528900 0.000000 1.57 0.000000 0.050000</pose>
+      <pose>5.417030 14.528900 0.118279 1.57 0.000000 0.050000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
@@ -329,7 +369,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block_11</name>
-      <pose>4.443480 9.510620 0.000000 1.57 0.000000 0.000000</pose>
+      <pose>4.443480 9.510620 0.118530 1.57 0.000000 0.000000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
@@ -344,7 +384,7 @@
     <include>
       <uri>model://cinder_block</uri>
       <name>cinder_block_14</name>
-      <pose>9.000000 11.528900 0.000000 1.57 0.000000 1.000000</pose>
+      <pose>9.000000 11.528900 0.118707 1.57 0.000000 1.000000</pose>
     </include>
     <include>
       <uri>model://cinder_block</uri>
