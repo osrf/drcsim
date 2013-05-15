@@ -1431,6 +1431,7 @@ void AtlasPlugin::SetASICommand(
       _msg->k_effort.size(), this->atlasState.k_effort.size());
 
   /// \TODO: Set atlasControlInput from _msg
+  unsigned int nJ = this->jointNames.size();
   for(unsigned int i = 0; i < nJ; ++i)
   {
     this->atlasControlInput.j[i].q_d = 0.0;
@@ -1661,19 +1662,19 @@ void AtlasPlugin::OnRContactUpdate()
 void AtlasPlugin::ZeroAtlasCommand()
 {
   unsigned int nJ = this->jointNames.size();
-  for (unsigned i = 0; i < this->jointNames.size(); ++i)
+  for (unsigned i = 0; i < nJ; ++i)
   {
     this->atlasCommand.position[i] = 0;
     this->atlasCommand.velocity[i] = 0;
     this->atlasCommand.effort[i] = 0;
     // store these directly on altasState, more efficient for pub later
-    for (unsigned int j = 0; j < this->jointNames.size(); ++j)
+    for (unsigned int j = 0; j < nJ; ++j)
     {
       /// FIXME \TODO resize these to nJ*nJ
-      this->atlasState.kp_position[i * nJ + j] = 0;
-      this->atlasState.ki_position[i * nJ + j] = 0;
-      this->atlasState.kd_position[i * nJ + j] = 0;
-      this->atlasState.kp_velocity[i * nJ + j] = 0;
+      this->atlasState.kp_position[i*nJ+j] = 0;
+      this->atlasState.ki_position[i*nJ+j] = 0;
+      this->atlasState.kd_position[i*nJ+j] = 0;
+      this->atlasState.kp_velocity[i*nJ+j] = 0;
     }
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
@@ -1686,19 +1687,19 @@ void AtlasPlugin::ZeroAtlasCommand()
 void AtlasPlugin::ZeroJointCommands()
 {
   unsigned int nJ = this->jointNames.size();
-  for (unsigned i = 0; i < this->jointNames.size(); ++i)
+  for (unsigned i = 0; i < nJ; ++i)
   {
     this->jointCommands.position[i] = 0;
     this->jointCommands.velocity[i] = 0;
     this->jointCommands.effort[i] = 0;
     // store these directly on altasState, more efficient for pub later
-    for (unsigned int j = 0; j < this->jointNames.size(); ++j)
+    for (unsigned int j = 0; j < nJ; ++j)
     {
       /// FIXME \TODO resize these to nJ*nJ
-      this->atlasState.kp_position[i * nJ + j] = 0;
-      this->atlasState.ki_position[i * nJ + j] = 0;
-      this->atlasState.kd_position[i * nJ + j] = 0;
-      this->atlasState.kp_velocity[i * nJ + j] = 0;
+      this->atlasState.kp_position[i*nJ+j] = 0;
+      this->atlasState.ki_position[i*nJ+j] = 0;
+      this->atlasState.kd_position[i*nJ+j] = 0;
+      this->atlasState.kp_velocity[i*nJ+j] = 0;
     }
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
@@ -1732,25 +1733,27 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     }
     // store these directly on altasState, more efficient for pub later
     for (unsigned int i = 0; i < nJ; ++i)
-    for (unsigned int j = 0; j < nJ; ++j)
     {
-      if (i == j)
+      for (unsigned int j = 0; j < nJ; ++j)
       {
-        this->atlasState.kp_position[i*nJ+j]  =  p_val;
-        this->atlasState.ki_position[i*nJ+j]  =  i_val;
-        this->atlasState.kd_position[i*nJ+j]  =  d_val;
+        if (i == j)
+        {
+          this->atlasState.kp_position[i*nJ+j]  =  p_val;
+          this->atlasState.ki_position[i*nJ+j]  =  i_val;
+          this->atlasState.kd_position[i*nJ+j]  =  d_val;
+        }
+        else
+        {
+          this->atlasState.kp_position[i*nJ+j]  =  0.0;
+          this->atlasState.ki_position[i*nJ+j]  =  0.0;
+          this->atlasState.kd_position[i*nJ+j]  =  0.0;
+        }
       }
-      else
-      {
-        this->atlasState.kp_position[i*nJ+j]  =  0.0;
-        this->atlasState.ki_position[i*nJ+j]  =  0.0;
-        this->atlasState.kd_position[i*nJ+j]  =  0.0;
-      }
+      this->atlasState.i_effort_min[i] = -i_clamp_val;
+      this->atlasState.i_effort_max[i] =  i_clamp_val;
+      // default k_effort is set to 1, controller relies on PID.
+      this->atlasState.k_effort[i] = 255;
     }
-    this->atlasState.i_effort_min[i] = -i_clamp_val;
-    this->atlasState.i_effort_max[i] =  i_clamp_val;
-    // default k_effort is set to 1, controller relies on PID.
-    this->atlasState.k_effort[i] = 255;
   }
 }
 
@@ -1991,7 +1994,8 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
         double stepX = static_cast<double>(stepId + 1)*strideSagittal;
         double stepY = stepWidth;
         if (isRight)
-          walkParams->step_queue[stepId].position = AtlasVec3f(stepX, -stepY, 0);
+          walkParams->step_queue[stepId].position =
+            AtlasVec3f(stepX, -stepY, 0);
         else
           walkParams->step_queue[stepId].position = AtlasVec3f(stepX, stepY, 0);
         walkParams->step_queue[stepId].yaw = 0;
@@ -2621,65 +2625,70 @@ void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdatePIDControl(double _dt)
 {
-  unsigned int nJ = this->jointNames.size();
+  GZ_ASSERT(!math::equal(_dt, 0.0), "dt is 0 in PID control loop.");
+
+  unsigned static int nJ = this->jointNames.size();
 
   // temporary variables
-  double forceUnclamped[nJ] = 0.0;
-  double forceClamped[nJ] = 0.0;
-  double k_effort[nJ] = 0.0;
+  double forceUnclamped[nJ];
+  double forceClamped[nJ];
+  double k_effort[nJ];
+
+  for (unsigned int i = 0; i < nJ; ++i)
+    forceUnclamped[i] = 0.0;
 
   /// update pid with feedforward force
-  for (unsigned int i = 0; i < nJ; ++i)
+  for (unsigned int j = 0; j < nJ; ++j)
   {
     // truncate joint position within range of motion
     double positionTarget = math::clamp(
-      this->atlasCommand.position[i],
-      this->joints[i]->GetLowStop(0).Radian(),
-      this->joints[i]->GetHighStop(0).Radian());
+      this->atlasCommand.position[j],
+      this->joints[j]->GetLowStop(0).Radian(),
+      this->joints[j]->GetHighStop(0).Radian());
+    double q_p = positionTarget - this->atlasState.position[j];
 
-    double q_p = positionTarget - this->atlasState.position[i];
+    this->errorTerms[j].d_q_p_dt = (q_p - this->errorTerms[j].q_p) / _dt;
 
-    if (!math::equal(_dt, 0.0))
-      this->errorTerms[i].d_q_p_dt = (q_p - this->errorTerms[i].q_p) / _dt;
+    this->errorTerms[j].q_p = q_p;
 
-    this->errorTerms[i].q_p = q_p;
-
-    this->errorTerms[i].qd_p =
-      this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
+    this->errorTerms[j].qd_p =
+      this->atlasCommand.velocity[j] - this->atlasState.velocity[j];
 
     // convert k_effort to a double between 0 and 1
-    k_effort[i] =
-      static_cast<double>(this->atlasState.k_effort[i])/255.0;
+    k_effort[j] =
+      static_cast<double>(this->atlasState.k_effort[j])/255.0;
 
     // integrate integral term
+    /// \TODO: integral term not yet implemented!!!
     // originally, store k_i_q_i as the force due to integral error,
     // for efficiency, set k_i_q_i = (force / ki_position)
-    this->errorTerms[i].k_i_q_i = math::clamp(
-      this->errorTerms[i].k_i_q_i +
-      _dt * this->atlasState.ki_position[i] * this->errorTerms[i].q_p,
-      static_cast<double>(this->atlasState.i_effort_min[i]),
-      static_cast<double>(this->atlasState.i_effort_max[i]));
+    this->errorTerms[j].k_i_q_i = math::clamp(
+      this->errorTerms[j].k_i_q_i +
+      _dt * this->atlasState.ki_position[j*nJ+j] * this->errorTerms[j].q_p,
+      static_cast<double>(this->atlasState.i_effort_min[j]),
+      static_cast<double>(this->atlasState.i_effort_max[j]));
 
     // sum up contributions from ith-joint to jth-effort
-    for (unsigned int j = 0; j < nJ; ++j)
+    for (unsigned int i = 0; i < nJ; ++i)
     {
-
-    // use gain params to compute force cmd
-    // AtlasSimInterface:  also, add bdi controller feed forward force
-    // to overall control torque scaled by 1 - k_effort.
-    forceUnclamped[j] +=
-      k_effort[i] * (
-      this->atlasState.kp_position[j*nJ+i] * this->errorTerms[i].q_p +
-                                             this->errorTerms[i].k_i_q_i +
-      this->atlasState.kd_position[j*nJ+i] * this->errorTerms[i].d_q_p_dt +
-      this->atlasState.kp_velocity[j*nJ+i] * this->errorTerms[i].qd_p +
-                                             this->atlasCommand.effort[i]) +
-      (1.0 - k_effort[i])                  * this->controlOutput.f_out[i];
-
+      // use gain params to compute force cmd
+      forceUnclamped[i] +=
+        this->atlasState.kp_position[i*nJ+j] * this->errorTerms[j].q_p +
+                                               this->errorTerms[j].k_i_q_i +
+        this->atlasState.kd_position[i*nJ+j] * this->errorTerms[j].d_q_p_dt +
+        this->atlasState.kp_velocity[i*nJ+j] * this->errorTerms[j].qd_p;
     }
   }
+
   for (unsigned int i = 0; i < nJ; ++i)
   {
+    // AtlasSimInterface:  also, add bdi controller feed forward force
+    // to overall control torque scaled by 1 - k_effort.
+    forceUnclamped[i] =
+               k_effort[i]  * (forceUnclamped[i] +
+                               this->atlasCommand.effort[i]) +
+        (1.0 - k_effort[i]) * this->controlOutput.f_out[i];
+
     // clamp force
     forceClamped[i] = math::clamp(forceUnclamped[i],
       -this->effortLimit[i], this->effortLimit[i]);
