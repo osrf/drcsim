@@ -10,7 +10,6 @@ set (rostests
   vrc_task_3_rosapi.test
   performance_test1.test
   atlas_cheats_rosapi.test
-  atlas_drc_vehicle_fire_hose_cheats_rosapi.test
   atlas_sandia_hands_cheats_rosapi.test
   vrc_task_1_cheats_rosapi.test
   vrc_task_2_cheats_rosapi.test
