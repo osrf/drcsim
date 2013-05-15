@@ -2623,6 +2623,11 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
 {
   unsigned int nJ = this->jointNames.size();
 
+  // temporary variables
+  double forceUnclamped[nJ] = 0.0;
+  double forceClamped[nJ] = 0.0;
+  double k_effort[nJ] = 0.0;
+
   /// update pid with feedforward force
   for (unsigned int i = 0; i < nJ; ++i)
   {
@@ -2643,52 +2648,53 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       this->atlasCommand.velocity[i] - this->atlasState.velocity[i];
 
     // convert k_effort to a double between 0 and 1
-    double k_effort =
+    k_effort[i] =
       static_cast<double>(this->atlasState.k_effort[i])/255.0;
 
-    for (unsigned int j = 0; j < nJ; ++j)
-    {
-    // calculate contribution to jth-effort from ith-joint
-
     // integrate integral term
+    // originally, store k_i_q_i as the force due to integral error,
+    // for efficiency, set k_i_q_i = (force / ki_position)
     this->errorTerms[i].k_i_q_i = math::clamp(
       this->errorTerms[i].k_i_q_i +
       _dt * this->atlasState.ki_position[i] * this->errorTerms[i].q_p,
       static_cast<double>(this->atlasState.i_effort_min[i]),
       static_cast<double>(this->atlasState.i_effort_max[i]));
 
+    // sum up contributions from ith-joint to jth-effort
+    for (unsigned int j = 0; j < nJ; ++j)
+    {
+
     // use gain params to compute force cmd
     // AtlasSimInterface:  also, add bdi controller feed forward force
     // to overall control torque scaled by 1 - k_effort.
-    double forceUnclamped =
-      k_effort * (
-      this->atlasState.kp_position[i] * this->errorTerms[i].q_p +
-                                        this->errorTerms[i].k_i_q_i +
-      this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
-      this->atlasState.kp_velocity[i] * this->errorTerms[i].qd_p +
-                                        this->atlasCommand.effort[i]) +
-      (1.0 - k_effort)                * this->controlOutput.f_out[i];
+    forceUnclamped[j] +=
+      k_effort[i] * (
+      this->atlasState.kp_position[j*nJ+i] * this->errorTerms[i].q_p +
+                                             this->errorTerms[i].k_i_q_i +
+      this->atlasState.kd_position[j*nJ+i] * this->errorTerms[i].d_q_p_dt +
+      this->atlasState.kp_velocity[j*nJ+i] * this->errorTerms[i].qd_p +
+                                             this->atlasCommand.effort[i]) +
+      (1.0 - k_effort[i])                  * this->controlOutput.f_out[i];
 
-    // keep unclamped force for integral tie-back calculation
-    double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
-      this->effortLimit[i]);
-
-    // clamp force after integral tie-back
-    forceClamped = math::clamp(forceUnclamped,
+    }
+  }
+  for (unsigned int i = 0; i < nJ; ++i)
+  {
+    // clamp force
+    forceClamped[i] = math::clamp(forceUnclamped[i],
       -this->effortLimit[i], this->effortLimit[i]);
 
     // apply force to joint
-    this->joints[i]->SetForce(0, forceClamped);
+    this->joints[i]->SetForce(0, forceClamped[i]);
 
     // fill in jointState efforts
-    this->atlasState.effort[i] = forceClamped;
-    this->jointStates.effort[i] = forceClamped;
+    this->atlasState.effort[i] = forceClamped[i];
+    this->jointStates.effort[i] = forceClamped[i];
 
     // AtlasSimInterface: fill in atlasRobotState efforts.
     // FIXME: Is this used by the controller?  i.e. should this happen
     // before process_control_input?
-    this->atlasRobotState.j[i].f = forceClamped;
-    }
+    this->atlasRobotState.j[i].f = forceClamped[i];
   }
 }
 
