@@ -1732,28 +1732,25 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
       continue;
     }
     // store these directly on altasState, more efficient for pub later
-    for (unsigned int i = 0; i < nJ; ++i)
+    for (unsigned int j = 0; j < nJ; ++j)
     {
-      for (unsigned int j = 0; j < nJ; ++j)
+      if (i == j)
       {
-        if (i == j)
-        {
-          this->atlasState.kp_position[i*nJ+j]  =  p_val;
-          this->atlasState.ki_position[i*nJ+j]  =  i_val;
-          this->atlasState.kd_position[i*nJ+j]  =  d_val;
-        }
-        else
-        {
-          this->atlasState.kp_position[i*nJ+j]  =  0.0;
-          this->atlasState.ki_position[i*nJ+j]  =  0.0;
-          this->atlasState.kd_position[i*nJ+j]  =  0.0;
-        }
+        this->atlasState.kp_position[i*nJ+j]  =  p_val;
+        this->atlasState.ki_position[i*nJ+j]  =  i_val;
+        this->atlasState.kd_position[i*nJ+j]  =  d_val;
       }
-      this->atlasState.i_effort_min[i] = -i_clamp_val;
-      this->atlasState.i_effort_max[i] =  i_clamp_val;
-      // default k_effort is set to 1, controller relies on PID.
-      this->atlasState.k_effort[i] = 255;
+      else
+      {
+        this->atlasState.kp_position[i*nJ+j]  =  0.0;
+        this->atlasState.ki_position[i*nJ+j]  =  0.0;
+        this->atlasState.kd_position[i*nJ+j]  =  0.0;
+      }
     }
+    this->atlasState.i_effort_min[i] = -i_clamp_val;
+    this->atlasState.i_effort_max[i] =  i_clamp_val;
+    // default k_effort is set to 1, controller relies on PID.
+    this->atlasState.k_effort[i] = 255;
   }
 }
 
