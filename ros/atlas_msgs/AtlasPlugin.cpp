@@ -2366,7 +2366,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // to intrinsic joint damping coefficient.  Simulating
     // infinite bandwidth kp_velocity.
     //
-    // kp_velocity is truncated within (jointDampingMin, jointDampingMax).
+    // kp_velocity is truncated within (jointDampingModel, jointDampingMax).
     //
     // To take advantage of utilizing full range of cfm damping dynamically
     // for controlling the robot, set model damping (jointDmapingModel)
