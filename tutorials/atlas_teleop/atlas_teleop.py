@@ -2,16 +2,16 @@
 import roslib; roslib.load_manifest('atlas_teleop')
 import rospy, sys, yaml
 from osrf_msgs.msg import JointCommands
+from atlas_msgs.msg import AtlasCommand
 from sensor_msgs.msg import Joy
-g_jc_pub = None
+g_ac_pub = None
 g_jc_lh_pub = None
 g_jc_rh_pub = None
-g_jc = JointCommands()
+g_jc = AtlasCommand()
 g_jc_rh = JointCommands()
 g_jc_lh = JointCommands()
 g_vec = [ ]
 g_knobs = "unknown"
-g_jc_rh = JointCommands()
 g_vec_lh = [ ]
 g_vec_rh = [ ]
 # need to figure out a reasonable way to blend grasps composed of different
@@ -24,7 +24,7 @@ g_grasps = { 'cyl': { 'origin':[0] * 12,
                       'grasp': [  0.0, 1.4, 1.2,   0, -1.4,  -1.4,  0.0, -1.4,  -1.4,  0.5, 0.7, 0.7]} }
 
 def joy_cb(msg):
-  global g_jc_pub, g_jc
+  global g_ac_pub, g_jc
   g_jc.position = [0] * 28
   g_jc_lh.position = [0] * 12
   g_jc_rh.position = [0] * 12
@@ -53,7 +53,7 @@ def joy_cb(msg):
         g_jc.position[x] = (msg.axes[x+9] - 0.5) * 3.14
   g_jc_lh_pub.publish(g_jc_lh)
   g_jc_rh_pub.publish(g_jc_rh)
-  g_jc_pub.publish(g_jc)
+  g_ac_pub.publish(g_jc)
   s = ""
   for x in xrange(0, 28):
     s += "%.3f " % g_jc.position[x]
@@ -86,20 +86,20 @@ if __name__ == '__main__':
   print g_vec_lh
   print g_vec_rh
   rospy.init_node('atlas_teleop')
-  g_jc.name = ['atlas::back_lbz', 'atlas::back_mby',    # 0
-               'atlas::back_ubx', 'atlas::neck_ay',
-               'atlas::l_leg_uhz', 'atlas::l_leg_mhx',  # 4
-               'atlas::l_leg_lhy', 'atlas::l_leg_kny',
-               'atlas::l_leg_uay', 'atlas::l_leg_lax',
-               'atlas::r_leg_uhz', 'atlas::r_leg_mhx',  # 10
-               'atlas::r_leg_lhy', 'atlas::r_leg_kny',
-               'atlas::r_leg_uay', 'atlas::r_leg_lax',
-               'atlas::l_arm_usy', 'atlas::l_arm_shx',  # 16
-               'atlas::l_arm_ely', 'atlas::l_arm_elx',
-               'atlas::l_arm_uwy', 'atlas::l_arm_mwx',
-               'atlas::r_arm_usy', 'atlas::r_arm_shx',  # 22
-               'atlas::r_arm_ely', 'atlas::r_arm_elx',
-               'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
+  # g_jc.name = ['atlas::back_lbz', 'atlas::back_mby',    # 0
+  #              'atlas::back_ubx', 'atlas::neck_ay',
+  #              'atlas::l_leg_uhz', 'atlas::l_leg_mhx',  # 4
+  #              'atlas::l_leg_lhy', 'atlas::l_leg_kny',
+  #              'atlas::l_leg_uay', 'atlas::l_leg_lax',
+  #              'atlas::r_leg_uhz', 'atlas::r_leg_mhx',  # 10
+  #              'atlas::r_leg_lhy', 'atlas::r_leg_kny',
+  #              'atlas::r_leg_uay', 'atlas::r_leg_lax',
+  #              'atlas::l_arm_usy', 'atlas::l_arm_shx',  # 16
+  #              'atlas::l_arm_ely', 'atlas::l_arm_elx',
+  #              'atlas::l_arm_uwy', 'atlas::l_arm_mwx',
+  #              'atlas::r_arm_usy', 'atlas::r_arm_shx',  # 22
+  #              'atlas::r_arm_ely', 'atlas::r_arm_elx',
+  #              'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
   ''' current settings from launch file:
   g_jc.kp_position = [20, 4000, 2000, 20,  # back
                       5, 100, 2000, 1000, 900, 300, # left leg
@@ -123,7 +123,11 @@ if __name__ == '__main__':
                       20.0, 20.0, 3.0, 3.0, 0.1, 0.2, # left arm
                       20.0, 20.0, 3.0, 3.0, 0.1, 0.2] # right arm
   g_jc.position = [0] * 28
-  g_jc_pub = rospy.Publisher('atlas/joint_commands', JointCommands)
+
+  g_jc.k_effort = [255] * 28 # full User PID mode
+  # g_jc.k_effort = [ 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]  # uncomment to work with manipulate stand mode
+
+  g_ac_pub = rospy.Publisher('atlas/atlas_command', AtlasCommand)
 
   g_jc_rh.name = ["f0_j0", "f0_j1", "f0_j2",
                   "f1_j0", "f1_j1", "f1_j2",

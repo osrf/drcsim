@@ -7,8 +7,8 @@
         <geometry>
           <heightmap>
             <uri>model://vrc_heightmap_2/materials/textures/heightmap.png</uri>
-            <size>200 200 46.9</size>
-            <pos>0 0 -4.6</pos>
+            <size>100 100 3.5</size>
+            <pos>0 0 -0.6</pos>
           </heightmap>
         </geometry>
       </collision>
@@ -19,29 +19,29 @@
             <texture>
               <diffuse>file://media/materials/textures/dirt_diffusespecular.png</diffuse>
               <normal>file://media/materials/textures/flat_normal.png</normal>
-              <size>50</size>
+              <size>5</size>
             </texture>
             <texture>
               <diffuse>file://media/materials/textures/grass_diffusespecular.png</diffuse>
               <normal>file://media/materials/textures/flat_normal.png</normal>
-              <size>20</size>
+              <size>5</size>
             </texture>
             <texture>
               <diffuse>file://media/materials/textures/fungus_diffusespecular.png</diffuse>
               <normal>file://media/materials/textures/flat_normal.png</normal>
-              <size>80</size>
+              <size>5</size>
             </texture>
             <blend>
-              <min_height>4.0</min_height>
-              <fade_dist>2</fade_dist>
+              <min_height>0.48</min_height>
+              <fade_dist>0.4</fade_dist>
             </blend>
             <blend>
-              <min_height>8</min_height>
-              <fade_dist>2</fade_dist>
+              <min_height>2.2</min_height>
+              <fade_dist>1</fade_dist>
             </blend>
             <uri>model://vrc_heightmap_2/materials/textures/heightmap.png</uri>
-            <size>200 200 46.9</size>
-            <pos>0 0 -4.6</pos>
+            <size>100 100 3.5</size>
+            <pos>0 0 -0.6</pos>
           </heightmap>
         </geometry>
       </visual>
