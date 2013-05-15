@@ -79,7 +79,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 # find gazebo
 include (FindPkgConfig)
 if (PKG_CONFIG_FOUND)
-  pkg_check_modules(GAZEBO gazebo>=1.3.0 REQUIRED)
+  pkg_check_modules(GAZEBO gazebo>=1.8.0 REQUIRED)
 else()
   message(FATAL_ERROR "pkg-config is required; please install it")
 endif()
