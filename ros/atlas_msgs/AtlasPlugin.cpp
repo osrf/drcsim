@@ -2420,18 +2420,6 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
       this->effortLimit[i]);
 
-    // integral tie-back during control saturation if using integral gain
-    if (!math::equal(forceClamped,forceUnclamped) &&
-        !math::equal((double)this->atlasState.ki_position[i],0.0) )
-    {
-      // lock integral term to provide continuous control as system moves
-      // out of staturation
-      this->errorTerms[i].k_i_q_i = math::clamp(
-        this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
-      static_cast<double>(this->atlasState.i_effort_min[i]),
-      static_cast<double>(this->atlasState.i_effort_max[i]));
-    }
-
     // clamp force after integral tie-back
     forceClamped = math::clamp(forceUnclamped,
       -this->effortLimit[i], this->effortLimit[i]);
