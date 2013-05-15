@@ -261,7 +261,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->atlasState.velocity.resize(nJ);
     this->atlasState.effort.resize(nJ);
     this->atlasState.kp_position.resize(nJ*nJ);
-    this->atlasState.ki_position.resize(nJ*nJ);
+    this->atlasState.ki_position.resize(nJ);
     this->atlasState.kd_position.resize(nJ*nJ);
     this->atlasState.kp_velocity.resize(nJ*nJ);
     this->atlasState.i_effort_min.resize(nJ);
@@ -285,7 +285,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     // these could be size 28 or 28X28 depending on whether
     // full state feedback is being used
     this->atlasCommand.kp_position.resize(nJ*nJ);
-    this->atlasCommand.ki_position.resize(nJ*nJ);
+    this->atlasCommand.ki_position.resize(nJ);
     this->atlasCommand.kd_position.resize(nJ*nJ);
     this->atlasCommand.kp_velocity.resize(nJ*nJ);
 
@@ -974,22 +974,7 @@ void AtlasPlugin::SetAtlasCommand(
       _msg->kp_position.size(), this->atlasState.kp_position.size());
   }
 
-  if (_msg->ki_position.size() == nJ)
-  {
-    // copy from joint command (independent state vector) to
-    // atlas state (full state matrix).
-    for (unsigned int i = 0; i < nJ; ++i)
-    {
-      for (unsigned int j = 0; j < nJ; ++j)
-      {
-        if (i == j)
-          this->atlasState.ki_position[i*nJ+j] = _msg->ki_position[i];
-        else
-          this->atlasState.ki_position[i*nJ+j] = 0;
-      }
-    }
-  }
-  else if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
   {
     // copy from joint command (full state matrix) to
     // atlas state (full state matrix).
@@ -1158,22 +1143,7 @@ void AtlasPlugin::SetJointCommands(
       _msg->kp_position.size(), this->atlasState.kp_position.size());
   }
 
-  if (_msg->ki_position.size() == nJ)
-  {
-    // copy from joint command (independent state vector) to
-    // atlas state (full state matrix).
-    for (unsigned int i = 0; i < nJ; ++i)
-    {
-      for (unsigned int j = 0; j < nJ; ++j)
-      {
-        if (i == j)
-          this->atlasState.ki_position[i*nJ+j] = _msg->ki_position[i];
-        else
-          this->atlasState.ki_position[i*nJ+j] = 0;
-      }
-    }
-  }
-  else if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
   {
     // copy from joint command (full state matrix) to
     // atlas state (full state matrix).
@@ -1711,10 +1681,10 @@ void AtlasPlugin::ZeroAtlasCommand()
     {
       /// FIXME \TODO resize these to nJ*nJ
       this->atlasState.kp_position[i*nJ+j] = 0;
-      this->atlasState.ki_position[i*nJ+j] = 0;
       this->atlasState.kd_position[i*nJ+j] = 0;
       this->atlasState.kp_velocity[i*nJ+j] = 0;
     }
+    this->atlasState.ki_position[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
@@ -1738,10 +1708,10 @@ void AtlasPlugin::ZeroJointCommands()
     {
       /// FIXME \TODO resize these to nJ*nJ
       this->atlasState.kp_position[i*nJ+j] = 0;
-      this->atlasState.ki_position[i*nJ+j] = 0;
       this->atlasState.kd_position[i*nJ+j] = 0;
       this->atlasState.kp_velocity[i*nJ+j] = 0;
     }
+    this->atlasState.ki_position[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
@@ -1780,16 +1750,15 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
       if (i == j)
       {
         this->atlasState.kp_position[i*nJ+j]  =  p_val;
-        this->atlasState.ki_position[i*nJ+j]  =  i_val;
         this->atlasState.kd_position[i*nJ+j]  =  d_val;
       }
       else
       {
         this->atlasState.kp_position[i*nJ+j]  =  0.0;
-        this->atlasState.ki_position[i*nJ+j]  =  0.0;
         this->atlasState.kd_position[i*nJ+j]  =  0.0;
       }
     }
+    this->atlasState.ki_position[i]  =  i_val;
     this->atlasState.i_effort_min[i] = -i_clamp_val;
     this->atlasState.i_effort_max[i] =  i_clamp_val;
     // default k_effort is set to 1, controller relies on PID.
@@ -1841,22 +1810,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
       _msg->kp_position.size(), this->atlasState.kp_position.size());
   }
 
-  if (_msg->ki_position.size() == nJ)
-  {
-    // copy from joint command (independent state vector) to
-    // atlas state (full state matrix).
-    for (unsigned int i = 0; i < nJ; ++i)
-    {
-      for (unsigned int j = 0; j < nJ; ++j)
-      {
-        if (i == j)
-          this->atlasState.ki_position[i*nJ+j] = _msg->ki_position[i];
-        else
-          this->atlasState.ki_position[i*nJ+j] = 0;
-      }
-    }
-  }
-  else if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
   {
     // copy from joint command (full state matrix) to
     // atlas state (full state matrix).
@@ -2694,12 +2648,9 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       static_cast<double>(this->atlasState.k_effort[j])/255.0;
 
     // integrate integral term
-    /// \TODO: integral term not yet implemented!!!
-    // originally, store k_i_q_i as the force due to integral error,
-    // for efficiency, set k_i_q_i = (force / ki_position)
     this->errorTerms[j].k_i_q_i = math::clamp(
       this->errorTerms[j].k_i_q_i +
-      _dt * this->atlasState.ki_position[j*nJ+j] * this->errorTerms[j].q_p,
+      _dt * this->atlasState.ki_position[j] * this->errorTerms[j].q_p,
       static_cast<double>(this->atlasState.i_effort_min[j]),
       static_cast<double>(this->atlasState.i_effort_max[j]));
 
@@ -2709,7 +2660,6 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       // use gain params to compute force cmd
       forceUnclamped[i] +=
         this->atlasState.kp_position[i*nJ+j] * this->errorTerms[j].q_p +
-                                               this->errorTerms[j].k_i_q_i +
         this->atlasState.kd_position[i*nJ+j] * this->errorTerms[j].d_q_p_dt +
         this->atlasState.kp_velocity[i*nJ+j] * this->errorTerms[j].qd_p;
     }
@@ -2721,6 +2671,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // to overall control torque scaled by 1 - k_effort.
     forceUnclamped[i] =
                k_effort[i]  * (forceUnclamped[i] +
+                               this->errorTerms[i].k_i_q_i +
                                this->atlasCommand.effort[i]) +
         (1.0 - k_effort[i]) * this->controlOutput.f_out[i];
 
