@@ -144,8 +144,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointNames.push_back("r_arm_uwy");
   this->jointNames.push_back("r_arm_mwx");
 
+  unsigned int nJ = this->jointNames.size();
+
   // get pointers to joints from gazebo
-  this->joints.resize(this->jointNames.size());
+  this->joints.resize(nJ);
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     this->joints[i] = this->model->GetJoint(this->jointNames[i]);
@@ -158,12 +160,12 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   // get effort limits from gazebo
-  this->effortLimit.resize(this->jointNames.size());
+  this->effortLimit.resize(nJ);
   for (unsigned i = 0; i < this->effortLimit.size(); ++i)
     this->effortLimit[i] = this->joints[i]->GetEffortLimit(0);
 
   // JointController: Publish messages to reset joint controller gains
-  for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+  for (unsigned int i = 0; i < nJ; ++i)
   {
     msgs::JointCmd msg;
     msg.set_name(this->joints[i]->GetScopedName());
@@ -178,7 +180,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     // initialize PID states: error terms
-    this->errorTerms.resize(this->jointNames.size());
+    this->errorTerms.resize(nJ);
     for (unsigned i = 0; i < this->errorTerms.size(); ++i)
     {
       this->errorTerms[i].q_p = 0;
@@ -252,74 +254,62 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   {
     // We are not sending names due to the fact that there is an enum
     // joint indices in AtlasState.msg.
-    this->atlasState.position.resize(this->jointNames.size());
-    this->atlasState.velocity.resize(this->jointNames.size());
-    this->atlasState.effort.resize(this->jointNames.size());
-    this->atlasState.kp_position.resize(this->jointNames.size());
-    this->atlasState.ki_position.resize(this->jointNames.size());
-    this->atlasState.kd_position.resize(this->jointNames.size());
-    this->atlasState.kp_velocity.resize(this->jointNames.size());
-    this->atlasState.i_effort_min.resize(this->jointNames.size());
-    this->atlasState.i_effort_max.resize(this->jointNames.size());
-    this->atlasState.k_effort.resize(this->jointNames.size());
+    this->atlasState.position.resize(nJ);
+    this->atlasState.velocity.resize(nJ);
+    this->atlasState.effort.resize(nJ);
+    this->atlasState.kp_position.resize(nJ*nJ);
+    this->atlasState.ki_position.resize(nJ*nJ);
+    this->atlasState.kd_position.resize(nJ*nJ);
+    this->atlasState.kp_velocity.resize(nJ*nJ);
+    this->atlasState.i_effort_min.resize(nJ);
+    this->atlasState.i_effort_max.resize(nJ);
+    this->atlasState.k_effort.resize(nJ);
 
-    this->jointStates.name.resize(this->jointNames.size());
-    this->jointStates.position.resize(this->jointNames.size());
-    this->jointStates.velocity.resize(this->jointNames.size());
-    this->jointStates.effort.resize(this->jointNames.size());
+    this->jointStates.name.resize(nJ);
+    this->jointStates.position.resize(nJ);
+    this->jointStates.velocity.resize(nJ);
+    this->jointStates.effort.resize(nJ);
 
-    for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+    for (unsigned int i = 0; i < nJ; ++i)
       this->jointStates.name[i] = this->jointNames[i];
   }
 
-  /*{
-    this->atlasCommand.position.resize(this->jointNames.size());
-    this->atlasCommand.velocity.resize(this->jointNames.size());
-    this->atlasCommand.effort.resize(this->jointNames.size());
-    this->atlasCommand.kp_position.resize(this->jointNames.size());
-    this->atlasCommand.ki_position.resize(this->jointNames.size());
-    this->atlasCommand.kd_position.resize(this->jointNames.size());
-    this->atlasCommand.kp_velocity.resize(this->jointNames.size());
-    this->atlasCommand.i_effort_min.resize(this->jointNames.size());
-    this->atlasCommand.i_effort_max.resize(this->jointNames.size());
-    this->atlasCommand.k_effort.resize(this->jointNames.size());
-
-    this->ZeroAtlasCommand();
-  }*/
-
   {
-    this->atlasCommandFullState.position.resize(this->jointNames.size());
-    this->atlasCommandFullState.velocity.resize(this->jointNames.size());
-    this->atlasCommandFullState.effort.resize(this->jointNames.size());
-    this->atlasCommandFullState.kp_position.resize(this->jointNames.size());
-    this->atlasCommandFullState.ki_position.resize(this->jointNames.size());
-    this->atlasCommandFullState.kd_position.resize(this->jointNames.size());
-    this->atlasCommandFullState.kp_velocity.resize(this->jointNames.size());
-    for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    this->atlasCommandFullState.i_effort_min.resize(this->jointNames.size());
-    this->atlasCommandFullState.i_effort_max.resize(this->jointNames.size());
-    this->atlasCommandFullState.k_effort.resize(this->jointNames.size());
+    this->atlasCommand.position.resize(nJ);
+    this->atlasCommand.velocity.resize(nJ);
+    this->atlasCommand.effort.resize(nJ);
+
+    // these could be size 28 or 28X28 depending on whether
+    // full state feedback is being used
+    this->atlasCommand.kp_position.resize(nJ*nJ);
+    this->atlasCommand.ki_position.resize(nJ*nJ);
+    this->atlasCommand.kd_position.resize(nJ*nJ);
+    this->atlasCommand.kp_velocity.resize(nJ*nJ);
+
+    this->atlasCommand.i_effort_min.resize(nJ);
+    this->atlasCommand.i_effort_max.resize(nJ);
+    this->atlasCommand.k_effort.resize(nJ);
 
     this->ZeroAtlasCommand();
   }
 
   {
-    this->jointCommands.position.resize(this->jointNames.size());
-    this->jointCommands.velocity.resize(this->jointNames.size());
-    this->jointCommands.effort.resize(this->jointNames.size());
-    this->jointCommands.kp_position.resize(this->jointNames.size());
-    this->jointCommands.ki_position.resize(this->jointNames.size());
-    this->jointCommands.kd_position.resize(this->jointNames.size());
-    this->jointCommands.kp_velocity.resize(this->jointNames.size());
-    this->jointCommands.i_effort_min.resize(this->jointNames.size());
-    this->jointCommands.i_effort_max.resize(this->jointNames.size());
+    this->jointCommands.position.resize(nJ);
+    this->jointCommands.velocity.resize(nJ);
+    this->jointCommands.effort.resize(nJ);
+    this->jointCommands.kp_position.resize(nJ);
+    this->jointCommands.ki_position.resize(nJ);
+    this->jointCommands.kd_position.resize(nJ);
+    this->jointCommands.kp_velocity.resize(nJ);
+    this->jointCommands.i_effort_min.resize(nJ);
+    this->jointCommands.i_effort_max.resize(nJ);
 
     this->ZeroJointCommands();
   }
 
   {
     // AtlasSimInterface:  initialize controlOutput
-    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    for(unsigned int i = 0; i < nJ; ++i)
       this->controlOutput.f_out[i] = 0;
     this->controlOutput.pos_est.position = AtlasVec3f(0, 0, 0);
     this->controlOutput.pos_est.velocity = AtlasVec3f(0, 0, 0);
@@ -367,7 +357,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   {
     // AtlasSimInterface:  initialize atlasRobotState joints data
     this->atlasRobotState.t = this->world->GetSimTime().Double();
-    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    for(unsigned int i = 0; i < nJ; ++i)
     {
       this->atlasRobotState.j[i].q = 0;
       this->atlasRobotState.j[i].qd = 0;
@@ -409,7 +399,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     // internal pid params
-    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    for(unsigned int i = 0; i < nJ; ++i)
     {
       this->atlasControlInput.j[i].q_d = 0.0;
       this->atlasControlInput.j[i].qd_d = 0.0;
@@ -462,7 +452,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->asiState.error_code = atlas_msgs::AtlasSimInterfaceState::NO_ERRORS;
     this->asiState.current_behavior = -1;
     this->asiState.desired_behavior = -1;
-    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    for(unsigned int i = 0; i < nJ; ++i)
       this->asiState.f_out[i] = 0.0;
     this->asiState.pos_est.position.x = 0.0;
     this->asiState.pos_est.position.y = 0.0;
@@ -507,8 +497,8 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     }
 
     // start with PID control
-    this->asiState.k_effort.resize(this->jointNames.size());
-    for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+    this->asiState.k_effort.resize(nJ);
+    for(unsigned int i = 0; i < nJ; ++i)
       this->asiState.k_effort[i] = 255;
   }
 
@@ -619,37 +609,122 @@ void AtlasPlugin::SetAtlasCommand(
       _msg->effort.size(), this->atlasCommand.effort.size());
 
   // the rest are stored in atlasState for publication
-  if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+  unsigned int nJ = this->jointNames.size();
+  if (_msg->kp_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kp_position[i*nJ+j] = _msg->kp_position[i];
+        else
+          this->atlasState.kp_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->atlasState.kp_position.begin());
+  }
   else
+  {
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg->kp_position.size(), this->atlasState.kp_position.size());
+  }
 
-  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  if (_msg->ki_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.ki_position[i*nJ+j] = _msg->ki_position[i];
+        else
+          this->atlasState.ki_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->atlasState.ki_position.begin());
+  }
   else
+  {
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg->ki_position.size(), this->atlasState.ki_position.size());
+  }
 
-  if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+  if (_msg->kd_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kd_position[i*nJ+j] = _msg->kd_position[i];
+        else
+          this->atlasState.kd_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->atlasState.kd_position.begin());
+  }
   else
+  {
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg->kd_position.size(), this->atlasState.kd_position.size());
+  }
 
-  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  if (_msg->kp_velocity.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kp_velocity[i*nJ+j] = _msg->kp_velocity[i];
+        else
+          this->atlasState.kp_velocity[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
+  }
   else
+  {
     ROS_DEBUG("AtlasCommand message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
+  }
 
   if (_msg->i_effort_min.size() == this->atlasState.i_effort_min.size())
     std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
@@ -718,37 +793,124 @@ void AtlasPlugin::SetJointCommands(
       " elements effort[%ld] than expected[%ld]",
       _msg->effort.size(), this->atlasCommand.effort.size());
 
-  if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+  unsigned int nJ = this->jointNames.size();
+  if (_msg->kp_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kp_position[i*nJ+j] = _msg->kp_position[i];
+        else
+          this->atlasState.kp_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->atlasState.kp_position.begin());
+  }
   else
+  {
     ROS_DEBUG("JointCommands message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg->kp_position.size(), this->atlasState.kp_position.size());
+  }
 
-  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  if (_msg->ki_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.ki_position[i*nJ+j] = _msg->ki_position[i];
+        else
+          this->atlasState.ki_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->atlasState.ki_position.begin());
+  }
   else
+  {
     ROS_DEBUG("JointCommands message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg->ki_position.size(), this->atlasState.ki_position.size());
+  }
 
-  if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+  if (_msg->kd_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kd_position[i*nJ+j] = _msg->kd_position[i];
+        else
+          this->atlasState.kd_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->atlasState.kd_position.begin());
+  }
   else
+  {
     ROS_DEBUG("JointCommands message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg->kd_position.size(), this->atlasState.kd_position.size());
+  }
 
-  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  if (_msg->kp_velocity.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kp_velocity[i*nJ+j] = _msg->kp_velocity[i];
+        else
+          this->atlasState.kp_velocity[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
+  }
   else
+  {
     ROS_DEBUG("JointCommands message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
+  }
+
+
 
   if (_msg->i_effort_min.size() == this->atlasState.i_effort_min.size())
     std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
@@ -1269,8 +1431,7 @@ void AtlasPlugin::SetASICommand(
       _msg->k_effort.size(), this->atlasState.k_effort.size());
 
   /// \TODO: Set atlasControlInput from _msg
-  /*
-  for(unsigned int i = 0; i < this->jointNames.size(); ++i)
+  for(unsigned int i = 0; i < nJ; ++i)
   {
     this->atlasControlInput.j[i].q_d = 0.0;
     this->atlasControlInput.j[i].qd_d = 0.0;
@@ -1279,7 +1440,6 @@ void AtlasPlugin::SetASICommand(
     this->atlasControlInput.jparams[i].k_q_i = 0.0;
     this->atlasControlInput.jparams[i].k_qd_p = 0.0;
   }
-  */
 
   // Try and set desired behavior (reverse map of behaviorMap)
   switch (this->asiState.desired_behavior)
@@ -1500,18 +1660,20 @@ void AtlasPlugin::OnRContactUpdate()
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::ZeroAtlasCommand()
 {
+  unsigned int nJ = this->jointNames.size();
   for (unsigned i = 0; i < this->jointNames.size(); ++i)
   {
-    this->atlasCommandFullState.position[i] = 0;
-    this->atlasCommandFullState.velocity[i] = 0;
-    this->atlasCommandFullState.effort[i] = 0;
+    this->atlasCommand.position[i] = 0;
+    this->atlasCommand.velocity[i] = 0;
+    this->atlasCommand.effort[i] = 0;
     // store these directly on altasState, more efficient for pub later
     for (unsigned int j = 0; j < this->jointNames.size(); ++j)
     {
-      this->atlasState.kp_position[i][j] = 0;
-      this->atlasState.ki_position[i][j] = 0;
-      this->atlasState.kd_position[i][j] = 0;
-      this->atlasState.kp_velocity[i][j] = 0;
+      /// FIXME \TODO resize these to nJ*nJ
+      this->atlasState.kp_position[i * nJ + j] = 0;
+      this->atlasState.ki_position[i * nJ + j] = 0;
+      this->atlasState.kd_position[i * nJ + j] = 0;
+      this->atlasState.kp_velocity[i * nJ + j] = 0;
     }
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
@@ -1523,16 +1685,21 @@ void AtlasPlugin::ZeroAtlasCommand()
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::ZeroJointCommands()
 {
+  unsigned int nJ = this->jointNames.size();
   for (unsigned i = 0; i < this->jointNames.size(); ++i)
   {
     this->jointCommands.position[i] = 0;
     this->jointCommands.velocity[i] = 0;
     this->jointCommands.effort[i] = 0;
     // store these directly on altasState, more efficient for pub later
-    this->atlasState.kp_position[i] = 0;
-    this->atlasState.ki_position[i] = 0;
-    this->atlasState.kd_position[i] = 0;
-    this->atlasState.kp_velocity[i] = 0;
+    for (unsigned int j = 0; j < this->jointNames.size(); ++j)
+    {
+      /// FIXME \TODO resize these to nJ*nJ
+      this->atlasState.kp_position[i * nJ + j] = 0;
+      this->atlasState.ki_position[i * nJ + j] = 0;
+      this->atlasState.kd_position[i * nJ + j] = 0;
+      this->atlasState.kp_velocity[i * nJ + j] = 0;
+    }
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
     this->atlasState.k_effort[i] = 0;
@@ -1542,12 +1709,13 @@ void AtlasPlugin::ZeroJointCommands()
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::LoadPIDGainsFromParameter()
 {
+  unsigned int nJ = this->jointNames.size();
   // pull down controller parameters
-  for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+  for (unsigned int i = 0; i < nJ; ++i)
   {
     char joint_ns[200] = "";
     snprintf(joint_ns, sizeof(joint_ns), "atlas_controller/gains/%s/",
-             this->jointNames[i]->GetName().c_str());
+             this->jointNames[i].c_str());
     // this is so ugly
     double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
     string p_str = string(joint_ns)+"p";
@@ -1563,9 +1731,22 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
       continue;
     }
     // store these directly on altasState, more efficient for pub later
-    this->atlasState.kp_position[i]  =  p_val;
-    this->atlasState.ki_position[i]  =  i_val;
-    this->atlasState.kd_position[i]  =  d_val;
+    for (unsigned int i = 0; i < nJ; ++i)
+    for (unsigned int j = 0; j < nJ; ++j)
+    {
+      if (i == j)
+      {
+        this->atlasState.kp_position[i*nJ+j]  =  p_val;
+        this->atlasState.ki_position[i*nJ+j]  =  i_val;
+        this->atlasState.kd_position[i*nJ+j]  =  d_val;
+      }
+      else
+      {
+        this->atlasState.kp_position[i*nJ+j]  =  0.0;
+        this->atlasState.ki_position[i*nJ+j]  =  0.0;
+        this->atlasState.kd_position[i*nJ+j]  =  0.0;
+      }
+    }
     this->atlasState.i_effort_min[i] = -i_clamp_val;
     this->atlasState.i_effort_max[i] =  i_clamp_val;
     // default k_effort is set to 1, controller relies on PID.
@@ -1587,37 +1768,123 @@ void AtlasPlugin::SetExperimentalDampingPID(
 
   boost::mutex::scoped_lock lock(this->mutex);
 
-  if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+  unsigned int nJ = this->jointNames.size();
+  if (_msg->kp_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kp_position[i*nJ+j] = _msg->kp_position[i];
+        else
+          this->atlasState.kp_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kp_position.size() == this->atlasState.kp_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kp_position.begin(), _msg->kp_position.end(),
       this->atlasState.kp_position.begin());
+  }
   else
+  {
     ROS_DEBUG("Test message contains different number of"
       " elements kp_position[%ld] than expected[%ld]",
       _msg->kp_position.size(), this->atlasState.kp_position.size());
+  }
 
-  if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  if (_msg->ki_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.ki_position[i*nJ+j] = _msg->ki_position[i];
+        else
+          this->atlasState.ki_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->ki_position.size() == this->atlasState.ki_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->ki_position.begin(), _msg->ki_position.end(),
       this->atlasState.ki_position.begin());
+  }
   else
+  {
     ROS_DEBUG("Test message contains different number of"
       " elements ki_position[%ld] than expected[%ld]",
       _msg->ki_position.size(), this->atlasState.ki_position.size());
+  }
 
-  if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+  if (_msg->kd_position.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kd_position[i*nJ+j] = _msg->kd_position[i];
+        else
+          this->atlasState.kd_position[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kd_position.size() == this->atlasState.kd_position.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kd_position.begin(), _msg->kd_position.end(),
       this->atlasState.kd_position.begin());
+  }
   else
+  {
     ROS_DEBUG("Test message contains different number of"
       " elements kd_position[%ld] than expected[%ld]",
       _msg->kd_position.size(), this->atlasState.kd_position.size());
+  }
 
-  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  if (_msg->kp_velocity.size() == nJ)
+  {
+    // copy from joint command (independent state vector) to
+    // atlas state (full state matrix).
+    for (unsigned int i = 0; i < nJ; ++i)
+    {
+      for (unsigned int j = 0; j < nJ; ++j)
+      {
+        if (i == j)
+          this->atlasState.kp_velocity[i*nJ+j] = _msg->kp_velocity[i];
+        else
+          this->atlasState.kp_velocity[i*nJ+j] = 0;
+      }
+    }
+  }
+  else if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  {
+    // copy from joint command (full state matrix) to
+    // atlas state (full state matrix).
     std::copy(_msg->kp_velocity.begin(), _msg->kp_velocity.end(),
       this->atlasState.kp_velocity.begin());
+  }
   else
+  {
     ROS_DEBUG("Test message contains different number of"
       " elements kp_velocity[%ld] than expected[%ld]",
       _msg->kp_velocity.size(), this->atlasState.kp_velocity.size());
+  }
+
 
   if (_msg->i_effort_min.size() == this->atlasState.i_effort_min.size())
     std::copy(_msg->i_effort_min.begin(), _msg->i_effort_min.end(),
@@ -2354,9 +2621,15 @@ void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdatePIDControl(double _dt)
 {
+  unsigned int nJ = this->jointNames.size();
+
   /// update pid with feedforward force
-  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  for (unsigned int i = 0; i < nJ; ++i)
   {
+  for (unsigned int j = 0; j < nJ; ++j)
+  {
+    // calculate contribution to jth-effort from ith-joint
+
     // truncate joint position within range of motion
     double positionTarget = math::clamp(
       this->atlasCommand.position[i],
