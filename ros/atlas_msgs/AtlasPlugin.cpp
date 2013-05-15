@@ -70,6 +70,9 @@ AtlasPlugin::AtlasPlugin()
 
   // option to filter velocity or position
   this->filterPosition = false;
+
+  // startup procedure
+  this->startupStep = AtlasPlugin::FREEZE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,8 +117,8 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // initialize update time, this will be the first update step for
   // UpdateStates as well - i.e. current setting skips the first
   // update.
-  this->lastControllerUpdateTime =
-    common::Time(this->world->GetPhysicsEngine()->GetMaxStepSize());
+  this->lastControllerUpdateTime = this->world->GetSimTime();
+  // common::Time(2.0 * this->world->GetPhysicsEngine()->GetMaxStepSize());
 
   // init joints, hardcoded for Atlas
   this->jointNames.push_back("back_lbz");
@@ -499,25 +502,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       this->asiState.k_effort[i] = 255;
   }
 
-  // AtlasSimInterface:
-  // Calling into the behavior library to reset controls (FREEZE Mode).
-  this->asiState.error_code = this->atlasSimInterface->reset_control();
-  this->asiState.desired_behavior =
-    atlas_msgs::AtlasSimInterfaceCommand::FREEZE;
-  if (this->asiState.error_code != NO_ERRORS)
-    ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
-              "error code (%d).", this->asiState.error_code);
-
-  // AtlasSimInterface:
-  // Calling into the behavior library to set control mode to USER.
-  this->asiState.error_code =
-    this->atlasSimInterface->set_desired_behavior("User");
-  if (this->asiState.error_code != NO_ERRORS)
-    ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
-              "error code (%d).", this->asiState.error_code);
-  this->asiState.desired_behavior = atlas_msgs::AtlasSimInterfaceCommand::USER;
-
-
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint("l_arm_mwx");
   if (!this->lWristJoint)
@@ -876,11 +860,41 @@ void AtlasPlugin::UpdateStates()
       this->EnforceSynchronizationDelay(curTime);
 
     // AtlasSimInterface: process controller updates
-    // if (curTime.Double() >=
-    //     this->world->GetPhysicsEngine()->GetMaxStepSize())
-    // if (this->asiState.desired_behavior !=
-    //     atlas_msgs::AtlasSimInterfaceCommand::USER)
+    if (this->startupStep == AtlasPlugin::NOMINAL)
+    {
       this->UpdateAtlasSimInterface(curTime);
+    }
+    else if (this->startupStep == AtlasPlugin::USER)
+    {
+      // startup 2
+      // AtlasSimInterface:
+      // Calling into the behavior library to set control mode to USER.
+      this->asiState.error_code =
+        this->atlasSimInterface->set_desired_behavior("User");
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      this->asiState.desired_behavior =
+        atlas_msgs::AtlasSimInterfaceCommand::USER;
+      this->startupStep = AtlasPlugin::NOMINAL;
+    }
+    else if (this->startupStep == AtlasPlugin::FREEZE)
+    {
+      // startup 1
+      // AtlasSimInterface:
+      // Calling into the behavior library to reset controls (FREEZE Mode).
+      this->asiState.error_code = this->atlasSimInterface->reset_control();
+      this->asiState.desired_behavior =
+        atlas_msgs::AtlasSimInterfaceCommand::FREEZE;
+      if (this->asiState.error_code != NO_ERRORS)
+        ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
+                  "error code (%d).", this->asiState.error_code);
+      this->startupStep = AtlasPlugin::USER;
+    }
+    else
+    {
+      ROS_ERROR("AtlasSimInterface: startup in broken state");
+    }
 
     {
       boost::mutex::scoped_lock lock(this->mutex);
