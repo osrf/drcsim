@@ -223,7 +223,7 @@ namespace gazebo
       /// \brief Flag to keep track of start-up 'bdi_stand' on the robot.
       private: bool startupBDIStand;
 
-      // mode flag to indicate StandPrep mode has already been called once.
+      // mode flag to indicate nominal mode has already been called once.
       private: bool bdiStandNominal;
 
       /// \brief Keep track of start-up 'bdi_stand' time
