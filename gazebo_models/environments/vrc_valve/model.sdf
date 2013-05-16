@@ -24,10 +24,6 @@
           <mesh>
             <uri>model://vrc_valve/meshes/vrc_valve.dae</uri>
           </mesh>
-          <!-- <cylinder>
-            <radius>0.08</radius>
-            <length>0.2</length>
-          </cylinder> -->
         </geometry>
       </collision>
 
@@ -63,18 +59,20 @@
       </inertial>
 
       <collision name="collision">
+        <pose>0 0 0.017 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.01</radius>
-            <length>0.2</length>
+            <length>0.23</length>
           </cylinder>
         </geometry>
       </collision>
       <visual name="visual">
+        <pose>0 0 0.017 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.01</radius>
-            <length>0.2</length>
+            <length>0.23</length>
           </cylinder>
         </geometry>
         <material>
