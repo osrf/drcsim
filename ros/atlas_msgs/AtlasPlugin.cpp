@@ -243,7 +243,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->atlasState.kp_position.resize(nJ*nJ);
     this->atlasState.ki_position.resize(nJ);
     this->atlasState.kd_position.resize(nJ*nJ);
-    this->atlasState.kp_velocity.resize(nJ*nJ);
+    this->atlasState.kp_velocity.resize(nJ);
     this->atlasState.i_effort_min.resize(nJ);
     this->atlasState.i_effort_max.resize(nJ);
     this->atlasState.k_effort.resize(nJ);
@@ -266,7 +266,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->atlasCommand.kp_position.resize(nJ*nJ);
     this->atlasCommand.ki_position.resize(nJ);
     this->atlasCommand.kd_position.resize(nJ*nJ);
-    this->atlasCommand.kp_velocity.resize(nJ*nJ);
+    this->atlasCommand.kp_velocity.resize(nJ);
 
     this->atlasCommand.i_effort_min.resize(nJ);
     this->atlasCommand.i_effort_max.resize(nJ);
@@ -1008,22 +1008,7 @@ void AtlasPlugin::SetAtlasCommand(
       _msg->kd_position.size(), this->atlasState.kd_position.size());
   }
 
-  if (_msg->kp_velocity.size() == nJ)
-  {
-    // copy from joint command (independent state vector) to
-    // atlas state (full state matrix).
-    for (unsigned int i = 0; i < nJ; ++i)
-    {
-      for (unsigned int j = 0; j < nJ; ++j)
-      {
-        if (i == j)
-          this->atlasState.kp_velocity[i*nJ+j] = _msg->kp_velocity[i];
-        else
-          this->atlasState.kp_velocity[i*nJ+j] = 0;
-      }
-    }
-  }
-  else if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
   {
     // copy from joint command (full state matrix) to
     // atlas state (full state matrix).
@@ -1177,22 +1162,7 @@ void AtlasPlugin::SetJointCommands(
       _msg->kd_position.size(), this->atlasState.kd_position.size());
   }
 
-  if (_msg->kp_velocity.size() == nJ)
-  {
-    // copy from joint command (independent state vector) to
-    // atlas state (full state matrix).
-    for (unsigned int i = 0; i < nJ; ++i)
-    {
-      for (unsigned int j = 0; j < nJ; ++j)
-      {
-        if (i == j)
-          this->atlasState.kp_velocity[i*nJ+j] = _msg->kp_velocity[i];
-        else
-          this->atlasState.kp_velocity[i*nJ+j] = 0;
-      }
-    }
-  }
-  else if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
   {
     // copy from joint command (full state matrix) to
     // atlas state (full state matrix).
@@ -1686,8 +1656,8 @@ void AtlasPlugin::ZeroAtlasCommand()
       /// FIXME \TODO resize these to nJ*nJ
       this->atlasState.kp_position[i*nJ+j] = 0;
       this->atlasState.kd_position[i*nJ+j] = 0;
-      this->atlasState.kp_velocity[i*nJ+j] = 0;
     }
+    this->atlasState.kp_velocity[i] = 0;
     this->atlasState.ki_position[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
@@ -1713,8 +1683,8 @@ void AtlasPlugin::ZeroJointCommands()
       /// FIXME \TODO resize these to nJ*nJ
       this->atlasState.kp_position[i*nJ+j] = 0;
       this->atlasState.kd_position[i*nJ+j] = 0;
-      this->atlasState.kp_velocity[i*nJ+j] = 0;
     }
+    this->atlasState.kp_velocity[i] = 0;
     this->atlasState.ki_position[i] = 0;
     this->atlasState.i_effort_min[i] = 0;
     this->atlasState.i_effort_max[i] = 0;
@@ -1857,22 +1827,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
       _msg->kd_position.size(), this->atlasState.kd_position.size());
   }
 
-  if (_msg->kp_velocity.size() == nJ)
-  {
-    // copy from joint command (independent state vector) to
-    // atlas state (full state matrix).
-    for (unsigned int i = 0; i < nJ; ++i)
-    {
-      for (unsigned int j = 0; j < nJ; ++j)
-      {
-        if (i == j)
-          this->atlasState.kp_velocity[i*nJ+j] = _msg->kp_velocity[i];
-        else
-          this->atlasState.kp_velocity[i*nJ+j] = 0;
-      }
-    }
-  }
-  else if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
+  if (_msg->kp_velocity.size() == this->atlasState.kp_velocity.size())
   {
     // copy from joint command (full state matrix) to
     // atlas state (full state matrix).
@@ -2626,6 +2581,8 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
   double forceUnclamped[nJ];
   double forceClamped[nJ];
   double k_effort[nJ];
+  double jointDampingCoef[nJ];
+  double kpVelocityDampingEffort[nJ];
 
   for (unsigned int i = 0; i < nJ; ++i)
     forceUnclamped[i] = 0.0;
@@ -2667,15 +2624,15 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // To take advantage of utilizing full range of cfm damping dynamically
     // for controlling the robot, set model damping (jointDmapingModel)
     // to jointDampingMin first.
-    double jointDampingCoef = math::clamp(
-      static_cast<double>(this->atlasState.kp_velocity[i]),
-      this->jointDampingModel[i], this->jointDampingMax[i]);
+    jointDampingCoef[j] = math::clamp(
+      static_cast<double>(this->atlasState.kp_velocity[j]),
+      this->jointDampingModel[j], this->jointDampingMax[j]);
 
     // skip set joint damping if value is not changing
-    if (!math::equal(this->lastJointCFMDamping[i], jointDampingCoef))
+    if (!math::equal(this->lastJointCFMDamping[j], jointDampingCoef[j]))
     {
-      this->joints[i]->SetDamping(0, jointDampingCoef);
-      this->lastJointCFMDamping[i] = jointDampingCoef;
+      this->joints[j]->SetDamping(0, jointDampingCoef[j]);
+      this->lastJointCFMDamping[j] = jointDampingCoef[j];
     }
 
     // approximate effort generated by a non-zero joint velocity state
@@ -2683,12 +2640,10 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // kp_velocity term, we'll use this to bound additional forces later.
     // Force generated by cfm damping from damping coefficient smaller than
     // jointDampingModel is generated for free.
-    double kpVelocityDampingEffort = 0;
-    double kpVelocityDampingCoef =
-      jointDampingCoef - this->jointDampingModel[i];
-    if (kpVelocityDampingCoef > 0.0)
-      kpVelocityDampingEffort =
-        kpVelocityDampingCoef * this->atlasState.velocity[i];
+    double kpVelocityDampingCoef = std::max(0.0,
+      jointDampingCoef[j] - this->jointDampingModel[j]);
+    kpVelocityDampingEffort[j] =
+      kpVelocityDampingCoef * this->atlasState.velocity[j];
 
     // sum up contributions from ith-joint to jth-effort
     for (unsigned int i = 0; i < nJ; ++i)
@@ -2696,8 +2651,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       // use gain params to compute force cmd
       forceUnclamped[i] +=
         this->atlasState.kp_position[i*nJ+j] * this->errorTerms[j].q_p +
-        this->atlasState.kd_position[i*nJ+j] * this->errorTerms[j].d_q_p_dt +
-        this->atlasState.kp_velocity[i*nJ+j] * this->errorTerms[j].qd_p;
+        this->atlasState.kd_position[i*nJ+j] * this->errorTerms[j].d_q_p_dt;
     }
   }
 
@@ -2708,6 +2662,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     forceUnclamped[i] =
                k_effort[i]  * (forceUnclamped[i] +
                                this->errorTerms[i].k_i_q_i +
+         jointDampingCoef[i] * this->atlasCommand.velocity[i] +
                                this->atlasCommand.effort[i]) +
         (1.0 - k_effort[i]) * this->controlOutput.f_out[i];
 
@@ -2716,8 +2671,8 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // exerting too much force from use of kp_velocity --> cfm damping
     // pass through.
     forceClamped[i] = math::clamp(forceUnclamped[i],
-      -this->effortLimit[i] + kpVelocityDampingEffort,
-       this->effortLimit[i] + kpVelocityDampingEffort);
+      -this->effortLimit[i] + kpVelocityDampingEffort[i],
+       this->effortLimit[i] + kpVelocityDampingEffort[i]);
 
     // apply force to joint
     this->joints[i]->SetForce(0, forceClamped[i]);
