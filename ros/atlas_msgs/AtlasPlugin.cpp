@@ -196,64 +196,42 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   {
-    // kp_velocity bounds Nms/rad
-    this->jointDampingMax.push_back(10.0);  // back_lbz
-    this->jointDampingMax.push_back(10.0);  // back_mby
-    this->jointDampingMax.push_back(10.0);  // back_ubx
-    this->jointDampingMax.push_back(10.0);  // neck_ay
-    this->jointDampingMax.push_back(10.0);  // l_leg_uhz
-    this->jointDampingMax.push_back(10.0);  // l_leg_mhx
-    this->jointDampingMax.push_back(10.0);  // l_leg_lhy
-    this->jointDampingMax.push_back(1.0);  // l_leg_kny
-    this->jointDampingMax.push_back(1.0);  // l_leg_uay
-    this->jointDampingMax.push_back(1.0);  // l_leg_lax
-    this->jointDampingMax.push_back(10.0);  // r_leg_uhz
-    this->jointDampingMax.push_back(10.0);  // r_leg_mhx
-    this->jointDampingMax.push_back(10.0);  // r_leg_lhy
-    this->jointDampingMax.push_back(1.0);  // r_leg_kny
-    this->jointDampingMax.push_back(1.0);  // r_leg_uay
-    this->jointDampingMax.push_back(1.0);  // r_leg_lax
-    this->jointDampingMax.push_back(1.0);  // l_arm_usy
-    this->jointDampingMax.push_back(1.0);  // l_arm_shx
-    this->jointDampingMax.push_back(1.0);  // l_arm_ely
-    this->jointDampingMax.push_back(1.0);  // l_arm_elx
-    this->jointDampingMax.push_back(1.0);  // l_arm_uwy
-    this->jointDampingMax.push_back(1.0);  // l_arm_mwx
-    this->jointDampingMax.push_back(1.0);  // r_arm_usy
-    this->jointDampingMax.push_back(1.0);  // r_arm_shx
-    this->jointDampingMax.push_back(1.0);  // r_arm_ely
-    this->jointDampingMax.push_back(1.0);  // r_arm_elx
-    this->jointDampingMax.push_back(1.0);  // r_arm_uwy
-    this->jointDampingMax.push_back(1.0);  // r_arm_mwx
+    /// TODO: hardcoded for now
+    static const double jointDampingLowerBound = 0.1;
+    ROS_INFO("Bounds for dynamically changing joint damping coefficients "
+             "is computed from ratio of max allowed joint command effort "
+             "to max allowed joint velocity.");
+    // joint damping coefficient bounds Nms/rad
+    for (unsigned int i = 0; i < this->jointNames.size(); ++i)
+    {
+      // set max allowable damping coefficient to
+      //  max effort allowed / max velocity allowed
+      double maxEffort = this->joints[i]->GetEffortLimit(0);
+      double maxVelocity = this->joints[i]->GetVelocityLimit(0);
+      if (math::equal(maxVelocity, 0.0))
+      {
+        ROS_ERROR("Set Joint Damping Upper Limit: Joint[%s] " 
+                  "effort limit [%f] velocity limit[%f]: "
+                  "velocity limit is unbounded, artificially setting "
+                  "damping coefficient max limit to 1.0.  This should not"
+                  "have happened for Atlas robot, please check your model.",
+                 this->jointNames[i].c_str(), maxEffort, maxVelocity);
+        maxVelocity = maxEffort;
+      }
 
-    this->jointDampingMin.push_back(0.1);  // back_lbz
-    this->jointDampingMin.push_back(0.1);  // back_mby
-    this->jointDampingMin.push_back(0.1);  // back_ubx
-    this->jointDampingMin.push_back(0.1);  // neck_ay
-    this->jointDampingMin.push_back(0.1);  // l_leg_uhz
-    this->jointDampingMin.push_back(0.1);  // l_leg_mhx
-    this->jointDampingMin.push_back(0.1);  // l_leg_lhy
-    this->jointDampingMin.push_back(0.1);  // l_leg_kny
-    this->jointDampingMin.push_back(0.1);  // l_leg_uay
-    this->jointDampingMin.push_back(0.1);  // l_leg_lax
-    this->jointDampingMin.push_back(0.1);  // r_leg_uhz
-    this->jointDampingMin.push_back(0.1);  // r_leg_mhx
-    this->jointDampingMin.push_back(0.1);  // r_leg_lhy
-    this->jointDampingMin.push_back(0.1);  // r_leg_kny
-    this->jointDampingMin.push_back(0.1);  // r_leg_uay
-    this->jointDampingMin.push_back(0.1);  // r_leg_lax
-    this->jointDampingMin.push_back(0.1);  // l_arm_usy
-    this->jointDampingMin.push_back(0.1);  // l_arm_shx
-    this->jointDampingMin.push_back(0.1);  // l_arm_ely
-    this->jointDampingMin.push_back(0.1);  // l_arm_elx
-    this->jointDampingMin.push_back(0.1);  // l_arm_uwy
-    this->jointDampingMin.push_back(0.1);  // l_arm_mwx
-    this->jointDampingMin.push_back(0.1);  // r_arm_usy
-    this->jointDampingMin.push_back(0.1);  // r_arm_shx
-    this->jointDampingMin.push_back(0.1);  // r_arm_ely
-    this->jointDampingMin.push_back(0.1);  // r_arm_elx
-    this->jointDampingMin.push_back(0.1);  // r_arm_uwy
-    this->jointDampingMin.push_back(0.1);  // r_arm_mwx
+      this->jointDampingMax.push_back(maxEffort / maxVelocity * 50);
+
+      this->jointDampingMin.push_back(jointDampingLowerBound);
+
+      this->jointDampingModel.push_back(this->joints[i]->GetDamping(0));
+
+      this->lastJointCFMDamping.push_back(this->joints[i]->GetDamping(0));
+
+      ROS_INFO("Bounds for joint[%s] is [%f, %f], model default is [%f]",
+               this->jointNames[i].c_str(), 
+               this->jointDampingMin[i], this->jointDampingMax[i],
+               this->jointDampingModel[i]);
+    }
   }
 
   {
@@ -1258,7 +1236,14 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
     {
       double d = math::clamp(_req.damping_coefficients[i],
        this->jointDampingMin[i], this->jointDampingMax[i]);
+
+      // save model damping coefficient
+      this->jointDampingModel[i] = d;
+      this->lastJointCFMDamping[i] = d;
+
+      // set damping coefficient in model
       this->joints[i]->SetDamping(0, d);
+
       if (!math::equal(d, _req.damping_coefficients[i]))
       {
         statusStream << "requested joint damping for joint ["
@@ -1269,9 +1254,15 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
       }
     }
   }
-  ROS_WARN("%s", statusStream.str().c_str());
-  _res.status_message = statusStream.str();
+  if (!_res.success)
+    ROS_WARN("%s", statusStream.str().c_str());
+  else
+  {
+    statusStream << "You have successfully changed model damping parameters.";
+    ROS_INFO("%s", statusStream.str().c_str());
+  }
 
+  _res.status_message = statusStream.str();
   return _res.success;
 }
 
@@ -1287,7 +1278,7 @@ bool AtlasPlugin::GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
 
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      _res.damping_coefficients[i] = this->joints[i]->GetDamping(0);
+      _res.damping_coefficients[i] = this->jointDampingModel[i];
       _res.damping_coefficients_max[i] = this->jointDampingMax[i];
       _res.damping_coefficients_min[i] = this->jointDampingMin[i];
     }
@@ -2667,6 +2658,38 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       static_cast<double>(this->atlasState.i_effort_min[j]),
       static_cast<double>(this->atlasState.i_effort_max[j]));
 
+    // Take advantage of cfm damping by passing kp_velocity through
+    // to intrinsic joint damping coefficient.  Simulating
+    // infinite bandwidth kp_velocity.
+    //
+    // kp_velocity is truncated within (jointDampingModel, jointDampingMax).
+    //
+    // To take advantage of utilizing full range of cfm damping dynamically
+    // for controlling the robot, set model damping (jointDmapingModel)
+    // to jointDampingMin first.
+    double jointDampingCoef = math::clamp(
+      static_cast<double>(this->atlasState.kp_velocity[i]),
+      this->jointDampingModel[i], this->jointDampingMax[i]);
+
+    // skip set joint damping if value is not changing
+    if (!math::equal(this->lastJointCFMDamping[i], jointDampingCoef))
+    {
+      this->joints[i]->SetDamping(0, jointDampingCoef);
+      this->lastJointCFMDamping[i] = jointDampingCoef;
+    }
+
+    // approximate effort generated by a non-zero joint velocity state
+    // this is the approximate force of the infinite bandwidth
+    // kp_velocity term, we'll use this to bound additional forces later.
+    // Force generated by cfm damping from damping coefficient smaller than
+    // jointDampingModel is generated for free.
+    double kpVelocityDampingEffort = 0;
+    double kpVelocityDampingCoef =
+      jointDampingCoef - this->jointDampingModel[i];
+    if (kpVelocityDampingCoef > 0.0)
+      kpVelocityDampingEffort =
+        kpVelocityDampingCoef * this->atlasState.velocity[i];
+
     // sum up contributions from ith-joint to jth-effort
     for (unsigned int i = 0; i < nJ; ++i)
     {
@@ -2689,8 +2712,12 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
         (1.0 - k_effort[i]) * this->controlOutput.f_out[i];
 
     // clamp force
+    // shift by kpVelocityDampingEffort to prevent controller from
+    // exerting too much force from use of kp_velocity --> cfm damping
+    // pass through.
     forceClamped[i] = math::clamp(forceUnclamped[i],
-      -this->effortLimit[i], this->effortLimit[i]);
+      -this->effortLimit[i] + kpVelocityDampingEffort,
+       this->effortLimit[i] + kpVelocityDampingEffort);
 
     // apply force to joint
     this->joints[i]->SetForce(0, forceClamped[i]);

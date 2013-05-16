@@ -31,7 +31,7 @@ VRCPlugin::VRCPlugin()
 {
   /// initial anchor pose
   this->warpRobotWithCmdVel = false;
-  this->bdiStandNominal = false;
+  this->atlas.bdiStandNominal = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,6 @@ void VRCPlugin::DeferredLoad()
   {
     if (atlas.startupMode == "bdi_stand")
     {
-      this->atlas.startupBDIStand = true;
       this->SetRobotMode("bdi_stand");
     }
     else
@@ -303,6 +302,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "bdi_stand")
   {
+    // reset some flags
+    this->atlas.startupBDIStand = false;
+    this->atlas.bdiStandNominal = false;
+
     // pin robot
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
@@ -338,6 +341,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     this->world->EnablePhysicsEngine(physics);
     this->world->SetPaused(paused);
     // this->atlasCommandController.SetBDIFREEZE();
+
+    // start the rest of the sequence
+    this->atlas.startupBDIStand = true;
+    this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
   }
   else
   {
@@ -661,23 +668,25 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
   // if user chooses bdi_stand mode, robot will be initialized
-  // with PID stand in BDI stand pose.
-  // After startupStandPrepDuration - 1 seconds, start StandPrep mode
+  // with PID stand in BDI stand pose pinned.
+  // After startupStandPrepDuration - 1 seconds, pin released.
   // After startupStandPrepDuration seconds, start Stand mode
   if (this->atlas.startupBDIStand && this->atlas.isInitialized)
   {
-    if (curTime > atlas.startupStandPrepDuration)
+    if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
+        atlas.startupStandPrepDuration)
     {
       ROS_DEBUG("going into Stand");
       this->atlasCommandController.SetBDIStand();
       this->atlas.startupBDIStand = false;
     }
-    else if (!this->bdiStandNominal && curTime >
-      atlas.startupStandPrepDuration - 1.0)
+    else if (!this->atlas.bdiStandNominal &&
+      (curTime - this->atlas.startupBDIStandStartTime.Double()) >
+      (atlas.startupStandPrepDuration - 1.0))
     {
       ROS_DEBUG("going into Nominal");
       this->SetRobotMode("nominal");
-      this->bdiStandNominal = true;
+      this->atlas.bdiStandNominal = true;
     }
   }
 
