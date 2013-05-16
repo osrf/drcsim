@@ -141,9 +141,8 @@ namespace gazebo
     private: bool GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
       atlas_msgs::GetJointDamping::Response &_res);
 
-    /// \brief: thread out Load function with
-    /// with anything that might be blocking.
-    private: void DeferredLoad();
+    /// \brief: Load ROS related stuff
+    private: void LoadROS();
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;
@@ -193,9 +192,8 @@ namespace gazebo
     private: PubQueue<atlas_msgs::ForceTorqueSensors>::Ptr
       pubForceTorqueSensorsQueue;
 
-    /// Deferred loading in case ros is blocking, \TODO: not working for now.
+    /// \brief internal copy of sdf for the plugin
     private: sdf::ElementPtr sdf;
-    private: boost::thread deferredLoadThread;
 
     // ROS internal stuff
     private: ros::NodeHandle* rosNode;
@@ -304,9 +302,7 @@ namespace gazebo
     private: std::string GetBehavior(int _behavior);
 
     /// \brief helper function to copy states
-    private: void AtlasControlOutputToAtlasSimInterfaceState(
-              atlas_msgs::AtlasSimInterfaceState *_fb,
-              AtlasControlOutput *_fbOut);
+    private: void AtlasControlOutputToAtlasSimInterfaceState();
 
     // AtlasSimInterface:  Controls ros interface
     private: ros::Subscriber subAtlasControlMode;
@@ -596,6 +592,14 @@ namespace gazebo
 
     /// \brief joint damping coefficient lower bounds
     private: std::vector<double> jointDampingMin;
+
+    /// \brief AtlasSimInterface: startup steps for BDI controller
+    private: int startupStep;
+    private: enum StartupSteps {
+               FREEZE = 0,
+               USER = 1,
+               NOMINAL = 2,
+             };
   };
 }
 #endif
