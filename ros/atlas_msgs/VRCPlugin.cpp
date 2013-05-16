@@ -31,7 +31,6 @@ VRCPlugin::VRCPlugin()
 {
   /// initial anchor pose
   this->warpRobotWithCmdVel = false;
-  this->atlas.bdiStandNominal = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -956,6 +955,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->startupStandPrepDuration = 2;
   this->startupHarness = false;
   this->startupBDIStand = false;
+  this->bdiStandNominal = false;
   this->startupMode = "bdi_stand";
 
   // load parameters
