@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find atlas_utils)/launch/vrc_task_3.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="atlas_utils" type="orientation_checker.py" 
+        test-name="vrc_task_3_standup_starting" 
+        time-limit="360.0"/>
+</launch>
