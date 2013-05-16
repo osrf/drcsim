@@ -155,8 +155,8 @@ void GazeboRosForce::UpdateChild()
   this->lock.lock();
   math::Vector3 force(this->wrenchMsg.force.x,this->wrenchMsg.force.y,this->wrenchMsg.force.z);
   math::Vector3 torque(this->wrenchMsg.torque.x,this->wrenchMsg.torque.y,this->wrenchMsg.torque.z);
-  this->link->SetForce(force);
-  this->link->SetTorque(torque);
+  this->link->AddForce(force);
+  this->link->AddTorque(torque);
   this->lock.unlock();
 }
 

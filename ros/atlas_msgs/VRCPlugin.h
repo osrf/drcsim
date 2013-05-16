@@ -223,6 +223,12 @@ namespace gazebo
       /// \brief Flag to keep track of start-up 'bdi_stand' on the robot.
       private: bool startupBDIStand;
 
+      // mode flag to indicate nominal mode has already been called once.
+      private: bool bdiStandNominal;
+
+      /// \brief Keep track of start-up 'bdi_stand' time
+      private: common::Time startupBDIStandStartTime;
+
       /// \brief allow user to set startup mode as bdi_stand or pinned
       private: std::string startupMode;
 
@@ -327,6 +333,9 @@ namespace gazebo
       /// \param[in] pointer to atlas model
       private: void SetPIDStand(physics::ModelPtr atlasModel);
 
+      /// \brief switch to Freeze Mode
+      private: void SetBDIFREEZE();
+
       /// \brief switch to StandPrep Mode
       private: void SetBDIStandPrep();
 
@@ -396,9 +405,6 @@ namespace gazebo
     // items below are used for deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
-
-    // mode flag to indicate StandPrep mode has already been called once.
-    private: bool bdiStandPrep;
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;

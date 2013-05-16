@@ -16,6 +16,9 @@ set (rostests
   vrc_task_3_cheats_rosapi.test
   vrc_task_1_scoring.test
   vrc_task_2_scoring.test
+  vrc_task_1_start_standup.test
+  vrc_task_2_start_standup.test
+  vrc_task_3_start_standup.test
   vrc_task_1_gzlog_stop.test
   vrc_task_2_gzlog_stop.test
   vrc_task_3_gzlog_stop.test
