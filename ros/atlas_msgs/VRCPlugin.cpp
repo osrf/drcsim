@@ -668,8 +668,8 @@ void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
   // if user chooses bdi_stand mode, robot will be initialized
-  // with PID stand in BDI stand pose.
-  // After startupStandPrepDuration - 1 seconds, start StandPrep mode
+  // with PID stand in BDI stand pose pinned.
+  // After startupStandPrepDuration - 1 seconds, pin released.
   // After startupStandPrepDuration seconds, start Stand mode
   if (this->atlas.startupBDIStand && this->atlas.isInitialized)
   {
