@@ -70,11 +70,6 @@ AtlasPlugin::AtlasPlugin()
 
   // option to filter velocity or position
   this->filterPosition = false;
-
-  /// hard coded number of times one is allowed to change joint damping
-  /// currently, it's set to 3.
-  this->setJointDampingLimit = 3;
-  this->setJointDampingCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1008,21 +1003,8 @@ void AtlasPlugin::DeferredLoad()
 bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
   atlas_msgs::SetJointDamping::Response &_res)
 {
-  std::stringstream statusStream;
-
-  if (this->setJointDampingCount >= this->setJointDampingLimit &&
-      !this->cheatsEnabled)
-  {
-    statusStream << "Changes to joint damping parameters has been called "
-                 << this->setJointDampingCount
-                 << " times, additional changes not allowed.";
-    ROS_ERROR("%s", statusStream.str().c_str());
-    _res.status_message = statusStream.str();
-    _res.success = false;
-    return false;
-  }
-
   _res.success = true;
+  std::stringstream statusStream;
   {
     boost::mutex::scoped_lock lock(this->mutex);
 
@@ -1052,9 +1034,7 @@ bool AtlasPlugin::SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
     ROS_WARN("%s", statusStream.str().c_str());
   else
   {
-    statusStream << "You have successfully changed model damping parameters "
-             << "[" << ++this->setJointDampingCount
-             << "/" << this->setJointDampingLimit << "] times.";
+    statusStream << "You have successfully changed model damping parameters.";
     ROS_INFO("%s", statusStream.str().c_str());
   }
 
