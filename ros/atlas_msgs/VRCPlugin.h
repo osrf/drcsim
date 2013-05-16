@@ -333,7 +333,7 @@ namespace gazebo
       /// \param[in] pointer to atlas model
       private: void SetPIDStand(physics::ModelPtr atlasModel);
 
-      /// \brief switch to StandPrep Mode
+      /// \brief switch to Freeze Mode
       private: void SetBDIFREEZE();
 
       /// \brief switch to StandPrep Mode
