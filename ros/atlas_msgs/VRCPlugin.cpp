@@ -198,21 +198,34 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // where to start down casting ray to check for ground
     math::Pose rayStart = atlasPose - math::Pose(0, 0, -2.0, 0, 0, 0);
 
-    physics::EntityPtr objectBelow =
-      this->world->GetEntityBelowPoint(rayStart.pos);
-    if (objectBelow)
+    double distBelow = 0.0;
+    std::string objectBelow;
+    physics::EntityPtr entityBelow;
+    physics::EntityPtr fromEntity = this->atlas.pinLink;
+    fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+    entityBelow = this->world->GetEntity(objectBelow);
+    gzerr << fromEntity->GetName() << " "
+          << distBelow << " " << objectBelow << "\n";
+    while (entityBelow && (entityBelow->GetParentModel() ==
+      fromEntity->GetParentModel()))
     {
-      math::Box groundBB = objectBelow->GetBoundingBox();
-      double groundHeight = groundBB.max.z;
-
-      // gzdbg << objectBelow->GetName() << "\n";
-      // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
+      objectBelow.clear();
+      fromEntity = entityBelow;
+      fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+      entityBelow = this->world->GetEntity(objectBelow);
+      gzerr << fromEntity->GetName() << " "
+            << distBelow << " " << objectBelow << "\n";
+    }
+    if (entityBelow && fromEntity)
+    {
+      // gzdbg << objectBelow << "\n";
       // gzdbg << groundHeight << "\n";
       // gzdbg << groundBB.max.z << "\n";
       // gzdbg << groundBB.min.z << "\n";
 
       // slightly above ground and upright
-      atlasPose.pos.z = groundHeight + 1.11;
+      atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
+        distBelow + 1.11;
       atlasPose.rot.SetFromEuler(0, 0, 0);
       this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
 
