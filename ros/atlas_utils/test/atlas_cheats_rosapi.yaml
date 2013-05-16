@@ -51,13 +51,13 @@ topics:
     num_publishers: -1
     num_subscribers: 1
 
-  - topic: /atlas/apply_pelvis_force
-    type: geometry_msgs/Wrench
+  - topic: /atlas/debug/sync_delay
+    type: std_msgs/String
     num_publishers: -1
     num_subscribers: 1
 
-  - topic: /atlas/pause
-    type: std_msgs/String
+  - topic: /atlas/apply_pelvis_force
+    type: geometry_msgs/Wrench
     num_publishers: -1
     num_subscribers: 1
 
@@ -80,3 +80,17 @@ topics:
     type: geometry_msgs/Pose
     num_publishers: -1
     num_subscribers: 1
+
+services:
+
+  - service: /gazebo/pause_physics
+    type: std_srvs/Empty
+
+  - service: /gazebo/unpause_physics
+    type: std_srvs/Empty
+
+  - service: /gazebo/reset_models
+    type: std_srvs/Empty
+
+  - service: /gazebo/reset_simulation
+    type: std_srvs/Empty

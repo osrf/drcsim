@@ -1254,8 +1254,272 @@ topics:
 
 services:
 
-  - service: sandia_hands/set_joint_damping
+  - service: /sandia_hands/set_joint_damping
     type: atlas_msgs/SetJointDamping
 
-  - service: sandia_hands/get_joint_damping
+  - service: /sandia_hands/get_joint_damping
     type: atlas_msgs/GetJointDamping
+
+  - service: /sandia_hands/l_hand/camera/left/image_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_mono/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_mono/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_mono/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_raw/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_raw/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_raw/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_rect/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_rect/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_rect/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_rect_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_rect_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/left/image_rect_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_mono/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_mono/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_mono/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_raw/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_raw/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_raw/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_rect/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_rect/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_rect/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_rect_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_rect_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/right/image_rect_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc_debayer_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc_debayer_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc_rectify_color_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc_rectify_color_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc_rectify_mono_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/camera/stereo_proc_rectify_mono_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/l_hand/simple_grasp
+    type: sandia_hand_msgs/SimpleGraspSrv
+
+  - service: /sandia_hands/l_hand/simple_grasp_left/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /sandia_hands/l_hand/simple_grasp_left/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /sandia_hands/r_hand/camera/left/image_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_mono/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_mono/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_mono/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_raw/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_raw/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_raw/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_rect/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_rect/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_rect/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_rect_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_rect_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/left/image_rect_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_mono/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_mono/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_mono/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_raw/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_raw/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_raw/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_rect/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_rect/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_rect/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_rect_color/compressed/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_rect_color/compressedDepth/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/right/image_rect_color/theora/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc_debayer_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc_debayer_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc_rectify_color_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc_rectify_color_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_left/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/camera/stereo_proc_rectify_mono_right/set_parameters
+    type: dynamic_reconfigure/Reconfigure
+
+  - service: /sandia_hands/r_hand/simple_grasp
+    type: sandia_hand_msgs/SimpleGraspSrv
+
+  - service: /sandia_hands/r_hand/simple_grasp_right/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /sandia_hands/r_hand/simple_grasp_right/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /sandia_hands_l_hand_robot_state_publisher/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /sandia_hands_l_hand_robot_state_publisher/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /sandia_hands_r_hand_robot_state_publisher/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /sandia_hands_r_hand_robot_state_publisher/set_logger_level
+    type: roscpp/SetLoggerLevel

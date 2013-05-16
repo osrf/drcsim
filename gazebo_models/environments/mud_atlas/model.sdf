@@ -21,12 +21,15 @@
       <visual name="visual">
         <geometry>
           <box>
-            <size>8.0 10.0 0.5</size>
+            <size>8.0 9.0 0.5</size>
           </box>
         </geometry>
         <material>
-          <ambient>0.2 0.2 0.2 1.0</ambient>
-          <diffuse>.421 0.225 0.0 1.0</diffuse>
+          <script>
+            <uri>model://mud_atlas/materials/scripts</uri>
+            <uri>model://mud_atlas/materials/textures</uri>
+            <name>vrc/mud</name>
+          </script>
         </material>
       </visual>
       <sensor name="mud_contact" type="contact">
@@ -40,7 +43,7 @@
     <plugin name="gazebo_mud" filename="libMudPlugin.so">
       <contact_sensor_name>link/mud_contact</contact_sensor_name>
       <stiffness>0.0</stiffness>
-      <damping>100.0</damping>
+      <damping>40.0</damping>
       <contact_surface_bitmask>2</contact_surface_bitmask>
       <link_name>atlas::l_foot</link_name>
       <link_name>atlas::r_foot</link_name>

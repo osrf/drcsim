@@ -86,9 +86,9 @@
       <pose>-2.86 -15 2.0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://gas_station</uri>
+      <uri>model://grey_wall</uri>
       <static>true</static>
-      <pose>-3.644 5.0 -0.28 0 0 -1.5707</pose>
+      <pose>-1.927 -2.947 0 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_barrel</uri>
@@ -151,7 +151,7 @@
         <seat_link>chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
-        <fire_hose_model>fire_hose</fire_hose_model>
+        <fire_hose_model>vrc_firehose_long</fire_hose_model>
         <coupling_link>coupling</coupling_link>
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>

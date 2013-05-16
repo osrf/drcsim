@@ -137,10 +137,10 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   if (!ros::isInitialized())
   {
-    int argc = 0;
-    char** argv = NULL;
-    ros::init(argc, argv, "gazebo",
-      ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api.so\n";
+    return;
   }
 
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);

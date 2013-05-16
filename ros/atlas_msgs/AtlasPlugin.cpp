@@ -816,17 +816,21 @@ void AtlasPlugin::DeferredLoad()
   this->pubDelayStatisticsQueue =
     this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
 
-  // read delay settings in param server and apply limits if
-  // atlas_msgs::AtlasCommand::desired_controller_period_ms is not zero
-  /// \TODO: if cheats enabled, don't load these parameters.
-  double delayValue;
-  if (this->rosNode->getParam("atlas/delay_window_size", delayValue))
-    this->delayWindowSize = delayValue;
-  if (this->rosNode->getParam("atlas/delay_max_per_window", delayValue))
-    this->delayMaxPerWindow = delayValue;
-  if (this->rosNode->getParam("atlas/delay_max_per_step", delayValue))
-    this->delayMaxPerStep = delayValue;
-
+  // Read delay settings in param server and apply limits if
+  // atlas_msgs::AtlasCommand::desired_controller_period_ms is not zero.
+  // Only load params if cheats are enabled; otherwise stick with the
+  // defaults, which are set in AtlasPlugin::AtlasPlugin().
+  if (this->cheatsEnabled)
+  {
+    double delayValue;
+    if (this->rosNode->getParam("atlas/delay_window_size", delayValue))
+      this->delayWindowSize = delayValue;
+    if (this->rosNode->getParam("atlas/delay_max_per_window", delayValue))
+      this->delayMaxPerWindow = delayValue;
+    if (this->rosNode->getParam("atlas/delay_max_per_step", delayValue))
+      this->delayMaxPerStep = delayValue;
+  }
+  
   // publish separate /atlas/imu topic, to be deprecated
   this->pubImu =
     this->rosNode->advertise<sensor_msgs::Imu>("atlas/imu", 10);
@@ -1074,20 +1078,37 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
 {
   boost::mutex::scoped_lock lock(this->filterMutex);
 
+  _res.success = true;
+
   if (_req.filter_velocity)
     this->filterVelocity = true;
   else
     this->filterVelocity = false;
+
+  std::stringstream statusStream;
 
   if (_req.coef_a.size() == 2)
   {
     this->filCoefA[0] = _req.coef_a[0];
     this->filCoefA[1] = _req.coef_a[1];
   }
+  else if (_req.coef_a.size() != 0)
+  {
+    _res.success = false;
+    statusStream << "AtlasFilters: coef_a has size [" << _req.coef_a.size()
+                 << "], only be 0 or 2 is allowed.\n";
+  }
+
   if (_req.coef_b.size() == 2)
   {
     this->filCoefB[0] = _req.coef_b[0];
     this->filCoefB[1] = _req.coef_b[1];
+  }
+  else if (_req.coef_b.size() != 0)
+  {
+    _res.success = false;
+    statusStream << "AtlasFilters: coef_b has size [" << _req.coef_b.size()
+                 << "], only be 0 or 2 is allowed.\n";
   }
 
   if (_req.filter_position)
@@ -1095,8 +1116,8 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
   else
     this->filterPosition = false;
 
-  _res.success = true;
-  _res.status_message = "success";
+  ROS_WARN("%s", statusStream.str().c_str());
+  _res.status_message = statusStream.str();
   return _res.success;
 }
 
@@ -1929,13 +1950,36 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
   atlas_msgs::AtlasSimInterfaceState *_fb,
   AtlasControlOutput *_fbOut)
 {
+  // behavior_feedback
   _fb->behavior_feedback.status_flags = _fbOut->behavior_feedback.status_flags;
   _fb->behavior_feedback.trans_from_behavior_index =
     _fbOut->behavior_feedback.trans_from_behavior_index;
   _fb->behavior_feedback.trans_to_behavior_index =
     _fbOut->behavior_feedback.trans_to_behavior_index;
+
   _fb->stand_feedback.status_flags = _fbOut->stand_feedback.status_flags;
+
+  // step_feedback
   _fb->step_feedback.status_flags = _fbOut->step_feedback.status_flags;
+  _fb->step_feedback.t_step_rem = _fbOut->step_feedback.t_step_rem;
+  _fb->step_feedback.current_step_index =
+    _fbOut->step_feedback.current_step_index;
+  _fb->step_feedback.next_step_index_needed =
+    _fbOut->step_feedback.next_step_index_needed;
+  _fb->step_feedback.desired_step_saturated.step_index =
+    _fbOut->step_feedback.desired_step_saturated.step_index;
+  _fb->step_feedback.desired_step_saturated.foot_index =
+    _fbOut->step_feedback.desired_step_saturated.foot_index;
+  _fb->step_feedback.desired_step_saturated.duration =
+    _fbOut->step_feedback.desired_step_saturated.duration;
+  _fb->step_feedback.desired_step_saturated.pose.position =
+    this->ToPoint(_fbOut->step_feedback.desired_step_saturated.position);
+  _fb->step_feedback.desired_step_saturated.pose.orientation =
+    this->OrientationFromNormalAndYaw(
+    _fbOut->step_feedback.desired_step_saturated.normal,
+    _fbOut->step_feedback.desired_step_saturated.yaw);
+
+  // walk_feedback
   _fb->walk_feedback.t_step_rem = _fbOut->walk_feedback.t_step_rem;
   _fb->walk_feedback.current_step_index =
     _fbOut->walk_feedback.current_step_index;
@@ -1954,14 +1998,15 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState(
       this->ToPoint(
       _fbOut->walk_feedback.step_queue_saturated[i].position);
     _fb->walk_feedback.step_queue_saturated[i].pose.orientation =
-      this->ToQ(math::Quaternion(0, 0,
-      _fbOut->walk_feedback.step_queue_saturated[i].yaw));
-      // \TODO: further rotate rot based on normal
-      // sd->pose.rot = sdOut->normal ...;
+      this->OrientationFromNormalAndYaw(
+      _fbOut->walk_feedback.step_queue_saturated[i].normal,
+      _fbOut->walk_feedback.step_queue_saturated[i].yaw);
 
     _fb->walk_feedback.step_queue_saturated[i].swing_height =
       _fbOut->walk_feedback.step_queue_saturated[i].swing_height;
   }
+
+  // manipulate_feedback
   _fb->manipulate_feedback.status_flags =
     _fbOut->manipulate_feedback.status_flags;
   _fb->manipulate_feedback.clamped.pelvis_height =
@@ -2334,18 +2379,6 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // keep unclamped force for integral tie-back calculation
     double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
       this->effortLimit[i]);
-
-    // integral tie-back during control saturation if using integral gain
-    if (!math::equal(forceClamped,forceUnclamped) &&
-        !math::equal((double)this->atlasState.ki_position[i],0.0) )
-    {
-      // lock integral term to provide continuous control as system moves
-      // out of staturation
-      this->errorTerms[i].k_i_q_i = math::clamp(
-        this->errorTerms[i].k_i_q_i + (forceClamped - forceUnclamped),
-      static_cast<double>(this->atlasState.i_effort_min[i]),
-      static_cast<double>(this->atlasState.i_effort_max[i]));
-    }
 
     // clamp force after integral tie-back
     forceClamped = math::clamp(forceUnclamped,
