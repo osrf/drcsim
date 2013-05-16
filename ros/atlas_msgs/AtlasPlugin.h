@@ -133,7 +133,9 @@ namespace gazebo
     private: bool SetJointDamping(atlas_msgs::SetJointDamping::Request &_req,
       atlas_msgs::SetJointDamping::Response &_res);
 
-    /// \brief ros service callback to get joint damping
+    /// \brief ros service callback to get joint damping for the model.
+    /// This value could differ from instantaneous cfm damping coefficient
+    /// due to pass through from kp_velocity.
     /// \param[in] _req Incoming ros service request
     /// \param[in] _res Outgoing ros service response
     private: bool GetJointDamping(atlas_msgs::GetJointDamping::Request &_req,
@@ -577,8 +579,18 @@ namespace gazebo
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
 
-    /// \brief joint damping coefficient bounds
+    /// \brief current joint cfm damping coefficient.
+    /// store this value so we don't have to call Joint::SetDamping()
+    /// on every update if coefficient if not changing.
+    private: std::vector<double> lastJointCFMDamping;
+
+    /// \brief current joint damping coefficient for the Model
+    private: std::vector<double> jointDampingModel;
+
+    /// \brief joint damping coefficient upper bound
     private: std::vector<double> jointDampingMax;
+
+    /// \brief joint damping coefficient lower bounds
     private: std::vector<double> jointDampingMin;
 
     /// \brief AtlasSimInterface: startup steps for BDI controller
