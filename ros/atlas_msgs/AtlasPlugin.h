@@ -177,6 +177,8 @@ namespace gazebo
     private: unsigned int rFootCount;
     private: boost::mutex lFootMutex;
     private: boost::mutex rFootMutex;
+    private: double footLinearVelTol;
+    private: double footAngularVelTol;
 
     // Force torque sensors at ankles
     private: physics::JointPtr rAnkleJoint;
