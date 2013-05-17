@@ -878,6 +878,7 @@ void VRCPlugin::FireHose::Update(const common::UpdateInfo &_info)
     else
     {
       this->fireHoseEnabled = true;
+      event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
     }
   }
 }
