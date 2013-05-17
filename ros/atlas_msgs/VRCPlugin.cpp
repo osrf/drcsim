@@ -851,17 +851,24 @@ void VRCPlugin::CheckThreadStart()
   math::Pose relativePose = this->drcFireHose.couplingLink->GetWorldPose() -
                             this->drcFireHose.spoutLink->GetWorldPose();
 
-  math::Pose connectOffset = relativePose - connectPose;
-
-  double posErr = (relativePose.pos - connectPose.pos).GetLength();
-  double rotErr = (relativePose.rot.GetZAxis() -
-                   connectPose.rot.GetZAxis()).GetLength();
+  double posErrInsert = relativePose.pos.z - connectPose.pos.z;
+  double posErrCenter = fabs(relativePose.pos.x) + fabs(connectPose.pos.y);
+  double rotErr = (relativePose.rot.GetXAxis() -
+                   connectPose.rot.GetXAxis()).GetLength();
   double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
 
-  // gzdbg << " connectPose [" << connectPose << "]\n";
-  // gzdbg << " relativePose [" << relativePose << "]\n";
-  // gzdbg << "connect offset [" << connectOffset
-  //       << "] xyz [" << posErr
+  // gzdbg << " connectPose [" << connectPose
+  //       << "] [" << connectPose.rot.GetXAxis()
+  //       << "] [" << connectPose.rot.GetYAxis()
+  //       << "] [" << connectPose.rot.GetZAxis() << "]\n";
+  // gzdbg << " relativePose [" << relativePose
+  //       << "] [" << relativePose.rot.GetXAxis()  // bingo
+  //       << "] [" << relativePose.rot.GetYAxis()
+  //       << "] [" << relativePose.rot.GetZAxis() << "]\n";
+  // math::Pose connectOffset = relativePose - connectPose;
+  // gzdbg << "connect offset [" << connectOffset << "]\n";
+  // gzdbg << "insert [" << posErrInsert
+  //       << "] center [" << posErrCenter
   //       << "] rpy [" << rotErr
   //       << "] valve [" << valveAng
   //       << "]\n";
@@ -873,7 +880,8 @@ void VRCPlugin::CheckThreadStart()
     // would prevent you from attaching a hose.  This check also
     // prevents out-of-order execution that would confuse scoring in
     // VRCScoringPlugin.
-    if (posErr < 0.01 && rotErr < 0.01 && valveAng > -0.1)
+    if (posErrInsert > 0.0 && posErrCenter < 0.003 &&
+        rotErr < 0.05 && valveAng > -0.1)
     {
       this->drcFireHose.screwJoint =
         this->AddJoint(this->world, this->drcFireHose.fireHoseModel,

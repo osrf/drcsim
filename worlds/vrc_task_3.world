@@ -75,7 +75,7 @@
     <include>
       <uri>model://grey_wall</uri>
       <static>true</static>
-      <pose>-1.927 -2.947 0 0 0 0</pose>
+      <pose>-1.927 -2.861 0 0 0 0</pose>
     </include>
     <include>
       <uri>model://construction_barrel</uri>
@@ -122,7 +122,7 @@
     </include>
     <include>
       <uri>model://vrc_valve</uri>
-      <pose>-3.0 -3.5 1.2 -1.5707 0 0</pose>
+      <pose>-3.0 -3.414 1.2 -1.5707 0 0</pose>
     </include>
  
     <include>
@@ -146,7 +146,7 @@
         <valve_model>valve</valve_model>
         <valve_joint>valve</valve_joint>
         <thread_pitch>-1000</thread_pitch>
-        <coupling_relative_pose>1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199</coupling_relative_pose>
+        <coupling_relative_pose>0.001784 -4.6e-05 0.023 1.56985 1.55991 -0.000936</coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
 
