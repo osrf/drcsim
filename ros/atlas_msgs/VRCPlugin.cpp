@@ -777,6 +777,19 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   // Get links
   this->fireHoseLinks = this->fireHoseModel->GetLinks();
 
+  // Get Atlas
+  if (_sdf->HasElement("atlas") &&
+      _sdf->GetElement("atlas")->HasElement("model_name"))
+  {
+    this->atlas = _world->GetModel(_sdf->GetElement("atlas")
+                        ->GetValueString("model_name"));
+  }
+  else
+  {
+    ROS_INFO("Can't find <atlas><model_name> blocks. using default.");
+    this->atlas = _world->GetModel("atlas");
+  }
+
   // Get special links from the standpipe
   std::string standpipeModelName = sdf->GetValueString("standpipe_model");
   this->standpipeModel = _world->GetModel(standpipeModelName);
@@ -826,7 +839,14 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   // Set initial configuration
   this->SetInitialConfiguration();
 
+  this->fireHoseEnabled = false;
   this->isInitialized = true;
+
+  // Mechanism for Updating every World Cycle
+  // Listen to the update event. This event is broadcast every
+  // simulation iteration.
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+     boost::bind(&VRCPlugin::FireHose::Update, this, _1));
 }
 
 void VRCPlugin::FireHose::SetInitialConfiguration()
@@ -837,6 +857,28 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   {
     // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+  }
+}
+
+/////////////////////////////////////////////////
+void VRCPlugin::FireHose::Update(const common::UpdateInfo &_info)
+{
+  if (this->isInitialized && !this->fireHoseEnabled)
+  {
+    double dist = this->fireHoseModel->GetWorldPose().pos.Distance(
+        this->atlas->GetWorldPose().pos);
+
+    if (dist > 2.0)
+    {
+      if (_info.simTime.Double() > 5.0 && _info.simTime.Double() < 6.0)
+        this->couplingPose = this->couplingLink->GetWorldPose();
+      else if (_info.simTime.Double() > 6.0)
+        this->couplingLink->SetWorldPose(this->couplingPose);
+    }
+    else
+    {
+      this->fireHoseEnabled = true;
+    }
   }
 }
 

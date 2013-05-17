@@ -282,9 +282,13 @@ namespace gazebo
       /// \param[in] _sdf Pointer to sdf element.
       private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
+      private: void Update(const common::UpdateInfo &_info);
+
       private: physics::ModelPtr fireHoseModel;
       private: physics::ModelPtr standpipeModel;
       private: physics::ModelPtr valveModel;
+      private: physics::ModelPtr atlas;
+      private: physics::ModelPtr table;
       private: physics::JointPtr valveJoint;
 
       /// joint for pinning a link to the world
@@ -304,6 +308,10 @@ namespace gazebo
       private: physics::LinkPtr spoutLink;
       private: math::Pose couplingRelativePose;
       private: math::Pose initialFireHosePose;
+      private: math::Pose couplingPose;
+
+      /// \brief Flag used to enable the firehose.
+      private: bool fireHoseEnabled;
 
       /// \brief flag for successful initialization of fire hose, standpipe
       private: bool isInitialized;
