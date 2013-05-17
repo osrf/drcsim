@@ -1,4 +1,5 @@
-set (files
+set (files 
+  atlas_commander.py
   gdbrun
   check_inertia_symmetry.bash
   run_gazebo
