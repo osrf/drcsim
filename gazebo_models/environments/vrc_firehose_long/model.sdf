@@ -80,6 +80,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -146,6 +149,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -196,6 +202,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -261,6 +270,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -326,6 +338,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -391,6 +406,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -456,6 +474,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -521,6 +542,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -586,6 +610,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -651,6 +678,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -716,6 +746,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -781,6 +814,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -846,6 +882,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -911,6 +950,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -976,6 +1018,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -1041,6 +1086,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -1106,6 +1154,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -1171,6 +1222,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -1236,6 +1290,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -1301,6 +1358,9 @@
           </cylinder>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
@@ -1363,6 +1423,9 @@
           </mesh>
         </geometry>
         <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
           <friction>
             <ode>
               <mu>1.0</mu>
