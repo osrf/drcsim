@@ -166,6 +166,19 @@ namespace gazebo
     private: PubQueue<geometry_msgs::WrenchStamped>::Ptr pubLFootContactQueue;
     private: ros::Publisher pubRFootContact;
     private: PubQueue<geometry_msgs::WrenchStamped>::Ptr pubRFootContactQueue;
+    // Drift hack
+    private: physics::LinkPtr lFootLink;
+    private: physics::LinkPtr rFootLink;
+    private: math::Pose lFootPose;
+    private: math::Pose rFootPose;
+    private: int lFootContacts;
+    private: int rFootContacts;
+    private: unsigned int lFootCount;
+    private: unsigned int rFootCount;
+    private: boost::mutex lFootMutex;
+    private: boost::mutex rFootMutex;
+    private: double footLinearVelTol;
+    private: double footAngularVelTol;
 
     // Force torque sensors at ankles
     private: physics::JointPtr rAnkleJoint;
