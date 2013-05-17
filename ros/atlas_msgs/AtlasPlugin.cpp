@@ -533,14 +533,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   this->lFootLink = this->model->GetLink("l_foot");
   this->rFootLink = this->model->GetLink("r_foot");
-  this->lFootSurface =
-    this->lFootLink->GetCollision("l_foot_collision")->GetSurface();
-  this->rFootSurface =
-    this->rFootLink->GetCollision("r_foot_collision")->GetSurface();
-  this->lFootMu1 = this->lFootSurface->mu2;
-  this->lFootMu2 = this->lFootSurface->mu2;
-  this->rFootMu1 = this->rFootSurface->mu2;
-  this->rFootMu2 = this->rFootSurface->mu2;
 
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
@@ -907,46 +899,40 @@ void AtlasPlugin::UpdateStates()
 
 
   // foot autodisable
-  if (0)
   {
-    double tmp;
+    double count;
     {
       boost::mutex::scoped_lock lock(this->lFootMutex);
-      tmp = this->lFootCount;
+      count = this->lFootCount;
     }
     
-    if (tmp >= 1000)
+    if (count >= 5000)
     {
       double linearVel = this->lFootLink->GetWorldLinearVel().GetLength();
       double angularVel = this->lFootLink->GetWorldAngularVel().GetLength();
-      if (fabs(linearVel) < 0.0003 && fabs(angularVel) < 0.0008)
+      if (fabs(linearVel) < 0.003 && fabs(angularVel) < 0.008)
       {
-        // increase friction
-        // this->lFootSurface->mu1 = 1e12;
-        // this->lFootSurface->mu2 = 1e12;
-        this->lFootSurface->kp = 160000;
-        this->lFootLink->SetLinearDamping(0.99);
-        this->lFootLink->SetAngularDamping(0.99);
-        // gzerr << "lFoot t[" << 1000.*this->world->GetSimTime().Double()
+        if (count < 6000)
+        {
+          this->lFootPose = this->lFootLink->GetWorldPose();
+          // gzerr << "lFoot Set t[" << 1000.*this->world->GetSimTime().Double()
+          //       << "] n[" << this->lFootContacts
+          //       << "] l[" << linearVel
+          //       << "] a[" << angularVel
+          //       << "] c[" << this->lFootCount
+          //       << "]\n";
+        }
+        else
+          this->lFootLink->SetWorldPose(this->lFootPose);
+      }
+      else
+      {
+        // gzerr << "lFoot moved t[" << 1000.*this->world->GetSimTime().Double()
         //       << "] n[" << this->lFootContacts
         //       << "] l[" << linearVel
         //       << "] a[" << angularVel
         //       << "] c[" << this->lFootCount
         //       << "]\n";
-      }
-      else
-      {
-        gzerr << "lFoot moved t[" << 1000.*this->world->GetSimTime().Double()
-              << "] n[" << this->lFootContacts
-              << "] l[" << linearVel
-              << "] a[" << angularVel
-              << "] c[" << this->lFootCount
-              << "]\n";
-        // this->lFootSurface->mu1 = this->lFootMu1;
-        // this->lFootSurface->mu2 = this->lFootMu2;
-        this->lFootSurface->kp = 1000000;
-        this->lFootLink->SetLinearDamping(0.0);
-        this->lFootLink->SetAngularDamping(0.0);
         {
           boost::mutex::scoped_lock lock(this->lFootMutex);
           this->lFootCount = 0;
@@ -954,46 +940,40 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
-  if (0)
   {
-    double tmp;
+    double count;
     {
       boost::mutex::scoped_lock lock(this->rFootMutex);
-      tmp = this->rFootCount;
+      count = this->rFootCount;
     }
     
-    if (tmp >= 10000)
+    if (count >= 5000)
     {
       double linearVel = this->rFootLink->GetWorldLinearVel().GetLength();
       double angularVel = this->rFootLink->GetWorldAngularVel().GetLength();
-      if (fabs(linearVel) < 0.0003 && fabs(angularVel) < 0.0008)
+      if (fabs(linearVel) < 0.003 && fabs(angularVel) < 0.008)
       {
-        // increase friction
-        // this->rFootSurface->mu1 = 1e12;
-        // this->rFootSurface->mu2 = 1e12;
-        this->rFootSurface->kp = 160000;
-        this->rFootLink->SetLinearDamping(0.99);
-        this->rFootLink->SetAngularDamping(0.99);
-        gzerr << "rFoot t[" << 1000.*this->world->GetSimTime().Double()
-              << "] n[" << this->rFootContacts
-              << "] l[" << linearVel
-              << "] a[" << angularVel
-              << "] c[" << this->rFootCount
-              << "]\n";
+        if (count < 6000)
+        {
+          this->rFootPose = this->rFootLink->GetWorldPose();
+          // gzerr << "rFoot Set t[" << 1000.*this->world->GetSimTime().Double()
+          //       << "] n[" << this->rFootContacts
+          //       << "] l[" << linearVel
+          //       << "] a[" << angularVel
+          //       << "] c[" << this->rFootCount
+          //       << "]\n";
+        }
+        else
+          this->rFootLink->SetWorldPose(this->rFootPose);
       }
       else
       {
-        gzerr << "rFoot moved t[" << 1000.*this->world->GetSimTime().Double()
-              << "] n[" << this->rFootContacts
-              << "] l[" << linearVel
-              << "] a[" << angularVel
-              << "] c[" << this->rFootCount
-              << "]\n";
-        // this->rFootSurface->mu1 = this->rFootMu1;
-        // this->rFootSurface->mu2 = this->rFootMu2;
-        this->rFootSurface->kp = 1000000;
-        this->rFootLink->SetLinearDamping(0.0);
-        this->rFootLink->SetAngularDamping(0.0);
+        // gzerr << "rFoot moved t[" << 1000.*this->world->GetSimTime().Double()
+        //       << "] n[" << this->rFootContacts
+        //       << "] l[" << linearVel
+        //       << "] a[" << angularVel
+        //       << "] c[" << this->rFootCount
+        //       << "]\n";
         {
           boost::mutex::scoped_lock lock(this->rFootMutex);
           this->rFootCount = 0;
