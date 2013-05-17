@@ -851,17 +851,22 @@ void VRCPlugin::CheckThreadStart()
   math::Pose relativePose = this->drcFireHose.couplingLink->GetWorldPose() -
                             this->drcFireHose.spoutLink->GetWorldPose();
 
-  math::Pose connectOffset = relativePose - connectPose;
-
   double posErr = (relativePose.pos - connectPose.pos).GetLength();
-  double rotErr = (relativePose.rot.GetZAxis() -
-                   connectPose.rot.GetZAxis()).GetLength();
+  double rotErr = (relativePose.rot.GetXAxis() -
+                   connectPose.rot.GetXAxis()).GetLength();
   double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
 
-  // gzdbg << " connectPose [" << connectPose << "]\n";
-  // gzdbg << " relativePose [" << relativePose << "]\n";
-  // gzdbg << "connect offset [" << connectOffset
-  //       << "] xyz [" << posErr
+  // gzdbg << " connectPose [" << connectPose.pos
+  //       << "] [" << connectPose.rot.GetXAxis()
+  //       << "] [" << connectPose.rot.GetYAxis()
+  //       << "] [" << connectPose.rot.GetZAxis() << "]\n";
+  // gzdbg << " relativePose [" << relativePose.pos
+  //       << "] [" << relativePose.rot.GetXAxis()  // bingo
+  //       << "] [" << relativePose.rot.GetYAxis()
+  //       << "] [" << relativePose.rot.GetZAxis() << "]\n";
+  // math::Pose connectOffset = relativePose - connectPose;
+  // gzdbg << "connect offset [" << connectOffset << "]\n";
+  // gzdbg << "xyz [" << posErr
   //       << "] rpy [" << rotErr
   //       << "] valve [" << valveAng
   //       << "]\n";

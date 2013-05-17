@@ -146,7 +146,7 @@
         <valve_model>valve</valve_model>
         <valve_joint>valve</valve_joint>
         <thread_pitch>-1000</thread_pitch>
-        <coupling_relative_pose>1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199</coupling_relative_pose>
+        <coupling_relative_pose>-0.00286 0.0 0.0125 -1.5707 1.5707 -3.14159</coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
 
