@@ -63,9 +63,15 @@
         </visual>
         <!-- bottom -->
         <collision group="default">
-          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
+          <origin xyz="-0.017 0 -0.056119" rpy="0 0 0"/>
           <geometry>
-            <box size="0.26 0.124887 0.05"/>
+            <box size="0.13 0.124887 0.05"/>
+          </geometry>
+        </collision>
+        <collision group="repeat">
+          <origin xyz="0.113 0 -0.056119" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.13 0.124887 0.05"/>
           </geometry>
         </collision>
         <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
@@ -479,9 +485,15 @@
         </visual>
         <!-- bottom -->
         <collision group="default">
-          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
+          <origin xyz="-0.017 0 -0.056119" rpy="0 0 0"/>
           <geometry>
-            <box size="0.26 0.124887 0.05"/>
+            <box size="0.13 0.124887 0.05"/>
+          </geometry>
+        </collision>
+        <collision group="repeat">
+          <origin xyz="0.113 0 -0.056119" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.13 0.124887 0.05"/>
           </geometry>
         </collision>
         <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't

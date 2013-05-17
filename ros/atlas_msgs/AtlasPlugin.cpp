@@ -907,6 +907,7 @@ void AtlasPlugin::UpdateStates()
 
 
   // foot autodisable
+  if (0)
   {
     double tmp;
     {
@@ -914,15 +915,16 @@ void AtlasPlugin::UpdateStates()
       tmp = this->lFootCount;
     }
     
-    if (tmp >= 200)
+    if (tmp >= 1000)
     {
       double linearVel = this->lFootLink->GetWorldLinearVel().GetLength();
       double angularVel = this->lFootLink->GetWorldAngularVel().GetLength();
-      if (fabs(linearVel) < 0.002 && fabs(angularVel) < 0.017)
+      if (fabs(linearVel) < 0.0003 && fabs(angularVel) < 0.0008)
       {
         // increase friction
-        this->lFootSurface->mu1 = 1e12;
-        this->lFootSurface->mu2 = 1e12;
+        // this->lFootSurface->mu1 = 1e12;
+        // this->lFootSurface->mu2 = 1e12;
+        this->lFootSurface->kp = 160000;
         this->lFootLink->SetLinearDamping(0.99);
         this->lFootLink->SetAngularDamping(0.99);
         // gzerr << "lFoot t[" << 1000.*this->world->GetSimTime().Double()
@@ -940,8 +942,9 @@ void AtlasPlugin::UpdateStates()
               << "] a[" << angularVel
               << "] c[" << this->lFootCount
               << "]\n";
-        this->lFootSurface->mu1 = this->lFootMu1;
-        this->lFootSurface->mu2 = this->lFootMu2;
+        // this->lFootSurface->mu1 = this->lFootMu1;
+        // this->lFootSurface->mu2 = this->lFootMu2;
+        this->lFootSurface->kp = 1000000;
         this->lFootLink->SetLinearDamping(0.0);
         this->lFootLink->SetAngularDamping(0.0);
         {
@@ -951,6 +954,7 @@ void AtlasPlugin::UpdateStates()
       }
     }
   }
+  if (0)
   {
     double tmp;
     {
@@ -958,23 +962,24 @@ void AtlasPlugin::UpdateStates()
       tmp = this->rFootCount;
     }
     
-    if (tmp >= 200)
+    if (tmp >= 10000)
     {
       double linearVel = this->rFootLink->GetWorldLinearVel().GetLength();
       double angularVel = this->rFootLink->GetWorldAngularVel().GetLength();
-      if (fabs(linearVel) < 0.002 && fabs(angularVel) < 0.017)
+      if (fabs(linearVel) < 0.0003 && fabs(angularVel) < 0.0008)
       {
         // increase friction
-        this->rFootSurface->mu1 = 1e12;
-        this->rFootSurface->mu2 = 1e12;
+        // this->rFootSurface->mu1 = 1e12;
+        // this->rFootSurface->mu2 = 1e12;
+        this->rFootSurface->kp = 160000;
         this->rFootLink->SetLinearDamping(0.99);
         this->rFootLink->SetAngularDamping(0.99);
-        // gzerr << "rFoot t[" << 1000.*this->world->GetSimTime().Double()
-        //       << "] n[" << this->rFootContacts
-        //       << "] l[" << linearVel
-        //       << "] a[" << angularVel
-        //       << "] c[" << this->rFootCount
-        //       << "]\n";
+        gzerr << "rFoot t[" << 1000.*this->world->GetSimTime().Double()
+              << "] n[" << this->rFootContacts
+              << "] l[" << linearVel
+              << "] a[" << angularVel
+              << "] c[" << this->rFootCount
+              << "]\n";
       }
       else
       {
@@ -984,8 +989,9 @@ void AtlasPlugin::UpdateStates()
               << "] a[" << angularVel
               << "] c[" << this->rFootCount
               << "]\n";
-        this->rFootSurface->mu1 = this->rFootMu1;
-        this->rFootSurface->mu2 = this->rFootMu2;
+        // this->rFootSurface->mu1 = this->rFootMu1;
+        // this->rFootSurface->mu2 = this->rFootMu2;
+        this->rFootSurface->kp = 1000000;
         this->rFootLink->SetLinearDamping(0.0);
         this->rFootLink->SetAngularDamping(0.0);
         {
@@ -1537,7 +1543,7 @@ void AtlasPlugin::OnLContactUpdate()
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
 
-    /// correct drift if 3 points of the feet is in contact
+    /// increment drift count if 3 points of the feet is in contact continuously
     int curContacts = contacts.contact(i).position_size();
     if (this->lFootContacts >= 3 && curContacts >= 3)
     {
@@ -1615,7 +1621,7 @@ void AtlasPlugin::OnRContactUpdate()
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
 
-    /// correct drift if 3 points of the feet is in contact
+    /// increment drift count if 3 points of the feet is in contact continuously
     int curContacts = contacts.contact(i).position_size();
     if (this->rFootContacts >= 3 && curContacts >= 3)
     {
