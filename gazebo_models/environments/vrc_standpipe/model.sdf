@@ -26,6 +26,24 @@
       </collision>
       -->
 
+      <!-- stop the coupling from entering pipe if valve is open -->
+      <collision name="collision_stopper">
+        <pose>0 0 0.22 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.069</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.5</mu>
+              <mu2>0.5</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
       <collision name="collision">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry>
@@ -36,8 +54,8 @@
         <surface>
           <friction>
             <ode>
-              <mu>1.0</mu>
-              <mu2>1.0</mu2>
+              <mu>0.5</mu>
+              <mu2>0.5</mu2>
             </ode>
           </friction>
         </surface>
