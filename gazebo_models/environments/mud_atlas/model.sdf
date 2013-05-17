@@ -39,7 +39,7 @@
         <cast_shadows>false</cast_shadows>
         <geometry>
           <box>
-            <size>4 5 0.2</size>
+            <size>4 5 0.5</size>
           </box>
         </geometry>
         <material>
@@ -55,7 +55,7 @@
         <cast_shadows>false</cast_shadows>
         <geometry>
           <box>
-            <size>4 5 0.2</size>
+            <size>4 5 0.5</size>
           </box>
         </geometry>
         <material>
@@ -71,7 +71,7 @@
         <cast_shadows>false</cast_shadows>
         <geometry>
           <box>
-            <size>4 5 0.2</size>
+            <size>4 5 0.5</size>
           </box>
         </geometry>
         <material>
