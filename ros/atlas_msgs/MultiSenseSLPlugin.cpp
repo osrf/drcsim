@@ -42,7 +42,10 @@ MultiSenseSL::MultiSenseSL()
   // fixed joint reduction.  Offset of the imu_link is lumped into
   // the <pose> tag in the imu_sensor block.
   this->imuLinkName = "head";
-  this->imagerMode = 2;
+
+  // change default imager mode to 1 (1Hz ~ 30Hz)
+  // in simulation, we are using 800X800 pixels @30Hz
+  this->imagerMode = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
