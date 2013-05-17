@@ -296,6 +296,14 @@ void VRCScoringPlugin::WriteScore(const common::Time &_simTime,
   rosScoreMsg.completion_score = this->completionScore;
   rosScoreMsg.falls = this->falls;
   rosScoreMsg.message = _msg;
+  if (this->worldType == VRC_1)
+    rosScoreMsg.task_type = atlas_msgs::VRCScore::TASK_DRIVING;
+  else if (this->worldType == VRC_2)
+    rosScoreMsg.task_type = atlas_msgs::VRCScore::TASK_WALKING;
+  else if (this->worldType == VRC_3)
+    rosScoreMsg.task_type = atlas_msgs::VRCScore::TASK_MANIPULATION;
+  else
+    rosScoreMsg.task_type = atlas_msgs::VRCScore::TASK_OTHER;
   this->pubScoreQueue->push(rosScoreMsg, this->pubScore);
 
   this->prevScoreTime = _simTime;

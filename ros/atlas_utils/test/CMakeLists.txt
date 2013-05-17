@@ -57,6 +57,7 @@ set(files
   pub_atlas_command.launch
   perf_test.launch
   perf_test_local.launch
+  vrc_task_1_commander.launch
   vrc_task_1_zlib_compression.launch
 )
 set(scripts
