@@ -73,6 +73,12 @@ AtlasPlugin::AtlasPlugin()
 
   // startup procedure
   this->startupStep = AtlasPlugin::FREEZE;
+
+  // implement custom autodisable to reduce drift
+  this->lFootContacts = 0;
+  this->rFootContacts = 0;
+  this->lFootCount = 0;
+  this->rFootCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -525,6 +531,17 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
+  this->lFootLink = this->model->GetLink("l_foot");
+  this->rFootLink = this->model->GetLink("r_foot");
+  this->lFootSurface =
+    this->lFootLink->GetCollision("l_foot_collision")->GetSurface();
+  this->rFootSurface =
+    this->rFootLink->GetCollision("r_foot_collision")->GetSurface();
+  this->lFootMu1 = this->lFootSurface->mu2;
+  this->lFootMu2 = this->lFootSurface->mu2;
+  this->rFootMu1 = this->rFootSurface->mu2;
+  this->rFootMu2 = this->rFootSurface->mu2;
+
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
@@ -886,6 +903,97 @@ void AtlasPlugin::UpdateStates()
     this->lastControllerUpdateTime = curTime;
 
     this->PublishConstrollerStatistics(curTime);
+  }
+
+
+  // foot autodisable
+  {
+    double tmp;
+    {
+      boost::mutex::scoped_lock lock(this->lFootMutex);
+      tmp = this->lFootCount;
+    }
+    
+    if (tmp >= 200)
+    {
+      double linearVel = this->lFootLink->GetWorldLinearVel().GetLength();
+      double angularVel = this->lFootLink->GetWorldAngularVel().GetLength();
+      if (fabs(linearVel) < 0.002 && fabs(angularVel) < 0.017)
+      {
+        // increase friction
+        this->lFootSurface->mu1 = 1e12;
+        this->lFootSurface->mu2 = 1e12;
+        this->lFootLink->SetLinearDamping(0.99);
+        this->lFootLink->SetAngularDamping(0.99);
+        // gzerr << "lFoot t[" << 1000.*this->world->GetSimTime().Double()
+        //       << "] n[" << this->lFootContacts
+        //       << "] l[" << linearVel
+        //       << "] a[" << angularVel
+        //       << "] c[" << this->lFootCount
+        //       << "]\n";
+      }
+      else
+      {
+        gzerr << "lFoot moved t[" << 1000.*this->world->GetSimTime().Double()
+              << "] n[" << this->lFootContacts
+              << "] l[" << linearVel
+              << "] a[" << angularVel
+              << "] c[" << this->lFootCount
+              << "]\n";
+        this->lFootSurface->mu1 = this->lFootMu1;
+        this->lFootSurface->mu2 = this->lFootMu2;
+        this->lFootLink->SetLinearDamping(0.0);
+        this->lFootLink->SetAngularDamping(0.0);
+        {
+          boost::mutex::scoped_lock lock(this->lFootMutex);
+          this->lFootCount = 0;
+        }
+      }
+    }
+  }
+  {
+    double tmp;
+    {
+      boost::mutex::scoped_lock lock(this->rFootMutex);
+      tmp = this->rFootCount;
+    }
+    
+    if (tmp >= 200)
+    {
+      double linearVel = this->rFootLink->GetWorldLinearVel().GetLength();
+      double angularVel = this->rFootLink->GetWorldAngularVel().GetLength();
+      if (fabs(linearVel) < 0.002 && fabs(angularVel) < 0.017)
+      {
+        // increase friction
+        this->rFootSurface->mu1 = 1e12;
+        this->rFootSurface->mu2 = 1e12;
+        this->rFootLink->SetLinearDamping(0.99);
+        this->rFootLink->SetAngularDamping(0.99);
+        // gzerr << "rFoot t[" << 1000.*this->world->GetSimTime().Double()
+        //       << "] n[" << this->rFootContacts
+        //       << "] l[" << linearVel
+        //       << "] a[" << angularVel
+        //       << "] c[" << this->rFootCount
+        //       << "]\n";
+      }
+      else
+      {
+        gzerr << "rFoot moved t[" << 1000.*this->world->GetSimTime().Double()
+              << "] n[" << this->rFootContacts
+              << "] l[" << linearVel
+              << "] a[" << angularVel
+              << "] c[" << this->rFootCount
+              << "]\n";
+        this->rFootSurface->mu1 = this->rFootMu1;
+        this->rFootSurface->mu2 = this->rFootMu2;
+        this->rFootLink->SetLinearDamping(0.0);
+        this->rFootLink->SetAngularDamping(0.0);
+        {
+          boost::mutex::scoped_lock lock(this->rFootMutex);
+          this->rFootCount = 0;
+        }
+      }
+    }
   }
 }
 
@@ -1428,6 +1536,21 @@ void AtlasPlugin::OnLContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
+
+    /// correct drift if 3 points of the feet is in contact
+    int curContacts = contacts.contact(i).position_size();
+    if (this->lFootContacts >= 3 && curContacts >= 3)
+    {
+      boost::mutex::scoped_lock lock(this->lFootMutex);
+      this->lFootCount++;
+    }
+    else
+    {
+      boost::mutex::scoped_lock lock(this->lFootMutex);
+      this->lFootCount = 0;
+    }
+    this->lFootContacts = curContacts;
+
     fTotal.Set(0, 0, 0);
     tTotal.Set(0, 0, 0);
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
@@ -1491,6 +1614,21 @@ void AtlasPlugin::OnRContactUpdate()
 
     // common::Time contactTime(contacts.contact(i).time().sec(),
     //                          contacts.contact(i).time().nsec());
+
+    /// correct drift if 3 points of the feet is in contact
+    int curContacts = contacts.contact(i).position_size();
+    if (this->rFootContacts >= 3 && curContacts >= 3)
+    {
+      boost::mutex::scoped_lock lock(this->rFootMutex);
+      this->rFootCount++;
+    }
+    else
+    {
+      boost::mutex::scoped_lock lock(this->rFootMutex);
+      this->rFootCount = 0;
+    }
+    this->rFootContacts = curContacts;
+
     fTotal.Set(0, 0, 0);
     tTotal.Set(0, 0, 0);
     for (int j = 0; j < contacts.contact(i).position_size(); ++j)
