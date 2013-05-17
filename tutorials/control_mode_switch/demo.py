@@ -112,11 +112,11 @@ class Demo:
         slight_movement_msg.header.stamp = rospy.Time.now()
         # Start with 0.0 and set values for the joints that we want to control
         slight_movement_msg.position = [0.0] * self.NUM_JOINTS
-        slight_movement_msg.position[AtlasState.neck_ay] = 1.0
-        slight_movement_msg.position[AtlasState.l_arm_ely] = 1.0
-        slight_movement_msg.position[AtlasState.l_arm_mwx] = 1.0
-        slight_movement_msg.position[AtlasState.r_arm_ely] = -1.0
-        slight_movement_msg.position[AtlasState.r_arm_mwx] = -1.0
+        slight_movement_msg.position[AtlasState.neck_ay] = -0.1
+        slight_movement_msg.position[AtlasState.l_arm_ely] = 2.1
+        slight_movement_msg.position[AtlasState.l_arm_mwx] = -0.1
+        slight_movement_msg.position[AtlasState.r_arm_ely] = 2.1
+        slight_movement_msg.position[AtlasState.r_arm_mwx] = -0.1
         slight_movement_msg.velocity = [0.0] * self.NUM_JOINTS
         slight_movement_msg.effort = [0.0] * self.NUM_JOINTS
         slight_movement_msg.kp_position = [20.0, 4000.0, 2000.0, 20.0, 5.0, 100.0, 2000.0, 1000.0, 900.0, 300.0, 5.0, 100.0, 2000.0, 1000.0, 900.0, 300.0, 2000.0, 1000.0, 200.0, 200.0, 50.0, 100.0, 2000.0, 1000.0, 200.0, 200.0, 50.0, 100.0]
