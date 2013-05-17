@@ -19,6 +19,11 @@ set (rostests
   vrc_task_1_start_standup.test
   vrc_task_2_start_standup.test
   vrc_task_3_start_standup.test
+  vrc_task_1_gzlog_stop.test
+  vrc_task_2_gzlog_stop.test
+  vrc_task_3_gzlog_stop.test
+  vrc_task_1_gzlog_stop_longrun.test
+  vrc_task_1_gzlog_stop_longrun_zlib.test
 )
 
 # Only enable tests if we have a working GPU, which we use as a proxy for
@@ -53,6 +58,7 @@ set(files
   perf_test.launch
   perf_test_local.launch
   vrc_task_1_commander.launch
+  vrc_task_1_zlib_compression.launch
 )
 set(scripts
   ros_api_checker
@@ -64,6 +70,7 @@ set(scripts
   meanvar.py
   vrc_task_1_scoring_test
   vrc_task_2_scoring_test
+  gzlog_stop_checker.py
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
