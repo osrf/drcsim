@@ -881,7 +881,7 @@ void VRCPlugin::CheckThreadStart()
     // prevents out-of-order execution that would confuse scoring in
     // VRCScoringPlugin.
     if (posErrInsert > 0.0 && posErrCenter < 0.003 &&
-        rotErr < 0.01 && valveAng > -0.1)
+        rotErr < 0.05 && valveAng > -0.1)
     {
       this->drcFireHose.screwJoint =
         this->AddJoint(this->world, this->drcFireHose.fireHoseModel,
