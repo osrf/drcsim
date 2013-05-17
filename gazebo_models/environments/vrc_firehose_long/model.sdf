@@ -5,6 +5,7 @@
 
     <link name="coupling">
       <inertial>
+        <pose>-0.07 0 0.0 0 0 0</pose>
         <mass>0.1</mass>
         <inertia>
           <ixx>0.01</ixx>
@@ -44,10 +45,15 @@
       <visual name="attachment_vis">
         <pose>-0.1225 0 0 0 -1.570790 0</pose>
         <geometry>
+          <mesh>
+            <uri>model://vrc_firehose_long/meshes/connector.dae</uri>
+          </mesh>
+          <!--
           <cylinder>
             <length>0.025</length>
             <radius>0.055</radius>
           </cylinder>
+-->
         </geometry>
         <material>
           <script>
@@ -188,6 +194,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -237,6 +251,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -286,6 +308,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -335,6 +365,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -384,6 +422,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -433,6 +479,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -482,6 +536,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -531,6 +593,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -580,6 +650,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -629,6 +707,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -678,6 +764,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -727,6 +821,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -776,6 +878,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -825,6 +935,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -874,6 +992,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -923,6 +1049,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -972,6 +1106,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
@@ -1021,6 +1163,14 @@
             <radius>0.025</radius>
           </sphere>
         </geometry>
+        <material>
+          <script>
+            <uri>model://vrc_firehose_long/materials/scripts</uri>
+            <uri>model://vrc_firehose_long/materials/textures</uri>
+            <name>vrc/firehose_canvas</name>
+          </script>
+        </material>
+
       </visual>
     </link>
 
