@@ -183,7 +183,7 @@ class Demo:
                                           self.asis_msg.pos_est.position.z))
             f = f2 * f1
             step_data.pose = posemath.toMsg(f)
-            walk_msg.walk_params.step_data[i] = step_data
+            walk_msg.walk_params.step_queue[i] = step_data
         # Use the same k_effort from the last step, to retain user control over some
         # joints. BDI has control of the other joints.
         walk_msg.k_effort = slight_movement_msg.k_effort
