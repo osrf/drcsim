@@ -244,9 +244,9 @@
           </geometry>
           <material>
           <script>
-            <uri>model://mud_atlas/materials/scripts</uri>
-            <uri>model://mud_atlas/materials/textures</uri>
-            <name>vrc/mud_bottom</name>
+            <uri>model://mud_box/materials/scripts</uri>
+            <uri>model://mud_box/materials/textures</uri>
+            <name>vrc/mud</name>
           </script>
           </material>
         </visual>
