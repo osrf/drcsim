@@ -6,6 +6,7 @@ set (files
   run_gazebo_paused
   run_gzserver
   run_gzserver_gdb
+  run_gzserver_perf
   reset_pose.py
   nanokontrol.py
   arm_teleop.py
