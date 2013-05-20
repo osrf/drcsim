@@ -73,14 +73,6 @@ AtlasPlugin::AtlasPlugin()
 
   // startup procedure
   this->startupStep = AtlasPlugin::FREEZE;
-
-  // implement custom autodisable to reduce drift
-  this->lFootContacts = 0;
-  this->rFootContacts = 0;
-  this->lFootCount = 0;
-  this->rFootCount = 0;
-  this->footLinearVelTol = 0.003;
-  this->footAngularVelTol = 0.008;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -533,14 +525,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
-  this->lFootLink = this->model->GetLink("l_foot");
-  this->rFootLink = this->model->GetLink("r_foot");
-  if (!this->lFootLink || !this->rFootLink)
-  {
-    ROS_ERROR("AtlasPlugin: Atlas robot missing l_foot or r_foot link?");
-    return;
-  }
-
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
@@ -902,109 +886,6 @@ void AtlasPlugin::UpdateStates()
     this->lastControllerUpdateTime = curTime;
 
     this->PublishConstrollerStatistics(curTime);
-  }
-
-
-  // foot autodisable
-  {
-    double stepsWithContactAndSmallVel;
-    {
-      boost::mutex::scoped_lock lock(this->lFootMutex);
-      stepsWithContactAndSmallVel = this->lFootCount;
-    }
-    
-    // if 5 seconds with at least 3 contacts points at foot
-    if (stepsWithContactAndSmallVel >= 5000)
-    {
-      double linearVel = this->lFootLink->GetWorldLinearVel().GetLength();
-      double angularVel = this->lFootLink->GetWorldAngularVel().GetLength();
-      // check if velocity magnitudes are small
-      if (fabs(linearVel) < this->footLinearVelTol &&
-          fabs(angularVel) < this->footAngularVelTol)
-      {
-        // wait another second of small velocity
-        if (stepsWithContactAndSmallVel < 6000)
-        {
-          // get foot pose at end of 6 seconds
-          this->lFootPose = this->lFootLink->GetWorldPose();
-          // gzerr << "lFoot Set t[" << 1000.*this->world->GetSimTime().Double()
-          //       << "] n[" << this->lFootContacts
-          //       << "] l[" << linearVel
-          //       << "] a[" << angularVel
-          //       << "] c[" << this->lFootCount
-          //       << "]\n";
-        }
-        else
-        {
-          // reset foot pose after 6 seconds of 3+ contact and small velocity
-          // to reduce drift
-          this->lFootLink->SetWorldPose(this->lFootPose);
-        }
-      }
-      else
-      {
-        // gzerr << "lFoot moved t[" << 1000.*this->world->GetSimTime().Double()
-        //       << "] n[" << this->lFootContacts
-        //       << "] l[" << linearVel
-        //       << "] a[" << angularVel
-        //       << "] c[" << this->lFootCount
-        //       << "]\n";
-        {
-          boost::mutex::scoped_lock lock(this->lFootMutex);
-          this->lFootCount = 0;
-        }
-      }
-    }
-  }
-  {
-    double stepsWithContactAndSmallVel;
-    {
-      boost::mutex::scoped_lock lock(this->rFootMutex);
-      stepsWithContactAndSmallVel = this->rFootCount;
-    }
-    
-    // if 5 seconds with at least 3 contacts points at foot
-    if (stepsWithContactAndSmallVel >= 5000)
-    {
-      double linearVel = this->rFootLink->GetWorldLinearVel().GetLength();
-      double angularVel = this->rFootLink->GetWorldAngularVel().GetLength();
-      // check if velocity magnitudes are small
-      if (fabs(linearVel) < this->footLinearVelTol &&
-          fabs(angularVel) < this->footAngularVelTol)
-      {
-        // wait another second of small velocity
-        if (stepsWithContactAndSmallVel < 6000)
-        {
-          // get foot pose at end of 6 seconds
-          this->rFootPose = this->rFootLink->GetWorldPose();
-          // gzerr << "rFoot Set t[" << 1000.*this->world->GetSimTime().Double()
-          //       << "] n[" << this->rFootContacts
-          //       << "] l[" << linearVel
-          //       << "] a[" << angularVel
-          //       << "] c[" << this->rFootCount
-          //       << "]\n";
-        }
-        else
-        {
-          // reset foot pose after 6 seconds of 3+ contact and small velocity
-          // to reduce drift
-          this->rFootLink->SetWorldPose(this->rFootPose);
-        }
-      }
-      else
-      {
-        // gzerr << "rFoot moved t[" << 1000.*this->world->GetSimTime().Double()
-        //       << "] n[" << this->rFootContacts
-        //       << "] l[" << linearVel
-        //       << "] a[" << angularVel
-        //       << "] c[" << this->rFootCount
-        //       << "]\n";
-        {
-          boost::mutex::scoped_lock lock(this->rFootMutex);
-          this->rFootCount = 0;
-        }
-      }
-    }
   }
 }
 
@@ -1533,19 +1414,6 @@ void AtlasPlugin::OnLContactUpdate()
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
     /// increment drift count if 3 points of the feet is in contact continuously
-    int curContacts = contacts.contact(i).position_size();
-    if (this->lFootContacts >= 3 && curContacts >= 3)
-    {
-      boost::mutex::scoped_lock lock(this->lFootMutex);
-      this->lFootCount++;
-    }
-    else
-    {
-      boost::mutex::scoped_lock lock(this->lFootMutex);
-      this->lFootCount = 0;
-    }
-    this->lFootContacts = curContacts;
-
     if (this->cheatsEnabled)
     {
       geometry_msgs::WrenchStamped msg;
@@ -1590,20 +1458,6 @@ void AtlasPlugin::OnRContactUpdate()
   // GetContacts returns all contacts on the collision body
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
-    /// increment drift count if 3 points of the feet is in contact continuously
-    int curContacts = contacts.contact(i).position_size();
-    if (this->rFootContacts >= 3 && curContacts >= 3)
-    {
-      boost::mutex::scoped_lock lock(this->rFootMutex);
-      this->rFootCount++;
-    }
-    else
-    {
-      boost::mutex::scoped_lock lock(this->rFootMutex);
-      this->rFootCount = 0;
-    }
-    this->rFootContacts = curContacts;
-
     if (this->cheatsEnabled)
     {
       geometry_msgs::WrenchStamped msg;
