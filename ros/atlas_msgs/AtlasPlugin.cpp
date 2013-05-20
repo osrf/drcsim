@@ -636,14 +636,14 @@ void AtlasPlugin::LoadROS()
     this->pubRFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/r_foot_contact", 10);
+
+    // on contact
+    this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
+       boost::bind(&AtlasPlugin::OnLContactUpdate, this));
+
+    this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
+       boost::bind(&AtlasPlugin::OnRContactUpdate, this));
   }
-
-  // on contact
-  this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
-     boost::bind(&AtlasPlugin::OnLContactUpdate, this));
-
-  this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
-     boost::bind(&AtlasPlugin::OnRContactUpdate, this));
 
   // controller synchronization statistics
   this->pubDelayStatisticsQueue =
@@ -1414,34 +1414,31 @@ void AtlasPlugin::OnLContactUpdate()
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
     /// increment drift count if 3 points of the feet is in contact continuously
-    if (this->cheatsEnabled)
+    geometry_msgs::WrenchStamped msg;
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
+    msg.header.frame_id = "l_foot";
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
+    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
-      geometry_msgs::WrenchStamped msg;
-      msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
-                                   contacts.contact(i).time().nsec());
-      msg.header.frame_id = "l_foot";
-      fTotal.Set(0, 0, 0);
-      tTotal.Set(0, 0, 0);
-      for (int j = 0; j < contacts.contact(i).position_size(); ++j)
-      {
-        // loop through all contacts between collision1 and collision2
-        fTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_force().x(),
-                  contacts.contact(i).wrench(j).body_1_force().y(),
-                  contacts.contact(i).wrench(j).body_1_force().z());
-        tTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_torque().x(),
-                  contacts.contact(i).wrench(j).body_1_torque().y(),
-                  contacts.contact(i).wrench(j).body_1_torque().z());
-      }
-      msg.wrench.force.x = fTotal.x;
-      msg.wrench.force.y = fTotal.y;
-      msg.wrench.force.z = fTotal.z;
-      msg.wrench.torque.x = tTotal.x;
-      msg.wrench.torque.y = tTotal.y;
-      msg.wrench.torque.z = tTotal.z;
-      this->pubLFootContactQueue->push(msg, this->pubLFootContact);
+      // loop through all contacts between collision1 and collision2
+      fTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_force().x(),
+                contacts.contact(i).wrench(j).body_1_force().y(),
+                contacts.contact(i).wrench(j).body_1_force().z());
+      tTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_torque().x(),
+                contacts.contact(i).wrench(j).body_1_torque().y(),
+                contacts.contact(i).wrench(j).body_1_torque().z());
     }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubLFootContactQueue->push(msg, this->pubLFootContact);
   }
 }
 
@@ -1458,34 +1455,31 @@ void AtlasPlugin::OnRContactUpdate()
   // GetContacts returns all contacts on the collision body
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
-    if (this->cheatsEnabled)
+    geometry_msgs::WrenchStamped msg;
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
+    msg.header.frame_id = "r_foot";
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
+    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
-      geometry_msgs::WrenchStamped msg;
-      msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
-                                   contacts.contact(i).time().nsec());
-      msg.header.frame_id = "r_foot";
-      fTotal.Set(0, 0, 0);
-      tTotal.Set(0, 0, 0);
-      for (int j = 0; j < contacts.contact(i).position_size(); ++j)
-      {
-        // loop through all contacts between collision1 and collision2
-        fTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_force().x(),
-                  contacts.contact(i).wrench(j).body_1_force().y(),
-                  contacts.contact(i).wrench(j).body_1_force().z());
-        tTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_torque().x(),
-                  contacts.contact(i).wrench(j).body_1_torque().y(),
-                  contacts.contact(i).wrench(j).body_1_torque().z());
-      }
-      msg.wrench.force.x = fTotal.x;
-      msg.wrench.force.y = fTotal.y;
-      msg.wrench.force.z = fTotal.z;
-      msg.wrench.torque.x = tTotal.x;
-      msg.wrench.torque.y = tTotal.y;
-      msg.wrench.torque.z = tTotal.z;
-      this->pubRFootContactQueue->push(msg, this->pubRFootContact);
+      // loop through all contacts between collision1 and collision2
+      fTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_force().x(),
+                contacts.contact(i).wrench(j).body_1_force().y(),
+                contacts.contact(i).wrench(j).body_1_force().z());
+      tTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_torque().x(),
+                contacts.contact(i).wrench(j).body_1_torque().y(),
+                contacts.contact(i).wrench(j).body_1_torque().z());
     }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubRFootContactQueue->push(msg, this->pubRFootContact);
   }
 }
 
