@@ -1413,7 +1413,6 @@ void AtlasPlugin::OnLContactUpdate()
 
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
-    /// increment drift count if 3 points of the feet is in contact continuously
     geometry_msgs::WrenchStamped msg;
     msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
                                  contacts.contact(i).time().nsec());
