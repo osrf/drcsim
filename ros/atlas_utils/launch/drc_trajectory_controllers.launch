@@ -11,7 +11,7 @@
         args="pub /calibrated std_msgs/Bool true" />
 
   <!-- TF Buffer Server -->
-  <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" output="screen">
+  <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" output="log">
     <param name="buffer_size" value="1200.0"/>
   </node>
 
@@ -21,15 +21,15 @@
   <rosparam command="load" file="$(find atlas_utils)/config/torso_position_controllers.yaml" />
 
   <node name="atlas_arm_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
+        pkg="pr2_controller_manager" type="spawner" output="log"
         args="--wait-for=/calibrated r_arm_controller l_arm_controller" />
 
   <node name="atlas_leg_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
+        pkg="pr2_controller_manager" type="spawner" output="log"
         args="--wait-for=/calibrated r_leg_controller l_leg_controller" />
 
   <node name="atlas_torso_position_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
+        pkg="pr2_controller_manager" type="spawner" output="log"
         args="--wait-for=/calibrated neck_ay_position_controller back_lbz_position_controller back_mby_position_controller back_ubx_position_controller" />
 
 </launch>

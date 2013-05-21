@@ -15,7 +15,7 @@
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
-    <arg name="extra_gazebo_args" value="-r --record_encoding=zlib --record_path=/tmp/qual_task_3" />
+    <arg name="extra_gazebo_args" value="-q -r --record_encoding=zlib --record_path=/tmp/qual_task_3" />
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
 
