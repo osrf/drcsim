@@ -11,6 +11,8 @@
   <depend package="osrf_msgs"/>
   <depend package="rospy"/>
   <depend package="atlas_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="geometry_msgs"/>
 </package>
 
 
