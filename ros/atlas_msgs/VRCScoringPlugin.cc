@@ -443,6 +443,10 @@ bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 bool VRCScoringPlugin::CheckFall(const common::Time &_simTime,
   std::string &_msg)
 {
+  // Don't count falls after task completion
+  if (this->stopTimeSim != common::Time::Zero)
+    return false;
+
   // Get head velocity
   math::Vector3 currVel = this->atlasHead->GetWorldLinearVel();
 
