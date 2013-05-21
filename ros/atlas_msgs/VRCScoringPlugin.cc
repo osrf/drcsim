@@ -32,6 +32,7 @@ using namespace gazebo;
 
 /////////////////////////////////////////////////
 VRCScoringPlugin::VRCScoringPlugin()
+ : postCompletionQuietTime(5.0)
 {
 }
 
@@ -443,8 +444,9 @@ bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 bool VRCScoringPlugin::CheckFall(const common::Time &_simTime,
   std::string &_msg)
 {
-  // Don't count falls after task completion
-  if (this->stopTimeSim != common::Time::Zero)
+  // Don't count falls after task completion + quiet time
+  if (this->stopTimeSim != common::Time::Zero &&
+      (_simTime - this->stopTimeSim) >= this->postCompletionQuietTime)
     return false;
 
   // Get head velocity

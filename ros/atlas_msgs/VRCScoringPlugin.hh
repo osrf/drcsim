@@ -313,6 +313,11 @@ namespace gazebo
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
     private: boost::thread deferredLoadThread;
+
+    // \brief Elapsed sim time after task completion when we stop counting
+    // falls.  It's non-zero to avoid having people dive across the finish
+    // line.
+    private: const common::Time postCompletionQuietTime;
   };
 }
 #endif
