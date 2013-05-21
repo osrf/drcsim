@@ -260,6 +260,9 @@ namespace gazebo
     /// \brief Which side of the next gate we were the last time we checked.
     private: int nextGateSide;
 
+    /// \brief The absolute wall time when the run started
+    private: common::Time runStartTimeWall;
+
     /// \brief Sim time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTimeSim;
 
