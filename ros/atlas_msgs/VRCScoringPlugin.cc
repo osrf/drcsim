@@ -27,11 +27,13 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include <time.h>
 
 using namespace gazebo;
 
 /////////////////////////////////////////////////
 VRCScoringPlugin::VRCScoringPlugin()
+ : postCompletionQuietTime(5.0)
 {
 }
 
@@ -176,9 +178,12 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   this->scoreFileStream << "# Score data for world " <<
     this->world->GetName() << std::endl;
+  this->runStartTimeWall = common::Time::GetWallTime();
+  const time_t timeSec = this->runStartTimeWall.sec;
   this->scoreFileStream << "# Started at: " <<
     std::fixed << std::setprecision(3) <<
-    common::Time::GetWallTime().Double() << std::endl;
+    this->runStartTimeWall.Double() << "; " <<
+    ctime(&timeSec);
   this->scoreFileStream << "# Format: " << std::endl;
   this->scoreFileStream << "# wallTime(sec),simTime(sec),"
     "wallTimeElapsed(sec),simTimeElapsed(sec),completionScore(count),"
@@ -279,8 +284,10 @@ void VRCScoringPlugin::WriteScore(const common::Time &_simTime,
   else if (this->startTimeWall != common::Time::Zero)
     elapsedTimeWall = _wallTime - this->startTimeWall;
 
+  common::Time runElapsedTimeWall = _wallTime - this->runStartTimeWall;
+
   this->scoreFileStream << std::fixed << std::setprecision(3)
-    << _wallTime.Double() << ","
+    << runElapsedTimeWall.Double() << ","
     << _simTime.Double() << ","
     << elapsedTimeWall.Double() << ","
     << elapsedTimeSim.Double() << ","
@@ -289,7 +296,7 @@ void VRCScoringPlugin::WriteScore(const common::Time &_simTime,
 
   // Also publish via ROS
   atlas_msgs::VRCScore rosScoreMsg;
-  rosScoreMsg.wall_time = ros::Time(_wallTime.Double());
+  rosScoreMsg.wall_time = ros::Time(runElapsedTimeWall.Double());
   rosScoreMsg.sim_time = ros::Time(_simTime.Double());
   rosScoreMsg.wall_time_elapsed = ros::Time(elapsedTimeWall.Double());
   rosScoreMsg.sim_time_elapsed = ros::Time(elapsedTimeSim.Double());
@@ -443,6 +450,11 @@ bool VRCScoringPlugin::CheckDrillInBin(std::string &_msg)
 bool VRCScoringPlugin::CheckFall(const common::Time &_simTime,
   std::string &_msg)
 {
+  // Don't count falls after task completion + quiet time
+  if (this->stopTimeSim != common::Time::Zero &&
+      (_simTime - this->stopTimeSim) >= this->postCompletionQuietTime)
+    return false;
+
   // Get head velocity
   math::Vector3 currVel = this->atlasHead->GetWorldLinearVel();
 

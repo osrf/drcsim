@@ -260,6 +260,9 @@ namespace gazebo
     /// \brief Which side of the next gate we were the last time we checked.
     private: int nextGateSide;
 
+    /// \brief The absolute wall time when the run started
+    private: common::Time runStartTimeWall;
+
     /// \brief Sim time at which Atlas passed through the first gate.
     private: gazebo::common::Time startTimeSim;
 
@@ -313,6 +316,11 @@ namespace gazebo
     // ros publish multi queue, prevents publish() blocking
     private: PubMultiQueue pmq;
     private: boost::thread deferredLoadThread;
+
+    // \brief Elapsed sim time after task completion when we stop counting
+    // falls.  It's non-zero to avoid having people dive across the finish
+    // line.
+    private: const common::Time postCompletionQuietTime;
   };
 }
 #endif

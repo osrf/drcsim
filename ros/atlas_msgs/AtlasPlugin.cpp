@@ -73,14 +73,6 @@ AtlasPlugin::AtlasPlugin()
 
   // startup procedure
   this->startupStep = AtlasPlugin::FREEZE;
-
-  // implement custom autodisable to reduce drift
-  this->lFootContacts = 0;
-  this->rFootContacts = 0;
-  this->lFootCount = 0;
-  this->rFootCount = 0;
-  this->footLinearVelTol = 0.003;
-  this->footAngularVelTol = 0.008;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -533,14 +525,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   if (!this->lFootContactSensor)
     gzerr << "l_foot_contact_sensor not found\n" << "\n";
 
-  this->lFootLink = this->model->GetLink("l_foot");
-  this->rFootLink = this->model->GetLink("r_foot");
-  if (!this->lFootLink || !this->rFootLink)
-  {
-    ROS_ERROR("AtlasPlugin: Atlas robot missing l_foot or r_foot link?");
-    return;
-  }
-
   // initialize status pub time
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
@@ -652,14 +636,14 @@ void AtlasPlugin::LoadROS()
     this->pubRFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/r_foot_contact", 10);
+
+    // on contact
+    this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
+       boost::bind(&AtlasPlugin::OnLContactUpdate, this));
+
+    this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
+       boost::bind(&AtlasPlugin::OnRContactUpdate, this));
   }
-
-  // on contact
-  this->lContactUpdateConnection = this->lFootContactSensor->ConnectUpdated(
-     boost::bind(&AtlasPlugin::OnLContactUpdate, this));
-
-  this->rContactUpdateConnection = this->rFootContactSensor->ConnectUpdated(
-     boost::bind(&AtlasPlugin::OnRContactUpdate, this));
 
   // controller synchronization statistics
   this->pubDelayStatisticsQueue =
@@ -902,109 +886,6 @@ void AtlasPlugin::UpdateStates()
     this->lastControllerUpdateTime = curTime;
 
     this->PublishConstrollerStatistics(curTime);
-  }
-
-
-  // foot autodisable
-  {
-    double stepsWithContactAndSmallVel;
-    {
-      boost::mutex::scoped_lock lock(this->lFootMutex);
-      stepsWithContactAndSmallVel = this->lFootCount;
-    }
-    
-    // if 5 seconds with at least 3 contacts points at foot
-    if (stepsWithContactAndSmallVel >= 5000)
-    {
-      double linearVel = this->lFootLink->GetWorldLinearVel().GetLength();
-      double angularVel = this->lFootLink->GetWorldAngularVel().GetLength();
-      // check if velocity magnitudes are small
-      if (fabs(linearVel) < this->footLinearVelTol &&
-          fabs(angularVel) < this->footAngularVelTol)
-      {
-        // wait another second of small velocity
-        if (stepsWithContactAndSmallVel < 6000)
-        {
-          // get foot pose at end of 6 seconds
-          this->lFootPose = this->lFootLink->GetWorldPose();
-          // gzerr << "lFoot Set t[" << 1000.*this->world->GetSimTime().Double()
-          //       << "] n[" << this->lFootContacts
-          //       << "] l[" << linearVel
-          //       << "] a[" << angularVel
-          //       << "] c[" << this->lFootCount
-          //       << "]\n";
-        }
-        else
-        {
-          // reset foot pose after 6 seconds of 3+ contact and small velocity
-          // to reduce drift
-          this->lFootLink->SetWorldPose(this->lFootPose);
-        }
-      }
-      else
-      {
-        // gzerr << "lFoot moved t[" << 1000.*this->world->GetSimTime().Double()
-        //       << "] n[" << this->lFootContacts
-        //       << "] l[" << linearVel
-        //       << "] a[" << angularVel
-        //       << "] c[" << this->lFootCount
-        //       << "]\n";
-        {
-          boost::mutex::scoped_lock lock(this->lFootMutex);
-          this->lFootCount = 0;
-        }
-      }
-    }
-  }
-  {
-    double stepsWithContactAndSmallVel;
-    {
-      boost::mutex::scoped_lock lock(this->rFootMutex);
-      stepsWithContactAndSmallVel = this->rFootCount;
-    }
-    
-    // if 5 seconds with at least 3 contacts points at foot
-    if (stepsWithContactAndSmallVel >= 5000)
-    {
-      double linearVel = this->rFootLink->GetWorldLinearVel().GetLength();
-      double angularVel = this->rFootLink->GetWorldAngularVel().GetLength();
-      // check if velocity magnitudes are small
-      if (fabs(linearVel) < this->footLinearVelTol &&
-          fabs(angularVel) < this->footAngularVelTol)
-      {
-        // wait another second of small velocity
-        if (stepsWithContactAndSmallVel < 6000)
-        {
-          // get foot pose at end of 6 seconds
-          this->rFootPose = this->rFootLink->GetWorldPose();
-          // gzerr << "rFoot Set t[" << 1000.*this->world->GetSimTime().Double()
-          //       << "] n[" << this->rFootContacts
-          //       << "] l[" << linearVel
-          //       << "] a[" << angularVel
-          //       << "] c[" << this->rFootCount
-          //       << "]\n";
-        }
-        else
-        {
-          // reset foot pose after 6 seconds of 3+ contact and small velocity
-          // to reduce drift
-          this->rFootLink->SetWorldPose(this->rFootPose);
-        }
-      }
-      else
-      {
-        // gzerr << "rFoot moved t[" << 1000.*this->world->GetSimTime().Double()
-        //       << "] n[" << this->rFootContacts
-        //       << "] l[" << linearVel
-        //       << "] a[" << angularVel
-        //       << "] c[" << this->rFootCount
-        //       << "]\n";
-        {
-          boost::mutex::scoped_lock lock(this->rFootMutex);
-          this->rFootCount = 0;
-        }
-      }
-    }
   }
 }
 
@@ -1532,48 +1413,31 @@ void AtlasPlugin::OnLContactUpdate()
 
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
-    /// increment drift count if 3 points of the feet is in contact continuously
-    int curContacts = contacts.contact(i).position_size();
-    if (this->lFootContacts >= 3 && curContacts >= 3)
+    geometry_msgs::WrenchStamped msg;
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
+    msg.header.frame_id = "l_foot";
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
+    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
-      boost::mutex::scoped_lock lock(this->lFootMutex);
-      this->lFootCount++;
+      // loop through all contacts between collision1 and collision2
+      fTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_force().x(),
+                contacts.contact(i).wrench(j).body_1_force().y(),
+                contacts.contact(i).wrench(j).body_1_force().z());
+      tTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_torque().x(),
+                contacts.contact(i).wrench(j).body_1_torque().y(),
+                contacts.contact(i).wrench(j).body_1_torque().z());
     }
-    else
-    {
-      boost::mutex::scoped_lock lock(this->lFootMutex);
-      this->lFootCount = 0;
-    }
-    this->lFootContacts = curContacts;
-
-    if (this->cheatsEnabled)
-    {
-      geometry_msgs::WrenchStamped msg;
-      msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
-                                   contacts.contact(i).time().nsec());
-      msg.header.frame_id = "l_foot";
-      fTotal.Set(0, 0, 0);
-      tTotal.Set(0, 0, 0);
-      for (int j = 0; j < contacts.contact(i).position_size(); ++j)
-      {
-        // loop through all contacts between collision1 and collision2
-        fTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_force().x(),
-                  contacts.contact(i).wrench(j).body_1_force().y(),
-                  contacts.contact(i).wrench(j).body_1_force().z());
-        tTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_torque().x(),
-                  contacts.contact(i).wrench(j).body_1_torque().y(),
-                  contacts.contact(i).wrench(j).body_1_torque().z());
-      }
-      msg.wrench.force.x = fTotal.x;
-      msg.wrench.force.y = fTotal.y;
-      msg.wrench.force.z = fTotal.z;
-      msg.wrench.torque.x = tTotal.x;
-      msg.wrench.torque.y = tTotal.y;
-      msg.wrench.torque.z = tTotal.z;
-      this->pubLFootContactQueue->push(msg, this->pubLFootContact);
-    }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubLFootContactQueue->push(msg, this->pubLFootContact);
   }
 }
 
@@ -1590,48 +1454,31 @@ void AtlasPlugin::OnRContactUpdate()
   // GetContacts returns all contacts on the collision body
   for (int i = 0; i < contacts.contact_size(); ++i)
   {
-    /// increment drift count if 3 points of the feet is in contact continuously
-    int curContacts = contacts.contact(i).position_size();
-    if (this->rFootContacts >= 3 && curContacts >= 3)
+    geometry_msgs::WrenchStamped msg;
+    msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
+                                 contacts.contact(i).time().nsec());
+    msg.header.frame_id = "r_foot";
+    fTotal.Set(0, 0, 0);
+    tTotal.Set(0, 0, 0);
+    for (int j = 0; j < contacts.contact(i).position_size(); ++j)
     {
-      boost::mutex::scoped_lock lock(this->rFootMutex);
-      this->rFootCount++;
+      // loop through all contacts between collision1 and collision2
+      fTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_force().x(),
+                contacts.contact(i).wrench(j).body_1_force().y(),
+                contacts.contact(i).wrench(j).body_1_force().z());
+      tTotal += math::Vector3(
+                contacts.contact(i).wrench(j).body_1_torque().x(),
+                contacts.contact(i).wrench(j).body_1_torque().y(),
+                contacts.contact(i).wrench(j).body_1_torque().z());
     }
-    else
-    {
-      boost::mutex::scoped_lock lock(this->rFootMutex);
-      this->rFootCount = 0;
-    }
-    this->rFootContacts = curContacts;
-
-    if (this->cheatsEnabled)
-    {
-      geometry_msgs::WrenchStamped msg;
-      msg.header.stamp = ros::Time(contacts.contact(i).time().sec(),
-                                   contacts.contact(i).time().nsec());
-      msg.header.frame_id = "r_foot";
-      fTotal.Set(0, 0, 0);
-      tTotal.Set(0, 0, 0);
-      for (int j = 0; j < contacts.contact(i).position_size(); ++j)
-      {
-        // loop through all contacts between collision1 and collision2
-        fTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_force().x(),
-                  contacts.contact(i).wrench(j).body_1_force().y(),
-                  contacts.contact(i).wrench(j).body_1_force().z());
-        tTotal += math::Vector3(
-                  contacts.contact(i).wrench(j).body_1_torque().x(),
-                  contacts.contact(i).wrench(j).body_1_torque().y(),
-                  contacts.contact(i).wrench(j).body_1_torque().z());
-      }
-      msg.wrench.force.x = fTotal.x;
-      msg.wrench.force.y = fTotal.y;
-      msg.wrench.force.z = fTotal.z;
-      msg.wrench.torque.x = tTotal.x;
-      msg.wrench.torque.y = tTotal.y;
-      msg.wrench.torque.z = tTotal.z;
-      this->pubRFootContactQueue->push(msg, this->pubRFootContact);
-    }
+    msg.wrench.force.x = fTotal.x;
+    msg.wrench.force.y = fTotal.y;
+    msg.wrench.force.z = fTotal.z;
+    msg.wrench.torque.x = tTotal.x;
+    msg.wrench.torque.y = tTotal.y;
+    msg.wrench.torque.z = tTotal.z;
+    this->pubRFootContactQueue->push(msg, this->pubRFootContact);
   }
 }
 
