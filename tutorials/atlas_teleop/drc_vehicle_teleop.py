@@ -23,12 +23,14 @@ class DrcVehicleTeleop:
         self.hand_brake = rospy.Publisher('drc_vehicle/hand_brake/cmd', Float64)
         self.hand_wheel = rospy.Publisher('drc_vehicle/hand_wheel/cmd', Float64)
         self.direction = rospy.Publisher('drc_vehicle/direction/cmd', Int8)
+        self.spindle = rospy.Publisher('multisense_sl/set_spindle_speed', Float64)
         
         self.AXIS_HAND_BRAKE = 0
         self.AXIS_BRAKE_PEDAL = 1
         self.AXIS_DIRECTION = 2
         self.AXIS_GAS_PEDAL = 3
         self.AXIS_HAND_WHEEL = 4
+        self.AXIS_SPINDLE = 5
 
         self.BUTTON_ENTER_CAR = 0
         self.BUTTON_EXIT_CAR = 1
@@ -57,6 +59,8 @@ class DrcVehicleTeleop:
             self.direction.publish(Int8(direction))
             hand_wheel = (data.axes[self.AXIS_HAND_WHEEL] - 0.5) * math.pi
             self.hand_wheel.publish(Float64(hand_wheel))
+            spindle_speed = data.axes[self.AXIS_SPINDLE] * 5.23
+            self.spindle.publish(Float64(spindle_speed))
 
     def run(self):
         rospy.spin()
