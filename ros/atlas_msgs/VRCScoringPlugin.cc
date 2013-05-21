@@ -345,10 +345,13 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
     switch (this->nextGate->type)
     {
       case Gate::PEDESTRIAN:
+        // We require that Atlas is NOT in the vehicle when it crosses this gate
+        if (this->CheckAtlasInVehicle(tmpString))
+          return false;
         pose = this->atlas->GetWorldPose();
         break;
       case Gate::VEHICLE:
-        // We require that Atlas is in the vehicle when it crosses a gate
+        // We require that Atlas is in the vehicle when it crosses this gate
         if (!this->CheckAtlasInVehicle(tmpString))
           return false;
         pose = this->vehicle->GetWorldPose();
@@ -394,6 +397,11 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
 /////////////////////////////////////////////////
 bool VRCScoringPlugin::CheckAtlasInVehicle(std::string &_msg)
 {
+  // If we don't know anything about the vehicle (e.g., if this world doesn't
+  // contain a vehicle), then just say no.
+  if (!this->vehicleSeat)
+    return false;
+
   // Where is Atlas?
   math::Vector3 robotPosition = this->atlas->GetWorldPose().pos;
   // Construct bounding box above the seat, using the footprint of the "seat"
