@@ -1,6 +1,7 @@
 set (worlds
      drc_sim_v0.world
      atlas.world
+     atlas_cpu_lidar.world
      atlas_sandia_hands.world
      atlas_sandia_hands_stumps.world
      atlas_irobot_hands.world
@@ -18,9 +19,12 @@ set (worlds
      qual_task_3_stumps.world
      qual_task_4.world
      vrc_task_1.world
+     vrc_task_1_cpu_lidar.world
      vrc_task_2.world
+     vrc_task_2_cpu_lidar.world
      vrc_task_2_stumps.world
      vrc_task_3.world
+     vrc_task_3_cpu_lidar.world
     )
 
 install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/worlds/)
