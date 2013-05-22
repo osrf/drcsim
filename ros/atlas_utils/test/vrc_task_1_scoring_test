@@ -86,6 +86,10 @@ class Tester(unittest.TestCase):
 
 if __name__ == '__main__':
     rospy.init_node('vrc_task_1_scoring_test', anonymous=True)
+    try:
+	LOGDIR = rospy.get_param('~logdir')
+    except KeyError:
+	rospy.loginfo("Use default value for logdir: " + LOGDIR)
 
     # Wait until /clock is being published; this can take an unpredictable
     # amount of time when we're downloading models.
