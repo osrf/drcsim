@@ -1,12 +1,11 @@
 <?xml version="1.0" ?>
-<gazebo version="1.2">
+<sdf version="1.4">
   <world name="default">
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <ode>
         <solver>
           <type>quick</type>
-          <dt>0.001</dt>
           <iters>50</iters>
           <sor>1.4</sor>
         </solver>
@@ -17,42 +16,36 @@
           <contact_surface_layer>0.0</contact_surface_layer>
         </constraints>
       </ode>
+      <max_step_size>0.001</max_step_size>
     </physics>
-
     <!-- A global light source -->
     <include>
       <uri>model://sun</uri>
     </include>
-
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
     </include>
-
     <include>
       <uri>model://golf_cart</uri>
       <pose>2 -2 0 0 0 0</pose>
     </include>
-
     <include>
       <uri>model://fire_hose</uri>
       <pose>0 -1.967 0.208562 0 0 1.57079</pose>
     </include>
-
     <include>
       <uri>model://standpipe</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
-
     <include>
       <uri>model://atlas</uri>
       <pose>-2 1.0 0.93 0 0 0</pose>
     </include>
-
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
-         <model_name>atlas</model_name>
-         <pin_link>utorso</pin_link>
+        <model_name>atlas</model_name>
+        <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
         <model_name>golf_cart</model_name>
@@ -64,11 +57,8 @@
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>
         <thread_pitch>-1000</thread_pitch>
-        <coupling_relative_pose>
-          1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199
-        </coupling_relative_pose>
+        <coupling_relative_pose>1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199</coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
-
   </world>
-</gazebo>
+</sdf>

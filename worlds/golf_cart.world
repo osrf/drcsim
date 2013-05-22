@@ -1,12 +1,11 @@
 <?xml version="1.0" ?>
-<gazebo version="1.2">
+<sdf version="1.4">
   <world name="default">
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <ode>
         <solver>
           <type>quick</type>
-          <dt>0.001</dt>
           <iters>50</iters>
           <sor>1.4</sor>
         </solver>
@@ -17,22 +16,19 @@
           <contact_surface_layer>0.0</contact_surface_layer>
         </constraints>
       </ode>
+      <max_step_size>0.001</max_step_size>
     </physics>
-
     <!-- A global light source -->
     <include>
       <uri>model://sun</uri>
     </include>
-
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
     </include>
-
     <include>
       <uri>model://golf_cart</uri>
       <pose>0 -2 0 0 0 0</pose>
     </include>
-
   </world>
-</gazebo>
+</sdf>
