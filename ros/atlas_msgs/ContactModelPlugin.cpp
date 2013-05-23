@@ -88,6 +88,7 @@ void ContactModelPlugin::Init()
     boost::replace_all(topicName, "::", "/");
     this->filterTopicName = this->model->GetName() + "_" +
         boost::lexical_cast<std::string>(contactNum) + "_filter";
+    boost::replace_all(this->filterTopicName, "::", "/");
     this->contactsPub = this->node->Advertise<msgs::Contacts>(topicName);
   }
 
@@ -117,8 +118,6 @@ void ContactModelPlugin::OnUpdate()
         this->contactSub = this->node->Subscribe(topic,
             &ContactModelPlugin::OnContacts, this);
       }
-      // this->contactSub = this->node->Subscribe("~/physics/contacts",
-      //  &ContactModelPlugin::OnContacts, this);
     }
   }
   else
