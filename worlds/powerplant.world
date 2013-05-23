@@ -1,19 +1,16 @@
 <?xml version="1.0" ?>
-<gazebo version="1.2">
+<sdf version="1.4">
   <world name="default">
     <gui>
-    <camera name="user_camera">
-      <pose>-20 0 10 0 0.2 0</pose>
-    </camera>
+      <camera name="user_camera">
+        <pose>-20 0 10 0 0.2 0</pose>
+      </camera>
     </gui>
-
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
-      <update_rate>1000</update_rate>
       <ode>
         <solver>
           <type>quick</type>
-          <dt>0.001</dt>
           <iters>50</iters>
           <sor>1.4</sor>
         </solver>
@@ -24,19 +21,18 @@
           <contact_surface_layer>0.0</contact_surface_layer>
         </constraints>
       </ode>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <max_step_size>0.001</max_step_size>
     </physics>
-
     <!-- A global light source -->
     <include>
       <uri>model://sun</uri>
     </include>
-
     <include>
       <uri>model://powerplant</uri>
       <pose>30 23 -0.2 0 0 -1.5708</pose>
     </include>
-
-<!--
+    <!--
     <include>
       <uri>model://atlas</uri>
       <pose>0 2 0.93 0 0 0</pose>
@@ -75,6 +71,5 @@
       <count>200</count>
     </plugin>
 -->
-
   </world>
-</gazebo>
+</sdf>

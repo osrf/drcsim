@@ -11,7 +11,7 @@
         args="pub /calibrated std_msgs/Bool true" />
 
   <!-- TF Buffer Server -->
-  <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" output="screen">
+  <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server" output="log">
     <param name="buffer_size" value="1200.0"/>
   </node>
 
@@ -21,11 +21,11 @@
 
   <!-- Controllers that come up started -->
   <node name="atlas_arm_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
+        pkg="pr2_controller_manager" type="spawner" output="log"
         args="--wait-for=/calibrated r_arm_controller l_arm_controller" />
 
   <node name="atlas_leg_torso_position_controllers_spawner"
-        pkg="pr2_controller_manager" type="spawner" output="screen"
+        pkg="pr2_controller_manager" type="spawner" output="log"
         args="--wait-for=/calibrated l_leg_kny_position_controller r_leg_kny_position_controller l_leg_lax_position_controller r_leg_lax_position_controller l_leg_lhy_position_controller r_leg_lhy_position_controller l_leg_mhx_position_controller r_leg_mhx_position_controller l_leg_uay_position_controller r_leg_uay_position_controller l_leg_uhz_position_controller r_leg_uhz_position_controller neck_ay_position_controller back_lbz_position_controller back_mby_position_controller back_ubx_position_controller" />
 
 </launch>
