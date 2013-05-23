@@ -86,7 +86,7 @@ void ContactModelPlugin::Init()
     topicName += this->model->GetName() + "/contact_" +
         boost::lexical_cast<std::string>(contactNum++);
     boost::replace_all(topicName, "::", "/");
-    this->filterTopicName = this->model->GetName() + "_" +
+    this->filterTopicName = this->model->GetName() + "_tactile_" +
         boost::lexical_cast<std::string>(contactNum) + "_filter";
     boost::replace_all(this->filterTopicName, "::", "/");
     this->contactsPub = this->node->Advertise<msgs::Contacts>(topicName);
