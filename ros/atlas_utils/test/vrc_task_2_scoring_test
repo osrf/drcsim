@@ -64,7 +64,7 @@ class Tester(unittest.TestCase):
         # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
-	x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
+        x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
         pose.position.x = float(x_str)
         pose.position.y = float(y_str)
         pose.position.z = float(z_str)
