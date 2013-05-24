@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import roslib
+roslib.load_manifest('atlas_utils')
 import unittest
 import rostest
 import sys
@@ -11,8 +13,46 @@ import os
 import tempfile
 import subprocess
 from geometry_msgs.msg import Pose
+from atlas_msgs.msg import AtlasState
+
 
 LOGDIR = '/tmp/vrc_task_2'
+
+class OrientationChecker():
+
+    def check_standup(self, orientation):
+        if (orientation.x < 0.1) and \
+           (orientation.y < 0.1) and \
+           (orientation.z < 0.1) and \
+           (orientation.w > 0.95):
+            rospy.loginfo("Stand up")
+            self.standup_msgs += 1
+            return True
+        else:
+            rospy.loginfo("Fallen")
+            self.result       = False
+            self.result_ready = True
+            return False
+
+    def callback(self, data):
+        rospy.loginfo("Received")
+        if self.check_standup(data.orientation) and self.standup_msgs == 1000:
+            self.result       = True
+            self.result_ready = True
+
+    def run(self):
+        self.standup_msgs  = 0
+        self.result_ready  = False
+        self.result        = False
+
+        self.pub = rospy.Subscriber("/atlas/atlas_state", AtlasState, self.callback)
+
+        while not self.result_ready:
+            time.sleep(0.1)
+            pass
+
+	self.pub.unregister()
+	return self.result
 
 class Tester(unittest.TestCase):
 
@@ -61,6 +101,10 @@ class Tester(unittest.TestCase):
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
+        # Check that robot is standup
+	stand_up_checker = OrientationChecker()
+	self.assertTrue(stand_up_checker.run(),
+	  'Robot seems to be fallen')
         # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
