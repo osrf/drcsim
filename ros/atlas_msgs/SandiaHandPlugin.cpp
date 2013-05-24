@@ -577,7 +577,7 @@ void SandiaHandPlugin::UpdateStates()
     // get imu data from imu link
     if (curTime > this->lastImuTime)
     {
-      if (this->leftImuSensor)
+      if (this->leftImuSensor && this->pubLeftImu.getNumSubscribers() > 0)
       {
         math::Vector3 angularVel = this->leftImuSensor->GetAngularVelocity();
         math::Vector3 linearAcc = this->leftImuSensor->GetLinearAcceleration();
@@ -603,7 +603,7 @@ void SandiaHandPlugin::UpdateStates()
         this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
       }
 
-      if (this->rightImuSensor)
+      if (this->rightImuSensor && this->pubRightImu.getNumSubscribers() > 0)
       {
         math::Vector3 angularVel = this->rightImuSensor->GetAngularVelocity();
         math::Vector3 linearAcc = this->rightImuSensor->GetLinearAcceleration();
@@ -718,48 +718,64 @@ void SandiaHandPlugin::UpdateStates()
     }
 
     // publish tactile data
-    if (!this->hasStumps)
+    if (pubRightTactile.getNumSubscribers() > 0)
     {
-      // first clear all previous tactile data
-      for (int i = 0; i < this->tactileFingerArraySize; ++i)
+      if (!this->hasStumps)
       {
-        this->leftTactile.f0[i] = this->minTactileOut;
-        this->leftTactile.f1[i] = this->minTactileOut;
-        this->leftTactile.f2[i] = this->minTactileOut;
-        this->leftTactile.f3[i] = this->minTactileOut;
-        this->rightTactile.f0[i] = this->minTactileOut;
-        this->rightTactile.f1[i] = this->minTactileOut;
-        this->rightTactile.f2[i] = this->minTactileOut;
-        this->rightTactile.f3[i] = this->minTactileOut;
-      }
-      for (int i = 0; i < this->tactilePalmArraySize; ++i)
-      {
-        this->leftTactile.palm[i] = this->minTactileOut;
-        this->rightTactile.palm[i] = this->minTactileOut;
-      }
+        // first clear all previous tactile data
+        for (int i = 0; i < this->tactileFingerArraySize; ++i)
+        {
+          this->rightTactile.f0[i] = this->minTactileOut;
+          this->rightTactile.f1[i] = this->minTactileOut;
+          this->rightTactile.f2[i] = this->minTactileOut;
+          this->rightTactile.f3[i] = this->minTactileOut;
+        }
 
-      // Generate data and publish
-      {
-        boost::mutex::scoped_lock lock(this->contactRMutex);
-        this->rightTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-        this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
-            &this->rightTactile);
-        // Clear the incoming contact list.
-        this->incomingRContacts.clear();
+        for (int i = 0; i < this->tactilePalmArraySize; ++i)
+          this->rightTactile.palm[i] = this->minTactileOut;
+
+        // Generate data and publish
+        {
+          boost::mutex::scoped_lock lock(this->contactRMutex);
+          this->rightTactile.header.stamp =
+              ros::Time(curTime.sec, curTime.nsec);
+          this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
+              &this->rightTactile);
+          // Clear the incoming contact list.
+          this->incomingRContacts.clear();
+        }
       }
-      {
-        boost::mutex::scoped_lock lock(this->contactLMutex);
-        this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-        this->FillTactileData(LEFT_HAND, this->incomingLContacts,
-            &this->leftTactile);
-        this->incomingLContacts.clear();
-      }
+      this->pubRightTactileQueue->push(this->rightTactile,
+          this->pubRightTactile);
     }
 
-    this->pubRightTactileQueue->push(this->rightTactile,
-        this->pubRightTactile);
-    this->pubLeftTactileQueue->push(this->leftTactile,
-        this->pubLeftTactile);
+    if (pubLeftTactile.getNumSubscribers() > 0)
+    {
+      if (!this->hasStumps)
+      {
+        // first clear all previous tactile data
+        for (int i = 0; i < this->tactileFingerArraySize; ++i)
+        {
+          this->leftTactile.f0[i] = this->minTactileOut;
+          this->leftTactile.f1[i] = this->minTactileOut;
+          this->leftTactile.f2[i] = this->minTactileOut;
+          this->leftTactile.f3[i] = this->minTactileOut;
+        }
+
+        for (int i = 0; i < this->tactilePalmArraySize; ++i)
+          this->leftTactile.palm[i] = this->minTactileOut;
+
+        {
+          boost::mutex::scoped_lock lock(this->contactLMutex);
+          this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+          this->FillTactileData(LEFT_HAND, this->incomingLContacts,
+              &this->leftTactile);
+          this->incomingLContacts.clear();
+        }
+      }
+      this->pubLeftTactileQueue->push(this->leftTactile,
+          this->pubLeftTactile);
+    }
 
     this->lastControllerUpdateTime = curTime;
   }
