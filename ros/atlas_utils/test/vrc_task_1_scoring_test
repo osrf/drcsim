@@ -13,9 +13,45 @@ import os
 import tempfile
 import subprocess
 from geometry_msgs.msg import Pose
-from atlas_msgs.msg import VRCScore
+from atlas_msgs.msg import VRCScore, AtlasState
 
 LOGDIR = '/tmp/vrc_task_1'
+
+class OrientationChecker():
+
+    def check_standup(self, orientation):
+        if (orientation.x < 0.1) and \
+           (orientation.y < 0.1) and \
+           (orientation.z < 0.1) and \
+           (orientation.w > 0.95):
+            rospy.loginfo("Stand up")
+            self.standup_msgs += 1
+            return True
+        else:
+            rospy.loginfo("Fallen")
+            self.result       = False
+            self.result_ready = True
+            return False
+
+    def callback(self, data):
+        rospy.loginfo("Received")
+        if self.check_standup(data.orientation) and self.standup_msgs == 1000:
+            self.result       = True
+            self.result_ready = True
+
+    def run(self):
+        self.standup_msgs  = 0
+        self.result_ready  = False
+        self.result        = False
+
+        self.pub = rospy.Subscriber("/atlas/atlas_state", AtlasState, self.callback)
+
+        while not self.result_ready:
+            time.sleep(0.1)
+            pass
+
+	self.pub.unregister()
+	return self.result
 
 class Tester(unittest.TestCase):
 
@@ -87,15 +123,20 @@ class Tester(unittest.TestCase):
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
-        # Starting checks
+        # Check that robot is standup
+    	stand_up_checker = OrientationChecker()
+	self.assertTrue(stand_up_checker.run(),
+	      'Robot seems to be fallen')
+        # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
         self.assertROSScore(0)
         # Teleport through first gate
         after_gate_0_pose = Pose()
-        after_gate_0_pose.position.x = -9.75
-        after_gate_0_pose.position.y = -4.11
-        after_gate_0_pose.position.z = 0.91
+        x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
+        after_gate_0_pose.position.x = float(x_str)
+        after_gate_0_pose.position.y = float(y_str)
+        after_gate_0_pose.position.z = float(z_str)
         pose_pub.publish(after_gate_0_pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
