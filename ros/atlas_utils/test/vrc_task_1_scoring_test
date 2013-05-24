@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import roslib
+roslib.load_manifest('atlas_utils')
 import unittest
 import rostest
 import sys
@@ -11,6 +13,7 @@ import os
 import tempfile
 import subprocess
 from geometry_msgs.msg import Pose
+from atlas_msgs.msg import VRCScore, AtlasState
 
 LOGDIR = '/tmp/vrc_task_1'
 
@@ -91,9 +94,32 @@ class Tester(unittest.TestCase):
         os.remove(tmp.name)
         return pose
 
+    def score_callback(self, data):
+	self.last_score = data
+	self.total_score_msgs += 1
+	rospy.loginfo(self.last_score.completion_score)
+
+    # wait and get new score data 
+    def wait_new_score_msg(self):
+	current = self.total_score_msgs
+	while (self.total_score_msgs <= current):
+	    time.sleep(1)
+    
+    def assertROSScore(self, expected_score):
+	result = False
+	for i in range(4): # 4 seconds to be sure message is not arriving
+	    self.wait_new_score_msg()
+	    if (self.last_score.completion_score == expected_score):
+		result = True
+		break
+	self.assertTrue(result,
+	  'Score in ros topic is not ' + str(expected_score))
+
     def test_scoring(self):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
         enter_car_pub = rospy.Publisher('drc_world/robot_enter_car', Pose)
+        self.total_score_msgs = 0
+        self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
@@ -104,6 +130,8 @@ class Tester(unittest.TestCase):
         # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
+        self.assertROSScore(0)
+        # Teleport through first gate
         after_gate_0_pose = Pose()
         x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
         after_gate_0_pose.position.x = float(x_str)
@@ -113,6 +141,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 0'))
+	self.assertROSScore(0)
 
         # Jump in the car
         self.assertFalse(self._grep('score.log', 
@@ -122,6 +151,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully moved Atlas into vehicle'))
+	self.assertROSScore(1)
 
         # TODO: Later phases of task
 

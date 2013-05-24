@@ -13,8 +13,7 @@ import os
 import tempfile
 import subprocess
 from geometry_msgs.msg import Pose
-from atlas_msgs.msg import AtlasState
-
+from atlas_msgs.msg import VRCScore, AtlasState
 
 LOGDIR = '/tmp/vrc_task_2'
 
@@ -95,9 +94,32 @@ class Tester(unittest.TestCase):
         os.remove(tmp.name)
         return pose
 
+    def score_callback(self, data):
+        self.last_score = data
+        self.total_score_msgs += 1
+        rospy.loginfo(self.last_score.completion_score)
+
+    # wait and get new score data 
+    def wait_new_score_msg(self):
+        current = self.total_score_msgs
+        while (self.total_score_msgs <= current):
+	        time.sleep(1)
+    
+    def assertROSScore(self, expected_score):
+    	result = False
+        for i in range(4): # 4 seconds to be sure message is not arriving
+            self.wait_new_score_msg()
+            if (self.last_score.completion_score == expected_score):
+                result = True
+                break
+            self.assertTrue(result,
+              'Score in ros topic is not ' + str(expected_score))
+
     def test_scoring(self):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
         pose = Pose()
+     	self.total_score_msgs = 0
+        self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
@@ -116,6 +138,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 0'))
+        self.assertROSScore(0)
 
         # Teleport through second gate
         self.assertFalse(self._grep('score.log', 
@@ -132,6 +155,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 1'))
+        self.assertROSScore(1)
 
         # Teleport through third gate
         self.assertFalse(self._grep('score.log', 
@@ -143,6 +167,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 2'))
+        self.assertROSScore(2)
 
         # Teleport through fourth gate
         self.assertFalse(self._grep('score.log', 
@@ -159,6 +184,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 3'))
+        self.assertROSScore(3)
 
         # Teleport through fifth gate
         self.assertFalse(self._grep('score.log', 
@@ -170,6 +196,7 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 4'))
+        self.assertROSScore(4)
 
 if __name__ == '__main__':
     rospy.init_node('vrc_task_2_scoring_test', anonymous=True)
