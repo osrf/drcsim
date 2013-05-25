@@ -1183,7 +1183,6 @@ void SandiaHandPlugin::RightTactileConnect()
 {
   boost::mutex::scoped_lock lock(this->rightTactileConnectionMutex);
   this->rightTactileConnectCount++;
-  gzerr << " con " << this->rightTactileConnectCount << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1198,7 +1197,6 @@ void SandiaHandPlugin::RightTactileDisconnect()
 {
   boost::mutex::scoped_lock lock(this->rightTactileConnectionMutex);
   this->rightTactileConnectCount--;
-  gzerr << " dis " << this->rightTactileConnectCount << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
