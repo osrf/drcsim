@@ -100,6 +100,12 @@ namespace gazebo
     /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
+    /// \brief Callback when a pubControllerStatistics subscriber connects
+    private: void ControllerStatsConnect();
+
+    /// \brief Callback when a pubControllerStatistics subscriber disconnects
+    private: void ControllerStatsDisconnect();
+
     /// \brief connected by lContactUpdateConnection, called when contact
     /// sensor update
     private: void OnLContactUpdate();
@@ -600,6 +606,13 @@ namespace gazebo
                USER = 1,
                NOMINAL = 2,
              };
+
+    /// \brief Keep track of number of controller stats connctions
+    private: int controllerStatsConnectCount;
+
+    /// \brief Mutex to protect controllerStatsConnectCount.
+    private: boost::mutex statsConnectionMutex;
+
   };
 }
 #endif

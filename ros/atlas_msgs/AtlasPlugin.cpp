@@ -73,6 +73,8 @@ AtlasPlugin::AtlasPlugin()
 
   // startup procedure
   this->startupStep = AtlasPlugin::FREEZE;
+
+  this->controllerStatsConnectCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +211,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       double maxVelocity = this->joints[i]->GetVelocityLimit(0);
       if (math::equal(maxVelocity, 0.0))
       {
-        ROS_ERROR("Set Joint Damping Upper Limit: Joint[%s] " 
+        ROS_ERROR("Set Joint Damping Upper Limit: Joint[%s] "
                   "effort limit [%f] velocity limit[%f]: "
                   "velocity limit is unbounded, artificially setting "
                   "damping coefficient max limit to 1.0.  This should not"
@@ -227,7 +229,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       this->lastJointCFMDamping.push_back(this->joints[i]->GetDamping(0));
 
       ROS_INFO("Bounds for joint[%s] is [%f, %f], model default is [%f]",
-               this->jointNames[i].c_str(), 
+               this->jointNames[i].c_str(),
                this->jointDampingMin[i], this->jointDampingMax[i],
                this->jointDampingModel[i]);
     }
@@ -657,7 +659,9 @@ void AtlasPlugin::LoadROS()
     this->pmq.addPub<atlas_msgs::ControllerStatistics>();
   this->pubControllerStatistics =
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
-    "atlas/controller_statistics", 10);
+    "atlas/controller_statistics", 10,
+    boost::bind(&AtlasPlugin::ControllerStatsConnect, this),
+    boost::bind(&AtlasPlugin::ControllerStatsDisconnect, this));
 
   // publish separate /atlas/imu topic, to be deprecated
   this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
@@ -2437,7 +2441,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
 void AtlasPlugin::PublishConstrollerStatistics(const common::Time &_curTime)
 {
   /// publish controller statistics diagnostics, damages, etc.
-  if (this->pubControllerStatistics.getNumSubscribers() > 0)
+  if (this->controllerStatsConnectCount > 0)
   {
     if ((_curTime - this->lastControllerStatisticsTime).Double() >=
       1.0/this->statsUpdateRate)
@@ -2567,7 +2571,7 @@ void AtlasPlugin::FilterVelocity()
     // stash filtered value;
     this->atlasState.velocity[i] = this->jointStates.velocity[i] =
       this->filVelOut[i][0] = tmp;
-    
+
   }
 }
 
@@ -2600,4 +2604,20 @@ void AtlasPlugin::FilterPosition()
       this->filPosOut[i][0] = tmp;
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Increment count
+void AtlasPlugin::ControllerStatsConnect()
+{
+  boost::mutex::scoped_lock lock(this->statsConnectionMutex);
+  this->controllerStatsConnectCount++;
+}
+////////////////////////////////////////////////////////////////////////////////
+// Decrement count
+void AtlasPlugin::ControllerStatsDisconnect()
+{
+  boost::mutex::scoped_lock lock(this->statsConnectionMutex);
+  this->controllerStatsConnectCount--;
+}
+
 }
