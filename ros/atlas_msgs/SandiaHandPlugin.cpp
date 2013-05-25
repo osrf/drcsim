@@ -763,12 +763,6 @@ void SandiaHandPlugin::UpdateStates()
       this->incomingRContacts.clear();
     }
 
-
-/*    gazebo::common::Time t1 = gazebo::common::Time::GetWallTime();
-    pubLeftTactile.getNumSubscribers();
-    gazebo::common::Time t2 = gazebo::common::Time::GetWallTime();
-    gzerr << (t2-t1).Double() << std::endl;*/
-
     if (this->leftTactileConnectCount > 0)
     {
       if (!this->hasStumps)
