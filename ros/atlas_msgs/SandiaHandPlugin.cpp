@@ -586,7 +586,7 @@ void SandiaHandPlugin::UpdateStates()
     // get imu data from imu link
     if (curTime > this->lastImuTime)
     {
-      if (this->leftImuSensor /*&& this->pubLeftImu.getNumSubscribers() > 0*/ )
+      if (this->leftImuSensor)
       {
         math::Vector3 angularVel = this->leftImuSensor->GetAngularVelocity();
         math::Vector3 linearAcc = this->leftImuSensor->GetLinearAcceleration();
@@ -612,7 +612,7 @@ void SandiaHandPlugin::UpdateStates()
         this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
       }
 
-      if (this->rightImuSensor /*&& this->pubRightImu.getNumSubscribers() > 0*/)
+      if (this->rightImuSensor)
       {
         math::Vector3 angularVel = this->rightImuSensor->GetAngularVelocity();
         math::Vector3 linearAcc = this->rightImuSensor->GetLinearAcceleration();
