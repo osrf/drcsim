@@ -343,16 +343,11 @@ void GazeboRosCameraUtils::ImageConnect()
 
   // upon first connection, remember if camera was active.
   if ((*this->image_connect_count_) == 0)
-  {
     *this->was_active_ = this->parentSensor_->IsActive();
-    ROS_INFO("remembering that camera was %s", *this->was_active_ ? "active" :
-"inactive");
-  }
 
   (*this->image_connect_count_)++;
 
   this->parentSensor_->SetActive(true);
-  ROS_INFO("setting camera active");
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Decrement count
@@ -366,10 +361,7 @@ void GazeboRosCameraUtils::ImageDisconnect()
   // leave it active.  Use case:  this could be a multicamera, where
   // each camera shares the same parentSensor_.
   if ((*this->image_connect_count_) <= 0 && !*this->was_active_)
-  {
-    ROS_INFO("setting camera inactive");
     this->parentSensor_->SetActive(false);
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
