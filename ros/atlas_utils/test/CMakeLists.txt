@@ -24,6 +24,9 @@ set (rostests
   vrc_task_3_gzlog_stop.test
   vrc_task_1_gzlog_stop_longrun.test
   vrc_task_1_gzlog_stop_longrun_zlib.test
+  vrc_task_1_dynamic_walking.test
+  vrc_task_2_dynamic_walking.test
+  vrc_task_3_dynamic_walking.test
   multicamera_connection.test
 )
 
@@ -72,6 +75,7 @@ set(scripts
   vrc_task_1_scoring_test
   vrc_task_2_scoring_test
   gzlog_stop_checker.py
+  vrc_walking_test
   multicamera_subscriber
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
