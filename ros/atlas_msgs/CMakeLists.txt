@@ -68,6 +68,20 @@ rosbuild_add_executable(pub_joint_states pub_joint_states.cpp)
 
 rosbuild_add_executable(pub_atlas_command_fast pub_atlas_command_fast.cpp)
 
+# gz topic teleporter
+include (FindPkgConfig)
+if (PKG_CONFIG_FOUND)
+  pkg_check_modules(GAZEBO gazebo)
+endif()
+
+include(FindBoost)
+find_package(Boost ${MIN_BOOST_VERSION} REQUIRED system filesystem regex)
+find_package(Protobuf REQUIRED)
+include_directories(${GAZEBO_INCLUDE_DIRS})
+link_directories(${GAZEBO_LIBRARY_DIRS})
+add_executable(gz_model_teleport gz_model_teleport.cpp)
+target_link_libraries(gz_model_teleport ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES})
+
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)
 target_link_libraries(gazebo_ros_camera_utils CameraPlugin)
