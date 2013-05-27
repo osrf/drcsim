@@ -15,7 +15,7 @@ import subprocess
 from geometry_msgs.msg import Pose
 from atlas_msgs.msg import VRCScore, AtlasState
 
-LOGDIR = '/tmp/vrc_task_1'
+LOGDIR = ''
 
 class OrientationChecker():
 
@@ -135,7 +135,8 @@ if __name__ == '__main__':
 	LOGDIR = rospy.get_param('~logdir')
 	rospy.loginfo("Use default logdir: " + LOGDIR)
     except KeyError:
-	rospy.loginfo("Use default value for logdir: " + LOGDIR)
+	rospy.logerr("Not defined logdir. Can not continue")
+	os.exit(-1)
 
     # Wait until /clock is being published; this can take an unpredictable
     # amount of time when we're downloading models.
