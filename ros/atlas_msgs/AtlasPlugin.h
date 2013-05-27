@@ -607,7 +607,7 @@ namespace gazebo
                NOMINAL = 2,
              };
 
-    /// \brief Keep track of number of controller stats connctions
+    /// \brief Keep track of number of controller stats connections
     private: int controllerStatsConnectCount;
 
     /// \brief Mutex to protect controllerStatsConnectCount.
