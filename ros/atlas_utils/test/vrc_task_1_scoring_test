@@ -12,6 +12,7 @@ import shutil
 import os
 import tempfile
 import subprocess
+from std_msgs.msg import Float64
 from geometry_msgs.msg import Pose
 from atlas_msgs.msg import VRCScore, AtlasState
 
@@ -117,7 +118,10 @@ class Tester(unittest.TestCase):
 
     def test_scoring(self):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
-        enter_car_pub = rospy.Publisher('drc_world/robot_enter_car', Pose)
+        enter_car_pub   = rospy.Publisher('drc_world/robot_enter_car', Pose)
+        hand_break_pub  = rospy.Publisher('/drc_vehicle/hand_break/cmd', Float64)
+	gas_pedal_pub   = rospy.Publisher('/drc_vehicle/gas_pedal/cmd', Float64)
+
         self.total_score_msgs = 0
         self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
         # Wait for subscribers to hook up
@@ -153,7 +157,17 @@ class Tester(unittest.TestCase):
           'Successfully moved Atlas into vehicle'))
 	self.assertROSScore(1)
 
-        # TODO: Later phases of task
+	# Turn on the car
+	print ("quit brake")
+	hand_break_pub.publish(0.0)
+	print ("gas")
+	gas_pedal_pub.publish(1.0)
+	time.sleep(9)
+        self.assertTrue(self._grep('score.log', 
+          'Successfully passed through gate 1'))
+	self.assertROSScore(2)
+
+        time.sleep(15)
 
 if __name__ == '__main__':
     rospy.init_node('vrc_task_1_scoring_test', anonymous=True)
