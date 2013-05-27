@@ -24,6 +24,7 @@ set (rostests
   vrc_task_3_gzlog_stop.test
   vrc_task_1_gzlog_stop_longrun.test
   vrc_task_1_gzlog_stop_longrun_zlib.test
+  multicamera_connection.test
 )
 
 # Only enable tests if we have a working GPU, which we use as a proxy for
@@ -71,6 +72,7 @@ set(scripts
   vrc_task_1_scoring_test
   vrc_task_2_scoring_test
   gzlog_stop_checker.py
+  multicamera_subscriber
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
 install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
