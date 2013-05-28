@@ -15,6 +15,7 @@
  *
 */
 
+#include <gazebo/physics/ContactManager.hh>
 #include <gazebo/transport/transport.hh>
 #include "ContactModelPlugin.h"
 
@@ -85,14 +86,15 @@ void ContactModelPlugin::Init()
     topicName += this->model->GetName() + "/contact_" +
         boost::lexical_cast<std::string>(contactNum++);
     boost::replace_all(topicName, "::", "/");
-
+    this->filterTopicName = this->model->GetName() + "_tactile_" +
+        boost::lexical_cast<std::string>(contactNum) + "_filter";
+    boost::replace_all(this->filterTopicName, "::", "/");
     this->contactsPub = this->node->Advertise<msgs::Contacts>(topicName);
   }
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&ContactModelPlugin::OnUpdate, this));
 }
-
 
 //////////////////////////////////////////////////
 void ContactModelPlugin::OnUpdate()
@@ -102,8 +104,20 @@ void ContactModelPlugin::OnUpdate()
   {
     if (!this->contactSub)
     {
-      this->contactSub = this->node->Subscribe("~/physics/contacts",
-        &ContactModelPlugin::OnContacts, this);
+      if (!this->collisions.empty())
+      {
+        // request the contact manager to publish messages to a custom topic for
+        // this sensor
+        physics::ContactManager *mgr =
+            this->world->GetPhysicsEngine()->GetContactManager();
+        std::vector<std::string> collisionNames;
+        std::copy(this->collisions.begin(), this->collisions.end(),
+            std::back_inserter(collisionNames));
+        std::string topic = mgr->CreateFilter(this->filterTopicName,
+            collisionNames);
+        this->contactSub = this->node->Subscribe(topic,
+            &ContactModelPlugin::OnContacts, this);
+      }
     }
   }
   else

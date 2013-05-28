@@ -92,6 +92,9 @@ namespace gazebo
 
     /// \brief Model this plugin is attached to.
     private: physics::ModelPtr model;
+
+    /// \brief Custom contact filter created for this plugin.
+    private: std::string filterTopicName;
   };
 }
 #endif

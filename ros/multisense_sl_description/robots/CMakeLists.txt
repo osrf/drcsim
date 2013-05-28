@@ -6,7 +6,7 @@
 # this package and irobot hand package also need to to be in ROS_PACKAGE_PATH
 # compile using xacro
 
-set (model_basenames multisense_sl_description multisense_sl_on_box)
+set (model_basenames multisense_sl_description multisense_sl_cpu_description multisense_sl_on_box)
 
 foreach(model_basename ${model_basenames})
   add_custom_command(
