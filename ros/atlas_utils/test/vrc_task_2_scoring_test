@@ -104,16 +104,29 @@ class Tester(unittest.TestCase):
         current = self.total_score_msgs
         while (self.total_score_msgs <= current):
 	        time.sleep(1)
-    
+
     def assertROSScore(self, expected_score):
-    	result = False
-        for i in range(4): # 4 seconds to be sure message is not arriving
-            self.wait_new_score_msg()
-            if (self.last_score.completion_score == expected_score):
-                result = True
-                break
-            self.assertTrue(result,
-              'Score in ros topic is not ' + str(expected_score))
+	result = False
+	for i in range(4): # 4 seconds to be sure message is not arriving
+	    self.wait_new_score_msg()
+	    ros_pkg = self.last_score
+	    if (ros_pkg.completion_score == expected_score):
+		result = True
+		break
+	self.assertTrue(result,
+	  'Score in ros topic is not ' + str(expected_score))
+	return ros_pkg
+    
+    def assertROSElapsedTimeZero(self, ros_pkg):
+	self.assertEqual(ros_pkg.wall_time_elapsed, rospy.Time(0))
+	self.assertEqual(ros_pkg.sim_time_elapsed, rospy.Time(0))
+	
+    def assertROSElapsedTimeNotZero(self, ros_pkg):
+	self.assertNotEqual(ros_pkg.wall_time_elapsed, rospy.Time(0))
+	self.assertNotEqual(ros_pkg.sim_time_elapsed, rospy.Time(0))
+
+    def assertROSNoFalls(self, ros_pkg):
+    	self.assertEqual(ros_pkg.falls, 0)
 
     def test_scoring(self):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
@@ -123,10 +136,20 @@ class Tester(unittest.TestCase):
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
-        # Check that robot is standup
-	stand_up_checker = OrientationChecker()
+	# Previous checks:
+	# - Check that robot is standup
+    	stand_up_checker = OrientationChecker()
 	self.assertTrue(stand_up_checker.run(),
-	  'Robot seems to be fallen')
+	      'Robot seems to be fallen')
+	# - no point yet
+	pkg = self.assertROSScore(0)
+	self.assertFalse(self._grep('score.log', 
+          'Successfully passed through gate 0'))
+	# - no elapsed time
+	self.assertROSElapsedTimeZero(pkg)
+	# - no falls
+	self.assertROSNoFalls(pkg)
+
         # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
@@ -138,7 +161,8 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 0'))
-        self.assertROSScore(0)
+	pkg = self.assertROSScore(0)
+	self.assertROSElapsedTimeNotZero(pkg)
 
         # Teleport through second gate
         self.assertFalse(self._grep('score.log', 
