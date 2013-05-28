@@ -16,6 +16,8 @@
  *
 */
 
+#include <boost/thread/mutex.hpp>
+
 #include <gazebo/gazebo.hh>
 #include <gazebo/transport/transport.hh>
 #include <gazebo/msgs/msgs.hh>
@@ -24,6 +26,25 @@
 #include <iostream>
 #include <cstdlib> 
 
+
+boost::mutex g_mutex;
+boost::condition_variable g_condition;
+gazebo::msgs::Request *g_requestMsg;
+gazebo::msgs::Model g_modelMsg;
+
+/////////////////////////////////////////////////
+void OnResponse(ConstResponsePtr &_msg)
+{
+  boost::mutex::scoped_lock lock(g_mutex);
+  if (!g_requestMsg || _msg->id() != g_requestMsg->id())
+    return;
+
+  if (_msg->has_type() && _msg->type() == g_modelMsg.GetTypeName())
+  {
+    g_modelMsg.ParseFromString(_msg->serialized_data());
+    g_condition.notify_all();
+  }
+}
 
 /////////////////////////////////////////////////
 int main(int _argc, char **_argv)
@@ -44,27 +65,37 @@ int main(int _argc, char **_argv)
   // Start transport
   gazebo::transport::run();
 
+  // Create request for entity_info
+  gazebo::transport::PublisherPtr requestPub =
+    node->Advertise<gazebo::msgs::Request>("~/request");
+  g_requestMsg = gazebo::msgs::CreateRequest("entity_info", name);
+
+  {
+    // Subscribe to response
+    gazebo::transport::SubscriberPtr responseSub =
+      node->Subscribe("~/response", &OnResponse);
+
+    // Publish request and wait for response
+    boost::mutex::scoped_lock lock(g_mutex);
+    requestPub->Publish(*g_requestMsg);
+    g_condition.wait(lock);
+  }
+
   // Publish to a Gazebo topic
-  gazebo::transport::PublisherPtr pub =
-    node->Advertise<gazebo::msgs::Model>("/gazebo/vrc_task_1/model/modify");
+  gazebo::transport::PublisherPtr modelPub =
+    node->Advertise<gazebo::msgs::Model>("~/model/modify");
 
-  // set the model
-  gazebo::msgs::Model model_msg;
-  if (name == "atlas")
-      id = 335;
-  else if (name == "drc_vehicle")
-      id = 0;
-
-  model_msg.set_name(name);
-  model_msg.set_id(id);
+  gazebo::msgs::Model modelMsg;
+  modelMsg.set_name(name);
+  modelMsg.set_id(g_modelMsg.id());
   gazebo::math::Pose pose(x, y, z, 0, 0, 0);
-  gazebo::msgs::Set(model_msg.mutable_pose(), pose);
+  gazebo::msgs::Set(modelMsg.mutable_pose(), pose);
 
   // Wait for a subscriber to connect
-  pub->WaitForConnection();
+  modelPub->WaitForConnection();
 
   gazebo::common::Time::MSleep(100);
-  pub->Publish(model_msg);
+  modelPub->Publish(modelMsg);
 
   // Make sure to shut everything down.
   gazebo::transport::fini();

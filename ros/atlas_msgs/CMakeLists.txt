@@ -75,7 +75,7 @@ if (PKG_CONFIG_FOUND)
 endif()
 
 include(FindBoost)
-find_package(Boost ${MIN_BOOST_VERSION} REQUIRED system filesystem regex)
+find_package(Boost ${MIN_BOOST_VERSION} REQUIRED system filesystem regex thread)
 find_package(Protobuf REQUIRED)
 include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
