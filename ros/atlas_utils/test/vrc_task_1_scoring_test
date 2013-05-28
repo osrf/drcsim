@@ -25,7 +25,6 @@ class OrientationChecker():
            (orientation.y < 0.1) and \
            (orientation.z < 0.1) and \
            (orientation.w > 0.95):
-            rospy.loginfo("Stand up")
             self.standup_msgs += 1
             return True
         else:
@@ -35,7 +34,6 @@ class OrientationChecker():
             return False
 
     def callback(self, data):
-        rospy.loginfo("Received")
         if self.check_standup(data.orientation) and self.standup_msgs == 1000:
             self.result       = True
             self.result_ready = True
