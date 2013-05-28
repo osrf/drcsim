@@ -156,8 +156,6 @@ class Tester(unittest.TestCase):
 	self.assertROSScore(1)
 
 	# Turn on the car: hand_brake and gas
-	hand_brake_pub.publish(0.5)
-	time.sleep(1)
 	hand_brake_pub.publish(0.0)
 	gas_pedal_pub.publish(1.0)
 	time.sleep(9)
