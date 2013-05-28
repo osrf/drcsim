@@ -35,6 +35,8 @@ SandiaHandPlugin::SandiaHandPlugin()
   this->leftImuLinkName = "l_hand";
   this->rightImuLinkName = "r_hand";
   this->hasStumps = false;
+  this->leftTactileConnectCount = 0;
+  this->rightTactileConnectCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -445,6 +447,8 @@ void SandiaHandPlugin::DeferredLoad()
   this->pubLeftJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubLeftJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/l_hand/joint_states", 10);
+
+
   this->pubRightJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubRightJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/r_hand/joint_states", 10);
@@ -477,11 +481,16 @@ void SandiaHandPlugin::DeferredLoad()
   this->pubLeftTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
   this->pubLeftTactile =
     this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
-      "sandia_hands/l_hand/tactile_raw", 10);
+      "sandia_hands/l_hand/tactile_raw", 10,
+    boost::bind(&SandiaHandPlugin::LeftTactileConnect, this),
+    boost::bind(&SandiaHandPlugin::LeftTactileDisconnect, this));
+
   this->pubRightTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
   this->pubRightTactile =
     this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
-      "sandia_hands/r_hand/tactile_raw", 10);
+      "sandia_hands/r_hand/tactile_raw", 10,
+    boost::bind(&SandiaHandPlugin::RightTactileConnect, this),
+    boost::bind(&SandiaHandPlugin::RightTactileDisconnect, this));
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
@@ -718,49 +727,74 @@ void SandiaHandPlugin::UpdateStates()
     }
 
     // publish tactile data
-    if (!this->hasStumps)
+    if (this->rightTactileConnectCount > 0)
     {
-      // first clear all previous tactile data
-      for (int i = 0; i < this->tactileFingerArraySize; ++i)
+      if (!this->hasStumps)
       {
-        this->leftTactile.f0[i] = this->minTactileOut;
-        this->leftTactile.f1[i] = this->minTactileOut;
-        this->leftTactile.f2[i] = this->minTactileOut;
-        this->leftTactile.f3[i] = this->minTactileOut;
-        this->rightTactile.f0[i] = this->minTactileOut;
-        this->rightTactile.f1[i] = this->minTactileOut;
-        this->rightTactile.f2[i] = this->minTactileOut;
-        this->rightTactile.f3[i] = this->minTactileOut;
-      }
-      for (int i = 0; i < this->tactilePalmArraySize; ++i)
-      {
-        this->leftTactile.palm[i] = this->minTactileOut;
-        this->rightTactile.palm[i] = this->minTactileOut;
-      }
+        // first clear all previous tactile data
+        for (int i = 0; i < this->tactileFingerArraySize; ++i)
+        {
+          this->rightTactile.f0[i] = this->minTactileOut;
+          this->rightTactile.f1[i] = this->minTactileOut;
+          this->rightTactile.f2[i] = this->minTactileOut;
+          this->rightTactile.f3[i] = this->minTactileOut;
+        }
 
-      // Generate data and publish
-      {
-        boost::mutex::scoped_lock lock(this->contactRMutex);
-        this->rightTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-        this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
-            &this->rightTactile);
-        // Clear the incoming contact list.
-        this->incomingRContacts.clear();
+        for (int i = 0; i < this->tactilePalmArraySize; ++i)
+          this->rightTactile.palm[i] = this->minTactileOut;
+
+        // Generate data and publish
+        {
+          boost::mutex::scoped_lock lock(this->contactRMutex);
+          this->rightTactile.header.stamp =
+              ros::Time(curTime.sec, curTime.nsec);
+          this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
+              &this->rightTactile);
+          // Clear the incoming contact list.
+          this->incomingRContacts.clear();
+        }
       }
-      {
-        boost::mutex::scoped_lock lock(this->contactLMutex);
-        this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-        this->FillTactileData(LEFT_HAND, this->incomingLContacts,
-            &this->leftTactile);
-        this->incomingLContacts.clear();
-      }
+      this->pubRightTactileQueue->push(this->rightTactile,
+          this->pubRightTactile);
+    }
+    else if (!this->hasStumps)
+    {
+      boost::mutex::scoped_lock lock(this->contactRMutex);
+      this->incomingRContacts.clear();
     }
 
-    this->pubRightTactileQueue->push(this->rightTactile,
-        this->pubRightTactile);
-    this->pubLeftTactileQueue->push(this->leftTactile,
-        this->pubLeftTactile);
+    if (this->leftTactileConnectCount > 0)
+    {
+      if (!this->hasStumps)
+      {
+        // first clear all previous tactile data
+        for (int i = 0; i < this->tactileFingerArraySize; ++i)
+        {
+          this->leftTactile.f0[i] = this->minTactileOut;
+          this->leftTactile.f1[i] = this->minTactileOut;
+          this->leftTactile.f2[i] = this->minTactileOut;
+          this->leftTactile.f3[i] = this->minTactileOut;
+        }
 
+        for (int i = 0; i < this->tactilePalmArraySize; ++i)
+          this->leftTactile.palm[i] = this->minTactileOut;
+
+        {
+          boost::mutex::scoped_lock lock(this->contactLMutex);
+          this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+          this->FillTactileData(LEFT_HAND, this->incomingLContacts,
+              &this->leftTactile);
+          this->incomingLContacts.clear();
+        }
+      }
+      this->pubLeftTactileQueue->push(this->leftTactile,
+          this->pubLeftTactile);
+    }
+    else if (!this->hasStumps)
+    {
+      boost::mutex::scoped_lock lock(this->contactLMutex);
+      this->incomingLContacts.clear();
+    }
     this->lastControllerUpdateTime = curTime;
   }
 }
@@ -1142,6 +1176,34 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
       }
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void SandiaHandPlugin::RightTactileConnect()
+{
+  boost::mutex::scoped_lock lock(this->rightTactileConnectionMutex);
+  this->rightTactileConnectCount++;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void SandiaHandPlugin::LeftTactileConnect()
+{
+  boost::mutex::scoped_lock lock(this->leftTactileConnectionMutex);
+  this->leftTactileConnectCount++;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void SandiaHandPlugin::RightTactileDisconnect()
+{
+  boost::mutex::scoped_lock lock(this->rightTactileConnectionMutex);
+  this->rightTactileConnectCount--;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void SandiaHandPlugin::LeftTactileDisconnect()
+{
+  boost::mutex::scoped_lock lock(this->leftTactileConnectionMutex);
+  this->leftTactileConnectCount--;
 }
 
 }

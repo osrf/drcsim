@@ -112,6 +112,22 @@ namespace gazebo
         ContactMsgs_L _incomingContacts,
         sandia_hand_msgs::RawTactile *_tactileMsg);
 
+    /// \brief ROS callback when a subscriber connects to right tactile
+    /// publisher
+    private: void RightTactileConnect();
+
+    /// \brief ROS callback when a subscriber connects to left tactile
+    /// publisher
+    private: void LeftTactileConnect();
+
+    /// \brief ROS callback when a subscriber disconnects from right tactile
+    /// publisher
+    private: void RightTactileDisconnect();
+
+    /// \brief ROS callback when a subscriber disconnects from left tactile
+    /// publisher
+    private: void LeftTactileDisconnect();
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
@@ -294,6 +310,18 @@ namespace gazebo
 
     /// \brief min tactile sensor data output
     private: int minTactileOut;
+
+    /// \brief Keep track of number of left tactile sensor connections
+    private: int leftTactileConnectCount;
+
+    /// \brief Keep track of number of right tactile sensor connections
+    private: int rightTactileConnectCount;
+
+    /// \brief Mutex to protect leftTactileConnectcount
+    private: boost::mutex leftTactileConnectionMutex;
+
+    /// \brief Mutex to protect rightTactileConnectcount
+    private: boost::mutex rightTactileConnectionMutex;
 
   };
 /** \} */
