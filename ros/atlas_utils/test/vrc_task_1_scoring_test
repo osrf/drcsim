@@ -118,7 +118,7 @@ class Tester(unittest.TestCase):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
         enter_car_pub   = rospy.Publisher('drc_world/robot_enter_car', Pose)
         hand_brake_pub  = rospy.Publisher('/drc_vehicle/hand_brake/cmd', Float64)
-	gas_pedal_pub   = rospy.Publisher('/drc_vehicle/gas_pedal/cmd', Float64)
+        gas_pedal_pub   = rospy.Publisher('/drc_vehicle/gas_pedal/cmd', Float64)
 
         self.total_score_msgs = 0
         self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
