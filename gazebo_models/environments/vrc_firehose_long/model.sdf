@@ -3,6 +3,47 @@
   <model name="vrc_firehose_long">
     <pose>-1.81 -4.23 0.15 0.708 0 0</pose>
 
+    <link name="nozzle">
+      <pose>1.10 -.508 0 0 0 3.1415</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name="nozzle_collision">
+        <geometry>
+          <mesh>
+            <scale>1.0 0.5 0.5</scale>
+            <uri>model://vrc_firehose_long/meshes/nozzle.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact><ode>
+            <min_depth>0.005</min_depth>
+          </ode></contact>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="nozzle_vis">
+        <geometry>
+          <mesh>
+            <scale>1.0 0.5 0.5</scale>
+            <uri>model://vrc_firehose_long/meshes/nozzle.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
     <link name="coupling">
       <inertial>
         <pose>-0.07 0 0.0 0 0 0</pose>
@@ -1399,48 +1440,6 @@
           </script>
         </material>
 
-      </visual>
-    </link>
-
-    <link name="nozzle">
-      <pose>1.10 -.508 0 0 0 3.1415</pose>
-      <inertial>
-        <mass>0.1</mass>
-        <inertia>
-          <ixx>0.01</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.01</iyy>
-          <iyz>0</iyz>
-          <izz>0.01</izz>
-        </inertia>
-      </inertial>
-      <collision name="nozzle_collision">
-        <geometry>
-          <mesh>
-            <scale>1.0 0.5 0.5</scale>
-            <uri>model://vrc_firehose_long/meshes/nozzle.stl</uri>
-          </mesh>
-        </geometry>
-        <surface>
-          <contact><ode>
-            <min_depth>0.005</min_depth>
-          </ode></contact>
-          <friction>
-            <ode>
-              <mu>1.0</mu>
-              <mu2>1.0</mu2>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-      <visual name="nozzle_vis">
-        <geometry>
-          <mesh>
-            <scale>1.0 0.5 0.5</scale>
-            <uri>model://vrc_firehose_long/meshes/nozzle.stl</uri>
-          </mesh>
-        </geometry>
       </visual>
     </link>
 

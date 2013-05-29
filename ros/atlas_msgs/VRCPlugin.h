@@ -29,6 +29,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <sensor_msgs/JointState.h>
 
 #include <atlas_msgs/AtlasCommand.h>
@@ -118,6 +119,9 @@ namespace gazebo
     /// \param[in] _cmd not used.
     public: void RobotReleaseLink(const geometry_msgs::Pose::ConstPtr &_cmd);
 
+    /// \brief set initial configuration of the fire hose link
+    private: void SetFireHoseConfiguration(
+      const std_msgs::Float64MultiArray::ConstPtr _msg);
 
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
@@ -274,9 +278,6 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class FireHose
     {
-      /// \brief set initial configuration of the fire hose link
-      private: void SetInitialConfiguration();
-
       /// \brief Load the drc_fire_hose portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
@@ -398,6 +399,7 @@ namespace gazebo
     // ros subscribers for robot actions
     private: ros::Subscriber subRobotGrab;
     private: ros::Subscriber subRobotRelease;
+    private: ros::Subscriber subFireHoseConfiguration;
     private: ros::Subscriber subRobotEnterCar;
     private: ros::Subscriber subRobotExitCar;
     private: physics::JointPtr grabJoint;

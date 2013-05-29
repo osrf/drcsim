@@ -823,21 +823,53 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   this->couplingRelativePose = sdf->GetValuePose("coupling_relative_pose");
 
-  // Set initial configuration
-  this->SetInitialConfiguration();
-
   this->isInitialized = true;
 }
 
-void VRCPlugin::FireHose::SetInitialConfiguration()
+void VRCPlugin::SetFireHoseConfiguration(
+  const std_msgs::Float64MultiArray::ConstPtr _msg)
 {
+  // turn physics off while manipulating things
+  bool physics = this->world->GetEnablePhysicsEngine();
+  bool paused = this->world->IsPaused();
+  this->world->SetPaused(true);
+  this->world->EnablePhysicsEngine(false);
+
+  gzerr << "canonical["
+        << this->drcFireHose.fireHoseModel->GetLink("canonical")->GetName()
+        << "]\n";
+  physics::LinkPtr nozzleLink =
+    this->drcFireHose.fireHoseModel->GetLink("nozzle");
+  math::Pose nozzlePose = nozzleLink->GetWorldPose();
+  // hardcoded
+  nozzlePose =
+    math::Pose(-1.69189, -3.60005, 1.1, 0, 0, -1.57099);
+
   // this does not work yet, because SetAngle only works for Hinge and Slider
   // joints, and fire hose is made of universal and ball joints.
-  for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
+  for (unsigned int i = 0; i < 2*this->drcFireHose.fireHoseJoints.size() &&
+                           i < _msg->data.size(); ++i)
   {
-    // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
-    this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+    int jointNumber = i/2;
+    int jointAxis = i%2;
+    // nozzle joint is revolute, only 1 axis
+    if (jointNumber == 0)
+      jointAxis = 0;
+    gzerr << "i[" << i
+          << "] joint["
+          << this->drcFireHose.fireHoseJoints[jointNumber]->GetName()
+          << "] index[" << jointNumber
+          << "] axis[" << jointAxis
+          << "] angle[" << _msg->data[i]
+          << "]\n";
+    this->drcFireHose.fireHoseJoints[jointNumber]->SetAngle(
+      jointAxis, _msg->data[i]);
   }
+
+  this->drcFireHose.fireHoseModel->SetLinkWorldPose(nozzlePose, nozzleLink);
+
+  this->world->EnablePhysicsEngine(physics);
+  this->world->SetPaused(paused);
 }
 
 void VRCPlugin::CheckThreadStart()
@@ -1045,6 +1077,14 @@ void VRCPlugin::LoadVRCROSAPI()
       boost::bind(&VRCPlugin::RobotReleaseLink, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->subRobotRelease = this->rosNode->subscribe(robot_release_so);
+
+    std::string fire_hose_cfg_topic_name = "drc_world/set_fire_hose_cfg";
+    ros::SubscribeOptions fire_hose_cfg_so =
+      ros::SubscribeOptions::create<std_msgs::Float64MultiArray>(
+      fire_hose_cfg_topic_name, 100,
+      boost::bind(&VRCPlugin::SetFireHoseConfiguration, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->subFireHoseConfiguration = this->rosNode->subscribe(fire_hose_cfg_so);
   }
 }
 
