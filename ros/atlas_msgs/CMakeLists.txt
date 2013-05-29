@@ -136,7 +136,7 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY srv srv_gen msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
 # install executables as private to the package, for launching via roslaunch or rosrun
-install(TARGETS pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub_atlas_command pub_atlas_command_fast pub_joint_states actionlib_server
+install(TARGETS pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub_atlas_command pub_atlas_command_fast pub_joint_states actionlib_server gz_model_teleport
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 # for backwards compatibility, also install pub_atlas_command globally; to
 # remove this, we need to update some launch files and scripts in atlas_msgs
