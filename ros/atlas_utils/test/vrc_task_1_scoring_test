@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import roslib
+roslib.load_manifest('atlas_utils')
 import unittest
 import rostest
 import sys
@@ -10,9 +12,45 @@ import shutil
 import os
 import tempfile
 import subprocess
+from std_msgs.msg import Float64
 from geometry_msgs.msg import Pose
+from atlas_msgs.msg import VRCScore, AtlasState
 
 LOGDIR = '/tmp/vrc_task_1'
+
+class OrientationChecker():
+
+    def check_standup(self, orientation):
+        if (orientation.x < 0.1) and \
+           (orientation.y < 0.1) and \
+           (orientation.z < 0.1) and \
+           (orientation.w > 0.95):
+            self.standup_msgs += 1
+            return True
+        else:
+            rospy.loginfo("Fallen")
+            self.result       = False
+            self.result_ready = True
+            return False
+
+    def callback(self, data):
+        if self.check_standup(data.orientation) and self.standup_msgs == 1000:
+            self.result       = True
+            self.result_ready = True
+
+    def run(self):
+        self.standup_msgs  = 0
+        self.result_ready  = False
+        self.result        = False
+
+        self.pub = rospy.Subscriber("/atlas/atlas_state", AtlasState, self.callback)
+
+        while not self.result_ready:
+            time.sleep(0.1)
+            pass
+
+	self.pub.unregister()
+	return self.result
 
 class Tester(unittest.TestCase):
 
@@ -55,23 +93,77 @@ class Tester(unittest.TestCase):
         os.remove(tmp.name)
         return pose
 
+    def score_callback(self, data):
+	self.last_score = data
+	self.total_score_msgs += 1
+	rospy.loginfo(self.last_score.completion_score)
+
+    # wait and get new score data 
+    def wait_new_score_msg(self):
+	current = self.total_score_msgs
+	while (self.total_score_msgs <= current):
+	    time.sleep(1)
+    
+    def assertROSScore(self, expected_score):
+	result = False
+	for i in range(4): # 4 seconds to be sure message is not arriving
+	    self.wait_new_score_msg()
+	    ros_pkg = self.last_score
+	    if (ros_pkg.completion_score == expected_score):
+		result = True
+		break
+	self.assertTrue(result,
+	  'Score in ros topic is not ' + str(expected_score))
+	return ros_pkg
+    
+    def assertROSElapsedTimeZero(self, ros_pkg):
+	self.assertEqual(ros_pkg.wall_time_elapsed, rospy.Time(0))
+	self.assertEqual(ros_pkg.sim_time_elapsed, rospy.Time(0))
+	
+    def assertROSElapsedTimeNotZero(self, ros_pkg):
+	self.assertNotEqual(ros_pkg.wall_time_elapsed, rospy.Time(0))
+	self.assertNotEqual(ros_pkg.sim_time_elapsed, rospy.Time(0))
+
+    def assertROSNoFalls(self, ros_pkg):
+    	self.assertEqual(ros_pkg.falls, 0)
+
     def test_scoring(self):
         pose_pub = rospy.Publisher('atlas/set_pose', Pose)
-        enter_car_pub = rospy.Publisher('drc_world/robot_enter_car', Pose)
+        enter_car_pub   = rospy.Publisher('drc_world/robot_enter_car', Pose)
+        hand_brake_pub  = rospy.Publisher('/drc_vehicle/hand_brake/cmd', Float64)
+        gas_pedal_pub   = rospy.Publisher('/drc_vehicle/gas_pedal/cmd', Float64)
+
+        self.total_score_msgs = 0
+        self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
-        # Teleport through first gate
-        self.assertFalse(self._grep('score.log', 
+	# Previous checks:
+	# - Check that robot is standup
+    	stand_up_checker = OrientationChecker()
+	self.assertTrue(stand_up_checker.run(),
+	      'Robot seems to be fallen')
+	# - no point yet
+	pkg = self.assertROSScore(0)
+	self.assertFalse(self._grep('score.log', 
           'Successfully passed through gate 0'))
+	# - no elapsed time
+	self.assertROSElapsedTimeZero(pkg)
+	# - no falls
+	self.assertROSNoFalls(pkg)
+        
+        # Teleport through first gate
         after_gate_0_pose = Pose()
-        after_gate_0_pose.position.x = -9.75
-        after_gate_0_pose.position.y = -4.11
-        after_gate_0_pose.position.z = 0.91
+        x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
+        after_gate_0_pose.position.x = float(x_str)
+        after_gate_0_pose.position.y = float(y_str)
+        after_gate_0_pose.position.z = float(z_str)
         pose_pub.publish(after_gate_0_pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully passed through gate 0'))
+	pkg = self.assertROSScore(0)
+	self.assertROSElapsedTimeNotZero(pkg)
 
         # Jump in the car
         self.assertFalse(self._grep('score.log', 
@@ -81,11 +173,22 @@ class Tester(unittest.TestCase):
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
           'Successfully moved Atlas into vehicle'))
+	self.assertROSScore(1)
 
-        # TODO: Later phases of task
+	# Turn on the car: hand_brake and gas
+	hand_brake_pub.publish(0.0)
+	gas_pedal_pub.publish(1.0)
+	time.sleep(9)
+        self.assertTrue(self._grep('score.log', 
+          'Successfully passed through gate 1'))
+	self.assertROSScore(2)
 
 if __name__ == '__main__':
     rospy.init_node('vrc_task_1_scoring_test', anonymous=True)
+    try:
+	LOGDIR = rospy.get_param('~logdir')
+    except KeyError:
+	rospy.loginfo("Use default value for logdir: " + LOGDIR)
 
     # Wait until /clock is being published; this can take an unpredictable
     # amount of time when we're downloading models.

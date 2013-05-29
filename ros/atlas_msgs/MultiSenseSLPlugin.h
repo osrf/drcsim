@@ -149,9 +149,6 @@ namespace gazebo
     private: double multiCameraGain;
     private: int imagerMode;
 
-    // laser sensor control
-    private: sensors::GpuRaySensorPtr laserSensor;
-
     // spindle control
     private: double spindleSpeed;
     private: double spindleMaxRPM;
