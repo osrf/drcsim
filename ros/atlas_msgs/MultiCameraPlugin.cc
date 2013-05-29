@@ -86,7 +86,9 @@ void MultiCameraPlugin::Load(sensors::SensorPtr _sensor,
     }
   }
 
-  this->parentSensor->SetActive(true);
+  // Don't set the sensor active here; let the ROS subscription logic handle
+  // that.
+  //this->parentSensor->SetActive(true);
 }
 
 /////////////////////////////////////////////////

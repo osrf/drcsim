@@ -86,15 +86,17 @@ namespace gazebo
     protected: void PutCameraData(const unsigned char *_src,
       common::Time &last_update_time);
 
-    /// \brief Keep track of number of connctions
-    protected: int image_connect_count_;
+    /// \brief Keep track of number of image connections
+    protected: boost::shared_ptr<int> image_connect_count_;
+    /// \brief A mutex to lock access to image_connect_count_
+    protected: boost::shared_ptr<boost::mutex> image_connect_count_lock_;
     protected: void ImageConnect();
     protected: void ImageDisconnect();
 
     /// \brief Keep track when we activate this camera through ros
     /// subscription, was it already active?  resume state when
     /// unsubscribed.
-    protected: bool was_active_;
+    protected: boost::shared_ptr<bool> was_active_;
 
     /// \brief: Camera modification functions
     private: void SetHFOV(const std_msgs::Float64::ConstPtr& hfov);
