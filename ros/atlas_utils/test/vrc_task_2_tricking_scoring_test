@@ -18,109 +18,40 @@ from atlas_msgs.msg import VRCScore, AtlasState
 
 LOGDIR = '/tmp/vrc_task_2'
 
-class OrientationChecker():
-
-    def check_standup(self, orientation):
-        if (orientation.x < 0.1) and \
-           (orientation.y < 0.1) and \
-           (orientation.z < 0.1) and \
-           (orientation.w > 0.95):
-            rospy.loginfo("Stand up")
-            self.standup_msgs += 1
-            return True
-        else:
-            rospy.loginfo("Fallen")
-            self.result       = False
-            self.result_ready = True
-            return False
-
-    def callback(self, data):
-        rospy.loginfo("Received")
-        if self.check_standup(data.orientation) and self.standup_msgs == 1000:
-            self.result       = True
-            self.result_ready = True
-
-    def run(self):
-        self.standup_msgs  = 0
-        self.result_ready  = False
-        self.result        = False
-
-        self.pub = rospy.Subscriber("/atlas/atlas_state", AtlasState, self.callback)
-
-        while not self.result_ready:
-            time.sleep(0.1)
-            pass
-
-	self.pub.unregister()
-	return self.result
-
-class construct_pose_from_position(x, y, z):
-	p = Pose()
-	p.position.x = x
-	p.position.y = y
-	p.position.z = z
-	return 
+def construct_pose_from_position(x, y, z):
+    p = Pose()
+    p.position.x = x
+    p.position.y = y
+    p.position.z = z
+    return p
 
 class Tester(unittest.TestCase):
-    
-    self.GateSteps = namedtuple('GateSteps', ['before','after'])
-    self.GATE_POSES = []
+    def __init__(self, *args, **kwargs):
+	self.GateSteps = namedtuple('GateSteps', ['before','after'])
+	self.GATE_POSES = []
+	
+	# Gate 1
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(0,0,0),
+		construct_pose_from_position(2.81, -38.07, 1.00)))
+	# gate 2
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(-0.03, -27.76, 1.00),
+		construct_pose_from_position(1.36, -19.71, 1.00)))
+	# gate 3
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(1.36, -19.71, 1.00),
+		construct_pose_from_position(0.644, -7.35, 1.00)))
+	# Gate 4
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(6.68, 4.44,  1.00),
+		construct_pose_from_position(7.00, 12.07, 1.00)))
+	# Gate 5
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(7.00, 12.07, 1.00),
+		construct_pose_from_position(6.30, 20.31, 1.00)))
 
-    # Gate 0
-    self.GATE_POSES.append(self.GateSteps(
-	    construct_pose_from_position(0,0,0),
-	    construct_pose_from_position(2.81, -38.07, 1.00))
-    # Gate 1
-    self.GATE_POSES.append(self.GateSteps(
-	    construct_pose_from_position(-0.03, -27.76, 1.00),
-	    construct_pose_from_position(1.36, -19.71, 1.00)))
-    # Gate 2
-    self.GATE_POSES.append(self.GateSteps(
-	    construct_pose_from_position(1.36, -19.71, 1.00),
-	    construct_pose_from_position(0.644, -7.35, 1.00)))
-    # Gate 3
-    self.GATE_POSES.append(self.GateSteps(
-	    construct_pose_from_position(0.644, -7.35, 1.00),
-	    construct_pose_from_position(6.30, 20.31, 1.00)))
-
-    def _grep(self, fname, string):
-        fullpath = os.path.join(LOGDIR, fname)
-        for line in open(fullpath, 'r'):
-            if string in line:
-                return True
-        return False
-
-    # This function isn't used right now; need to sort out the state.log
-    # flushing problem before this can be reliably used.
-    def _get_atlas_pose(self, fname):
-        # Check the current robot pose, from the incomplete gazebo log
-        # file. Not sure how robust this is.
-        fullpath = os.path.join(LOGDIR, fname)
-        while not os.path.exists(fullpath):
-            print('Waiting for %s to exist'%(fullpath))
-            time.sleep(0.5)
-        tmp = tempfile.NamedTemporaryFile(delete=False)
-        tmp.close()
-        shutil.copyfile(fullpath, tmp.name)
-        # Terminate our copy of the log file
-        with open(tmp.name, 'a') as f:
-            f.write('</gazebo_log>\n')
-        # Use gzlog to extract the pose
-        cmd = ['gzlog', 'echo', tmp.name, '-r', '--filter', 'atlas.pose']
-        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                              stderr=subprocess.PIPE)
-        out,err = po.communicate()
-        # Take the last non-empty line
-        pose = []
-        for l in reversed(out.split('\n')):
-            if len(l) > 0 and l[0] != ' ':
-                pose = l.split()
-                break
-        self.assertTrue(len(pose) == 6)
-        for i in range(len(pose)):
-            pose[i] = float(pose[i])
-        os.remove(tmp.name)
-        return pose
+        unittest.TestCase.__init__(self, *args, **kwargs)
 
     def score_callback(self, data):
         self.last_score = data
@@ -141,8 +72,7 @@ class Tester(unittest.TestCase):
 	    if (ros_pkg.completion_score == expected_score):
 		result = True
 		break
-	self.assertTrue(result,
-	  'Score in ros topic is not ' + str(expected_score))
+	self.assertTrue(result, 'Score in ros topic (' + str(ros_pkg.completion_score) + ') is not ' + str(expected_score))
 	return ros_pkg
     
     def assertROSElapsedTimeZero(self, ros_pkg):
@@ -156,36 +86,28 @@ class Tester(unittest.TestCase):
     def assertROSNoFalls(self, ros_pkg):
     	self.assertEqual(ros_pkg.falls, 0)
 
-    def pass_through_gate(number):
+    def pass_through_gate(self, number):
+        pose_pub = rospy.Publisher('atlas/set_pose', Pose)
         pose_pub.publish(self.GATE_POSES[number].before)
         time.sleep(3.0)
-        pose_pub.publish(self.GATE_POSES[number].before)
+        pose_pub.publish(self.GATE_POSES[number].after)
  
 
     def test_scoring(self):
-        pose_pub = rospy.Publisher('atlas/set_pose', Pose)
      	self.total_score_msgs = 0
         self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
 	# Override first step, after pose.
         x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
-        pose = Pose()
-        pose.position.x = float(x_str)
-        pose.position.y = float(y_str)
-        pose.position.z = float(z_str)
-	self.GATE_POSES[0].after = pose
+        pose_after = construct_pose_from_position(
+		         float(x_str), float(y_str), float(z_str))
+	self.GATE_POSES[0] = self.GateSteps(self.GATE_POSES[0].before, pose_after)
 
         # Wait for subscribers to hook up
         time.sleep(3.0)
 
 	# Previous checks:
-	# - Check that robot is standup
-    	stand_up_checker = OrientationChecker()
-	self.assertTrue(stand_up_checker.run(),
-	      'Robot seems to be fallen')
 	# - no point yet
 	pkg = self.assertROSScore(0)
-	self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 0'))
 	# - no elapsed time
 	self.assertROSElapsedTimeZero(pkg)
 	# - no falls
@@ -195,23 +117,27 @@ class Tester(unittest.TestCase):
 	expected_score   = rospy.get_param('~expected_score').split(" ")
 	expected_elapsed = rospy.get_param('~expected_elapsed').split(" ")
 
-	if len(expected_gates) != len(expected_score) or 
-	   len(expected_score) != len(expected_elapsed)
+	if (len(expected_gates) != len(expected_score)) or \
+	   (len(expected_score) != len(expected_elapsed)):
 	   	self.fail("All the parameters should be of same length") 
 		sys.exit(-1)
 
 	for index,gate in enumerate(expected_gates):
-	    self.pass_through_gate(gate)
-	    self.assertTrue(self._grep('score.log', 
-          	'Successfully passed through gate ' + str(index)))
-		pkg = self.assertROSScore(expected_score[index])
-		if expected_elapsed[index] == 0:
-		    self.assertROSElapsedTimeZero(pkg)
-		elif expected_elapsed[index] == 1:
-		    self.assertROSElapsedTimeNotZero(pkg)
-		else
-		     rospy.logwarn("Unknow value of expected_elapsed: " + str(expected_elapsed[index]))
-
+	    print ("Passsing through gate: " + gate)
+	    test_gate    = int(gate)
+	    test_elapsed = int(expected_elapsed[index])
+	    test_score   = int(expected_score[index])
+	    print ("Expected score: " + str(test_score))
+	    print ("Expected time : " + str(test_elapsed))
+	    self.pass_through_gate(test_gate)
+	    time.sleep(2)
+	    pkg = self.assertROSScore(test_score)
+	    if test_elapsed == 0:
+		self.assertROSElapsedTimeZero(pkg)
+	    elif test_elapsed == 1:
+		self.assertROSElapsedTimeNotZero(pkg)
+	    else:
+		 rospy.logwarn("Unknow value of expected_elapsed: " + str(expected_elapsed[index]))
 
 if __name__ == '__main__':
     rospy.init_node('vrc_task_2_tricking_scoring_test', anonymous=True)
