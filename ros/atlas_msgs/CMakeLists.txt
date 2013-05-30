@@ -68,6 +68,13 @@ rosbuild_add_executable(pub_joint_states pub_joint_states.cpp)
 
 rosbuild_add_executable(pub_atlas_command_fast pub_atlas_command_fast.cpp)
 
+# gz topic teleporter
+include(FindBoost)
+find_package(Boost ${MIN_BOOST_VERSION} REQUIRED system filesystem regex thread)
+find_package(Protobuf REQUIRED)
+add_executable(gz_model_teleport gz_model_teleport.cpp)
+target_link_libraries(gz_model_teleport ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES})
+
 # needs std_msgs, sensor_msgs, geometry_msgs, image_transport tf, roscpp, trajectory_msgs
 rosbuild_add_library(gazebo_ros_camera_utils gazebo_ros_camera_utils.cpp)
 target_link_libraries(gazebo_ros_camera_utils CameraPlugin)
@@ -122,7 +129,7 @@ target_link_libraries(DRCVehicleROSPlugin DRCVehiclePlugin)
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 install(DIRECTORY srv srv_gen msg msg_gen src DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME} PATTERN ".*" EXCLUDE)
 # install executables as private to the package, for launching via roslaunch or rosrun
-install(TARGETS pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub_atlas_command pub_atlas_command_fast pub_joint_states actionlib_server
+install(TARGETS pub_joint_trajectory_test pub_joint_commands pub_atlas_state pub_atlas_command pub_atlas_command_fast pub_joint_states actionlib_server gz_model_teleport
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${PROJECT_NAME})
 # for backwards compatibility, also install pub_atlas_command globally; to
 # remove this, we need to update some launch files and scripts in atlas_msgs
