@@ -23,6 +23,8 @@
 #define FIL_N_STEPS 2
 #define FIL_MAX_FILT_COEFF 10
 
+#define DISABLE_ATLAS_SIM_INTERFACE
+
 #include <string>
 #include <vector>
 
@@ -283,11 +285,13 @@ namespace gazebo
     //  BDI Controller AtlasSimInterface Internals                            //
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface:
     private: AtlasControlOutput controlOutput;
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
+#endif
 
     /// \brief AtlasSimInterface: ROS subscriber
     private: ros::Subscriber subASICommand;
@@ -467,16 +471,6 @@ namespace gazebo
     }
 
     /// \brief Conversion helper functions
-    private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
-    {
-      geometry_msgs::Point result;
-      result.x = _v.n[0];
-      result.y = _v.n[1];
-      result.z = _v.n[2];
-      return result;
-    }
-
-    /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
       const
     {
@@ -485,6 +479,17 @@ namespace gazebo
       result.x = _q.x;
       result.y = _q.y;
       result.z = _q.z;
+      return result;
+    }
+
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
+    /// \brief Conversion helper functions
+    private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
+    {
+      geometry_msgs::Point result;
+      result.x = _v.n[0];
+      result.y = _v.n[1];
+      result.z = _v.n[2];
       return result;
     }
 
@@ -562,6 +567,7 @@ namespace gazebo
 
       return this->ToQ(math::Quaternion(rx, ry, rz));
     }
+#endif
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;

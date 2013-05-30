@@ -39,9 +39,9 @@ include_directories(
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
   ${PLUGIN_LINK_DIRECTORIES}
-  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
-  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
-  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+  #${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
+  #${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
+  #${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
 )
 
 #set the default path for built executables to the "bin" directory
@@ -101,11 +101,11 @@ rosbuild_add_library(ContactModelPlugin ContactModelPlugin.cpp)
 
 # compile AtlasPlugin with AtlasSimInterface
 rosbuild_add_library(AtlasPlugin AtlasPlugin.cpp)
-target_link_libraries(AtlasPlugin AtlasSimInterface)
+#target_link_libraries(AtlasPlugin AtlasSimInterface)
 
 #compile actionlib_server with AtlasSimInterface
- rosbuild_add_executable(actionlib_server actionlib_server.cpp)
- target_link_libraries(actionlib_server AtlasSimInterface)
+rosbuild_add_executable(actionlib_server actionlib_server.cpp)
+target_link_libraries(actionlib_server AtlasSimInterface)
 
 # needs actionlib, control_msgs
 rosbuild_add_library(VRCPlugin VRCPlugin.cpp)

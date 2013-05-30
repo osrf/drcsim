@@ -44,6 +44,7 @@ AtlasPlugin::AtlasPlugin()
   // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "imu_link";
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
 
@@ -54,6 +55,7 @@ AtlasPlugin::AtlasPlugin()
   this->behaviorMap["Step"] = atlas_msgs::AtlasSimInterfaceCommand::STEP;
   this->behaviorMap["Manipulate"] =
     atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
+#endif
 
 
   // default control synchronization delay settings
@@ -86,8 +88,10 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.disable();
   this->callbackQueeuThread.join();
   delete this->rosNode;
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   // shutdown behavior library
   destroy_atlas_sim_interface();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +291,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->ZeroJointCommands();
   }
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   {
     // AtlasSimInterface:  initialize controlOutput
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -296,7 +301,9 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->controlOutput.foot_pos_est[0] = AtlasVec3f(0, 0, 0);
     this->controlOutput.foot_pos_est[1] = AtlasVec3f(0, 0, 0);
   }
+#endif
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   {
     this->controlOutput.behavior_feedback.status_flags = 0;
     this->controlOutput.behavior_feedback.trans_from_behavior_index = 0;
@@ -333,7 +340,9 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->controlOutput.manipulate_feedback.clamped.pelvis_yaw = 0.0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_lat = 0.0;
   }
+#endif
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   {
     // AtlasSimInterface:  initialize atlasRobotState joints data
     this->atlasRobotState.t = this->world->GetSimTime().Double();
@@ -376,7 +385,9 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->atlasRobotState.wrist_sensors[1].m.n[1] = 0;
     this->atlasRobotState.wrist_sensors[1].m.n[2] = 0;
   }
+#endif
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   {
     // internal pid params
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -425,6 +436,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     manipulateParams->desired.pelvis_lat = 0.0;
     manipulateParams->use_demo_mode = false;
   }
+#endif
 
   {
     // initialize AtlasSimInterfaceState
@@ -844,10 +856,13 @@ void AtlasPlugin::UpdateStates()
     // AtlasSimInterface: process controller updates
     if (this->startupStep == AtlasPlugin::NOMINAL)
     {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       this->UpdateAtlasSimInterface(curTime);
+#endif
     }
     else if (this->startupStep == AtlasPlugin::USER)
     {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       // startup 2
       // AtlasSimInterface:
       // Calling into the behavior library to set control mode to USER.
@@ -856,12 +871,14 @@ void AtlasPlugin::UpdateStates()
       if (this->asiState.error_code != NO_ERRORS)
         ROS_ERROR("AtlasSimInterface: setting mode User on startup failed with "
                   "error code (%d).", this->asiState.error_code);
+#endif
       this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::USER;
       this->startupStep = AtlasPlugin::NOMINAL;
     }
     else if (this->startupStep == AtlasPlugin::FREEZE)
     {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       // startup 1
       // AtlasSimInterface:
       // Calling into the behavior library to reset controls (FREEZE Mode).
@@ -871,6 +888,7 @@ void AtlasPlugin::UpdateStates()
       if (this->asiState.error_code != NO_ERRORS)
         ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
                   "error code (%d).", this->asiState.error_code);
+#endif
       this->startupStep = AtlasPlugin::USER;
     }
     else
@@ -1203,6 +1221,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   _res.success = true;
   _res.status_message = "success";
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   if (_req.reset_bdi_controller)
   {
     boost::mutex::scoped_lock lock(this->asiMutex);
@@ -1216,6 +1235,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
       _res.status_message = "failed to AtlasSimInterface::reset_control()";
     }
   }
+#endif
 
   if (_req.reset_pid_controller)
   {
@@ -1245,6 +1265,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
 void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
 {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   // copy _msg contents directly into
   // atlasControlInput::stand_params
   // atlasControlInput::step_params
@@ -1403,6 +1424,7 @@ void AtlasPlugin::SetASICommand(
         break;
     }
   }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1682,9 +1704,12 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     {
       this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::WALK;
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       this->atlasControlInput.step_params.use_demo_walk = true;
+#endif
     }
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     this->asiState.error_code =
       this->atlasSimInterface->set_desired_behavior(_mode->data);
     if (this->asiState.error_code == NO_ERRORS)
@@ -1693,12 +1718,14 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
       ROS_INFO("AtlasSimInterface: %s mode faile with code (%d).",
                _mode->data.c_str(),
                this->asiState.error_code);
+#endif
 
     this->ZeroAtlasCommand();
 
     // initialize Walk data
     if (_mode->data == "Walk")
     {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       AtlasBehaviorWalkParams *walkParams =
         &this->atlasControlInput.walk_params;
       walkParams->use_demo_walk = false;
@@ -1720,6 +1747,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
           walkParams->step_queue[stepId].position = AtlasVec3f(stepX, stepY, 0);
         walkParams->step_queue[stepId].yaw = 0;
       }
+#endif
     }
   }
   else if (_mode->data == "User")
@@ -1728,21 +1756,25 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     this->LoadPIDGainsFromParameter();
     this->asiState.desired_behavior =
       atlas_msgs::AtlasSimInterfaceCommand::USER;
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     this->atlasSimInterface->set_desired_behavior("User");
     // clear out forces
     for (unsigned i = 0; i < this->jointNames.size(); ++i)
       this->controlOutput.f_out[i] = 0;
+#endif
   }
   else if (_mode->data == "ragdoll")
   {
     // revert to PID control
     this->ZeroAtlasCommand();
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     this->asiState.desired_behavior =
       atlas_msgs::AtlasSimInterfaceCommand::USER;
     this->atlasSimInterface->set_desired_behavior("User");
     // clear out forces
     for (unsigned i = 0; i < this->jointNames.size(); ++i)
       this->controlOutput.f_out[i] = 0;
+#endif
   }
   else
   {
@@ -1755,10 +1787,12 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 {
   if (this->imuSensor)
   {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface: populate imu in atlasRobotState
     this->atlasRobotState.imu.imu_timestamp =
       1.0e6  * _curTime.sec +
       1.0e-3 * _curTime.nsec;
+#endif
 
     // publish separate /atlas/imu topic, to be deprecated
     sensor_msgs::Imu imuMsg;
@@ -1777,10 +1811,12 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
       imuMsg.angular_velocity.y = wLocal.y;
       imuMsg.angular_velocity.z = wLocal.z;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       // AtlasSimInterface: populate imu in atlasRobotState
       this->atlasRobotState.imu.angular_velocity.n[0] = wLocal.x;
       this->atlasRobotState.imu.angular_velocity.n[1] = wLocal.y;
       this->atlasRobotState.imu.angular_velocity.n[2] = wLocal.z;
+#endif
     }
 
     // compute acceleration
@@ -1795,10 +1831,12 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
       imuMsg.linear_acceleration.y = accel.y;
       imuMsg.linear_acceleration.z = accel.z;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       // AtlasSimInterface: populate imu in atlasRobotState
       this->atlasRobotState.imu.linear_acceleration.n[0] = accel.x;
       this->atlasRobotState.imu.linear_acceleration.n[1] = accel.y;
       this->atlasRobotState.imu.linear_acceleration.n[2] = accel.z;
+#endif
     }
 
     // compute orientation
@@ -1815,11 +1853,13 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
       imuMsg.orientation.z = imuRot.z;
       imuMsg.orientation.w = imuRot.w;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       // AtlasSimInterface: populate imu in atlasRobotState
       this->atlasRobotState.imu.orientation_estimate.m_qw = imuRot.w;
       this->atlasRobotState.imu.orientation_estimate.m_qx = imuRot.x;
       this->atlasRobotState.imu.orientation_estimate.m_qy = imuRot.y;
       this->atlasRobotState.imu.orientation_estimate.m_qz = imuRot.z;
+#endif
     }
 
     // publish separate /atlas/imu topic, to be deprecated
@@ -1849,10 +1889,12 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
     forceTorqueSensorsMsg.l_foot.torque.x = wrench.body2Torque.x;
     forceTorqueSensorsMsg.l_foot.torque.y = wrench.body2Torque.y;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface: populate foot force torque sensor in atlasRobotState
     this->atlasRobotState.foot_sensors[0].fz = wrench.body1Force.z;
     this->atlasRobotState.foot_sensors[0].mx = wrench.body1Torque.x;
     this->atlasRobotState.foot_sensors[0].my = wrench.body1Torque.y;
+#endif
   }
 
   // get force torque at right ankle and publish
@@ -1868,10 +1910,12 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
     forceTorqueSensorsMsg.r_foot.torque.x = wrench.body2Torque.x;
     forceTorqueSensorsMsg.r_foot.torque.y = wrench.body2Torque.y;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface: populate foot force torque sensor in atlasRobotState
     this->atlasRobotState.foot_sensors[1].fz = wrench.body1Force.z;
     this->atlasRobotState.foot_sensors[1].mx = wrench.body1Torque.x;
     this->atlasRobotState.foot_sensors[1].my = wrench.body1Torque.y;
+#endif
   }
 
   // get force torque at left wrist and publish
@@ -1893,6 +1937,7 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
     forceTorqueSensorsMsg.l_hand.torque.y = wrench.body2Torque.y;
     forceTorqueSensorsMsg.l_hand.torque.z = wrench.body2Torque.z;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface: populate wrist force torque sensor in atlasRobotState
     this->atlasRobotState.wrist_sensors[0].f.n[0] = wrench.body1Force.x;
     this->atlasRobotState.wrist_sensors[0].f.n[1] = wrench.body1Force.y;
@@ -1900,6 +1945,7 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
     this->atlasRobotState.wrist_sensors[0].m.n[0] = wrench.body1Torque.x;
     this->atlasRobotState.wrist_sensors[0].m.n[1] = wrench.body1Torque.y;
     this->atlasRobotState.wrist_sensors[0].m.n[2] = wrench.body1Torque.z;
+#endif
   }
 
   // get force torque at right wrist and publish
@@ -1921,6 +1967,7 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
     forceTorqueSensorsMsg.r_hand.torque.y = wrench.body2Torque.y;
     forceTorqueSensorsMsg.r_hand.torque.z = wrench.body2Torque.z;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface: populate wrist force torque sensor in atlasRobotState
     this->atlasRobotState.wrist_sensors[1].f.n[0] = wrench.body1Force.x;
     this->atlasRobotState.wrist_sensors[1].f.n[1] = wrench.body1Force.y;
@@ -1928,6 +1975,7 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
     this->atlasRobotState.wrist_sensors[1].m.n[0] = wrench.body1Torque.x;
     this->atlasRobotState.wrist_sensors[1].m.n[1] = wrench.body1Torque.y;
     this->atlasRobotState.wrist_sensors[1].m.n[2] = wrench.body1Torque.z;
+#endif
   }
 
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
@@ -1958,6 +2006,7 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   // 80 characters
   atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
   AtlasControlOutput *fbOut = &(this->controlOutput);
@@ -2060,6 +2109,7 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->manipulate_feedback.clamped.pelvis_yaw;
   fb->manipulate_feedback.clamped.pelvis_lat =
     fbOut->manipulate_feedback.clamped.pelvis_lat;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2164,6 +2214,7 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   boost::mutex::scoped_lock lock(this->asiMutex);
 
   // AtlasSimInterface:
@@ -2295,6 +2346,7 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
   }
   // set asiState and publish asiState
   this->pubASIStateQueue->push(this->asiState, this->pubASIState);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2409,7 +2461,11 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
       this->atlasState.kd_position[i] * this->errorTerms[i].d_q_p_dt +
                      jointDampingCoef * this->atlasCommand.velocity[i] +
                                         this->atlasCommand.effort[i]) +
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
       (1.0 - k_effort)                * this->controlOutput.f_out[i];
+#else
+      (1.0 - k_effort)                * 0;
+#endif
 
     // keep unclamped force for integral tie-back calculation
     double forceClamped = math::clamp(forceUnclamped, -this->effortLimit[i],
@@ -2430,10 +2486,12 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     this->atlasState.effort[i] = forceClamped;
     this->jointStates.effort[i] = forceClamped;
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface: fill in atlasRobotState efforts.
     // FIXME: Is this used by the controller?  i.e. should this happen
     // before process_control_input?
     this->atlasRobotState.j[i].f = forceClamped;
+#endif
   }
 }
 
@@ -2472,9 +2530,11 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
   // get force torque sensor data from sensor
   this->GetForceTorqueSensorState(_curTime);
 
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
   // AtlasSimInterface:
   // populate atlasRobotState from robot
   this->atlasRobotState.t = _curTime.Double();
+#endif
 
   // populate atlasState from robot
   this->atlasState.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
@@ -2482,6 +2542,7 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
 
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
+#ifndef DISABLE_ATLAS_SIM_INTERFACE
     // AtlasSimInterface:
     this->atlasRobotState.j[i].q = this->joints[i]->GetAngle(0).Radian();
     this->atlasRobotState.j[i].qd = this->joints[i]->GetVelocity(0);
@@ -2494,6 +2555,7 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
     this->jointStates.position[i] = this->atlasRobotState.j[i].q;
     this->jointStates.velocity[i] = this->atlasRobotState.j[i].qd;
     this->jointStates.effort[i] = this->atlasRobotState.j[i].f;
+#endif
   }
 
   {
