@@ -127,23 +127,10 @@ class TestStopLog(unittest.TestCase):
         return found
 
     def test_gzlog(self):
-        self.max_mem_consumed = 0
-
-        # Wait to gazebo to start the testing
-        self.wait_gazebo_to_start()
-        # Load from parameter server
-        time_to_publish, logfilename, results_postfix = self.load_params()
-        # Wait all testing time
-        time.sleep(time_to_publish)
-        # Launch the gzstop signal
-        self.run_gzstop()
-        time.sleep(2)
-        # Wait until gazebo back from paused to give time to write log
-        duration = self.wait_until_gazebo_unpaused()
-        self.write_time_stats(duration, results_postfix)
-        self.write_memory_stats(results_postfix)
-
-        self.assertTrue(self.check_closing_log(logfilename), "Can not find closing tag in log file")
+        # Do nothing, wait until killed by timeout
+        while True:
+            time.sleep(10)
+            pass
          
 if __name__ == '__main__':
     rospy.init_node('gzstop_checker_node', anonymous=True)
