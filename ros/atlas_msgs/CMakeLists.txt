@@ -39,9 +39,9 @@ include_directories(
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
   ${PLUGIN_LINK_DIRECTORIES}
-  #${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
-  #${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
-  #${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+  ${CMAKE_SOURCE_DIR}/../../plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
+  ${DRC_SIM_CMAKE_SOURCE_DIR}/plugins/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64
+  ${CMAKE_INSTALL_PREFIX}/lib/${DRC_SIM_PROJECT_NAME}-${DRC_SIM_VERSION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
 )
 
 #set the default path for built executables to the "bin" directory
