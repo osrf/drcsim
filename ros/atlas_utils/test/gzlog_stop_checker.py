@@ -127,10 +127,9 @@ class TestStopLog(unittest.TestCase):
         return found
 
     def test_gzlog(self):
-        # Do nothing, wait until killed by timeout
-        while True:
-            time.sleep(10)
-            pass
+        # Wait publish time + 10 seconds and return
+        publish_time = rospy.get_param('/gzstop_checker/time_to_publish')
+        time.sleep(publish_time + 10)
          
 if __name__ == '__main__':
     rospy.init_node('gzstop_checker_node', anonymous=True)
