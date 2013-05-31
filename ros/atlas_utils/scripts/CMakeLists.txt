@@ -8,6 +8,7 @@ set (files
   run_gzserver_gdb
   run_gzserver_perf
   run_gzserver_callgrind
+  run_gzserver_memcheck
   reset_pose.py
   nanokontrol.py
   arm_teleop.py
