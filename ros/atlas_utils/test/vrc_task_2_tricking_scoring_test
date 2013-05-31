@@ -32,7 +32,7 @@ class Tester(unittest.TestCase):
 	
 	# Gate 1
 	self.GATE_POSES.append(self.GateSteps(
-		construct_pose_from_position(0,0,0),
+		construct_pose_from_position(-3.01,-38,0.935),
 		construct_pose_from_position(2.81, -38.07, 1.00)))
 	# gate 2
 	self.GATE_POSES.append(self.GateSteps(
