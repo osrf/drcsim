@@ -848,10 +848,15 @@ void VRCPlugin::CheckThreadStart()
   // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
   // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
   math::Pose connectPose(this->drcFireHose.couplingRelativePose);
-  math::Pose relativePose = this->drcFireHose.couplingLink->GetWorldPose() -
-                            this->drcFireHose.spoutLink->GetWorldPose();
+  // surface of the coupling cylinder is -0.135m from link origin
+  double collisionSurfaceZOffset = -0.135;
+  math::Pose relativePose =
+    (math::Pose(collisionSurfaceZOffset, 0, 0, 0, 0, 0) +
+     this->drcFireHose.couplingLink->GetWorldPose()) -
+    this->drcFireHose.spoutLink->GetWorldPose();
 
-  double posErrInsert = relativePose.pos.z - connectPose.pos.z;
+  double posErrInsert = relativePose.pos.z - connectPose.pos.z +
+    collisionSurfaceZOffset;
   double posErrCenter = fabs(relativePose.pos.x) + fabs(connectPose.pos.y);
   double rotErr = (relativePose.rot.GetXAxis() -
                    connectPose.rot.GetXAxis()).GetLength();
@@ -867,7 +872,7 @@ void VRCPlugin::CheckThreadStart()
   //       << "] [" << relativePose.rot.GetZAxis() << "]\n";
   // math::Pose connectOffset = relativePose - connectPose;
   // gzdbg << "connect offset [" << connectOffset << "]\n";
-  // gzdbg << "insert [" << posErrInsert
+  // gzerr << "insert [" << posErrInsert
   //       << "] center [" << posErrCenter
   //       << "] rpy [" << rotErr
   //       << "] valve [" << valveAng
