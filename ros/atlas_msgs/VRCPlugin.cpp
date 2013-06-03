@@ -857,7 +857,8 @@ void VRCPlugin::CheckThreadStart()
 
   double posErrInsert = relativePose.pos.z - connectPose.pos.z +
     collisionSurfaceZOffset;
-  double posErrCenter = fabs(relativePose.pos.x) + fabs(connectPose.pos.y);
+  double posErrCenter = fabs(relativePose.pos.x - connectPose.pos.x) +
+                        fabs(relativePose.pos.y - connectPose.pos.y);
   double rotErr = (relativePose.rot.GetXAxis() -
                    connectPose.rot.GetXAxis()).GetLength();
   double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
