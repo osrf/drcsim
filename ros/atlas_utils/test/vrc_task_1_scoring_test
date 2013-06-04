@@ -146,7 +146,7 @@ class Tester(unittest.TestCase):
 	# - no point yet
 	pkg = self.assertROSScore(0)
 	self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 0'))
+          'Successfully passed through gate 1'))
 	# - no elapsed time
 	self.assertROSElapsedTimeZero(pkg)
 	# - no falls
@@ -161,7 +161,7 @@ class Tester(unittest.TestCase):
         pose_pub.publish(after_gate_0_pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 0'))
+          'Successfully passed through gate 1'))
 	pkg = self.assertROSScore(0)
 	self.assertROSElapsedTimeNotZero(pkg)
 
@@ -180,7 +180,7 @@ class Tester(unittest.TestCase):
 	gas_pedal_pub.publish(1.0)
 	time.sleep(9)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 1'))
+          'Successfully passed through gate 2'))
 	self.assertROSScore(2)
 
 if __name__ == '__main__':

@@ -370,7 +370,7 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
       // Log it
       std::stringstream ss;
       ss << "Successfully passed through gate " <<
-        this->nextGate->number << ". ";
+        (this->nextGate->number+1) << ". ";
       gzlog << ss.str() << std::endl;
       _msg += ss.str();
 
@@ -385,7 +385,7 @@ bool VRCScoringPlugin::CheckNextGate(std::string &_msg)
       if ((this->nextGateSide > 0) && (gateSide < 0))
       {
         gzlog << "Went backward through gate " <<
-          this->nextGate->number << std::endl;
+          (this->nextGate->number+1) << std::endl;
       }
       // Remember which side we're on now (which might be 0)
       this->nextGateSide = gateSide;
