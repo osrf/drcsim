@@ -19,6 +19,7 @@
 #include <string>
 #include <stdlib.h>
 
+#include <gazebo/physics/CylinderShape.hh>
 #include "VRCPlugin.h"
 
 namespace gazebo
@@ -848,8 +849,15 @@ void VRCPlugin::CheckThreadStart()
   // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
   // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
   math::Pose connectPose(this->drcFireHose.couplingRelativePose);
+
   // surface of the coupling cylinder is -0.135m from link origin
-  double collisionSurfaceZOffset = -0.135;
+  physics::CollisionPtr col =
+    this->drcFireHose.couplingLink->GetCollision("attachment_col");
+  double collisionSurfaceZOffset =
+    col->GetRelativePose().pos.x -
+    boost::dynamic_pointer_cast<physics::CylinderShape>(
+    col->GetShape())->GetLength()/2;
+
   math::Pose relativePose =
     (math::Pose(collisionSurfaceZOffset, 0, 0, 0, 0, 0) +
      this->drcFireHose.couplingLink->GetWorldPose()) -
