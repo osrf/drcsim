@@ -8,6 +8,7 @@ import sys
 import time
 import re
 import rospy
+import os
 
 class TestStopLog(unittest.TestCase):
     
@@ -58,7 +59,8 @@ class TestStopLog(unittest.TestCase):
 
     def write_memory_stats(self, results_postfix):
         try:
-            f = open(results_postfix + '_max_mem_used.txt','w')
+            logdir = os.environ['ROS_TEST_RESULTS_DIR']
+            f = open(logdir + '/' + results_postfix + '_max_mem_used.txt','w')
             f.write(str(self.max_mem_consumed))
             f.close()
             print ("Max memory consumed by gzserver: " + str(self.max_mem_consumed))
@@ -68,7 +70,8 @@ class TestStopLog(unittest.TestCase):
 
     def write_time_stats(self, duration, results_postfix):
         try:
-            f = open(results_postfix + '_time_used.txt','w')
+            logdir = os.environ['ROS_TEST_RESULTS_DIR']
+            f = open(logdir + '/' + results_postfix + '_time_used.txt','w')
             f.write(str(duration))
             f.close()
             print ("Duration of waiting for log: " + str(duration))
