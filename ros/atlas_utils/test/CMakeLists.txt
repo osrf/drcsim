@@ -16,6 +16,7 @@ set (rostests
   vrc_task_3_cheats_rosapi.test
   vrc_task_1_scoring.test
   vrc_task_2_scoring.test
+  vrc_task_2_tricking_scoring.test
   vrc_task_1_start_standup.test
   vrc_task_2_start_standup.test
   vrc_task_3_start_standup.test
@@ -74,6 +75,7 @@ set(scripts
   meanvar.py
   vrc_task_1_scoring_test
   vrc_task_2_scoring_test
+  vrc_task_2_tricking_scoring_test
   gzlog_stop_checker.py
   vrc_walking_test
   multicamera_subscriber
