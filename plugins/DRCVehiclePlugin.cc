@@ -503,6 +503,13 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   this->msgForward.set_name(this->fnrSwitchF);
   this->msgReverse.set_name(this->fnrSwitchR);
 
+  std::string fParentName =
+    this->fnrSwitchF.substr(0, this->fnrSwitchF.rfind("::"));
+  std::string rParentName =
+    this->fnrSwitchR.substr(0, this->fnrSwitchR.rfind("::"));
+  this->msgForward.set_parent_name(fParentName);
+  this->msgReverse.set_parent_name(rParentName);
+
   // Put some deadband at the end of range for gas and brake pedals
   // and hand brake
   double jointCenter;
@@ -929,4 +936,3 @@ math::Vector3 DRCVehiclePlugin::get_collision_position(physics::LinkPtr _link,
 
 GZ_REGISTER_MODEL_PLUGIN(DRCVehiclePlugin)
 }
-
