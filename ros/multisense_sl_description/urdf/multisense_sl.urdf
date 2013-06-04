@@ -62,6 +62,14 @@
     </geometry>
   </collision>
   </link>
+  <gazebo reference="head">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <gazebo reference="hokuyo_link">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
 
   <!-- Head Link Complex Collision Meshes
   <link name="head">
