@@ -376,7 +376,19 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
                                 _pose->position.z), q);
-  this->atlas.model->SetWorldPose(pose);
+
+  // turn physics off during SetWorldPose
+  {
+    bool physics = this->world->GetEnablePhysicsEngine();
+    bool paused = this->world->IsPaused();
+    this->world->SetPaused(true);
+    this->world->EnablePhysicsEngine(false);
+
+    this->atlas.model->SetWorldPose(pose);
+
+    this->world->EnablePhysicsEngine(physics);
+    this->world->SetPaused(paused);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
