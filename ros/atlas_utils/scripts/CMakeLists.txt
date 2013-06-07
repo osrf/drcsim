@@ -9,7 +9,6 @@ set (files
   run_gzserver_perf
   run_gzserver_callgrind
   run_gzserver_memcheck
-  run_gzserver_massif
   run_gzserver_cheats
   reset_pose.py
   nanokontrol.py
