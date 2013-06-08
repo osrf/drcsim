@@ -18,10 +18,15 @@ set (files
   qual_task_3.launch
   qual_task_4.launch
   vrc_task_1.launch
+  vrc_task_1_vehicle_start.launch
   vrc_task_1_cpu_lidar.launch
   vrc_task_2.launch
+  vrc_task_2_mud_start.launch
+  vrc_task_2_rubble_start.launch
+  vrc_task_2_uneven_start.launch
   vrc_task_2_cpu_lidar.launch
   vrc_task_3.launch
+  vrc_task_3_firehose_start.launch
   vrc_task_3_cpu_lidar.launch
   vrc_fire_hose.launch
   atlas_arm_slider_teleop.launch
