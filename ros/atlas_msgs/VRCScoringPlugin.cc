@@ -582,7 +582,9 @@ bool VRCScoringPlugin::CheckHoseConnected(std::string &_msg)
   }
   else
   {
-    if (this->isHoseConnected)
+    // per issue #314:
+    // allow for a little bit (2mm) of hysteresis after connection
+    if (this->isHoseConnected && dist > -0.013)
     {
       gzlog << "Disconnected the hose to the standpipe" << std::endl;
       this->isHoseConnected = false;
