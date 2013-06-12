@@ -101,7 +101,6 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   sdf::ElementPtr _sdf)
 {
-//  gzerr << "GazeboRosCameraUtils to load " << _parent->GetName() << std::endl;
   // Get the world name.
   std::string world_name = _parent->GetWorldName();
 
@@ -237,8 +236,6 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
     boost::bind(&GazeboRosCameraUtils::LoadThread, this));
-
-//  gzerr << "GazeboRosCameraUtils loaded " << _parent->GetName() << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
