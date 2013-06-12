@@ -308,6 +308,7 @@ void GazeboRosCameraUtils::LoadThread()
         boost::bind(&GazeboRosCameraUtils::SetHFOV, this, _1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraHFOVSubscriber_ = this->rosnode_->subscribe(zoom_so);
+  */
 
   ros::SubscribeOptions rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
@@ -315,7 +316,6 @@ void GazeboRosCameraUtils::LoadThread()
         boost::bind(&GazeboRosCameraUtils::SetUpdateRate, this, _1),
         ros::VoidPtr(), &this->camera_queue_);
   this->cameraUpdateRateSubscriber_ = this->rosnode_->subscribe(rate_so);
-  */
 
   this->Init();
 }
