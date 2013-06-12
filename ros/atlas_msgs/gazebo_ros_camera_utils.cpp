@@ -48,6 +48,11 @@ GazeboRosCameraUtils::GazeboRosCameraUtils()
 {
   this->last_update_time_ = common::Time(0);
   this->last_info_update_time_ = common::Time(0);
+  this->height_ = 0;
+  this->width_ = 0;
+  this->skip_ = 0;
+  this->format_ = "";
+  this->initialized_ = false;
 }
 
 #ifdef DYNAMIC_RECONFIGURE
@@ -96,6 +101,7 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
 void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   sdf::ElementPtr _sdf)
 {
+//  gzerr << "GazeboRosCameraUtils to load " << _parent->GetName() << std::endl;
   // Get the world name.
   std::string world_name = _parent->GetWorldName();
 
@@ -231,6 +237,8 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
     boost::bind(&GazeboRosCameraUtils::LoadThread, this));
+
+//  gzerr << "GazeboRosCameraUtils loaded " << _parent->GetName() << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -461,6 +469,8 @@ void GazeboRosCameraUtils::Init()
   // start custom queue for camera_
   this->callback_queue_thread_ = boost::thread(
     boost::bind(&GazeboRosCameraUtils::CameraQueueThread, this));
+
+  this->initialized_ = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -474,6 +484,9 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src,
 
 void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
 {
+  if (!this->initialized_ || this->height_ <=0 || this->width_ <=0)
+    return;
+
   /// don't bother if there are no subscribers
   if ((*this->image_connect_count_) > 0)
   {
@@ -497,6 +510,9 @@ void GazeboRosCameraUtils::PutCameraData(const unsigned char *_src)
 // Put camera_ data to the interface
 void GazeboRosCameraUtils::PublishCameraInfo(common::Time &last_update_time)
 {
+  if (!this->initialized_ || this->height_ <=0 || this->width_ <=0)
+    return;
+
   this->sensor_update_time_ = last_update_time;
   this->PublishCameraInfo();
 }
