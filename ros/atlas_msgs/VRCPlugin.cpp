@@ -19,6 +19,7 @@
 #include <string>
 #include <stdlib.h>
 
+#include <gazebo/physics/CylinderShape.hh>
 #include "VRCPlugin.h"
 
 namespace gazebo
@@ -376,7 +377,19 @@ void VRCPlugin::SetRobotPose(const geometry_msgs::Pose::ConstPtr &_pose)
   math::Pose pose(math::Vector3(_pose->position.x,
                                 _pose->position.y,
                                 _pose->position.z), q);
-  this->atlas.model->SetWorldPose(pose);
+
+  // turn physics off during SetWorldPose
+  {
+    bool physics = this->world->GetEnablePhysicsEngine();
+    bool paused = this->world->IsPaused();
+    this->world->SetPaused(true);
+    this->world->EnablePhysicsEngine(false);
+
+    this->atlas.model->SetWorldPose(pose);
+
+    this->world->EnablePhysicsEngine(physics);
+    this->world->SetPaused(paused);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -848,11 +861,24 @@ void VRCPlugin::CheckThreadStart()
   // gzerr << "coupling [" << this->couplingLink->GetWorldPose() << "]\n";
   // gzerr << "spout [" << this->spoutLink->GetWorldPose() << "]\n"
   math::Pose connectPose(this->drcFireHose.couplingRelativePose);
-  math::Pose relativePose = this->drcFireHose.couplingLink->GetWorldPose() -
-                            this->drcFireHose.spoutLink->GetWorldPose();
 
-  double posErrInsert = relativePose.pos.z - connectPose.pos.z;
-  double posErrCenter = fabs(relativePose.pos.x) + fabs(connectPose.pos.y);
+  // surface of the coupling cylinder is -0.135m from link origin
+  physics::CollisionPtr col =
+    this->drcFireHose.couplingLink->GetCollision("attachment_col");
+  double collisionSurfaceZOffset =
+    col->GetRelativePose().pos.x -
+    boost::dynamic_pointer_cast<physics::CylinderShape>(
+    col->GetShape())->GetLength()/2;
+
+  math::Pose relativePose =
+    (math::Pose(collisionSurfaceZOffset, 0, 0, 0, 0, 0) +
+     this->drcFireHose.couplingLink->GetWorldPose()) -
+    this->drcFireHose.spoutLink->GetWorldPose();
+
+  double posErrInsert = relativePose.pos.z - connectPose.pos.z +
+    collisionSurfaceZOffset;
+  double posErrCenter = fabs(relativePose.pos.x - connectPose.pos.x) +
+                        fabs(relativePose.pos.y - connectPose.pos.y);
   double rotErr = (relativePose.rot.GetXAxis() -
                    connectPose.rot.GetXAxis()).GetLength();
   double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
@@ -867,7 +893,7 @@ void VRCPlugin::CheckThreadStart()
   //       << "] [" << relativePose.rot.GetZAxis() << "]\n";
   // math::Pose connectOffset = relativePose - connectPose;
   // gzdbg << "connect offset [" << connectOffset << "]\n";
-  // gzdbg << "insert [" << posErrInsert
+  // gzerr << "insert [" << posErrInsert
   //       << "] center [" << posErrCenter
   //       << "] rpy [" << rotErr
   //       << "] valve [" << valveAng

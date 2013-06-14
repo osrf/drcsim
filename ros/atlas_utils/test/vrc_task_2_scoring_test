@@ -144,7 +144,7 @@ class Tester(unittest.TestCase):
 	# - no point yet
 	pkg = self.assertROSScore(0)
 	self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 0'))
+          'Successfully passed through gate 1'))
 	# - no elapsed time
 	self.assertROSElapsedTimeZero(pkg)
 	# - no falls
@@ -152,7 +152,7 @@ class Tester(unittest.TestCase):
 
         # Teleport through first gate
         self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 0'))
+          'Successfully passed through gate 1'))
         x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
         pose.position.x = float(x_str)
         pose.position.y = float(y_str)
@@ -160,13 +160,13 @@ class Tester(unittest.TestCase):
         pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 0'))
+          'Successfully passed through gate 1'))
 	pkg = self.assertROSScore(0)
 	self.assertROSElapsedTimeNotZero(pkg)
 
         # Teleport through second gate
         self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 1'))
+          'Successfully passed through gate 2'))
         pose.position.x = -0.03
         pose.position.y = -27.76
         pose.position.z = 1.00
@@ -178,24 +178,24 @@ class Tester(unittest.TestCase):
         pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 1'))
+          'Successfully passed through gate 2'))
         self.assertROSScore(1)
 
         # Teleport through third gate
         self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 2'))
+          'Successfully passed through gate 3'))
         pose.position.x = 0.644
         pose.position.y = -7.35
         pose.position.z = 1.00
         pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 2'))
+          'Successfully passed through gate 3'))
         self.assertROSScore(2)
 
         # Teleport through fourth gate
         self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 3'))
+          'Successfully passed through gate 4'))
         pose.position.x = 6.68
         pose.position.y = 4.44
         pose.position.z = 1.00
@@ -207,19 +207,19 @@ class Tester(unittest.TestCase):
         pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 3'))
+          'Successfully passed through gate 4'))
         self.assertROSScore(3)
 
         # Teleport through fifth gate
         self.assertFalse(self._grep('score.log', 
-          'Successfully passed through gate 4'))
+          'Successfully passed through gate 5'))
         pose.position.x = 6.30
         pose.position.y = 20.31
         pose.position.z = 1.00
         pose_pub.publish(pose)
         time.sleep(3.0)
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 4'))
+          'Successfully passed through gate 5'))
         self.assertROSScore(4)
 
 if __name__ == '__main__':

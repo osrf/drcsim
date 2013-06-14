@@ -126,7 +126,7 @@ class Tester(unittest.TestCase):
 	      'Robot seems to be fallen')
 	# Check the log and ROS score
         self.assertTrue(self._grep('score.log', 
-          'Successfully passed through gate 0'))
+          'Successfully passed through gate 1'))
         self.assertROSScore(0)
 
 if __name__ == '__main__':

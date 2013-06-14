@@ -19,11 +19,16 @@ set (worlds
      qual_task_3_stumps.world
      qual_task_4.world
      vrc_task_1.world
+     vrc_task_1_vehicle_start.world
      vrc_task_1_cpu_lidar.world
      vrc_task_2.world
+     vrc_task_2_mud_start.world
+     vrc_task_2_uneven_start.world
+     vrc_task_2_rubble_start.world
      vrc_task_2_cpu_lidar.world
      vrc_task_2_stumps.world
      vrc_task_3.world
+     vrc_task_3_firehose_start.world
      vrc_task_3_cpu_lidar.world
     )
 

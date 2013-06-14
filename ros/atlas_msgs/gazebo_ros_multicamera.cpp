@@ -57,10 +57,10 @@ void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent,
     // Set up a shared connection counter
     this->imageConnectCount = 0;
     util->image_connect_count_ = boost::shared_ptr<int>(&this->imageConnectCount);
-    util->image_connect_count_lock_ = 
+    util->image_connect_count_lock_ =
       boost::shared_ptr<boost::mutex>(&this->imageConnectCountLock);
     this->wasActive = false;
-    util->was_active_ = 
+    util->was_active_ =
       boost::shared_ptr<bool>(&this->wasActive);
     if (this->camera[i]->GetName().find("left") != std::string::npos)
     {
