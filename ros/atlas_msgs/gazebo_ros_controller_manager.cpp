@@ -34,10 +34,10 @@
 #include <set>
 #include <map>
 #include <string>
+#include <sdf/sdf.hh>
 
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <gazebo/sdf/sdf.hh>
 #include <gazebo/common/common.hh>
 
 #include <angles/angles.h>
@@ -91,7 +91,7 @@ void GazeboRosControllerManager::Load(physics::ModelPtr _parent,
 void GazeboRosControllerManager::LoadThread()
 {
   // Get then name of the parent model
-  std::string modelName = this->sdf->GetParent()->GetValueString("name");
+  std::string modelName = this->sdf->GetParent()->Get<std::string>("name");
 
   // Get the world name.
   this->world = this->parent_model_->GetWorld();
@@ -121,12 +121,12 @@ void GazeboRosControllerManager::LoadThread()
   this->robotNamespace = "";
   if (this->sdf->HasElement("robotNamespace"))
     this->robotNamespace =
-      this->sdf->GetElement("robotNamespace")->GetValueString();
+      this->sdf->GetElement("robotNamespace")->Get<std::string>();
 
   this->robotParam = "robot_description";
   if (this->sdf->HasElement("robotParam"))
     this->robotParam =
-      this->sdf->GetElement("robotParam")->GetValueString();
+      this->sdf->GetElement("robotParam")->Get<std::string>();
 
   this->robotParam = this->robotNamespace+"/" + this->robotParam;
 

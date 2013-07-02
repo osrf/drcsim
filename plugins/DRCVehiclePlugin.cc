@@ -427,25 +427,25 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   // Get joints
   std::string gasPedalJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("gas_pedal");
+    + _sdf->Get<std::string>("gas_pedal");
   this->gasPedalJoint = this->model->GetJoint(gasPedalJointName);
   if (!this->gasPedalJoint)
     gzthrow("could not find gas pedal joint\n");
 
   std::string brakePedalJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("brake_pedal");
+    + _sdf->Get<std::string>("brake_pedal");
   this->brakePedalJoint = this->model->GetJoint(brakePedalJointName);
   if (!this->brakePedalJoint)
     gzthrow("could not find brake pedal joint\n");
 
   std::string handWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("steering_wheel");
+    + _sdf->Get<std::string>("steering_wheel");
   this->handWheelJoint = this->model->GetJoint(handWheelJointName);
   if (!this->handWheelJoint)
     gzthrow("could not find steering wheel joint\n");
 
   std::string handBrakeJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("hand_brake");
+    + _sdf->Get<std::string>("hand_brake");
   this->handBrakeJoint = this->model->GetJoint(handBrakeJointName);
   if (!this->handBrakeJoint)
     gzthrow("could not find hand brake joint\n");
@@ -457,37 +457,37 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     gzthrow("could not find FNR switch joint\n");
 
   std::string flWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("front_left_wheel");
+    + _sdf->Get<std::string>("front_left_wheel");
   this->flWheelJoint = this->model->GetJoint(flWheelJointName);
   if (!this->flWheelJoint)
     gzthrow("could not find front left wheel joint\n");
 
   std::string frWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("front_right_wheel");
+    + _sdf->Get<std::string>("front_right_wheel");
   this->frWheelJoint = this->model->GetJoint(frWheelJointName);
   if (!this->frWheelJoint)
     gzthrow("could not find front right wheel joint\n");
 
   std::string blWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("back_left_wheel");
+    + _sdf->Get<std::string>("back_left_wheel");
   this->blWheelJoint = this->model->GetJoint(blWheelJointName);
   if (!this->blWheelJoint)
     gzthrow("could not find back left wheel joint\n");
 
   std::string brWheelJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("back_right_wheel");
+    + _sdf->Get<std::string>("back_right_wheel");
   this->brWheelJoint = this->model->GetJoint(brWheelJointName);
   if (!this->brWheelJoint)
     gzthrow("could not find back right wheel joint\n");
 
   std::string flWheelSteeringJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("front_left_wheel_steering");
+    + _sdf->Get<std::string>("front_left_wheel_steering");
   this->flWheelSteeringJoint = this->model->GetJoint(flWheelSteeringJointName);
   if (!this->flWheelSteeringJoint)
     gzthrow("could not find front left steering joint\n");
 
   std::string frWheelSteeringJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("front_right_wheel_steering");
+    + _sdf->Get<std::string>("front_right_wheel_steering");
   this->frWheelSteeringJoint = this->model->GetJoint(frWheelSteeringJointName);
   if (!this->frWheelSteeringJoint)
     gzthrow("could not find front right steering joint\n");
@@ -560,56 +560,56 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   paramName = "front_torque";
   paramDefault = 0;
   if (_sdf->HasElement(paramName))
-    this->frontTorque = _sdf->GetValueDouble(paramName);
+    this->frontTorque = _sdf->Get<double>(paramName);
   else
     this->frontTorque = paramDefault;
 
   paramName = "back_torque";
   paramDefault = 2000;
   if (_sdf->HasElement(paramName))
-    this->backTorque = _sdf->GetValueDouble(paramName);
+    this->backTorque = _sdf->Get<double>(paramName);
   else
     this->backTorque = paramDefault;
 
   paramName = "front_brake_torque";
   paramDefault = 2000;
   if (_sdf->HasElement(paramName))
-    this->frontBrakeTorque = _sdf->GetValueDouble(paramName);
+    this->frontBrakeTorque = _sdf->Get<double>(paramName);
   else
     this->frontBrakeTorque = paramDefault;
 
   paramName = "back_brake_torque";
   paramDefault = 2000;
   if (_sdf->HasElement(paramName))
-    this->backBrakeTorque = _sdf->GetValueDouble(paramName);
+    this->backBrakeTorque = _sdf->Get<double>(paramName);
   else
     this->backBrakeTorque = paramDefault;
 
   paramName = "max_speed";
   paramDefault = 10;
   if (_sdf->HasElement(paramName))
-    this->maxSpeed = _sdf->GetValueDouble(paramName);
+    this->maxSpeed = _sdf->Get<double>(paramName);
   else
     this->maxSpeed = paramDefault;
 
   paramName = "max_steer";
   paramDefault = 0.6;
   if (_sdf->HasElement(paramName))
-    this->maxSteer = _sdf->GetValueDouble(paramName);
+    this->maxSteer = _sdf->Get<double>(paramName);
   else
     this->maxSteer = paramDefault;
 
   paramName = "aero_load";
   paramDefault = 0.1;
   if (_sdf->HasElement(paramName))
-    this->aeroLoad = _sdf->GetValueDouble(paramName);
+    this->aeroLoad = _sdf->Get<double>(paramName);
   else
     this->aeroLoad = paramDefault;
 
   paramName = "min_brake_percent";
   paramDefault = 0.02;
   if (_sdf->HasElement(paramName))
-    this->minBrakePercent = _sdf->GetValueDouble(paramName);
+    this->minBrakePercent = _sdf->Get<double>(paramName);
   else
     this->minBrakePercent = paramDefault;
 
