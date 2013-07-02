@@ -144,7 +144,7 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (_sdf->HasElement("score_file"))
     this->scoreFilePath =
-      boost::filesystem::path(_sdf->GetValueString("score_file"));
+      boost::filesystem::path(_sdf->Get<std::string>("score_file"));
   else
   {
     // Get the user's home directory

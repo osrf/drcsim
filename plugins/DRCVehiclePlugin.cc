@@ -451,7 +451,7 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
     gzthrow("could not find hand brake joint\n");
 
   std::string fnrSwitchJointName = this->model->GetName() + "::"
-    + _sdf->GetValueString("fnr_switch");
+    + _sdf->Get<std::string>("fnr_switch");
   this->fnrSwitchJoint = this->model->GetJoint(fnrSwitchJointName);
   if (!this->fnrSwitchJoint)
     gzthrow("could not find FNR switch joint\n");
@@ -494,11 +494,11 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
 
   if (_sdf->HasElement("fnr_switch_f"))
     this->fnrSwitchF = this->model->GetName() + "::"
-      + _sdf->GetValueString("fnr_switch_f");
+      + _sdf->Get<std::string>("fnr_switch_f");
 
   if (_sdf->HasElement("fnr_switch_r"))
     this->fnrSwitchR = this->model->GetName() + "::"
-      + _sdf->GetValueString("fnr_switch_r");
+      + _sdf->Get<std::string>("fnr_switch_r");
 
   this->msgForward.set_name(this->fnrSwitchF);
   this->msgReverse.set_name(this->fnrSwitchR);
