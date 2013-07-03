@@ -27,7 +27,6 @@
 #include <ros/advertise_options.h>
 #include <sensor_msgs/LaserScan.h>
 
-#include <gazebo/sdf/interface/Param.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/TransportTypes.hh>
 #include <gazebo/msgs/MessageTypes.hh>
@@ -36,6 +35,13 @@
 #include <gazebo/common/Events.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/plugins/GpuRayPlugin.hh>
+
+#include <gazebo/gazebo_config.h>
+#ifdef HAVE_SDF
+#include <sdf/sdf.hh>
+#else
+#include "gazebo/sdf/sdf.hh"
+#endif
 
 #include "PubQueue.h"
 

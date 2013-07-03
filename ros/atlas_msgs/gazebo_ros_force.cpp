@@ -80,11 +80,12 @@ void GazeboRosForce::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   // Get the world name.
   this->world = _model->GetWorld();
-  
+
   // load parameters
   this->robotNamespace = "";
   if (_sdf->HasElement("robotNamespace"))
-    this->robotNamespace = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
+    this->robotNamespace =
+      _sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
 
   if (!_sdf->HasElement("bodyName"))
   {
@@ -92,7 +93,7 @@ void GazeboRosForce::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     return;
   }
   else
-    this->linkName = _sdf->GetElement("bodyName")->GetValueString();
+    this->linkName = _sdf->GetElement("bodyName")->Get<std::string>();
 
   this->link = _model->GetLink(this->linkName);
   if (!this->link)
@@ -107,7 +108,7 @@ void GazeboRosForce::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     return;
   }
   else
-    this->topicName = _sdf->GetElement("topicName")->GetValueString();
+    this->topicName = _sdf->GetElement("topicName")->Get<std::string>();
 
 
   // initialize ros if not done so already
