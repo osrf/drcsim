@@ -1,4 +1,4 @@
-set (files 
+set (worlds 
 vrc_final_task1.world
 vrc_final_task2.world
 vrc_final_task3.world
@@ -16,4 +16,4 @@ vrc_final_task14.world
 vrc_final_task15.world
 )
 
-install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/vrc_arenas/worlds/)
+install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/worlds/)
