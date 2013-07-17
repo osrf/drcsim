@@ -215,6 +215,7 @@
     <mu1>0.9</mu1>
     <mu2>0.9</mu2>
   </gazebo>
+<!--
   <gazebo>
     <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
       <bodyName>pelvis</bodyName>
@@ -223,6 +224,7 @@
       <updateRate>100.0</updateRate>
     </plugin>
   </gazebo>
+-->
 
   <!-- foot contact sensors -->
   <gazebo reference="r_foot">

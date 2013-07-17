@@ -351,10 +351,10 @@
   <!-- imu link -->
   <link name="head_imu_link">
     <inertial>
-      <mass value="1e-5" />
+      <mass value="1e-3" />
       <!-- collocate with parent link and remove mass from it -->
       <origin xyz="-0.122993 0.035033383 0.02774" rpy="0 0 0" />
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      <inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>

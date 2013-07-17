@@ -1,8 +1,16 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <world name="default">
-    <physics type="ode">
+    <physics type="simbody">
       <gravity>0 0 -9.81</gravity>
+      <simbody>
+        <accuracy>10.0</accuracy>
+        <max_transient_velocity>1.0</max_transient_velocity>
+        <contact>
+          <stiffness>1e6</stiffness>
+          <dissipation>0.1</dissipation>
+        </contact>
+      </simbody>
       <ode>
         <solver>
           <type>quick</type>

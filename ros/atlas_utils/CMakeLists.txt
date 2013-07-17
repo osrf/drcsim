@@ -18,16 +18,10 @@ include_directories(${tinyxml_include_dirs})
 link_directories(${tinyxml_library_dirs})
 add_definitions(${tinyxml_cflags})
 
+# needed by bdi_parser
 find_package(urdfdom REQUIRED)
-include_directories(SYSTEM ${urdfdom_INCLUDE_DIRS})
-link_directories(${urdfdom_LIBRARY_DIRS})
-
 find_package(urdfdom_headers REQUIRED)
-include_directories(SYSTEM ${urdfdom_headers_INCLUDE_DIRS})
-
 find_package(console_bridge REQUIRED)
-include_directories(SYSTEM ${console_bridge_INCLUDE_DIRS})
-link_directories(${console_bridge_LIBRARY_DIRS})
 
 find_package(Boost REQUIRED thread)
 include_directories(${Boost_INCLUDE_DIR})

@@ -5,8 +5,8 @@
 
   <param name="/use_sim_time" type="bool" value="true"/>
 
-  <!-- start gazebo with the Atlas and record the gazebo log -->
-  <node name="gazebo" pkg="atlas_utils" type="run_$(arg gzname)" args="$(arg gzworld) $(arg extra_gazebo_args)" output="log" />
+  <!-- start gazebo with the Atlas and record the gazebo screen -->
+  <node name="gazebo" pkg="atlas_utils" type="run_$(arg gzname)" args="$(arg gzworld) $(arg extra_gazebo_args)" output="screen" />
 </launch>
   
 
