@@ -1427,13 +1427,13 @@ void AtlasPlugin::OnLContactUpdate()
     {
       // loop through all contacts between collision1 and collision2
       fTotal += math::Vector3(
-                contacts.contact(i).wrench(j).body_1_force().x(),
-                contacts.contact(i).wrench(j).body_1_force().y(),
-                contacts.contact(i).wrench(j).body_1_force().z());
+                contacts.contact(i).wrench(j).body_1_wrench().force().x(),
+                contacts.contact(i).wrench(j).body_1_wrench().force().y(),
+                contacts.contact(i).wrench(j).body_1_wrench().force().z());
       tTotal += math::Vector3(
-                contacts.contact(i).wrench(j).body_1_torque().x(),
-                contacts.contact(i).wrench(j).body_1_torque().y(),
-                contacts.contact(i).wrench(j).body_1_torque().z());
+                contacts.contact(i).wrench(j).body_1_wrench().torque().x(),
+                contacts.contact(i).wrench(j).body_1_wrench().torque().y(),
+                contacts.contact(i).wrench(j).body_1_wrench().torque().z());
     }
     msg.wrench.force.x = fTotal.x;
     msg.wrench.force.y = fTotal.y;
@@ -1468,13 +1468,13 @@ void AtlasPlugin::OnRContactUpdate()
     {
       // loop through all contacts between collision1 and collision2
       fTotal += math::Vector3(
-                contacts.contact(i).wrench(j).body_1_force().x(),
-                contacts.contact(i).wrench(j).body_1_force().y(),
-                contacts.contact(i).wrench(j).body_1_force().z());
+                contacts.contact(i).wrench(j).body_1_wrench().force().x(),
+                contacts.contact(i).wrench(j).body_1_wrench().force().y(),
+                contacts.contact(i).wrench(j).body_1_wrench().force().z());
       tTotal += math::Vector3(
-                contacts.contact(i).wrench(j).body_1_torque().x(),
-                contacts.contact(i).wrench(j).body_1_torque().y(),
-                contacts.contact(i).wrench(j).body_1_torque().z());
+                contacts.contact(i).wrench(j).body_1_wrench().torque().x(),
+                contacts.contact(i).wrench(j).body_1_wrench().torque().y(),
+                contacts.contact(i).wrench(j).body_1_wrench().torque().z());
     }
     msg.wrench.force.x = fTotal.x;
     msg.wrench.force.y = fTotal.y;
