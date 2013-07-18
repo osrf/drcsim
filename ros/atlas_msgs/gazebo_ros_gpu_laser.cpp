@@ -27,12 +27,7 @@
 #include "gazebo/sensors/SensorTypes.hh"
 
 #include <gazebo/gazebo_config.h>
-#ifdef HAVE_SDF
 #include <sdf/sdf.hh>
-#else
-#include "gazebo/sdf/sdf.hh"
-#endif
-
 
 #include "tf/tf.h"
 

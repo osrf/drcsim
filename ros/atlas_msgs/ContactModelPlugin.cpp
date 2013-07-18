@@ -54,7 +54,7 @@ void ContactModelPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     while (collisionElem)
     {
       // get collision name
-      collisionName = collisionElem->GetValueString();
+      collisionName = collisionElem->Get<std::string>();
       this->collisions.insert(_model->GetName() + "::" + collisionName);
       collisionElem = collisionElem->GetNextElement("collision");
     }
@@ -70,12 +70,12 @@ void ContactModelPlugin::Init()
   // Create a publisher for the contact information.
   if (this->sdf->HasElement("contact") &&
       this->sdf->GetElement("contact")->HasElement("topic") &&
-      this->sdf->GetElement("contact")->GetValueString("topic")
+      this->sdf->GetElement("contact")->Get<std::string>("topic")
       != "__default_topic__")
   {
     // This will create a topic based on the name specified in SDF.
     this->contactsPub = this->node->Advertise<msgs::Contacts>(
-        this->sdf->GetElement("contact")->GetValueString("topic"));
+        this->sdf->GetElement("contact")->Get<std::string>("topic"));
   }
   else
   {
