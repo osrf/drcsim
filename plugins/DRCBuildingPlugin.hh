@@ -28,8 +28,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 
-#include <boost/thread/mutex.hpp>
-
 namespace gazebo
 {
   /// \defgroup drc_plugin DRC Plugins

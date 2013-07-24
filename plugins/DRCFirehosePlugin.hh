@@ -19,14 +19,13 @@
 
 #include <string>
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/TransportTypes.hh>
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
-
-#include <boost/thread/mutex.hpp>
 
 namespace gazebo
 {
