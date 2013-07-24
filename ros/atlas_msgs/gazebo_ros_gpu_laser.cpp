@@ -19,16 +19,17 @@
 #include <string>
 #include <assert.h>
 
-#include "gazebo/physics/World.hh"
-#include "gazebo/physics/HingeJoint.hh"
-#include "gazebo/sensors/Sensor.hh"
-#include "gazebo/sdf/interface/SDF.hh"
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/common/Exception.hh"
-#include "gazebo/sensors/GpuRaySensor.hh"
-#include "gazebo/sensors/SensorTypes.hh"
+#include <sdf/sdf.hh>
 
-#include "tf/tf.h"
+#include <gazebo/gazebo_config.h>
+#include <gazebo/physics/World.hh>
+#include <gazebo/physics/HingeJoint.hh>
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/common/Exception.hh>
+#include <gazebo/sensors/GpuRaySensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+
+#include <tf/tf.h>
 
 #include "gazebo_ros_gpu_laser.h"
 
@@ -72,7 +73,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
+    this->robot_namespace_ = this->sdf->Get<std::string>("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("frameName"))
   {
@@ -80,7 +81,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->frame_name_ = "/world";
   }
   else
-    this->frame_name_ = this->sdf->GetValueString("frameName");
+    this->frame_name_ = this->sdf->Get<std::string>("frameName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -88,7 +89,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->topic_name_ = "/world";
   }
   else
-    this->topic_name_ = this->sdf->GetValueString("topicName");
+    this->topic_name_ = this->sdf->Get<std::string>("topicName");
 
   this->laser_connect_count_ = 0;
 
@@ -146,8 +147,8 @@ void GazeboRosLaser::LaserConnect()
 {
   this->laser_connect_count_++;
   if (this->laser_connect_count_ == 1)
-    this->laser_scan_sub_ = 
-      this->gazebo_node_->Subscribe(this->parent_ray_sensor_->GetTopic(), 
+    this->laser_scan_sub_ =
+      this->gazebo_node_->Subscribe(this->parent_ray_sensor_->GetTopic(),
                                     &GazeboRosLaser::OnScan, this);
 }
 
@@ -177,12 +178,12 @@ void GazeboRosLaser::OnScan(ConstLaserScanStampedPtr &_msg)
   laser_msg.range_min = _msg->scan().range_min();
   laser_msg.range_max = _msg->scan().range_max();
   laser_msg.ranges.resize(_msg->scan().ranges_size());
-  std::copy(_msg->scan().ranges().begin(), 
-            _msg->scan().ranges().end(), 
+  std::copy(_msg->scan().ranges().begin(),
+            _msg->scan().ranges().end(),
             laser_msg.ranges.begin());
   laser_msg.intensities.resize(_msg->scan().intensities_size());
-  std::copy(_msg->scan().intensities().begin(), 
-            _msg->scan().intensities().end(), 
+  std::copy(_msg->scan().intensities().begin(),
+            _msg->scan().intensities().end(),
             laser_msg.intensities.begin());
   this->pub_queue_->push(laser_msg, this->pub_);
 }

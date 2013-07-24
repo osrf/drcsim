@@ -138,13 +138,13 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->falls = 0;
 
   if (_sdf->HasElement("fall_accel_threshold"))
-    this->fallAccelThreshold = _sdf->GetValueDouble("fall_accel_threshold");
+    this->fallAccelThreshold = _sdf->Get<double>("fall_accel_threshold");
   else
     this->fallAccelThreshold = 1000.0;
 
   if (_sdf->HasElement("score_file"))
     this->scoreFilePath =
-      boost::filesystem::path(_sdf->GetValueString("score_file"));
+      boost::filesystem::path(_sdf->Get<std::string>("score_file"));
   else
   {
     // Get the user's home directory
