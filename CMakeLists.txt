@@ -128,7 +128,6 @@ set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SI
 set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
 add_subdirectory(gazebo_models)
-add_subdirectory(media)
 add_subdirectory(plugins)
 add_subdirectory(ros)
 add_subdirectory(worlds)
