@@ -34,14 +34,15 @@
 #include <gazebo_msgs/ContactState.h>
 #include <gazebo_msgs/ContactsState.h>
 
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/physics/physics.h"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/msgs/MessageTypes.hh"
-#include "gazebo/common/Time.hh"
-#include "gazebo/sensors/SensorTypes.hh"
-#include "gazebo/sensors/ContactSensor.hh"
-#include "gazebo/plugins/ContactPlugin.hh"
+#include <sdf/sdf.hh>
+
+#include <gazebo/physics/physics.h>
+#include <gazebo/transport/TransportTypes.hh>
+#include <gazebo/msgs/MessageTypes.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/sensors/ContactSensor.hh>
+#include <gazebo/plugins/ContactPlugin.hh>
 
 namespace gazebo
 {

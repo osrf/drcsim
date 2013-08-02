@@ -44,27 +44,27 @@ void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
   this->model = _parent;
   this->world->EnablePhysicsEngine(true);
 
-  this->doorLink = this->model->GetLink(_sdf->GetValueString("door_link"));
+  this->doorLink = this->model->GetLink(_sdf->Get<std::string>("door_link"));
   if (!this->doorLink)
   {
-    gzerr << "<door_link>" << _sdf->GetValueString("door_link")
+    gzerr << "<door_link>" << _sdf->Get<std::string>("door_link")
           << "<door_link> does not exist\n";
     return;
   }
 
-  this->doorJoint = this->model->GetJoint(_sdf->GetValueString("door_joint"));
+  this->doorJoint = this->model->GetJoint(_sdf->Get<std::string>("door_joint"));
   if (!this->doorJoint)
   {
-    gzerr << "<door_joint>" << _sdf->GetValueString("door_joint")
+    gzerr << "<door_joint>" << _sdf->Get<std::string>("door_joint")
           << "<door_joint> does not exist\n";
     return;
   }
 
   this->handleJoint = this->model->GetJoint(
-    _sdf->GetValueString("handle_joint"));
+    _sdf->Get<std::string>("handle_joint"));
   if (!this->handleJoint)
   {
-    gzerr << "<handle_joint>" << _sdf->GetValueString("handle_joint")
+    gzerr << "<handle_joint>" << _sdf->Get<std::string>("handle_joint")
           << "<handle_joint> does not exist\n";
     return;
   }

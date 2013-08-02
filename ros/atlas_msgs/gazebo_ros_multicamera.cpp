@@ -17,9 +17,9 @@
 
 #include <string>
 
-#include "sensors/Sensor.hh"
-#include "sensors/MultiCameraSensor.hh"
-#include "sensors/SensorTypes.hh"
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/sensors/MultiCameraSensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
 
 #include "gazebo_ros_multicamera.h"
 
@@ -71,7 +71,7 @@ void GazeboRosMultiCamera::Load(sensors::SensorPtr _parent,
     {
       double hackBaseline = 0.0;
       if (_sdf->HasElement("hackBaseline"))
-        hackBaseline = _sdf->GetValueDouble("hackBaseline");
+        hackBaseline = _sdf->Get<double>("hackBaseline");
       util->Load(_parent, _sdf, "/right", hackBaseline);
     }
     this->utils.push_back(util);

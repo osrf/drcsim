@@ -18,15 +18,14 @@
 #include <algorithm>
 #include <string>
 #include <assert.h>
+#include <sdf/sdf.hh>
 
-#include "gazebo/physics/World.hh"
-#include "gazebo/physics/HingeJoint.hh"
-#include "gazebo/sensors/Sensor.hh"
-#include "gazebo/sdf/interface/SDF.hh"
-#include "gazebo/sdf/interface/Param.hh"
-#include "gazebo/common/Exception.hh"
-#include "gazebo/sensors/RaySensor.hh"
-#include "gazebo/sensors/SensorTypes.hh"
+#include <gazebo/physics/World.hh>
+#include <gazebo/physics/HingeJoint.hh>
+#include <gazebo/sensors/Sensor.hh>
+#include <gazebo/common/Exception.hh>
+#include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
 
 #include "tf/tf.h"
 
@@ -72,7 +71,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 
   this->robot_namespace_ = "";
   if (this->sdf->HasElement("robotNamespace"))
-    this->robot_namespace_ = this->sdf->GetValueString("robotNamespace") + "/";
+    this->robot_namespace_ = this->sdf->Get<std::string>("robotNamespace") + "/";
 
   if (!this->sdf->HasElement("frameName"))
   {
@@ -80,7 +79,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->frame_name_ = "/world";
   }
   else
-    this->frame_name_ = this->sdf->GetValueString("frameName");
+    this->frame_name_ = this->sdf->Get<std::string>("frameName");
 
   if (!this->sdf->HasElement("topicName"))
   {
@@ -88,7 +87,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->topic_name_ = "/world";
   }
   else
-    this->topic_name_ = this->sdf->GetValueString("topicName");
+    this->topic_name_ = this->sdf->Get<std::string>("topicName");
 
   this->laser_connect_count_ = 0;
 
@@ -156,6 +155,7 @@ void GazeboRosLaser::LaserConnect()
 void GazeboRosLaser::LaserDisconnect()
 {
   this->laser_connect_count_--;
+
   if (this->laser_connect_count_ == 0)
     this->laser_scan_sub_.reset();
 }

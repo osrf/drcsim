@@ -948,9 +948,15 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
         {
           pos = msgs::Convert((*iter)->contact(i).position(j));
           if (isBody1)
-            force = msgs::Convert((*iter)->contact(i).wrench(j).body_1_force());
+          {
+            force = msgs::Convert((*iter)->contact(i).wrench(j).
+                body_1_wrench().force());
+          }
           else
-            force = msgs::Convert((*iter)->contact(i).wrench(j).body_2_force());
+          {
+            force = msgs::Convert((*iter)->contact(i).wrench(j).
+                body_2_wrench().force());
+          }
 
           // Scaling formula taken from Gazebo's ContactVisual class
           tactileOuput = (2.0 * (this->maxTactileOut - this->minTactileOut))

@@ -24,7 +24,7 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include "gazebo/common/Events.hh"
+#include <gazebo/common/Events.hh>
 
 #include "gazebo_ros_api_plugin.h"
 

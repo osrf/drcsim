@@ -52,20 +52,20 @@ void DRCFirehosePlugin::Load(physics::ModelPtr _parent,
   this->links = this->model->GetLinks();
 
   // Get special coupling links (on the firehose size)
-  std::string couplingLinkName = _sdf->GetValueString("coupling_link");
+  std::string couplingLinkName = _sdf->Get<std::string>("coupling_link");
   this->couplingLink = this->model->GetLink(couplingLinkName);
   if (!this->couplingLink)
     gzerr << "coupling [" << couplingLinkName << "] not found\n";
 
   // Get special links
-  std::string spoutModelName = _sdf->GetValueString("spout_model");
+  std::string spoutModelName = _sdf->Get<std::string>("spout_model");
   this->spoutModel = this->world->GetModel(spoutModelName);
-  std::string spoutLinkName = _sdf->GetValueString("spout_link");
+  std::string spoutLinkName = _sdf->Get<std::string>("spout_link");
   this->spoutLink = this->spoutModel->GetLink(spoutLinkName);
   if (!this->spoutLink)
     gzerr << "spout [" << spoutLinkName << "] not found\n";
 
-  this->threadPitch = _sdf->GetValueDouble("thread_pitch");
+  this->threadPitch = _sdf->Get<double>("thread_pitch");
 
   this->couplingRelativePose = _sdf->GetValuePose("coupling_relative_pose");
 
