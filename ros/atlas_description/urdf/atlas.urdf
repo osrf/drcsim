@@ -217,7 +217,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_uleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas/meshes/l_uleg.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
