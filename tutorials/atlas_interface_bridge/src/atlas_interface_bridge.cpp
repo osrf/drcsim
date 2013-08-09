@@ -1,4 +1,6 @@
 
+#include <boost/thread/mutex.hpp>
+
 #include <ros/ros.h>
 #include <AtlasInterface.h>
 #include <AtlasInterfaceTypes.h>
@@ -13,13 +15,21 @@ class AtlasInterfaceBridge
     AtlasUtility u_atlas;
     ros::Subscriber atlas_cmd_sub;
     ros::NodeHandle node;
+    boost::mutex msg_lock;
+    atlas_msgs::AtlasCommand last_atlas_cmd_msg;
+    bool last_atlas_cmd_msg_valid;
+
+    void atlasCommandCallback(const atlas_msgs::AtlasCommandConstPtr& msg);
 
   public:
-    AtlasInterfaceBridge() {}
+    AtlasInterfaceBridge() : last_atlas_cmd_msg_valid(false) {}
     ~AtlasInterfaceBridge() {}
+    // Initialize the connection to the robot.  Must be called first.
     bool start(int argc, char** argv);
+    // Shut down the connection to the robot.
     bool stop();
-    void atlasCommandCallback(const atlas_msgs::AtlasCommandConstPtr& msg);
+    // Do one iteration of the interaction loop with the robot.
+    void update();
 };
 
 bool AtlasInterfaceBridge::start(int argc, char** argv)
@@ -37,12 +47,20 @@ bool AtlasInterfaceBridge::stop()
   return result;
 }
 
+void AtlasInterfaceBridge::update()
+{
+  // TODO: implement a receive/send loop that's clocked off the robot
+}
+
 void 
 AtlasInterfaceBridge::atlasCommandCallback(
   const atlas_msgs::AtlasCommandConstPtr& msg)
 {
+  // Lock and copy the incoming command to where the main loop will pick it up
+  boost::mutex::scoped_lock lock(this->msg_lock);
   ROS_INFO("Received a message");
-  // TODO: stuff an instance of AtlasControlDataToRobot and send it.
+  this->last_atlas_cmd_msg = *msg;
+  this->last_atlas_cmd_msg_valid = true;
 }
 
 int
