@@ -182,3 +182,28 @@
 
   </world>
 </sdf>
+<!--
+  This world shows a representative configuration for the Doorway Debris
+challenge.  A loose pile of lumber and structural elements is blocking the
+entry and must be removed to gain access to the doorway.
+
+NOTES:
+  - mass/material properties are estimates only
+ 
+  - Truss:
+      * does not match geometry of the currently-recommended physical part.
+      * collision and visual geometries use the same mesh data
+          - it is possible for other parts to become “embedded” within this
+            model, which is incorrect.
+ 
+  - Cinder-Block Side Walls:
+      * collision and visual geometries use the same mesh data
+          - it is possible for other parts to become “embedded” within this
+            model, which is incorrect.
+DISCLAIMER:
+The models are intended to represent the type of obstacles to be encountered
+during the DRC trials, but may not match the exact configurations used in
+the trial events.  DARPA reserves the right to change any elements of these
+tasks without updating these model files.
+-->
+
