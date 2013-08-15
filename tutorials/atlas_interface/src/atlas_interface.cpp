@@ -142,15 +142,13 @@ bool AtlasInterface::net_connection_open()
   return true;
 }
 
-// Maybe this function is only available in a version that's older or newer than
-// 2.0.2.
-/*
+#if ATLAS_VERSION_MAJOR >= 2 && ATLAS_VERSION_MINOR >= 4
 AtlasErrorCode AtlasInterface::get_robot_ip_address(std::string& robot_ip_address)
 {
   robot_ip_address = "10.66.171.30";
   return NO_ERRORS;
 }
-*/
+#endif
 
 AtlasErrorCode AtlasInterface::start(AtlasHydraulicPressureSetting desired_pressure,
          int64_t* packet_seq_id)
@@ -569,14 +567,12 @@ AtlasErrorCode AtlasInterface::clear_faults(int64_t* packet_seq_id)
   return NO_ERRORS;
 }
 
-// Maybe this function is only available in a version that's older or newer than
-// 2.0.2.
-/*
+#if ATLAS_VERSION_MAJOR >= 2 && ATLAS_VERSION_MINOR >= 4
 AtlasErrorCode AtlasInterface::download_robot_log_file(std::string dest_directory, float duration)
 {
   return NO_ERRORS;
 }
-*/
+#endif
 
 std::string AtlasInterface::get_error_code_text(AtlasErrorCode ec)
 {
