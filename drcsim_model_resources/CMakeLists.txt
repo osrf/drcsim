@@ -5,7 +5,7 @@ project (drcsim)
 include(ExternalProject)
 
 set (DRC_SIM_MAJOR_VERSION 2)
-set (DRC_SIM_MINOR_VERSION 7)
+set (DRC_SIM_MINOR_VERSION 8)
 # The patch version may have been bumped for prerelease purposes; be sure to
 # check drcsim-release/ubuntu/debian/changelog@default to determine what the
 # next patch version should be for a regular release.
@@ -128,7 +128,6 @@ set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SI
 set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
 add_subdirectory(gazebo_models)
-add_subdirectory(plugins)
 add_subdirectory(ros)
 add_subdirectory(worlds)
 add_subdirectory(vrc_arenas)
