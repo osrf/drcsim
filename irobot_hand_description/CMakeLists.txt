@@ -1,15 +1,19 @@
-set (ROS_PACKAGE_NAME irobot_hand_description)
-set (GAZEBO_INSTALL_PATH share/${PROJECT_NAME}-${DRC_SIM_VERSION}/gazebo_models/${ROS_PACKAGE_NAME})
+cmake_minimum_required(VERSION 2.8.3)
+project(irobot_hand_description)
 
-#set (ROS_PKG_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME})
-#set (files
-#  manifest.xml
-#)
-#install(FILES ${files} DESTINATION ${ROS_PKG_INSTALL_PATH}/)
+find_package(catkin REQUIRED)
 
-add_subdirectory(launch)
-add_subdirectory(robots)
-add_subdirectory(urdf)
-add_subdirectory(gazebo)
-add_subdirectory(meshes)
+catkin_package(
+)
 
+install(DIRECTORY
+  urdf meshes materials robots
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+# install below for gazebo to find this model through GAZEBO_MODEL_PATH.
+install(FILES
+  model.config
+  dummy.urdf
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
