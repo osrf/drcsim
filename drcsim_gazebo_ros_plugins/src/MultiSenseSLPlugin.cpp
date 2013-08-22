@@ -19,7 +19,7 @@
 #include <gazebo/rendering/Camera.hh>
 #include <sensor_msgs/Imu.h>
 
-#include "MultiSenseSLPlugin.h"
+#include "drcsim_gazebo_ros_plugins/MultiSenseSLPlugin.h"
 
 
 namespace gazebo

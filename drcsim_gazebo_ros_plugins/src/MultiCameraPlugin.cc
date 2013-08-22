@@ -14,9 +14,9 @@
  * limitations under the License.
  *
 */
-#include "gazebo/sensors/DepthCameraSensor.hh"
-#include "gazebo/sensors/CameraSensor.hh"
-#include "MultiCameraPlugin.hh"
+#include <gazebo/sensors/DepthCameraSensor.hh>
+#include <gazebo/sensors/CameraSensor.hh>
+#include "drcsim_gazebo_ros_plugins/MultiCameraPlugin.hh"
 
 using namespace gazebo;
 GZ_REGISTER_SENSOR_PLUGIN(MultiCameraPlugin)

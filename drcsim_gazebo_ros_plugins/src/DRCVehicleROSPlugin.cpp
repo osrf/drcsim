@@ -17,11 +17,11 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include "DRCVehicleROSPlugin.h"
-#include "gazebo/common/common.hh"
-#include "gazebo/physics/Base.hh"
-#include "gazebo/physics/CylinderShape.hh"
-#include "gazebo/physics/SphereShape.hh"
+#include "drcsim_gazebo_ros_plugins/DRCVehicleROSPlugin.h"
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/Base.hh>
+#include <gazebo/physics/CylinderShape.hh>
+#include <gazebo/physics/SphereShape.hh>
 
 namespace gazebo
 {

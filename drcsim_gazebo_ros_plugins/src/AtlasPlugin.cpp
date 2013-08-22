@@ -22,10 +22,10 @@
 #include <gazebo/transport/Node.hh>
 #include <gazebo/common/Assert.hh>
 
-#include "AtlasPlugin.h"
+#include "drcsim_gazebo_ros_plugins/AtlasPlugin.h"
 
 // publish separate /atlas/imu topic, to be deprecated
-#include "sensor_msgs/Imu.h"
+#include <sensor_msgs/Imu.h>
 
 // publish separate /atlas/force_torque_sensors topic, to be deprecated
 #include <atlas_msgs/ForceTorqueSensors.h>

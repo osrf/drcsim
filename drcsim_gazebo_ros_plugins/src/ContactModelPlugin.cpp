@@ -17,7 +17,7 @@
 
 #include <gazebo/physics/ContactManager.hh>
 #include <gazebo/transport/transport.hh>
-#include "ContactModelPlugin.h"
+#include "drcsim_gazebo_ros_plugins/ContactModelPlugin.h"
 
 using namespace gazebo;
 GZ_REGISTER_MODEL_PLUGIN(ContactModelPlugin)

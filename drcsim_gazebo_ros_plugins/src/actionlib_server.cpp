@@ -1,7 +1,7 @@
 // actionlib for BDI's dynamic controller
 // see http://ros.org/wiki/actionlib for documentation on actions
 
-#include "actionlib_server.h"
+#include "drcsim_gazebo_ros_plugins/actionlib_server.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ASIActionServer::ASIActionServer()
