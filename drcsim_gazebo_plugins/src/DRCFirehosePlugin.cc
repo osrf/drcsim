@@ -15,7 +15,7 @@
  *
 */
 
-#include "DRCFirehosePlugin.hh"
+#include "include/drcsim_gazebo_plugins/DRCFirehosePlugin.hh"
 #include "gazebo/physics/ScrewJoint.hh"
 
 namespace gazebo
