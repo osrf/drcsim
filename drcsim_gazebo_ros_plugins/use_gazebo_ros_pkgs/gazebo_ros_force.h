@@ -87,41 +87,41 @@ class GazeboRosForce : public ModelPlugin
 
   /// \brief call back when a Wrench message is published
   /// \param[in] _msg The Incoming ROS message representing the new force to exert.
-  private: void UpdateObjectForce(const geometry_msgs::Wrench::ConstPtr &_msg);
+  private: void UpdateObjectForce(const geometry_msgs::Wrench::ConstPtr& _msg);
 
   /// \brief The custom callback queue thread function.
   private: void QueueThread();
 
   /// \brief A pointer to the gazebo world.
-  private: physics::WorldPtr world;
+  private: physics::WorldPtr world_;
 
   /// \brief A pointer to the Link, where force is applied
-  private: physics::LinkPtr link;
+  private: physics::LinkPtr link_;
 
   /// \brief A pointer to the ROS node.  A node will be instantiated if it does not exist.
-  private: ros::NodeHandle* rosNode;
-  private: ros::Subscriber sub;
+  private: ros::NodeHandle* rosnode_;
+  private: ros::Subscriber sub_;
 
   /// \brief A mutex to lock access to fields that are used in ROS message callbacks
-  private: boost::mutex lock;
+  private: boost::mutex lock_;
 
   /// \brief ROS Wrench topic name inputs
-  private: std::string topicName;
+  private: std::string topic_name_;
   /// \brief The Link this plugin is attached to, and will exert forces on.
-  private: std::string linkName;
+  private: std::string link_name_;
 
   /// \brief for setting ROS name space
-  private: std::string robotNamespace;
+  private: std::string robot_namespace_;
 
   // Custom Callback Queue
-  private: ros::CallbackQueue queue;
+  private: ros::CallbackQueue queue_;
   /// \brief Thead object for the running callback Thread.
-  private: boost::thread callbackQueueThread;
+  private: boost::thread callback_queue_thread_;
   /// \brief Container for the wrench force that this plugin exerts on the body.
-  private: geometry_msgs::Wrench wrenchMsg;
+  private: geometry_msgs::Wrench wrench_msg_;
 
   // Pointer to the update event connection
-  private: event::ConnectionPtr updateConnection;
+  private: event::ConnectionPtr update_connection_;
 };
 /** \} */
 /// @}

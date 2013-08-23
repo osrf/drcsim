@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Open Source Robotics Foundation
+ * Copyright 2013 Open Source Robotics Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,6 +135,7 @@ void GazeboRosP3D::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   else
     this->update_rate_ = _sdf->GetElement("updateRate")->Get<double>();
 
+  // Make sure the ROS node for Gazebo has already been initialized
   if (!ros::isInitialized())
   {
     gzerr << "Not loading plugin since ROS hasn't been "

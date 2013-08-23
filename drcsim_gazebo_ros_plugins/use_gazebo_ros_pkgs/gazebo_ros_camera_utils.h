@@ -44,7 +44,7 @@
 #include <dynamic_reconfigure/server.h>
 #endif
 
-// gazebo stuff
+// Gazebo
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/TransportTypes.hh>
 #include <gazebo/msgs/MessageTypes.hh>
@@ -77,6 +77,8 @@ namespace gazebo
     public: void Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf,
                       const std::string &_camera_name_suffix,
                       double _hack_baseline);
+
+    public: event::ConnectionPtr OnLoad(const boost::function<void()>&);
 
     private: void Init();
 
@@ -162,8 +164,8 @@ namespace gazebo
     private: ros::Subscriber cameraUpdateRateSubscriber_;
 
 #ifdef DYNAMIC_RECONFIGURE
-    // Time last published, refrain from publish unless
-    //   new image has been rendered
+    // Time last published, refrain from publish unless new image has
+    // been rendered
     // Allow dynamic reconfiguration of camera params
     dynamic_reconfigure::Server<gazebo_plugins::GazeboRosCameraConfig>
       *dyn_srv_;
@@ -197,9 +199,10 @@ namespace gazebo
     private: sdf::ElementPtr sdf;
     private: void LoadThread();
     private: boost::thread deferred_load_thread_;
+    private: event::EventT<void()> load_event_;
 
     /// \brief True if camera util is initialized
-    private: bool initialized_;
+    protected: bool initialized_;
 
     friend class GazeboRosMultiCamera;
   };

@@ -15,13 +15,18 @@
  *
 */
 
+/*
+   Desc: GazeboRosGpuLaser plugin for simulating ray sensors in Gazebo
+   Author: Mihai Emanuel Dolha
+   Date: 29 March 2012
+ */
+
 #include <algorithm>
 #include <string>
 #include <assert.h>
 
 #include <sdf/sdf.hh>
 
-#include <gazebo/gazebo_config.h>
 #include <gazebo/physics/World.hh>
 #include <gazebo/physics/HingeJoint.hh>
 #include <gazebo/sensors/Sensor.hh>
@@ -66,7 +71,7 @@ void GazeboRosLaser::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   this->sdf = _sdf;
 
   this->parent_ray_sensor_ =
-    boost::shared_dynamic_cast<sensors::GpuRaySensor>(_parent);
+    boost::dynamic_pointer_cast<sensors::GpuRaySensor>(_parent);
 
   if (!this->parent_ray_sensor_)
     gzthrow("GazeboRosLaser controller requires a Ray Sensor as its parent");

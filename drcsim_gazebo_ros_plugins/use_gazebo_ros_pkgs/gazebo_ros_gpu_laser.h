@@ -36,7 +36,6 @@
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/plugins/GpuRayPlugin.hh>
 
-#include <gazebo/gazebo_config.h>
 #include <sdf/sdf.hh>
 
 #include "PubQueue.h"

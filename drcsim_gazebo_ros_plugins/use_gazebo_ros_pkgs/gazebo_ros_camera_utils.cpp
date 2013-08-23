@@ -59,9 +59,12 @@ GazeboRosCameraUtils::GazeboRosCameraUtils()
 void GazeboRosCameraUtils::configCallback(
   gazebo_plugins::GazeboRosCameraConfig &config, uint32_t level)
 {
-  ROS_INFO("Reconfigure request for the gazebo ros camera_: %s. New rate: %.2f",
-    this->camera_name_.c_str(), config.imager_rate);
-  this->parentSensor_->SetUpdateRate(config.imager_rate);
+  if (this->initialized_)
+  {
+    ROS_INFO("Reconfigure request for the gazebo ros camera_: %s. New rate: %.2f",
+             this->camera_name_.c_str(), config.imager_rate);
+    this->parentSensor_->SetUpdateRate(config.imager_rate);
+  }
 }
 #endif
 
@@ -236,6 +239,11 @@ void GazeboRosCameraUtils::Load(sensors::SensorPtr _parent,
   // ros callback queue for processing subscription
   this->deferred_load_thread_ = boost::thread(
     boost::bind(&GazeboRosCameraUtils::LoadThread, this));
+}
+
+event::ConnectionPtr GazeboRosCameraUtils::OnLoad(const boost::function<void()>& load_function)
+{
+  return load_event_.Connect(load_function);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -467,6 +475,7 @@ void GazeboRosCameraUtils::Init()
   this->callback_queue_thread_ = boost::thread(
     boost::bind(&GazeboRosCameraUtils::CameraQueueThread, this));
 
+  load_event_();
   this->initialized_ = true;
 }
 
@@ -516,6 +525,9 @@ void GazeboRosCameraUtils::PublishCameraInfo(common::Time &last_update_time)
 
 void GazeboRosCameraUtils::PublishCameraInfo()
 {
+  if (!this->initialized_ || this->height_ <=0 || this->width_ <=0)
+    return;
+
   if (this->camera_info_pub_.getNumSubscribers() > 0)
   {
     this->sensor_update_time_ = this->parentSensor_->GetLastUpdateTime();
