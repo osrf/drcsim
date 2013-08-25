@@ -3,7 +3,7 @@
   <name>multisense_sl_description</name>
   <version>2.8.0</version>
   <description>The Carnegie Robotics MultiSense-SL sensor head.</description>
-  <maintainer email="hsu@osrfoundation.org">John Hsu</author>
+  <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
   <author email="hsu@osrfoundation.org">Stephen Brawner, John Hsu</author>
   <license>Apache 2.0</license>
   <url type="website">http://gazebosim.org/wiki/DRC</url>

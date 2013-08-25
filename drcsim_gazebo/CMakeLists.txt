@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(irobot_hand_description)
 
-find_package(catkin REQUIRED COMPONENTS atlas_description atlas_gazebo_plugins atlas_msgs drcsim_gazebo_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description)
+find_package(catkin REQUIRED COMPONENTS atlas_description drcsim_gazebo_plugins atlas_msgs drcsim_gazebo_ros_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
 catkin_package(
-  CATKIN_DEPENDS atlas_description atlas_gazebo_plugins atlas_msgs drcsim_gazebo_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description
+  CATKIN_DEPENDS atlas_description drcsim_gazebo_plugins atlas_msgs drcsim_gazebo_ros_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description
 )
 
 install(DIRECTORY

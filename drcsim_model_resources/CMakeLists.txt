@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 enable_testing()
 
-project (drcsim)
-include(ExternalProject)
+project (drcsim_model_resources)
 
 set (DRC_SIM_MAJOR_VERSION 2)
 set (DRC_SIM_MINOR_VERSION 8)
@@ -110,15 +109,15 @@ endif ()
 #####################################
 # Configure the setup script
 
-configure_file(${CMAKE_SOURCE_DIR}/cmake/setup.sh.in
+configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
+install(FILES ${PROJECT_CURRENT_BINARY_DIR}/setup.sh DESTINATION
   ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 # Also install the setup.sh in an unversioned location
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
-configure_file(${CMAKE_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
+install(FILES ${PROJECT_CURRENT_BINARY_DIR}/setup.sh DESTINATION ${PROJECT_INSTALL_PREFIX}/share/drcsim/)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
+install(FILES ${PROJECT_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 #####################################
 set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 1)
@@ -127,15 +126,14 @@ set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
 set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
 set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
+add_subdirectory(media)
 add_subdirectory(gazebo_models)
-add_subdirectory(ros)
 add_subdirectory(worlds)
-add_subdirectory(vrc_arenas)
 
 ########### Add uninstall target ###############
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake"
+  "${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+  "${PROJECT_BINARY_DIR}/cmake/cmake_uninstall.cmake"
   IMMEDIATE @ONLY)
 add_custom_target(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake")
+  "${CMAKE_COMMAND}" -P "${PROJECT_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake")

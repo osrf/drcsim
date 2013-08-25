@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <package>
-  <name>atlas_descriptio</name>
+  <name>atlas_description</name>
+  <version>2.8.0</version>
   <description>This package contains Atlas robot description files</description>
-  <maintainer email="hsu@osrfoundation.org">John Hsu</author>
+  <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
   <author email="hsu@osrfoundation.org">John Hsu</author>
   <license>Apache 2.0</license>
   <url type="website">http://gazebosim.org/wiki/DRC</url>
-
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>multisense_sl_description</build_depend>
   <build_depend>sandia_hand_description</build_depend>
