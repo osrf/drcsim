@@ -15,7 +15,7 @@
  *
 */
 
-#include "gazebo_ros_imu.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_imu.h"
 
 namespace gazebo
 {

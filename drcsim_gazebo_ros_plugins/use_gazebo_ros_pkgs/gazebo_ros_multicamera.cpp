@@ -21,7 +21,7 @@
 #include <gazebo/sensors/MultiCameraSensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 
-#include "gazebo_ros_multicamera.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_multicamera.h"
 
 namespace gazebo
 {

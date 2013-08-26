@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <tf/tf.h>
 
-#include "gazebo_ros_joint_trajectory.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_joint_trajectory.h"
 
 namespace gazebo
 {

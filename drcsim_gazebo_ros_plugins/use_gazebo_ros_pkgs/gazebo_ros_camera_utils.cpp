@@ -38,7 +38,7 @@
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/rendering/Camera.hh>
 
-#include "gazebo_ros_camera_utils.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_camera_utils.h"
 
 namespace gazebo
 {

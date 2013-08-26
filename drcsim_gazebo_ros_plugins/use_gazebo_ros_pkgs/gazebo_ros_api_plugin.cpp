@@ -26,7 +26,7 @@
 
 #include <gazebo/common/Events.hh>
 
-#include "gazebo_ros_api_plugin.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_api_plugin.h"
 
 namespace gazebo
 {

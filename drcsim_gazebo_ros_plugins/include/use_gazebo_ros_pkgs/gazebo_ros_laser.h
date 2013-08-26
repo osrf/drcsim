@@ -37,7 +37,7 @@
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/plugins/RayPlugin.hh>
 
-#include "PubQueue.h"
+#include "use_gazebo_ros_pkgs/PubQueue.h"
 
 namespace gazebo
 {

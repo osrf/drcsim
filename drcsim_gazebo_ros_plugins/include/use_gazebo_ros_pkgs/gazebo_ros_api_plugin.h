@@ -104,7 +104,7 @@
 #include <gazebo/transport/Node.hh>
 // #include "msgs/MessageTypes.hh"  // implicitly included from CommonTypes.hh
 
-#include "PubQueue.h"
+#include "use_gazebo_ros_pkgs/PubQueue.h"
 
 namespace gazebo
 {

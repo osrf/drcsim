@@ -15,7 +15,7 @@
  *
 */
 
-#include "test_ros_plugin.hh"
+#include "drcsim_gazebo_ros_plugins/test_ros_plugin.hh"
 
 namespace gazebo
 {

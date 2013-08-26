@@ -20,7 +20,7 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/util/util.hh>
 #include <gazebo/physics/physics.hh>
-#include "VRCScoringPlugin.hh"
+#include "drcsim_gazebo_ros_plugins/VRCScoringPlugin.hh"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>

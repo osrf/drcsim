@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #include <gazebo/physics/CylinderShape.hh>
-#include "VRCPlugin.h"
+#include "drcsim_gazebo_ros_plugins/VRCPlugin.h"
 
 namespace gazebo
 {

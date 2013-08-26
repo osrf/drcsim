@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>atlas_utils</name>
+  <name>drcsim_gazebo</name>
   <version>2.8.0</version>
-  <description>The atlas_utils package</description>
+  <description>DRC simulator Gazebo simulation</description>
   <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
   <license>Apache 2.0</license>
   <url type="website">http://gazebosim.org/wiki/DRC</url>

@@ -20,7 +20,7 @@
 #include <sandia_hand_msgs/RawTactile.h>
 
 #include <gazebo/transport/Node.hh>
-#include "SandiaHandPlugin.h"
+#include "drcsim_gazebo_ros_plugins/SandiaHandPlugin.h"
 
 using std::string;
 

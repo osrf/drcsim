@@ -44,7 +44,7 @@
 #include <boost/thread/condition.hpp>
 
 // AtlasSimInterface: header
-#include "AtlasSimInterface.h"
+#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
@@ -61,7 +61,7 @@
 #include <gazebo/sensors/Sensor.hh>
 
 // publish separate /atlas/imu topic, to be deprecated
-#include "sensor_msgs/Imu.h"
+#include <sensor_msgs/Imu.h>
 // publish separate /atlas/force_torque_sensors topic, to be deprecated
 #include <atlas_msgs/ForceTorqueSensors.h>
 
@@ -85,7 +85,7 @@
 
 #include <atlas_msgs/Test.h>
 
-#include "PubQueue.h"
+#include "use_gazebo_ros_pkgs/PubQueue.h"
 
 namespace gazebo
 {

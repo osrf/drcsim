@@ -16,7 +16,7 @@
 */
 #include <gazebo/sensors/DepthCameraSensor.hh>
 #include <gazebo/sensors/CameraSensor.hh>
-#include "drcsim_gazebo_ros_plugins/MultiCameraPlugin.hh"
+#include "use_gazebo_ros_pkgs/MultiCameraPlugin.hh"
 
 using namespace gazebo;
 GZ_REGISTER_SENSOR_PLUGIN(MultiCameraPlugin)

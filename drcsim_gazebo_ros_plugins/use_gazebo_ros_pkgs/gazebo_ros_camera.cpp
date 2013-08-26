@@ -22,7 +22,7 @@
    Date: 24 Sept 2008
 */
 
-#include "gazebo_ros_camera.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_camera.h"
 
 #include <string>
 

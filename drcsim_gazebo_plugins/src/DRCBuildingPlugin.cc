@@ -15,7 +15,7 @@
  *
 */
 
-#include "include/drcsim_gazebo_plugins/DRCBuildingPlugin.hh"
+#include "drcsim_gazebo_plugins/DRCBuildingPlugin.hh"
 
 namespace gazebo
 {

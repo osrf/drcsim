@@ -31,7 +31,7 @@
 
 #include <atlas_msgs/VRCScore.h>
 
-#include "PubQueue.h"
+#include "use_gazebo_ros_pkgs/PubQueue.h"
 
 namespace gazebo
 {

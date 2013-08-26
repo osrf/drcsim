@@ -21,7 +21,8 @@
 #include <gazebo/physics/CylinderShape.hh>
 #include <gazebo/physics/SphereShape.hh>
 #include <gazebo/transport/transport.hh>
-#include "include/drcsim_gazebo_plugins/DRCVehiclePlugin.hh"
+
+#include "drcsim_gazebo_plugins/DRCVehiclePlugin.hh"
 
 namespace gazebo
 {

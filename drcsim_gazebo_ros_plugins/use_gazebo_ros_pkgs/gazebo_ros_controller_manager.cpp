@@ -42,7 +42,7 @@
 
 #include <angles/angles.h>
 
-#include "gazebo_ros_controller_manager.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_controller_manager.h"
 
 namespace gazebo
 {

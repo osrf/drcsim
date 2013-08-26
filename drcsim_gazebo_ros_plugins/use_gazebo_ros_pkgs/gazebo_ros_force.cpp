@@ -31,7 +31,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "gazebo_ros_force.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_force.h"
 
 namespace gazebo
 {

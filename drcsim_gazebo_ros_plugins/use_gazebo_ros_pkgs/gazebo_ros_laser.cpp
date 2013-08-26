@@ -27,9 +27,9 @@
 #include <gazebo/sensors/RaySensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 
-#include "tf/tf.h"
+#include <tf/tf.h>
 
-#include "gazebo_ros_laser.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_laser.h"
 
 namespace gazebo
 {

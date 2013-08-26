@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(irobot_hand_description)
+project(drcsim_gazebo)
 
 find_package(catkin REQUIRED COMPONENTS atlas_description drcsim_gazebo_plugins atlas_msgs drcsim_gazebo_ros_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description)
 

@@ -19,7 +19,7 @@
 #include <tf/tf.h>
 #include <stdlib.h>
 
-#include "gazebo_ros_p3d.h"
+#include "use_gazebo_ros_pkgs/gazebo_ros_p3d.h"
 
 namespace gazebo
 {

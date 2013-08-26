@@ -28,11 +28,11 @@
 #include <sensor_msgs/Imu.h>
 #include <std_srvs/Empty.h>
 
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/transport.hh"
-#include "gazebo/common/common.hh"
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <gazebo/common/common.hh>
 
-#include "PubQueue.h"
+#include "use_gazebo_ros_pkgs/PubQueue.h"
 
 namespace gazebo
 {

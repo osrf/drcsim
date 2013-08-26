@@ -25,7 +25,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int8.h>
 
-#include "DRCVehiclePlugin.hh"
+#include <drcsim_gazebo_plugins/DRCVehiclePlugin.hh>
 
 namespace gazebo
 {

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_plugins)
 
-# catkin_package()
+catkin_package()
 # find_package(catkin) # REQUIRED COMPONENTS nothing)
 
 # Depend on system install of Gazebo and Boost
@@ -20,6 +20,7 @@ endforeach ()
 
 include_directories(
   ${GAZEBO_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/include  #hm, is this ok?
 )
 
 set (plugins_sources
@@ -48,6 +49,6 @@ install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAt
          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
          RENAME libAtlasSimInterface.so)
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
