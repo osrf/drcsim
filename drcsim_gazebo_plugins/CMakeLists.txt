@@ -41,14 +41,6 @@ endforeach (src ${plugins_sources})
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+  #DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
 )
-
-# install AtlasSimInterface Binary
-install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-         RENAME libAtlasSimInterface.so)
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})

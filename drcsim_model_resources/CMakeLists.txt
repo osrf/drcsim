@@ -127,6 +127,38 @@ set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
 set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
 set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
+#message(status "------------------\n\n\n\n  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL} && cp ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL} ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so \n\n\n----------------------\n")
+
+# install AtlasSimInterface Binary library
+add_custom_command(
+  OUTPUT ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so
+  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL} && cp ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL} ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so
+)
+add_custom_target(AtlasSimInterface_lib DEPENDS ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so)
+
+# install AtlasSimInterface includes
+add_custom_command(
+  OUTPUT ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/include && cp -r ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+)
+add_custom_target(AtlasSimInterface_include DEPENDS ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+
+# install AtlasSimInterfac doc 
+add_custom_command(
+  OUTPUT ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/share && cp -r ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+)
+add_custom_target(AtlasSimInterface_doc DEPENDS ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+
+# install AtlasSimInterface Binary
+# install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
+#          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+#          RENAME libAtlasSimInterface.so)
+# install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include
+#          DESTINATION ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+# install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
+#          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+
 add_subdirectory(media)
 add_subdirectory(gazebo_models)
 add_subdirectory(worlds)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 
-find_package(catkin REQUIRED COMPONENTS drcsim_gazebo_plugins) # gazebo_plugins)
+find_package(catkin REQUIRED COMPONENTS drcsim_model_resources osrf_msgs sandia_hand_msgs drcsim_gazebo_plugins) # gazebo_plugins)
 # find_package(Boost REQUIRED COMPONENTS system)
 # catkin_python_setup()
 # add_message_files(
@@ -34,6 +34,8 @@ catkin_package(
 #  CATKIN_DEPENDS drcsim_gazebo_plugins # gazebo_plugins
 #  DEPENDS system_lib
 )
+
+message(status "\n\n\n${catkin_INCLUDE_DIRS}\n\n")
 
 find_package(gazebo REQUIRED)
 # \todo: special hack to make gazebo flags behave.  can we remove these?
@@ -91,9 +93,9 @@ set_target_properties(ContactModelPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}"
 target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
-set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(AtlasPlugin ${catkin_LIBRARIES})
+set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "${ld_flags} -L${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_1.1.1")
+set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags} -I${CMAKE_INSTALL_PREFIX}/include")
+target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasPlugin atlas_msgs_gencpp)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
@@ -208,7 +210,6 @@ add_library(gazebo_ros_api_plugin use_gazebo_ros_pkgs/gazebo_ros_api_plugin.cpp)
 set_target_properties(gazebo_ros_api_plugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_api_plugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(gazebo_ros_controller_manager ${gazebo_LIBRARIES})
-
 
 
 #############
