@@ -1,12 +1,10 @@
 set (worlds
-     drc_sim_v0.world
      atlas.world
      atlas_cpu_lidar.world
      atlas_sandia_hands.world
      atlas_sandia_hands_stumps.world
      atlas_irobot_hands.world
      atlas_drc_vehicle_fire_hose.world
-     atlas_AtlasSimInterface.world
      drc_vehicle.world
      atlas_golf_cart_fire_hose.world
      golf_cart.world
