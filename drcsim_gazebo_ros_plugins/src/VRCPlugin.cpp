@@ -19,6 +19,7 @@
 #include <string>
 #include <stdlib.h>
 
+#include <gazebo/transport/transport.hh>
 #include <gazebo/physics/CylinderShape.hh>
 #include "drcsim_gazebo_ros_plugins/VRCPlugin.h"
 
@@ -984,6 +985,36 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+physics::ModelPtr VRCPlugin::Robot::SpawnModel(std::string _robotStr,
+  std::string _modelName, math::Pose _spawnPose, physics::WorldPtr _world)
+{
+  physics::ModelPtr model;
+
+  if (!transport::init())
+    return model;
+
+  transport::run();
+
+  transport::NodePtr node(new transport::Node());
+  node->Init(_world->GetName());
+
+  std::cout << "Spawning " << _modelName << " into "
+            << node->GetTopicNamespace()  << " world.\n";
+
+  transport::PublisherPtr pub = node->Advertise<msgs::Factory>("~/factory");
+  pub->WaitForConnection();
+
+  msgs::Factory msg;
+  msg.set_sdf(_robotStr);
+  msgs::Set(msg.mutable_pose(), _spawnPose);
+  pub->Publish(msg, true);
+
+  transport::fini();
+
+  return _world->GetModel(_modelName);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   this->isInitialized = false;
@@ -993,40 +1024,72 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->startupBDIStand = false;
   this->startupMode = "bdi_stand";
 
+  math::Pose spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
+  std::string modelName = "atlas";
+  std::string pinLinkName = "utorso";
+  std::string robotDescriptionName = "robot_description";
+
   // load parameters
-  if (_sdf->HasElement("atlas") &&
-      _sdf->GetElement("atlas")->HasElement("model_name"))
+  if (_sdf->HasElement("atlas"))
   {
-    this->model = _world->GetModel(_sdf->GetElement("atlas")
-                        ->Get<std::string>("model_name"));
+    sdf::ElementPtr atlasSDF = _sdf->GetElement("atlas");
+    if (atlasSDF->HasElement("model_name"))
+      modelName = atlasSDF->Get<std::string>("model_name");
+    else
+      ROS_INFO("Can't find <atlas><model_name> blocks. defaults to [atlas].");
+
+    if (atlasSDF->HasElement("pin_link"))
+      pinLinkName = atlasSDF->Get<std::string>("pin_link");
+    else
+      ROS_INFO("Can't find <atlas><pin_link> blocks, defaults to [utorso].");
+
+    if (atlasSDF->HasElement("robot_description"))
+      robotDescriptionName = atlasSDF->Get<std::string>("robot_description");
+    else
+      ROS_INFO("Can't find <atlas><robot_description> blocks, "
+               "defaults to [robot_description].");
+
+    if (atlasSDF->HasElement("pose"))
+      spawnPose = atlasSDF->Get<math::Pose>("pose");
+    else
+      ROS_INFO("Can't find <atlas><pose> blocks, defaults to zero transform.");
   }
   else
-  {
-    ROS_INFO("Can't find <atlas><model_name> blocks. using default.");
-    this->model = _world->GetModel("atlas");
-  }
+    ROS_INFO("Can't find <atlas> blocks. using default: "
+             "looking for model name [atlas], param [robot_description]"
+             "link [utorso], pose [0, 0, 0, 0, 0, 0]");
+
+  this->model = _world->GetModel(modelName);
 
   if (!this->model)
   {
-    ROS_INFO("atlas model not found.");
-    return;
+    ROS_INFO("atlas model not found, try spawning from [%s].",
+      robotDescriptionName.c_str());
+
+    // try spawn model from "robot_description" on ros parameter server
+    {
+      ros::NodeHandle rh("");
+      std::string robotStr;
+      if (rh.getParam(robotDescriptionName, robotStr))
+      {
+        this->model = this->SpawnModel(robotStr, modelName, spawnPose, _world);
+      }
+    }
+
+    // check spawned model
+    if (!this->model)
+    {
+      ROS_ERROR("failed to spawn model from rosparam: [%s].",
+        robotDescriptionName.c_str());
+      return;
+    }
   }
 
-  if (_sdf->HasElement("atlas") &&
-      _sdf->GetElement("atlas")->HasElement("pin_link"))
-  {
-    this->pinLink = this->model->GetLink(_sdf->GetElement("atlas")
-                        ->Get<std::string>("pin_link"));
-  }
-  else
-  {
-    ROS_INFO("Can't find <atlas><pin_link> blocks, using default.");
-    this->pinLink = this->model->GetLink("utorso");
-  }
+  this->pinLink = this->model->GetLink(pinLinkName);
 
   if (!this->pinLink)
   {
-    ROS_ERROR("atlas robot pin link not found.");
+    ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
     return;
   }
 

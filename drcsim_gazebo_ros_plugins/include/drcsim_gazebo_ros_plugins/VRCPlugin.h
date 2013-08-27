@@ -200,6 +200,15 @@ namespace gazebo
       /// \param[in] _sdf Pointer to sdf element.
       private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
+      /// \brief Spawns a gazebo robot model from string.
+      /// \param[in] _robotStr string containing model sdf or urdf.
+      /// \param[in] _modelName name of newly spawned model in gazebo.
+      /// \param[in] _spawnPose spawn location of model in world frame.
+      /// \return pointer to the newly spawned model.
+      private: physics::ModelPtr SpawnModel(std::string _robotStr,
+        std::string _modelName, math::Pose _spawnPose,
+        physics::WorldPtr _world);
+
       private: physics::ModelPtr model;
       private: physics::LinkPtr pinLink;
       private: physics::JointPtr pinJoint;
