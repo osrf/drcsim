@@ -12,7 +12,7 @@ catkin_package(
 )
 
 install(DIRECTORY
-  launch config test
+  launch config test raw
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
