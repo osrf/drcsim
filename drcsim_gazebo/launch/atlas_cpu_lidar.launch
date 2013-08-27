@@ -6,7 +6,7 @@
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
 
   <!-- start gazebo with the Atlas -->
-  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
+  <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>
@@ -20,5 +20,5 @@
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find atlas_cpu_lidar)/atlas_cpu_lidar.urdf"/>
   
-  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas_bringup.launch"/>
 </launch>

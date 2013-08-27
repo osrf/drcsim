@@ -49,7 +49,7 @@ endif()
 # Install test files because we'll run tests from the install tree.  We could
 # get away with running most of the test from the source tree, but it's clearer
 # and safer to run them from the install tree.  Plus we get to use things like
-# $(find atlas_utils) in rostest files.
+# $(find drcsim_gazebo) in rostest files.
 set(files
   ${rostests}
   atlas_rosapi.yaml

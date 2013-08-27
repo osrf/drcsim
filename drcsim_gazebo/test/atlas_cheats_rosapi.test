@@ -1,9 +1,9 @@
 <launch>
   <env name="VRC_CHEATS_ENABLED" value="1"/>
-  <include file="$(find atlas_utils)/launch/atlas.launch">
+  <include file="$(find drcsim_gazebo)/launch/atlas.launch">
     <arg name="gzname" value="gzserver"/>
   </include>
-  <test pkg="atlas_utils" type="ros_api_checker" test-name="atlas_cheats_rosapi" 
-        args="$(find atlas_utils)/test/atlas_rosapi.yaml $(find atlas_utils)/test/multisense_sl_rosapi.yaml $(find atlas_utils)/test/atlas_cheats_rosapi.yaml"
+  <test pkg="drcsim_gazebo" type="ros_api_checker" test-name="atlas_cheats_rosapi" 
+        args="$(find drcsim_gazebo)/test/atlas_rosapi.yaml $(find drcsim_gazebo)/test/multisense_sl_rosapi.yaml $(find drcsim_gazebo)/test/atlas_cheats_rosapi.yaml"
         time-limit="360.0"/>
 </launch>

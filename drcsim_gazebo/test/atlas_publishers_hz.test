@@ -1,6 +1,6 @@
 <launch>
   <!-- Bring up gazebo without the GUI -->
-  <include file="$(find atlas_utils)/launch/atlas.launch">
+  <include file="$(find drcsim_gazebo)/launch/atlas.launch">
     <arg name="gzname" value="gzserver"/>
   </include>
 

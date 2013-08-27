@@ -17,7 +17,7 @@
 #
 # this programs takes BDI's cfg file, and generates an URDF */
 
-PKG = 'atlas_utils'
+PKG = 'drcsim_gazebo'
 NAME = 'performance_test1'
 
 import math

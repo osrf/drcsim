@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import roslib; roslib.load_manifest('atlas_utils')
+import roslib; roslib.load_manifest('drcsim_gazebo')
 from keyboard_teleop import AtlasTeleop
 
 from atlas_msgs.msg import WalkDemoAction, \

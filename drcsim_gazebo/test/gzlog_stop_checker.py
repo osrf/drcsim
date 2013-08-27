@@ -147,4 +147,4 @@ class TestStopLog(unittest.TestCase):
          
 if __name__ == '__main__':
     rospy.init_node('gzstop_checker_node', anonymous=True)
-    rostest.run('atlas_utils', 'gzlog', TestStopLog)
+    rostest.run('drcsim_gazebo', 'gzlog', TestStopLog)

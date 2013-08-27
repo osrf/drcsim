@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('atlas_utils')
+import roslib; roslib.load_manifest('drcsim_gazebo')
 import rospy, math
 
 from std_msgs.msg import String

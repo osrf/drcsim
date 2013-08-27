@@ -2,7 +2,7 @@
 #
 # convert sensor_msgs/Joy messages to osrf_msgs/JointCommands messages
 
-import roslib; roslib.load_manifest('atlas_utils')
+import roslib; roslib.load_manifest('drcsim_gazebo')
 import rospy
 import sys
 import math

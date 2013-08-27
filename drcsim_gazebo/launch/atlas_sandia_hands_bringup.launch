@@ -25,5 +25,5 @@
     <param name="approximate_sync" type="bool" value="false"/>
   </node>
 
-  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas_bringup.launch"/>
 </launch>

@@ -13,4 +13,4 @@ class ScoringTester(unittest.TestCase):
 
 if __name__ == '__main__':
     rospy.init_node('scoring_checker', anonymous=True)
-    rostest.run('atlas_utils', 'scoring_check', ScoringTester, sys.argv)
+    rostest.run('drcsim_gazebo', 'scoring_check', ScoringTester, sys.argv)

@@ -18,7 +18,7 @@
 # 
 
 
-import roslib; roslib.load_manifest('atlas_utils')
+import roslib; roslib.load_manifest('drcsim_gazebo')
 import rospy
 
 import pygame

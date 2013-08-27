@@ -1,10 +1,10 @@
 <launch>
    <!-- Record the controller_statistics, for later analysis -->
-   <node pkg="atlas_utils" type="run_gzstats.sh" name="$(anon gzstats)"/>
-   <node pkg="atlas_utils" type="run_rosbag.sh" name="$(anon rosbag)"/>
+   <node pkg="drcsim_gazebo" type="run_gzstats.sh" name="$(anon gzstats)"/>
+   <node pkg="drcsim_gazebo" type="run_rosbag.sh" name="$(anon rosbag)"/>
 
    <!-- Logging all related ROS toppics -->
-   <include file="$(find atlas_utils)/test/ros_subscribers.launch"/>  
+   <include file="$(find drcsim_gazebo)/test/ros_subscribers.launch"/>  
    <!-- Include movie file -->
-   <node pkg="atlas_utils" type="run_recordmydesktop.sh" name="$(anon recordmydesktop)"/>
+   <node pkg="drcsim_gazebo" type="run_recordmydesktop.sh" name="$(anon recordmydesktop)"/>
 </launch>

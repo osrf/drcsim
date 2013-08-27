@@ -12,68 +12,88 @@ catkin_package(
 )
 
 install(DIRECTORY
-  launch config test raw
+  launch config raw
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-# install below for gazebo to find this model through GAZEBO_MODEL_PATH.
+# install test files separately since it contains some executable scripts
 install(FILES
-  # model.config
-  # dummy.urdf
-  # test/CheckDisplayCapabilities.cmake
-  # test/vrc_task_2_dynamic_walking.test
-  # test/atlas_cheats_rosapi.yaml
-  # test/vrc_task_2_gzlog_stop.test
-  # test/performance_test1.test
-  # test/vrc_task_1_rosapi.test
-  # test/atlas_drc_vehicle_fire_hose_rosapi.test
-  # test/atlas_sandia_hands_rosapi.test
-  # test/vrc_task_1_dynamic_walking.test
-  # test/pub_atlas_command.launch
-  # test/multisense_sl_rosapi.yaml
-  # test/CMakeLists.txt
-  # test/drc_vehicle_cheats_rosapi.yaml
-  # test/atlas_arenas_start_testing.launch
-  # test/multicamera_subscriber
-  # test/vrc_task_2_scoring.test
-  # test/vrc_rosapi.yaml
-  # test/atlas_arenas_logging.launch
-  # test/atlas_rosapi.yaml
-  # test/atlas_cheats_rosapi.test
-  # test/vrc_task_2_tricking_scoring.test
-  # test/perf_test_local.launch
-  # test/vrc_task_1_gzlog_stop_longrun_zlib.test
-  # test/vrc_task_3_rosapi.test
-  # test/vrc_task_1_gzlog_stop_longrun.test
-  # test/vrc_task_3_dynamic_walking.test
-  # test/atlas_golf_cart_fire_hose_rosapi.test
-  # test/atlas_sandia_hands_cheats_rosapi.test
-  # test/vrc_task_1_start_standup.test
-  # test/vrc_task_1_scoring.test
-  # test/vrc_task_3_cheats_rosapi.test
-  # test/vrc_task_1_gzlog_stop.test
-  # test/multicamera_connection.test
-  # test/atlas_rosapi.test
-  # test/atlas_sandia_hands_publishers_hz.test
-  # test/sandia_hands_rosapi.yaml
-  # test/vrc_task_1_cheats_rosapi.test
-  # test/vrc_task_3_start_standup.test
-  # test/atlas_sandia_hands_publishers_hz_gpu.test
-  # test/vrc_task_2_rosapi.test
-  # test/vrc_task_1_zlib_compression.launch
-  # test/vrc_task_2_start_standup.test
-  # test/atlas_publishers_hz.test
-  # test/atlas_publishers_hz_gpu.test
-  # test/golf_cart_cheats_rosapi.yaml
-  # test/vrc_task_2_cheats_rosapi.test
-  # test/vrc_task_1_commander.launch
-  # test/ros_subscribers.launch
-  # test/vrc_task_3_gzlog_stop.test
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  test/CheckDisplayCapabilities.cmake
+  test/vrc_task_2_dynamic_walking.test
+  test/atlas_cheats_rosapi.yaml
+  test/vrc_task_2_gzlog_stop.test
+  test/performance_test1.test
+  test/vrc_task_1_rosapi.test
+  test/atlas_drc_vehicle_fire_hose_rosapi.test
+  test/atlas_sandia_hands_rosapi.test
+  test/vrc_task_1_dynamic_walking.test
+  test/pub_atlas_command.launch
+  test/multisense_sl_rosapi.yaml
+  test/CMakeLists.txt
+  test/drc_vehicle_cheats_rosapi.yaml
+  test/atlas_arenas_start_testing.launch
+  test/multicamera_subscriber
+  test/vrc_task_2_scoring.test
+  test/vrc_rosapi.yaml
+  test/atlas_arenas_logging.launch
+  test/atlas_rosapi.yaml
+  test/atlas_cheats_rosapi.test
+  test/vrc_task_2_tricking_scoring.test
+  test/perf_test_local.launch
+  test/vrc_task_1_gzlog_stop_longrun_zlib.test
+  test/vrc_task_3_rosapi.test
+  test/vrc_task_1_gzlog_stop_longrun.test
+  test/vrc_task_3_dynamic_walking.test
+  test/atlas_golf_cart_fire_hose_rosapi.test
+  test/atlas_sandia_hands_cheats_rosapi.test
+  test/vrc_task_1_start_standup.test
+  test/vrc_task_1_scoring.test
+  test/vrc_task_3_cheats_rosapi.test
+  test/vrc_task_1_gzlog_stop.test
+  test/multicamera_connection.test
+  test/atlas_rosapi.test
+  test/atlas_sandia_hands_publishers_hz.test
+  test/sandia_hands_rosapi.yaml
+  test/vrc_task_1_cheats_rosapi.test
+  test/vrc_task_3_start_standup.test
+  test/atlas_sandia_hands_publishers_hz_gpu.test
+  test/vrc_task_2_rosapi.test
+  test/vrc_task_1_zlib_compression.launch
+  test/vrc_task_2_start_standup.test
+  test/atlas_publishers_hz.test
+  test/atlas_publishers_hz_gpu.test
+  test/golf_cart_cheats_rosapi.yaml
+  test/vrc_task_2_cheats_rosapi.test
+  test/vrc_task_1_commander.launch
+  test/ros_subscribers.launch
+  test/vrc_task_3_gzlog_stop.test
+  test/perf_test.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
+)
+
+# install scripts and test executable scripts
+install(PROGRAMS
+  test/gl-test.py
+  test/gzlog_stop_checker.py
+  test/meanvar.py
+  test/run_pub_atlas_command.sh
+  test/run_gzstats.sh
+  test/run_rosbag.sh
+  test/run_recordmydesktop.sh
+  test/parse_logs.sh
+  test/vrc_task_2_scoring_test
+  test/vrc_task_2_tricking_scoring_test
+  test/vrc_walking_test
+  test/vrc_task_1_scoring_test
+  test/ros_api_checker
+  test/scoring_checker
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  # or do we install these in test directory?
+  # DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
 )
 
 install(PROGRAMS
-scripts/orientation_checker.py
+  scripts/orientation_checker.py
   scripts/test.py
   scripts/keyboard_teleop.py
   scripts/run_gzserver_gdb
@@ -96,25 +116,7 @@ scripts/orientation_checker.py
   scripts/5steps.py
   scripts/run_gzserver_memcheck
   scripts/check_inertia_symmetry.bash
-  # test/gl-test.py
-  # test/gzlog_stop_checker.py
-  # test/meanvar.py
-  # test/run_pub_atlas_command.sh
-  # test/run_gzstats.sh
-  # test/run_rosbag.sh
-  # test/run_recordmydesktop.sh
-  # test/parse_logs.sh
-  # test/vrc_task_2_scoring_test
-  # test/vrc_task_2_tricking_scoring_test
-  # test/vrc_walking_test
-  # test/vrc_task_1_scoring_test
-  # test/perf_test.launch
-  # test/ros_api_checker
-  # test/scoring_checker
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
-
 
 # disabled build of bdiparser for now, pending updated version of urdfdom library?
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

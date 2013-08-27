@@ -1,4 +1,4 @@
-add_subdirectory(atlas_utils)
+add_subdirectory(drcsim_gazebo)
 add_subdirectory(atlas_description)
 add_subdirectory(irobot_hand_description)
 add_subdirectory(multisense_sl_description)

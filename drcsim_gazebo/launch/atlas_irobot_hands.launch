@@ -4,7 +4,7 @@
   <arg name="gzworld" default="atlas_irobot_hands.world"/>
 
   <!-- start gazebo with the Atlas -->
-  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
+  <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="$(arg gzworld)"/>
     <arg name="extra_gazebo_args" value="-q"/>
@@ -13,5 +13,5 @@
   <!-- Robot Description -->
   <param name="robot_description" textfile="$(find atlas_irobot_hands)/atlas_irobot_hands.urdf"/>
 
-  <include file="$(find atlas_utils)/launch/atlas_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas_bringup.launch"/>
 </launch>

@@ -3,7 +3,7 @@
   <include file="$(find vrc_finals)/launch/vrc_final_task7.launch">
     <arg name="gzname" value="gzserver"/>
   </include>
-  <test pkg="atlas_utils" type="vrc_task_2_scoring_test" 
+  <test pkg="drcsim_gazebo" type="vrc_task_2_scoring_test" 
         test-name="vrc_final_task7_scoring" 
         time-limit="360.0">
     <param name="logdir" value="/tmp/vrc_final_task7" />

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import roslib
-roslib.load_manifest('atlas_utils')
+roslib.load_manifest('drcsim_gazebo')
 import sys
 import rospy
 import unittest
@@ -53,4 +53,4 @@ if __name__ == '__main__':
         time.sleep(1.0)
     
     time.sleep(10.0)
-    rostest.run('atlas_utils','orientation_checker', OrientationChecker, sys.argv)
+    rostest.run('drcsim_gazebo','orientation_checker', OrientationChecker, sys.argv)

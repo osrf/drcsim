@@ -3,7 +3,7 @@
   <arg name="gzname" default="gazebo"/>
 
   <!-- start gazebo with the Atlas -->
-  <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
+  <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
   </include>
 
@@ -11,7 +11,7 @@
   <include file="$(find pr2_controller_manager)/controller_manager.launch" />
 
   <!-- set joint positions to 0
-  <node pkg="atlas_utils" type="reset_pose.py" name="reset_pose" />
+  <node pkg="drcsim_gazebo" type="reset_pose.py" name="reset_pose" />
   -->
 
   <!-- Fake Calibration -->
@@ -24,7 +24,7 @@
   </node>
 
   <!-- Position Controllers -->
-  <rosparam file="$(find atlas_utils)/config/position_controllers.yaml" command="load" />
+  <rosparam file="$(find drcsim_gazebo)/config/position_controllers.yaml" command="load" />
 
   <!-- finger controllers omitted
   <rosparam file="$(find sandia_hand_left)/ros/position_controllers.yaml" command="load" />

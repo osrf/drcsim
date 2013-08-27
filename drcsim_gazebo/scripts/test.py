@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Do not use, testing only
-import roslib; roslib.load_manifest('atlas_utils')
+import roslib; roslib.load_manifest('drcsim_gazebo')
 import rospy, math
 
 from atlas_msgs.msg import Test

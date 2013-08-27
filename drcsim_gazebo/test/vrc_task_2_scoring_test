@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 import roslib
-roslib.load_manifest('atlas_utils')
+roslib.load_manifest('drcsim_gazebo')
 import unittest
 import rostest
 import sys
@@ -238,5 +238,5 @@ if __name__ == '__main__':
     time.sleep(5.0)
     print('OK, starting test.')
 
-    rostest.run('atlas_utils', 'vrc_task_2_scoring_test', Tester, sys.argv)
+    rostest.run('drcsim_gazebo', 'vrc_task_2_scoring_test', Tester, sys.argv)
 

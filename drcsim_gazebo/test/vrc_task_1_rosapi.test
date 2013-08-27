@@ -1,8 +1,8 @@
 <launch>
-  <include file="$(find atlas_utils)/launch/vrc_task_1.launch">
+  <include file="$(find drcsim_gazebo)/launch/vrc_task_1.launch">
     <arg name="gzname" value="gzserver"/>
   </include>
-  <test pkg="atlas_utils" type="ros_api_checker" test-name="vrc_task_1_rosapi" 
-        args="$(find atlas_utils)/test/atlas_rosapi.yaml $(find atlas_utils)/test/sandia_hands_rosapi.yaml $(find atlas_utils)/test/multisense_sl_rosapi.yaml $(find atlas_utils)/test/vrc_rosapi.yaml"
+  <test pkg="drcsim_gazebo" type="ros_api_checker" test-name="vrc_task_1_rosapi" 
+        args="$(find drcsim_gazebo)/test/atlas_rosapi.yaml $(find drcsim_gazebo)/test/sandia_hands_rosapi.yaml $(find drcsim_gazebo)/test/multisense_sl_rosapi.yaml $(find drcsim_gazebo)/test/vrc_rosapi.yaml"
         time-limit="360.0"/>
 </launch>

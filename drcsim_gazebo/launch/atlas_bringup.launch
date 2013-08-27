@@ -27,7 +27,7 @@
   </node>
 
   <!-- Arms -->
-  <rosparam command="load" file="$(find atlas_utils)/config/whole_body_trajectory_controller.yaml" />
+  <rosparam command="load" file="$(find drcsim_gazebo)/config/whole_body_trajectory_controller.yaml" />
 
   <!-- Controllers that come up started
   <node name="atlas_controller_spawner"

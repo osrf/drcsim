@@ -561,7 +561,7 @@ int main(int argc, char** argv)
 #if USE_ROS
       // install the urdf in my own package at the right place
       // for the robot/*.xacro
-      std::string package_name("atlas_utils");
+      std::string package_name("drcsim_gazebo");
       std::string package_path = ros::package::getPath(package_name);
 #else
       std::string package_path(".");
