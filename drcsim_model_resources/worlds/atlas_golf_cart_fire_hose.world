@@ -38,10 +38,6 @@
       <uri>model://standpipe</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
-    <include>
-      <uri>model://atlas</uri>
-      <pose>-2 1.0 0.93 0 0 0</pose>
-    </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>

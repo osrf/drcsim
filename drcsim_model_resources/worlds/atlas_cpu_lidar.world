@@ -27,9 +27,6 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
-    <include>
-      <uri>model://atlas_cpu_lidar</uri>
-    </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>

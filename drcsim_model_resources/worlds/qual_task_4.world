@@ -77,10 +77,6 @@
       <uri>model://gate</uri>
       <pose>1.75 1.25 3.4 0 0 1.57078</pose>
     </include>
-    <include>
-      <uri>model://atlas_sandia_hands</uri>
-      <pose>-1.7 -0.5 1.0 0 0 0</pose>
-    </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>

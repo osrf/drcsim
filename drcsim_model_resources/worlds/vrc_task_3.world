@@ -120,10 +120,6 @@
       <uri>model://vrc_valve</uri>
       <pose>-3.0 -3.414 1.2 -1.5707 0 0</pose>
     </include>
-    <include>
-      <uri>model://atlas_sandia_hands</uri>
-      <pose>-7 -15 1.0 0 0 0</pose>
-    </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>

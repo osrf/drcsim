@@ -570,10 +570,6 @@
     </include>
 -->
 
-    <include>
-      <uri>model://atlas_sandia_hands_stumps</uri>
-      <pose>-3 -38 1.1 0 0 0</pose>
-    </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>
