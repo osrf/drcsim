@@ -87,9 +87,8 @@ install(PROGRAMS
   test/vrc_task_1_scoring_test
   test/ros_api_checker
   test/scoring_checker
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  # or do we install these in test directory?
-  # DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
+  # DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
 )
 
 install(PROGRAMS
@@ -116,6 +115,9 @@ install(PROGRAMS
   scripts/5steps.py
   scripts/run_gzserver_memcheck
   scripts/check_inertia_symmetry.bash
+  scripts/spawn_model
+  # DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
 )
 
 # disabled build of bdiparser for now, pending updated version of urdfdom library?
