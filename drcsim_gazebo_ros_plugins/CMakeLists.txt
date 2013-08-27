@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 
-find_package(catkin REQUIRED COMPONENTS drcsim_model_resources osrf_msgs sandia_hand_msgs drcsim_gazebo_plugins) # gazebo_plugins)
+find_package(catkin REQUIRED COMPONENTS actionlib drcsim_model_resources osrf_msgs sandia_hand_msgs drcsim_gazebo_plugins) # gazebo_plugins)
 # find_package(Boost REQUIRED COMPONENTS system)
 # catkin_python_setup()
 # add_message_files(
@@ -96,7 +96,7 @@ add_library(AtlasPlugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "${ld_flags} -L${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_1.1.1")
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags} -I${CMAKE_INSTALL_PREFIX}/include")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
-add_dependencies(AtlasPlugin atlas_msgs_gencpp)
+add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
 set_target_properties(VRCScoringPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
@@ -111,14 +111,19 @@ target_link_libraries(test_ros_plugin ${catkin_LIBRARIES})
 
 ### executables, utilities for debugging atlas simulation, should not depend on gazebo
 add_executable(pub_joint_trajectory_test src/pub_joint_trajectory_test.cpp)
-target_link_libraries(pub_joint_trajectory_test ${catkin_LIBRARIES})
+set_target_properties(pub_joint_trajectory_test PROPERTIES LINK_FLAGS "${ld_flags}")
+set_target_properties(pub_joint_trajectory_test PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(pub_joint_trajectory_test ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
 add_executable(pub_joint_states src/pub_joint_states.cpp)
 target_link_libraries(pub_joint_states ${catkin_LIBRARIES})
 add_dependencies(pub_joint_states atlas_msgs_gencpp)
 
 add_executable(pub_joint_commands src/pub_joint_commands.cpp)
-target_link_libraries(pub_joint_commands ${catkin_LIBRARIES})
+set_target_properties(pub_joint_commands PROPERTIES LINK_FLAGS "${ld_flags}")
+set_target_properties(pub_joint_commands PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(pub_joint_commands ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(pub_joint_commands osrf_msgs_gencpp)
 
 add_executable(pub_atlas_state src/pub_atlas_state.cpp)
 target_link_libraries(pub_atlas_state ${catkin_LIBRARIES})
@@ -133,7 +138,9 @@ target_link_libraries(pub_atlas_command ${catkin_LIBRARIES})
 add_dependencies(pub_atlas_command atlas_msgs_gencpp)
 
 add_executable(gz_model_teleport src/gz_model_teleport.cpp)
-target_link_libraries(gz_model_teleport ${catkin_LIBRARIES})
+set_target_properties(gz_model_teleport PROPERTIES LINK_FLAGS "${ld_flags}")
+set_target_properties(gz_model_teleport PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(gz_model_teleport ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
 ## example actionlib implementation
 add_executable(actionlib_server src/actionlib_server.cpp)
@@ -150,57 +157,57 @@ add_dependencies(actionlib_server atlas_msgs_gencpp) # or atlas_msgs_generate_me
 add_library(MultiCameraPlugin use_gazebo_ros_pkgs/MultiCameraPlugin.cc)
 set_target_properties(MultiCameraPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(MultiCameraPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(MultiCameraPlugin ${gazebo_LIBRARIES})
+target_link_libraries(MultiCameraPlugin ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_camera_utils use_gazebo_ros_pkgs/gazebo_ros_camera_utils.cpp)
 set_target_properties(gazebo_ros_camera_utils PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_camera_utils PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_camera_utils ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_camera_utils ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_camera use_gazebo_ros_pkgs/gazebo_ros_camera.cpp)
 set_target_properties(gazebo_ros_camera PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_camera PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_camera ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_camera ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_p3d use_gazebo_ros_pkgs/gazebo_ros_p3d.cpp)
 set_target_properties(gazebo_ros_p3d PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_p3d PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_p3d ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_p3d ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_multicamera use_gazebo_ros_pkgs/gazebo_ros_multicamera.cpp)
 set_target_properties(gazebo_ros_multicamera PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_multicamera PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_multicamera ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_multicamera ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_laser use_gazebo_ros_pkgs/gazebo_ros_laser.cpp)
 set_target_properties(gazebo_ros_laser PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_laser PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_laser ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_laser ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_joint_trajectory use_gazebo_ros_pkgs/gazebo_ros_joint_trajectory.cpp)
 set_target_properties(gazebo_ros_joint_trajectory PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_joint_trajectory PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_joint_trajectory ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_joint_trajectory ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_imu use_gazebo_ros_pkgs/gazebo_ros_imu.cpp)
 set_target_properties(gazebo_ros_imu PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_imu PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_imu ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_imu ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_gpu_laser use_gazebo_ros_pkgs/gazebo_ros_gpu_laser.cpp)
 set_target_properties(gazebo_ros_gpu_laser PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_gpu_laser PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_gpu_laser ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_gpu_laser ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_force use_gazebo_ros_pkgs/gazebo_ros_force.cpp)
-set_target_properties(gazebo_ros_force PROPERTIES LINK_FLAGS "${ld_flags}")
+Set_target_properties(gazebo_ros_force PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_force PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_force ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_force ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_controller_manager use_gazebo_ros_pkgs/gazebo_ros_controller_manager.cpp)
 set_target_properties(gazebo_ros_controller_manager PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_controller_manager PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_controller_manager ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
 
 
 ### this should be the same as gazebo_ros_api plugin in gazebo_ros_pkgs/gazebo_ros
@@ -209,7 +216,7 @@ target_link_libraries(gazebo_ros_controller_manager ${gazebo_LIBRARIES})
 add_library(gazebo_ros_api_plugin use_gazebo_ros_pkgs/gazebo_ros_api_plugin.cpp)
 set_target_properties(gazebo_ros_api_plugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_api_plugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_controller_manager ${gazebo_LIBRARIES})
+target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
 
 
 #############
