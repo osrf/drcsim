@@ -18,8 +18,8 @@ install(DIRECTORY
 
 # install below for gazebo to find this model through GAZEBO_MODEL_PATH.
 install(FILES
-  model.config
-  dummy.urdf
+  # model.config
+  # dummy.urdf
   # test/CheckDisplayCapabilities.cmake
   # test/vrc_task_2_dynamic_walking.test
   # test/atlas_cheats_rosapi.yaml

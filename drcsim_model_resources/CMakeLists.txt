@@ -115,9 +115,9 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
 install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 
 # Also install the setup.sh in an unversioned location
-install(FILES ${PROJECT_CURRENT_BINARY_DIR}/setup.sh DESTINATION ${PROJECT_INSTALL_PREFIX}/share/drcsim/)
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
-install(FILES ${PROJECT_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 #####################################
