@@ -33,7 +33,6 @@ VRCPlugin::VRCPlugin()
 {
   /// initial anchor pose
   this->warpRobotWithCmdVel = false;
-  this->atlas.bdiStandNominal = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,9 +91,6 @@ void VRCPlugin::DeferredLoad()
   this->lastUpdateTime = this->world->GetSimTime().Double();
   this->robotCmdVel = geometry_msgs::Twist();
 
-  // Load Robot
-  this->atlas.Load(this->world, this->sdf);
-
   // Load Vehicle
   this->drcVehicle.Load(this->world, this->sdf);
 
@@ -103,28 +99,6 @@ void VRCPlugin::DeferredLoad()
 
   // Setup ROS interfaces for robot
   this->LoadRobotROSAPI();
-
-  // Harness the Robot
-  // On startup, simulate "virtual harness" by turning gravity off
-  // allowing the controllers can initialize without the robot falling
-  if (this->atlas.isInitialized)
-  {
-    if (atlas.startupMode == "bdi_stand")
-    {
-      this->SetRobotMode("bdi_stand");
-    }
-    else
-    {
-      this->SetRobotMode("pinned");
-      this->atlas.startupHarness = true;
-      ROS_DEBUG("Start robot with gravity turned off and harnessed.");
-      if (math::equal(this->atlas.startupHarnessDuration, 0.0))
-        ROS_DEBUG("Atlas will stay pinned.");
-      else
-        ROS_DEBUG("Resume to nominal mode after %f seconds.",
-          this->atlas.startupHarnessDuration);
-    }
-  }
 
   // ros callback queue for processing subscription
   this->callbackQueueThread = boost::thread(
@@ -304,9 +278,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "bdi_stand")
   {
-    // reset some flags
-    this->atlas.startupBDIStand = false;
-    this->atlas.bdiStandNominal = false;
+    // Robot is PID controlled in BDI stand Pose and PINNED.
 
     // pin robot
     if (this->atlas.pinJoint)
@@ -343,10 +315,6 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     this->world->EnablePhysicsEngine(physics);
     this->world->SetPaused(paused);
     // this->atlasCommandController.SetBDIFREEZE();
-
-    // start the rest of the sequence
-    this->atlas.startupBDIStand = true;
-    this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
   }
   else
   {
@@ -685,31 +653,105 @@ void VRCPlugin::UpdateStates()
   // with PID stand in BDI stand pose pinned.
   // After startupStandPrepDuration - 1 seconds, pin released.
   // After startupStandPrepDuration seconds, start Stand mode
-  if (this->atlas.startupBDIStand && this->atlas.isInitialized)
+  if (this->atlas.startupSequence == Robot::NONE)
   {
-    if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-        atlas.startupStandPrepDuration)
+    // Load and Spawn Robot
+    this->atlas.LoadModelParams(this->world, this->sdf);
+    this->atlas.startupSequence = Robot::SPAWN_QUEUED;
+  }
+  else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
+  {
+    if (this->atlas.CheckGetModel(this->world))
+      this->atlas.startupSequence = Robot::SPAWN_SUCCESS;
+  }
+  else if (this->atlas.startupSequence == Robot::SPAWN_SUCCESS)
+  {
+    // robot could have 2 distinct startup modes in sim:  bdi_stand | pinned
+    // bdi_stand:
+    //   Sets robot startup configuration to that of bdi stand behavior.
+    //   PID robot at stand configuration for a few seconds.
+    //   Turn on BDI controller, dynamically balance the robot.
+    // pinned:
+    //   Robot PID's to zero joint angles, and pinned to the world.
+    //   If StartupHarnessDuration > 0 unpin the robot after duration.
+
+    if (atlas.startupMode == "bdi_stand")
     {
-      ROS_DEBUG("going into Stand");
-      this->atlasCommandController.SetBDIStand();
-      this->atlas.startupBDIStand = false;
+      switch (this->atlas.bdiStandSequence)
+      {
+        case Robot::BS_NONE:
+        {
+          this->SetRobotMode("bdi_stand");
+          // start the rest of the sequence
+          this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
+          this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
+        }
+        case Robot::BS_PID_PINNED:
+        {
+          if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
+              atlas.startupStandPrepDuration)
+          {
+            ROS_DEBUG("going into Dynamic Stand Behavior");
+            this->atlasCommandController.SetBDIStand();
+            this->atlas.bdiStandSequence = Robot::BS_PINNED;
+          }
+        }
+        case Robot::BS_PINNED:
+        {
+          if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
+            (atlas.startupStandPrepDuration - 1.0))
+          {
+            ROS_DEBUG("going into Nominal");
+            this->SetRobotMode("nominal");
+            this->atlas.bdiStandSequence = Robot::BS_INITIALIZED;
+          }
+        }
+        default:
+          this->atlas.startupSequence = Robot::INITIALIZED;
+      }
     }
-    else if (!this->atlas.bdiStandNominal &&
-      (curTime - this->atlas.startupBDIStandStartTime.Double()) >
-      (atlas.startupStandPrepDuration - 1.0))
+    else // if (atlas.startupMode == "pinned")
     {
-      ROS_DEBUG("going into Nominal");
-      this->SetRobotMode("nominal");
-      this->atlas.bdiStandNominal = true;
+      switch (this->atlas.pinnedSequence)
+      {
+        case Robot::PS_NONE:
+        {
+          ROS_DEBUG("Start robot with gravity turned off and harnessed.");
+          this->SetRobotMode("pinned");
+          if (math::equal(this->atlas.startupHarnessDuration, 0.0))
+          {
+            ROS_DEBUG("Atlas will stay pinned.");
+            this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
+          }
+          else
+          {
+            ROS_DEBUG("Resume to nominal mode after %f seconds.",
+              this->atlas.startupHarnessDuration);
+            this->atlas.pinnedSequence = Robot::PS_PINNED;
+          }
+        }
+        case Robot::PS_PINNED:
+        {
+          // remove harness
+          if (!math::equal(atlas.startupHarnessDuration, 0.0) &&
+              curTime > atlas.startupHarnessDuration)
+          {
+            this->SetRobotMode("nominal");
+            this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
+          }
+        }
+        default:
+          this->atlas.startupSequence = Robot::INITIALIZED;
+      }
     }
   }
-
-  if (this->atlas.startupHarness && this->atlas.isInitialized &&
-      !math::equal(atlas.startupHarnessDuration, 0.0) &&
-      curTime > atlas.startupHarnessDuration)
+  else if (this->atlas.startupSequence == Robot::INITIALIZED)
   {
-    this->SetRobotMode("nominal");
-    this->atlas.startupHarness = false;
+    // done, do nothing
+  }
+  else
+  {
+    // should not be here
   }
 
   if (curTime > this->lastUpdateTime)
@@ -985,48 +1027,34 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-physics::ModelPtr VRCPlugin::Robot::SpawnModel(std::string _robotStr,
-  std::string _modelName, math::Pose _spawnPose, physics::WorldPtr _world)
+VRCPlugin::Robot::Robot()
 {
-  physics::ModelPtr model;
-
-  if (!transport::init())
-    return model;
-
-  transport::run();
-
-  transport::NodePtr node(new transport::Node());
-  node->Init(_world->GetName());
-
-  std::cout << "Spawning " << _modelName << " into "
-            << node->GetTopicNamespace()  << " world.\n";
-
-  transport::PublisherPtr pub = node->Advertise<msgs::Factory>("~/factory");
-  pub->WaitForConnection();
-
-  msgs::Factory msg;
-  msg.set_sdf(_robotStr);
-  msgs::Set(msg.mutable_pose(), _spawnPose);
-  pub->Publish(msg, true);
-
-  transport::fini();
-
-  return _world->GetModel(_modelName);
+  this->startupSequence = NONE;
+  this->bdiStandSequence = BS_NONE;
+  this->pinnedSequence = PS_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+VRCPlugin::Robot::~Robot()
 {
-  this->isInitialized = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::Robot::LoadModelParams(physics::WorldPtr _world,
+  sdf::ElementPtr _sdf)
+{
+  // bunch of hardcoded presets
   this->startupHarnessDuration = 10;
   this->startupStandPrepDuration = 2;
-  this->startupHarness = false;
-  this->startupBDIStand = false;
-  this->startupMode = "bdi_stand";
 
+  // changed by ros param
+  this->startupMode = "bdi_stand";
+  this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
+
+  // default names, can be changed in SDF
+  this->modelName = "atlas";
+  this->pinLinkName = "utorso";
   std::string spawnPoseName = "robot_initial_pose";
-  std::string modelName = "atlas";
-  std::string pinLinkName = "utorso";
   std::string robotDescriptionName = "robot_description";
 
   // load parameters
@@ -1034,12 +1062,12 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   {
     sdf::ElementPtr atlasSDF = _sdf->GetElement("atlas");
     if (atlasSDF->HasElement("model_name"))
-      modelName = atlasSDF->Get<std::string>("model_name");
+      this->modelName = atlasSDF->Get<std::string>("model_name");
     else
       ROS_INFO("Can't find <atlas><model_name> blocks. defaults to [atlas].");
 
     if (atlasSDF->HasElement("pin_link"))
-      pinLinkName = atlasSDF->Get<std::string>("pin_link");
+      this->pinLinkName = atlasSDF->Get<std::string>("pin_link");
     else
       ROS_INFO("Can't find <atlas><pin_link> blocks, defaults to [utorso].");
 
@@ -1060,57 +1088,73 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
              "looking for model name [atlas], param [robot_description]"
              "link [utorso], param [robot_initial_pose/[x|y|z|roll|pitch|yaw]");
 
-  this->model = _world->GetModel(modelName);
+  // check if model exists already
+  this->model = _world->GetModel(this->modelName);
 
-  if (!this->model)
+  if (this->model)
   {
-    ROS_INFO("atlas model not found, try spawning from [%s].",
+    this->startupSequence = SPAWN_SUCCESS;
+  }
+  else
+  {
+    ROS_INFO("atlas model not found, try spawning from ros param [%s].",
       robotDescriptionName.c_str());
 
     // try spawn model from "robot_description" on ros parameter server
+    ros::NodeHandle rh("");
+
+    double x, y, z, roll, pitch, yaw;
+    if (rh.getParam(spawnPoseName + "/x", x) &&
+        rh.getParam(spawnPoseName + "/y", y) &&
+        rh.getParam(spawnPoseName + "/z", z) &&
+        rh.getParam(spawnPoseName + "/roll", roll) &&
+        rh.getParam(spawnPoseName + "/pitch", pitch) &&
+        rh.getParam(spawnPoseName + "/yaw", yaw))
     {
-      ros::NodeHandle rh("");
-
-      math::Pose spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
-      double x, y, z, roll, pitch, yaw;
-      if (rh.getParam(spawnPoseName + "/x", x) &&
-          rh.getParam(spawnPoseName + "/y", y) &&
-          rh.getParam(spawnPoseName + "/z", z) &&
-          rh.getParam(spawnPoseName + "/roll", roll) &&
-          rh.getParam(spawnPoseName + "/pitch", pitch) &&
-          rh.getParam(spawnPoseName + "/yaw", yaw))
-      {
-        spawnPose.pos = math::Vector3(x, y, z);
-        spawnPose.rot = math::Vector3(roll, pitch, yaw);
-      }
-
-      std::string robotStr;
-      if (rh.getParam(robotDescriptionName, robotStr))
-      {
-        this->model = this->SpawnModel(robotStr, modelName, spawnPose, _world);
-      }
+      this->spawnPose.pos = math::Vector3(x, y, z);
+      this->spawnPose.rot = math::Vector3(roll, pitch, yaw);
     }
 
-    // check spawned model
-    if (!this->model)
+    std::string robotStr;
+    if (rh.getParam(robotDescriptionName, robotStr))
+    {
+      // put model into gazebo factory queue (non-blocking)
+      _world->InsertModelString(robotStr);
+      this->startupSequence = SPAWN_QUEUED;
+    }
+    else
     {
       ROS_ERROR("failed to spawn model from rosparam: [%s].",
         robotDescriptionName.c_str());
       return;
     }
   }
+}
 
-  this->pinLink = this->model->GetLink(pinLinkName);
 
-  if (!this->pinLink)
+////////////////////////////////////////////////////////////////////////////////
+bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
+{
+  this->model = _world->GetModel(this->modelName);
+  if (this->model)
   {
-    ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
-    return;
-  }
+    this->pinLink = this->model->GetLink(this->pinLinkName);
 
-  // Note: hardcoded link by name: @todo: make this a pugin param
-  this->initialPose = this->pinLink->GetWorldPose();
-  this->isInitialized = true;
+    if (!this->pinLink)
+    {
+      ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
+      return false;
+    }
+
+    // initial pose specified by user in ros param under robot_initial_pose
+    this->model->SetInitialRelativePose(this->spawnPose);
+
+    // Note: hardcoded link by name: @todo: make this a pugin param
+    this->initialPose = this->pinLink->GetWorldPose();
+
+    return true;
+  }
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
