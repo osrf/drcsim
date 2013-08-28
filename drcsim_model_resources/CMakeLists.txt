@@ -4,15 +4,15 @@ enable_testing()
 project (drcsim_model_resources)
 catkin_package()
 
-set (DRC_SIM_MAJOR_VERSION 2)
-set (DRC_SIM_MINOR_VERSION 8)
-# The patch version may have been bumped for prerelease purposes; be sure to
-# check drcsim-release/ubuntu/debian/changelog@default to determine what the
-# next patch version should be for a regular release.
-set (DRC_SIM_PATCH_VERSION 0)
-set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
-set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
-message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
+# set (DRC_SIM_MAJOR_VERSION 2)
+# set (DRC_SIM_MINOR_VERSION 8)
+# # The patch version may have been bumped for prerelease purposes; be sure to
+# # check drcsim-release/ubuntu/debian/changelog@default to determine what the
+# # next patch version should be for a regular release.
+# set (DRC_SIM_PATCH_VERSION 0)
+# set (DRC_SIM_VERSION ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION})
+# set (DRC_SIM_VERSION_FULL ${DRC_SIM_MAJOR_VERSION}.${DRC_SIM_MINOR_VERSION}.${DRC_SIM_PATCH_VERSION})
+# message (STATUS "${PROJECT_NAME} version ${DRC_SIM_VERSION_FULL}")
 
 # Documentation
 add_subdirectory(doc)
@@ -30,14 +30,14 @@ else()
 endif()
 
 # Packaging configuration
-set (CPACK_PACKAGE_VERSION "${DRC_SIM_VERSION_FULL}")
-set (CPACK_PACKAGE_VERSION_MAJOR "${DRC_SIM_MAJOR_VERSION}")
-set (CPACK_PACKAGE_VERSION_MINOR "${DRC_SIM_MINOR_VERSION}")
-set (CPACK_PACKAGE_VERSION_PATCH "${DRC_SIM_PATCH_VERSION}")
-list (APPEND CPACK_SOURCE_GENERATOR "TBZ2")
-list (APPEND CPACK_SOURCE_IGNORE_FILES ";Ogre.log;TODO;/.hg/;.hgignore;.swp$;/build/")
-set (CPACK_SOURCE_PACKAGE_FILE_NAME "@PROJECT_NAME@-@DRC_SIM_VERSION_FULL@")
-include (CPack)
+# set (CPACK_PACKAGE_VERSION "${DRC_SIM_VERSION_FULL}")
+# set (CPACK_PACKAGE_VERSION_MAJOR "${DRC_SIM_MAJOR_VERSION}")
+# set (CPACK_PACKAGE_VERSION_MINOR "${DRC_SIM_MINOR_VERSION}")
+# set (CPACK_PACKAGE_VERSION_PATCH "${DRC_SIM_PATCH_VERSION}")
+# list (APPEND CPACK_SOURCE_GENERATOR "TBZ2")
+# list (APPEND CPACK_SOURCE_IGNORE_FILES ";Ogre.log;TODO;/.hg/;.hgignore;.swp$;/build/")
+# set (CPACK_SOURCE_PACKAGE_FILE_NAME "@PROJECT_NAME@-@DRC_SIM_VERSION_FULL@")
+# include (CPack)
 
 # Infer ROS distro from the user's environment, allowing the user to override
 # manually.
@@ -63,10 +63,6 @@ message(STATUS "Building against ROS distro ${ROS_DISTRO}, expected to be instal
 if("$ENV{ROS_ROOT}" STREQUAL "")
   message(FATAL_ERROR "ROS_ROOT is not set. Did you source a ROS setup file (e.g., /opt/ros/fuerte/setup.sh)?")
 endif()
-
-set (INCLUDE_INSTALL_DIR "include/${PROJECT_NAME}-${DRC_SIM_VERSION}/${PROJECT_NAME}") 
-set (LIB_INSTALL_DIR "lib" CACHE STRING "Installation directory for libraries (relative to CMAKE_INSTALL_PREFIX)") 
-set (BIN_INSTALL_DIR "bin" CACHE STRING "Installation directory for binaries (relative to CMAKE_INSTALL_PREFIX)") 
 
 #####################################
 # Set the default build type
@@ -108,19 +104,6 @@ else ()
 endif ()
 
 #####################################
-# Configure the setup script
-
-configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
-               ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
-
-# Also install the setup.sh in an unversioned location
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
-configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
-install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
-
-#####################################
 set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 1)
 set (ATLAS_SIM_INTERFACE_MINOR_VERSION 1)
 set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
@@ -159,6 +142,21 @@ add_custom_target(AtlasSimInterface_doc DEPENDS ${CMAKE_INSTALL_PREFIX}/share/At
 # install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
 #          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
+#####################################
+# Configure the setup script
+configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
+               ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
+# install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+# Also install the setup.sh in an unversioned location
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
+# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
+
+
+# install gazebo model resource files
 add_subdirectory(media)
 add_subdirectory(gazebo_models)
 add_subdirectory(worlds)

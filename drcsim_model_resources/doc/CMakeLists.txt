@@ -22,7 +22,7 @@ if (DOXYGEN_FOUND)
             ${PROJECT_BINARY_DIR}/doxygen/html/search
     COMMAND make -C ${PROJECT_BINARY_DIR}/doxygen/latex
     COMMAND mv ${PROJECT_BINARY_DIR}/doxygen/latex/refman.pdf
-            ${PROJECT_BINARY_DIR}/doxygen/latex/drcsim-${DRC_SIM_VERSION_FULL}.pdf
+            ${PROJECT_BINARY_DIR}/doxygen/latex/drcsim-${drcsim_model_resources_VERSION}.pdf
 
     COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif()

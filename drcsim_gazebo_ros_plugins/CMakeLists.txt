@@ -223,9 +223,8 @@ target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
 ## Install ##
 #############
 install(TARGETS VRCPlugin SandiaHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin MultiCameraPlugin gazebo_ros_camera_utils gazebo_ros_camera gazebo_ros_p3d gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_joint_trajectory gazebo_ros_imu gazebo_ros_gpu_laser gazebo_ros_force gazebo_ros_controller_manager gazebo_ros_api_plugin pub_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
+  # DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}-${drcsim_gazebo_ros_plugins_VERSION}/plugins/
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/

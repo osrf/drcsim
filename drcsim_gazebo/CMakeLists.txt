@@ -146,9 +146,5 @@ add_executable(bdi_parser src/bdi_parser.cpp)
 target_link_libraries(bdi_parser ${urdfdom_LIBRARIES} ${tinyxml_libraries} ${console_bridge_LIBRARIES} ${Boost_LIBRARIES})
 
 # INSTALL(TARGETS bdi_parser DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/bin/)
-install(TARGETS bdi_parser
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+install(TARGETS bdi_parser DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/bin/)
 

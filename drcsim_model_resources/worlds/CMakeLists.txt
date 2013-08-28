@@ -30,4 +30,4 @@ set (worlds
      vrc_task_3_cpu_lidar.world
     )
 
-install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/worlds/)
+install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/worlds/)
