@@ -1049,7 +1049,6 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   this->startupStandPrepDuration = 2;
 
   // changed by ros param
-  this->startupMode = "bdi_stand";
   this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
 
   // default names, can be changed in SDF
