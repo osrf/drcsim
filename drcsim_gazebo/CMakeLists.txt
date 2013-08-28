@@ -115,7 +115,6 @@ install(PROGRAMS
   scripts/5steps.py
   scripts/run_gzserver_memcheck
   scripts/check_inertia_symmetry.bash
-  scripts/spawn_model
   # DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
 )
