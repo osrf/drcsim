@@ -2,6 +2,14 @@
   <arg name="gzworld" default="vrc_final_task15"/>
   <arg name="gzname"  default="gzserver" />
 
+  <!-- initial robot position -->
+  <param name="robot_initial_pose/x"     value="-7.0" type="double"/>
+  <param name="robot_initial_pose/y"     value="-15.0" type="double"/>
+  <param name="robot_initial_pose/z"     value="1.0" type="double"/>
+  <param name="robot_initial_pose/roll"  value="0" type="double"/>
+  <param name="robot_initial_pose/pitch" value="0" type="double"/>
+  <param name="robot_initial_pose/yaw"   value="0" type="double"/>
+
   <!-- start gazebo with the Atlas -->
   <include file="$(find vrc_finals)/launch/vrc_final.launch">
     <arg name="gzworld" value="$(arg gzworld)"/>

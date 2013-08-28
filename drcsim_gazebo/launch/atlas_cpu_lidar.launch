@@ -18,7 +18,13 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas_cpu_lidar)/atlas_cpu_lidar.urdf"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_cpu_lidar.urdf.xacro'" />
+  <param name="robot_initial_pose/x"     value="0" type="double"/>
+  <param name="robot_initial_pose/y"     value="0" type="double"/>
+  <param name="robot_initial_pose/z"     value="0" type="double"/>
+  <param name="robot_initial_pose/roll"  value="0" type="double"/>
+  <param name="robot_initial_pose/pitch" value="0" type="double"/>
+  <param name="robot_initial_pose/yaw"   value="0" type="double"/>
   
   <include file="$(find drcsim_gazebo)/launch/atlas_bringup.launch"/>
 </launch>

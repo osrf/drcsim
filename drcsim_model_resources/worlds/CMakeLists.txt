@@ -8,7 +8,7 @@ set (worlds
      drc_vehicle.world
      atlas_golf_cart_fire_hose.world
      golf_cart.world
-     fire_hose.world
+     vrc_fire_hose.world
      powerplant.world
      qual_task_1.world
      qual_task_1_stumps.world
