@@ -47,5 +47,5 @@ export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/atlas_description:$GAZEBO_
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 # export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 
-export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$LD_LIBRARY_PATH
-export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$LD_LIBRARY_PATH
+export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$GAZEBO_PLUGIN_PATH
+export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH
