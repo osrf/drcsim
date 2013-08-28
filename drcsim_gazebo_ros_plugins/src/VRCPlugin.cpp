@@ -1024,7 +1024,7 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->startupBDIStand = false;
   this->startupMode = "bdi_stand";
 
-  math::Pose spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
+  std::string spawnPoseName = "robot_initial_pose";
   std::string modelName = "atlas";
   std::string pinLinkName = "utorso";
   std::string robotDescriptionName = "robot_description";
@@ -1049,15 +1049,16 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
       ROS_INFO("Can't find <atlas><robot_description> blocks, "
                "defaults to [robot_description].");
 
-    if (atlasSDF->HasElement("pose"))
-      spawnPose = atlasSDF->Get<math::Pose>("pose");
+    // ros param name containing robot's initial pose
+    if (atlasSDF->HasElement("robot_initial_pose"))
+      spawnPoseName = atlasSDF->Get<std::string>("robot_initial_pose");
     else
       ROS_INFO("Can't find <atlas><pose> blocks, defaults to zero transform.");
   }
   else
     ROS_INFO("Can't find <atlas> blocks. using default: "
              "looking for model name [atlas], param [robot_description]"
-             "link [utorso], pose [0, 0, 0, 0, 0, 0]");
+             "link [utorso], param [robot_initial_pose/[x|y|z|roll|pitch|yaw]");
 
   this->model = _world->GetModel(modelName);
 
@@ -1069,6 +1070,20 @@ void VRCPlugin::Robot::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     // try spawn model from "robot_description" on ros parameter server
     {
       ros::NodeHandle rh("");
+
+      math::Pose spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
+      double x, y, z, roll, pitch, yaw;
+      if (rh.getParam(spawnPoseName + "/x", x) &&
+          rh.getParam(spawnPoseName + "/y", y) &&
+          rh.getParam(spawnPoseName + "/z", z) &&
+          rh.getParam(spawnPoseName + "/roll", roll) &&
+          rh.getParam(spawnPoseName + "/pitch", pitch) &&
+          rh.getParam(spawnPoseName + "/yaw", yaw))
+      {
+        spawnPose.pos = math::Vector3(x, y, z);
+        spawnPose.rot = math::Vector3(roll, pitch, yaw);
+      }
+
       std::string robotStr;
       if (rh.getParam(robotDescriptionName, robotStr))
       {
