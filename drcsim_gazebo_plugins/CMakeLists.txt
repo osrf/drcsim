@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_plugins)
+# set(CMAKE_BUILD_TYPE "Debug")
 
 catkin_package(
   INCLUDE_DIRS include

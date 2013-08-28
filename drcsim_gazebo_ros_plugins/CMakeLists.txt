@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
+# set(CMAKE_BUILD_TYPE "Debug")
 
-find_package(catkin REQUIRED COMPONENTS actionlib drcsim_model_resources osrf_msgs sandia_hand_msgs drcsim_gazebo_plugins) # gazebo_plugins)
+find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib) # gazebo_plugins)
+
+  
 # find_package(Boost REQUIRED COMPONENTS system)
 # catkin_python_setup()
 # add_message_files(
@@ -162,7 +165,7 @@ target_link_libraries(MultiCameraPlugin ${GAZEBO_LIBRARIES})
 add_library(gazebo_ros_camera_utils use_gazebo_ros_pkgs/gazebo_ros_camera_utils.cpp)
 set_target_properties(gazebo_ros_camera_utils PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_camera_utils PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_camera_utils ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_ros_camera_utils CameraPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_camera use_gazebo_ros_pkgs/gazebo_ros_camera.cpp)
 set_target_properties(gazebo_ros_camera PROPERTIES LINK_FLAGS "${ld_flags}")
@@ -177,7 +180,7 @@ target_link_libraries(gazebo_ros_p3d ${GAZEBO_LIBRARIES})
 add_library(gazebo_ros_multicamera use_gazebo_ros_pkgs/gazebo_ros_multicamera.cpp)
 set_target_properties(gazebo_ros_multicamera PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_multicamera PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_multicamera ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_ros_multicamera gazebo_ros_camera_utils MultiCameraPlugin ${GAZEBO_LIBRARIES})
 
 add_library(gazebo_ros_laser use_gazebo_ros_pkgs/gazebo_ros_laser.cpp)
 set_target_properties(gazebo_ros_laser PROPERTIES LINK_FLAGS "${ld_flags}")
@@ -197,7 +200,7 @@ target_link_libraries(gazebo_ros_imu ${GAZEBO_LIBRARIES})
 add_library(gazebo_ros_gpu_laser use_gazebo_ros_pkgs/gazebo_ros_gpu_laser.cpp)
 set_target_properties(gazebo_ros_gpu_laser PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_gpu_laser PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_gpu_laser ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_ros_gpu_laser ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} GpuRayPlugin)
 
 add_library(gazebo_ros_force use_gazebo_ros_pkgs/gazebo_ros_force.cpp)
 Set_target_properties(gazebo_ros_force PROPERTIES LINK_FLAGS "${ld_flags}")
