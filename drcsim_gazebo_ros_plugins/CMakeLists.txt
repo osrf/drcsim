@@ -216,7 +216,7 @@ target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
 add_library(gazebo_ros_api_plugin use_gazebo_ros_pkgs/gazebo_ros_api_plugin.cpp)
 set_target_properties(gazebo_ros_api_plugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_api_plugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_ros_api_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 
 #############
