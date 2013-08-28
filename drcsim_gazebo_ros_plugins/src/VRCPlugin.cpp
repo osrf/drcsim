@@ -656,7 +656,7 @@ void VRCPlugin::UpdateStates()
   if (this->atlas.startupSequence == Robot::NONE)
   {
     // Load and Spawn Robot
-    this->atlas.LoadModelParams(this->world, this->sdf);
+    this->atlas.InsertModel(this->world, this->sdf);
     this->atlas.startupSequence = Robot::SPAWN_QUEUED;
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
@@ -681,6 +681,7 @@ void VRCPlugin::UpdateStates()
       {
         case Robot::BS_NONE:
         {
+          ROS_INFO("BS_NONE");
           this->SetRobotMode("bdi_stand");
           // start the rest of the sequence
           this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
@@ -688,26 +689,27 @@ void VRCPlugin::UpdateStates()
         }
         case Robot::BS_PID_PINNED:
         {
-          if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-              atlas.startupStandPrepDuration)
-          {
-            ROS_DEBUG("going into Dynamic Stand Behavior");
-            this->atlasCommandController.SetBDIStand();
-            this->atlas.bdiStandSequence = Robot::BS_PINNED;
-          }
-        }
-        case Robot::BS_PINNED:
-        {
+          ROS_INFO("BS_PID_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
             (atlas.startupStandPrepDuration - 1.0))
           {
-            ROS_DEBUG("going into Nominal");
+            ROS_INFO("going into Nominal");
             this->SetRobotMode("nominal");
-            this->atlas.bdiStandSequence = Robot::BS_INITIALIZED;
+            this->atlas.bdiStandSequence = Robot::BS_PID;
           }
         }
-        default:
-          this->atlas.startupSequence = Robot::INITIALIZED;
+        case Robot::BS_PID:
+        {
+          ROS_INFO("BS_PID");
+          if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
+              atlas.startupStandPrepDuration)
+          {
+            ROS_INFO("going into Dynamic Stand Behavior");
+            this->atlasCommandController.SetBDIStand();
+            this->atlas.bdiStandSequence = Robot::BS_INITIALIZED;
+            this->atlas.startupSequence = Robot::INITIALIZED;
+          }
+        }
       }
     }
     else // if (atlas.startupMode == "pinned")
@@ -738,10 +740,9 @@ void VRCPlugin::UpdateStates()
           {
             this->SetRobotMode("nominal");
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
+            this->atlas.startupSequence = Robot::INITIALIZED;
           }
         }
-        default:
-          this->atlas.startupSequence = Robot::INITIALIZED;
       }
     }
   }
@@ -1029,9 +1030,9 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 ////////////////////////////////////////////////////////////////////////////////
 VRCPlugin::Robot::Robot()
 {
-  this->startupSequence = NONE;
-  this->bdiStandSequence = BS_NONE;
-  this->pinnedSequence = PS_NONE;
+  this->startupSequence = Robot::NONE;
+  this->bdiStandSequence = Robot::BS_NONE;
+  this->pinnedSequence = Robot::PS_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1040,7 +1041,7 @@ VRCPlugin::Robot::~Robot()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::Robot::LoadModelParams(physics::WorldPtr _world,
+void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   sdf::ElementPtr _sdf)
 {
   // bunch of hardcoded presets
@@ -1093,11 +1094,12 @@ void VRCPlugin::Robot::LoadModelParams(physics::WorldPtr _world,
 
   if (this->model)
   {
-    this->startupSequence = SPAWN_SUCCESS;
+    ROS_INFO("atlas model found (included in world file).");
+    this->startupSequence = Robot::SPAWN_SUCCESS;
   }
   else
   {
-    ROS_INFO("atlas model not found, try spawning from ros param [%s].",
+    ROS_INFO("atlas model not in world file, spawning from ros param [%s].",
       robotDescriptionName.c_str());
 
     // try spawn model from "robot_description" on ros parameter server
@@ -1114,13 +1116,16 @@ void VRCPlugin::Robot::LoadModelParams(physics::WorldPtr _world,
       this->spawnPose.pos = math::Vector3(x, y, z);
       this->spawnPose.rot = math::Vector3(roll, pitch, yaw);
     }
+    else
+      ROS_ERROR("robot initial spawn pose not found");
 
     std::string robotStr;
     if (rh.getParam(robotDescriptionName, robotStr))
     {
       // put model into gazebo factory queue (non-blocking)
       _world->InsertModelString(robotStr);
-      this->startupSequence = SPAWN_QUEUED;
+      this->startupSequence = Robot::SPAWN_QUEUED;
+      ROS_INFO("atlas model pushed into gazebo spawn queue.");
     }
     else
     {
@@ -1147,7 +1152,9 @@ bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
     }
 
     // initial pose specified by user in ros param under robot_initial_pose
+    gzdbg << "spawnPose [" << this->spawnPose << "]\n";
     this->model->SetInitialRelativePose(this->spawnPose);
+    this->model->SetWorldPose(this->spawnPose);
 
     // Note: hardcoded link by name: @todo: make this a pugin param
     this->initialPose = this->pinLink->GetWorldPose();

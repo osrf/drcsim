@@ -202,7 +202,7 @@ namespace gazebo
       /// \brief Load the atlas portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
-      private: void LoadModelParams(physics::WorldPtr _parent,
+      private: void InsertModel(physics::WorldPtr _parent,
         sdf::ElementPtr _sdf);
 
       /// \brief Spawns a gazebo robot model from string.
@@ -237,7 +237,7 @@ namespace gazebo
       private: enum BDIStandSequence {
         BS_NONE = 0,
         BS_PID_PINNED = 1,
-        BS_PINNED = 2,
+        BS_PID = 2,
         BS_INITIALIZED = 3
       };
       private: int bdiStandSequence;

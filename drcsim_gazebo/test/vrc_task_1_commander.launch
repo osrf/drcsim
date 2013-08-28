@@ -4,7 +4,7 @@
     <arg name="gzname" value="gazebo"/>
   </include>
   <!-- Walking controller -->
-  <node pkg="atlas_msgs" type="actionlib_server" name="walking_actionlib_server"/>
+  <node pkg="drcsim_gazebo_ros_plugins" type="actionlib_server" name="walking_actionlib_server"/>
   <!-- Send movement to go to the car -->
   <node pkg="drcsim_gazebo" type="atlas_commander.py" name="atlas_commander" 
         output="screen"

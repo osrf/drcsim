@@ -40,12 +40,16 @@ export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@:$GAZEBO_
 export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/worlds:$GAZEBO_RESOURCE_PATH
 # export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/worlds:$GAZEBO_RESOURCE_PATH
 
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/sandia_hand_description:$GAZEBO_MODEL_PATH
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/irobot_hand_description:$GAZEBO_MODEL_PATH
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/multisense_sl_description:$GAZEBO_MODEL_PATH
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/atlas_description:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share:$GAZEBO_MODEL_PATH
+# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/sandia_hand_description:$GAZEBO_MODEL_PATH
+# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/irobot_hand_description:$GAZEBO_MODEL_PATH
+# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/multisense_sl_description:$GAZEBO_MODEL_PATH
+# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/atlas_description:$GAZEBO_MODEL_PATH
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 # export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$GAZEBO_PLUGIN_PATH
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH
+
+# this was needed for lib_gazebo_gpu_laser.so dependency on libGpuRayPlugin.so, might be doing something wrong in cmake?
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GAZEBO_PLUGIN_PATH
