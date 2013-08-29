@@ -1280,7 +1280,7 @@
     </geometry>
   </library_geometries>
   <library_visual_scenes>
-    <visual_scene id="" name="">
+    <visual_scene id="l_foot" name="l_foot">
       <node name="g27" id="g27" sid="g27">
         <matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix>
         <extra>
@@ -1324,7 +1324,7 @@
     </visual_scene>
   </library_visual_scenes>
   <scene>
-    <instance_visual_scene url="#"></instance_visual_scene>
+    <instance_visual_scene url="#l_foot"></instance_visual_scene>
   </scene>
 </COLLADA>
 

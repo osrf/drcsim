@@ -8669,7 +8669,7 @@
     </geometry>
   </library_geometries>
   <library_visual_scenes>
-    <visual_scene id="" name="">
+    <visual_scene id="pelvis" name="pelvis">
       <node name="g27" id="g27" sid="g27">
         <matrix sid="matrix">0.010000 0.000000 0.000000 0.000000 0.000000 0.010000 0.000000 0.000000 0.000000 0.000000 0.010000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix>
         <extra>
@@ -8721,7 +8721,7 @@
     </visual_scene>
   </library_visual_scenes>
   <scene>
-    <instance_visual_scene url="#"></instance_visual_scene>
+    <instance_visual_scene url="#pelvis"></instance_visual_scene>
   </scene>
 </COLLADA>
 
