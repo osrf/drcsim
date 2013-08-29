@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 # set(CMAKE_BUILD_TYPE "Debug")
 
-find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib) # gazebo_plugins)
+find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib atlas_msgs) # gazebo_plugins)
 
   
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -207,10 +207,10 @@ Set_target_properties(gazebo_ros_force PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(gazebo_ros_force PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(gazebo_ros_force ${GAZEBO_LIBRARIES})
 
-add_library(gazebo_ros_controller_manager use_gazebo_ros_pkgs/gazebo_ros_controller_manager.cpp)
-set_target_properties(gazebo_ros_controller_manager PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(gazebo_ros_controller_manager PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
+#add_library(gazebo_ros_controller_manager use_gazebo_ros_pkgs/gazebo_ros_controller_manager.cpp)
+#set_target_properties(gazebo_ros_controller_manager PROPERTIES LINK_FLAGS "${ld_flags}")
+#set_target_properties(gazebo_ros_controller_manager PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+#target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
 
 
 ### this should be the same as gazebo_ros_api plugin in gazebo_ros_pkgs/gazebo_ros
@@ -225,7 +225,7 @@ target_link_libraries(gazebo_ros_api_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARI
 #############
 ## Install ##
 #############
-install(TARGETS VRCPlugin SandiaHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin MultiCameraPlugin gazebo_ros_camera_utils gazebo_ros_camera gazebo_ros_p3d gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_joint_trajectory gazebo_ros_imu gazebo_ros_gpu_laser gazebo_ros_force gazebo_ros_controller_manager gazebo_ros_api_plugin pub_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
+install(TARGETS VRCPlugin SandiaHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin MultiCameraPlugin gazebo_ros_camera_utils gazebo_ros_camera gazebo_ros_p3d gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_joint_trajectory gazebo_ros_imu gazebo_ros_gpu_laser gazebo_ros_force gazebo_ros_api_plugin pub_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server # gazebo_ros_controller_manager 
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
   # DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}-${drcsim_gazebo_ros_plugins_VERSION}/plugins/
 )
