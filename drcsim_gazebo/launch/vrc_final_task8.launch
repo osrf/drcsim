@@ -13,5 +13,6 @@
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/vrc_final.launch">
     <arg name="gzworld" value="$(arg gzworld)"/>
+    <arg name="gzname"  value="$(arg gzname)" />
   </include>
 </launch>
