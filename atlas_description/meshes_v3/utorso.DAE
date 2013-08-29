@@ -2,8 +2,8 @@
 <COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
   <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2013-08-22T19:49:45Z</created><keywords></keywords><modified>2013-08-22T19:49:45Z</modified><revision></revision><subject></subject><title></title><unit meter="0.010000" name="centimeter"></unit><up_axis>Z_UP</up_axis></asset>
   <library_images>
-    <image id="Map #4-image" name="Map #4"><init_from>file://\\babel\work\modeldev\drc_model_2013_final\geometry\tif\drc_torso_head_diffuse.tif</init_from></image>
-    <image id="Map #4_ncl1_1-image" name="Map #4_ncl1_1"><init_from>file://F:\Bob\projects\drc_8182013\geometry\tif\atlas_cage_and_camera_diffuse_flat.tif</init_from></image>
+    <image id="Map #4-image" name="Map #4"><init_from>../materials/textures/drc_torso_head_diffuse.jpg</init_from></image>
+    <image id="Map #4_ncl1_1-image" name="Map #4_ncl1_1"><init_from>../materials/textures/atlas_cage_and_camera_diffuse_flat.jpg</init_from></image>
   </library_images>
   <library_materials>
     <material id="drc_torso_head_diffuse" name="drc_torso_head_diffuse">

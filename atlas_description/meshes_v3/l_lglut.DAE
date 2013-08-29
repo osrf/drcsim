@@ -17,7 +17,7 @@
   </asset>
   <library_images>
     <image id="drc_extremities_diffuse-image" name="drc_extremities_diffuse">
-      <init_from>file://\\babel\work\modeldev\drc_model_2013_final\geometry\tif\drc_extremities_diffuse.tif</init_from>
+      <init_from>../materials/textures/drc_extremities_diffuse.jpg</init_from>
     </image>
   </library_images>
   <library_materials>
