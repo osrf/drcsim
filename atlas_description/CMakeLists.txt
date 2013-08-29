@@ -7,7 +7,7 @@ catkin_package(
 )
 
 install(DIRECTORY
-  urdf meshes materials robots
+  urdf meshes meshes_v3 materials robots
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
