@@ -512,6 +512,7 @@
             </geometry>
         </collision>
     </link>
+    <!-- with backpack -->
     <link name="utorso">
         <inertial>
             <mass value="52.007" />
@@ -530,7 +531,52 @@
                 <mesh filename="package://atlas_description/meshes_v3/utorso.DAE" scale="1 1 1" />
             </geometry>
         </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.DAE" scale="1 1 1" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.DAE" scale="1 1 1" />
+            </geometry>
+        </collision>
     </link>
+    <!-- inertia without backpack
+    <link name="utorso">
+        <inertial>
+            <mass value="22.260" />
+            <origin xyz="0.0255 -0.001 0.2180" rpy="0 -0 0" />
+            <inertia ixx="0.708" ixy="0.001" ixz="0.004" iyy="0.367" iyz="0.002" izz="0.530" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://atlas_description/meshes_v3/utorso.DAE" scale="1 1 1" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://atlas_description/meshes_v3/utorso.DAE" scale="1 1 1" />
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.DAE" scale="1 1 1" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.DAE" scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+    -->
     <joint name="back_bkx" type="revolute">
         <origin xyz="0 0 0.05" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
@@ -577,7 +623,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="13.1416" />
     </joint>
     <joint name="l_arm_shx" type="revolute">
-        <origin xyz="0 0 0" rpy="0 -0 0" />
+        <origin xyz="0 0.14035 0.19609" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
         <parent link="l_clav" />
         <child link="l_scap" />
@@ -595,7 +641,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.5708" soft_upper_limit="10.7854" />
     </joint>
     <joint name="l_arm_wrx" type="revolute">
-        <origin xyz="0 0 0" rpy="0 -0 0" />
+        <origin xyz="0 0.119 0.00921" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
         <parent link="l_farm" />
         <child link="l_hand" />
@@ -694,7 +740,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="13.1416" />
     </joint>
     <joint name="r_arm_shx" type="revolute">
-        <origin xyz="0 0 0" rpy="0 -0 0" />
+        <origin xyz="0 -0.14035 0.19609" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
         <parent link="r_clav" />
         <child link="r_scap" />
@@ -712,7 +758,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.5708" soft_upper_limit="10.7854" />
     </joint>
     <joint name="r_arm_wrx" type="revolute">
-        <origin xyz="0 0 0" rpy="0 -0 0" />
+        <origin xyz="0 -0.119 0.00921" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
         <parent link="r_farm" />
         <child link="r_hand" />
