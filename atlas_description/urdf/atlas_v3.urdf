@@ -1,4 +1,5 @@
 <robot name="drc_skeleton">
+<!-- move into multisense_sl_description?
     <link name="head">
         <inertial>
             <mass value="3.751" />
@@ -18,6 +19,7 @@
             </geometry>
         </collision>
     </link>
+-->
     <link name="l_clav">
         <inertial>
             <mass value="3.45" />
