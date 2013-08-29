@@ -1,23 +1,4 @@
 <robot name="drc_skeleton">
-    <link name="head">
-        <inertial>
-            <mass value="3.751" />
-            <origin xyz="-0.0481 0 0.0457" rpy="0 -0 0" />
-            <inertia ixx="0.0108" ixy="-0.0001" ixz="-0.0007" iyy="0.0182" iyz="-0.0003" izz="0.0108" />
-        </inertial>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas/meshes_v3/head.DAE" scale="1 1 1" />
-            </geometry>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas/meshes_v3/head.DAE" scale="1 1 1" />
-            </geometry>
-        </collision>
-    </link>
     <link name="l_clav">
         <inertial>
             <mass value="3.45" />
