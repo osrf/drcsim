@@ -38,8 +38,6 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-message(status "\n\n\n${catkin_INCLUDE_DIRS}\n\n")
-
 find_package(gazebo REQUIRED)
 # \todo: special hack to make gazebo flags behave.  can we remove these?
 set(cxx_flags)
