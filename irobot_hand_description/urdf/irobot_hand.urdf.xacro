@@ -147,6 +147,71 @@
   </joint>
 </xacro:macro>
 
+<!-- Simplified collisions for the base_rotation_links on fingers 0 and 1 -->
+<xacro:macro name="base_rotation_link_collisions">
+      <collision name='collision_1'>
+        <origin xyz="0 0 -.0025" rpy="0 0 0"/>
+        <geometry>
+          <cylinder length="0.0145" radius="0.025"/>
+        </geometry>
+      </collision>
+
+      <collision name='collision_2'>
+        <origin xyz="0 0 -.0104" rpy="0 0 0"/>
+        <geometry>
+          <cylinder length="0.0145" radius="0.0165"/>
+        </geometry>
+      </collision>
+
+      <collision name='collision_3'>
+        <origin xyz="0 0 .0135" rpy="1.5707 0 1.5707"/>
+        <geometry>
+          <cylinder length="0.02" radius="0.002"/>
+        </geometry>
+      </collision>
+
+      <collision name='collision_4'>
+        <origin xyz="0.013 0 .0135" rpy="1.5707 0 1.5707"/>
+        <geometry>
+          <cylinder length="0.008" radius="0.009"/>
+        </geometry>
+      </collision>
+
+      <collision name='collision_5'>
+        <origin xyz="-0.013 0 .0135" rpy="1.5707 0 1.5707"/>
+        <geometry>
+          <cylinder length="0.008" radius="0.009"/>
+        </geometry>
+      </collision>
+</xacro:macro>
+
+<!-- Simplified collisions for the proximal_link on all fingers -->
+<xacro:macro name="proximal_link_collisions">
+      <collision name='collision1'>
+        <origin xyz="0 0.0028 0.033" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.018 0.019 0.055"/>
+        </geometry>
+      </collision>
+
+      <collision name='collision2'>
+        <origin xyz="0 0 0" rpy="0 1.5707 0"/>
+        <geometry>
+          <cylinder radius="0.009" length="0.018"/>
+        </geometry>
+      </collision>
+</xacro:macro>
+
+<!-- Simplified collisions for the distal_link on all fingers -->
+<xacro:macro name="distal_link_collisions">
+      <collision name='collision'>
+        <origin xyz="0 0.0025 0.019" rpy="3.141590 0.001593 3.141590"/>
+        <geometry>
+          <box size="0.0175 0.02023 0.04043"/>
+        </geometry>
+      </collision>
+</xacro:macro>
+
 <xacro:macro name="irobot_hand" params="side parent reflect *origin">
   <xacro:flex_link side="${side}" finger_id="0" link_id="1"/>
   <xacro:flex_link side="${side}" finger_id="0" link_id="2"/>
@@ -218,12 +283,21 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
+
+    <collision name='collision1'>
+      <origin xyz="0 0.02 0.045" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/palm.stl"/>
+        <box size="0.114 0.1 0.075"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 -0.038 -0.023"/>
     </collision>
+
+    <collision name='collision2'>
+      <origin xyz="0 -0.02 0.045" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.0448" length="0.075"/>
+      </geometry>
+    </collision>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/palm.stl"/>
@@ -241,12 +315,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_base.stl"/>
-      </geometry>
-      <origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:base_rotation_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_base.stl"/>
@@ -264,12 +335,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_proximal.stl"/>
-      </geometry>
-      <origin rpy="${pi/2} -${pi/2} 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:proximal_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_proximal.stl"/>
@@ -295,12 +363,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_distal.stl"/>
-      </geometry>
-      <origin rpy="0 ${pi} 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:distal_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_distal.stl"/>
@@ -326,12 +391,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_base.stl"/>
-      </geometry>
-      <origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:base_rotation_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_base.stl"/>
@@ -349,12 +411,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_proximal.stl"/>
-      </geometry>
-      <origin rpy="${pi/2} -${pi/2} 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:proximal_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_proximal.stl"/>
@@ -380,12 +439,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_distal.stl"/>
-      </geometry>
-      <origin rpy="0 ${pi} 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:distal_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_distal.stl"/>
@@ -411,12 +467,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_proximal.stl"/>
-      </geometry>
-      <origin rpy="${pi/2} -${pi/2} 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:proximal_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_proximal.stl"/>
@@ -442,12 +495,9 @@
         <origin xyz="0 0 0"/>
         <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
       </inertial>
-    <collision>
-      <geometry>
-        <mesh filename="package://irobot_hand_description/meshes/finger_distal.stl"/>
-      </geometry>
-      <origin rpy="0 ${pi} 0" xyz="0 0 0"/>
-    </collision>
+
+    <xacro:distal_link_collisions/>
+
     <visual>
       <geometry>
         <mesh filename="package://irobot_hand_description/meshes/finger_distal.stl"/>
