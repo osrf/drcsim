@@ -12,6 +12,7 @@ set (files
   atlas_position_controllers.launch
   atlas_no_controllers.launch
   drc_sim_v0.launch
+  drc_practice_task_2.launch
   drc_trajectory_controllers.launch
   qual_task_1.launch
   qual_task_2.launch
