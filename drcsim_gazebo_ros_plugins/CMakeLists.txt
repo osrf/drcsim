@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 # set(CMAKE_BUILD_TYPE "Debug")
 
-find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib) # gazebo_plugins)
+find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib atlas_msgs) # gazebo_plugins)
 
   
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -37,8 +37,6 @@ catkin_package(
 #  CATKIN_DEPENDS drcsim_gazebo_plugins # gazebo_plugins
 #  DEPENDS system_lib
 )
-
-message(status "\n\n\n${catkin_INCLUDE_DIRS}\n\n")
 
 find_package(gazebo REQUIRED)
 # \todo: special hack to make gazebo flags behave.  can we remove these?
@@ -150,87 +148,6 @@ add_executable(actionlib_server src/actionlib_server.cpp)
 target_link_libraries(actionlib_server ${catkin_LIBRARIES})
 add_dependencies(actionlib_server atlas_msgs_gencpp) # or atlas_msgs_generate_messages_cpp)
 
-
-
-
-
-# ##### these are repeats of gazebo_ros_pkgs/gazebo_plugins,
-# ##### but we have to repeat ther here because gazebo_ros_pkgs is
-# ##### released only in hydro, not in groovy/fuerte
-# add_library(MultiCameraPlugin use_gazebo_ros_pkgs/MultiCameraPlugin.cc)
-# set_target_properties(MultiCameraPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(MultiCameraPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(MultiCameraPlugin ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_camera_utils use_gazebo_ros_pkgs/gazebo_ros_camera_utils.cpp)
-# set_target_properties(gazebo_ros_camera_utils PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_camera_utils PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_camera_utils CameraPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_camera use_gazebo_ros_pkgs/gazebo_ros_camera.cpp)
-# set_target_properties(gazebo_ros_camera PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_camera PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_camera ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_p3d use_gazebo_ros_pkgs/gazebo_ros_p3d.cpp)
-# set_target_properties(gazebo_ros_p3d PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_p3d PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_p3d ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_multicamera use_gazebo_ros_pkgs/gazebo_ros_multicamera.cpp)
-# set_target_properties(gazebo_ros_multicamera PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_multicamera PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_multicamera gazebo_ros_camera_utils MultiCameraPlugin ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_laser use_gazebo_ros_pkgs/gazebo_ros_laser.cpp)
-# set_target_properties(gazebo_ros_laser PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_laser PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_laser ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_joint_trajectory use_gazebo_ros_pkgs/gazebo_ros_joint_trajectory.cpp)
-# set_target_properties(gazebo_ros_joint_trajectory PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_joint_trajectory PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_joint_trajectory ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_imu use_gazebo_ros_pkgs/gazebo_ros_imu.cpp)
-# set_target_properties(gazebo_ros_imu PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_imu PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_imu ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_gpu_laser use_gazebo_ros_pkgs/gazebo_ros_gpu_laser.cpp)
-# set_target_properties(gazebo_ros_gpu_laser PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_gpu_laser PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_gpu_laser ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} GpuRayPlugin)
-#
-# add_library(gazebo_ros_force use_gazebo_ros_pkgs/gazebo_ros_force.cpp)
-# Set_target_properties(gazebo_ros_force PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_force PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_force ${GAZEBO_LIBRARIES})
-#
-# add_library(gazebo_ros_controller_manager use_gazebo_ros_pkgs/gazebo_ros_controller_manager.cpp)
-# set_target_properties(gazebo_ros_controller_manager PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_controller_manager PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_controller_manager ${GAZEBO_LIBRARIES})
-#
-#
-# ### this should be the same as gazebo_ros_api plugin in gazebo_ros_pkgs/gazebo_ros
-# ### without all the refernces to gazebo_msgs.  This is because we don't want to
-# ### rebuild gazebo_msgs here.
-# add_library(gazebo_ros_api_plugin use_gazebo_ros_pkgs/gazebo_ros_api_plugin.cpp)
-# set_target_properties(gazebo_ros_api_plugin PROPERTIES LINK_FLAGS "${ld_flags}")
-# set_target_properties(gazebo_ros_api_plugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-# target_link_libraries(gazebo_ros_api_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-
-# install(TARGETS MultiCameraPlugin gazebo_ros_camera_utils gazebo_ros_camera gazebo_ros_p3d gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_joint_trajectory gazebo_ros_imu gazebo_ros_gpu_laser gazebo_ros_force gazebo_ros_controller_manager gazebo_ros_api_plugin
-#   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
-# )
-
-# install(DIRECTORY include/use_gazebo_ros_pkg/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
 #############
 ## Install ##
 #############
@@ -243,4 +160,3 @@ install(DIRECTORY include/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
-
