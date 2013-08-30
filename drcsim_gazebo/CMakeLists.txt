@@ -13,7 +13,7 @@ catkin_package(
 )
 
 install(DIRECTORY
-  launch config raw
+  launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
