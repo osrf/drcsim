@@ -5,8 +5,8 @@
   <arg name="hand_suffix" default=""/>
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
-  <!-- <param name="/atlas/startup_mode" type="string" value="bdi_stand"/> -->
-  <param name="/atlas/startup_mode" type="string" value="pinned"/>
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+  <!-- <param name="/atlas/startup_mode" type="string" value="pinned"/> -->
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
@@ -25,7 +25,7 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_v3_sandia_hands.urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="0" type="double"/>
   <param name="robot_initial_pose/y"     value="0" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.93" type="double"/>
+  <param name="robot_initial_pose/z"     value="0.95" type="double"/>
   <param name="robot_initial_pose/roll"  value="0" type="double"/>
   <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>

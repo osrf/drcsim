@@ -140,7 +140,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   // init joints, hardcoded for Atlas
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
   this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
-  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_mbx"));
+  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_ubx"));
   this->jointNames.push_back(this->FindJoint("neck_ry",   "neck_ay"));
   this->jointNames.push_back(this->FindJoint("l_leg_hpz", "l_leg_uhz"));
   this->jointNames.push_back(this->FindJoint("l_leg_hpx", "l_leg_mhx"));
@@ -498,21 +498,21 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   }
 
   // Get force torque joints
-  this->lWristJoint = this->model->GetJoint("l_arm_wrx");
+  this->lWristJoint = this->model->GetJoint(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
   if (!this->lWristJoint)
-    gzerr << "left wrist joint (l_arm_wrx) not found\n";
+    gzerr << "left wrist joint (l_arm_wrx or l_arm_wrx) not found\n";
 
-  this->rWristJoint = this->model->GetJoint("r_arm_wrx");
+  this->rWristJoint = this->model->GetJoint(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
   if (!this->rWristJoint)
-    gzerr << "right wrist joint (r_arm_mxw) not found\n";
+    gzerr << "right wrist joint (r_arm_mxw or r_arm_wrx) not found\n";
 
-  this->rAnkleJoint = this->model->GetJoint("r_leg_akx");
+  this->rAnkleJoint = this->model->GetJoint(this->FindJoint("r_leg_akx", "r_leg_lax"));
   if (!this->rAnkleJoint)
-    gzerr << "right ankle joint (r_leg_akx) not found\n";
+    gzerr << "right ankle joint (r_leg_akx or r_leg_lax) not found\n";
 
-  this->lAnkleJoint = this->model->GetJoint("l_leg_akx");
+  this->lAnkleJoint = this->model->GetJoint(this->FindJoint("l_leg_akx", "l_leg_lax"));
   if (!this->lAnkleJoint)
-    gzerr << "left ankle joint (l_leg_akx) not found\n";
+    gzerr << "left ankle joint (l_leg_akx or l_leg_lax) not found\n";
 
   // Get sensors
   this->imuSensor =

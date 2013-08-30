@@ -694,16 +694,27 @@ void VRCPlugin::UpdateStates()
         {
           ROS_INFO("BS_PID_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 1.0))
+            (atlas.startupStandPrepDuration - 8.0))
+          {
+            ROS_INFO("going into stand prep");
+            this->atlasCommandController.SetBDIStandPrep();
+            this->atlas.bdiStandSequence = Robot::BS_STAND_PREP_PINNED;
+          }
+        }
+        case Robot::BS_STAND_PREP_PINNED:
+        {
+          ROS_INFO("BS_STAND_PREP_PINNED");
+          if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
+            (atlas.startupStandPrepDuration - 0.3))
           {
             ROS_INFO("going into Nominal");
             this->SetRobotMode("nominal");
-            this->atlas.bdiStandSequence = Robot::BS_PID;
+            this->atlas.bdiStandSequence = Robot::BS_STAND_PREP;
           }
         }
-        case Robot::BS_PID:
+        case Robot::BS_STAND_PREP:
         {
-          ROS_INFO("BS_PID");
+          ROS_INFO("BS_STAND_PREP");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
               atlas.startupStandPrepDuration)
           {
@@ -1049,7 +1060,7 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
 {
   // bunch of hardcoded presets
   this->startupHarnessDuration = 10;
-  this->startupStandPrepDuration = 2;
+  this->startupStandPrepDuration = 10;
 
   // changed by ros param
   this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
@@ -1329,7 +1340,7 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   // must match those inside AtlasPlugin
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
   this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
-  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_mbx"));
+  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_ubx"));
   this->jointNames.push_back(this->FindJoint("neck_ry",   "neck_ay"));
   this->jointNames.push_back(this->FindJoint("l_leg_hpz", "l_leg_uhz"));
   this->jointNames.push_back(this->FindJoint("l_leg_hpx", "l_leg_mhx"));

@@ -237,8 +237,9 @@ namespace gazebo
       private: enum BDIStandSequence {
         BS_NONE = 0,
         BS_PID_PINNED = 1,
-        BS_PID = 2,
-        BS_INITIALIZED = 3
+        BS_STAND_PREP_PINNED = 2,
+        BS_STAND_PREP = 3,
+        BS_INITIALIZED = 4
       };
       private: int bdiStandSequence;
 
