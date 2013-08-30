@@ -79,7 +79,7 @@ void Work()
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "pub_atlas_commandt");
+  ros::init(argc, argv, "pub_atlas_command");
 
   ros::NodeHandle* rosnode = new ros::NodeHandle();
 
