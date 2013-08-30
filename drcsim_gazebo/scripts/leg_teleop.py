@@ -23,20 +23,20 @@ class ArmTeleop():
         self.joint_state = None
 
         # Prepare a message structure that we'll reuse
-        self.atlasJointNames = [ 'atlas::back_lbz', 'atlas::back_mby',
-                                 'atlas::back_ubx', 'atlas::neck_ay',
-                                 'atlas::l_leg_uhz', 'atlas::l_leg_mhx',
-                                 'atlas::l_leg_lhy', 'atlas::l_leg_kny',
-                                 'atlas::l_leg_uay', 'atlas::l_leg_lax',
-                                 'atlas::r_leg_uhz', 'atlas::r_leg_mhx',
-                                 'atlas::r_leg_lhy', 'atlas::r_leg_kny',
-                                 'atlas::r_leg_uay', 'atlas::r_leg_lax',
-                                 'atlas::l_arm_usy', 'atlas::l_arm_shx',
+        self.atlasJointNames = [ 'atlas::back_bkz', 'atlas::back_bky',
+                                 'atlas::back_bkx', 'atlas::neck_ry',
+                                 'atlas::l_leg_hpz', 'atlas::l_leg_hpx',
+                                 'atlas::l_leg_hpy', 'atlas::l_leg_kny',
+                                 'atlas::l_leg_aky', 'atlas::l_leg_akx',
+                                 'atlas::r_leg_hpz', 'atlas::r_leg_hpx',
+                                 'atlas::r_leg_hpy', 'atlas::r_leg_kny',
+                                 'atlas::r_leg_aky', 'atlas::r_leg_akx',
+                                 'atlas::l_arm_shy', 'atlas::l_arm_shx',
                                  'atlas::l_arm_ely', 'atlas::l_arm_elx',
-                                 'atlas::l_arm_uwy', 'atlas::l_arm_mwx',
-                                 'atlas::r_arm_usy', 'atlas::r_arm_shx',
+                                 'atlas::l_arm_wry', 'atlas::l_arm_wrx',
+                                 'atlas::r_arm_shy', 'atlas::r_arm_shx',
                                  'atlas::r_arm_ely', 'atlas::r_arm_elx',
-                                 'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
+                                 'atlas::r_arm_wry', 'atlas::r_arm_wrx']
 
         if len(argv) < 2 or len(argv) > 4:
             self.usage()
@@ -45,14 +45,14 @@ class ArmTeleop():
         # joint list; we'll do direct control of 6 joints starting there.
         self.num_joints = 6
         if argv[1] == 'l':
-            self.idx_offset1 = self.atlasJointNames.index('atlas::l_arm_usy')
+            self.idx_offset1 = self.atlasJointNames.index('atlas::l_arm_shy')
             self.idx_offset2 = None
         elif argv[1] == 'r':
-            self.idx_offset1 = self.atlasJointNames.index('atlas::r_arm_usy')
+            self.idx_offset1 = self.atlasJointNames.index('atlas::r_arm_shy')
             self.idx_offset2 = None
         elif argv[1] == 'lr' or argv[1] == 'rl':
-            self.idx_offset1 = self.atlasJointNames.index('atlas::l_arm_usy')
-            self.idx_offset2 = self.atlasJointNames.index('atlas::r_arm_usy')
+            self.idx_offset1 = self.atlasJointNames.index('atlas::l_arm_shy')
+            self.idx_offset2 = self.atlasJointNames.index('atlas::r_arm_shy')
         else:
             self.usage()
 

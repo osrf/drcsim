@@ -41,16 +41,16 @@ int main(int argc, char** argv)
   jt.header.stamp = ros::Time::now();
   jt.header.frame_id = "atlas::pelvis";
 
-  jt.joint_names.push_back("atlas::back_lbz");
-  jt.joint_names.push_back("atlas::back_mby");
-  jt.joint_names.push_back("atlas::back_ubx");
-  jt.joint_names.push_back("atlas::neck_ay");
-  jt.joint_names.push_back("atlas::l_leg_uhz");
-  jt.joint_names.push_back("atlas::l_leg_mhx");
-  jt.joint_names.push_back("atlas::l_leg_lhy");
+  jt.joint_names.push_back("atlas::back_bkz");
+  jt.joint_names.push_back("atlas::back_bky");
+  jt.joint_names.push_back("atlas::back_bkx");
+  jt.joint_names.push_back("atlas::neck_ry");
+  jt.joint_names.push_back("atlas::l_leg_hpz");
+  jt.joint_names.push_back("atlas::l_leg_hpx");
+  jt.joint_names.push_back("atlas::l_leg_hpy");
   jt.joint_names.push_back("atlas::l_leg_kny");
-  jt.joint_names.push_back("atlas::l_leg_uay");
-  jt.joint_names.push_back("atlas::l_leg_lax");
+  jt.joint_names.push_back("atlas::l_leg_aky");
+  jt.joint_names.push_back("atlas::l_leg_akx");
 
   int n = 500;
   double dt = 0.01;

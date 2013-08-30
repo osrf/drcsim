@@ -86,20 +86,20 @@ if __name__ == '__main__':
   print g_vec_lh
   print g_vec_rh
   rospy.init_node('atlas_teleop')
-  # g_jc.name = ['atlas::back_lbz', 'atlas::back_mby',    # 0
-  #              'atlas::back_ubx', 'atlas::neck_ay',
-  #              'atlas::l_leg_uhz', 'atlas::l_leg_mhx',  # 4
-  #              'atlas::l_leg_lhy', 'atlas::l_leg_kny',
-  #              'atlas::l_leg_uay', 'atlas::l_leg_lax',
-  #              'atlas::r_leg_uhz', 'atlas::r_leg_mhx',  # 10
-  #              'atlas::r_leg_lhy', 'atlas::r_leg_kny',
-  #              'atlas::r_leg_uay', 'atlas::r_leg_lax',
-  #              'atlas::l_arm_usy', 'atlas::l_arm_shx',  # 16
+  # g_jc.name = ['atlas::back_bkz', 'atlas::back_bky',    # 0
+  #              'atlas::back_bkx', 'atlas::neck_ry',
+  #              'atlas::l_leg_hpz', 'atlas::l_leg_hpx',  # 4
+  #              'atlas::l_leg_hpy', 'atlas::l_leg_kny',
+  #              'atlas::l_leg_aky', 'atlas::l_leg_akx',
+  #              'atlas::r_leg_hpz', 'atlas::r_leg_hpx',  # 10
+  #              'atlas::r_leg_hpy', 'atlas::r_leg_kny',
+  #              'atlas::r_leg_aky', 'atlas::r_leg_akx',
+  #              'atlas::l_arm_shy', 'atlas::l_arm_shx',  # 16
   #              'atlas::l_arm_ely', 'atlas::l_arm_elx',
-  #              'atlas::l_arm_uwy', 'atlas::l_arm_mwx',
-  #              'atlas::r_arm_usy', 'atlas::r_arm_shx',  # 22
+  #              'atlas::l_arm_wry', 'atlas::l_arm_wrx',
+  #              'atlas::r_arm_shy', 'atlas::r_arm_shx',  # 22
   #              'atlas::r_arm_ely', 'atlas::r_arm_elx',
-  #              'atlas::r_arm_uwy', 'atlas::r_arm_mwx']
+  #              'atlas::r_arm_wry', 'atlas::r_arm_wrx']
   ''' current settings from launch file:
   g_jc.kp_position = [20, 4000, 2000, 20,  # back
                       5, 100, 2000, 1000, 900, 300, # left leg

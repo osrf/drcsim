@@ -58,34 +58,34 @@ int main(int argc, char** argv)
   }
 
   // must match those inside AtlasPlugin
-  jc.name.push_back("atlas::back_lbz");
-  jc.name.push_back("atlas::back_mby");
-  jc.name.push_back("atlas::back_ubx");
-  jc.name.push_back("atlas::neck_ay");
-  jc.name.push_back("atlas::l_leg_uhz");
-  jc.name.push_back("atlas::l_leg_mhx");
-  jc.name.push_back("atlas::l_leg_lhy");
+  jc.name.push_back("atlas::back_bkz");
+  jc.name.push_back("atlas::back_bky");
+  jc.name.push_back("atlas::back_bkx");
+  jc.name.push_back("atlas::neck_ry");
+  jc.name.push_back("atlas::l_leg_hpz");
+  jc.name.push_back("atlas::l_leg_hpx");
+  jc.name.push_back("atlas::l_leg_hpy");
   jc.name.push_back("atlas::l_leg_kny");
-  jc.name.push_back("atlas::l_leg_uay");
-  jc.name.push_back("atlas::l_leg_lax");
-  jc.name.push_back("atlas::r_leg_uhz");
-  jc.name.push_back("atlas::r_leg_mhx");
-  jc.name.push_back("atlas::r_leg_lhy");
+  jc.name.push_back("atlas::l_leg_aky");
+  jc.name.push_back("atlas::l_leg_akx");
+  jc.name.push_back("atlas::r_leg_hpz");
+  jc.name.push_back("atlas::r_leg_hpx");
+  jc.name.push_back("atlas::r_leg_hpy");
   jc.name.push_back("atlas::r_leg_kny");
-  jc.name.push_back("atlas::r_leg_uay");
-  jc.name.push_back("atlas::r_leg_lax");
-  jc.name.push_back("atlas::l_arm_usy");
+  jc.name.push_back("atlas::r_leg_aky");
+  jc.name.push_back("atlas::r_leg_akx");
+  jc.name.push_back("atlas::l_arm_shy");
   jc.name.push_back("atlas::l_arm_shx");
   jc.name.push_back("atlas::l_arm_ely");
   jc.name.push_back("atlas::l_arm_elx");
-  jc.name.push_back("atlas::l_arm_uwy");
-  jc.name.push_back("atlas::l_arm_mwx");
-  jc.name.push_back("atlas::r_arm_usy");
+  jc.name.push_back("atlas::l_arm_wry");
+  jc.name.push_back("atlas::l_arm_wrx");
+  jc.name.push_back("atlas::r_arm_shy");
   jc.name.push_back("atlas::r_arm_shx");
   jc.name.push_back("atlas::r_arm_ely");
   jc.name.push_back("atlas::r_arm_elx");
-  jc.name.push_back("atlas::r_arm_uwy");
-  jc.name.push_back("atlas::r_arm_mwx");
+  jc.name.push_back("atlas::r_arm_wry");
+  jc.name.push_back("atlas::r_arm_wrx");
 
   unsigned int n = jc.name.size();
   jc.position.resize(n);
