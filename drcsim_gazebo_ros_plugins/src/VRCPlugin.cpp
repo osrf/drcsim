@@ -188,7 +188,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       // gzdbg << groundBB.min.z << "\n";
 
       // slightly above ground and upright
-      atlasPose.pos.z = groundHeight + 1.11;
+      atlasPose.pos.z = groundHeight + 1.15;
       atlasPose.rot.SetFromEuler(0, 0, 0);
       this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
 
@@ -662,7 +662,10 @@ void VRCPlugin::UpdateStates()
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
   {
     if (this->atlas.CheckGetModel(this->world))
+    {
       this->atlas.startupSequence = Robot::SPAWN_SUCCESS;
+      this->atlasCommandController.InitModel(this->atlas.model);
+    }
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_SUCCESS)
   {
@@ -1285,7 +1288,28 @@ void VRCPlugin::SetRobotConfiguration(const sensor_msgs::JointState::ConstPtr
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+std::string VRCPlugin::AtlasCommandController::FindJoint(
+  std::string _st1, std::string _st2)
+{
+  if (this->model->GetJoint(_st1))
+    return _st1;
+  else if (this->model->GetJoint(_st2))
+    return _st2;
+  else
+  {
+    ROS_ERROR("joint by names [%s] or [%s] not found.",
+              _st1.c_str(), _st2.c_str());
+    return std::string();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 VRCPlugin::AtlasCommandController::AtlasCommandController()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -1297,38 +1321,40 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
     return;
   }
 
+  this->model = _model;
+
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
   // must match those inside AtlasPlugin
-  this->jointNames.push_back("atlas::back_lbz");
-  this->jointNames.push_back("atlas::back_mby");
-  this->jointNames.push_back("atlas::back_ubx");
-  this->jointNames.push_back("atlas::neck_ay");
-  this->jointNames.push_back("atlas::l_leg_uhz");
-  this->jointNames.push_back("atlas::l_leg_mhx");
-  this->jointNames.push_back("atlas::l_leg_lhy");
-  this->jointNames.push_back("atlas::l_leg_kny");
-  this->jointNames.push_back("atlas::l_leg_uay");
-  this->jointNames.push_back("atlas::l_leg_lax");
-  this->jointNames.push_back("atlas::r_leg_uhz");
-  this->jointNames.push_back("atlas::r_leg_mhx");
-  this->jointNames.push_back("atlas::r_leg_lhy");
-  this->jointNames.push_back("atlas::r_leg_kny");
-  this->jointNames.push_back("atlas::r_leg_uay");
-  this->jointNames.push_back("atlas::r_leg_lax");
-  this->jointNames.push_back("atlas::l_arm_usy");
-  this->jointNames.push_back("atlas::l_arm_shx");
-  this->jointNames.push_back("atlas::l_arm_ely");
-  this->jointNames.push_back("atlas::l_arm_elx");
-  this->jointNames.push_back("atlas::l_arm_uwy");
-  this->jointNames.push_back("atlas::l_arm_mwx");
-  this->jointNames.push_back("atlas::r_arm_usy");
-  this->jointNames.push_back("atlas::r_arm_shx");
-  this->jointNames.push_back("atlas::r_arm_ely");
-  this->jointNames.push_back("atlas::r_arm_elx");
-  this->jointNames.push_back("atlas::r_arm_uwy");
-  this->jointNames.push_back("atlas::r_arm_mwx");
+  this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
+  this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
+  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_mbx"));
+  this->jointNames.push_back(this->FindJoint("neck_ry",   "neck_ay"));
+  this->jointNames.push_back(this->FindJoint("l_leg_hpz", "l_leg_uhz"));
+  this->jointNames.push_back(this->FindJoint("l_leg_hpx", "l_leg_mhx"));
+  this->jointNames.push_back(this->FindJoint("l_leg_hpy", "l_leg_lhy"));
+  this->jointNames.push_back("l_leg_kny");
+  this->jointNames.push_back(this->FindJoint("l_leg_aky", "l_leg_uay"));
+  this->jointNames.push_back(this->FindJoint("l_leg_akx", "l_leg_lax"));
+  this->jointNames.push_back(this->FindJoint("r_leg_hpz", "r_leg_uhz"));
+  this->jointNames.push_back(this->FindJoint("r_leg_hpx", "r_leg_mhx"));
+  this->jointNames.push_back(this->FindJoint("r_leg_hpy", "r_leg_lhy"));
+  this->jointNames.push_back("r_leg_kny");
+  this->jointNames.push_back(this->FindJoint("r_leg_aky", "r_leg_uay"));
+  this->jointNames.push_back(this->FindJoint("r_leg_akx", "r_leg_lax"));
+  this->jointNames.push_back(this->FindJoint("l_arm_shy", "l_arm_usy"));
+  this->jointNames.push_back("l_arm_shx");
+  this->jointNames.push_back("l_arm_ely");
+  this->jointNames.push_back("l_arm_elx");
+  this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
+  this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
+  this->jointNames.push_back(this->FindJoint("r_arm_shy", "r_arm_usy"));
+  this->jointNames.push_back("r_arm_shx");
+  this->jointNames.push_back("r_arm_ely");
+  this->jointNames.push_back("r_arm_elx");
+  this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
+  this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
   unsigned int n = this->jointNames.size();
   this->ac.position.resize(n);
@@ -1344,23 +1370,20 @@ VRCPlugin::AtlasCommandController::AtlasCommandController()
 
   for (unsigned int i = 0; i < n; ++i)
   {
-    std::vector<std::string> pieces;
-    boost::split(pieces, this->jointNames[i], boost::is_any_of(":"));
-
     double val;
-    this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+    this->rosNode->getParam("atlas_controller/gains/" + this->jointNames[i] +
       "/p", val);
     this->ac.kp_position[i] = val;
 
-    this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+    this->rosNode->getParam("atlas_controller/gains/" + this->jointNames[i] +
       "/i", val);
     this->ac.ki_position[i] = val;
 
-    this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+    this->rosNode->getParam("atlas_controller/gains/" + this->jointNames[i] +
       "/d", val);
     this->ac.kd_position[i] = val;
 
-    this->rosNode->getParam("atlas_controller/gains/" + pieces[2] +
+    this->rosNode->getParam("atlas_controller/gains/" + this->jointNames[i] +
       "/i_clamp", val);
     this->ac.i_effort_min[i] = -val;
     this->ac.i_effort_max[i] = val;
@@ -1478,7 +1501,8 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   // set joint positions
   std::map<std::string, double> jps;
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    jps.insert(std::make_pair(this->jointNames[i], this->ac.position[i]));
+    jps.insert(std::make_pair(atlasModel->GetName() + "::" +
+                              this->jointNames[i], this->ac.position[i]));
 
   atlasModel->SetJointPositions(jps);
 
@@ -1557,7 +1581,8 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   // set joint positions
   std::map<std::string, double> jps;
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    jps.insert(std::make_pair(this->jointNames[i], this->ac.position[i]));
+    jps.insert(std::make_pair(atlasModel->GetName() + "::" +
+                              this->jointNames[i], this->ac.position[i]));
 
   atlasModel->SetJointPositions(jps);
 
@@ -1603,7 +1628,8 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   // set joint positions
   std::map<std::string, double> jps;
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    jps.insert(std::make_pair(this->jointNames[i], this->ac.position[i]));
+    jps.insert(std::make_pair(atlasModel->GetName() + "::" +
+                              this->jointNames[i], this->ac.position[i]));
 
   atlasModel->SetJointPositions(jps);
 
