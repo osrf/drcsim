@@ -3,6 +3,7 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas_sandia_hands.world"/>
   <arg name="hand_suffix" default=""/>
+  <arg name="extra_gazebo_args" default="-q" />
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
   <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
@@ -12,7 +13,7 @@
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="$(arg gzworld)"/>
-    <arg name="extra_gazebo_args" value="-q"/>
+    <arg name="extra_gazebo_args" value="$(arg extra_gazebo_args)"/>
   </include>
 
   <!-- to trigger synchronization delay, set
