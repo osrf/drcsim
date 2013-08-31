@@ -684,7 +684,7 @@ void VRCPlugin::UpdateStates()
       {
         case Robot::BS_NONE:
         {
-          ROS_INFO("BS_NONE");
+          // ROS_INFO("BS_NONE");
           this->SetRobotMode("bdi_stand");
           // start the rest of the sequence
           this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
@@ -693,7 +693,7 @@ void VRCPlugin::UpdateStates()
         }
         case Robot::BS_PID_PINNED:
         {
-          ROS_INFO("BS_PID_PINNED");
+          // ROS_INFO("BS_PID_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
             (atlas.startupStandPrepDuration - 8.0))
           {
@@ -705,7 +705,7 @@ void VRCPlugin::UpdateStates()
         }
         case Robot::BS_STAND_PREP_PINNED:
         {
-          ROS_INFO("BS_STAND_PREP_PINNED");
+          // ROS_INFO("BS_STAND_PREP_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
             (atlas.startupStandPrepDuration - 0.3))
           {
@@ -717,7 +717,7 @@ void VRCPlugin::UpdateStates()
         }
         case Robot::BS_STAND_PREP:
         {
-          ROS_INFO("BS_STAND_PREP");
+          // ROS_INFO("BS_STAND_PREP");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
               atlas.startupStandPrepDuration)
           {
