@@ -689,6 +689,7 @@ void VRCPlugin::UpdateStates()
           // start the rest of the sequence
           this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
           this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
+          break;
         }
         case Robot::BS_PID_PINNED:
         {
@@ -700,6 +701,7 @@ void VRCPlugin::UpdateStates()
             this->atlasCommandController.SetBDIStandPrep();
             this->atlas.bdiStandSequence = Robot::BS_STAND_PREP_PINNED;
           }
+          break;
         }
         case Robot::BS_STAND_PREP_PINNED:
         {
@@ -711,6 +713,7 @@ void VRCPlugin::UpdateStates()
             this->SetRobotMode("nominal");
             this->atlas.bdiStandSequence = Robot::BS_STAND_PREP;
           }
+          break;
         }
         case Robot::BS_STAND_PREP:
         {
@@ -723,6 +726,7 @@ void VRCPlugin::UpdateStates()
             this->atlas.bdiStandSequence = Robot::BS_INITIALIZED;
             this->atlas.startupSequence = Robot::INITIALIZED;
           }
+          break;
         }
       }
     }
@@ -745,6 +749,7 @@ void VRCPlugin::UpdateStates()
               this->atlas.startupHarnessDuration);
             this->atlas.pinnedSequence = Robot::PS_PINNED;
           }
+          break;
         }
         case Robot::PS_PINNED:
         {
@@ -756,6 +761,7 @@ void VRCPlugin::UpdateStates()
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
             this->atlas.startupSequence = Robot::INITIALIZED;
           }
+          break;
         }
       }
     }
