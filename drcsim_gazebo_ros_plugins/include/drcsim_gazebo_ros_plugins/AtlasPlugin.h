@@ -85,7 +85,7 @@
 
 #include <atlas_msgs/Test.h>
 
-#include "use_gazebo_ros_pkgs/PubQueue.h"
+#include <gazebo_plugins/PubQueue.h>
 
 namespace gazebo
 {

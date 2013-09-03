@@ -14,6 +14,7 @@
   <build_depend>osrf_msgs</build_depend>
   <build_depend>sandia_hand_msgs</build_depend>
 
+  <build_depend>pr2_mechanism</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
@@ -24,8 +25,11 @@
   <build_depend>image_transport</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>actionlib</build_depend>
-  <!-- <build_depend>gazebo_plugins</build_depend> -->
+  <build_depend>gazebo_plugins</build_depend>
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>gazebo_msgs</build_depend>
 
+  <run_depend>pr2_mechanism</run_depend>
   <run_depend>drcsim_model_resources</run_depend>
   <run_depend>drcsim_gazebo_plugins</run_depend>
   <run_depend>osrf_msgs</run_depend>
@@ -42,6 +46,8 @@
   <run_depend>image_transport</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>actionlib</run_depend>
-  <!-- <run_depend>gazebo_plugins</run_depend> -->
+  <run_depend>gazebo_plugins</run_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>gazebo_msgs</run_depend>
 
 </package>
