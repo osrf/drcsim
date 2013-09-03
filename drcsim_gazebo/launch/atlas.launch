@@ -2,6 +2,8 @@
 
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas.world"/>
+  <arg name="extra_gazebo_args" default="-q" />
+  <arg name="model_args" default="" />
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
 
@@ -9,7 +11,7 @@
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="$(arg gzworld)"/>
-    <arg name="extra_gazebo_args" value="-q"/>
+    <arg name="extra_gazebo_args" value="$(arg extra_gazebo_args)"/>
   </include>
 
   <!-- to trigger synchronization delay, set
@@ -19,7 +21,7 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg model_args).urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="0" type="double"/>
   <param name="robot_initial_pose/y"     value="0" type="double"/>
   <param name="robot_initial_pose/z"     value="0.93" type="double"/>
