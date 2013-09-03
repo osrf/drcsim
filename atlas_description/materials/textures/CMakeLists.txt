@@ -5,5 +5,6 @@ set (files
   drc_extremities_diffuse.jpg
   drc_labels_1.jpg
   drc_torso_head_diffuse.jpg
+  atlas_cage_and_camera_diffuse_flat.jpg
 )
 install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/atlas/materials/textures/)
