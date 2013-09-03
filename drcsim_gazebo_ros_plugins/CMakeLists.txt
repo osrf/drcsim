@@ -76,12 +76,6 @@ set_target_properties(SandiaHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(SandiaHandPlugin ${catkin_LIBRARIES})
 add_dependencies(SandiaHandPlugin atlas_msgs_gencpp)
 
-add_library(IRobotHandPlugin src/IRobotHandPlugin.cpp)
-set_target_properties(IRobotHandPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(IRobotHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
-target_link_libraries(IRobotHandPlugin ${catkin_LIBRARIES})
-add_dependencies(IRobotHandPlugin atlas_msgs_gencpp)
-
 add_library(MultiSenseSLPlugin src/MultiSenseSLPlugin.cpp)
 set_target_properties(MultiSenseSLPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(MultiSenseSLPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
@@ -229,7 +223,7 @@ target_link_libraries(gazebo_ros_api_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARI
 #############
 ## Install ##
 #############
-install(TARGETS VRCPlugin SandiaHandPlugin IRobotHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin MultiCameraPlugin gazebo_ros_camera_utils gazebo_ros_camera gazebo_ros_p3d gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_joint_trajectory gazebo_ros_imu gazebo_ros_gpu_laser gazebo_ros_force gazebo_ros_api_plugin pub_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server # gazebo_ros_controller_manager 
+install(TARGETS VRCPlugin SandiaHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin MultiCameraPlugin gazebo_ros_camera_utils gazebo_ros_camera gazebo_ros_p3d gazebo_ros_multicamera gazebo_ros_laser gazebo_ros_joint_trajectory gazebo_ros_imu gazebo_ros_gpu_laser gazebo_ros_force gazebo_ros_api_plugin pub_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server # gazebo_ros_controller_manager 
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
   # DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}-${drcsim_gazebo_ros_plugins_VERSION}/plugins/
 )
