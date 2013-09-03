@@ -56,7 +56,7 @@
 #include <osrf_msgs/JointCommands.h>
 #include <sensor_msgs/JointState.h>
 
-#include "use_gazebo_ros_pkgs/PubQueue.h"
+#include <gazebo_plugins/PubQueue.h>
 
 namespace gazebo
 {
