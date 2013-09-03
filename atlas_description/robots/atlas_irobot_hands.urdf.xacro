@@ -10,7 +10,19 @@
     <origin rpy="1.57079 0 3.14159" xyz="0 0.05 0"/>
   </xacro:irobot_hand>
 
+  <gazebo>
+    <!-- plugin for right irobot hand -->
+    <plugin name="right_irobot_hand_plugin" filename="libIRobotHandPlugin.so">
+      <side>right</side>
+    </plugin>
+    <!-- plugin for left irobot hand -->
+    <plugin name="left_irobot_hand_plugin" filename="libIRobotHandPlugin.so">
+      <side>left</side>
+    </plugin>
+  </gazebo>
+
   <include filename="$(find atlas_description)/urdf/atlas.gazebo" />
   <include filename="$(find atlas_description)/urdf/atlas.transmission" />
   <include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
+
 </robot>
