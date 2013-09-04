@@ -2001,6 +2001,11 @@
       <uri>model://cinder_block_wide</uri>
       <pose>16.887609668 -1.016080 0.050000 -0.261794707 0 -1.570796</pose>
     </include>
+
+    <include>
+      <uri>model://atlas_sandia_hands</uri>
+      <pose>0.0 0.0 1.0 0 0 0</pose>
+    </include>
   </world>
 </sdf>
 
