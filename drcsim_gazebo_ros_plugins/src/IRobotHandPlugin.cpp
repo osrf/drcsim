@@ -37,7 +37,7 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
 
   /// \brief Set the stiffness of the flexible joints using the provided cfm and
   /// erp values.
-  private: void SetFlexJointDamping(double cfm, double erp);
+  private: void SetFlexTwistJointDamping();
 
   /// \brief Internal helper to reduce code duplication.
   private: bool GetAndPushBackJoint(const std::string& _joint_name,
@@ -51,9 +51,13 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: static const int numFingers = 3;
   private: static const int numFlexLinks = 8;
   // TODO: make this value configurable
-  private: static const double flexJointCFM = 0.0;
+  private: static const double flexJointCFM = 9.0;
   // TODO: make this value configurable
-  private: static const double flexJointERP = 0.2;
+  private: static const double flexJointERP = 0.1;
+  // TODO: make this value configurable
+  private: static const double twistJointCFM = 0.48;
+  // TODO: make this value configurable
+  private: static const double twistJointERP = 0.05;
   private: std::vector<gazebo::physics::Joint_V> fingerBaseJoints;
   private: std::vector<gazebo::physics::Joint_V> fingerBaseRotationJoints;
   private: std::vector<gazebo::physics::Joint_V> fingerFlexTwistJoints;
@@ -88,7 +92,7 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _
   if(!this->FindJoints())
     return;
 
-  this->SetFlexJointDamping(this->flexJointCFM, this->flexJointERP);
+  this->SetFlexTwistJointDamping();
 }
 
 bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
@@ -187,7 +191,7 @@ bool IRobotHandPlugin::FindJoints()
   return true;
 }
 
-void IRobotHandPlugin::SetFlexJointDamping(double cfm, double erp)
+void IRobotHandPlugin::SetFlexTwistJointDamping()
 {
   for(std::vector<gazebo::physics::Joint_V>::iterator it = 
         this->fingerFlexTwistJoints.begin();
@@ -201,10 +205,24 @@ void IRobotHandPlugin::SetFlexJointDamping(double cfm, double erp)
       // Fake springiness by setting joint limits to 0 and modifying cfm/erp.
       // TODO: implement a generic spring in Gazebo that will work with any
       // physics engine.
+
+      // Assume that the joints are ordered flex then twist, in pairs.
+
       (*iit)->SetLowStop(0, 0);
       (*iit)->SetHighStop(0, 0);
-      (*iit)->SetAttribute("cfm", 0, cfm);
-      (*iit)->SetAttribute("erp", 0, erp);
+      (*iit)->SetAttribute("stop_cfm", 0, this->flexJointCFM);
+      (*iit)->SetAttribute("stop_erp", 0, this->flexJointERP);
+
+      ++iit;
+      if(iit == it->end())
+      {
+        gzerr << "Unmatched pair of joints." << std::endl;
+        return;
+      }
+      (*iit)->SetLowStop(0, 0);
+      (*iit)->SetHighStop(0, 0);
+      (*iit)->SetAttribute("stop_cfm", 0, this->twistJointCFM);
+      (*iit)->SetAttribute("stop_erp", 0, this->twistJointERP);
     }
   }
 }
