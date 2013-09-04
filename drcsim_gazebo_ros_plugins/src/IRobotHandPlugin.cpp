@@ -37,7 +37,11 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
 
   /// \brief Set the stiffness of the flexible joints using the provided cfm and
   /// erp values.
-  private: void SetFlexDamping(double cfm, double erp);
+  private: void SetFlexJointDamping(double cfm, double erp);
+
+  /// \brief Internal helper to reduce code duplication.
+  private: bool GetAndPushBackJoint(const std::string& _joint_name,
+                                    gazebo::physics::Joint_V& _joints);
 
   private: gazebo::physics::WorldPtr world;
   private: gazebo::physics::ModelPtr model;
@@ -84,7 +88,22 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _
   if(!this->FindJoints())
     return;
 
-  this->SetFlexDamping(this->flexJointCFM, this->flexJointERP);
+  this->SetFlexJointDamping(this->flexJointCFM, this->flexJointERP);
+}
+
+bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
+                                           gazebo::physics::Joint_V& _joints)
+{
+  gazebo::physics::JointPtr joint = this->model->GetJoint(_joint_name);
+  if(!joint)
+  {
+    gzerr << "Failed to find joint: " << _joint_name << 
+      "; aborting plugin load." << std::endl;
+    return false;
+  }
+  _joints.push_back(joint);
+  gzlog << "IRobotHandPlugin found joint: " << _joint_name << std::endl;
+  return true;
 }
 
 bool IRobotHandPlugin::FindJoints()
@@ -104,58 +123,63 @@ bool IRobotHandPlugin::FindJoints()
       snprintf(joint_name, sizeof(joint_name),
         "%s_finger[%d]/joint_base_rotation",
         this->side.c_str(), f);
-      joint = this->model->GetJoint(joint_name);
-      if(!joint)
-      {
-        gzerr << "Failed to find joint: " << joint_name << 
-          "; aborting plugin load." << std::endl;
+      if(!this->GetAndPushBackJoint(joint_name, 
+            this->fingerBaseRotationJoints[f]))
         return false;
-      }
-      this->fingerBaseRotationJoints[f].push_back(joint);
     }
 
     // Get the base joint
     snprintf(joint_name, sizeof(joint_name),
       "%s_finger[%d]/joint_base",
       this->side.c_str(), f);
-    joint = this->model->GetJoint(joint_name);
-    if(!joint)
-    {
-      gzerr << "Failed to find joint: " << joint_name << 
-        "; aborting plugin load." << std::endl;
+    if(!this->GetAndPushBackJoint(joint_name, 
+          this->fingerBaseJoints[f]))
       return false;
-    }
-    this->fingerBaseJoints[f].push_back(joint);
 
-    // Get the flex/twist joints
+    // Get the first pair of flex/twist joints
+    snprintf(joint_name, sizeof(joint_name), 
+      "%s_finger[%d]/flexible_joint_flex_from_proximal_to_1",
+      this->side.c_str(), f);
+    if(!this->GetAndPushBackJoint(joint_name, 
+          this->fingerFlexTwistJoints[f]))
+      return false;
+    snprintf(joint_name, sizeof(joint_name), 
+      "%s_finger[%d]/flexible_joint_twist_from_proximal_to_1",
+      this->side.c_str(), f);
+    if(!this->GetAndPushBackJoint(joint_name, 
+          this->fingerFlexTwistJoints[f]))
+      return false;
+
+    // Get the sequence of flex/twist joints, one pair at a time.
     for(int l=1; l<(this->numFlexLinks+1); l++)
     {
-      // Get the flex joint
       snprintf(joint_name, sizeof(joint_name), 
         "%s_finger[%d]/flexible_joint_flex_from_%d_to_%d",
         this->side.c_str(), f, l, l+1);
-      joint = this->model->GetJoint(joint_name);
-      if(!joint)
-      {
-        gzerr << "Failed to find joint: " << joint_name << 
-          "; aborting plugin load." << std::endl;
+      if(!this->GetAndPushBackJoint(joint_name, 
+            this->fingerFlexTwistJoints[f]))
         return false;
-      }
-      this->fingerFlexTwistJoints[f].push_back(joint);
-
-      // Get the twist joint
       snprintf(joint_name, sizeof(joint_name), 
         "%s_finger[%d]/flexible_joint_twist_from_%d_to_%d",
         this->side.c_str(), f, l, l+1);
-      joint = this->model->GetJoint(joint_name);
-      if(!joint)
-      {
-        gzerr << "Failed to find joint: " << joint_name << 
-          "; aborting plugin load." << std::endl;
+      if(!this->GetAndPushBackJoint(joint_name, 
+            this->fingerFlexTwistJoints[f]))
         return false;
-      }
-      this->fingerFlexTwistJoints[f].push_back(joint);
     }
+
+    // Get the last pair of flex/twist joints
+    snprintf(joint_name, sizeof(joint_name), 
+      "%s_finger[%d]/flexible_joint_flex_from_%d_to_distal",
+      this->side.c_str(), f, this->numFlexLinks+1);
+    if(!this->GetAndPushBackJoint(joint_name, 
+          this->fingerFlexTwistJoints[f]))
+      return false;
+    snprintf(joint_name, sizeof(joint_name), 
+      "%s_finger[%d]/flexible_joint_twist_from_%d_to_distal",
+      this->side.c_str(), f, this->numFlexLinks+1);
+    if(!this->GetAndPushBackJoint(joint_name, 
+          this->fingerFlexTwistJoints[f]))
+      return false;
   }
 
   gzlog << "IRobotHandPlugin found all joints for " << this->side << " hand." <<
@@ -163,7 +187,7 @@ bool IRobotHandPlugin::FindJoints()
   return true;
 }
 
-void IRobotHandPlugin::SetFlexDamping(double cfm, double erp)
+void IRobotHandPlugin::SetFlexJointDamping(double cfm, double erp)
 {
   for(std::vector<gazebo::physics::Joint_V>::iterator it = 
         this->fingerFlexTwistJoints.begin();
@@ -183,7 +207,6 @@ void IRobotHandPlugin::SetFlexDamping(double cfm, double erp)
       (*iit)->SetAttribute("erp", 0, erp);
     }
   }
-
 }
 
 GZ_REGISTER_MODEL_PLUGIN(IRobotHandPlugin)
