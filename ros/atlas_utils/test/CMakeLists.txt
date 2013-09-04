@@ -6,28 +6,18 @@ set (rostests
   atlas_rosapi.test
   atlas_sandia_hands_rosapi.test
   vrc_task_1_rosapi.test
-  vrc_task_2_rosapi.test
-  vrc_task_3_rosapi.test
   performance_test1.test
   atlas_cheats_rosapi.test
   atlas_sandia_hands_cheats_rosapi.test
   vrc_task_1_cheats_rosapi.test
-  vrc_task_2_cheats_rosapi.test
-  vrc_task_3_cheats_rosapi.test
   vrc_task_1_scoring.test
   vrc_task_2_scoring.test
   vrc_task_2_tricking_scoring.test
   vrc_task_1_start_standup.test
-  vrc_task_2_start_standup.test
-  vrc_task_3_start_standup.test
   vrc_task_1_gzlog_stop.test
-  vrc_task_2_gzlog_stop.test
-  vrc_task_3_gzlog_stop.test
   vrc_task_1_gzlog_stop_longrun.test
   vrc_task_1_gzlog_stop_longrun_zlib.test
   vrc_task_1_dynamic_walking.test
-  vrc_task_2_dynamic_walking.test
-  vrc_task_3_dynamic_walking.test
   multicamera_connection.test
 )
 
