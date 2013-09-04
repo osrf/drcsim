@@ -195,14 +195,30 @@ namespace gazebo
     ////////////////////////////////////////////////////////////////////////////
     private: class Robot
     {
+      public:
+        Robot();
+        ~Robot();
+
       /// \brief Load the atlas portion of plugin.
       /// \param[in] _parent Pointer to parent world.
       /// \param[in] _sdf Pointer to sdf element.
-      private: void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
+      private: void InsertModel(physics::WorldPtr _parent,
+        sdf::ElementPtr _sdf);
 
+      /// \brief Spawns a gazebo robot model from string.
+      /// \param[in] _robotStr string containing model sdf or urdf.
+      /// \param[in] _modelName name of newly spawned model in gazebo.
+      /// \param[in] _spawnPose spawn location of model in world frame.
+      /// \return pointer to the newly spawned model.
+      private: bool CheckGetModel(physics::WorldPtr _world);
+
+      private: math::Pose spawnPose;
       private: physics::ModelPtr model;
       private: physics::LinkPtr pinLink;
       private: physics::JointPtr pinJoint;
+
+      private: std::string modelName;
+      private: std::string pinLinkName;
 
       /// \brief keep initial pose of robot to prevent z-drifting when
       /// teleporting the robot.
@@ -214,14 +230,26 @@ namespace gazebo
       /// \brief Robot configuration when inside of vehicle.
       private: std::map<std::string, double> inVehicleConfiguration;
 
-      /// \brief Flag to keep track of start-up 'harness' on the robot.
-      private: bool startupHarness;
-
       /// \brief Duration in StandPrep before going into Stand
       private: double startupStandPrepDuration;
 
       /// \brief Flag to keep track of start-up 'bdi_stand' on the robot.
-      private: bool startupBDIStand;
+      private: enum BDIStandSequence {
+        BS_NONE = 0,
+        BS_PID_PINNED = 1,
+        BS_STAND_PREP_PINNED = 2,
+        BS_STAND_PREP = 3,
+        BS_INITIALIZED = 4
+      };
+      private: int bdiStandSequence;
+
+      /// \brief Flag to keep track of start-up 'pinned' mode
+      private: enum PinnedSequence {
+        PS_NONE = 0,
+        PS_PINNED = 1,
+        PS_INITIALIZED = 2
+      };
+      private: int pinnedSequence;
 
       // mode flag to indicate nominal mode has already been called once.
       private: bool bdiStandNominal;
@@ -233,7 +261,13 @@ namespace gazebo
       private: std::string startupMode;
 
       /// \brief flag for successful initialization of atlas
-      private: bool isInitialized;
+      private: enum StartupSequence {
+        NONE = 0,
+        SPAWN_QUEUED = 1,
+        SPAWN_SUCCESS = 2,
+        INITIALIZED = 3
+      };
+      private: int startupSequence;
 
       private: double startupHarnessDuration;
 
@@ -324,6 +358,20 @@ namespace gazebo
 
       /// \brief Destructor
       private: ~AtlasCommandController();
+
+      /// \brief: initialize AtlasCommandController with atlas model pointer
+      /// \param[in] Atlas model pointer
+      private: void InitModel(physics::ModelPtr _model);
+
+      /// \brief: atlas model pointer
+      private: physics::ModelPtr model;
+
+      /// \brief Checks atlas model for joint names
+      /// used to find joint name since atlas_v3 remapped some joint names
+      /// \param[in] possible joint name
+      /// \param[in] possible joint name
+      /// \return _st1 or _st2 whichever is a valid joint, else empty str.
+      private: std::string FindJoint(std::string _st1, std::string _st2);
 
       /// \brief subscriber to joint_states of the atlas robot
       private: void GetJointStates(

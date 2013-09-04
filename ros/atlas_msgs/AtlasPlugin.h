@@ -61,7 +61,7 @@
 #include <gazebo/sensors/Sensor.hh>
 
 // publish separate /atlas/imu topic, to be deprecated
-#include "sensor_msgs/Imu.h"
+#include <sensor_msgs/Imu.h>
 // publish separate /atlas/force_torque_sensors topic, to be deprecated
 #include <atlas_msgs/ForceTorqueSensors.h>
 
@@ -149,6 +149,13 @@ namespace gazebo
 
     /// \brief: Load ROS related stuff
     private: void LoadROS();
+
+    /// \brief Checks atlas model for joint names
+    /// used to find joint name since atlas_v3 remapped some joint names
+    /// \param[in] possible joint name
+    /// \param[in] possible joint name
+    /// \return _st1 or _st2 whichever is a valid joint, else empty str.
+    private: std::string FindJoint(std::string _st1, std::string _st2);
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;
