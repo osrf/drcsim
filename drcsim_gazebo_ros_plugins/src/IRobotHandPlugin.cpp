@@ -35,9 +35,8 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   /// \return true on success, false otherwise
   private: bool FindJoints();
 
-  /// \brief Set the stiffness of the flexible joints using the provided cfm and
-  /// erp values.
-  private: void SetFlexTwistJointDamping();
+  /// \brief Set the damping and stiffness of various joints
+  private: void SetJointDamping();
 
   /// \brief Internal helper to reduce code duplication.
   private: bool GetAndPushBackJoint(const std::string& _joint_name,
@@ -47,20 +46,20 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: gazebo::physics::ModelPtr model;
   private: sdf::ElementPtr sdf;
   private: std::string side;
+  private: gazebo::physics::Joint_V fingerBaseJoints;
+  private: gazebo::physics::Joint_V fingerBaseRotationJoints;
+  private: std::vector<gazebo::physics::Joint_V> fingerFlexTwistJoints;
 
   private: static const int numFingers = 3;
   private: static const int numFlexLinks = 8;
-  // TODO: make this value configurable
+
+  // TODO: make these constants configurable
   private: static const double flexJointCFM = 9.0;
-  // TODO: make this value configurable
   private: static const double flexJointERP = 0.1;
-  // TODO: make this value configurable
   private: static const double twistJointCFM = 0.48;
-  // TODO: make this value configurable
   private: static const double twistJointERP = 0.05;
-  private: std::vector<gazebo::physics::Joint_V> fingerBaseJoints;
-  private: std::vector<gazebo::physics::Joint_V> fingerBaseRotationJoints;
-  private: std::vector<gazebo::physics::Joint_V> fingerFlexTwistJoints;
+  private: static const double baseJointCFM = 9.0;
+  private: static const double baseJointERP = 0.1;
 };
 
 IRobotHandPlugin::IRobotHandPlugin()
@@ -92,7 +91,7 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _
   if(!this->FindJoints())
     return;
 
-  this->SetFlexTwistJointDamping();
+  this->SetJointDamping();
 }
 
 bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
@@ -112,8 +111,6 @@ bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
 
 bool IRobotHandPlugin::FindJoints()
 {
-  this->fingerBaseJoints.resize(this->numFingers);
-  this->fingerBaseRotationJoints.resize(this->numFingers);
   this->fingerFlexTwistJoints.resize(this->numFingers);
 
   // Load up the joints we expect to use, finger by finger.
@@ -128,7 +125,7 @@ bool IRobotHandPlugin::FindJoints()
         "%s_finger[%d]/joint_base_rotation",
         this->side.c_str(), f);
       if(!this->GetAndPushBackJoint(joint_name, 
-            this->fingerBaseRotationJoints[f]))
+            this->fingerBaseRotationJoints))
         return false;
     }
 
@@ -137,7 +134,7 @@ bool IRobotHandPlugin::FindJoints()
       "%s_finger[%d]/joint_base",
       this->side.c_str(), f);
     if(!this->GetAndPushBackJoint(joint_name, 
-          this->fingerBaseJoints[f]))
+          this->fingerBaseJoints))
       return false;
 
     // Get the first pair of flex/twist joints
@@ -191,8 +188,13 @@ bool IRobotHandPlugin::FindJoints()
   return true;
 }
 
-void IRobotHandPlugin::SetFlexTwistJointDamping()
+void IRobotHandPlugin::SetJointDamping()
 {
+  // Fake springiness by setting joint limits to 0 and modifying cfm/erp.
+  // TODO: implement a generic spring in Gazebo that will work with any
+  // physics engine.
+
+  // Handle the flex/twist joints in the flexible section
   for(std::vector<gazebo::physics::Joint_V>::iterator it = 
         this->fingerFlexTwistJoints.begin();
       it != this->fingerFlexTwistJoints.end();
@@ -202,10 +204,6 @@ void IRobotHandPlugin::SetFlexTwistJointDamping()
         iit != it->end();
         ++iit)
     {
-      // Fake springiness by setting joint limits to 0 and modifying cfm/erp.
-      // TODO: implement a generic spring in Gazebo that will work with any
-      // physics engine.
-
       // Assume that the joints are ordered flex then twist, in pairs.
 
       (*iit)->SetLowStop(0, 0);
@@ -224,6 +222,17 @@ void IRobotHandPlugin::SetFlexTwistJointDamping()
       (*iit)->SetAttribute("stop_cfm", 0, this->twistJointCFM);
       (*iit)->SetAttribute("stop_erp", 0, this->twistJointERP);
     }
+  }
+
+  // Handle the base joints, which are spring-loaded.
+  for(gazebo::physics::Joint_V::iterator it = this->fingerBaseJoints.begin();
+      it != this->fingerBaseJoints.end();
+      ++it)
+  {
+    (*it)->SetLowStop(0, 0);
+    (*it)->SetHighStop(0, 0);
+    (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
+    (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
   }
 }
 
