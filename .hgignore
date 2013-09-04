@@ -6,3 +6,4 @@ Ogre.log
 .DS_Store
 msg_gen
 srv_gen
+*.swp
