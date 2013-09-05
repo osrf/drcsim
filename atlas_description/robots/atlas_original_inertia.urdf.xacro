@@ -1,4 +1,7 @@
 <robot name="atlas" >
+<!--
+  <include filename="$(find atlas_description)/urdf/atlas_original_inertia.urdf" />
+-->
   <include filename="$(find atlas_description)/urdf/atlas_simple_shapes_original_inertia.urdf" />
   <include filename="$(find atlas_description)/urdf/atlas.gazebo" />
   <include filename="$(find atlas_description)/urdf/atlas.transmission" />

@@ -6,9 +6,9 @@
             <inertia ixx="0.004" ixy="0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="1.04719755 0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_clav.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_clav.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -31,9 +31,9 @@
             <inertia ixx="0.003" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.003" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 -0.06 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_farm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_farm.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -51,14 +51,14 @@
     </link>
     <link name="l_foot">
         <inertial>
-            <mass value="0.867" />
+            <mass value="1.634" />
             <origin xyz="0.027 0 -0.067" rpy="0 -0 0" />
-            <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.00350421" iyz="0" izz="0.00400651" />
+            <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.008" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_foot.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_foot.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <!-- bottom -->
@@ -86,7 +86,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_hand.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_hand.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -117,7 +117,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_larm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_larm.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -141,14 +141,14 @@
     </link>
     <link name="l_lglut">
         <inertial>
-            <mass value="0.803" />
+            <mass value="0.69" />
             <origin xyz="0.0133341 0.0170484 -0.0312052" rpy="0 -0 0" />
-            <inertia ixx="0.0453457" ixy="2.24344e-05" ixz="2.50508e-06" iyy="0.0174182" iyz="-0.000137862" izz="0.0071591" />
+            <inertia ixx="0.000691326" ixy="-2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="0.000137862" izz="0.00106487" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_lglut.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_lglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -173,7 +173,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_lleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_lleg.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -196,9 +196,9 @@
             <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.013" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_scap.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_scap.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -222,14 +222,14 @@
     </link>
     <link name="l_talus">
         <inertial>
-            <mass value="0.867" />
+            <mass value="0.1" />
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.00350421" iyz="0" izz="0.00400651" />
+            <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_talus.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_talus.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -254,7 +254,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_uarm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_uarm.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -272,14 +272,14 @@
     </link>
     <link name="l_uglut">
         <inertial>
-            <mass value="1.51622" />
+            <mass value="0.5166" />
             <origin xyz="0.00529262 -0.00344732 0.00313046" rpy="0 -0 0" />
-            <inertia ixx="0.0327037" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.0174182" iyz="3.2735e-08" izz="0.0071591" />
+            <inertia ixx="0.00074276" ixy="-3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="-3.2735e-08" izz="0.00041242" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_uglut.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_uglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -297,14 +297,14 @@
     </link>
     <link name="l_uleg">
         <inertial>
-            <mass value="7.227" />
+            <mass value="7.34" />
             <origin xyz="0 0 -0.21" rpy="0 -0 0" />
-            <inertia ixx="0.0453457" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.0071591" />
+            <inertia ixx="0.09" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.02" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/l_uleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/l_uleg.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -336,12 +336,12 @@
         <inertial>
             <mass value="1.92" />
             <origin xyz="-0.0112984 -3.15366e-06 0.0746835" rpy="0 -0 0" />
-            <inertia ixx="0.0646646" ixy="-5.04491e-08" ixz="-0.000342157" iyy="0.050298" iyz="4.87119e-07" izz="0.10973" />
+            <inertia ixx="0.0039092" ixy="-5.04491e-08" ixz="-0.000342157" iyy="0.00341694" iyz="4.87119e-07" izz="0.00174492" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/ltorso.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/ltorso.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <!-- this part is completely internal
@@ -367,14 +367,14 @@
     </link>
     <link name="mtorso">
         <inertial>
-            <mass value="3.8068" />
+            <mass value="0.55" />
             <origin xyz="-0.00816266 -0.0131245 0.0305974" rpy="0 -0 0" />
-            <inertia ixx="0.1975" ixy="-6.10764e-05" ixz="3.94009e-05" iyy="0.544742" iyz="5.27463e-05" izz="0.10973" />
+            <inertia ixx="0.000454181" ixy="-6.10764e-05" ixz="3.94009e-05" iyy="0.000483282" iyz="5.27463e-05" izz="0.000444215" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/mtorso.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/mtorso.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -398,14 +398,16 @@
     </link>
     <link name="pelvis">
         <inertial>
-            <mass value="13.646" />
+            <mass value="14.2529" />
             <origin xyz="0.0111 0 0.0271" rpy="0 -0 0" />
-            <inertia ixx="0.0327037" ixy="0.0008" ixz="-0.0007" iyy="0.0174182" iyz="-0.0005" izz="0.118059" />
+            <inertia ixx="0.1244" ixy="0.0008" ixz="-0.0007"
+                     iyy="0.0958" iyz="-0.0005"
+                     izz="0.1167" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/pelvis.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/pelvis.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -440,9 +442,9 @@
             <inertia ixx="0.004" ixy="-0.001" ixz="0" iyy="0.006" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="-1.04719755 0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_clav.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_clav.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -465,9 +467,9 @@
             <inertia ixx="0.003" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.003" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0.06 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_farm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_farm.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -485,14 +487,14 @@
     </link>
     <link name="r_foot">
         <inertial>
-            <mass value="0.867" />
+            <mass value="1.634" />
             <origin xyz="0.027 0 -0.067" rpy="0 -0 0" />
-            <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.00350421" iyz="0" izz="0.00400651" />
+            <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.008" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_foot.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_foot.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <!-- bottom -->
@@ -520,7 +522,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_hand.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_hand.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -551,7 +553,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_larm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_larm.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -575,14 +577,14 @@
     </link>
     <link name="r_lglut">
         <inertial>
-            <mass value="0.803" />
+            <mass value="0.69" />
             <origin xyz="0.0133341 -0.0170484 -0.0312052" rpy="0 -0 0" />
-            <inertia ixx="0.0453457" ixy="2.24344e-05" ixz="2.50508e-06" iyy="0.0174182" iyz="-0.000137862" izz="0.0071591" />
+            <inertia ixx="0.000691326" ixy="2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="-0.000137862" izz="0.00106487" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_lglut.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_lglut.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -607,7 +609,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_lleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_lleg.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -632,7 +634,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_scap.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_scap.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -656,14 +658,14 @@
     </link>
     <link name="r_talus">
         <inertial>
-            <mass value="0.867" />
+            <mass value="0.1" />
             <origin xyz="0 0 0" rpy="0 -0 0" />
-            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.00350421" iyz="0" izz="0.00400651" />
+            <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_talus.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_talus.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -688,7 +690,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_uarm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_uarm.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -706,14 +708,14 @@
     </link>
     <link name="r_uglut">
         <inertial>
-            <mass value="1.51622" />
+            <mass value="0.5166" />
             <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
-            <inertia ixx="0.0327037" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.0174182" iyz="3.2735e-08" izz="0.0071591" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_uglut.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_uglut.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -731,14 +733,14 @@
     </link>
     <link name="r_uleg">
         <inertial>
-            <mass value="7.227" />
+            <mass value="7.34" />
             <origin xyz="0 0 -0.21" rpy="0 -0 0" />
-            <inertia ixx="0.0453457" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.0071591" />
+            <inertia ixx="0.09" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.02" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/r_uleg.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/r_uleg.dae" scale="1.0 1.0 1.0" />
             </geometry>
         </visual>
         <collision group="default">
@@ -768,14 +770,17 @@
     </link>
     <link name="utorso">
         <inertial>
-            <mass value="15.2272" />
+            <mass value="18.484" />
             <origin xyz="0.02 -0.001 0.211" rpy="0 -0 0" />
-            <inertia ixx="0.395" ixy="0" ixz="0.083" iyy="0.544742" iyz="-0.003" izz="0.10973" />
+            <!--
+            <inertia ixx="0.395" ixy="0" ixz="0.083" iyy="1.089" iyz="-0.003" izz="0.327" />
+            -->
+            <inertia ixx="0.395" ixy="0" ixz="0.083" iyy="1.089" iyz="-0.003" izz="0.827" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas/meshes/utorso.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes/utorso.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision group="default">
@@ -829,7 +834,7 @@
         <axis xyz="1 0 0" />
         <parent link="l_uarm" />
         <child link="l_larm" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="114" velocity="12" lower="0" upper="2.35619" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.3562" />
     </joint>
@@ -838,7 +843,7 @@
         <axis xyz="0 1 0" />
         <parent link="l_scap" />
         <child link="l_uarm" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="114" velocity="12" lower="0" upper="3.14159" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="13.1416" />
     </joint>
@@ -847,7 +852,7 @@
         <axis xyz="1 0 0" />
         <parent link="l_farm" />
         <child link="l_hand" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="60" velocity="12" lower="-0.436" upper="1.571" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.436" soft_upper_limit="11.571" />
     </joint>
@@ -856,7 +861,7 @@
         <axis xyz="1 0 0" />
         <parent link="l_clav" />
         <child link="l_scap" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="170" velocity="12" lower="-1.39626" upper="1.74533" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.3963" soft_upper_limit="11.7453" />
     </joint>
@@ -865,7 +870,7 @@
         <axis xyz="0 0.5 0.866025" />
         <parent link="utorso" />
         <child link="l_clav" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="212" velocity="12" lower="-1.9635" upper="1.9635" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.9635" soft_upper_limit="11.9635" />
     </joint>
@@ -874,7 +879,7 @@
         <axis xyz="0 1 0" />
         <parent link="l_larm" />
         <child link="l_farm" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="114" velocity="12" lower="-1.571" upper="1.571" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.571" soft_upper_limit="11.571" />
     </joint>
@@ -883,8 +888,8 @@
         <axis xyz="0 1 0" />
         <parent link="l_uleg" />
         <child link="l_lleg" />
-        <dynamics damping="0.1" friction="0" />
-        <limit effort="220" velocity="12" lower="0" upper="2.45" />
+        <dynamics damping="1.0" friction="0" />
+        <limit effort="400" velocity="12" lower="0" upper="2.45" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.45" />
     </joint>
     <joint name="l_leg_lax" type="revolute">
@@ -892,7 +897,7 @@
         <axis xyz="1 0 0" />
         <parent link="l_talus" />
         <child link="l_foot" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="90" velocity="12" lower="-0.436" upper="0.436" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.436" soft_upper_limit="10.436" />
     </joint>
@@ -901,7 +906,7 @@
         <axis xyz="0 1 0" />
         <parent link="l_lglut" />
         <child link="l_uleg" />
-        <dynamics damping="10" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="260" velocity="12" lower="-1.75" upper="0.524" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.75" soft_upper_limit="10.524" />
     </joint>
@@ -910,7 +915,7 @@
         <axis xyz="1 0 0" />
         <parent link="l_uglut" />
         <child link="l_lglut" />
-        <dynamics damping="10" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="180" velocity="12" lower="-0.47" upper="0.495" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.47" soft_upper_limit="10.495" />
     </joint>
@@ -919,8 +924,8 @@
         <axis xyz="0 1 0" />
         <parent link="l_lleg" />
         <child link="l_talus" />
-        <dynamics damping="0.1" friction="0" />
-        <limit effort="220" velocity="12" lower="-0.698" upper="0.698" />
+        <dynamics damping="1.0" friction="0" />
+        <limit effort="220" velocity="12" lower="-0.9" upper="0.698" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.698" soft_upper_limit="10.698" />
     </joint>
     <joint name="l_leg_uhz" type="revolute">
@@ -928,17 +933,17 @@
         <axis xyz="0 0 1" />
         <parent link="pelvis" />
         <child link="l_uglut" />
-        <dynamics damping="10" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="110" velocity="12" lower="-0.32" upper="1.14" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.32" soft_upper_limit="11.14" />
     </joint>
     <joint name="neck_ay" type="revolute">
-        <!-- per slides on sensor head kinematics 2012-12-14 -->
-        <origin xyz="0.16555 0 0.50823" rpy="0 -0 0" />
+        <!-- per slides on sensor head kinematics 2013-02-13 -->
+        <origin xyz="0.21672 0 0.53796" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="utorso" />
         <child link="head" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <!-- per slides on sensor head kinematics 2012-12-14 -->
         <limit effort="5" lower="-0.610865238" upper="1.13446401" velocity="12"/>
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.610865238" soft_upper_limit="11.13446401"/>
@@ -948,7 +953,7 @@
         <axis xyz="1 0 0" />
         <parent link="r_uarm" />
         <child link="r_larm" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="114" velocity="12" lower="-2.35619" upper="0" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-12.3562" soft_upper_limit="10" />
     </joint>
@@ -957,7 +962,7 @@
         <axis xyz="0 1 0" />
         <parent link="r_scap" />
         <child link="r_uarm" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="114" velocity="12" lower="0" upper="3.14159" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="13.1416" />
     </joint>
@@ -966,7 +971,7 @@
         <axis xyz="1 0 0" />
         <parent link="r_farm" />
         <child link="r_hand" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="60" velocity="12" lower="-1.571" upper="0.436" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.571" soft_upper_limit="10.436" />
     </joint>
@@ -975,7 +980,7 @@
         <axis xyz="1 0 0" />
         <parent link="r_clav" />
         <child link="r_scap" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="170" velocity="12" lower="-1.74533" upper="1.39626" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.7453" soft_upper_limit="11.3963" />
     </joint>
@@ -984,7 +989,7 @@
         <axis xyz="0 0.5 -0.866025" />
         <parent link="utorso" />
         <child link="r_clav" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="212" velocity="12" lower="-1.9635" upper="1.9635" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.9635" soft_upper_limit="11.9635" />
     </joint>
@@ -993,7 +998,7 @@
         <axis xyz="0 1 0" />
         <parent link="r_larm" />
         <child link="r_farm" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="114" velocity="12" lower="-1.571" upper="1.571" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.571" soft_upper_limit="11.571" />
     </joint>
@@ -1002,8 +1007,8 @@
         <axis xyz="0 1 0" />
         <parent link="r_uleg" />
         <child link="r_lleg" />
-        <dynamics damping="0.1" friction="0" />
-        <limit effort="220" velocity="12" lower="0" upper="2.45" />
+        <dynamics damping="1.0" friction="0" />
+        <limit effort="400" velocity="12" lower="0" upper="2.45" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.45" />
     </joint>
     <joint name="r_leg_lax" type="revolute">
@@ -1011,7 +1016,7 @@
         <axis xyz="1 0 0" />
         <parent link="r_talus" />
         <child link="r_foot" />
-        <dynamics damping="0.1" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="90" velocity="12" lower="-0.436" upper="0.436" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.436" soft_upper_limit="10.436" />
     </joint>
@@ -1020,7 +1025,7 @@
         <axis xyz="0 1 0" />
         <parent link="r_lglut" />
         <child link="r_uleg" />
-        <dynamics damping="10" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="260" velocity="12" lower="-1.745" upper="0.524" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.745" soft_upper_limit="10.524" />
     </joint>
@@ -1029,7 +1034,7 @@
         <axis xyz="1 0 0" />
         <parent link="r_uglut" />
         <child link="r_lglut" />
-        <dynamics damping="10" friction="0" />
+        <dynamics damping="1.0" friction="0" />
         <limit effort="180" velocity="12" lower="-0.495" upper="0.47" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.495" soft_upper_limit="10.47" />
     </joint>
@@ -1038,8 +1043,8 @@
         <axis xyz="0 1 0" />
         <parent link="r_lleg" />
         <child link="r_talus" />
-        <dynamics damping="0.1" friction="0" />
-        <limit effort="220" velocity="12" lower="-0.698" upper="0.698" />
+        <dynamics damping="1.0" friction="0" />
+        <limit effort="220" velocity="12" lower="-0.9" upper="0.698" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.698" soft_upper_limit="10.698" />
     </joint>
     <joint name="r_leg_uhz" type="revolute">
@@ -1047,8 +1052,8 @@
         <axis xyz="0 0 1" />
         <parent link="pelvis" />
         <child link="r_uglut" />
-        <dynamics damping="10" friction="0" />
-        <limit effort="260" velocity="12" lower="-1.14" upper="0.32" />
+        <dynamics damping="1.0" friction="0" />
+        <limit effort="110" velocity="12" lower="-1.14" upper="0.32" />
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.14" soft_upper_limit="10.32" />
     </joint>
 </robot>
