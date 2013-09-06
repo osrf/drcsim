@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find atlas_utils)/launch/atlas_sandia_hands.launch"/>
+  <node pkg="atlas_interface" type="example" name="example"
+        output="screen"/>
+</launch>
