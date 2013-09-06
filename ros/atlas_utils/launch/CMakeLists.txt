@@ -11,6 +11,8 @@ set (files
   atlas_arm_controllers.launch
   atlas_position_controllers.launch
   atlas_no_controllers.launch
+  drc_practice_task_3.launch
+  drc_practice_task_5.launch
   drc_sim_v0.launch
   drc_practice_task_2.launch
   drc_trajectory_controllers.launch
