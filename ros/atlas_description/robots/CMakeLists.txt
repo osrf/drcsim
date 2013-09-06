@@ -7,9 +7,9 @@
 # compile using xacro
 
 if (HAVE_SANDIA_HAND)
-  set (model_basenames atlas_v3 atlas_v3_sandia_hands atlas atlas_cpu_lidar atlas_irobot_hands atlas_sandia_hands atlas_sandia_hands_stumps atlas_sandia_hands_cpu_lidar atlas_sandia_hands_stumps_cpu_lidar)
+  set (model_basenames atlas_v3_with_v1_inertia atlas_v3_with_v1_inertia_sandia_hands atlas_v3 atlas_v3_sandia_hands atlas atlas_cpu_lidar atlas_irobot_hands atlas_sandia_hands atlas_sandia_hands_stumps atlas_sandia_hands_cpu_lidar atlas_sandia_hands_stumps_cpu_lidar)
 else()
-  set (model_basenames atlas_v3 atlas atlas_cpu_lidar atlas_irobot_hands)
+  set (model_basenames atlas_v3_with_v1_inertia atlas_v3 atlas atlas_cpu_lidar atlas_irobot_hands)
 endif()
 
 

@@ -32,8 +32,10 @@ set (files
   atlas_arm_slider_teleop.launch
   keyboard_teleop.launch
   atlas_v3.launch
+  atlas_v3_with_v1_inertia.launch
   atlas_v3_bringup.launch
   atlas_v3_sandia_hands.launch
+  atlas_v3_with_v1_inertia_sandia_hands.launch
   atlas_v3_sandia_hands_bringup.launch
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/launch/)
