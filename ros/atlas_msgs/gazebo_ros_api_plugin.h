@@ -96,22 +96,12 @@
 // #include <tf/transform_broadcaster.h>
 
 #include <gazebo/Server.hh>
-#include <gazebo/physics/Physics.hh>
-#include <gazebo/physics/PhysicsEngine.hh>
-#include <gazebo/physics/PhysicsTypes.hh>
-#include <gazebo/physics/Entity.hh>
-#include <gazebo/physics/Collision.hh>
-#include <gazebo/physics/Inertial.hh>
-#include <gazebo/physics/Base.hh>
-#include <gazebo/physics/Link.hh>
-#include <gazebo/physics/Model.hh>
-#include <gazebo/physics/Joint.hh>
+#include <gazebo/physics/physics.hh>
 #include <gazebo/common/CommonTypes.hh>
 #include <gazebo/common/Exception.hh>
 #include <gazebo/common/SystemPaths.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/transport/Node.hh>
-// #include "msgs/MessageTypes.hh"  // implicitly included from CommonTypes.hh
 
 #include "PubQueue.h"
 
