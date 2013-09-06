@@ -7,6 +7,7 @@ set (worlds
      atlas_irobot_hands.world
      atlas_drc_vehicle_fire_hose.world
      atlas_AtlasSimInterface.world
+     drc_practice_task_1.world
      drc_practice_task_3.world
      drc_practice_task_5.world
      drc_vehicle.world
