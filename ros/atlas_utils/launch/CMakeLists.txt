@@ -13,6 +13,7 @@ set (files
   atlas_no_controllers.launch
   drc_practice_task_1.launch
   drc_practice_task_3.launch
+  drc_practice_task_4.launch
   drc_practice_task_5.launch
   drc_practice_task_7.launch
   drc_sim_v0.launch

@@ -9,6 +9,7 @@ set (worlds
      atlas_AtlasSimInterface.world
      drc_practice_task_1.world
      drc_practice_task_3.world
+     drc_practice_task_4.world
      drc_practice_task_5.world
      drc_practice_task_7.world
      drc_vehicle.world
