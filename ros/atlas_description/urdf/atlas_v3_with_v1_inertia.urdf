@@ -821,7 +821,7 @@
     </joint>
     <joint name="r_situational_awareness_camera_optical_frame_joint" type="fixed">
       <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
-      <parent link="r_situational_awareness_camera_frame" />
+      <parent link="r_situational_awareness_camera_link" />
       <child link="r_situational_awareness_camera_optical_frame"/>
     </joint>
     <link name="r_situational_awareness_camera_optical_frame"/>
@@ -848,7 +848,7 @@
     </joint>
     <joint name="l_situational_awareness_camera_optical_frame_joint" type="fixed">
       <origin xyz="0 0 0" rpy="-1.5708 0.0 -1.5708" />
-      <parent link="l_situational_awareness_camera_frame" />
+      <parent link="l_situational_awareness_camera_link" />
       <child link="l_situational_awareness_camera_optical_frame"/>
     </joint>
     <link name="l_situational_awareness_camera_optical_frame"/>
