@@ -19,7 +19,9 @@ rosbuild_init()
 
 # VERY IMPORTANT: Tell CMake not to strip off the RPATH from libs and executables during installation.  This is needed to resolve
 # dependencies on ROS libraries.
-set (CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
+if ($ENV{ROS_DISTRO} STREQUAL "fuerte")
+  set (CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
+endif()
 
 #find gazebo include (FindPkgConfig)
 include (FindPkgConfig)

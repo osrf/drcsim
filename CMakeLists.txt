@@ -107,9 +107,27 @@ else ()
   set(HAVE_SANDIA_HAND true)
 endif ()
 
+include (FindPkgConfig)
+if (PKG_CONFIG_FOUND)
+  pkg_check_modules(GAZEBO gazebo)
+else()
+  message(FATAL_ERROR "pkg-config is required; please install it")
+endif()
+
+set(gazebo_lib_dirs)
+foreach (item ${GAZEBO_LIBRARY_DIRS})
+  set(gazebo_lib_dirs "${gazebo_lib_dirs}:${item}")
+endforeach ()
+
+#####################################
+set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 1)
+set (ATLAS_SIM_INTERFACE_MINOR_VERSION 1)
+set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
+set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
+set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
+
 #####################################
 # Configure the setup script
-
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION
@@ -119,13 +137,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_P
 configure_file(${CMAKE_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
-
-#####################################
-set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 1)
-set (ATLAS_SIM_INTERFACE_MINOR_VERSION 1)
-set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
-set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
-set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
 add_subdirectory(gazebo_models)
 add_subdirectory(media)
