@@ -446,7 +446,7 @@
 
     <include>
       <uri>model://atlas_sandia_hands</uri>
-      <pose>0.0 -1.55 1.0 0 0 1.5707</pose>
+      <pose>2.0 0.0 1.0 0 0 0</pose>
     </include>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
