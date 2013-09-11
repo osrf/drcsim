@@ -8,6 +8,7 @@ set (worlds
      atlas_drc_vehicle_fire_hose.world
      atlas_AtlasSimInterface.world
      drc_vehicle.world
+     drc_practice_task_6.world
      atlas_golf_cart_fire_hose.world
      golf_cart.world
      fire_hose.world

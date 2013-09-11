@@ -1,3 +1,4 @@
+add_subdirectory(cutout_wall)
 add_subdirectory(drc_terrain)
 add_subdirectory(drc_vehicle)
 add_subdirectory(fire_hose)
