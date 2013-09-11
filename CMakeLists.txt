@@ -126,6 +126,13 @@ set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
 set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
 set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
+add_subdirectory(gazebo_models)
+add_subdirectory(media)
+add_subdirectory(plugins)
+add_subdirectory(ros)
+add_subdirectory(worlds)
+add_subdirectory(vrc_arenas)
+
 #####################################
 # Configure the setup script
 configure_file(${CMAKE_SOURCE_DIR}/cmake/setup.sh.in
@@ -137,13 +144,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_P
 configure_file(${CMAKE_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 install(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
-
-add_subdirectory(gazebo_models)
-add_subdirectory(media)
-add_subdirectory(plugins)
-add_subdirectory(ros)
-add_subdirectory(worlds)
-add_subdirectory(vrc_arenas)
 
 ########### Add uninstall target ###############
 configure_file(

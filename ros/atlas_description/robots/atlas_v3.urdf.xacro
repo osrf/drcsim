@@ -1,0 +1,6 @@
+<robot name="atlas" >
+  <include filename="$(find atlas_description)/urdf/atlas_v3.urdf" />
+  <include filename="$(find atlas_description)/urdf/atlas_v3.gazebo" />
+  <include filename="$(find atlas_description)/urdf/atlas_v3.transmission" />
+  <include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
+</robot>
