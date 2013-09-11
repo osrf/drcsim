@@ -48,6 +48,5 @@
         <coupling_relative_pose>1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199</coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
-    <plugin filename="libVRCScoringPlugin.so" name="vrc_scoring" />
   </world>
 </sdf>
