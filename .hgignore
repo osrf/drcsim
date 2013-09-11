@@ -1,6 +1,9 @@
 syntax: glob
 
+build
+build_*
 Ogre.log
 .DS_Store
-build
+msg_gen
+srv_gen
 *.swp

@@ -1,4 +1,5 @@
 set (files 
+  atlas_cage_and_camera_diffuse_flat.jpg
   atlas_DRC_1.png
   atlas_DRC_carbon_fiber.png
   atlas_DRC_dark_1.png
