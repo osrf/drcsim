@@ -1,0 +1,35 @@
+set (files 
+head.DAE
+head_camera.DAE
+l_clav.DAE
+l_elbow_rx.DAE
+l_elbow_ry.DAE
+l_farm.DAE
+l_foot.DAE
+l_hand.DAE
+l_lglut.DAE
+l_lleg.DAE
+l_sh_rx.DAE
+l_talus.DAE
+l_uglut.DAE
+l_uleg.DAE
+ltorso.DAE
+mtorso.DAE
+pelvis.DAE
+r_clav.DAE
+r_elbow_rx.DAE
+r_elbow_ry.DAE
+r_farm.DAE
+r_foot.DAE
+r_hand.DAE
+r_lglut.DAE
+r_lleg.DAE
+r_sh_rx.DAE
+r_talus.DAE
+r_uglut.DAE
+r_uleg.DAE
+utorso.DAE
+utorso_mod.DAE
+utorso_pack.DAE
+)
+install(FILES ${files} DESTINATION ${GAZEBO_INSTALL_PATH}/atlas/meshes_v3/)

@@ -1,11 +1,13 @@
 <launch>
 
   <arg name="gzname" default="gazebo"/>
-  <arg name="gzworld" default="atlas_sandia_hands.world"/>
+  <arg name="gzworld" default="atlas_v3_with_v1_inertia.world"/>
   <arg name="hand_suffix" default=""/>
   <arg name="extra_gazebo_args" default="-q" />
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+  <!-- <param name="/atlas/startup_mode" type="string" value="pinned"/> -->
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find atlas_utils)/launch/atlas_no_controllers.launch">
@@ -21,7 +23,7 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" textfile="$(find atlas_sandia_hands)$(arg hand_suffix)/atlas_sandia_hands$(arg hand_suffix).urdf"/>
+  <param name="robot_description" textfile="$(find atlas_v3_with_v1_inertia)/atlas_v3_with_v1_inertia.urdf"/>
 
-  <include file="$(find atlas_utils)/launch/atlas_sandia_hands_bringup.launch"/>
+  <include file="$(find atlas_utils)/launch/atlas_v3_bringup.launch"/>
 </launch>
