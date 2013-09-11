@@ -237,8 +237,9 @@ namespace gazebo
       private: enum BDIStandSequence {
         BS_NONE = 0,
         BS_PID_PINNED = 1,
-        BS_PID = 2,
-        BS_INITIALIZED = 3
+        BS_STAND_PREP_PINNED = 2,
+        BS_STAND_PREP = 3,
+        BS_INITIALIZED = 4
       };
       private: int bdiStandSequence;
 
@@ -357,6 +358,20 @@ namespace gazebo
 
       /// \brief Destructor
       private: ~AtlasCommandController();
+
+      /// \brief: initialize AtlasCommandController with atlas model pointer
+      /// \param[in] Atlas model pointer
+      private: void InitModel(physics::ModelPtr _model);
+
+      /// \brief: atlas model pointer
+      private: physics::ModelPtr model;
+
+      /// \brief Checks atlas model for joint names
+      /// used to find joint name since atlas_v3 remapped some joint names
+      /// \param[in] possible joint name
+      /// \param[in] possible joint name
+      /// \return _st1 or _st2 whichever is a valid joint, else empty str.
+      private: std::string FindJoint(std::string _st1, std::string _st2);
 
       /// \brief subscriber to joint_states of the atlas robot
       private: void GetJointStates(

@@ -239,11 +239,25 @@ int main(int argc, char** argv)
         std::string line;
         std::getline(ifs, line);
 
+        std::cout << "debug: " << line.find("#") << "\n";
+
+        size_t comment_pos = line.find("#");
+        if (comment_pos == 0)
+        {
+          // this line is a comment, skip
+          continue;
+        }
+        else if (comment_pos != std::string::npos)
+        {
+          // truncate line from beginning to # sign
+          line = line.substr(0, comment_pos);
+        }
+
         std::string joint_namespace;
         if (line.find(struct_tok) != std::string::npos)
         {
           // this is a struct
-          // struct_level = number of spaces before keyword "struct"
+          // struct_level = number of characters before keyword "struct"
           struct_level = line.find(struct_tok);
           if (!line.empty())
           {

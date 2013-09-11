@@ -30,6 +30,7 @@ atlas_msgs::AtlasState as;
 boost::mutex mutex;
 ros::Time t0;
 unsigned int numJoints = 28;
+unsigned int seed = 0;
 
 void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
 {
@@ -64,7 +65,11 @@ void Work()
     // assign arbitrary joint angle targets
     for (unsigned int i = 0; i < numJoints; i++)
     {
-      ac.position[i] = 3.2* sin((ros::Time::now() - t0).toSec());
+      double randNorm = 2.0 * static_cast<double>(rand_r(&seed)) /
+        static_cast<double>(RAND_MAX) - 1.0;
+
+      ac.position[i] = 3.2* sin(randNorm + (ros::Time::now() - t0).toSec());
+
       ac.k_effort[i] = 255;
     }
 
@@ -79,7 +84,7 @@ void Work()
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "pub_atlas_commandt");
+  ros::init(argc, argv, "pub_atlas_command");
 
   ros::NodeHandle* rosnode = new ros::NodeHandle();
 
