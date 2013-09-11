@@ -17,11 +17,10 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <!-- <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_v3_sandia_hands.urdf.xacro'" /> -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands.urdf.xacro'" />
-  <param name="robot_initial_pose/x"     value="0" type="double"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_v3_sandia_hands.urdf.xacro'" />
+  <param name="robot_initial_pose/x"     value="2.0" type="double"/>
   <param name="robot_initial_pose/y"     value="0" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.95" type="double"/>
+  <param name="robot_initial_pose/z"     value="1.0" type="double"/>
   <param name="robot_initial_pose/roll"  value="0" type="double"/>
   <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>

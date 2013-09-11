@@ -35,11 +35,6 @@
       <uri>model://drc_practice_ladder</uri>
     </include>
 
-    <include>
-      <uri>model://atlas_sandia_hands</uri>
-      <pose>0.0 -3.5 1.0 0 0 1.5707</pose>
-    </include>
-    <!--
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>
@@ -58,7 +53,6 @@
         <coupling_relative_pose>1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199</coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
--->
 
   </world>
 </sdf>
