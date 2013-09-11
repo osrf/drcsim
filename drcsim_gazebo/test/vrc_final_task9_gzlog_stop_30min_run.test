@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find vrc_finals)/launch/vrc_final_task9.launch">
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task9.launch">
     <arg name="gzname" value="gzserver"/>
   </include>
   <include file="$(find drcsim_gazebo)/test/pub_atlas_command.launch" />

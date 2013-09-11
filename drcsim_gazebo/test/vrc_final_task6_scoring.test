@@ -1,6 +1,6 @@
 <launch>
   <env name="VRC_CHEATS_ENABLED" value="1"/>
-  <include file="$(find vrc_finals)/launch/vrc_final_task6.launch">
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task6.launch">
     <arg name="gzname" value="gazebo"/>
   </include>
   <test pkg="drcsim_gazebo" type="vrc_task_2_scoring_test" 

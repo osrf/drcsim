@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find vrc_finals)/launch/vrc_final_task2.launch" />
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task2.launch" />
 
   <!-- Test for nominal publication rates -->
 
