@@ -1,13 +1,23 @@
 set (worlds
      drc_sim_v0.world
      atlas.world
+     atlas_v3.world
+     atlas_v3_with_v1_inertia.world
      atlas_cpu_lidar.world
      atlas_sandia_hands.world
+     atlas_v3_sandia_hands.world
+     atlas_v3_with_v1_inertia_sandia_hands.world
      atlas_sandia_hands_stumps.world
      atlas_irobot_hands.world
      atlas_drc_vehicle_fire_hose.world
      atlas_AtlasSimInterface.world
+     drc_practice_task_1.world
+     drc_practice_task_2.world
+     drc_practice_task_3.world
+     drc_practice_task_4.world
+     drc_practice_task_5.world
      drc_practice_task_6.world
+     drc_practice_task_7.world
      drc_vehicle.world
      atlas_golf_cart_fire_hose.world
      golf_cart.world
