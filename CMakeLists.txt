@@ -107,13 +107,15 @@ else ()
   set(HAVE_SANDIA_HAND true)
 endif ()
 
+# We need to gather Gazebo's libary link directories so that we can include them in the
+# LD_LIBRARY_PATH that's generated into our setup.sh.  That way, the shared libs that
+# live in Gazebo's plugins directory will be found by the loader.
 include (FindPkgConfig)
 if (PKG_CONFIG_FOUND)
   pkg_check_modules(GAZEBO gazebo)
 else()
   message(FATAL_ERROR "pkg-config is required; please install it")
 endif()
-
 set(gazebo_lib_dirs)
 foreach (item ${GAZEBO_LIBRARY_DIRS})
   set(gazebo_lib_dirs "${gazebo_lib_dirs}:${item}")
