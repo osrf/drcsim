@@ -19,7 +19,7 @@ for d in `find @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gaz
 # Also add our 'ros' directory to RPP; it contains utility packages with things like launch files
 export ROS_PACKAGE_PATH=@SANDIA_HAND_ROS_PACKAGE_PATH@:@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/ros:$ROS_PACKAGE_PATH
 export ROS_PACKAGE_PATH=@OSRF_COMMON_ROS_PACKAGE_PATH@:@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/ros:$ROS_PACKAGE_PATH
-# Make ROS plugins visible to the runtime loader; they'll be pulled in by ROS via pluginlib
+# Make ROS and Gazebo plugins visible to the runtime loader; they'll be pulled in by ROS via pluginlib
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/@PROJECT_NAME@-@DRC_SIM_VERSION@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_VERSION_FULL@:@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@PROJECT_NAME@-@DRC_SIM_VERSION@/plugins:@gazebo_lib_dirs@:$LD_LIBRARY_PATH
 
 # Step 3: get Gazebo configuration.
