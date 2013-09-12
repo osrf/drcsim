@@ -20,7 +20,6 @@ set (files
   drc_practice_task_7.launch
   drc_sim_v0.launch
   drc_trajectory_controllers.launch
-  drc_practice_task_6.launch
   qual_task_1.launch
   qual_task_2.launch
   qual_task_3.launch
