@@ -61,7 +61,11 @@ message(STATUS "Building against ROS distro ${ROS_DISTRO}, expected to be instal
 # user hasn't sourced a ROS setup.sh.  So we'll further check that ROS_ROOT is
 # set and bail if not.
 if("$ENV{ROS_ROOT}" STREQUAL "")
-  message(FATAL_ERROR "ROS_ROOT is not set. Did you source a ROS setup file (e.g., /opt/ros/fuerte/setup.sh)?")
+  if(ROS_DISTRO STREQUAL "hydro")
+    message(FATAL_ERROR "ROS_ROOT is not set. Have you installed ros-hydro-rosbuild and did you source a ROS setup file (e.g., /opt/ros/${ROS_DISTRO}/setup.sh)?")
+  else()
+    message(FATAL_ERROR "ROS_ROOT is not set. Did you source a ROS setup file (e.g., /opt/ros/${ROS_DISTRO}/setup.sh)?")
+  endif()
 endif()
 
 set (INCLUDE_INSTALL_DIR "include/${PROJECT_NAME}-${DRC_SIM_VERSION}/${PROJECT_NAME}") 
