@@ -1,0 +1,77 @@
+l_arm_controller:
+  type: "robot_mechanism_controllers/JointTrajectoryActionController"
+  joints:
+    - l_arm_shy
+    - l_arm_shx
+    - l_arm_ely
+    - l_arm_elx
+    - l_arm_wry
+    - l_arm_wrx
+  gains:
+    l_arm_shy: {p:    30.0, d:  3.0, i: 0.0, i_clamp: 0.0}
+    l_arm_shx: {p:   200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    l_arm_ely: {p:     5.0, d:  0.5, i: 0.0, i_clamp: 0.0}
+    l_arm_elx: {p:    50.0, d:  3.0, i: 0.0, i_clamp: 0.0}
+    l_arm_wry: {p:     1.0, d:  0.1, i: 0.0, i_clamp: 0.0}
+    l_arm_wrx: {p:     2.0, d:  0.2, i: 0.0, i_clamp: 0.0}
+  joint_trajectory_action_node:
+    joints:
+      - l_arm_shy
+      - l_arm_shx
+      - l_arm_ely
+      - l_arm_elx
+      - l_arm_wry
+      - l_arm_wrx
+    constraints:
+      goal_time: 0.02
+      l_arm_shy:
+        goal: 0.02
+      l_arm_shx:
+        goal: 0.02
+      l_arm_ely:
+        goal: 0.02
+      l_arm_elx:
+        goal: 0.02
+      l_arm_wry:
+        goal: 0.02
+      l_arm_wrx:
+        goal: 0.02
+
+r_arm_controller:
+  type: "robot_mechanism_controllers/JointTrajectoryActionController"
+  joints:
+    - r_arm_shy
+    - r_arm_shx
+    - r_arm_ely
+    - r_arm_elx
+    - r_arm_wry
+    - r_arm_wrx
+  gains:
+    r_arm_shy: {p:    30.0, d:  3.0, i: 0.0, i_clamp: 0.0}
+    r_arm_shx: {p:   200.0, d: 20.0, i: 0.0, i_clamp: 0.0}
+    r_arm_ely: {p:     5.0, d:  0.5, i: 0.0, i_clamp: 0.0}
+    r_arm_elx: {p:    50.0, d:  3.0, i: 0.0, i_clamp: 0.0}
+    r_arm_wry: {p:     1.0, d:  0.1, i: 0.0, i_clamp: 0.0}
+    r_arm_wrx: {p:     2.0, d:  0.2, i: 0.0, i_clamp: 0.0}
+  joint_trajectory_action_node:
+    joints:
+      - r_arm_shy
+      - r_arm_shx
+      - r_arm_ely
+      - r_arm_elx
+      - r_arm_wry
+      - r_arm_wrx
+    constraints:
+      goal_time: 0.02
+      r_arm_shy:
+        goal: 0.02
+      r_arm_shx:
+        goal: 0.02
+      r_arm_ely:
+        goal: 0.02
+      r_arm_elx:
+        goal: 0.02
+      r_arm_wry:
+        goal: 0.02
+      r_arm_wrx:
+        goal: 0.02

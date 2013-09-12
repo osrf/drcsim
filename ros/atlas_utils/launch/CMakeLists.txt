@@ -11,7 +11,13 @@ set (files
   atlas_arm_controllers.launch
   atlas_position_controllers.launch
   atlas_no_controllers.launch
+  drc_practice_task_1.launch
+  drc_practice_task_3.launch
+  drc_practice_task_4.launch
+  drc_practice_task_5.launch
+  drc_practice_task_7.launch
   drc_sim_v0.launch
+  drc_practice_task_2.launch
   drc_trajectory_controllers.launch
   drc_practice_task_6.launch
   qual_task_1.launch
@@ -32,6 +38,12 @@ set (files
   vrc_fire_hose.launch
   atlas_arm_slider_teleop.launch
   keyboard_teleop.launch
+  atlas_v3.launch
+  atlas_v3_with_v1_inertia.launch
+  atlas_v3_bringup.launch
+  atlas_v3_sandia_hands.launch
+  atlas_v3_with_v1_inertia_sandia_hands.launch
+  atlas_v3_sandia_hands_bringup.launch
 )
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/launch/)
 

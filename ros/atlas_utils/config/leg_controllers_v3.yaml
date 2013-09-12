@@ -1,0 +1,77 @@
+l_leg_controller:
+  type: "robot_mechanism_controllers/JointTrajectoryActionController"
+  joints:
+    - l_leg_hpz
+    - l_leg_hpx
+    - l_leg_hpy
+    - l_leg_kny
+    - l_leg_aky
+    - l_leg_akx
+  gains:
+    l_leg_hpz: {p:  5000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    l_leg_hpx: {p: 50000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    l_leg_hpy: {p: 20000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    l_leg_kny: {p:  1000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    l_leg_aky: {p:  1000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    l_leg_akx: {p:   500.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+  joint_trajectory_action_node:
+    joints:
+      - l_leg_hpz
+      - l_leg_hpx
+      - l_leg_hpy
+      - l_leg_kny
+      - l_leg_aky
+      - l_leg_akx
+    constraints:
+      goal_time: 0.02
+      l_leg_hpz:
+        goal: 0.02
+      l_leg_hpx:
+        goal: 0.02
+      l_leg_hpy:
+        goal: 0.02
+      l_leg_kny:
+        goal: 0.02
+      l_leg_aky:
+        goal: 0.02
+      l_leg_akx:
+        goal: 0.02
+
+r_leg_controller:
+  type: "robot_mechanism_controllers/JointTrajectoryActionController"
+  joints:
+    - r_leg_hpz
+    - r_leg_hpx
+    - r_leg_hpy
+    - r_leg_kny
+    - r_leg_aky
+    - r_leg_akx
+  gains:
+    r_leg_hpz: {p:  5000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    r_leg_hpx: {p: 50000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    r_leg_hpy: {p: 20000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    r_leg_kny: {p:  1000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    r_leg_aky: {p:  1000.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+    r_leg_akx: {p:   500.0, d: 10.0, i: 0.0, i_clamp: 0.0}
+  joint_trajectory_action_node:
+    joints:
+      - r_leg_hpz
+      - r_leg_hpx
+      - r_leg_hpy
+      - r_leg_kny
+      - r_leg_aky
+      - r_leg_akx
+    constraints:
+      goal_time: 0.02
+      r_leg_hpz:
+        goal: 0.02
+      r_leg_hpx:
+        goal: 0.02
+      r_leg_hpy:
+        goal: 0.02
+      r_leg_kny:
+        goal: 0.02
+      r_leg_aky:
+        goal: 0.02
+      r_leg_akx:
+        goal: 0.02

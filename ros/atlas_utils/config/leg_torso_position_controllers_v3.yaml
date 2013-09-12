@@ -1,0 +1,120 @@
+l_leg_kny_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: l_leg_kny
+  pid: &l_leg_kny_gains
+    p: 1000.0
+    d: 10.0
+    i: 0.0
+    i_clamp: 4.0
+
+r_leg_kny_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_leg_kny
+  pid: *l_leg_kny_gains
+
+l_leg_akx_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: l_leg_akx
+  pid: &l_leg_akx_gains
+    p: 100.0
+    d: 1.0
+    i: 0.0
+    i_clamp: 0.0
+
+r_leg_akx_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_leg_akx
+  pid: *l_leg_akx_gains
+
+l_leg_hpy_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: l_leg_hpy
+  pid: &l_leg_hpy_gains
+    p: 1000.0
+    d: 10.0
+    i: 0.0
+    i_clamp: 0.0
+
+r_leg_hpy_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_leg_hpy
+  pid: *l_leg_hpy_gains
+
+l_leg_hpx_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: l_leg_hpx
+  pid: &l_leg_hpx_gains
+    p: 1000.0
+    d: 10.0
+    i: 0.0
+    i_clamp: 0.0
+
+r_leg_hpx_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_leg_hpx
+  pid: *l_leg_hpx_gains
+
+l_leg_aky_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: l_leg_aky
+  pid: &l_leg_aky_gains
+    p: 1000.0
+    d: 10.0
+    i: 0.0
+    i_clamp: 0.0
+
+r_leg_aky_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_leg_aky
+  pid: *l_leg_aky_gains
+
+l_leg_hpz_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: l_leg_hpz
+  pid: &l_leg_hpz_gains
+    p: 100.0
+    d: 10.0
+    i: 0.0
+    i_clamp: 0.0
+
+r_leg_hpz_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: r_leg_hpz
+  pid: *l_leg_hpz_gains
+
+neck_ry_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: neck_ry
+  pid: &neck_ry_gains
+    p: 200.0
+    d: 20.0
+    i: 0.0
+    i_clamp: 0.0
+
+back_lbz_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: back_lbz
+  pid: &back_lbz_gains
+    p: 200000.0
+    d: 200.0
+    i: 0.0
+    i_clamp: 0.0
+
+back_bky_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: back_bky
+  pid: &back_bky_gains
+    p: 2000000.0
+    d: 200.0
+    i: 0.0
+    i_clamp: 0.0
+
+back_bkx_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: back_bkx
+  pid: &back_bkx_gains
+    p: 2000000.0
+    d: 200.0
+    i: 0.0
+    i_clamp: 0.0
+
