@@ -6,7 +6,6 @@
   <license>Apache 2.0</license>
   <depend package="actionlib"/>
   <depend package="actionlib_msgs"/>
-  <depend package="cmake_modules"/>
   <depend package="control_msgs"/>
   <depend package="convex_decomposition"/>
   <depend package="geometry_msgs"/>
