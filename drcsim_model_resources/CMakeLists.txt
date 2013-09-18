@@ -4,8 +4,8 @@ enable_testing()
 project (drcsim_model_resources)
 catkin_package()
 
-# set (DRC_SIM_MAJOR_VERSION 2)
-# set (DRC_SIM_MINOR_VERSION 8)
+# set (DRC_SIM_MAJOR_VERSION 3)
+# set (DRC_SIM_MINOR_VERSION 0)
 # # The patch version may have been bumped for prerelease purposes; be sure to
 # # check drcsim-release/ubuntu/debian/changelog@default to determine what the
 # # next patch version should be for a regular release.

@@ -1,7 +1,7 @@
-<robot xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" name="atlas" >
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
   
-  <include filename="$(find atlas_description)/urdf/atlas_v3.urdf" />
-  <include filename="$(find sandia_hand_description)/urdf/sandia_hand_simple_shapes.urdf.xacro" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.urdf" />
+  <xacro:include filename="$(find sandia_hand_description)/urdf/sandia_hand_simple_shapes.urdf.xacro" />
 
   <xacro:sandia_hand side="right" parent="r_hand" reflect="1" joint_type="revolute" thumb_angle="0">
     <origin xyz="0 -0.1 0" rpy="-1.57079 0 -1.57079"/>
@@ -10,9 +10,9 @@
     <origin xyz="0  0.1 0" rpy=" 1.57079 0  1.57079"/>
   </xacro:sandia_hand>
 
-  <include filename="$(find atlas_description)/urdf/atlas_v3.gazebo" />
-  <include filename="$(find atlas_description)/urdf/atlas_v3.transmission" />
-  <include filename="$(find multisense_sl_description)/urdf/multisense_sl_v3.urdf" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.gazebo" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.transmission" />
+  <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl_v3.urdf" />
 
   <gazebo>
     <!-- include plugin for sandia hands -->

@@ -14,6 +14,7 @@ set (worlds
      drc_practice_task_3.world
      drc_practice_task_4.world
      drc_practice_task_5.world
+     drc_practice_task_6.world
      drc_practice_task_7.world
 
      drc_vehicle.world
