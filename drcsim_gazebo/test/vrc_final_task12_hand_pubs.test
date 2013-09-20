@@ -1,0 +1,61 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task12.launch" />
+
+  <!-- Test for nominal publication rates -->
+
+  <!-- TODO: Doing it like, with a re-launch for each test, is slow.  Consider writing a multi-hztester. -->
+
+  <!-- SANDIA HANDS (but not camera tests; those are in another file, because they require a GPU) -->
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_joint_states">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/joint_states"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_imu">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/imu"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+<!-- Not yet implemented
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_tacile_raw">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/tactile_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+-->
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_joint_states">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/joint_states"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_imu">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/imu"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+<!-- Not yet implemented
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_tacile_raw">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/tactile_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+-->
+</launch>

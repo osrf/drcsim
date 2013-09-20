@@ -1,0 +1,12 @@
+<launch>
+  <env name="VRC_CHEATS_ENABLED" value="1"/>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task10.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="drcsim_gazebo" type="vrc_task_2_scoring_test" 
+        test-name="vrc_final_task10_scoring" 
+        time-limit="360.0">
+    <param name="logdir" value="/tmp/vrc_final_task10" />
+    <param name="pose_gate1" type="str" value="2.81 -38.07 1.00" />
+  </test>
+</launch>

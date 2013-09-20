@@ -1,0 +1,20 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_task_1.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <!-- Test the head -->
+  <test pkg="drcsim_gazebo" type="multicamera_subscriber" 
+        ns="/multisense_sl/camera"
+        test-name="multicamera_subscriber_head" 
+        time-limit="360.0"/>
+  <!-- Test the left hand -->
+  <test pkg="drcsim_gazebo" type="multicamera_subscriber" 
+        ns="/sandia_hands/l_hand/camera"
+        test-name="multicamera_subscriber_sandia_left" 
+        time-limit="360.0"/>
+  <!-- Test the right hand -->
+  <test pkg="drcsim_gazebo" type="multicamera_subscriber" 
+        ns="/sandia_hands/r_hand/camera"
+        test-name="multicamera_subscriber_sandia_right" 
+        time-limit="360.0"/>
+</launch>

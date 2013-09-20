@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import unittest
+import rostest
+import sys
+import time
+import rospy
+from sensor_msgs.msg import Image
+
+class Tester(unittest.TestCase):
+
+    def setUp(self):
+        self.left_count = 0
+        self.right_count = 0
+
+    def _left_cb(self, data):
+        self.left_count += 1
+
+    def _right_cb(self, data):
+        self.right_count += 1
+
+    def test_connection(self):
+        # Test that both camera images continue to be published when subscribing
+        # and unsubscribing them.
+        left_sub = rospy.Subscriber('left/image_raw', Image, self._left_cb)
+        right_sub = rospy.Subscriber('right/image_raw', Image, self._right_cb)
+        # Get images from both cameras
+        start = rospy.Time.now()
+        while self.left_count == 0 or self.right_count == 0:
+            # Don't wait forever
+            self.assertLess(rospy.Time.now() - start, rospy.Duration(5.0))
+            print('Waiting for images on both cameras')
+            rospy.sleep(0.5)
+        # Unsubscribe from one and reset counters
+        print('Unregistering from left camera')
+        left_sub.unregister()
+        self.left_count = 0
+        self.right_count = 0
+        # Still need images from the other camera
+        start = rospy.Time.now()
+        while self.right_count < 5:
+            # Don't wait forever
+            self.assertLess(rospy.Time.now() - start, rospy.Duration(5.0))
+            print('Waiting for images on right camera')
+            rospy.sleep(0.5)
+
+if __name__ == '__main__':
+    rospy.init_node('multicamera_subscriber', anonymous=True)
+    
+    # Wait until /clock is being published; this can take an unpredictable
+    # amount of time when we're downloading models.
+    while rospy.Time.now().to_sec() == 0.0:
+        print('Waiting for Gazebo to start...')
+        time.sleep(1.0)
+    # Take an extra nap, to allow plugins to be loaded
+    time.sleep(5.0)
+    print('OK, starting test.')
+
+    rostest.run('drcsim_gazebo', 'multicamera_subscriber', Tester, sys.argv)

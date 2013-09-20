@@ -1,0 +1,16 @@
+<launch>
+  <env name="VRC_CHEATS_ENABLED" value="1"/>
+  <include file="$(find drcsim_gazebo)/launch/vrc_task_1.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <!-- Send movement to pass first door -->
+  <node pkg="drcsim_gazebo_ros_plugins" type="actionlib_server" name="walking_actionlib_server"/>
+  <node pkg="drcsim_gazebo" type="atlas_commander.py" name="atlas_commander"
+        output="screen"
+        args="9 i i i i i" />
+  <test pkg="drcsim_gazebo" type="vrc_walking_test" 
+        test-name="vrc_task_1_walking_test" 
+        time-limit="520.0">
+      <param name="logdir" value="/tmp/vrc_task_1" />
+  </test>
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="drcsim_gazebo" type="run_pub_atlas_command.sh" name="$(anon pub_atlas_command)"/>
+  <node pkg="drcsim_gazebo" type="run_gzstats.sh" name="$(anon gzstats)"/>
+  <node pkg="drcsim_gazebo" type="run_rosbag.sh" name="$(anon rosbag)"/>
+</launch>
+

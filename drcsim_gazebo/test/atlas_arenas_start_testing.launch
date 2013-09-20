@@ -1,0 +1,4 @@
+<launch>
+   <include file="$(find drcsim_gazebo)/test/atlas_arenas_logging.launch" /> 
+   <include file="$(find drcsim_gazebo)/launch/keyboard_teleop.launch" /> 
+</launch>

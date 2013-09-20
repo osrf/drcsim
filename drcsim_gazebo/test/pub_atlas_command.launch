@@ -1,0 +1,4 @@
+<launch>
+  <!-- Run the node that will command the robot, eliciting controller stats -->
+  <node pkg="drcsim_gazebo" type="run_pub_atlas_command.sh" name="$(anon pub_atlas_command)"/>
+</launch>
