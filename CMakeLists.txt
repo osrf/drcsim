@@ -3,10 +3,11 @@
 # still be embedded in a catkin workspace, in which case, this file will not be
 # processed (because there's no package.xml in this directory).
 cmake_minimum_required(VERSION 2.8)
-find_package(catkin REQUIRED)
-include(${catkin_EXTRAS_DIR}/toplevel.cmake)
 
 set (CMAKE_PREFIX_PATH "/usr;$ENV{CMAKE_PREFIX_PATH}")
+
+find_package(catkin REQUIRED)
+include(${catkin_EXTRAS_DIR}/toplevel.cmake)
 
 project (drcsim)
 set (DRC_SIM_MAJOR_VERSION 3)
