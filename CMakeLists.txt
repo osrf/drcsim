@@ -8,6 +8,7 @@ include(${catkin_EXTRAS_DIR}/toplevel.cmake)
 
 set (CMAKE_PREFIX_PATH "/usr;$ENV{CMAKE_PREFIX_PATH}")
 
+project (drcsim)
 set (DRC_SIM_MAJOR_VERSION 3)
 set (DRC_SIM_MINOR_VERSION 1)
 #The patch version may have been bumped for prerelease purposes; be sure to
