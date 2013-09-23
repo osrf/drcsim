@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package>
+  <name>irobot_hand_description</name>
+  <version>3.1.0</version>
+  <description>This package contains iRobot hand description files</description>
+  <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
+  <author email="hsu@osrfoundation.org">John Hsu</author>
+  <license>Apache 2.0</license>
+  <url type="website">http://gazebosim.org/wiki/DRC</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>xacro</run_depend>
+</package>

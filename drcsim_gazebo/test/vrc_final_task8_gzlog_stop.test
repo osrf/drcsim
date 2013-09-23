@@ -1,0 +1,13 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task8.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <include file="$(find drcsim_gazebo)/test/pub_atlas_command.launch" />
+
+  <param name="/gzstop_checker/time_to_publish" value="15" />
+  <param name="/gzstop_checker/logfile"         value="/tmp/vrc_final_task8/state.log" /> 
+  <param name="/gzstop_checker/results_postfix" value="vrc_final_task_8" /> 
+  <test pkg="drcsim_gazebo" type="gzlog_stop_checker.py" 
+        test-name="vrc_final_task8_gzlog_stop"
+        time-limit="360" />
+</launch>

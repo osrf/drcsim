@@ -1,0 +1,33 @@
+<launch>
+
+  <arg name="gzname" default="gazebo"/>
+  <arg name="gzworld" default="qual_task_3.world"/>
+  <arg name="hand_suffix" default=""/>
+
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+
+  <!-- to trigger synchronization delay, set
+       atlas_msgs::AtlasCommand::desired_controller_period_ms to non-zero -->
+  <param name="/atlas/delay_window_size" type="double" value="5.0"/>
+  <param name="/atlas/delay_max_per_window" type="double" value="0.25"/>
+  <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
+
+  <!-- start gazebo with the Atlas -->
+  <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
+    <arg name="gzname" value="$(arg gzname)"/>
+    <arg name="extra_gazebo_args" value="-q -r --record_encoding=zlib --record_path=/tmp/qual_task_3" />
+    <arg name="gzworld" value="$(arg gzworld)"/>
+  </include>
+
+  <!-- Robot Description -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
+  <param name="robot_initial_pose/x"     value="-0.5" type="double"/>
+  <param name="robot_initial_pose/y"     value="0" type="double"/>
+  <param name="robot_initial_pose/z"     value="0.93" type="double"/>
+  <param name="robot_initial_pose/roll"  value="0" type="double"/>
+  <param name="robot_initial_pose/pitch" value="0" type="double"/>
+  <param name="robot_initial_pose/yaw"   value="0" type="double"/>
+
+  <include file="$(find drcsim_gazebo)/launch/atlas_sandia_hands_bringup.launch"/>
+
+</launch>

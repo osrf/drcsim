@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# First argument should be a fully-qualified path to a .world file
+# (e.g., `rospack find drcsim_gazebo`/worlds/atlas.world)
+# or a world that's install in $GAZEBO_RESOURCE_PATH/worlds/atlas
+valgrind --tool=memcheck --track-origins=yes --error-limit=no --read-var-info=yes --undef-value-errors=yes --trace-children=yes --log-file=$HOME/.gazebo/memcheck.out gzserver -s libgazebo_ros_api_plugin.so $@

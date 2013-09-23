@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import roslib
+roslib.load_manifest('drcsim_gazebo')
+import unittest
+import rostest
+import sys
+import time
+import rospy
+import shutil
+import os
+import tempfile
+import subprocess
+from collections import namedtuple
+from geometry_msgs.msg import Pose
+from atlas_msgs.msg import VRCScore, AtlasState
+
+LOGDIR = '/tmp/vrc_task_2'
+
+def construct_pose_from_position(x, y, z):
+    p = Pose()
+    p.position.x = x
+    p.position.y = y
+    p.position.z = z
+    return p
+
+class Tester(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+	self.GateSteps = namedtuple('GateSteps', ['before','after'])
+	self.GATE_POSES = []
+	
+	# Gate 1
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(-3.01,-38,0.935),
+		construct_pose_from_position(2.81, -38.07, 1.00)))
+	# gate 2
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(-0.03, -27.76, 1.00),
+		construct_pose_from_position(1.36, -19.71, 1.00)))
+	# gate 3
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(1.36, -19.71, 1.00),
+		construct_pose_from_position(0.644, -7.35, 1.00)))
+	# Gate 4
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(6.68, 4.44,  1.00),
+		construct_pose_from_position(7.00, 12.07, 1.00)))
+	# Gate 5
+	self.GATE_POSES.append(self.GateSteps(
+		construct_pose_from_position(7.00, 12.07, 1.00),
+		construct_pose_from_position(6.30, 20.31, 1.00)))
+
+        unittest.TestCase.__init__(self, *args, **kwargs)
+
+    def score_callback(self, data):
+        self.last_score = data
+        self.total_score_msgs += 1
+        rospy.loginfo(self.last_score.completion_score)
+
+    # wait and get new score data 
+    def wait_new_score_msg(self):
+        current = self.total_score_msgs
+        while (self.total_score_msgs <= current):
+	        time.sleep(1)
+
+    def assertROSScore(self, expected_score):
+	result = False
+	for i in range(4): # 4 seconds to be sure message is not arriving
+	    self.wait_new_score_msg()
+	    ros_pkg = self.last_score
+	    if (ros_pkg.completion_score == expected_score):
+		result = True
+		break
+	self.assertTrue(result, 'Score in ros topic (' + str(ros_pkg.completion_score) + ') is not ' + str(expected_score))
+	return ros_pkg
+    
+    def assertROSElapsedTimeZero(self, ros_pkg):
+	self.assertEqual(ros_pkg.wall_time_elapsed, rospy.Time(0))
+	self.assertEqual(ros_pkg.sim_time_elapsed, rospy.Time(0))
+	
+    def assertROSElapsedTimeNotZero(self, ros_pkg):
+	self.assertNotEqual(ros_pkg.wall_time_elapsed, rospy.Time(0))
+	self.assertNotEqual(ros_pkg.sim_time_elapsed, rospy.Time(0))
+
+    def assertROSNoFalls(self, ros_pkg):
+    	self.assertEqual(ros_pkg.falls, 0)
+
+    def pass_through_gate(self, number):
+        pose_pub = rospy.Publisher('atlas/set_pose', Pose)
+        pose_pub.publish(self.GATE_POSES[number].before)
+        time.sleep(3.0)
+        pose_pub.publish(self.GATE_POSES[number].after)
+ 
+
+    def test_scoring(self):
+     	self.total_score_msgs = 0
+        self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
+	# Override first step, after pose.
+        x_str, y_str, z_str = rospy.get_param("~pose_gate1").split(" ")
+        pose_after = construct_pose_from_position(
+		         float(x_str), float(y_str), float(z_str))
+	self.GATE_POSES[0] = self.GateSteps(self.GATE_POSES[0].before, pose_after)
+
+        # Wait for subscribers to hook up
+        time.sleep(3.0)
+
+	# Previous checks:
+	# - no point yet
+	pkg = self.assertROSScore(0)
+	# - no elapsed time
+	self.assertROSElapsedTimeZero(pkg)
+	# - no falls
+	self.assertROSNoFalls(pkg)
+
+	expected_gates   = rospy.get_param('~gates_to_pass').split(" ")
+	expected_score   = rospy.get_param('~expected_score').split(" ")
+	expected_elapsed = rospy.get_param('~expected_elapsed').split(" ")
+
+	if (len(expected_gates) != len(expected_score)) or \
+	   (len(expected_score) != len(expected_elapsed)):
+	   	self.fail("All the parameters should be of same length") 
+		sys.exit(-1)
+
+	for index,gate in enumerate(expected_gates):
+	    print ("Passsing through gate: " + gate)
+	    test_gate    = int(gate)
+	    test_elapsed = int(expected_elapsed[index])
+	    test_score   = int(expected_score[index])
+	    print ("Expected score: " + str(test_score))
+	    print ("Expected time : " + str(test_elapsed))
+	    self.pass_through_gate(test_gate)
+	    time.sleep(2)
+	    pkg = self.assertROSScore(test_score)
+	    if test_elapsed == 0:
+		self.assertROSElapsedTimeZero(pkg)
+	    elif test_elapsed == 1:
+		self.assertROSElapsedTimeNotZero(pkg)
+	    else:
+		 rospy.logwarn("Unknow value of expected_elapsed: " + str(expected_elapsed[index]))
+
+if __name__ == '__main__':
+    rospy.init_node('vrc_task_2_tricking_scoring_test', anonymous=True)
+    try:
+	LOGDIR = rospy.get_param('~logdir')
+    except KeyError:
+	rospy.loginfo("Use default value for logdir: " + LOGDIR)
+
+    # Wait until /clock is being published; this can take an unpredictable
+    # amount of time when we're downloading models.
+    while rospy.Time.now().to_sec() == 0.0:
+        print('Waiting for Gazebo to start...')
+        time.sleep(1.0)
+    # Take an extra nap, to allow plugins to be loaded
+    time.sleep(5.0)
+    print('OK, starting test.')
+
+    rostest.run('drcsim_gazebo', 'vrc_task_2_tricking_scoring_test', Tester, sys.argv)
+

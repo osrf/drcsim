@@ -1,0 +1,66 @@
+This package contains the beginnings of a ROS<->AtlasRobotInterface bridge.
+
+At present, it will (attempt to):
+
+* Subscribe to atlas/atlas_command (type: atlas_msgs/AtlasCommand) and pass the
+desired joint positions, velocities, and efforts to the robot.
+
+* Advertise atlas/atlas_state (type: atlas_msgs/AtlasState) and publish the
+current joint positions, velocities, and efforts from the robot.
+
+To try it out:
+
+== Configure and build ==
+
+* Download AtlasRobotInterface v2.0.2 and unpack it somewhere.  Let's call 
+that directory /work/AtlasRobotInterface_2.0.2.
+
+* Build and install drcsim as usual (or you could install the latest 2.7.x
+package via apt-get).
+
+* Source the drcsim setup file, e.g.:
+
+  source /usr/share/drcsim/setup.sh
+
+* Add this package's directory (atlas_interface_bridge) to your 
+ROS_PACKAGE_PATH, e.g.:
+
+  export ROS_PACKAGE_PATH=`pwd`:$ROS_PACKAGE_PATH
+
+* Set the ATLAS_ROBOT_INTERFACE_ROOT environment variable to point to where
+you unpacked AtlasRobotInterface, e.g.:
+
+  export ATLAS_ROBOT_INTERFACE_ROOT=/work/AtlasRobotInterface_2.0.2
+
+* Build this package:
+
+  roscd atlas_interface_bridge
+  make
+
+== Running ==
+
+* If necessary, start a ROS master:
+
+  roscore
+
+* (in another terminal) Run the bridge process, supplying whatever
+Atlas-specific options are needed to communicate with your robot:
+
+  rosrun atlas_interface_bridge atlas_interface_bridge <options>
+
+WARNING WARNING WARNING
+  The next step has not been tested on a robot! Test at your own risk!
+WARNING WARNING WARNING
+
+* Pass a 0.1-radian sine wave through the robot's joints:
+
+  rosrun atlas_interface_bridge move.py
+
+== Development / testing ==
+
+* For off-robot testing, define the C preprocessor macro NOROBOT to compile out
+the steps that actually communicate with the robot.
+
+* Lots more to do in terms of adding functionality, including extending the ROS
+message API.  Pull requests welcome!
+

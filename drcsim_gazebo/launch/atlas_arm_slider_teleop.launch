@@ -1,0 +1,12 @@
+<launch>
+  <arg name="side" default="lr"/>
+  <node name="nanokontrol" pkg="sandia_hand_teleop" type="nanokontrol.py" args="3"/>
+  <node name="hip_pinner" pkg="rostopic" type="rostopic" args="pub --once /atlas/mode std_msgs/String '{ data: pinned }'"/>
+  <!-- Change first arg "l" for left hand, "r" for right hand. 
+       Change second arg to set which scene must be active [0-3] for control to happen. -->
+  <node name="arm_teleop" pkg="drcsim_gazebo" type="arm_teleop.py" args="$(arg side) 0 1"/>
+  <include file="$(find sandia_hand_teleop)/launch/nanokontrol_simple_grasp.launch">
+      <arg name="start_nanokontrol" value="false" />
+  </include>
+</launch>
+

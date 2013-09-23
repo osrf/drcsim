@@ -1,0 +1,10 @@
+<launch>
+  <!-- Bring up gazebo without the GUI -->
+  <include file="$(find drcsim_gazebo)/launch/atlas_sandia_hands.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="drcsim_gazebo" type="performance_test1.py" test-name="atlas_performance_test1">
+    <param name="test_start_sim_time" value="12.0"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+</launch>

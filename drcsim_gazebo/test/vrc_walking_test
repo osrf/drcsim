@@ -1,0 +1,151 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import roslib
+roslib.load_manifest('drcsim_gazebo')
+import unittest
+import rostest
+import sys
+import time
+import rospy
+import shutil
+import os
+import tempfile
+import subprocess
+from geometry_msgs.msg import Pose
+from atlas_msgs.msg import VRCScore, AtlasState
+
+LOGDIR = ''
+
+class OrientationChecker():
+
+    def check_standup(self, orientation):
+        if (orientation.x < 0.1) and \
+           (orientation.y < 0.1) and \
+           (orientation.z < 0.1) and \
+           (orientation.w > 0.95):
+            self.standup_msgs += 1
+            return True
+        else:
+            rospy.loginfo("Fallen")
+            self.result       = False
+            self.result_ready = True
+            return False
+
+    def callback(self, data):
+        if self.check_standup(data.orientation) and self.standup_msgs == 1000:
+            self.result       = True
+            self.result_ready = True
+
+    def run(self):
+        self.standup_msgs  = 0
+        self.result_ready  = False
+        self.result        = False
+
+        self.pub = rospy.Subscriber("/atlas/atlas_state", AtlasState, self.callback)
+
+        while not self.result_ready:
+            time.sleep(0.1)
+            pass
+
+	self.pub.unregister()
+	return self.result
+
+class Tester(unittest.TestCase):
+
+    def _grep(self, fname, string):
+        fullpath = os.path.join(LOGDIR, fname)
+        for line in open(fullpath, 'r'):
+            if string in line:
+                return True
+        return False
+
+    # This function isn't used right now; need to sort out the state.log
+    # flushing problem before this can be reliably used.
+    def _get_atlas_pose(self, fname):
+        # Check the current robot pose, from the incomplete gazebo log
+        # file. Not sure how robust this is.
+        fullpath = os.path.join(LOGDIR, fname)
+        while not os.path.exists(fullpath):
+            print('Waiting for %s to exist'%(fullpath))
+            time.sleep(0.5)
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        tmp.close()
+        shutil.copyfile(fullpath, tmp.name)
+        # Terminate our copy of the log file
+        with open(tmp.name, 'a') as f:
+            f.write('</gazebo_log>\n')
+        # Use gzlog to extract the pose
+        cmd = ['gzlog', 'echo', tmp.name, '-r', '--filter', 'atlas.pose']
+        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
+                              stderr=subprocess.PIPE)
+        out,err = po.communicate()
+        # Take the last non-empty line
+        pose = []
+        for l in reversed(out.split('\n')):
+            if len(l) > 0 and l[0] != ' ':
+                pose = l.split()
+                break
+        self.assertTrue(len(pose) == 6)
+        for i in range(len(pose)):
+            pose[i] = float(pose[i])
+        os.remove(tmp.name)
+        return pose
+
+    def score_callback(self, data):
+	self.last_score = data
+	self.total_score_msgs += 1
+	rospy.loginfo(self.last_score.completion_score)
+
+    # wait and get new score data 
+    def wait_new_score_msg(self):
+	current = self.total_score_msgs
+	while (self.total_score_msgs <= current):
+	    time.sleep(1)
+    
+    def assertROSScore(self, expected_score):
+	result = False
+	for i in range(4): # 4 seconds to be sure message is not arriving
+	    self.wait_new_score_msg()
+	    if (self.last_score.completion_score == expected_score):
+		result = True
+		break
+	self.assertTrue(result,
+	  'Score in ros topic is not ' + str(expected_score))
+
+    def test_scoring(self):
+        self.total_score_msgs = 0
+        self.score_pub = rospy.Subscriber('/vrc_score', VRCScore, self.score_callback)
+        # Wait for subscribers to hook up
+	# TODO: proper check for endding walking: use /atlas/bdi_control/status 
+        time.sleep(120)
+
+        # Check that robot is standup
+    	stand_up_checker = OrientationChecker()
+	self.assertTrue(stand_up_checker.run(),
+	      'Robot seems to be fallen')
+	# Check the log and ROS score
+        self.assertTrue(self._grep('score.log', 
+          'Successfully passed through gate 1'))
+        self.assertROSScore(0)
+
+if __name__ == '__main__':
+    rospy.init_node('vrc_task_1_scoring_test', anonymous=True)
+    try:
+	LOGDIR = rospy.get_param('~logdir')
+	rospy.loginfo("Use default logdir: " + LOGDIR)
+    except KeyError:
+	rospy.logerr("Not defined logdir. Can not continue")
+	os.exit(-1)
+
+    # Wait until /clock is being published; this can take an unpredictable
+    # amount of time when we're downloading models.
+    while rospy.Time.now().to_sec() == 0.0:
+        print('Waiting for Gazebo to start...')
+        time.sleep(1.0)
+    # Take an extra nap, to allow plugins to be loaded
+    time.sleep(5.0)
+    print('OK, starting test.')
+
+    rostest.run('drcsim_gazebo', 'vrc_task_1_scoring_test', Tester, sys.argv)
+

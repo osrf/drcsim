@@ -1,9 +1,0 @@
-<launch>
-  <arg name="gzworld" default="vrc_final_task5"/>
-  <arg name="gzname"  default="gzserver" />
-
-  <!-- start gazebo with the Atlas -->
-  <include file="$(find vrc_finals)/launch/vrc_final.launch">
-    <arg name="gzworld" value="$(arg gzworld)"/>
-  </include>
-</launch>

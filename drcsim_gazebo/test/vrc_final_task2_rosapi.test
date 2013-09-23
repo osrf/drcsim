@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task2.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="drcsim_gazebo" type="ros_api_checker" test-name="vrc_task_1_rosapi" 
+        args="$(find drcsim_gazebo)/test/atlas_rosapi.yaml $(find drcsim_gazebo)/test/sandia_hands_rosapi.yaml $(find drcsim_gazebo)/test/multisense_sl_rosapi.yaml $(find drcsim_gazebo)/test/vrc_rosapi.yaml"
+        time-limit="360.0"/>
+</launch>

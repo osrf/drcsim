@@ -1,8 +1,0 @@
-<launch>
-  <include file="$(find vrc_finals)/launch/vrc_final_task13.launch">
-    <arg name="gzname" value="gzserver"/>
-  </include>
-  <test pkg="atlas_utils" type="orientation_checker.py" 
-        test-name="vrc_final_task13_start_standup" 
-        time-limit="360.0"/>
-</launch>

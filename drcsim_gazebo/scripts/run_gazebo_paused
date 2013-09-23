@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# First argument should be a fully-qualified path to a .world file
+# (e.g., `rospack find drcsim_gazebo`/worlds/atlas.world)
+# or a world that's install in $GAZEBO_RESOURCE_PATH/worlds/atlas
+#`rospack find gazebo_worlds`/scripts/gdbrun gzserver -s libgazebo_ros_api_plugin.so $1
+gazebo -u -s libgazebo_ros_api_plugin.so $@

@@ -1,0 +1,7 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
+  <xacro:include filename="$(find irobot_hand_description)/urdf/irobot_hand.urdf.xacro" />
+
+  <xacro:irobot_hand side="left" parent="world" reflect="-1">
+    <origin rpy="0 0 0" xyz="0 0 1.0"/>
+  </xacro:irobot_hand>
+</robot>

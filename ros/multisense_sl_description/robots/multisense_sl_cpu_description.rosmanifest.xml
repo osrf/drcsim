@@ -1,5 +1,0 @@
-<package>
-  <description brief="multisense_sl_cpu_description">The Carnegie Robotics MultiSense-SL sensor head.</description>
-  <author>Stephen Brawner, John Hsu</author>
-  <license>Apache 2.0</license>
-</package>

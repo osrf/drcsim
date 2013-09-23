@@ -1,0 +1,66 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task15.launch" />
+
+  <!-- Test for nominal publication rates -->
+
+  <!-- TODO: Doing it like, with a re-launch for each test, is slow.  Consider writing a multi-hztester. -->
+
+  <!-- MULTISENSE just camera tests, which require GPU -->
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_left_image_raw">
+    <param name="hz" value="30.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/left/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_left_camera_info">
+    <param name="hz" value="30.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/left/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_right_image_raw">
+    <param name="hz" value="30.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/right/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_right_camera_info">
+    <param name="hz" value="30.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/right/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_points">
+    <param name="hz" value="20.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/points"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_points2">
+    <param name="hz" value="20.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/points2"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_camera_disparity">
+    <param name="hz" value="20.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/camera/disparity"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+</launch>

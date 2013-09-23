@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task11.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="drcsim_gazebo" type="orientation_checker.py" 
+        test-name="vrc_final_task11_start_standup" 
+        time-limit="360.0"/>
+</launch>

@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/test/pub_atlas_command.launch"/>
+  <include file="$(find drcsim_gazebo)/test/ros_subscribers.launch"/>
+</launch>
+
