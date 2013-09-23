@@ -178,6 +178,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       this->world->GetEntityBelowPoint(rayStart.pos);
     if (objectBelow)
     {
+
+
       math::Box groundBB = objectBelow->GetBoundingBox();
       double groundHeight = groundBB.max.z;
 
@@ -215,6 +217,13 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
              << "returned NULL pointer.\n";
       // put atlas back
       this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+      {
+        // simulate freezing lock simbody free joints
+        physics::Link_V links = this->atlas.model->GetLinks();
+        for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+          (*li)->SetLinkStatic(true);
+      }
     }
     this->world->SetPaused(paused);
   }
@@ -275,6 +284,13 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
       this->RemoveJoint(this->vehicleRobotJoint);
+
+    {
+      // simulate freezing lock simbody free joints
+      physics::Link_V links = this->atlas.model->GetLinks();
+      for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+        (*li)->SetLinkStatic(false);
+    }
   }
   else if (_str == "bdi_stand")
   {
