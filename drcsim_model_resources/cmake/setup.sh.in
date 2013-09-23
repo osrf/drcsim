@@ -24,6 +24,8 @@ export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_I
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$LD_LIBRARY_PATH
 # Make Gazebo-ROS plugins visible to the runtime loader; they'll be pulled in by ROS via pluginlib
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$LD_LIBRARY_PATH
+# Export Gazebo plugin library directories
+export LD_LIBRARY_PATH=@gazebo_lib_dirs@:$LD_LIBRARY_PATH
 
 # Step 3: get Gazebo configuration.
 if [ -f @GAZEBO_PREFIX@/share/gazebo/setup.sh ]; then

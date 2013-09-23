@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo)
+set(CMAKE_BUILD_TYPE "Debug")
 
 find_package(catkin REQUIRED COMPONENTS atlas_description drcsim_gazebo_plugins atlas_msgs drcsim_gazebo_ros_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description)
 
@@ -12,7 +13,7 @@ catkin_package(
 )
 
 install(DIRECTORY
-  launch config raw
+  launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

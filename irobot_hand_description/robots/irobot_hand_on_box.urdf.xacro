@@ -1,5 +1,5 @@
-<robot xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" name="atlas" >
-  <include filename="$(find irobot_hand_description)/urdf/irobot_hand.urdf.xacro" />
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
+  <xacro:include filename="$(find irobot_hand_description)/urdf/irobot_hand.urdf.xacro" />
   <!-- base -->
   <link name="base">
     <inertial>
