@@ -70,7 +70,8 @@ IRobotHandPlugin::~IRobotHandPlugin()
 {
 }
 
-void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf)
+void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
+  sdf::ElementPtr _sdf)
 {
   this->model = _parent;
   this->world = this->model->GetWorld();
@@ -183,8 +184,8 @@ bool IRobotHandPlugin::FindJoints()
       return false;
   }
 
-  gzlog << "IRobotHandPlugin found all joints for " << this->side << " hand." <<
-    std::endl;
+  gzlog << "IRobotHandPlugin found all joints for " << this->side
+        << " hand." << std::endl;
   return true;
 }
 
