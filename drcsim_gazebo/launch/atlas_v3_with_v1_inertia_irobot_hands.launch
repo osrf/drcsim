@@ -2,7 +2,6 @@
 
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas_irobot_hands.world"/>
-  <arg name="hand_suffix" default=""/>
   <arg name="extra_gazebo_args" default="-q" />
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
@@ -22,7 +21,7 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_v3_irobot_hands.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_v3_with_v1_inertia_irobot_hands.urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="0" type="double"/>
   <param name="robot_initial_pose/y"     value="0" type="double"/>
   <param name="robot_initial_pose/z"     value="0.93" type="double"/>
