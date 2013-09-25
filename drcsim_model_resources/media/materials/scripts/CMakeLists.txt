@@ -1,4 +1,5 @@
 set (files 
+  drc_qual.material
   vrc_final.material
 )
 

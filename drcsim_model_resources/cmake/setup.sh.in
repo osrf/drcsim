@@ -18,6 +18,16 @@
 # Also add our 'ros' directory to RPP; it contains utility packages with things like launch files
 # export ROS_PACKAGE_PATH=@SANDIA_HAND_ROS_PACKAGE_PATH@:@OSRF_COMMON_ROS_PACKAGE_PATH@:$ROS_PACKAGE_PATH
 
+# Need to export drcsim_gazebo into ROS_PACKAGE_PATH
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:@CMAKE_INSTALL_PREFIX@/share/drcsim_gazebo
+# Need to export related description packages into ROS_PACKAGE_PATH
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:@CMAKE_INSTALL_PREFIX@/share/atlas_description
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:@CMAKE_INSTALL_PREFIX@/share/sandia_hand_description
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:@CMAKE_INSTALL_PREFIX@/share/multisense_sl_description
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:@CMAKE_INSTALL_PREFIX@/share/irobot_hand_description
+# Need sandia_hand_teleop for simple_grasp.py
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:@CMAKE_INSTALL_PREFIX@/share/sandia_hand_teleop
+
 # Make AtlasSimInterface plugins visible to the runtime loader
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_INTERFACE_VERSION_FULL@:$LD_LIBRARY_PATH
 # Make Gazebo plugins visible to the runtime loader
@@ -37,21 +47,26 @@ else
 fi
 
 # Step 4: modify Gazebo configuration.
-export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@:$GAZEBO_RESOURCE_PATH
+# export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@:$GAZEBO_RESOURCE_PATH
 # export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@:$GAZEBO_RESOURCE_PATH
-export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/worlds:$GAZEBO_RESOURCE_PATH
+export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/drcsim_model_resources/worlds:$GAZEBO_RESOURCE_PATH
+export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/drcsim_model_resources:$GAZEBO_RESOURCE_PATH
 # export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/worlds:$GAZEBO_RESOURCE_PATH
 
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/drcsim_model_resources:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/sandia_hand_description:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/irobot_hand_description:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/multisense_sl_description:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/atlas_description:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/drcsim_model_resources:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/drcsim_model_resources/gazebo_models/environments:$GAZEBO_MODEL_PATH
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/sandia_hand_description:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/irobot_hand_description:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/multisense_sl_description:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/atlas_description:$GAZEBO_MODEL_PATH
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 
-export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$GAZEBO_PLUGIN_PATH
-export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH
+for d in `find @CMAKE_INSTALL_PREFIX@/share/drcsim_model_resources/gazebo_models/environments -mindepth 1 -maxdepth 1 -type d | tr "\n" ":"`; do export GAZEBO_MODEL_PATH=$d$GAZEBO_MODEL_PATH; done
+
+
+# export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$GAZEBO_PLUGIN_PATH
+# export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH
 
 # this was needed for lib_gazebo_gpu_laser.so dependency on libGpuRayPlugin.so, might be doing something wrong in cmake?
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GAZEBO_PLUGIN_PATH
