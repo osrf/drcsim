@@ -65,8 +65,6 @@ generate_messages(DEPENDENCIES
   geometry_msgs
   trajectory_msgs
   actionlib_msgs
-  osrf_msgs
-  sandia_hand_msgs
   control_msgs
   )
 
@@ -78,7 +76,5 @@ catkin_package(
   geometry_msgs
   trajectory_msgs
   actionlib_msgs
-  osrf_msgs
-  sandia_hand_msgs
   message_generation
   )
