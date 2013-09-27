@@ -53,6 +53,13 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: static const int numFingers = 3;
   private: static const int numFlexLinks = 8;
 
+  // Note:
+  // erp = dt * kp / ( dt * kp + kd )
+  // cfm = 1 / ( dt * kp + kd )
+  // or
+  // kp = erp / (dt * cfm)
+  // kd = (1 - erp) / cfm
+
   // TODO: make these constants configurable
   private: static const double flexJointCFM = 9.0;
   private: static const double flexJointERP = 0.1;
