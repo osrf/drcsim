@@ -113,7 +113,7 @@ if(UNIX AND NOT APPLE)
   if (${PREFIX_START} STREQUAL "/opt/ros")
     install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION /usr/share/drcsim)
   else
-    # While in local installation, replicate the previous share/drcsim/setup.sh
+    # In local installations, replicate the previous share/drcsim/setup.sh
     install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim)
   endif()
 endif()
