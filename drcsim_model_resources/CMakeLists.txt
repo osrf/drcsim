@@ -100,7 +100,7 @@ install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
 # Configure the setup script
 configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}/)
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 # Install also a copy of setup.sh in /usr/share/drcsim/setup.sh for backwards compatibility
 # Avoid to use symlinks for portability reasons. Copy the file twice.
@@ -112,6 +112,9 @@ if(UNIX AND NOT APPLE)
   string(SUBSTRING "${CMAKE_INSTALL_PREFIX}" 0 8 PREFIX_START)
   if (${PREFIX_START} STREQUAL "/opt/ros")
     install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION /usr/share/drcsim)
+  else
+    # While in local installation, replicate the previous share/drcsim/setup.sh
+    install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim)
   endif()
 endif()
 
