@@ -44,7 +44,7 @@
 #include <boost/thread/condition.hpp>
 
 
-#ifdef LALA
+#ifdef WITH_ATLASSIMINTERFACE_BLOB
   // AtlasSimInterface: header
   #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
 #endif
@@ -288,7 +288,7 @@ namespace gazebo
     /// \brief enforce delay policy
     private: void EnforceSynchronizationDelay(const common::Time &_curTime);
 
-    #ifdef LALA
+    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //  BDI Controller AtlasSimInterface Internals                            //
@@ -478,7 +478,7 @@ namespace gazebo
       return result;
     }
 
-    #ifdef LALA
+    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
     {
@@ -503,7 +503,7 @@ namespace gazebo
       return result;
     }
 
-    #ifdef LALA
+    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {

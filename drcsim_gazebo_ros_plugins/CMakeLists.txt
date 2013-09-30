@@ -12,7 +12,6 @@ catkin_package(
   CATKIN_DEPENDS gazebo_plugins
 #  DEPENDS system_lib
 )
-
 find_package(gazebo REQUIRED)
 # \todo: special hack to make gazebo flags behave.  can we remove these?
 set(cxx_flags)
@@ -25,10 +24,13 @@ foreach (item ${GAZEBO_LDFLAGS})
   set(ld_flags "${ld_flags} ${item}")
 endforeach ()
 
-
 ###########
 ## Build ##
 ###########
+
+if (USE_ATLASSIMINTERFACE_BLOB)
+  add_definitions(-DWITH_ATLASSIMINTERFACE_BLOB=1)
+endif()
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
