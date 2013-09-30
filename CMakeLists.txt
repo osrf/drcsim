@@ -7,6 +7,27 @@ cmake_minimum_required(VERSION 2.8)
 find_package(catkin REQUIRED)
 include(${catkin_EXTRAS_DIR}/toplevel.cmake)
 
+# Check for 32/64 bits support
+STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
+STRING (REGEX MATCH "BSD" BSD ${CMAKE_SYSTEM_NAME})
+
+if (NOT DEFINED USE_ATLASINTERFACE_BLOB)
+  if (LINUX)
+    # Check for 64bits machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(USE_ATLASINTERFACE_BLOB True)
+    else()
+      set(USE_ATLASINTERFACE_BLOB False)
+      message(STATUS "WARNING: AtlasInterface binary can not be use in 32 bits")
+    endif() 
+  elseif(BSD)
+    message(STATUS "Warning: system check for 32/64 bit is not implemented for")
+    message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: please use USE_ATLASINTERFACE_BLOB flag if you want")
+    message(STATUS "Warning: not to use 64 bits AtlasInterface library")
+  endif()
+endif()
+
 project (drcsim)
 set (DRC_SIM_MAJOR_VERSION 3)
 set (DRC_SIM_MINOR_VERSION 1)
