@@ -35,6 +35,7 @@ endforeach ()
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/include
 )
 
