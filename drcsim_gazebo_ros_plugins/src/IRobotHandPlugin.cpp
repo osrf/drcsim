@@ -20,54 +20,7 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-class IRobotHandPlugin : public gazebo::ModelPlugin
-{
-  /// \brief Constructor
-  public: IRobotHandPlugin();
-
-  /// \brief Destructor
-  public: virtual ~IRobotHandPlugin();
-
-  /// \brief Load the controller
-  public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
-
-  /// \brief Grab pointers to all the joints we're going to use.
-  /// \return true on success, false otherwise
-  private: bool FindJoints();
-
-  /// \brief Set the damping and stiffness of various joints
-  private: void SetJointDamping();
-
-  /// \brief Internal helper to reduce code duplication.
-  private: bool GetAndPushBackJoint(const std::string& _joint_name,
-                                    gazebo::physics::Joint_V& _joints);
-
-  private: gazebo::physics::WorldPtr world;
-  private: gazebo::physics::ModelPtr model;
-  private: sdf::ElementPtr sdf;
-  private: std::string side;
-  private: gazebo::physics::Joint_V fingerBaseJoints;
-  private: gazebo::physics::Joint_V fingerBaseRotationJoints;
-  private: std::vector<gazebo::physics::Joint_V> fingerFlexTwistJoints;
-
-  private: static const int numFingers = 3;
-  private: static const int numFlexLinks = 8;
-
-  // Note:
-  // erp = dt * kp / ( dt * kp + kd )
-  // cfm = 1 / ( dt * kp + kd )
-  // or
-  // kp = erp / (dt * cfm)
-  // kd = (1 - erp) / cfm
-
-  // TODO: make these constants configurable
-  private: static const double flexJointCFM = 9.0;
-  private: static const double flexJointERP = 0.1;
-  private: static const double twistJointCFM = 0.48;
-  private: static const double twistJointERP = 0.05;
-  private: static const double baseJointCFM = 9.0;
-  private: static const double baseJointERP = 0.1;
-};
+#include "drcsim_gazebo_ros_plugins/IRobotHandPlugin.h"
 
 IRobotHandPlugin::IRobotHandPlugin()
 {
@@ -99,7 +52,7 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   if(!this->FindJoints())
     return;
 
-  this->SetJointDamping();
+  this->SetJointSpringDamper();
 }
 
 bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
@@ -115,6 +68,24 @@ bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
   _joints.push_back(joint);
   gzlog << "IRobotHandPlugin found joint: " << _joint_name << std::endl;
   return true;
+}
+
+void IRobotHandPlugin::KpKdToCFMERP(const double _dt,
+                           const double _kp, const double _kd,
+                           double &_cfm, double &_erp)
+{
+  /// \TODO: check for NaN cases
+  _erp = _dt * _kp / ( _dt * _kp + _kd );
+  _cfm = 1.0 / ( _dt * _kp + _kd );
+}
+
+void IRobotHandPlugin::CFMERPToKpKd(const double _dt,
+                           const double _cfm, const double _erp,
+                           double &_kp, double &_kd)
+{
+  /// \TODO: check for NaN cases
+  _kp = _erp / (_dt * _cfm);
+  _kd = (1.0 - _erp) / _cfm;
 }
 
 bool IRobotHandPlugin::FindJoints()
@@ -196,11 +167,33 @@ bool IRobotHandPlugin::FindJoints()
   return true;
 }
 
-void IRobotHandPlugin::SetJointDamping()
+void IRobotHandPlugin::SetJointSpringDamper()
 {
   // Fake springiness by setting joint limits to 0 and modifying cfm/erp.
   // TODO: implement a generic spring in Gazebo that will work with any
   // physics engine.
+
+  // 10 flex joints @ 0.029 in-lbs/deg per iRobot estimates
+  const double flexJointKp = 0.187733 * 10.0;
+  const double flexJointKd = 0.5;  // wild guess
+  const double twistJointKp = 0.187733 * 10.0 * 2.0;  // wild guess
+  const double twistJointKd = 0.5;  // wild guess
+  // 0.0031 in-lbs / deg per iRobot estimates
+  const double baseJointKp = 0.020068;
+  const double baseJointKd = 0.5;  // wild guess
+
+  // 0.23 in-lbs preload per iRobot data
+  const double baseJointPreloadTorque = 0.0259865;
+  // calculate position for preloaded tension
+  const double baseJointPreloadJointPosition =
+    baseJointPreloadTorque / baseJointKp;
+
+  this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
+    flexJointKp, flexJointKd, this->flexJointCFM, this->flexJointERP);
+  this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
+    twistJointKp, twistJointKd, this->twistJointCFM, this->twistJointERP);
+  this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
+    baseJointKp, baseJointKd, this->baseJointCFM, this->baseJointERP);
 
   // Handle the flex/twist joints in the flexible section
   for(std::vector<gazebo::physics::Joint_V>::iterator it = 
@@ -237,8 +230,8 @@ void IRobotHandPlugin::SetJointDamping()
       it != this->fingerBaseJoints.end();
       ++it)
   {
-    (*it)->SetLowStop(0, 0);
-    (*it)->SetHighStop(0, 0);
+    (*it)->SetLowStop(0, baseJointPreloadJointPosition);
+    (*it)->SetHighStop(0, baseJointPreloadJointPosition);
     (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
     (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
   }
