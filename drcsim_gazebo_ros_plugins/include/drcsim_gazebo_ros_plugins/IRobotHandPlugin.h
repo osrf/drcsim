@@ -14,6 +14,8 @@
  * limitations under the License.
  *
 */
+#ifndef GAZEBO_IROBOT_HAND_PLUGIN_HH
+#define GAZEBO_IROBOT_HAND_PLUGIN_HH
 
 #include <vector>
 
@@ -81,3 +83,5 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: double baseJointCFM;  // = 9.0;  // test value
   private: double baseJointERP;  // = 0.1;  // test value
 };
+
+#endif

@@ -230,8 +230,8 @@ void IRobotHandPlugin::SetJointSpringDamper()
       it != this->fingerBaseJoints.end();
       ++it)
   {
-    (*it)->SetLowStop(0, baseJointPreloadJointPosition);
-    (*it)->SetHighStop(0, baseJointPreloadJointPosition);
+    (*it)->SetLowStop(0, -baseJointPreloadJointPosition);
+    (*it)->SetHighStop(0, -baseJointPreloadJointPosition);
     (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
     (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
   }
