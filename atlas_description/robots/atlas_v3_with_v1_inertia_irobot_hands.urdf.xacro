@@ -21,7 +21,7 @@
     </plugin>
   </gazebo>
 
-  <xacro:include filename="$(find atlas_description)/urdf/atlas.gazebo" />
-  <xacro:include filename="$(find atlas_description)/urdf/atlas.transmission" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.gazebo" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.transmission" />
   <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
 </robot>
