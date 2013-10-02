@@ -4,7 +4,24 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
 set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
 
-find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib atlas_msgs gazebo_plugins)
+find_package(catkin REQUIRED COMPONENTS
+             drcsim_model_resources
+             drcsim_gazebo_plugins
+             osrf_msgs
+             sandia_hand_msgs
+             actionlib
+             roscpp
+             std_msgs
+             sensor_msgs
+             geometry_msgs
+             trajectory_msgs
+             control_msgs
+             image_transport
+             tf
+             actionlib
+             atlas_msgs
+             gazebo_plugins
+)
 
 catkin_package(
 #  INCLUDE_DIRS include
@@ -14,17 +31,6 @@ catkin_package(
 )
 
 find_package(gazebo REQUIRED)
-# \todo: special hack to make gazebo flags behave.  can we remove these?
-set(cxx_flags)
-foreach (item ${GAZEBO_CFLAGS})
-  set(cxx_flags "${cxx_flags} ${item}")
-endforeach ()
-
-set(ld_flags)
-foreach (item ${GAZEBO_LDFLAGS})
-  set(ld_flags "${ld_flags} ${item}")
-endforeach ()
-
 
 ###########
 ## Build ##
@@ -39,97 +45,71 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/include
 )
 
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
+)
+
 ## Declare a cpp library
 add_library(VRCPlugin src/VRCPlugin.cpp)
 add_dependencies(VRCPlugin atlas_msgs_gencpp)
-set_target_properties(VRCPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(VRCPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(VRCPlugin ${catkin_LIBRARIES})
 
 add_library(SandiaHandPlugin src/SandiaHandPlugin.cpp)
-set_target_properties(SandiaHandPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(SandiaHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(SandiaHandPlugin ${catkin_LIBRARIES})
 add_dependencies(SandiaHandPlugin atlas_msgs_gencpp)
 
 add_library(MultiSenseSLPlugin src/MultiSenseSLPlugin.cpp)
-set_target_properties(MultiSenseSLPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(MultiSenseSLPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(MultiSenseSLPlugin ${catkin_LIBRARIES})
 
 add_library(DRCVehicleROSPlugin src/DRCVehicleROSPlugin.cpp)
-set_target_properties(DRCVehicleROSPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(DRCVehicleROSPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(DRCVehicleROSPlugin ${catkin_LIBRARIES})
 add_dependencies(DRCVehicleROSPlugin DRCVehiclePlugin)
 
 add_library(ContactModelPlugin src/ContactModelPlugin.cpp)
-set_target_properties(ContactModelPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(ContactModelPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
-set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "${ld_flags} -L${ATLAS_INTERFACE_PROJECT_PATH}/lib64/")
-set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags} -I${ATLAS_INTERFACE_PROJECT_PATH}/include")
+set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_PROJECT_PATH}/lib64/")
+set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_PROJECT_PATH}/include")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
-set_target_properties(VRCScoringPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(VRCScoringPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(VRCScoringPlugin ${catkin_LIBRARIES})
 add_dependencies(VRCScoringPlugin atlas_msgs_gencpp)
 
 add_library(test_ros_plugin src/test_ros_plugin.cc)
-set_target_properties(test_ros_plugin PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(test_ros_plugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(test_ros_plugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
 ### executables, utilities for debugging atlas simulation, should not depend on gazebo
 add_executable(pub_atlas_joint_trajectory_test src/pub_atlas_joint_trajectory_test.cpp)
-set_target_properties(pub_atlas_joint_trajectory_test PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(pub_atlas_joint_trajectory_test PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(pub_atlas_joint_trajectory_test ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
 add_executable(pub_joint_states src/pub_joint_states.cpp)
-set_target_properties(pub_joint_states PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(pub_joint_states PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(pub_joint_states ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(pub_joint_states atlas_msgs_gencpp)
 
 add_executable(pub_joint_commands src/pub_joint_commands.cpp)
-set_target_properties(pub_joint_commands PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(pub_joint_commands PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(pub_joint_commands ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(pub_joint_commands osrf_msgs_gencpp)
 
 add_executable(pub_atlas_state src/pub_atlas_state.cpp)
-set_target_properties(pub_atlas_state PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(pub_atlas_state PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(pub_atlas_state ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(pub_atlas_state atlas_msgs_gencpp)
 
 add_executable(pub_atlas_command_fast src/pub_atlas_command_fast.cpp)
-set_target_properties(pub_atlas_command_fast PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(pub_atlas_command_fast PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(pub_atlas_command_fast ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(pub_atlas_command_fast atlas_msgs_gencpp)
 
 add_executable(pub_atlas_command src/pub_atlas_command.cpp)
-set_target_properties(pub_atlas_command PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(pub_atlas_command PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(pub_atlas_command ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(pub_atlas_command atlas_msgs_gencpp)
 
 add_executable(gz_model_teleport src/gz_model_teleport.cpp)
-set_target_properties(gz_model_teleport PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(gz_model_teleport PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(gz_model_teleport ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
 ## example actionlib implementation
 add_executable(actionlib_server src/actionlib_server.cpp)
-set_target_properties(actionlib_server PROPERTIES LINK_FLAGS "${ld_flags}")
-set_target_properties(actionlib_server PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(actionlib_server ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(actionlib_server atlas_msgs_gencpp) # or atlas_msgs_generate_messages_cpp)
 
