@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
+set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
+
 find_package(catkin REQUIRED COMPONENTS drcsim_model_resources drcsim_gazebo_plugins osrf_msgs sandia_hand_msgs actionlib roscpp std_msgs sensor_msgs geometry_msgs trajectory_msgs control_msgs image_transport tf actionlib atlas_msgs gazebo_plugins)
 
 catkin_package(
@@ -54,7 +56,6 @@ set_target_properties(MultiSenseSLPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(MultiSenseSLPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(MultiSenseSLPlugin ${catkin_LIBRARIES})
 
-
 add_library(DRCVehicleROSPlugin src/DRCVehicleROSPlugin.cpp)
 set_target_properties(DRCVehicleROSPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(DRCVehicleROSPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
@@ -67,8 +68,8 @@ set_target_properties(ContactModelPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}"
 target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
-set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "${ld_flags} -L${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_1.1.1")
-set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags} -I${CMAKE_INSTALL_PREFIX}/include")
+set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "${ld_flags} -L${ATLAS_INTERFACE_PROJECT_PATH}/lib64/")
+set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags} -I${ATLAS_INTERFACE_PROJECT_PATH}/include")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 

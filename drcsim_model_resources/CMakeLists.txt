@@ -23,12 +23,6 @@ if (DOC_ONLY)
   return()
 endif()
 
-if ("${CATKIN_BUILD_BINARY_PACKAGE}" STREQUAL "1")
-  set (CATKIN_BUILD_BINARY_PACKAGE_STRING "-DCATKIN_BUILD_BINARY_PACKAGE=1")
-else()
-  set (CATKIN_BUILD_BINARY_PACKAGE_STRING "")
-endif()
-
 # Packaging configuration
 # set (CPACK_PACKAGE_VERSION "${DRC_SIM_VERSION_FULL}")
 # set (CPACK_PACKAGE_VERSION_MAJOR "${DRC_SIM_MAJOR_VERSION}")
@@ -92,47 +86,41 @@ set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATL
 
 #message(status "------------------\n\n\n\n  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL} && cp ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL} ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so \n\n\n----------------------\n")
 
-# install AtlasSimInterface Binary library
-add_custom_command(
-  OUTPUT ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so
-  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL} && cp ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL} ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so
-)
-add_custom_target(AtlasSimInterface_lib DEPENDS ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so)
-
-# install AtlasSimInterface includes
-add_custom_command(
-  OUTPUT ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/include && cp -r ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-)
-add_custom_target(AtlasSimInterface_include DEPENDS ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
-
-# install AtlasSimInterfac doc 
-add_custom_command(
-  OUTPUT ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/share && cp -r ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-)
-add_custom_target(AtlasSimInterface_doc DEPENDS ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
 # install AtlasSimInterface Binary
-# install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
-#          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-#          RENAME libAtlasSimInterface.so)
-# install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include
-#          DESTINATION ${CMAKE_INSTALL_PREFIX}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
-# install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
-#          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+          RENAME libAtlasSimInterface.so)
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
 #####################################
 # Configure the setup script
 configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
-# install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
-# Also install the setup.sh in an unversioned location
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim/)
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+# Install also a copy of setup.sh in /usr/share/drcsim/setup.sh for backwards compatibility
+# Avoid to use symlinks for portability reasons. Copy the file twice.
+if(UNIX AND NOT APPLE)
+  # Hack: only install setup.sh in /usr/share/drcsim if destination if /opt/ros.
+  # This will cover the cases of system installations from source and 
+  # debs and respects catkin workspaces. Installing outside of
+  # /opt/ros is mostly to be broken for system instalations.
+  string(SUBSTRING "${CMAKE_INSTALL_PREFIX}" 0 8 PREFIX_START)
+  if (${PREFIX_START} STREQUAL "/opt/ros")
+    install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION /usr/share/drcsim)
+  else()
+    # In local installations, replicate the previous share/drcsim/setup.sh
+    install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/drcsim)
+  endif()
+endif()
+
 configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
-# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}/)
+# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 
