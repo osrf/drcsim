@@ -43,6 +43,9 @@
 </xacro:macro>
 
 <xacro:macro name="flex_joint" params="side finger_id link_from link_to">
+  <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_flex_from_${link_from}_to_${link_to}">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_${link_from}_to_${link_to}" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_${link_from}"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_hidden_between_${link_from}_and_${link_to}"/>
@@ -74,6 +77,9 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </visual>
   </link>
+  <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_twist_from_${link_from}_to_${link_to}">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_twist_from_${link_from}_to_${link_to}" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_hidden_between_${link_from}_and_${link_to}"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_${link_to}"/>
@@ -86,6 +92,9 @@
 <xacro:macro name="flex_joint_connector" params="side finger_id">
 
   <!-- make a connection between proximal to flexible-->
+  <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_flex_from_proximal_to_1">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_proximal_to_1" type="revolute">
     <parent link="${side}_finger[${finger_id}]/proximal_link"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_hidden_between_proximal_link_and_1"/>
@@ -117,6 +126,9 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </visual>
   </link>
+  <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_twist_from_proximal_to_1">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_twist_from_proximal_to_1" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_hidden_between_proximal_link_and_1"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_1"/>
@@ -127,6 +139,9 @@
 
 
   <!-- make a connection between flexible to distal-->
+  <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_flex_from_9_to_distal">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_9_to_distal" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_9"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_hidden_between_9_and_distal_link"/>
@@ -158,6 +173,9 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </visual>
   </link>
+  <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_twist_from_9_to_distal">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_twist_from_9_to_distal" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_hidden_between_9_and_distal_link"/>
     <child link="${side}_finger[${finger_id}]/distal_link"/>
@@ -569,6 +587,9 @@
     <origin rpy="${pi/2} 0 0" xyz="0 0 0.02" />
   </joint>
 
+  <gazebo reference="${side}_finger[0]/joint_base_rotation">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[0]/joint_base_rotation" type="revolute">
     <parent link="${side}_base_link"/>
     <child link="${side}_finger[0]/base_rotation_link"/>
@@ -577,6 +598,9 @@
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
   </joint>
 
+  <gazebo reference="${side}_finger[0]/joint_base">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[0]/joint_base" type="revolute">
     <parent link="${side}_finger[0]/base_rotation_link"/>
     <child link="${side}_finger[0]/proximal_link"/>
@@ -586,6 +610,9 @@
 
   </joint>
 
+  <gazebo reference="${side}_finger[1]/joint_base_rotation">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[1]/joint_base_rotation" type="revolute">
     <parent link="${side}_base_link"/>
     <child link="${side}_finger[1]/base_rotation_link"/>
@@ -594,6 +621,9 @@
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
   </joint>
 
+  <gazebo reference="${side}_finger[1]/joint_base">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[1]/joint_base" type="revolute">
     <parent link="${side}_finger[1]/base_rotation_link"/>
     <child link="${side}_finger[1]/proximal_link"/>
@@ -602,6 +632,9 @@
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
   </joint>
 
+  <gazebo reference="${side}_finger[2]/joint_base">
+    <cfmDamping>1</cfmDamping>
+  </gazebo>
   <joint name="${side}_finger[2]/joint_base" type="revolute">
     <parent link="${side}_base_link"/>
     <child link="${side}_finger[2]/proximal_link"/>
