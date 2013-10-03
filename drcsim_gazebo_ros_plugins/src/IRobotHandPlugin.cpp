@@ -175,12 +175,12 @@ void IRobotHandPlugin::SetJointSpringDamper()
 
   // 10 flex joints @ 0.029 in-lbs/deg per iRobot estimates
   const double flexJointKp = 0.187733 * 10.0;
-  const double flexJointKd = 0.5;  // wild guess
+  const double flexJointKd = 0.1;  // wild guess
   const double twistJointKp = 0.187733 * 10.0 * 2.0;  // wild guess
-  const double twistJointKd = 0.5;  // wild guess
+  const double twistJointKd = 0.1;  // wild guess
   // 0.0031 in-lbs / deg per iRobot estimates
   const double baseJointKp = 0.020068;
-  const double baseJointKd = 0.5;  // wild guess
+  const double baseJointKd = 0.1;  // wild guess
 
   // 0.23 in-lbs preload per iRobot data
   const double baseJointPreloadTorque = 0.0259865;
@@ -188,12 +188,12 @@ void IRobotHandPlugin::SetJointSpringDamper()
   const double baseJointPreloadJointPosition =
     baseJointPreloadTorque / baseJointKp;
 
-  this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
-    flexJointKp, flexJointKd, this->flexJointCFM, this->flexJointERP);
-  this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
-    twistJointKp, twistJointKd, this->twistJointCFM, this->twistJointERP);
-  this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
-    baseJointKp, baseJointKd, this->baseJointCFM, this->baseJointERP);
+  // this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
+  //   flexJointKp, flexJointKd, this->flexJointCFM, this->flexJointERP);
+  // this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
+  //   twistJointKp, twistJointKd, this->twistJointCFM, this->twistJointERP);
+  // this->KpKdToCFMERP(this->world->GetPhysicsEngine()->GetMaxStepSize(),
+  //   baseJointKp, baseJointKd, this->baseJointCFM, this->baseJointERP);
 
   // Handle the flex/twist joints in the flexible section
   for(std::vector<gazebo::physics::Joint_V>::iterator it = 
@@ -206,11 +206,11 @@ void IRobotHandPlugin::SetJointSpringDamper()
         ++iit)
     {
       // Assume that the joints are ordered flex then twist, in pairs.
-
-      (*iit)->SetLowStop(0, 0);
-      (*iit)->SetHighStop(0, 0);
-      (*iit)->SetAttribute("stop_cfm", 0, this->flexJointCFM);
-      (*iit)->SetAttribute("stop_erp", 0, this->flexJointERP);
+      (*iit)->SetStiffnessDamping(0, flexJointKp, flexJointKd);
+      // (*iit)->SetAttribute("lo_stop", 0, 0.0);
+      // (*iit)->SetAttribute("hi_stop", 0, 0.0);
+      // (*iit)->SetAttribute("stop_cfm", 0, this->flexJointCFM);
+      // (*iit)->SetAttribute("stop_erp", 0, this->flexJointERP);
 
       ++iit;
       if(iit == it->end())
@@ -218,10 +218,11 @@ void IRobotHandPlugin::SetJointSpringDamper()
         gzerr << "Unmatched pair of joints." << std::endl;
         return;
       }
-      (*iit)->SetLowStop(0, 0);
-      (*iit)->SetHighStop(0, 0);
-      (*iit)->SetAttribute("stop_cfm", 0, this->twistJointCFM);
-      (*iit)->SetAttribute("stop_erp", 0, this->twistJointERP);
+      (*iit)->SetStiffnessDamping(0, twistJointKp, twistJointKd);
+      // (*iit)->SetAttribute("lo_stop", 0, 0.0);
+      // (*iit)->SetAttribute("hi_stop", 0, 0.0);
+      // (*iit)->SetAttribute("stop_cfm", 0, this->twistJointCFM);
+      // (*iit)->SetAttribute("stop_erp", 0, this->twistJointERP);
     }
   }
 
@@ -230,10 +231,12 @@ void IRobotHandPlugin::SetJointSpringDamper()
       it != this->fingerBaseJoints.end();
       ++it)
   {
-    (*it)->SetLowStop(0, -baseJointPreloadJointPosition);
-    (*it)->SetHighStop(0, -baseJointPreloadJointPosition);
-    (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
-    (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
+    (*it)->SetStiffnessDamping(0, baseJointKp, baseJointKd,
+      -baseJointPreloadJointPosition);
+    // (*it)->SetAttribute("lo_stop", 0, -baseJointPreloadJointPosition);
+    // (*it)->SetAttribute("hi_stop", 0, -baseJointPreloadJointPosition);
+    // (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
+    // (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
   }
 }
 

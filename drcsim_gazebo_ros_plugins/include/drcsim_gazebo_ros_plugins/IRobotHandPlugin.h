@@ -76,12 +76,12 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: static const int numFlexLinks = 8;
 
   // TODO: make these constants configurable
-  private: double flexJointCFM;  // = 9.0;  // test value
-  private: double flexJointERP;  // = 0.1;  // test value
-  private: double twistJointCFM;  // = 0.48;  // test value
-  private: double twistJointERP;  // = 0.05;  // test value
-  private: double baseJointCFM;  // = 9.0;  // test value
-  private: double baseJointERP;  // = 0.1;  // test value
+  // private: double flexJointCFM;  // = 9.0;  // test value
+  // private: double flexJointERP;  // = 0.1;  // test value
+  // private: double twistJointCFM;  // = 0.48;  // test value
+  // private: double twistJointERP;  // = 0.05;  // test value
+  // private: double baseJointCFM;  // = 9.0;  // test value
+  // private: double baseJointERP;  // = 0.1;  // test value
 };
 
 #endif
