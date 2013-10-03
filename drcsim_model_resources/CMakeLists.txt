@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 enable_testing()
 
 project (drcsim_model_resources)
+find_package(catkin)
 catkin_package()
 
 # set (DRC_SIM_MAJOR_VERSION 3)
