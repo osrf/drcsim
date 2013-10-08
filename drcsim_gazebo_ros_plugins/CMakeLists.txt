@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
              tf
              actionlib
              atlas_msgs
+             handle_msgs
              gazebo_plugins
 )
 
@@ -62,7 +63,7 @@ add_library(IRobotHandPlugin src/IRobotHandPlugin.cpp)
 set_target_properties(IRobotHandPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(IRobotHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(IRobotHandPlugin ${catkin_LIBRARIES})
-add_dependencies(IRobotHandPlugin atlas_msgs_gencpp)
+add_dependencies(IRobotHandPlugin handle_msgs_gencpp atlas_msgs_gencpp)
 
 add_library(MultiSenseSLPlugin src/MultiSenseSLPlugin.cpp)
 target_link_libraries(MultiSenseSLPlugin ${catkin_LIBRARIES})

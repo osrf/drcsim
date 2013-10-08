@@ -28,6 +28,12 @@ IRobotHandPlugin::IRobotHandPlugin()
 
 IRobotHandPlugin::~IRobotHandPlugin()
 {
+  gazebo::event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  this->rosNode->shutdown();
+  this->rosQueue.clear();
+  this->rosQueue.disable();
+  this->callbackQueeuThread.join();
+  delete this->rosNode;
 }
 
 void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
@@ -53,6 +59,99 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
     return;
 
   this->SetJointSpringDamper();
+
+
+  // Load ROS
+  // initialize ros
+  if (!ros::isInitialized())
+  {
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized.  Try starting gazebo with ros plugin:\n"
+          << "  gazebo -s libgazebo_ros_api_plugin.so\n";
+    return;
+  }
+
+  // ros stuff
+  this->rosNode = new ros::NodeHandle("");
+
+  // publish multi queue
+  this->pmq.startServiceThread();
+
+  // broadcasts handle state
+  this->pubHandleStateQueue = this->pmq.addPub<handle_msgs::HandleSensors>();
+  this->pubHandleState = this->rosNode->advertise<handle_msgs::HandleSensors>(
+    "handle/handle_state", 100, true);
+
+  // subscribe to user published handle control commands
+  ros::SubscribeOptions handleCommandSo =
+    ros::SubscribeOptions::create<handle_msgs::HandleControl>(
+    "handle/handle_command", 100,
+    boost::bind(&IRobotHandPlugin::SetHandleCommand, this, _1),
+    ros::VoidPtr(), &this->rosQueue);
+  // Enable TCP_NODELAY since TCP causes bursty communication with high jitter,
+  handleCommandSo.transport_hints =
+    ros::TransportHints().reliable().tcpNoDelay(true);
+  this->subHandleCommand =
+    this->rosNode->subscribe(handleCommandSo);
+
+
+  // controller time control
+  this->lastControllerUpdateTime = this->world->GetSimTime();
+
+  // start callback queue
+  this->callbackQueeuThread = boost::thread(
+    boost::bind(&IRobotHandPlugin::RosQueueThread, this));
+
+  // connect to gazebo world update
+  this->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin(
+     boost::bind(&IRobotHandPlugin::UpdateStates, this));
+}
+
+void SetHandleCommand(const handle_msgs::HandleControl::ConstPtr &_msg)
+{
+
+}
+
+void IRobotHandPlugin::UpdateStates()
+{
+  gazebo::common::Time curTime = this->world->GetSimTime();
+
+  if (curTime > this->lastControllerUpdateTime)
+  {
+    // gather robot state data and publish them
+    this->GetAndPublishHandleState(curTime);
+
+    {
+      boost::mutex::scoped_lock lock(this->controlMutex);
+
+      this->UpdatePIDControl(
+        (curTime - this->lastControllerUpdateTime).Double());
+    }
+
+    this->lastControllerUpdateTime = curTime;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void IRobotHandPlugin::GetAndPublishHandleState(
+  const gazebo::common::Time &_curTime)
+{
+  boost::mutex::scoped_lock lock(this->controlMutex);
+
+  // publish robot states
+  this->pubHandleStateQueue->push(this->handleState, this->pubHandleState);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void IRobotHandPlugin::UpdatePIDControl(double _dt)
+{
+  /// update pid with feedforward force
+  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    double forceClamped = 0;
+    // apply force to joint
+    this->joints[i]->SetForce(0, forceClamped);
+  }
 }
 
 bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
@@ -237,6 +336,17 @@ void IRobotHandPlugin::SetJointSpringDamper()
     // (*it)->SetAttribute("hi_stop", 0, -baseJointPreloadJointPosition);
     // (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
     // (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void IRobotHandPlugin::RosQueueThread()
+{
+  static const double timeout = 0.01;
+
+  while (this->rosNode->ok())
+  {
+    this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
 

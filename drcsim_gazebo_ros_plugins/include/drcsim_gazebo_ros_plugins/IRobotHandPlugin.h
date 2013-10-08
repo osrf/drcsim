@@ -19,8 +19,20 @@
 
 #include <vector>
 
+#include <boost/thread/mutex.hpp>
+
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/advertise_options.h>
+#include <ros/subscribe_options.h>
+
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
+
+#include <gazebo_plugins/PubQueue.h>
+
+#include <handle_msgs/HandleSensors.h>
+#include <handle_msgs/HandleControl.h>
 
 class IRobotHandPlugin : public gazebo::ModelPlugin
 {
@@ -32,6 +44,63 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
 
   /// \brief Load the controller
   public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
+
+  /// \brief ROS NodeHanle
+  private: ros::NodeHandle* rosNode;
+
+  /// \brief ROS callback queue
+  private: ros::CallbackQueue rosQueue;
+
+  /// \brief ROS callback queue thread
+  private: void RosQueueThread();
+
+  /// \brief ROS callback queue thread
+  private: boost::thread callbackQueeuThread;
+
+  // ros publish multi queue, prevents publish() blocking
+  private: PubMultiQueue pmq;
+
+  /// \brief ros topic callback to update iRobot Hand Control Commands
+  /// \param[in] _msg Incoming ros message
+  private: void SetHandleCommand(
+    const handle_msgs::HandleControl::ConstPtr &_msg);
+
+  /// \brief ROS control interface
+  private: ros::Subscriber subHandleCommand;
+
+  /// \brief HandleControl message (published by user)
+  private: handle_msgs::HandleControl handleCommand;
+
+  /// \brief gazebo world update connection
+  private: gazebo::event::ConnectionPtr updateConnection;
+
+  /// \brief keep track of controller update sim-time
+  private: gazebo::common::Time lastControllerUpdateTime;
+
+  /// \brief iRobot Hand State
+  private: handle_msgs::HandleSensors handleState;
+
+  /// \brief controlled joints in order specified in HandleControl message.
+  private: gazebo::physics::Joint_V joints;
+
+  /// \brief Controller update mutex
+  private: boost::mutex controlMutex;
+
+  /// \brief Update PID Joint Servo Controllers
+  /// \param[in] _dt time step size since last update
+  private: void UpdatePIDControl(double _dt);
+
+  /// \brief Publish iRobot Hand state
+  private: void GetAndPublishHandleState(const gazebo::common::Time &_curTime);
+
+  /// \brief ROS publisher for iRobot Hand state.
+  private: ros::Publisher pubHandleState;
+
+  /// \brief ROS publisher queue for iRobot Hand state.
+  private: PubQueue<handle_msgs::HandleSensors>::Ptr pubHandleStateQueue;
+
+  /// \brief Update the controller
+  private: void UpdateStates();
 
   /// \brief Grab pointers to all the joints we're going to use.
   /// \return true on success, false otherwise
