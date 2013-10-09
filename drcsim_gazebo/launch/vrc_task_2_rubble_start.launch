@@ -4,6 +4,8 @@
   <arg name="gzworld" default="vrc_task_2_rubble_start.world"/>
   <arg name="hand_suffix" default=""/>
 
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+  
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="gzserver_cheats"/>

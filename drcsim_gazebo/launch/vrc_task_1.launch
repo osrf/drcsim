@@ -3,7 +3,9 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="vrc_task_1.world"/>
   <arg name="hand_suffix" default=""/>
-
+  
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+  
   <!-- put robot urdf and initial pose in ros param server.  VRCPlugin will spawn it. -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="-10.0" type="double"/>

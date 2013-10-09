@@ -15,6 +15,9 @@
   <build_depend>boost</build_depend>
   <build_depend>tinyxml</build_depend>
 
+  <build_depend>gazebo</build_depend>
+    <run_depend>gazebo</run_depend>
+
   <!-- Empty runtime dependencies. 
        bloom/debuild should be able to hand runtime dependencies automatically -->
 </package>

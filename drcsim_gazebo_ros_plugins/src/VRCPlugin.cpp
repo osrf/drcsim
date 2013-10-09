@@ -1090,18 +1090,6 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
       this->pinLinkName = atlasSDF->Get<std::string>("pin_link");
     else
       ROS_INFO("Can't find <atlas><pin_link> blocks, defaults to [utorso].");
-
-    if (atlasSDF->HasElement("robot_description"))
-      robotDescriptionName = atlasSDF->Get<std::string>("robot_description");
-    else
-      ROS_INFO("Can't find <atlas><robot_description> blocks, "
-               "defaults to [robot_description].");
-
-    // ros param name containing robot's initial pose
-    if (atlasSDF->HasElement("robot_initial_pose"))
-      spawnPoseName = atlasSDF->Get<std::string>("robot_initial_pose");
-    else
-      ROS_INFO("Can't find <atlas><pose> blocks, defaults to zero transform.");
   }
   else
     ROS_INFO("Can't find <atlas> blocks. using default: "
