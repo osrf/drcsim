@@ -4,6 +4,8 @@
   <arg name="gzworld" default="vrc_task_2.world"/>
   <arg name="hand_suffix" default=""/>
 
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+  
   <!-- initial robot position -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="-3" type="double"/>
