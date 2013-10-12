@@ -609,10 +609,10 @@
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
 
   </joint>
-
   <gazebo reference="${side}_finger[1]/joint_base_rotation">
     <cfmDamping>1</cfmDamping>
   </gazebo>
+
   <joint name="${side}_finger[1]/joint_base_rotation" type="revolute">
     <parent link="${side}_base_link"/>
     <child link="${side}_finger[1]/base_rotation_link"/>
@@ -620,6 +620,29 @@
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
   </joint>
+
+  <gazebo>
+    <joint name="${side}_spread_gearbox" type="gearbox">
+      <parent>${side}_finger[0]/base_rotation_link</parent>
+      <child>${side}_finger[1]/base_rotation_link</child>
+      <!-- ${side}_base_link got lumped into ${parent},
+           so we need to fix parser_urdf.cc to propagate name
+           changes into this extension before switching this
+           to use ${side_base_link}. -->
+      <gearbox_reference_body>${parent}</gearbox_reference_body>
+      <gearbox_ratio>1.0</gearbox_ratio>
+      <axis>
+        <!-- yikes, what coordinate frame is this specified in?
+             0 0 1 causes NaNs. 0 1 0 works, but unsure why yet.-->
+        <xyz>0 1 0</xyz>
+      </axis>
+      <axis2>
+        <!-- yikes, what coordinate frame is this specified in?
+             0 0 1 causes NaNs. 0 1 0 works, but unsure why yet.-->
+        <xyz>0 1 0</xyz>
+      </axis2>
+    </joint>
+  </gazebo>
 
   <gazebo reference="${side}_finger[1]/joint_base">
     <cfmDamping>1</cfmDamping>

@@ -24,6 +24,14 @@
 
 IRobotHandPlugin::IRobotHandPlugin()
 {
+  this->thumbAntagonistAngle = 0;
+  this->errorTerms.resize(5);  // hand has 5 DOF
+  for (unsigned i = 0; i < 5; ++i)
+  {
+    this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].d_q_p_dt = 0;
+    this->errorTerms[i].q_i = 0;
+  }
 }
 
 IRobotHandPlugin::~IRobotHandPlugin()
@@ -107,9 +115,30 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
      boost::bind(&IRobotHandPlugin::UpdateStates, this));
 }
 
-void SetHandleCommand(const handle_msgs::HandleControl::ConstPtr &_msg)
+void IRobotHandPlugin::SetHandleCommand(
+  const handle_msgs::HandleControl::ConstPtr &_msg)
 {
+  boost::mutex::scoped_lock lock(this->controlMutex);
+  // Notee:
+  // this->handleCommand.value[i]
+  // where indices are:
+  // 0: index finger flex
+  // 1: middle finger flex
+  // 2: thumb finger flex
+  // 3: thumb finger antagonist
+  // 4: index / middle finger spread
 
+  // Update handleCommand
+  for (int i = 0; i < 5; ++i)
+  {
+    // this->handleCommand.type[i] = handle_msgs::HandleControl::VELOCITY;
+    // this->handleCommand.type[i] = handle_msgs::HandleControl::POSITION;
+    // this->handleCommand.type[i] = handle_msgs::HandleControl::CURRENT;
+    // this->handleCommand.type[i] = handle_msgs::HandleControl::VOLTAGE;
+    this->handleCommand.type[i] = _msg->type[i];
+    this->handleCommand.value[i] = _msg->value[i];
+    this->handleCommand.valid[i] = _msg->valid[i];
+  }
 }
 
 void IRobotHandPlugin::UpdateStates()
@@ -146,11 +175,150 @@ void IRobotHandPlugin::GetAndPublishHandleState(
 void IRobotHandPlugin::UpdatePIDControl(double _dt)
 {
   /// update pid with feedforward force
-  for (unsigned int i = 0; i < this->joints.size(); ++i)
+  /// commands are in handleCommand.value
+
+  const double kp_position[5]  = {1.0, 1.0, 1.0, 1.0, 1.0};
+  const double kp_velocity[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double ki_position[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double kd_position[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double i_effort_min[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double i_effort_max[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+
+  /// update
+  ///   j == 0: index finger flex
+  ///   j == 1: middle finger flex
+  ///   j == 2: thumb flex
+  ///   j == 4: index / middle finger spread
+  for (int j = 0; j < 4; ++j)
   {
-    double forceClamped = 0;
-    // apply force to joint
-    this->joints[i]->SetForce(0, forceClamped);
+    if (j == 3)
+      j = 4;   // skip to spread
+
+    double torque;
+    double target = this->handleCommand.value[j];
+    double current;
+
+    target = 3.0;
+    this->handleCommand.type[j] = handle_msgs::HandleControl::POSITION;
+
+    int numFlex = this->flexureFlexJoints[j].size();
+
+    // Get current finger state
+    double baseJointPos = 0;
+    double baseJointVel = 0;
+    double flexureFlexJointPos = 0;
+    double flexureFlexJointVel = 0;
+    double currentPos = 0;
+    double currentVel = 0;
+    if (j < 4)
+    {
+      baseJointPos = this->fingerBaseJoints[j]->GetAngle(0).Radian();
+      baseJointVel = this->fingerBaseJoints[j]->GetVelocity(0);
+      flexureFlexJointPos = 0;
+      flexureFlexJointVel = 0;
+      for (int i = 0; i < numFlex; ++i)
+      {
+        flexureFlexJointPos +=
+          this->flexureFlexJoints[j][i]->GetAngle(0).Radian();
+        flexureFlexJointVel +=
+          this->flexureFlexJoints[j][i]->GetVelocity(0);
+      }
+      // compute overall flex from baseJoint and flexureFlex joint positions
+      currentPos = baseJointPos + flexureFlexJointPos;
+      currentVel = baseJointVel + flexureFlexJointVel;
+    }
+    else
+    {
+      // compute spread position
+      currentPos =
+        this->fingerBaseRotationJoints[0]->GetAngle(0).Radian() +
+        this->fingerBaseRotationJoints[1]->GetAngle(0).Radian();
+      currentVel =
+        this->fingerBaseRotationJoints[0]->GetVelocity(0) +
+        this->fingerBaseRotationJoints[1]->GetVelocity(0);
+    }
+
+
+    if (this->handleCommand.type[j] == handle_msgs::HandleControl::POSITION)
+    {
+      // set state  for position control
+      current = currentPos;
+    }
+    else if (this->handleCommand.type[j] ==
+             handle_msgs::HandleControl::VELOCITY)
+    {
+      // set state for velocity control
+      current = currentVel;
+    }
+    else if (this->handleCommand.type[j] == handle_msgs::HandleControl::CURRENT)
+    {
+      ROS_ERROR("Control Type [CURRENT] not available");
+      return;
+    }
+    else if (this->handleCommand.type[j] == handle_msgs::HandleControl::VOLTAGE)
+    {
+      ROS_ERROR("Control Type [VOLTAGE] not available");
+      return;
+    }
+    else if (this->handleCommand.type[j] == 0)
+    {
+      // uncontrolled
+      return;
+    }
+    else
+    {
+      ROS_ERROR("Control Type [%d] not available", this->handleCommand.type[j]);
+      return;
+    }
+
+    // calculate control torque / force
+    {
+      double q_p = target - current;
+
+      if (!gazebo::math::equal(_dt, 0.0))
+        this->errorTerms[j].d_q_p_dt = (q_p - this->errorTerms[j].q_p) / _dt;
+      this->errorTerms[j].q_p = q_p;
+      this->errorTerms[j].q_i = gazebo::math::clamp(
+        this->errorTerms[j].q_i + _dt * this->errorTerms[j].q_p,
+        i_effort_min[j], i_effort_max[j]);
+
+      // use gain params to compute force cmd
+      torque = kp_position[j] * this->errorTerms[j].q_p +
+               ki_position[j] * this->errorTerms[j].q_i +
+               kd_position[j] * this->errorTerms[j].d_q_p_dt;
+    }
+
+    // ROS_ERROR("t[%f] c[%f] f[%f]", target, current, torque);
+
+    if (j < 4)
+    {
+      this->fingerBaseJoints[j]->SetForce(0, torque/2.0);
+      for (int i = 0; i < numFlex; ++i)
+        this->flexureFlexJoints[j][i]->SetForce(0, (torque/2.0)/numFlex);
+    }
+    else
+    {
+      // control spread
+      this->fingerBaseRotationJoints[0]->SetForce(0, torque);
+      // setting one joint is enough due to gearbox
+      // this->fingerBaseRotationJoints[1]->SetForce(0, torque);
+    }
+  }
+
+  /// update thumb antagonist
+  {
+    this->thumbAntagonistAngle = this->handleCommand.value[3];
+    double upper = this->fingerBaseJoints[2]->GetAttribute("hi_stop", 0);
+    this->fingerBaseJoints[2]->SetAttribute("hi_stop", 0,
+      upper - this->thumbAntagonistAngle);
+  }
+
+  /// update index/middle finger spread
+  {
+    double targetPosition = this->handleCommand.value[4];
+    double torque = 0;
+
+    this->fingerBaseRotationJoints[1]->SetForce(0, torque);
   }
 }
 
@@ -189,7 +357,8 @@ void IRobotHandPlugin::CFMERPToKpKd(const double _dt,
 
 bool IRobotHandPlugin::FindJoints()
 {
-  this->fingerFlexTwistJoints.resize(this->numFingers);
+  this->flexureTwistJoints.resize(this->numFingers);
+  this->flexureFlexJoints.resize(this->numFingers);
 
   // Load up the joints we expect to use, finger by finger.
   gazebo::physics::JointPtr joint;
@@ -220,13 +389,13 @@ bool IRobotHandPlugin::FindJoints()
       "%s_finger[%d]/flexible_joint_flex_from_proximal_to_1",
       this->side.c_str(), f);
     if(!this->GetAndPushBackJoint(joint_name, 
-          this->fingerFlexTwistJoints[f]))
+          this->flexureFlexJoints[f]))
       return false;
     snprintf(joint_name, sizeof(joint_name), 
       "%s_finger[%d]/flexible_joint_twist_from_proximal_to_1",
       this->side.c_str(), f);
     if(!this->GetAndPushBackJoint(joint_name, 
-          this->fingerFlexTwistJoints[f]))
+          this->flexureTwistJoints[f]))
       return false;
 
     // Get the sequence of flex/twist joints, one pair at a time.
@@ -236,13 +405,13 @@ bool IRobotHandPlugin::FindJoints()
         "%s_finger[%d]/flexible_joint_flex_from_%d_to_%d",
         this->side.c_str(), f, l, l+1);
       if(!this->GetAndPushBackJoint(joint_name, 
-            this->fingerFlexTwistJoints[f]))
+            this->flexureFlexJoints[f]))
         return false;
       snprintf(joint_name, sizeof(joint_name), 
         "%s_finger[%d]/flexible_joint_twist_from_%d_to_%d",
         this->side.c_str(), f, l, l+1);
       if(!this->GetAndPushBackJoint(joint_name, 
-            this->fingerFlexTwistJoints[f]))
+            this->flexureTwistJoints[f]))
         return false;
     }
 
@@ -251,13 +420,13 @@ bool IRobotHandPlugin::FindJoints()
       "%s_finger[%d]/flexible_joint_flex_from_%d_to_distal",
       this->side.c_str(), f, this->numFlexLinks+1);
     if(!this->GetAndPushBackJoint(joint_name, 
-          this->fingerFlexTwistJoints[f]))
+          this->flexureFlexJoints[f]))
       return false;
     snprintf(joint_name, sizeof(joint_name), 
       "%s_finger[%d]/flexible_joint_twist_from_%d_to_distal",
       this->side.c_str(), f, this->numFlexLinks+1);
     if(!this->GetAndPushBackJoint(joint_name, 
-          this->fingerFlexTwistJoints[f]))
+          this->flexureTwistJoints[f]))
       return false;
   }
 
@@ -280,6 +449,8 @@ void IRobotHandPlugin::SetJointSpringDamper()
   // 0.0031 in-lbs / deg per iRobot estimates
   const double baseJointKp = 0.020068;
   const double baseJointKd = 0.1;  // wild guess
+  const double baseRotationJointKp = 0.0;  // no spring there
+  const double baseRotationJointKd = 1.0;  // wild guess
 
   // 0.23 in-lbs preload per iRobot data
   const double baseJointPreloadTorque = 0.0259865;
@@ -296,8 +467,8 @@ void IRobotHandPlugin::SetJointSpringDamper()
 
   // Handle the flex/twist joints in the flexible section
   for(std::vector<gazebo::physics::Joint_V>::iterator it = 
-        this->fingerFlexTwistJoints.begin();
-      it != this->fingerFlexTwistJoints.end();
+      this->flexureFlexJoints.begin();
+      it != this->flexureFlexJoints.end();
       ++it)
   {
     for(gazebo::physics::Joint_V::iterator iit = it->begin();
@@ -310,13 +481,18 @@ void IRobotHandPlugin::SetJointSpringDamper()
       // (*iit)->SetAttribute("hi_stop", 0, 0.0);
       // (*iit)->SetAttribute("stop_cfm", 0, this->flexJointCFM);
       // (*iit)->SetAttribute("stop_erp", 0, this->flexJointERP);
+    }
+  }
 
-      ++iit;
-      if(iit == it->end())
-      {
-        gzerr << "Unmatched pair of joints." << std::endl;
-        return;
-      }
+  for(std::vector<gazebo::physics::Joint_V>::iterator it = 
+      this->flexureTwistJoints.begin();
+      it != this->flexureTwistJoints.end();
+      ++it)
+  {
+    for(gazebo::physics::Joint_V::iterator iit = it->begin();
+        iit != it->end();
+        ++iit)
+    {
       (*iit)->SetStiffnessDamping(0, twistJointKp, twistJointKd);
       // (*iit)->SetAttribute("lo_stop", 0, 0.0);
       // (*iit)->SetAttribute("hi_stop", 0, 0.0);
@@ -336,6 +512,15 @@ void IRobotHandPlugin::SetJointSpringDamper()
     // (*it)->SetAttribute("hi_stop", 0, -baseJointPreloadJointPosition);
     // (*it)->SetAttribute("stop_cfm", 0, this->baseJointCFM);
     // (*it)->SetAttribute("stop_erp", 0, this->baseJointERP);
+  }
+
+  // Handle the base rotation joints, which are not spring-loaded.
+  for(gazebo::physics::Joint_V::iterator
+      it = this->fingerBaseRotationJoints.begin();
+      it != this->fingerBaseRotationJoints.end();
+      ++it)
+  {
+    (*it)->SetStiffnessDamping(0, baseRotationJointKp, baseRotationJointKd);
   }
 }
 

@@ -80,11 +80,20 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   /// \brief iRobot Hand State
   private: handle_msgs::HandleSensors handleState;
 
-  /// \brief controlled joints in order specified in HandleControl message.
-  private: gazebo::physics::Joint_V joints;
-
   /// \brief Controller update mutex
   private: boost::mutex controlMutex;
+
+  /// \brief internal pid control
+  private: class ErrorTerms
+    {
+      double q_p;
+      double d_q_p_dt;
+      double q_i;
+      friend class IRobotHandPlugin;
+    };
+
+  /// \brief internal pid control
+  private: std::vector<ErrorTerms> errorTerms;
 
   /// \brief Update PID Joint Servo Controllers
   /// \param[in] _dt time step size since last update
@@ -139,7 +148,9 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: std::string side;
   private: gazebo::physics::Joint_V fingerBaseJoints;
   private: gazebo::physics::Joint_V fingerBaseRotationJoints;
-  private: std::vector<gazebo::physics::Joint_V> fingerFlexTwistJoints;
+  private: std::vector<gazebo::physics::Joint_V> flexureTwistJoints;
+  private: std::vector<gazebo::physics::Joint_V> flexureFlexJoints;
+  private: double thumbAntagonistAngle;
 
   private: static const int numFingers = 3;
   private: static const int numFlexLinks = 8;
