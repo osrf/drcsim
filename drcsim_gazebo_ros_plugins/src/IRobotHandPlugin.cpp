@@ -25,6 +25,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 IRobotHandPlugin::IRobotHandPlugin()
 {
+  for (int i = 0; i < 5; ++i)
+  {
+    this->kp_position[i] = 1.0;
+    this->ki_position[i]  = 0.0;
+    this->kd_position[i]  = 0.0;
+    this->i_position_effort_min[i] = 0.0;
+    this->i_position_effort_max[i] = 0.0;
+    this->kp_velocity[i]  = 0.0;
+    this->ki_velocity[i]  = 0.0;
+    this->kd_velocity[i]  = 0.0;
+    this->i_velocity_effort_min[i] = 0.0;
+    this->i_velocity_effort_max[i] = 0.0;
+  }
+
   this->errorTerms.resize(5);  // hand has 5 DOF
   for (unsigned i = 0; i < 5; ++i)
   {
@@ -255,21 +269,6 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
 {
   boost::mutex::scoped_lock lock(this->controlMutex);
 
-  /// update pid with feedforward force
-  /// commands are in handleCommand.value
-
-  const double kp_position[5]  = {1.0, 1.0, 1.0, 1.0, 1.0};
-  const double ki_position[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double kd_position[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double i_position_effort_min[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double i_position_effort_max[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-
-  const double kp_velocity[5]  = {0.1, 0.1, 0.1, 0.1, 0.1};
-  const double ki_velocity[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double kd_velocity[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double i_velocity_effort_min[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double i_velocity_effort_max[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-
   /// update thumb antagonist angle
   {
     // antagonist angle is between 0 (no antagonist) and
@@ -361,11 +360,11 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
       // set state  for position control
       current = currentPos;
 
-      kp = kp_position[j];
-      ki = ki_position[j];
-      kd = kd_position[j];
-      i_effort_min = i_position_effort_min[j];
-      i_effort_max = i_position_effort_max[j];
+      kp = this->kp_position[j];
+      ki = this->ki_position[j];
+      kd = this->kd_position[j];
+      i_effort_min = this->i_position_effort_min[j];
+      i_effort_max = this->i_position_effort_max[j];
     }
     else if (this->handleCommand.type[j] ==
              handle_msgs::HandleControl::VELOCITY)
@@ -374,11 +373,11 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
       /// \TODO: figure out a good limit for the combined finger joint angle.
       current = currentVel;
 
-      kp = kp_velocity[j];
-      ki = ki_velocity[j];
-      kd = kd_velocity[j];
-      i_effort_min = i_velocity_effort_min[j];
-      i_effort_max = i_velocity_effort_max[j];
+      kp = this->kp_velocity[j];
+      ki = this->ki_velocity[j];
+      kd = this->kd_velocity[j];
+      i_effort_min = this->i_velocity_effort_min[j];
+      i_effort_max = this->i_velocity_effort_max[j];
 
       // stop driving the finger if we are over the max angle
       // const double maxSimStableFingerPos = M_PI;
