@@ -36,6 +36,10 @@ find_package(gazebo REQUIRED)
 ## Build ##
 ###########
 
+if (USE_ATLASSIMINTERFACE_BLOB)
+  add_definitions(-DWITH_ATLASSIMINTERFACE_BLOB=1)
+endif()
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
@@ -71,7 +75,9 @@ target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_PROJECT_PATH}/lib64/")
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_PROJECT_PATH}/include")
-target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
+if (USE_ATLASINTERFACE_BLOB)
+  target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
+endif()
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
