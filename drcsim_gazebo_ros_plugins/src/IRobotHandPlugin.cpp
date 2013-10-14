@@ -32,7 +32,7 @@ IRobotHandPlugin::IRobotHandPlugin()
     this->kd_position[i]  = 0.0;
     this->i_position_effort_min[i] = 0.0;
     this->i_position_effort_max[i] = 0.0;
-    this->kp_velocity[i]  = 0.0;
+    this->kp_velocity[i]  = 0.1;
     this->ki_velocity[i]  = 0.0;
     this->kd_velocity[i]  = 0.0;
     this->i_velocity_effort_min[i] = 0.0;
