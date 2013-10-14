@@ -22,9 +22,9 @@
 
 #include "drcsim_gazebo_ros_plugins/IRobotHandPlugin.h"
 
+////////////////////////////////////////////////////////////////////////////////
 IRobotHandPlugin::IRobotHandPlugin()
 {
-  this->thumbAntagonistAngle = 0;
   this->errorTerms.resize(5);  // hand has 5 DOF
   for (unsigned i = 0; i < 5; ++i)
   {
@@ -34,6 +34,7 @@ IRobotHandPlugin::IRobotHandPlugin()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 IRobotHandPlugin::~IRobotHandPlugin()
 {
   gazebo::event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
@@ -44,6 +45,7 @@ IRobotHandPlugin::~IRobotHandPlugin()
   delete this->rosNode;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   sdf::ElementPtr _sdf)
 {
@@ -68,6 +70,9 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
 
   this->SetJointSpringDamper();
 
+  // save thumb upper limit
+  this->thumbUpperLimit = this->fingerBaseJoints[2]->GetUpperLimit(0).Radian();
+  this->thumbAntagonistAngle = 0.0;
 
   // Load ROS
   // initialize ros
@@ -86,14 +91,16 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   this->pmq.startServiceThread();
 
   // broadcasts handle state
+  std::string sensorStr = this->side + "_hand/sensors/raw";
   this->pubHandleStateQueue = this->pmq.addPub<handle_msgs::HandleSensors>();
   this->pubHandleState = this->rosNode->advertise<handle_msgs::HandleSensors>(
-    "handle/handle_state", 100, true);
+    sensorStr, 100, true);
 
   // subscribe to user published handle control commands
+  std::string controlStr = this->side + "_hand/control";
   ros::SubscribeOptions handleCommandSo =
     ros::SubscribeOptions::create<handle_msgs::HandleControl>(
-    "handle/handle_command", 100,
+    controlStr, 100,
     boost::bind(&IRobotHandPlugin::SetHandleCommand, this, _1),
     ros::VoidPtr(), &this->rosQueue);
   // Enable TCP_NODELAY since TCP causes bursty communication with high jitter,
@@ -101,7 +108,6 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
     ros::TransportHints().reliable().tcpNoDelay(true);
   this->subHandleCommand =
     this->rosNode->subscribe(handleCommandSo);
-
 
   // controller time control
   this->lastControllerUpdateTime = this->world->GetSimTime();
@@ -115,6 +121,7 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
      boost::bind(&IRobotHandPlugin::UpdateStates, this));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::SetHandleCommand(
   const handle_msgs::HandleControl::ConstPtr &_msg)
 {
@@ -138,9 +145,15 @@ void IRobotHandPlugin::SetHandleCommand(
     this->handleCommand.type[i] = _msg->type[i];
     this->handleCommand.value[i] = _msg->value[i];
     this->handleCommand.valid[i] = _msg->valid[i];
+
+    /// \TODO: HandleControlValueToJointAngle
+    /// HandleControl::value is the motor angle
+    /// motor angle --> spool length
+    /// spool length --> overall joint angle
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::UpdateStates()
 {
   gazebo::common::Time curTime = this->world->GetSimTime();
@@ -150,12 +163,8 @@ void IRobotHandPlugin::UpdateStates()
     // gather robot state data and publish them
     this->GetAndPublishHandleState(curTime);
 
-    {
-      boost::mutex::scoped_lock lock(this->controlMutex);
-
-      this->UpdatePIDControl(
-        (curTime - this->lastControllerUpdateTime).Double());
-    }
+    this->UpdatePIDControl(
+      (curTime - this->lastControllerUpdateTime).Double());
 
     this->lastControllerUpdateTime = curTime;
   }
@@ -167,6 +176,76 @@ void IRobotHandPlugin::GetAndPublishHandleState(
 {
   boost::mutex::scoped_lock lock(this->controlMutex);
 
+  this->handleState.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
+
+  this->handleState.motorHallEncoder[0] = 0;  // int32
+  this->handleState.motorHallEncoder[1] = 0;  // int32
+  this->handleState.motorHallEncoder[2] = 0;  // int32
+  this->handleState.motorHallEncoder[3] = 0;  // int32
+
+  this->handleState.motorWindingTemp[0] = 0.0;
+  this->handleState.motorWindingTemp[1] = 0.0;
+  this->handleState.motorWindingTemp[2] = 0.0;
+  this->handleState.motorWindingTemp[3] = 0.0;
+
+  this->handleState.airTemp = 0.0;
+
+  this->handleState.motorVelocity[0] = 0;  // int32
+  this->handleState.motorVelocity[1] = 0;  // int32
+  this->handleState.motorVelocity[2] = 0;  // int32
+  this->handleState.motorVelocity[3] = 0;  // int32
+
+  this->handleState.motorHousingTemp[0] = 0.0;
+  this->handleState.motorHousingTemp[1] = 0.0;
+  this->handleState.motorHousingTemp[2] = 0.0;
+  this->handleState.motorHousingTemp[3] = 0.0;
+  this->handleState.motorHousingTemp[4] = 0.0;
+
+  this->handleState.motorCurrent[0] = 0.0;
+  this->handleState.motorCurrent[1] = 0.0;
+  this->handleState.motorCurrent[2] = 0.0;
+  this->handleState.motorCurrent[3] = 0.0;
+  this->handleState.motorCurrent[4] = 0.0;
+
+  for(int i = 0; i < 3; ++i)
+  {
+    this->handleState.fingerTactile[i].proximal.resize(0);  // float32[]
+    this->handleState.fingerTactile[i].distal.resize(0);
+    this->handleState.fingerTactileTemp[i].proximal.resize(0);
+    this->handleState.fingerTactileTemp[i].distal.resize(0);
+  }
+
+  this->handleState.fingerSpread = 0;  // int32
+
+  this->handleState.proximalJointAngle[0] = 0;  // int32
+  this->handleState.proximalJointAngle[1] = 0;  // int32
+  this->handleState.proximalJointAngle[2] = 0;  // int32
+
+  for(int i = 0; i < 3; ++i)
+  {
+    this->handleState.distalJointAngle[i].proximal.resize(0);  // float32[]
+    this->handleState.distalJointAngle[i].distal.resize(0);
+
+    this->handleState.proximalAcceleration[i].x = 0.0;
+    this->handleState.proximalAcceleration[i].y = 0.0;
+    this->handleState.proximalAcceleration[i].z = 0.0;
+
+    this->handleState.distalAcceleration[i].x = 0.0;
+    this->handleState.distalAcceleration[i].y = 0.0;
+    this->handleState.distalAcceleration[i].z = 0.0;
+  }
+
+  for(int i = 0; i < 12; ++i)
+  {
+    this->handleState.responses[i] = false;  // bool
+    this->handleState.responseHistory[i] = 0;  // int8
+  }
+
+  for(int i = 0; i < 5; ++i)
+  {
+    this->handleState.motorError[i] = 0;  // int16
+  }
+
   // publish robot states
   this->pubHandleStateQueue->push(this->handleState, this->pubHandleState);
 }
@@ -174,32 +253,66 @@ void IRobotHandPlugin::GetAndPublishHandleState(
 ////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::UpdatePIDControl(double _dt)
 {
+  boost::mutex::scoped_lock lock(this->controlMutex);
+
   /// update pid with feedforward force
   /// commands are in handleCommand.value
 
   const double kp_position[5]  = {1.0, 1.0, 1.0, 1.0, 1.0};
-  const double kp_velocity[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
   const double ki_position[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
   const double kd_position[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double i_effort_min[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double i_effort_max[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double i_position_effort_min[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double i_position_effort_max[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
 
-  /// update
-  ///   j == 0: index finger flex
-  ///   j == 1: middle finger flex
-  ///   j == 2: thumb flex
-  ///   j == 4: index / middle finger spread
+  const double kp_velocity[5]  = {0.1, 0.1, 0.1, 0.1, 0.1};
+  const double ki_velocity[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double kd_velocity[5]  = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double i_velocity_effort_min[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+  const double i_velocity_effort_max[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+
+  /// update thumb antagonist angle
+  {
+    // antagonist angle is between 0 (no antagonist) and
+    // upper - lower (pinned to lower position).
+    this->thumbAntagonistAngle =
+      std::max(0.0,
+      std::min(this->thumbUpperLimit -
+               this->fingerBaseJoints[2]->GetLowerLimit(0).Radian(),
+               this->HandleControlFlexValueToFlexJointAngle(
+               this->handleCommand.value[3])));
+
+    // set thum uppper limit according to antagonist angle
+    this->fingerBaseJoints[2]->SetUpperLimit(
+      0, this->thumbUpperLimit - this->thumbAntagonistAngle);
+
+    // debug
+    // ROS_ERROR("%s lower %f upper %f antag %f upper %f", this->side.c_str(),
+    //   this->fingerBaseJoints[2]->GetLowerLimit(0).Radian(),
+    //   this->thumbUpperLimit, this->thumbAntagonistAngle,
+    //   this->fingerBaseJoints[2]->GetUpperLimit(0).Radian());
+  }
+
   for (int j = 0; j < 4; ++j)
   {
+    /// control index
+    ///   j == 0: index finger flex
+    ///   j == 1: middle finger flex
+    ///   j == 2: thumb flex
+    ///   j == 3: skip: antagonist angle setting
+    ///   j == 4: index / middle finger spread
     if (j == 3)
-      j = 4;   // skip to spread
+      j = 4;   // skip to spread.  antagonist is taken care of separately.
 
     double torque;
-    double target = this->handleCommand.value[j];
+    double target;
     double current;
 
-    target = 3.0;
-    this->handleCommand.type[j] = handle_msgs::HandleControl::POSITION;
+    if (j == 4)  // spread target
+      target = this->HandleControlSpreadValueToSpreadJointAngle(
+        this->handleCommand.value[j]);
+    else  // flex target
+      target = this->HandleControlFlexValueToFlexJointAngle(
+        this->handleCommand.value[j]);
 
     int numFlex = this->flexureFlexJoints[j].size();
 
@@ -210,7 +323,7 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
     double flexureFlexJointVel = 0;
     double currentPos = 0;
     double currentVel = 0;
-    if (j < 4)
+    if (j < 4)  // sum finger joint angle for baseJoint and flexureFlexJoint
     {
       baseJointPos = this->fingerBaseJoints[j]->GetAngle(0).Radian();
       baseJointVel = this->fingerBaseJoints[j]->GetVelocity(0);
@@ -226,6 +339,8 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
       // compute overall flex from baseJoint and flexureFlex joint positions
       currentPos = baseJointPos + flexureFlexJointPos;
       currentVel = baseJointVel + flexureFlexJointVel;
+      /// \TODO: should we limit target based on baseJointPos
+      /// or flexureFlexJointPos?
     }
     else
     {
@@ -239,16 +354,36 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
     }
 
 
+    double kp, ki, kd, i_effort_max, i_effort_min;
+
     if (this->handleCommand.type[j] == handle_msgs::HandleControl::POSITION)
     {
       // set state  for position control
       current = currentPos;
+
+      kp = kp_position[j];
+      ki = ki_position[j];
+      kd = kd_position[j];
+      i_effort_min = i_position_effort_min[j];
+      i_effort_max = i_position_effort_max[j];
     }
     else if (this->handleCommand.type[j] ==
              handle_msgs::HandleControl::VELOCITY)
     {
       // set state for velocity control
+      /// \TODO: figure out a good limit for the combined finger joint angle.
       current = currentVel;
+
+      kp = kp_velocity[j];
+      ki = ki_velocity[j];
+      kd = kd_velocity[j];
+      i_effort_min = i_velocity_effort_min[j];
+      i_effort_max = i_velocity_effort_max[j];
+
+      // stop driving the finger if we are over the max angle
+      // const double maxSimStableFingerPos = M_PI;
+      // if (currentPos > maxSimStableFingerPos)
+      //   target = 0;
     }
     else if (this->handleCommand.type[j] == handle_msgs::HandleControl::CURRENT)
     {
@@ -258,6 +393,12 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
     else if (this->handleCommand.type[j] == handle_msgs::HandleControl::VOLTAGE)
     {
       ROS_ERROR("Control Type [VOLTAGE] not available");
+      return;
+    }
+    else if (this->handleCommand.type[j] == handle_msgs::HandleControl::ANGLE)
+    {
+      ROS_ERROR("Control Type [ANGLE] not available");
+      /// \TODO: how to convert int32 to angle?
       return;
     }
     else if (this->handleCommand.type[j] == 0)
@@ -275,53 +416,50 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
     {
       double q_p = target - current;
 
+      this->errorTerms[j].q_p = q_p;
       if (!gazebo::math::equal(_dt, 0.0))
         this->errorTerms[j].d_q_p_dt = (q_p - this->errorTerms[j].q_p) / _dt;
-      this->errorTerms[j].q_p = q_p;
       this->errorTerms[j].q_i = gazebo::math::clamp(
         this->errorTerms[j].q_i + _dt * this->errorTerms[j].q_p,
-        i_effort_min[j], i_effort_max[j]);
+        i_effort_min, i_effort_max);
 
       // use gain params to compute force cmd
-      torque = kp_position[j] * this->errorTerms[j].q_p +
-               ki_position[j] * this->errorTerms[j].q_i +
-               kd_position[j] * this->errorTerms[j].d_q_p_dt;
+      torque = kp * this->errorTerms[j].q_p +
+               ki * this->errorTerms[j].q_i +
+               kd * this->errorTerms[j].d_q_p_dt;
     }
 
-    // ROS_ERROR("t[%f] c[%f] f[%f]", target, current, torque);
 
-    if (j < 4)
+    if (j < 4)  // if flex control (not spread)
     {
-      this->fingerBaseJoints[j]->SetForce(0, torque/2.0);
+      // tend can only transmit tension, not compression
+      double tendonTorque = std::max(0.0, torque);
+
+      // For thumb, apply only if current angle of the base joint
+      // is less than its antagonist angle.
+      if (j == 2 && this->fingerBaseJoints[j]->GetAngle(0) >
+          this->thumbUpperLimit - this->thumbAntagonistAngle)
+      {
+        this->fingerBaseJoints[j]->SetForce(0, 0);
+      }
+      else
+      {
+        this->fingerBaseJoints[j]->SetForce(0, std::max(0.0, tendonTorque/2.0));
+      }
       for (int i = 0; i < numFlex; ++i)
-        this->flexureFlexJoints[j][i]->SetForce(0, (torque/2.0)/numFlex);
+        this->flexureFlexJoints[j][i]->SetForce(0, (tendonTorque/2.0)/numFlex);
     }
-    else
+    else  // control spread
     {
-      // control spread
+      /// update index/middle finger spread
       this->fingerBaseRotationJoints[0]->SetForce(0, torque);
       // setting one joint is enough due to gearbox
       // this->fingerBaseRotationJoints[1]->SetForce(0, torque);
     }
   }
-
-  /// update thumb antagonist
-  {
-    this->thumbAntagonistAngle = this->handleCommand.value[3];
-    double upper = this->fingerBaseJoints[2]->GetAttribute("hi_stop", 0);
-    this->fingerBaseJoints[2]->SetAttribute("hi_stop", 0,
-      upper - this->thumbAntagonistAngle);
-  }
-
-  /// update index/middle finger spread
-  {
-    double targetPosition = this->handleCommand.value[4];
-    double torque = 0;
-
-    this->fingerBaseRotationJoints[1]->SetForce(0, torque);
-  }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
                                            gazebo::physics::Joint_V& _joints)
 {
@@ -337,6 +475,7 @@ bool IRobotHandPlugin::GetAndPushBackJoint(const std::string& _joint_name,
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::KpKdToCFMERP(const double _dt,
                            const double _kp, const double _kd,
                            double &_cfm, double &_erp)
@@ -346,6 +485,7 @@ void IRobotHandPlugin::KpKdToCFMERP(const double _dt,
   _cfm = 1.0 / ( _dt * _kp + _kd );
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::CFMERPToKpKd(const double _dt,
                            const double _cfm, const double _erp,
                            double &_kp, double &_kd)
@@ -355,6 +495,34 @@ void IRobotHandPlugin::CFMERPToKpKd(const double _dt,
   _kd = (1.0 - _erp) / _cfm;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+double IRobotHandPlugin::HandleControlFlexValueToFlexJointAngle(int _value)
+{
+  // convert from int32 to joint angle in radians
+
+  // _value is taken as motor rotation in radians.
+  // in practice, spool diameter varies from 10mm to 14mm.
+  const double intToMotorAngle = 1.0;
+  double motorAngle = intToMotorAngle * static_cast<double>(_value);
+  const double spoolDiameter = 0.012;
+  double tendonLength = spoolDiameter * motorAngle;
+  const double tendonLengthToAngle = 0.01;  // wild guess
+  double jointAngle = tendonLengthToAngle * tendonLength;
+  return jointAngle;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double IRobotHandPlugin::HandleControlSpreadValueToSpreadJointAngle(int _value)
+{
+  // convert from int32 to joint angle in radians
+  /// \TODO: figure out what is the unit of incoming integer.
+  const double intToMotorAngle = 1.0;
+  double motorAngle = intToMotorAngle * static_cast<double>(_value);
+  const double reductionRatio = 1.0/1000.0;
+  return reductionRatio * motorAngle;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 bool IRobotHandPlugin::FindJoints()
 {
   this->flexureTwistJoints.resize(this->numFingers);
@@ -435,6 +603,7 @@ bool IRobotHandPlugin::FindJoints()
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void IRobotHandPlugin::SetJointSpringDamper()
 {
   // Fake springiness by setting joint limits to 0 and modifying cfm/erp.

@@ -97,3 +97,56 @@ geometry_msgs/Vector3[3] proximalAcceleration
 #
 # [F1, F2, F3]
 geometry_msgs/Vector3[3] distalAcceleration
+
+# In this sensor message, which devices actually contributed data.
+# The order of the array is:
+#  0: Palm (Traffic Cop)
+#  1: Finger 1 Proximal
+#  2: Finger 1 Distal
+#  3: Finger 2 Proximal
+#  4: Finger 2 Distal
+#  5: Finger 3 Proximal
+#  6: Finger 3 Distal
+#  7: Motor for Finger 1
+#  8: Motor for Finger 2
+#  9: Motor for Finger 3
+# 10: Motor for Finger 3 Antagonist
+# 11: Tactile Palm
+bool[12] responses
+
+# How many of the the last 100 messages had data from each device.
+# This gives a good indication of communication quality between the devices.
+# Note that this only counts sensor message history.  If you have a motor that
+# is in thermal shutdown and non-responsive, the device may look fine here.
+# However there will be errors in the motorError array below.
+# The order of the array is:
+#  0: Palm (Traffic Cop)
+#  1: Finger 1 Proximal
+#  2: Finger 1 Distal
+#  3: Finger 2 Proximal
+#  4: Finger 2 Distal
+#  5: Finger 3 Proximal
+#  6: Finger 3 Distal
+#  7: Motor for Finger 1
+#  8: Motor for Finger 2
+#  9: Motor for Finger 3
+# 10: Motor for Finger 3 Antagonist
+# 11: Tactile Palm
+int8[12] responseHistory
+
+# The last received error from each motor.
+# The order of the motors in the array:
+# [F1, F2, F3, F3 Ant., Spread]
+# The error codes are:
+#   0 = No Error
+#   1 = Traffic Cop checksum error
+#   2 = Unknown Command
+#   3 = Bad Address
+#   4 = Traffic Cop timeout waiting for response
+#  17 = Overo checksum error
+#  18 = Overo data length error
+#  20 = Overo timout waiting for response
+# 128 = Thermal Protection Delay
+# 129 = Mandatory Cool Down 
+# 130 = Request out of range
+int16[5] motorError

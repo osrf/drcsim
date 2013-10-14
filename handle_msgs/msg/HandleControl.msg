@@ -6,6 +6,7 @@ uint8 VELOCITY = 1
 uint8 POSITION = 2
 uint8 CURRENT  = 3
 uint8 VOLTAGE  = 4
+uint8 ANGLE    = 5
 
 # The control type for each motor.
 int32[5] type

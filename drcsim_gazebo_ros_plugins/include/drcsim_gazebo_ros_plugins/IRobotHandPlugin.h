@@ -142,6 +142,22 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
                              const double _cfm, const double _erp,
                              double &_kp, double &_kd);
 
+  /// \brief Convert HandleControl message values to Joint angles
+  /// \param[in] _value handle_msgs::HandleControl::value[0-2], representing
+  /// internal motor joint angle in radians, to be converted to
+  /// tendon length, and subsequently converted to combined joint angle
+  /// for baseJoint and flexureFlexJoint joints.
+  /// \return _angle combined target joint angle for combined joint angle for
+  /// baseJoint and flexureFlexJoint joints.
+  private: double HandleControlFlexValueToFlexJointAngle(int _value);
+
+  /// \brief Convert HandleControl message values to Joint angles
+  /// \param[in] _value handle_msgs::HandleControl::value[4], representing
+  /// internal motor joint angle in radians, to be converted to
+  /// baseRotationJoint joint angle.
+  /// \return _angle desired baseRotationJoint angle.
+  private: double HandleControlSpreadValueToSpreadJointAngle(int _value);
+
   private: gazebo::physics::WorldPtr world;
   private: gazebo::physics::ModelPtr model;
   private: sdf::ElementPtr sdf;
@@ -151,6 +167,9 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: std::vector<gazebo::physics::Joint_V> flexureTwistJoints;
   private: std::vector<gazebo::physics::Joint_V> flexureFlexJoints;
   private: double thumbAntagonistAngle;
+
+  /// \brief save thumb upper limit as we change it per antagonist control
+  private: double thumbUpperLimit;
 
   private: static const int numFingers = 3;
   private: static const int numFlexLinks = 8;
