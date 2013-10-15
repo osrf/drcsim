@@ -11139,16 +11139,16 @@
     </library_effects>
     <library_images>
         <image id="ID12">
-            <init_from>../materials/textures/__auto_2.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_2.png</init_from>
         </image>
         <image id="ID37">
-            <init_from>../materials/textures/__auto_4.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_4.png</init_from>
         </image>
         <image id="ID250">
-            <init_from>../materials/textures/__auto_11.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_11.png</init_from>
         </image>
         <image id="ID383">
-            <init_from>../materials/textures/__auto_1.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_1.png</init_from>
         </image>
     </library_images>
     <scene>
