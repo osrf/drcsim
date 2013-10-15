@@ -11,16 +11,16 @@
     </asset>
     <library_images>
         <image id="texture0" name="texture0">
-            <init_from>../materials/textures/__auto_4.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_4.png</init_from>
         </image>
         <image id="texture1" name="texture1">
-            <init_from>../materials/textures/__auto_2.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_2.png</init_from>
         </image>
         <image id="texture2" name="texture2">
-            <init_from>../materials/textures/__auto_11.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_11.png</init_from>
         </image>
         <image id="texture3" name="texture3">
-            <init_from>../materials/textures/__auto_1.png</init_from>
+            <init_from>../materials/textures/no_wheels/__auto_1.png</init_from>
         </image>
     </library_images>
     <library_materials>
