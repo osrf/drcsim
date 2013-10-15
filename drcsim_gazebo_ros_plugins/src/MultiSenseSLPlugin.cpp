@@ -148,7 +148,7 @@ void MultiSenseSL::LoadThread()
   // ros publication
   this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
-    "multisense_sl/joint_states", 10);
+    "joint_states", 10);
 
   // publish imu data
   this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
