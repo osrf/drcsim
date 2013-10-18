@@ -530,7 +530,7 @@ bool IRobotHandPlugin::FindJoints()
   // Load up the joints we expect to use, finger by finger.
   gazebo::physics::JointPtr joint;
   char joint_name[256];
-  for(int f=0; f<this->numFingers; f++)
+  for(int f=0; f<this->numFingers; ++f)
   {
     // Get the base rotation joint (only fingers 0 and 1)
     if((f==0) || (f==1))
@@ -566,7 +566,7 @@ bool IRobotHandPlugin::FindJoints()
       return false;
 
     // Get the sequence of flex/twist joints, one pair at a time.
-    for(int l=1; l<(this->numFlexLinks+1); l++)
+    for(int l=1; l<(this->numFlexLinks); ++l)
     {
       snprintf(joint_name, sizeof(joint_name), 
         "%s_finger[%d]/flexible_joint_flex_from_%d_to_%d",
@@ -585,13 +585,13 @@ bool IRobotHandPlugin::FindJoints()
     // Get the last pair of flex/twist joints
     snprintf(joint_name, sizeof(joint_name), 
       "%s_finger[%d]/flexible_joint_flex_from_%d_to_distal",
-      this->side.c_str(), f, this->numFlexLinks+1);
+      this->side.c_str(), f, this->numFlexLinks);
     if(!this->GetAndPushBackJoint(joint_name, 
           this->flexureFlexJoints[f]))
       return false;
     snprintf(joint_name, sizeof(joint_name), 
       "%s_finger[%d]/flexible_joint_twist_from_%d_to_distal",
-      this->side.c_str(), f, this->numFlexLinks+1);
+      this->side.c_str(), f, this->numFlexLinks);
     if(!this->GetAndPushBackJoint(joint_name, 
           this->flexureTwistJoints[f]))
       return false;
@@ -609,10 +609,12 @@ void IRobotHandPlugin::SetJointSpringDamper()
   // TODO: implement a generic spring in Gazebo that will work with any
   // physics engine.
 
-  // 10 flex joints @ 0.029 in-lbs/deg per iRobot estimates
-  const double flexJointKp = 0.187733 * 10.0;
+  // (this->numFlexLinks + 2) flex joints @ 0.029 in-lbs/deg per
+  // iRobot estimates
+  const double flexJointKp = 0.187733 * (this->numFlexLinks + 2);
   const double flexJointKd = 0.1;  // wild guess
-  const double twistJointKp = 0.187733 * 10.0 * 2.0;  // wild guess
+  const double twistJointKp =
+    0.187733 * (this->numFlexLinks + 2) * 2.0;  // wild guess
   const double twistJointKd = 0.1;  // wild guess
   // 0.0031 in-lbs / deg per iRobot estimates
   const double baseJointKp = 0.020068;

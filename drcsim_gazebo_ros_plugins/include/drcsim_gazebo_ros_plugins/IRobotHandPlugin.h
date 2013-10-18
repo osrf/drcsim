@@ -172,7 +172,7 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: double thumbUpperLimit;
 
   private: static const int numFingers = 3;
-  private: static const int numFlexLinks = 8;
+  private: static const int numFlexLinks = 2;
 
   // TODO: make these constants configurable
   private: double kp_position[5];
