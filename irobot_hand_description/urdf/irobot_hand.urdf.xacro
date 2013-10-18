@@ -6,7 +6,7 @@
 <!-- tip: use measurements from solid to find the origins and length -->
 
 <xacro:property name="flex_joint_length" value=".016" />
-<xacro:property name="flex_joint_steps" value="3" />
+<xacro:property name="flex_joint_steps" value="2" />
 <xacro:property name="proximal_link_length" value=".062" />
 <xacro:property name="pi" value="3.14" />
 
