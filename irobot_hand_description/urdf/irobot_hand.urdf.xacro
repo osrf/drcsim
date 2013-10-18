@@ -9,7 +9,7 @@
 <xacro:property name="flex_joint_steps" value="2" />
 <xacro:property name="proximal_link_length" value=".062" />
 <xacro:property name="pi" value="3.14" />
-
+<xacro:property name="flex_offset" value="0.003"/> <!--${0.5*flex_joint_length/flex_joint_steps}-->
 
 <xacro:macro name="flex_link" params="side finger_id link_id">
   <link name="${side}_finger[${finger_id}]/flexible_link_${link_id}">
@@ -102,7 +102,7 @@
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_proximal_to_1" type="revolute">
     <parent link="${side}_finger[${finger_id}]/proximal_link"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_hidden_between_proximal_link_and_1"/>
-    <origin xyz="0 0 ${proximal_link_length}" />
+    <origin xyz="0 0 ${proximal_link_length + flex_offset}" />
     <axis xyz="-1 0 0"/>
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
   </joint>
@@ -152,7 +152,7 @@
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_${flex_joint_steps}_to_distal" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_${flex_joint_steps}"/>
     <child link="${side}_finger[${finger_id}]/flexible_link_hidden_between_${flex_joint_steps}_and_distal_link"/>
-    <origin xyz="0 0 ${flex_joint_length/flex_joint_steps}" />
+    <origin xyz="0 0 ${flex_joint_length/flex_joint_steps - flex_offset}" />
     <axis xyz="-1 0 0"/>
     <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
   </joint>
