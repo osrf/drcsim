@@ -612,10 +612,10 @@ void IRobotHandPlugin::SetJointSpringDamper()
   // (this->numFlexLinks + 2) flex joints @ 0.029 in-lbs/deg per
   // iRobot estimates
   const double flexJointKp = 0.187733 * (this->numFlexLinks + 2);
-  const double flexJointKd = 0.1;  // wild guess
+  const double flexJointKd = 0.01;  // wild guess
   const double twistJointKp =
     0.187733 * (this->numFlexLinks + 2) * 2.0;  // wild guess
-  const double twistJointKd = 0.1;  // wild guess
+  const double twistJointKd = 0.01;  // wild guess
   // 0.0031 in-lbs / deg per iRobot estimates
   const double baseJointKp = 0.020068;
   const double baseJointKd = 0.1;  // wild guess
