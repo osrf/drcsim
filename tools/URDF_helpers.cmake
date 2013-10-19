@@ -27,8 +27,7 @@ macro(make_standalone_models old_model_name new_model_name standalone_name)
       # Convert foo.urdf.xacro -> foo.urdf.pre-xslt -> foo.urdf
       add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}/${base}/${urdf}
                          COMMAND ROS_PACKAGE_PATH=${CMAKE_SOURCE_DIR}:$ENV{ROS_PACKAGE_PATH} rosrun xacro xacro.py ${CMAKE_CURRENT_SOURCE_DIR}/robots/${xacro} > ${CMAKE_CURRENT_BINARY_DIR}/${urdf}.pre-xslt
-                         COMMAND ${xsltproc} --stringparam old_model_name
-  ${old_model_name} --stringparam new_model_name ${new_model_name} ${CMAKE_SOURCE_DIR}/tools/xslt/sdf-make-standalone-model.xslt ${CMAKE_CURRENT_BINARY_DIR}/${urdf}.pre-xslt > ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}/${base}/${urdf}
+                         COMMAND ${xsltproc} --stringparam old_model_name ${old_model_name} --stringparam new_model_name ${new_model_name} ${CMAKE_SOURCE_DIR}/tools/xslt/sdf-make-standalone-model.xslt ${CMAKE_CURRENT_BINARY_DIR}/${urdf}.pre-xslt > ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}/${base}/${urdf}
                          DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/robots/${xacro} ${CMAKE_SOURCE_DIR}/tools/xslt/sdf-make-standalone-model.xslt)
       # Create custom foo/model.config
       add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}/${base}/model.config
