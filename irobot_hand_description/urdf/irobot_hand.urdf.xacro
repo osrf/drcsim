@@ -252,9 +252,23 @@
 <!-- Simplified collisions for the distal_link on all fingers -->
 <xacro:macro name="distal_link_collisions">
       <collision name='collision'>
-        <origin xyz="0 0.0025 0.019" rpy="3.141590 0.001593 3.141590"/>
+        <origin xyz="0 0.0024 0.01476" rpy="3.141590 0.001593
+             3.141590"/>
         <geometry>
-          <box size="0.0175 0.02023 0.04043"/>
+          <box size="0.0175 0.02011 0.03195"/>
+        </geometry>
+      </collision>
+      <collision name='collision_tip'>
+        <origin xyz="0 0.004 0.03" rpy="1.57078 0.001593 1.57078"/>
+        <geometry>
+          <cylinder radius="0.00848" length="0.0175"/>
+        </geometry>
+      </collision>
+
+      <collision name='collision_nail'>
+        <origin xyz="0 -0.00529 0.032" rpy="1.57078 0.001593 0"/>
+        <geometry>
+          <cylinder radius="0.00750" length="0.00159"/>
         </geometry>
       </collision>
 </xacro:macro>
