@@ -1,5 +1,5 @@
 <robot name="multisense_sl">
-  <!-- Head Link Simple Collision Meshes -->
+  <!-- Head Link Simplified Collision Meshes -->
   <link name="head">
     <inertial>
       <origin xyz="-0.075493 3.3383E-05 0.02774" rpy="0 0 0" />

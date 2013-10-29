@@ -1,5 +1,5 @@
 <robot name="multisense">
-  <!-- Head Link Simplified Collision Mesh -->
+  <!-- Head Link Simplified Collision Meshes -->
   <link name="head_root"/>
   <joint name="head_root_joint" type="fixed">
     <parent link="head_root"/>
@@ -164,7 +164,7 @@
   </collision>
   </link>
 
-  <!-- Head Link Full Mesh as Collision
+  <!-- Head Link Complex Collision Meshes
   <link name="head">
     <inertial>
       <origin xyz="-0.075493 3.3383E-05 0.02774" rpy="0 0 0" />
@@ -174,16 +174,16 @@
     <visual>
       <origin xyz="-0.0446 0 0.0880" rpy="0 0 1.570795" />
       <geometry>
-        <mesh filename="package://multisense_description/meshes/base_link.STL" />
+        <mesh filename="package://multisense_sl_description/meshes/base_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.9098 0.44314 0.031373 1" />
       </material>
     </visual>
-    <collision>
+    <collision group="default">
       <origin xyz="-0.0446 0 0.0880" rpy="0 0 1.570795" />
       <geometry>
-        <mesh filename="package://multisense_description/meshes/base_link.STL" />
+        <mesh filename="package://multisense_sl_description/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -196,16 +196,16 @@
     <visual>
       <origin xyz="0 0 0" rpy="1.5707963267949 0 1.5707963267949" />
       <geometry>
-        <mesh filename="package://multisense_description/meshes/hokuyo_link.STL" />
+        <mesh filename="package://multisense_sl_description/meshes/hokuyo_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.72941 0.35686 0.023529 1" />
       </material>
     </visual>
-    <collision>
+    <collision group="default">
       <origin xyz="0 0 0" rpy="1.5707963267949 0 1.5707963267949" />
       <geometry>
-        <mesh filename="package://multisense_description/meshes/hokuyo_link.STL" />
+        <mesh filename="package://multisense_sl_description/meshes/hokuyo_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -226,7 +226,7 @@
     </inertial>
   </link>
   <gazebo reference="head_hokuyo_frame">
-    <sensor type="ray" name="head_hokuyo_sensor">
+    <sensor type="gpu_ray" name="head_hokuyo_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
       <update_rate>40</update_rate>
@@ -416,27 +416,8 @@
     </inertial>
   </link>
 
-  <gazebo reference="r_foot">
-    <!-- contact sensor -->
-    <sensor type="contact" name="r_foot_contact_sensor">
-      <update_rate>1000.0</update_rate>
-      <always_on>1</always_on>
-      <contact>
-        <collision>r_foot_collision</collision>
-        <topic>/r_foot_contact</topic>
-      </contact>
-    </sensor>
-  </gazebo>
-  <gazebo reference="l_foot">
-    <!-- contact sensor -->
-    <sensor type="contact" name="l_foot_contact_sensor">
-      <update_rate>1000.0</update_rate>
-      <always_on>1</always_on>
-      <contact>
-        <collision>l_foot_collision</collision>
-        <topic>/l_foot_contact</topic>
-      </contact>
-    </sensor>
+  <gazebo>
+    <plugin filename="libMultiSenseSLPlugin.so" name="multisense_plugin"/>
   </gazebo>
 
 </robot>
