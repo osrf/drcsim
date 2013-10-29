@@ -291,10 +291,11 @@
   </joint>
   <link name="left_camera_optical_frame"/>
   <gazebo reference="left_camera_frame">
-    <sensor type="camera" name="left_camera_sensor">
+    <sensor type="multicamera" name="stereo_camera">
+      <!-- see MultiSenseSLPlugin.h for available modes -->
       <!-- update rate based on spec sheet for 2mp 15fps -->
       <update_rate>15.0</update_rate>
-      <camera>
+      <camera name="left">
         <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
         <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
         <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
@@ -308,16 +309,54 @@
           <near>0.02</near>
           <far>100</far>
         </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.  
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1].
+               The stddev value of 0.007 is based on experimental data 
+               from a camera in a Sandia hand pointed at a static scene
+               in a couple of different lighting conditions.  -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
       </camera>
-      <plugin name="left_camera_controller" filename="libgazebo_ros_camera.so">
+      <camera name="right">
+        <pose>0 -0.07 0 0 0 0</pose>
+        <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
+        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
+        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>2048</width>
+          <height>1088</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>100</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.  
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1].
+               The stddev value of 0.007 is based on experimental data 
+               from a camera in a Sandia hand pointed at a static scene
+               in a couple of different lighting conditions.  -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
         <alwaysOn>true</alwaysOn>
         <!-- update rate based on spec sheet for 2mp 15fps -->
         <updateRate>15.0</updateRate>
-        <cameraName>multisense/left</cameraName>
+        <cameraName>multisense_sl</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>left_camera_optical_frame</frameName>
-        <hackBaseline>0.0</hackBaseline>
+        <hackBaseline>0.07</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
         <distortionK3>0.0</distortionK3>
@@ -347,42 +386,6 @@
     <child link="right_camera_optical_frame"/>
   </joint>
   <link name="right_camera_optical_frame"/>
-  <gazebo reference="right_camera_frame">
-    <sensor type="camera" name="right_camera_sensor">
-      <!-- update rate based on spec sheet for 2mp 15fps -->
-      <update_rate>15.0</update_rate>
-      <camera>
-        <!-- hfov based on spec sheet, 80 degrees X 45 degrees -->
-        <!-- for resolution of 2048 x 1088, we have non-unity aspect ratio -->
-        <!-- but gazebo will violate the vertical fov for now to keep aspect ratio of 1 -->
-        <horizontal_fov>1.3962634</horizontal_fov>
-        <image>
-          <width>2048</width>
-          <height>1088</height>
-          <format>R8G8B8</format>
-        </image>
-        <clip>
-          <near>0.02</near>
-          <far>100</far>
-        </clip>
-      </camera>
-      <plugin name="right_camera_controller" filename="libgazebo_ros_camera.so">
-        <alwaysOn>true</alwaysOn>
-        <!-- update rate based on spec sheet for 2mp 15fps -->
-        <updateRate>15.0</updateRate>
-        <cameraName>multisense/right</cameraName>
-        <imageTopicName>image_raw</imageTopicName>
-        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>left_camera_optical_frame</frameName>
-        <hackBaseline>0.07</hackBaseline>
-        <distortionK1>0.0</distortionK1>
-        <distortionK2>0.0</distortionK2>
-        <distortionK3>0.0</distortionK3>
-        <distortionT1>0.0</distortionT1>
-        <distortionT2>0.0</distortionT2>
-      </plugin>
-    </sensor>
-  </gazebo>
 
   <joint name="center_top_led_frame_joint" type="fixed">
     <origin xyz="0.01125 0.0 0.0105"/>
