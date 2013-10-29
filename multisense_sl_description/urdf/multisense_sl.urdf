@@ -1,5 +1,5 @@
 <robot name="multisense">
-  <!-- Head Link Simplified Collision Mesh -->
+  <!-- Head Link Simple Collision Meshes -->
   <link name="head_root"/>
   <joint name="head_root_joint" type="fixed">
     <parent link="head_root"/>
