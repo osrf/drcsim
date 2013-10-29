@@ -206,8 +206,8 @@
              from teams, we're instead doing 80deg X 80deg @ 800x800pix. -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>800</width>
-          <height>800</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -232,8 +232,8 @@
              from teams, we're instead doing 80deg X 80deg @ 800x800pix. -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>800</width>
-          <height>800</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -254,7 +254,7 @@
       </camera>
       <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
         <alwaysOn>true</alwaysOn>
-        <updateRate>0.0</updateRate>
+        <updateRate>30.0</updateRate>
         <cameraName>multisense_sl</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
