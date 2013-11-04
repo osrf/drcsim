@@ -44,9 +44,12 @@ VRCScoringPlugin::~VRCScoringPlugin()
   // behavior needs to be fixed for this code to actually run.
 
   // Be sure to write the final score data before quitting
-  this->WriteScore(this->world->GetSimTime(), 
-                   common::Time::GetWallTime(),
-                   "Shutting down", true);
+  if (this->scoreFileStream.is_open())
+  {
+    this->WriteScore(this->world->GetSimTime(), 
+                     common::Time::GetWallTime(),
+                     "Shutting down", true);
+  }
   // Also force the Gazebo state logger to write
   util::LogRecord::Instance()->Notify();
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
