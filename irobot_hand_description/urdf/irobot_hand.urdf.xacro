@@ -46,7 +46,7 @@
 
 <xacro:macro name="flex_joint" params="side finger_id link_from link_to">
   <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_flex_from_${link_from}_to_${link_to}">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_${link_from}_to_${link_to}" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_${link_from}"/>
@@ -82,7 +82,7 @@
     </visual>
   </link>
   <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_twist_from_${link_from}_to_${link_to}">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_twist_from_${link_from}_to_${link_to}" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_hidden_between_${link_from}_and_${link_to}"/>
@@ -97,7 +97,7 @@
 
   <!-- make a connection between proximal to flexible-->
   <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_flex_from_proximal_to_1">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_proximal_to_1" type="revolute">
     <parent link="${side}_finger[${finger_id}]/proximal_link"/>
@@ -134,7 +134,7 @@
     </visual>
   </link>
   <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_twist_from_proximal_to_1">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_twist_from_proximal_to_1" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_hidden_between_proximal_link_and_1"/>
@@ -147,7 +147,7 @@
 
   <!-- make a connection between flexible to distal-->
   <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_flex_from_${flex_joint_steps}_to_distal">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_flex_from_${flex_joint_steps}_to_distal" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_${flex_joint_steps}"/>
@@ -183,7 +183,7 @@
     </visual>
   </link>
   <gazebo reference="${side}_finger[${finger_id}]/flexible_joint_twist_from_${flex_joint_steps}_to_distal">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[${finger_id}]/flexible_joint_twist_from_${flex_joint_steps}_to_distal" type="revolute">
     <parent link="${side}_finger[${finger_id}]/flexible_link_hidden_between_${flex_joint_steps}_and_distal_link"/>
@@ -623,7 +623,7 @@
   </joint>
 
   <gazebo reference="${side}_finger[0]/joint_base_rotation">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[0]/joint_base_rotation" type="revolute">
     <parent link="${side}_base_link"/>
@@ -634,7 +634,7 @@
   </joint>
 
   <gazebo reference="${side}_finger[0]/joint_base">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[0]/joint_base" type="revolute">
     <parent link="${side}_finger[0]/base_rotation_link"/>
@@ -645,7 +645,7 @@
 
   </joint>
   <gazebo reference="${side}_finger[1]/joint_base_rotation">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
 
   <joint name="${side}_finger[1]/joint_base_rotation" type="revolute">
@@ -680,7 +680,7 @@
   </gazebo>
 
   <gazebo reference="${side}_finger[1]/joint_base">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[1]/joint_base" type="revolute">
     <parent link="${side}_finger[1]/base_rotation_link"/>
@@ -691,7 +691,7 @@
   </joint>
 
   <gazebo reference="${side}_finger[2]/joint_base">
-    <cfmDamping>1</cfmDamping>
+    <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="${side}_finger[2]/joint_base" type="revolute">
     <parent link="${side}_base_link"/>
