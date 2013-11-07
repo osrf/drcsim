@@ -44,6 +44,7 @@ SandiaHandPlugin::SandiaHandPlugin()
 SandiaHandPlugin::~SandiaHandPlugin()
 {
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  delete this->pmq;
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
@@ -400,7 +401,8 @@ void SandiaHandPlugin::DeferredLoad()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq.startServiceThread();
+  this->pmq = new PubMultiQueue();
+  this->pmq->startServiceThread();
 
   // pull down controller parameters; they should be on the param server by now
   const int NUM_SIDES = 2, NUM_FINGERS = 4, NUM_FINGER_JOINTS = 3;
@@ -444,12 +446,12 @@ void SandiaHandPlugin::DeferredLoad()
 
   // ros publication / subscription
   /// brief broadcasts the robot states
-  this->pubLeftJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubLeftJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
   this->pubLeftJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/l_hand/joint_states", 10);
 
 
-  this->pubRightJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubRightJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
   this->pubRightJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "sandia_hands/r_hand/joint_states", 10);
 
@@ -468,24 +470,24 @@ void SandiaHandPlugin::DeferredLoad()
   this->subJointCommands[1] = this->rosNode->subscribe(jointCommandsSo);
 
   // publish imu data
-  this->pubLeftImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
+  this->pubLeftImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
   this->pubLeftImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/l_hand/imu", 10);
-  this->pubRightImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
+  this->pubRightImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
   this->pubRightImu =
     this->rosNode->advertise<sensor_msgs::Imu>(
       "sandia_hands/r_hand/imu", 10);
 
   // publish contact data
-  this->pubLeftTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
+  this->pubLeftTactileQueue = this->pmq->addPub<sandia_hand_msgs::RawTactile>();
   this->pubLeftTactile =
     this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
       "sandia_hands/l_hand/tactile_raw", 10,
     boost::bind(&SandiaHandPlugin::LeftTactileConnect, this),
     boost::bind(&SandiaHandPlugin::LeftTactileDisconnect, this));
 
-  this->pubRightTactileQueue = this->pmq.addPub<sandia_hand_msgs::RawTactile>();
+  this->pubRightTactileQueue = this->pmq->addPub<sandia_hand_msgs::RawTactile>();
   this->pubRightTactile =
     this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
       "sandia_hands/r_hand/tactile_raw", 10,

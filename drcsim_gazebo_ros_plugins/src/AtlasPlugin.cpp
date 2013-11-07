@@ -83,10 +83,11 @@ AtlasPlugin::AtlasPlugin()
 AtlasPlugin::~AtlasPlugin()
 {
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  delete this->pmq;
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
-  this->callbackQueeuThread.join();
+  this->callbackQueueThread.join();
   delete this->rosNode;
   #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // shutdown behavior library
@@ -570,7 +571,8 @@ void AtlasPlugin::LoadROS()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq.startServiceThread();
+  this->pmq = new PubMultiQueue();
+  this->pmq->startServiceThread();
 
   ////////////////////////////////////////////////////////////////
   //                                                            //
@@ -648,14 +650,14 @@ void AtlasPlugin::LoadROS()
   {
     // these topics are used for debugging only
     this->pubLFootContactQueue =
-      this->pmq.addPub<geometry_msgs::WrenchStamped>();
+      this->pmq->addPub<geometry_msgs::WrenchStamped>();
     this->pubLFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/l_foot_contact", 10);
 
     // these topics are used for debugging only
     this->pubRFootContactQueue =
-      this->pmq.addPub<geometry_msgs::WrenchStamped>();
+      this->pmq->addPub<geometry_msgs::WrenchStamped>();
     this->pubRFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/r_foot_contact", 10);
@@ -670,14 +672,14 @@ void AtlasPlugin::LoadROS()
 
   // controller synchronization statistics
   this->pubDelayStatisticsQueue =
-    this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
+    this->pmq->addPub<atlas_msgs::SynchronizationStatistics>();
   this->pubDelayStatistics =
     this->rosNode->advertise<atlas_msgs::SynchronizationStatistics>(
     "atlas/synchronization_statistics", 100, true);
 
   // ros publication
   this->pubControllerStatisticsQueue =
-    this->pmq.addPub<atlas_msgs::ControllerStatistics>();
+    this->pmq->addPub<atlas_msgs::ControllerStatistics>();
   this->pubControllerStatistics =
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10,
@@ -685,31 +687,31 @@ void AtlasPlugin::LoadROS()
     boost::bind(&AtlasPlugin::ControllerStatsDisconnect, this));
 
   // publish separate /atlas/imu topic, to be deprecated
-  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
+  this->pubImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
   this->pubImu = this->rosNode->advertise<sensor_msgs::Imu>(
     "atlas/imu", 10);
 
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   this->pubForceTorqueSensorsQueue =
-    this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
+    this->pmq->addPub<atlas_msgs::ForceTorqueSensors>();
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
 
   // broadcasts the robot joint states
-  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "atlas/joint_states", 1);
 
   //broadcasts atlas states
-  this->pubAtlasStateQueue = this->pmq.addPub<atlas_msgs::AtlasState>();
+  this->pubAtlasStateQueue = this->pmq->addPub<atlas_msgs::AtlasState>();
   this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
     "atlas/atlas_state", 100, true);
 
   // AtlasSimInterface:
   // closing the loop on BDI Dynamic Behavior Library
   this->pubASIStateQueue =
-    this->pmq.addPub<atlas_msgs::AtlasSimInterfaceState>();
+    this->pmq->addPub<atlas_msgs::AtlasSimInterfaceState>();
   this->pubASIState =
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
     "atlas/atlas_sim_interface_state", 1);
@@ -836,7 +838,7 @@ void AtlasPlugin::LoadROS()
   //  ROS Custom callback queue                                 //
   //                                                            //
   ////////////////////////////////////////////////////////////////
-  this->callbackQueeuThread = boost::thread(
+  this->callbackQueueThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
 
   ////////////////////////////////////////////////////////////////

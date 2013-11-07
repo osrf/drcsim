@@ -43,6 +43,9 @@ VRCScoringPlugin::~VRCScoringPlugin()
   // TODO: As of right now, this desctructor is never being called.  Shutdown
   // behavior needs to be fixed for this code to actually run.
 
+  delete this->pmq;
+  delete this->rosNode;
+
   // Be sure to write the final score data before quitting
   if (this->scoreFileStream.is_open())
   {
@@ -217,9 +220,10 @@ void VRCScoringPlugin::DeferredLoad()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq.startServiceThread();
+  this->pmq = new PubMultiQueue();
+  this->pmq->startServiceThread();
 
-  this->pubScoreQueue = this->pmq.addPub<atlas_msgs::VRCScore>();
+  this->pubScoreQueue = this->pmq->addPub<atlas_msgs::VRCScore>();
   this->pubScore = this->rosNode->advertise<atlas_msgs::VRCScore>(
     "vrc_score", 1, true);
 }

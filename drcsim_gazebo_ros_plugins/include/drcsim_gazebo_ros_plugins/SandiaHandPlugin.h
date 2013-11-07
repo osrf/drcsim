@@ -208,7 +208,7 @@ namespace gazebo
     private: common::Time lastControllerUpdateTime;
 
     // ros publish multi queue, prevents publish() blocking
-    private: PubMultiQueue pmq;
+    private: PubMultiQueue* pmq;
 
     /// \brief ros service callback to set joint damping
     /// \param[in] _req Incoming ros service request
