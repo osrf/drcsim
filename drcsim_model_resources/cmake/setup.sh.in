@@ -1,33 +1,35 @@
-# This file is the entry point for drcsim users.  It should establish all environment necessary to use the drcsim.
+# This file is the entry point for drcsim users.  It should establish
+# all environment necessary to use drcsim.
 
-# Step 1: get ROS configuration.  Special case for different shells, to pull in command-line completion.
-# if [ $SHELL = /bin/bash ]; then
-#   . /opt/ros/@ROS_DISTRO@/setup.bash
-# elif [ $SHELL = /bin/zsh ]; then
-#   . /opt/ros/@ROS_DISTRO@/setup.zsh
-# else
-#   . /opt/ros/@ROS_DISTRO@/setup.sh 
-# fi
+# Step 1: load ROS configuration.  Special case for different shells,
+# to pull in command-line completion.
+if [ $SHELL = /bin/bash ]; then
+  . /opt/ros/@ROS_DISTRO@/setup.bash
+elif [ $SHELL = /bin/zsh ]; then
+  . /opt/ros/@ROS_DISTRO@/setup.zsh
+else
+  . /opt/ros/@ROS_DISTRO@/setup.sh 
+fi
 
-# Step 2: modify ROS configuration.
-# Add each of our installed model directories to ROS_PACKAGE_PATH, so that ROS tools can locate resources stored within them.  
-# We don't just add the top 'models' directory because it contains a 'manifest.xml', which stops rospack in its tracks.
-# for d in `find @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments -mindepth 1 -maxdepth 1 -type d | tr "\n" ":"`; do export ROS_PACKAGE_PATH=$d$ROS_PACKAGE_PATH; done
-# for d in `find @CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gazebo_models/environments -mindepth 1 -maxdepth 1 -type d | tr "\n" ":"`; do export ROS_PACKAGE_PATH=$d$ROS_PACKAGE_PATH; done
+# Step 2: if present, load catkin-generated setup.sh from the root of our
+# install location.  This file won't be there in a binary deb, but it will be
+# there in a from-source build.  We need to source this file to get the catkin
+# magic that enables proper ROS-package-relative location of resources
+# (launch files, etc.).
+if [ -f @CMAKE_INSTALL_PREFIX@/setup.sh ]; then
+  . @CMAKE_INSTALL_PREFIX@/setup.sh 
+fi
 
-# Also add our 'ros' directory to RPP; it contains utility packages with things like launch files
-# export ROS_PACKAGE_PATH=@SANDIA_HAND_ROS_PACKAGE_PATH@:@OSRF_COMMON_ROS_PACKAGE_PATH@:$ROS_PACKAGE_PATH
-
+# Step 3: Modify LD_LIBRARY_PATH to include some unusual locations.
 # Make AtlasSimInterface plugins visible to the runtime loader
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_INTERFACE_VERSION_FULL@:$LD_LIBRARY_PATH
 # Make Gazebo plugins visible to the runtime loader
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$LD_LIBRARY_PATH
-# Make Gazebo-ROS plugins visible to the runtime loader; they'll be pulled in by ROS via pluginlib
+# Make Gazebo-ROS plugins visible to the runtime loader; they'll be
+# pulled in by ROS via pluginlib
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$LD_LIBRARY_PATH
-# Export Gazebo plugin library directories
-export LD_LIBRARY_PATH=@gazebo_lib_dirs@:$LD_LIBRARY_PATH
 
-# Step 3: get Gazebo configuration.
+# Step 4: get Gazebo configuration.
 if [ -f @GAZEBO_PREFIX@/share/gazebo/setup.sh ]; then
   . @GAZEBO_PREFIX@/share/gazebo/setup.sh 
 elif [ -f /usr/share/gazebo/setup.sh ]; then
@@ -36,22 +38,19 @@ else
   echo "Warning: failed to find Gazebo's setup.sh.  You will need to source it manually."
 fi
 
-# Step 4: modify Gazebo configuration.
+# Step 5: modify Gazebo configuration.
+# Add our top-level directory to GAZEBO_RESOURCE_PATH so that its
+# media/materials/* stuff can be found.
 export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@:$GAZEBO_RESOURCE_PATH
-# export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@:$GAZEBO_RESOURCE_PATH
+# Add our worlds directory to GAZEBO_RESOURCE_PATH so that *.world files can be
+# found without giving a full path.
 export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/worlds:$GAZEBO_RESOURCE_PATH
-# export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/worlds:$GAZEBO_RESOURCE_PATH
-
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/sandia_hand_description:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/irobot_hand_description:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/multisense_sl_description:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/atlas_description:$GAZEBO_MODEL_PATH
+# Add our gazebo_models/environments directory to GAZEBO_MODEL_PATH so that our
+# models can found.
+# After Gazebo issue #905 is addressed, we should add the installed locations of
+# atlas_description, irobot_hand_description, and multisense_sl_description to
+# GAZEBO_MODEL_PATH (and remove the symlink code in ../CMakeLists.txt)
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:$GAZEBO_MODEL_PATH
-# export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gazebo_models/environments:$GAZEBO_MODEL_PATH
-
+# Add the directories containing our Gazebo plugins to GAZEBO_PLUGIN_PATH.
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$GAZEBO_PLUGIN_PATH
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH
-
-# this was needed for lib_gazebo_gpu_laser.so dependency on libGpuRayPlugin.so, might be doing something wrong in cmake?
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GAZEBO_PLUGIN_PATH
