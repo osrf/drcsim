@@ -66,7 +66,7 @@
         <material>
           <script>
             <uri>model://vrc_firehose_long_a/materials/scripts</uri>
-            <uri>model://vrc_standpipe_a/materials/textures</uri>
+            <uri>model://vrc_firehose_long_a/materials/textures</uri>
             <name>vrc/firehose_red_coupling_a</name>
           </script>
         </material>
