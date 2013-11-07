@@ -42,9 +42,6 @@ VRCScoringPlugin::VRCScoringPlugin()
 /////////////////////////////////////////////////
 VRCScoringPlugin::~VRCScoringPlugin()
 {
-  // TODO: As of right now, this desctructor is never being called.  Shutdown
-  // behavior needs to be fixed for this code to actually run.
-
   delete this->pmq;
   delete this->rosNode;
 
