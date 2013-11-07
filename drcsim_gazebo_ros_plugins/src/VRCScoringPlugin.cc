@@ -35,6 +35,8 @@ using namespace gazebo;
 VRCScoringPlugin::VRCScoringPlugin()
  : postCompletionQuietTime(5.0)
 {
+  this->pmq = new PubMultiQueue();
+  this->rosNode = NULL;
 }
 
 /////////////////////////////////////////////////
@@ -220,7 +222,6 @@ void VRCScoringPlugin::DeferredLoad()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq = new PubMultiQueue();
   this->pmq->startServiceThread();
 
   this->pubScoreQueue = this->pmq->addPub<atlas_msgs::VRCScore>();

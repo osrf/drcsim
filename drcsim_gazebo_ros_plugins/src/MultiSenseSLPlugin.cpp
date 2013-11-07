@@ -46,6 +46,8 @@ MultiSenseSL::MultiSenseSL()
   // change default imager mode to 1 (1Hz ~ 30Hz)
   // in simulation, we are using 800X800 pixels @30Hz
   this->imagerMode = 1;
+
+  this->pmq = new PubMultiQueue();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +146,6 @@ void MultiSenseSL::LoadThread()
   this->rosnode_ = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq = new PubMultiQueue();
   this->pmq->startServiceThread();
 
   // ros publication

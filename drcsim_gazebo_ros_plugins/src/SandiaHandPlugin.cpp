@@ -37,6 +37,8 @@ SandiaHandPlugin::SandiaHandPlugin()
   this->hasStumps = false;
   this->leftTactileConnectCount = 0;
   this->rightTactileConnectCount = 0;
+  this->pmq = new PubMultiQueue();
+  this->rosNode = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +403,6 @@ void SandiaHandPlugin::DeferredLoad()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq = new PubMultiQueue();
   this->pmq->startServiceThread();
 
   // pull down controller parameters; they should be on the param server by now

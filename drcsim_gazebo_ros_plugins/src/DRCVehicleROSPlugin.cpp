@@ -31,6 +31,7 @@ DRCVehicleROSPlugin::DRCVehicleROSPlugin()
 {
   this->rosPublishPeriod = common::Time(0.05);
   this->lastRosPublishTime = common::Time(0.0);
+  this->rosNode = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

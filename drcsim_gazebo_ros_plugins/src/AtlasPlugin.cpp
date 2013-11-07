@@ -77,6 +77,9 @@ AtlasPlugin::AtlasPlugin()
   this->startupStep = AtlasPlugin::FREEZE;
 
   this->controllerStatsConnectCount = 0;
+
+  this->pmq = new PubMultiQueue();
+  this->rosNode = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -571,7 +574,6 @@ void AtlasPlugin::LoadROS()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq = new PubMultiQueue();
   this->pmq->startServiceThread();
 
   ////////////////////////////////////////////////////////////////
