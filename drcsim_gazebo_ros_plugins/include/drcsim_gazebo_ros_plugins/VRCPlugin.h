@@ -33,6 +33,7 @@
 
 #include <atlas_msgs/AtlasCommand.h>
 #include <atlas_msgs/AtlasSimInterfaceCommand.h>
+#include <atlas_msgs/AtlasSimInterfaceState.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -99,6 +100,10 @@ namespace gazebo
     ///  - "feet" same as no_gravity except for r_foot and l_foot links.
     public: void SetRobotMode(const std::string &_str);
 
+    /// \brief Accepts BDI behavior library commands and fakes them
+    /// \param[in] _asic the incoming command
+    public: void SetFakeASIC(
+      const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_asic);
 
     /// \brief Robot Vehicle Interaction, put robot in driver's seat.
     /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
@@ -275,6 +280,9 @@ namespace gazebo
       private: ros::Subscriber subPose;
       private: ros::Subscriber subConfiguration;
       private: ros::Subscriber subMode;
+      private: ros::Subscriber subFakeASIC;
+      /// \brief publisher of fake AtlasSimInterfaceState
+      private: ros::Publisher pubFakeASIS;
 
       friend class VRCPlugin;
     } atlas;

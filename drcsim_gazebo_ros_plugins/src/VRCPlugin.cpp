@@ -323,6 +323,40 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetFakeASIC(
+  const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_asic)
+{
+  switch(_asic->behavior)
+  {
+    case atlas_msgs::AtlasSimInterfaceCommand::STAND:
+      ROS_INFO("SetFakeASIC: STAND\n");
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::USER:
+      ROS_INFO("SetFakeASIC: USER\n");
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
+      ROS_INFO("SetFakeASIC: FREEZE\n");
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
+      ROS_INFO("SetFakeASIC: STAND_PREP\n");
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::WALK:
+      ROS_INFO("SetFakeASIC: WALK\n");
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::STEP:
+      ROS_INFO("SetFakeASIC: STEP\n");
+      break;
+    case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
+      ROS_INFO("SetFakeASIC: MANIPULATE\n");
+      break;
+    default:
+      ROS_WARN("SetFakeASIC: ignoring unknown behavior type %u",
+        _asic->behavior);
+      break;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
   if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
@@ -1275,6 +1309,19 @@ void VRCPlugin::LoadRobotROSAPI()
       boost::bind(&VRCPlugin::SetRobotModeTopic, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subMode = this->rosNode->subscribe(mode_so);
+
+    std::string fake_asic_topic_name = "atlas/fake/atlas_sim_interface_command";
+    ros::SubscribeOptions fake_asic_so =
+      ros::SubscribeOptions::create<atlas_msgs::AtlasSimInterfaceCommand>(
+      fake_asic_topic_name, 100,
+      boost::bind(&VRCPlugin::SetFakeASIC, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->atlas.subFakeASIC = this->rosNode->subscribe(fake_asic_so);
+
+    // ros advertisement
+    this->atlas.pubFakeASIS = 
+      this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
+      "atlas/fake/atlas_sim_interface_state", 1, true);
   }
 }
 
@@ -1401,11 +1448,11 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
 
   this->pubAtlasCommand =
     this->rosNode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/atlas_command", 1, true);
+    "atlas/atlas_command", 1, true);
 
   this->pubAtlasSimInterfaceCommand =
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceCommand>(
-    "/atlas/atlas_sim_interface_command", 1, true);
+    "atlas/atlas_sim_interface_command", 1, true);
 
   // ros::SubscribeOptions jointStatesSo =
   //   ros::SubscribeOptions::create<sensor_msgs::JointState>(
