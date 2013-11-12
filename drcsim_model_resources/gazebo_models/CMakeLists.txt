@@ -38,6 +38,7 @@ add_subdirectory(vrc_table)
 add_subdirectory(vrc_valve)
 add_subdirectory(vrc_valve_a)
 add_subdirectory(vrc_valve_b)
+add_subdirectory(vrc_vehicle)
 
 
 set (files 

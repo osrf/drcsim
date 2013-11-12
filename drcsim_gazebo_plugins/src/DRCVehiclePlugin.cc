@@ -65,6 +65,9 @@ DRCVehiclePlugin::DRCVehiclePlugin()
   this->maxSteer = 0;
   this->aeroLoad = 0;
   this->minBrakePercent = 0;
+
+  this->fLwheelSteeringPgain = 0;
+  this->fRwheelSteeringPgain = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -614,6 +617,20 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   else
     this->minBrakePercent = paramDefault;
 
+  paramName = "flwheel_steering_p_gain";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->fLwheelSteeringPgain = _sdf->Get<double>(paramName);
+  else
+    this->fLwheelSteeringPgain = paramDefault;
+
+  paramName = "frwheel_steering_p_gain";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->fRwheelSteeringPgain = _sdf->Get<double>(paramName);
+  else
+    this->fRwheelSteeringPgain = paramDefault;
+
   this->UpdateHandWheelRatio();
 
   // Simulate braking using joint stops with stop_erp = 0
@@ -691,9 +708,9 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->handBrakeForce, -this->handBrakeForce);
   this->fnrSwitchPID.Init(30, 0, 0, 0, 0,
                          this->fnrSwitchForce, -this->fnrSwitchForce);
-  this->flWheelSteeringPID.Init(500, 0, 50, 0, 0,
+  this->flWheelSteeringPID.Init(this->fLwheelSteeringPgain, 0, 50, 0, 0,
                          this->steeredWheelForce, -this->steeredWheelForce);
-  this->frWheelSteeringPID.Init(500, 0, 50, 0, 0,
+  this->frWheelSteeringPID.Init(this->fRwheelSteeringPgain, 0, 50, 0, 0,
                          this->steeredWheelForce, -this->steeredWheelForce);
 
   // New Mechanism for Updating every World Cycle
