@@ -193,6 +193,14 @@ namespace gazebo
     /// \brief ROS callback queue thread
     private: void ROSQueueThread();
 
+    /// \brief Helper for pinning Atlas to the world.
+    /// \param[in] _with_gravity Whether to enable gravity on the robot's 
+    /// links after pinning it.
+    private: void PinAtlas(bool _with_gravity);
+
+    /// \brief Helper for unpinning Atlas to the world.
+    private: void UnpinAtlas();
+
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //   Atlas properties and states                                          //
@@ -420,6 +428,10 @@ namespace gazebo
 
       /// \brief local copy of AtlasCommand message
       private: atlas_msgs::AtlasCommand ac;
+
+      /// \brief latest received JointStates from robot.
+      private: sensor_msgs::JointState::ConstPtr js;
+      private: bool js_valid;
 
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;

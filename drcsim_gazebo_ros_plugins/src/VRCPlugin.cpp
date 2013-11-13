@@ -19,6 +19,7 @@
 #include <string>
 #include <stdlib.h>
 
+#include <angles/angles.h>
 #include <gazebo/transport/transport.hh>
 #include <gazebo/physics/CylinderShape.hh>
 #include "drcsim_gazebo_ros_plugins/VRCPlugin.h"
@@ -109,6 +110,46 @@ void VRCPlugin::DeferredLoad()
   // simulation iteration.
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&VRCPlugin::UpdateStates, this));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::PinAtlas(bool _with_gravity)
+{
+  // pinning robot, potentially turning off effect of gravity
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+  if (!this->atlas.pinJoint)
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+  this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+  physics::Link_V links = this->atlas.model->GetLinks();
+  for (unsigned int i = 0; i < links.size(); ++i)
+  {
+    links[i]->SetGravityMode(_with_gravity);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::UnpinAtlas()
+{
+  // nominal
+  this->warpRobotWithCmdVel = false;
+  physics::Link_V links = this->atlas.model->GetLinks();
+  for (unsigned int i = 0; i < links.size(); ++i)
+  {
+    links[i]->SetGravityMode(true);
+  }
+  if (this->atlas.pinJoint)
+    this->RemoveJoint(this->atlas.pinJoint);
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,61 +261,15 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "pinned")
   {
-    // pinning robot, and turning off effect of gravity
-    if (this->vehicleRobotJoint)
-      this->RemoveJoint(this->vehicleRobotJoint);
-    if (!this->atlas.pinJoint)
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->PinAtlas(false);
   }
   else if (_str == "pinned_with_gravity")
   {
-    // pinning robot, and turning off effect of gravity
-    if (this->vehicleRobotJoint)
-      this->RemoveJoint(this->vehicleRobotJoint);
-    if (!this->atlas.pinJoint)
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(true);
-    }
+    this->PinAtlas(true);
   }
   else if (_str == "nominal")
   {
-    // nominal
-    this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(true);
-    }
-    if (this->atlas.pinJoint)
-      this->RemoveJoint(this->atlas.pinJoint);
-    if (this->vehicleRobotJoint)
-      this->RemoveJoint(this->vehicleRobotJoint);
+    this->UnpinAtlas();
   }
   else if (_str == "bdi_stand")
   {
@@ -329,25 +324,97 @@ void VRCPlugin::SetFakeASIC(
   switch(_asic->behavior)
   {
     case atlas_msgs::AtlasSimInterfaceCommand::STAND:
-      ROS_INFO("SetFakeASIC: STAND\n");
+      // We fake STAND by pinning the robot.
+      this->PinAtlas(false);
       break;
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
       ROS_INFO("SetFakeASIC: USER\n");
+      this->UnpinAtlas();
       break;
     case atlas_msgs::AtlasSimInterfaceCommand::FREEZE:
-      ROS_INFO("SetFakeASIC: FREEZE\n");
+      // We fake FREEZE by doing PID around current joint positions.
+      if(!this->atlasCommandController.js_valid)
+      {
+        ROS_WARN("FREEZE commanded, but no valid joint state yet,"
+                 "so I can't set PID position goals.");
+      }
+      else
+      {
+        ROS_ASSERT(this->atlasCommandController.js->position.size() ==
+          this->atlasCommandController.ac.position.size());
+        for (size_t i=0;
+             i < this->atlasCommandController.js->position.size();
+	     i++)
+        {
+          // Here we just set desired positions.
+          // We assume that everything else in
+          // this->atlasCommandController->ac was set properly in
+          // VRCPlugin::AtlasCommandController::InitModel().
+          this->atlasCommandController.ac.k_effort[i] = 255;
+          this->atlasCommandController.ac.position[i] =
+            this->atlasCommandController.js->position[i];
+        }
+        this->atlasCommandController.pubAtlasCommand.publish(
+          this->atlasCommandController.ac);
+      }
+      this->UnpinAtlas();
       break;
     case atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP:
       ROS_INFO("SetFakeASIC: STAND_PREP\n");
+      // no-op
       break;
     case atlas_msgs::AtlasSimInterfaceCommand::WALK:
-      ROS_INFO("SetFakeASIC: WALK\n");
+      if (_asic->walk_params.use_demo_walk)
+      {
+        ROS_WARN("Demo walk requested, but it's unsupported.");
+      }
+      else
+      {
+        // We fake WALK by turning it into a planar velocity and passing it to
+        // the existing fake teleop system.
+        
+        // Compute how far we're supposed to go, in how much time.
+        double dt = 0.0;
+        for (size_t i=0; i<_asic->walk_params.step_queue.size(); i++)
+          dt += _asic->walk_params.step_queue[i].duration;
+        math::Pose current_pose = this->atlas.pinLink->GetWorldPose();
+        geometry_msgs::Pose goal_pose = _asic->walk_params.step_queue[
+          _asic->walk_params.step_queue.size()-1].pose;
+        double dx = goal_pose.position.x - current_pose.pos.x;
+        double dy = goal_pose.position.y - current_pose.pos.y;
+        math::Quaternion goal_q(goal_pose.orientation.w,
+                                goal_pose.orientation.x,
+                                goal_pose.orientation.y,
+                                goal_pose.orientation.z);
+        double dyaw = angles::shortest_angular_distance(
+          current_pose.rot.GetAsEuler().z, goal_q.GetAsEuler().z);
+
+        // Build a cmd_vel message
+        geometry_msgs::Twist::Ptr cmd_vel(new geometry_msgs::Twist);
+        cmd_vel->linear.x = dx / dt;
+        cmd_vel->linear.y = dy / dt;
+        cmd_vel->linear.z = 0.0;
+        cmd_vel->angular.x = 0.0;
+        cmd_vel->angular.y = 0.0;
+        cmd_vel->angular.z = dyaw / dt;
+        ROS_INFO("Current pose: %f %f %f", 
+          current_pose.pos.x,
+          current_pose.pos.y,
+          current_pose.rot.GetAsEuler().z);
+        ROS_INFO("Goal pose: %f %f %f", 
+          goal_pose.position.x,
+          goal_pose.position.y,
+          goal_q.GetAsEuler().z);
+        ROS_INFO("Computed velocity (dt=%f): %f %f %f", dt, dx, dy, dyaw);
+        this->SetRobotCmdVel(cmd_vel);
+      }
       break;
     case atlas_msgs::AtlasSimInterfaceCommand::STEP:
       ROS_INFO("SetFakeASIC: STEP\n");
       break;
     case atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE:
-      ROS_INFO("SetFakeASIC: MANIPULATE\n");
+      // We fake STAND by pinning the robot.
+      this->PinAtlas(false);
       break;
     default:
       ROS_WARN("SetFakeASIC: ignoring unknown behavior type %u",
@@ -844,6 +911,8 @@ void VRCPlugin::UpdateStates()
                      new_pose);
     }
   }
+
+  // TODO: publish fake AtlasSimInterfaceState via this->pubFakeASIS
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1319,7 +1388,7 @@ void VRCPlugin::LoadRobotROSAPI()
     this->atlas.subFakeASIC = this->rosNode->subscribe(fake_asic_so);
 
     // ros advertisement
-    this->atlas.pubFakeASIS = 
+    this->atlas.pubFakeASIS =
       this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
       "atlas/fake/atlas_sim_interface_state", 1, true);
   }
@@ -1357,6 +1426,7 @@ std::string VRCPlugin::AtlasCommandController::FindJoint(
 
 ////////////////////////////////////////////////////////////////////////////////
 VRCPlugin::AtlasCommandController::AtlasCommandController()
+ : js_valid(false)
 {
 }
 
@@ -1454,13 +1524,12 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceCommand>(
     "atlas/atlas_sim_interface_command", 1, true);
 
-  // ros::SubscribeOptions jointStatesSo =
-  //   ros::SubscribeOptions::create<sensor_msgs::JointState>(
-  //   "/atlas/joint_states", 1,
-  //   boost::bind(&AtlasCommandController::GetJointStates, this, _1),
-  //   ros::VoidPtr(), this->rosNode->getCallbackQueue());
-  // this->subJointStates =
-  //   this->rosNode->subscribe(jointStatesSo);
+  ros::SubscribeOptions jointStatesSo =
+    ros::SubscribeOptions::create<sensor_msgs::JointState>(
+    "atlas/joint_states", 1,
+    boost::bind(&AtlasCommandController::GetJointStates, this, _1),
+    ros::VoidPtr(), this->rosNode->getCallbackQueue());
+  this->subJointStates = this->rosNode->subscribe(jointStatesSo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1475,6 +1544,8 @@ void VRCPlugin::AtlasCommandController::GetJointStates(
         const sensor_msgs::JointState::ConstPtr &_js)
 {
   /// \todo: implement joint state monitoring when setting configuration
+  this->js = _js;
+  this->js_valid = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

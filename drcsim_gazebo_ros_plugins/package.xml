@@ -28,6 +28,7 @@
   <build_depend>gazebo_plugins</build_depend>
   <build_depend>gazebo_ros</build_depend>
   <build_depend>gazebo_msgs</build_depend>
+  <build_depend>angles</build_depend>
 
   <run_depend>pr2_mechanism</run_depend>
   <run_depend>drcsim_model_resources</run_depend>
