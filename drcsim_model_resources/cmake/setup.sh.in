@@ -20,8 +20,6 @@
 
 # Make AtlasSimInterface plugins visible to the runtime loader
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_INTERFACE_VERSION_FULL@:$LD_LIBRARY_PATH
-# Make Gazebo plugins visible to the runtime loader
-export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$LD_LIBRARY_PATH
 # Make Gazebo-ROS plugins visible to the runtime loader; they'll be pulled in by ROS via pluginlib
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$LD_LIBRARY_PATH
 # Export Gazebo plugin library directories
@@ -50,7 +48,6 @@ export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share:$GAZEBO_MODEL_PATH
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 # export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@-@DRC_SIM_VERSION@/gazebo_models/environments:$GAZEBO_MODEL_PATH
 
-export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_plugins/plugins:$GAZEBO_PLUGIN_PATH
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH
 
 # this was needed for lib_gazebo_gpu_laser.so dependency on libGpuRayPlugin.so, might be doing something wrong in cmake?
