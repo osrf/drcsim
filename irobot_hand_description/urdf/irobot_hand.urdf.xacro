@@ -353,7 +353,7 @@
   <link name="${side}_base_link">
       <inertial>
         <!-- needs update -->
-        <mass value="1.0"/>
+        <mass value="1.305"/>
         <origin xyz="0 0 0"/>
         <inertia ixx="0.00125" ixy="0.0" ixz="0.0" iyy="0.00125" iyz="0.0" izz="0.0002"/>
       </inertial>
