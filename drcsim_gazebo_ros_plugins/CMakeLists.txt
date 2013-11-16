@@ -44,9 +44,9 @@ endif()
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  ${PROJECT_SOURCE_DIR}/include
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include
 )
 
 link_directories(
