@@ -13,8 +13,8 @@ find_package(gazebo REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)
 
 include_directories(
-  ${GAZEBO_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/include  #hm, is this ok?
+  ${GAZEBO_INCLUDE_DIRS}
 )
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
