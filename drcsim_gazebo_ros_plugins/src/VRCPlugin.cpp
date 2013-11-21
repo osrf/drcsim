@@ -33,6 +33,7 @@ VRCPlugin::VRCPlugin()
 {
   /// initial anchor pose
   this->warpRobotWithCmdVel = false;
+  this->rosNode = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
