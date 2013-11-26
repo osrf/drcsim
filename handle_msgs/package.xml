@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package>
+  <name>handle_msgs</name>
+  <version>3.1.0</version>
+  <description>
+    Definitions for all HANDLE topics and services
+  </description>
+
+  <maintainer email="hsu@osrfoundation.org">Ben Axelrod, John Hsu</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/handle_msgs</url>
+  <url type="bugtracker">https://bitbucket.org/osrf/drcsim/issues</url>
+  <url type="repository">https://bitbucket.org/osrf/drcsim</url>
+
+  <author>Ben Axelrod</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>message_runtime</build_depend>
+  <build_depend>message_generation</build_depend>
+
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>message_generation</run_depend>
+</package>
+
+
