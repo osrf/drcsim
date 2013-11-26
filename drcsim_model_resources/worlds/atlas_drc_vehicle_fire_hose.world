@@ -27,7 +27,7 @@
       <uri>model://ground_plane</uri>
     </include>
     <include>
-      <uri>model://drc_vehicle</uri>
+      <uri>model://drc_vehicle_xp900</uri>
       <pose>2 -2 0 0 0 0</pose>
     </include>
     <include>
@@ -48,7 +48,7 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
+        <model_name>drc_vehicle_xp900</model_name>
         <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>

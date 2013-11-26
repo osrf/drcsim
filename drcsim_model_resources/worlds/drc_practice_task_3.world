@@ -123,7 +123,7 @@
       <name>4x4x40_3</name>
       <uri>model://drc_practice_4x4x40</uri>
       <pose>0.2236 0.041327 0.5333 0 1.5707 0</pose>
-    </include>    
+    </include>
 
     <include>
       <name>4x4x40_4</name>
@@ -161,7 +161,7 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
+        <model_name>drc_vehicle_xp900</model_name>
         <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
@@ -183,13 +183,13 @@ entry and must be removed to gain access to the doorway.
 
 NOTES:
   - mass/material properties are estimates only
- 
+
   - Truss:
       * does not match geometry of the currently-recommended physical part.
       * collision and visual geometries use the same mesh data
           - it is possible for other parts to become “embedded” within this
             model, which is incorrect.
- 
+
   - Cinder-Block Side Walls:
       * collision and visual geometries use the same mesh data
           - it is possible for other parts to become “embedded” within this

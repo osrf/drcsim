@@ -450,7 +450,7 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
+        <model_name>drc_vehicle_xp900</model_name>
         <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
@@ -478,7 +478,7 @@ NOTES:
       * obstacles are modeled as static objects and will not move if impacted by vehicle or robot.
   - Vehicle:
       * this model does not include a vehicle.  Use the model from the VRC until an updated model is provided.
- 
+
 DISCLAIMER:
 The models are intended to represent the type of obstacles to be encountered during the DRC trials, but may not match the exact configurations used in the trial events.  DARPA reserves the right to change any elements of these tasks without updating these model files.
 -->

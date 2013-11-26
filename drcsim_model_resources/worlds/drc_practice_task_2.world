@@ -1690,7 +1690,7 @@
         <static>true</static>
         <uri>model://cinder_block_wide</uri>
         <pose>0 0 0.185 0 0.261794707 1.5707</pose>
-      </include> 
+      </include>
       <include>
         <name>block_2</name>
         <static>true</static>
@@ -2008,7 +2008,7 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
+        <model_name>drc_vehicle_xp900</model_name>
         <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
@@ -2026,11 +2026,11 @@
 
 <!--
      Rubble Terrain
- 
+
 This model shows a representative configuration for the Rubble challenge.  A rubble terrain will be designed to show the robot's capability to traverse through a difficult terrain and reach a final destination.
 
 NOTES:
-  - material/collision properties have been left at their default values 
+  - material/collision properties have been left at their default values
 
   - Terrain:
       * collision and visual geometries use the same mesh data
@@ -2043,7 +2043,7 @@ NOTES:
   * Trials_Task2_Terrain_simple.world - loads a white .STL mesh (load time on order of 2s)
   * Trials_Task2_Terrain_dae_color.world - loads a partially colored .dae file (load time on order of 30s)
   * Trials_Task2_Terrain_dae_texture.world - loads a fully textured .dae file (load time on order of 2 min)
- 
+
 DISCLAIMER:
 The models are intended to represent the type of obstacles to be encountered during the DRC trials, but may not match the exact configurations used in the trial events.  DARPA reserves the right to change any elements of these tasks without updating these model files.
 

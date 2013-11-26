@@ -63,7 +63,7 @@
       </attenuation>
     </light>
 
-    <include> 
+    <include>
       <uri>model://jersey_barrier</uri>
       <name>jersey_barrier_1</name>
       <pose>-30.782961 12.987309 0 0 0 -0.160001</pose>
@@ -115,7 +115,7 @@
       <pose>7.662 -0.77 3.75 0 0 1.3491</pose>
     </include>
     <include>
-      <uri>model://vrc_vehicle</uri>
+      <uri>model://drc_vehicle</uri>
       <pose>-1.79 1.21 0 0 0 2.888</pose>
     </include>
 
@@ -490,7 +490,7 @@
       <point>-100 100 0.01</point>
       <point>0 130 0.01</point>
     </road>
-    
+
     <model name="road_boxes">
       <static>true</static>
       <link name="link">
@@ -633,7 +633,7 @@
          <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>vrc_vehicle</model_name>
+        <model_name>drc_vehicle</model_name>
         <seat_link>polaris_ranger_ev::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>

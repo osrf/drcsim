@@ -41,7 +41,7 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
+        <model_name>drc_vehicle_xp900</model_name>
         <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
@@ -59,10 +59,10 @@
 <!--
 This world shows a representative configuration for the Ladder challenge.
 An industrial ladder will be placed against an ISO container and must be
-ascended to reach the top platform. 
+ascended to reach the top platform.
 
 NOTES:
-  - material/collision properties have been left at their default values 
+  - material/collision properties have been left at their default values
   - The stock ladder model has been modified to extend the hand-rails to
     contact the ground.  DARPA is still deciding whether to include this
     modification to mitigate cable-management concerns.
@@ -71,7 +71,7 @@ NOTES:
       * collision and visual geometries use the same mesh data
           - it is possible for other parts to become “embedded” within this
             model, which is incorrect.
- 
+
 DISCLAIMER:
 The models are intended to represent the type of obstacles to be encountered
 during the DRC trials, but may not match the exact configurations used in

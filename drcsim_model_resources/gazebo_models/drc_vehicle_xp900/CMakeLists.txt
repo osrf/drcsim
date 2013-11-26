@@ -1,5 +1,5 @@
-set(MODEL_NAME vrc_vehicle)
-set (files 
+set(MODEL_NAME drc_vehicle_xp900)
+set (files
   model.sdf
   model.config
 )

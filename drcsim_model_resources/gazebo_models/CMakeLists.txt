@@ -1,6 +1,7 @@
 add_subdirectory(cutout_wall)
 add_subdirectory(drc_terrain)
 add_subdirectory(drc_vehicle)
+add_subdirectory(drc_vehicle_xp900)
 add_subdirectory(fire_hose)
 add_subdirectory(gate)
 add_subdirectory(gate_number_1)
@@ -38,10 +39,9 @@ add_subdirectory(vrc_table)
 add_subdirectory(vrc_valve)
 add_subdirectory(vrc_valve_a)
 add_subdirectory(vrc_valve_b)
-add_subdirectory(vrc_vehicle)
 
 
-set (files 
+set (files
   database.config
 )
 
@@ -54,7 +54,7 @@ install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}
 # to parents of models), these symlink can be removed and our cmake/setup.sh.in
 # can be modified to point GAZEBO_MODEL_PATH at the installed locations for
 # these sibling packages.
-set(package_models 
+set(package_models
     atlas_description
     irobot_hand_description
     multisense_sl_description)

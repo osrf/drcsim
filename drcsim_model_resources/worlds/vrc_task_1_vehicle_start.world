@@ -184,7 +184,7 @@
       <pose>190 103.65 3.75 0 0 0</pose>
     </include>
     <include>
-      <uri>model://vrc_vehicle</uri>
+      <uri>model://drc_vehicle</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
     <include>
@@ -494,7 +494,7 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>vrc_vehicle</model_name>
+        <model_name>drc_vehicle</model_name>
         <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
