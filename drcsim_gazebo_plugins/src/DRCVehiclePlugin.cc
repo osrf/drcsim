@@ -68,6 +68,10 @@ DRCVehiclePlugin::DRCVehiclePlugin()
 
   this->fLwheelSteeringPgain = 0;
   this->fRwheelSteeringPgain = 0;
+  this->fLwheelSteeringIgain = 0;
+  this->fRwheelSteeringIgain = 0;
+  this->fLwheelSteeringDgain = 0;
+  this->fRwheelSteeringDgain = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -631,6 +635,34 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
   else
     this->fRwheelSteeringPgain = paramDefault;
 
+  paramName = "flwheel_steering_i_gain";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->fLwheelSteeringIgain = _sdf->Get<double>(paramName);
+  else
+    this->fLwheelSteeringIgain = paramDefault;
+
+  paramName = "frwheel_steering_i_gain";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->fRwheelSteeringIgain = _sdf->Get<double>(paramName);
+  else
+    this->fRwheelSteeringIgain = paramDefault;
+
+  paramName = "flwheel_steering_d_gain";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->fLwheelSteeringDgain = _sdf->Get<double>(paramName);
+  else
+    this->fLwheelSteeringDgain = paramDefault;
+
+  paramName = "frwheel_steering_d_gain";
+  paramDefault = 0;
+  if (_sdf->HasElement(paramName))
+    this->fRwheelSteeringDgain = _sdf->Get<double>(paramName);
+  else
+    this->fRwheelSteeringDgain = paramDefault;
+
   this->UpdateHandWheelRatio();
 
   // Simulate braking using joint stops with stop_erp = 0
@@ -708,10 +740,16 @@ void DRCVehiclePlugin::Load(physics::ModelPtr _parent,
                          this->handBrakeForce, -this->handBrakeForce);
   this->fnrSwitchPID.Init(30, 0, 0, 0, 0,
                          this->fnrSwitchForce, -this->fnrSwitchForce);
-  this->flWheelSteeringPID.Init(this->fLwheelSteeringPgain, 0, 50, 0, 0,
-                         this->steeredWheelForce, -this->steeredWheelForce);
-  this->frWheelSteeringPID.Init(this->fRwheelSteeringPgain, 0, 50, 0, 0,
-                         this->steeredWheelForce, -this->steeredWheelForce);
+  this->flWheelSteeringPID.Init(this->fLwheelSteeringPgain,
+                                this->fLwheelSteeringIgain,
+                                this->fLwheelSteeringDgain,
+                                0, 0, this->steeredWheelForce,
+                                -this->steeredWheelForce);
+  this->frWheelSteeringPID.Init(this->fRwheelSteeringPgain,
+                                this->fRwheelSteeringIgain,
+                                this->fRwheelSteeringDgain,
+                                0, 0, this->steeredWheelForce,
+                                -this->steeredWheelForce);
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every

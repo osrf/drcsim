@@ -32,6 +32,10 @@
       <min_brake_percent>0.04</min_brake_percent>
       <flwheel_steering_p_gain>30000</flwheel_steering_p_gain>
       <frwheel_steering_p_gain>30000</frwheel_steering_p_gain>
+      <flwheel_steering_i_gain>0</flwheel_steering_i_gain>
+      <frwheel_steering_i_gain>0</frwheel_steering_i_gain>
+      <flwheel_steering_d_gain>50</flwheel_steering_d_gain>
+      <frwheel_steering_d_gain>50</frwheel_steering_d_gain>
     </plugin>
     <plugin name="seat_mud" filename="libMudPlugin.so">
       <contact_sensor_name>polaris_ranger_xp900/chassis/seat_contact</contact_sensor_name>
