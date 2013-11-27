@@ -11,7 +11,7 @@ material vrc/pavement
 
 			texture_unit
 			{
-				texture tarmac.jpg
+				texture tarmac.png
 				filtering anistropic
         max_anisotropy 16
 			}
