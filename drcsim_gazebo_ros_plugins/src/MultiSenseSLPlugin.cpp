@@ -46,12 +46,15 @@ MultiSenseSL::MultiSenseSL()
   // change default imager mode to 1 (1Hz ~ 30Hz)
   // in simulation, we are using 800X800 pixels @30Hz
   this->imagerMode = 1;
+
+  this->pmq = new PubMultiQueue();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 MultiSenseSL::~MultiSenseSL()
 {
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  delete this->pmq;
   this->rosnode_->shutdown();
   this->queue_.clear();
   this->queue_.disable();
@@ -143,15 +146,15 @@ void MultiSenseSL::LoadThread()
   this->rosnode_ = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq.startServiceThread();
+  this->pmq->startServiceThread();
 
   // ros publication
-  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
     "joint_states", 10);
 
   // publish imu data
-  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
+  this->pubImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
   this->pubImu =
     this->rosnode_->advertise<sensor_msgs::Imu>(
       "multisense_sl/imu", 10);
