@@ -23,7 +23,7 @@ install(FILES
 # In addition to the usual installation, which happens above, we'll
 # also do some special processing and installation to provide standalone
 # versions of the models that can be used without ROS (or even Gazebo).
-include(${CMAKE_SOURCE_DIR}/tools/URDF_helpers.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../tools/URDF_helpers.cmake)
 make_standalone_models(atlas_description atlas ${standalone_name})
 
 # Copy all the meshes and materials into standalone_models/atlas
