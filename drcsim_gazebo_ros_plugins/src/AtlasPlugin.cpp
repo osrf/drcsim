@@ -50,6 +50,7 @@ AtlasPlugin::AtlasPlugin()
   #endif
 
   // setup behavior to string map
+  this->behaviorMap["None"] = atlas_msgs::AtlasSimInterfaceCommand::NONE;
   this->behaviorMap["User"] = atlas_msgs::AtlasSimInterfaceCommand::USER;
   this->behaviorMap["Stand"] = atlas_msgs::AtlasSimInterfaceCommand::STAND;
   this->behaviorMap["Walk"] = atlas_msgs::AtlasSimInterfaceCommand::WALK;
@@ -1377,6 +1378,7 @@ void AtlasPlugin::SetASICommand(
     // Try and set desired behavior (reverse map of behaviorMap)
     switch (this->asiState.desired_behavior)
     {
+      case atlas_msgs::AtlasSimInterfaceCommand::NONE:
       case atlas_msgs::AtlasSimInterfaceCommand::USER:
         this->asiState.error_code =
           this->atlasSimInterface->set_desired_behavior("User");
@@ -1975,6 +1977,8 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 {
   switch(_behavior)
   {
+    case atlas_msgs::AtlasSimInterfaceCommand::NONE:
+      return "None";
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
       return "User";
     case atlas_msgs::AtlasSimInterfaceCommand::STAND:
@@ -2256,6 +2260,7 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
   AtlasControlOutput *fbOut = &(this->controlOutput);
   switch (this->asiState.current_behavior)
   {
+    case atlas_msgs::AtlasSimInterfaceCommand::NONE:
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
       {
       }
