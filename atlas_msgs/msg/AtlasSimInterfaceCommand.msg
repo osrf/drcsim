@@ -9,14 +9,14 @@ Header header
 # permissible values for behavior
 # Updated to match the values in AtlasRobotInterface/AtlasInterfaceTypes.h.
 int32 NONE              =  0 # Robot currently not in any behavior; software freeze, controls disabled.
-int32 STAND             =  3 # stand
-int32 USER              =  7 # disable AtlasSimInterface updates, rely on
-                             # /atlas/atlas_command or /atlas/joint_commands
 int32 FREEZE            =  1 # safety mode
 int32 STAND_PREP        =  2 # stand-prep (AtlasSimInterface documentation)
+int32 STAND             =  3 # stand
 int32 WALK              =  4 # multi-step walk
 int32 STEP              =  5 # single step walk
 int32 MANIPULATE        =  6 # stand and allows manipulation.
+int32 USER              =  7 # disable AtlasSimInterface updates, rely on
+                             # /atlas/atlas_command or /atlas/joint_commands
 
 int32 behavior                # can be one of
                               # USER, FREEZE, STAND_PREP
