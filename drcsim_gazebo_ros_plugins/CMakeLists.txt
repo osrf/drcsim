@@ -2,6 +2,28 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
+# Check for 32/64 bits support
+STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
+STRING (REGEX MATCH "BSD" BSD ${CMAKE_SYSTEM_NAME})
+
+if (NOT DEFINED USE_ATLASSIMINTERFACE_BLOB)
+  if (LINUX)
+    # Check for 64bits machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(USE_ATLASSIMINTERFACE_BLOB True)
+    else()
+      set(USE_ATLASSIMINTERFACE_BLOB False)
+      message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. If you want to use DRCSim without the AtlasSimInterface binary interface, run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
+    endif() 
+  elseif(BSD)
+    message(STATUS "Warning: system check for 32/64 bit is not implemented for")
+    message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: please use USE_ATLASSIMINTERFACE_BLOB flag if you want")
+    message(STATUS "Warning: not to use 64 bits AtlasSIMINTERFACE library")
+    set(USE_ATLASSIMINTERFACE_BLOB True)
+  endif()
+endif()
+
 set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
 
 find_package(catkin REQUIRED COMPONENTS
