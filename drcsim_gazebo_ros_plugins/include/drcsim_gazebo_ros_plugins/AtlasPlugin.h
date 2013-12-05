@@ -214,7 +214,7 @@ namespace gazebo
     // ROS internal stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
-    private: boost::thread callbackQueeuThread;
+    private: boost::thread callbackQueueThread;
 
     /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
@@ -597,7 +597,7 @@ namespace gazebo
     private: ros::Subscriber subTest;
 
     // ros publish multi queue, prevents publish() blocking
-    private: PubMultiQueue pmq;
+    private: PubMultiQueue* pmq;
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
