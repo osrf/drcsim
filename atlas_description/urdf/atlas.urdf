@@ -516,7 +516,10 @@
         <inertial>
             <mass value="18.484" />
             <origin xyz="0.02 -0.001 0.211" rpy="0 -0 0" />
+            <!-- original inertia violates triangle rule
             <inertia ixx="0.395" ixy="0" ixz="0.083" iyy="1.089" iyz="-0.003" izz="0.327" />
+            -->
+            <inertia ixx="0.395" ixy="0" ixz="0.083" iyy="1.089" iyz="-0.003" izz="0.827" />
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
