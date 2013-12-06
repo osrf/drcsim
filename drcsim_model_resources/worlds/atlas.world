@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <world name="default">
-    <physics type="simbody">
+    <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <simbody>
         <accuracy>0.1</accuracy>
@@ -24,7 +24,7 @@
           <contact_surface_layer>0.0</contact_surface_layer>
         </constraints>
       </ode>
-      <real_time_update_rate>0</real_time_update_rate>
+      <real_time_update_rate>1000</real_time_update_rate>
       <max_step_size>0.001</max_step_size>
     </physics>
     <!-- A global light source -->
