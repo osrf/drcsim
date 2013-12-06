@@ -12,7 +12,7 @@
   </asset>
   <library_images>
     <image id="platform_2_png" name="platform_2_png">
-      <init_from>platform_2.png</init_from>
+      <init_from>../materials/textures/platform_2.png</init_from>
     </image>
   </library_images>
   <library_effects>

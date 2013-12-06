@@ -314,7 +314,7 @@ namespace gazebo
     private: PubQueue<atlas_msgs::VRCScore>::Ptr pubScoreQueue;
 
     // ros publish multi queue, prevents publish() blocking
-    private: PubMultiQueue pmq;
+    private: PubMultiQueue* pmq;
     private: boost::thread deferredLoadThread;
 
     // \brief Elapsed sim time after task completion when we stop counting

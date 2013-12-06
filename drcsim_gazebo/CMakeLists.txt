@@ -17,81 +17,6 @@ install(DIRECTORY
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-# install test files separately since it contains some executable scripts
-install(FILES
-  test/CheckDisplayCapabilities.cmake
-  test/vrc_task_2_dynamic_walking.test
-  test/atlas_cheats_rosapi.yaml
-  test/vrc_task_2_gzlog_stop.test
-  test/performance_test1.test
-  test/vrc_task_1_rosapi.test
-  test/atlas_drc_vehicle_fire_hose_rosapi.test
-  test/atlas_sandia_hands_rosapi.test
-  test/vrc_task_1_dynamic_walking.test
-  test/pub_atlas_command.launch
-  test/multisense_sl_rosapi.yaml
-  test/CMakeLists.txt
-  test/drc_vehicle_cheats_rosapi.yaml
-  test/atlas_arenas_start_testing.launch
-  test/multicamera_subscriber
-  test/vrc_task_2_scoring.test
-  test/vrc_rosapi.yaml
-  test/atlas_arenas_logging.launch
-  test/atlas_rosapi.yaml
-  test/atlas_cheats_rosapi.test
-  test/vrc_task_2_tricking_scoring.test
-  test/perf_test_local.launch
-  test/vrc_task_1_gzlog_stop_longrun_zlib.test
-  test/vrc_task_3_rosapi.test
-  test/vrc_task_1_gzlog_stop_longrun.test
-  test/vrc_task_3_dynamic_walking.test
-  test/atlas_golf_cart_fire_hose_rosapi.test
-  test/atlas_sandia_hands_cheats_rosapi.test
-  test/vrc_task_1_start_standup.test
-  test/vrc_task_1_scoring.test
-  test/vrc_task_3_cheats_rosapi.test
-  test/vrc_task_1_gzlog_stop.test
-  test/multicamera_connection.test
-  test/atlas_rosapi.test
-  test/atlas_sandia_hands_publishers_hz.test
-  test/sandia_hands_rosapi.yaml
-  test/vrc_task_1_cheats_rosapi.test
-  test/vrc_task_3_start_standup.test
-  test/atlas_sandia_hands_publishers_hz_gpu.test
-  test/vrc_task_2_rosapi.test
-  test/vrc_task_1_zlib_compression.launch
-  test/vrc_task_2_start_standup.test
-  test/atlas_publishers_hz.test
-  test/atlas_publishers_hz_gpu.test
-  test/golf_cart_cheats_rosapi.yaml
-  test/vrc_task_2_cheats_rosapi.test
-  test/vrc_task_1_commander.launch
-  test/ros_subscribers.launch
-  test/vrc_task_3_gzlog_stop.test
-  test/perf_test.launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
-)
-
-# install scripts and test executable scripts
-install(PROGRAMS
-  test/gl-test.py
-  test/gzlog_stop_checker.py
-  test/meanvar.py
-  test/run_pub_atlas_command.sh
-  test/run_gzstats.sh
-  test/run_rosbag.sh
-  test/run_recordmydesktop.sh
-  test/parse_logs.sh
-  test/vrc_task_2_scoring_test
-  test/vrc_task_2_tricking_scoring_test
-  test/vrc_walking_test
-  test/vrc_task_1_scoring_test
-  test/ros_api_checker
-  test/scoring_checker
-  # DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
-)
-
 install(PROGRAMS
   scripts/orientation_checker.py
   scripts/test.py
@@ -142,3 +67,5 @@ target_link_libraries(bdi_parser ${urdfdom_LIBRARIES} ${tinyxml_libraries} ${con
 # INSTALL(TARGETS bdi_parser DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/bin/)
 install(TARGETS bdi_parser DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/bin/)
 
+# Include test subdirectory
+add_subdirectory(test)

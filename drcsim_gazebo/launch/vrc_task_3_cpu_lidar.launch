@@ -3,6 +3,8 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="vrc_task_3_cpu_lidar.world"/>
 
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+  
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>

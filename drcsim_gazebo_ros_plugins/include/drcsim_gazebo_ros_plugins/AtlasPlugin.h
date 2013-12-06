@@ -43,8 +43,11 @@
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-// AtlasSimInterface: header
-#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
+
+#ifdef WITH_ATLASSIMINTERFACE_BLOB
+  // AtlasSimInterface: header
+  #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
+#endif
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
@@ -211,7 +214,7 @@ namespace gazebo
     // ROS internal stuff
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
-    private: boost::thread callbackQueeuThread;
+    private: boost::thread callbackQueueThread;
 
     /// \brief ros publisher for ros controller timing statistics
     private: ros::Publisher pubControllerStatistics;
@@ -285,6 +288,7 @@ namespace gazebo
     /// \brief enforce delay policy
     private: void EnforceSynchronizationDelay(const common::Time &_curTime);
 
+    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //  BDI Controller AtlasSimInterface Internals                            //
@@ -295,6 +299,7 @@ namespace gazebo
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
+    #endif
 
     /// \brief AtlasSimInterface: ROS subscriber
     private: ros::Subscriber subASICommand;
@@ -473,6 +478,7 @@ namespace gazebo
       return result;
     }
 
+    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
     {
@@ -482,6 +488,8 @@ namespace gazebo
       result.z = _v.n[2];
       return result;
     }
+    #endif
+
 
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
@@ -495,6 +503,7 @@ namespace gazebo
       return result;
     }
 
+    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
@@ -569,6 +578,7 @@ namespace gazebo
 
       return this->ToQ(math::Quaternion(rx, ry, rz));
     }
+    #endif
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
@@ -587,7 +597,7 @@ namespace gazebo
     private: ros::Subscriber subTest;
 
     // ros publish multi queue, prevents publish() blocking
-    private: PubMultiQueue pmq;
+    private: PubMultiQueue* pmq;
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
