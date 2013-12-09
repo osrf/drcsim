@@ -358,6 +358,10 @@ void VRCPlugin::StepDataToTwist(
   }
   math::Pose current_foot_pose = foot_link->GetWorldPose();
   math::Pose T_foot_pelvis = current_pelvis_pose - current_foot_pose;
+  ROS_DEBUG("Current foot pose: %f %f %f", 
+    current_foot_pose.pos.x,
+    current_foot_pose.pos.y,
+    current_foot_pose.pos.z);
 
   // Convert from ROS geometry_msgs/Pose message to Gazebo math::Pose
   geometry_msgs::Pose tmp_pose = _step.pose;
@@ -370,6 +374,11 @@ void VRCPlugin::StepDataToTwist(
   goal_foot_pose.rot.y = tmp_pose.orientation.y;
   goal_foot_pose.rot.z = tmp_pose.orientation.z;
 
+  ROS_DEBUG("Goal foot pose: %f %f %f", 
+    goal_foot_pose.pos.x,
+    goal_foot_pose.pos.y,
+    goal_foot_pose.pos.z);
+
   // Where should the pelvis be to achieve the desired foot pose
   // (assuming that the robot configuration doesn't change)?
   math::Pose goal_pelvis_pose = goal_foot_pose + T_foot_pelvis;
@@ -381,22 +390,29 @@ void VRCPlugin::StepDataToTwist(
     current_pelvis_pose.rot.GetAsEuler().z,
     goal_pelvis_pose.rot.GetAsEuler().z);
 
+  // Transform into ego-centric frame, which is how the resulting velocities 
+  // will be interpreted.
+  math::Vector3 local_d(dx, dy, 0);
+  local_d = current_pelvis_pose.rot.RotateVectorReverse(local_d);
+
   // Build a cmd_vel message
-  _twist->linear.x = dx / _dt;
-  _twist->linear.y = dy / _dt;
+  _twist->linear.x = local_d.x / _dt;
+  _twist->linear.y = local_d.y / _dt;
   _twist->linear.z = 0.0;
   _twist->angular.x = 0.0;
   _twist->angular.y = 0.0;
   _twist->angular.z = dyaw / _dt;
-  ROS_INFO("Current pose: %f %f %f",
+
+  ROS_DEBUG("Current pose: %f %f %f",
     current_pelvis_pose.pos.x,
     current_pelvis_pose.pos.y,
     current_pelvis_pose.rot.GetAsEuler().z);
-  ROS_INFO("Goal pose: %f %f %f",
+  ROS_DEBUG("Goal pose: %f %f %f",
     goal_pelvis_pose.pos.x,
     goal_pelvis_pose.pos.y,
     goal_pelvis_pose.rot.GetAsEuler().z);
-  ROS_INFO("Computed velocity (dt=%f): %f %f %f", _dt, dx, dy, dyaw);
+  ROS_DEBUG("Computed velocity (dt=%f): %f %f %f", 
+    _dt, _twist->linear.x, _twist->linear.y, _twist->angular.z);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
