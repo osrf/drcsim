@@ -7,7 +7,7 @@ material drc_practice/cutout_wall
 		{
 			texture_unit
 			{
-				texture cutout_wall.jpg
+				texture cutout_wall.png
 				filtering anistropic
 				max_anisotropy 16
 				scale 1 1

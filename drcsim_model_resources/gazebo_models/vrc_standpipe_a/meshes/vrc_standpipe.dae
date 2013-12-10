@@ -97,7 +97,7 @@
   </library_lights>
   <library_images>
     <image id="standpipe_png" name="standpipe_png">
-      <init_from>vrc_standpipe_a.png</init_from>
+      <init_from>../materials/textures/vrc_standpipe_a.png</init_from>
     </image>
   </library_images>
   <library_effects>
