@@ -19,7 +19,7 @@ int32 USER              =  7 # disable AtlasSimInterface updates, rely on
                              # /atlas/atlas_command or /atlas/joint_commands
 
 int32 behavior                # can be one of
-                              # USER, FREEZE, STAND_PREP
+                              # NONE, USER, FREEZE, STAND_PREP
                               # WALK, STEP, STAND, MANIPULATE
 
 # multi_step walking trajectory parameters
