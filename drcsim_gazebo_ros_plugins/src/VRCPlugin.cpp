@@ -177,54 +177,44 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 
     physics::EntityPtr objectBelow =
       this->world->GetEntityBelowPoint(rayStart.pos);
+    double groundHeight;
     if (objectBelow)
     {
-
-
       math::Box groundBB = objectBelow->GetBoundingBox();
-      double groundHeight = groundBB.max.z;
-
-      // gzdbg << objectBelow->GetName() << "\n";
-      // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
-      // gzdbg << groundHeight << "\n";
-      // gzdbg << groundBB.max.z << "\n";
-      // gzdbg << groundBB.min.z << "\n";
-
-      // slightly above ground and upright
-      atlasPose.pos.z = groundHeight + 1.15;
-      atlasPose.rot.SetFromEuler(0, 0, 0);
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
-
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-      // turning off effect of gravity
-      physics::Link_V links = this->atlas.model->GetLinks();
-      for (unsigned int i = 0; i < links.size(); ++i)
-      {
-        links[i]->SetGravityMode(false);
-      }
+      groundHeight = groundBB.max.z;
     }
     else
     {
-      gzwarn << "No entity below robot, or GetEntityBelowPoint "
-             << "returned NULL pointer.\n";
-      // put atlas back
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+      ROS_ERROR("failed to find ground height, guessing 0.0");
+      groundHeight = 0.0;
+    }
 
-      {
-        // simulate freezing lock simbody free joints
-        physics::Link_V links = this->atlas.model->GetLinks();
-        for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
-          (*li)->SetLinkStatic(true);
-      }
+    // gzdbg << objectBelow->GetName() << "\n";
+    // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
+    // gzdbg << groundHeight << "\n";
+    // gzdbg << groundBB.max.z << "\n";
+    // gzdbg << groundBB.min.z << "\n";
+
+    // slightly above ground and upright
+    atlasPose.pos.z = groundHeight + 1.15;
+    atlasPose.rot.SetFromEuler(0, 0, 0);
+    this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    // turning off effect of gravity
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
     }
     this->world->SetPaused(paused);
   }
@@ -286,6 +276,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     if (this->vehicleRobotJoint)
       this->RemoveJoint(this->vehicleRobotJoint);
 
+    if (this->world->GetPhysicsEngine()->GetType() == "simbody")
     {
       // simulate freezing lock simbody free joints
       physics::Link_V links = this->atlas.model->GetLinks();
@@ -432,35 +423,50 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                                       double _upper, double _lower,
                                       bool _disableCollision)
 {
-  physics::JointPtr joint = _world->GetPhysicsEngine()->CreateJoint(
-    _type, _model);
-  joint->Attach(_link1, _link2);
-  // load adds the joint to a vector of shared pointers kept
-  // in parent and child links, preventing joint from being destroyed.
-  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
-  // joint->SetAnchor(0, _anchor);
-  joint->SetAxis(0, _axis);
-  joint->SetHighStop(0, _upper);
-  joint->SetLowStop(0, _lower);
-
-  if (_link1)
-    joint->SetName(_link1->GetName() + std::string("_") +
-                              _link2->GetName() + std::string("_joint"));
-  else
-    joint->SetName(std::string("world_") +
-                              _link2->GetName() + std::string("_joint"));
-  joint->Init();
-
-
-  // disable collision between the link pair
-  if (_disableCollision)
+  physics::JointPtr joint;
+  if (_world->GetPhysicsEngine()->GetType() == "ode")
   {
-    if (_link1)
-      _link1->SetCollideMode("fixed");
-    if (_link2)
-      _link2->SetCollideMode("fixed");
-  }
+    joint = _world->GetPhysicsEngine()->CreateJoint(
+      _type, _model);
+    joint->Attach(_link1, _link2);
+    // load adds the joint to a vector of shared pointers kept
+    // in parent and child links, preventing joint from being destroyed.
+    joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+    // joint->SetAnchor(0, _anchor);
+    joint->SetAxis(0, _axis);
+    joint->SetHighStop(0, _upper);
+    joint->SetLowStop(0, _lower);
 
+    if (_link1)
+      joint->SetName(_link1->GetName() + std::string("_") +
+                                _link2->GetName() + std::string("_joint"));
+    else
+      joint->SetName(std::string("world_") +
+                                _link2->GetName() + std::string("_joint"));
+    joint->Init();
+
+
+    // disable collision between the link pair
+    if (_disableCollision)
+    {
+      if (_link1)
+        _link1->SetCollideMode("fixed");
+      if (_link2)
+        _link2->SetCollideMode("fixed");
+    }
+  }
+  else if (_world->GetPhysicsEngine()->GetType() == "simbody")
+  {
+    gzwarn << "No entity below robot, or GetEntityBelowPoint "
+           << "returned NULL pointer.\n";
+    // put atlas back
+    {
+      // simulate freezing lock simbody free joints
+      physics::Link_V links = _model->GetLinks();
+      for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+        (*li)->SetLinkStatic(true);
+    }
+  }
 
   return joint;
 }
@@ -1082,8 +1088,8 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   sdf::ElementPtr _sdf)
 {
   // bunch of hardcoded presets
-  this->startupHarnessDuration = 10;
-  this->startupStandPrepDuration = 10;
+  this->startupHarnessDuration = 5;
+  this->startupStandPrepDuration = 5;
 
   // changed by ros param
   this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
