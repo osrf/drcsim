@@ -189,6 +189,12 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       groundHeight = 0.0;
     }
 
+    if (this->world->GetPhysicsEngine()->GetType() == "bullet")
+    {
+      ROS_ERROR("Bullet GetEntityBelowPoint broken, see issue #539.");
+      groundHeight = 0.0;
+    }
+
     // gzdbg << objectBelow->GetName() << "\n";
     // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
     // gzdbg << groundHeight << "\n";
