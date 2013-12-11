@@ -213,9 +213,8 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // turning off effect of gravity
     physics::Link_V links = this->atlas.model->GetLinks();
     for (unsigned int i = 0; i < links.size(); ++i)
-    {
       links[i]->SetGravityMode(false);
-    }
+
     this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
@@ -278,7 +277,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
 
     if (this->world->GetPhysicsEngine()->GetType() == "simbody")
     {
-      // simulate freezing lock simbody free joints
+      // simulate un-freezing simbody unlock free joints
+      // Currently we do this to all the links in the model,
+      // but ideally we can do this to only the link(s) with
+      // a free 6-dof mobilizer.
       physics::Link_V links = this->atlas.model->GetLinks();
       for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
         (*li)->SetLinkStatic(false);
@@ -457,15 +459,13 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   }
   else if (_world->GetPhysicsEngine()->GetType() == "simbody")
   {
-    gzwarn << "No entity below robot, or GetEntityBelowPoint "
-           << "returned NULL pointer.\n";
-    // put atlas back
-    {
-      // simulate freezing lock simbody free joints
-      physics::Link_V links = _model->GetLinks();
-      for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
-        (*li)->SetLinkStatic(true);
-    }
+    // simulate freezing lock simbody free joints
+    // Currently we do this to all the links in the model,
+    // but ideally we can do this to only the link(s) with
+    // a free 6-dof mobilizer.
+    physics::Link_V links = _model->GetLinks();
+    for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+      (*li)->SetLinkStatic(true);
   }
 
   return joint;

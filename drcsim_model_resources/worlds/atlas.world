@@ -4,11 +4,11 @@
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <simbody>
-        <accuracy>0.1</accuracy>
-        <max_transient_velocity>0.1</max_transient_velocity>
+        <accuracy>0.005</accuracy>
+        <max_transient_velocity>0.005</max_transient_velocity>
         <contact>
           <stiffness>1e8</stiffness>
-          <dissipation>0.1</dissipation>
+          <dissipation>20.0</dissipation>
         </contact>
       </simbody>
       <ode>
