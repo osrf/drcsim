@@ -33,6 +33,7 @@
 
 #include <atlas_msgs/AtlasCommand.h>
 #include <atlas_msgs/AtlasSimInterfaceCommand.h>
+#include <atlas_msgs/AtlasSimInterfaceState.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -75,7 +76,15 @@ namespace gazebo
     ///     and negative is robot-right.
     ///   - z is the desired heading angular velocity, positive makes
     ///     the robot turn left, and negative makes the robot turn right
-    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd);
+    /// \param[in] _duration If > 0.0 stop applying the commanded 
+    ///                      velocity after the specific duration, in seconds.
+    public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd,
+                                double _duration);
+    
+    /// \brief Calls through to SetRobotCmdVel with a _duration of 0.0.
+    ///        Used as a ROS message callback.
+    public: void SetRobotCmdVelTopic(
+      const geometry_msgs::Twist::ConstPtr &_cmd);
 
     /// \brief sets robot's absolute world pose
     /// \param[in] _cmd Pose command for the robot
@@ -99,6 +108,10 @@ namespace gazebo
     ///  - "feet" same as no_gravity except for r_foot and l_foot links.
     public: void SetRobotMode(const std::string &_str);
 
+    /// \brief Accepts BDI behavior library commands and fakes them
+    /// \param[in] _asic the incoming command
+    public: void SetFakeASIC(
+      const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_asic);
 
     /// \brief Robot Vehicle Interaction, put robot in driver's seat.
     /// \param[in] _pose Relative pose offset, Pose()::Zero provides default
@@ -188,6 +201,28 @@ namespace gazebo
     /// \brief ROS callback queue thread
     private: void ROSQueueThread();
 
+    /// \brief Helper for pinning Atlas to the world.
+    /// \param[in] _with_gravity Whether to enable gravity on the robot's 
+    /// links after pinning it.
+    private: void PinAtlas(bool _with_gravity);
+
+    /// \brief Helper for unpinning Atlas to the world.
+    private: void UnpinAtlas();
+
+    /// \brief Helper for disabling foot collisions
+    /// \param[in] _mode collision mode; will be passed to 
+    ///   gazebo::physics::Link::SetCollideMode()
+    private: void SetFeetCollide(const std::string &_mode);
+
+    /// \brief Helper to convert step data to a planar cmd_vel-style Twist
+    /// \param[in] _step the last step to be taken
+    /// \param[in] _dt the desired duration until _step is reached
+    /// \param[out] _twist destination to write the cmd_vel data
+    private: void StepDataToTwist(
+               const atlas_msgs::AtlasBehaviorStepData & _step,
+               double _dt,
+               geometry_msgs::Twist::Ptr _twist);
+
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //   Atlas properties and states                                          //
@@ -275,6 +310,15 @@ namespace gazebo
       private: ros::Subscriber subPose;
       private: ros::Subscriber subConfiguration;
       private: ros::Subscriber subMode;
+      private: ros::Subscriber subFakeASIC;
+      /// \brief publisher of fake AtlasSimInterfaceState
+      private: ros::Publisher pubFakeASIS;
+      /// \brief current requested (fake) behavior
+      private: int currentBehavior;
+      /// \brief current (fake) step being pursued
+      private: int currentStepIndex;
+      /// \brief last (fake) step in the current sequence
+      private: int lastStepIndex;
 
       friend class VRCPlugin;
     } atlas;
@@ -413,6 +457,10 @@ namespace gazebo
       /// \brief local copy of AtlasCommand message
       private: atlas_msgs::AtlasCommand ac;
 
+      /// \brief latest received JointStates from robot.
+      private: sensor_msgs::JointState::ConstPtr js;
+      private: bool js_valid;
+
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;
 
@@ -425,6 +473,7 @@ namespace gazebo
     //                                                                        //
     ////////////////////////////////////////////////////////////////////////////
     private: bool warpRobotWithCmdVel;
+    private: common::Time warpRobotStopTime;
     private: double lastUpdateTime;
     private: geometry_msgs::Twist robotCmdVel;
 
