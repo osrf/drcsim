@@ -280,17 +280,6 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
       this->RemoveJoint(this->vehicleRobotJoint);
-
-    if (this->world->GetPhysicsEngine()->GetType() == "simbody")
-    {
-      // simulate un-freezing simbody unlock free joints
-      // Currently we do this to all the links in the model,
-      // but ideally we can do this to only the link(s) with
-      // a free 6-dof mobilizer.
-      physics::Link_V links = this->atlas.model->GetLinks();
-      for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
-        (*li)->SetLinkStatic(false);
-    }
   }
   else if (_str == "bdi_stand")
   {
