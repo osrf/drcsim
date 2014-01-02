@@ -19,6 +19,7 @@
 #include <string>
 #include <stdlib.h>
 
+#include <angles/angles.h>
 #include <gazebo/transport/transport.hh>
 #include <gazebo/physics/CylinderShape.hh>
 #include "drcsim_gazebo_ros_plugins/VRCPlugin.h"
@@ -110,6 +111,75 @@ void VRCPlugin::DeferredLoad()
   // simulation iteration.
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&VRCPlugin::UpdateStates, this));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::PinAtlas(bool _with_gravity)
+{
+  // pinning robot, potentially turning off effect of gravity
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+  if (!this->atlas.pinJoint)
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+  this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+  physics::Link_V links = this->atlas.model->GetLinks();
+  for (unsigned int i = 0; i < links.size(); ++i)
+  {
+    links[i]->SetGravityMode(_with_gravity);
+  }
+  this->SetFeetCollide("none");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::UnpinAtlas()
+{
+  // nominal
+  this->warpRobotWithCmdVel = false;
+  physics::Link_V links = this->atlas.model->GetLinks();
+  for (unsigned int i = 0; i < links.size(); ++i)
+  {
+    links[i]->SetGravityMode(true);
+  }
+  if (this->atlas.pinJoint)
+    this->RemoveJoint(this->atlas.pinJoint);
+  if (this->vehicleRobotJoint)
+    this->RemoveJoint(this->vehicleRobotJoint);
+  this->SetFeetCollide("all");
+
+  if (this->world->GetPhysicsEngine()->GetType() == "simbody")
+  {
+    // simulate un-freezing simbody unlock free joints
+    // Currently we do this to all the links in the model,
+    // but ideally we can do this to only the link(s) with
+    // a free 6-dof mobilizer.
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+      (*li)->SetLinkStatic(false);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetFeetCollide(const std::string &_mode)
+{
+  physics::LinkPtr l_foot_link = this->atlas.model->GetLink("l_foot");
+  if (!l_foot_link)
+    ROS_WARN("Couldn't find l_foot link when setting collide mode");
+  else
+    l_foot_link->SetCollideMode(_mode);
+
+  physics::LinkPtr r_foot_link = this->atlas.model->GetLink("r_foot");
+  if (!r_foot_link)
+    ROS_WARN("Couldn't find r_foot link when setting collide mode");
+  else
+    r_foot_link->SetCollideMode(_mode);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -225,61 +295,15 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
   else if (_str == "pinned")
   {
-    // pinning robot, and turning off effect of gravity
-    if (this->vehicleRobotJoint)
-      this->RemoveJoint(this->vehicleRobotJoint);
-    if (!this->atlas.pinJoint)
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->PinAtlas(false);
   }
   else if (_str == "pinned_with_gravity")
   {
-    // pinning robot, and turning off effect of gravity
-    if (this->vehicleRobotJoint)
-      this->RemoveJoint(this->vehicleRobotJoint);
-    if (!this->atlas.pinJoint)
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(true);
-    }
+    this->PinAtlas(true);
   }
   else if (_str == "nominal")
   {
-    // nominal
-    this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(true);
-    }
-    if (this->atlas.pinJoint)
-      this->RemoveJoint(this->atlas.pinJoint);
-    if (this->vehicleRobotJoint)
-      this->RemoveJoint(this->vehicleRobotJoint);
+    this->UnpinAtlas();
   }
   else if (_str == "bdi_stand")
   {
@@ -327,9 +351,215 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd)
+void VRCPlugin::StepDataToTwist(
+  const atlas_msgs::AtlasBehaviorStepData & _step,
+  double _dt,
+  geometry_msgs::Twist::Ptr _twist)
 {
+  // Which foot are we placing last?
+  unsigned int foot_idx = _step.foot_index;
+  // Where's the pelvis (which we'll pin) with respect to the foot
+  // that we're placing last?
+  math::Pose current_pelvis_pose = this->atlas.pinLink->GetWorldPose();
+  // And where is the foot?
+  // I'm pretty sure that 0=left and 1=right, but I can't find
+  // documentation on that.
+  physics::LinkPtr foot_link = this->atlas.model->GetLink(
+    (foot_idx == 0) ? "l_foot" : "r_foot");
+  if (!foot_link)
+  {
+    ROS_ERROR("Couldn't find Atlas's foot link when faking walking.");
+    return;
+  }
+  math::Pose current_foot_pose = foot_link->GetWorldPose();
+  math::Pose T_foot_pelvis = current_pelvis_pose - current_foot_pose;
+  ROS_DEBUG("Current foot pose: %f %f %f", 
+    current_foot_pose.pos.x,
+    current_foot_pose.pos.y,
+    current_foot_pose.pos.z);
+
+  // Convert from ROS geometry_msgs/Pose message to Gazebo math::Pose
+  geometry_msgs::Pose tmp_pose = _step.pose;
+  math::Pose goal_foot_pose;
+  goal_foot_pose.pos.x = tmp_pose.position.x;
+  goal_foot_pose.pos.y = tmp_pose.position.y;
+  goal_foot_pose.pos.z = tmp_pose.position.z;
+  goal_foot_pose.rot.w = tmp_pose.orientation.w;
+  goal_foot_pose.rot.x = tmp_pose.orientation.x;
+  goal_foot_pose.rot.y = tmp_pose.orientation.y;
+  goal_foot_pose.rot.z = tmp_pose.orientation.z;
+
+  ROS_DEBUG("Goal foot pose: %f %f %f", 
+    goal_foot_pose.pos.x,
+    goal_foot_pose.pos.y,
+    goal_foot_pose.pos.z);
+
+  // Where should the pelvis be to achieve the desired foot pose
+  // (assuming that the robot configuration doesn't change)?
+  math::Pose goal_pelvis_pose = goal_foot_pose + T_foot_pelvis;
+
+  // How far do we need to move in the plane to get there?
+  double dx = goal_pelvis_pose.pos.x - current_pelvis_pose.pos.x;
+  double dy = goal_pelvis_pose.pos.y - current_pelvis_pose.pos.y;
+  double dyaw = angles::shortest_angular_distance(
+    current_pelvis_pose.rot.GetAsEuler().z,
+    goal_pelvis_pose.rot.GetAsEuler().z);
+
+  // Transform into ego-centric frame, which is how the resulting velocities 
+  // will be interpreted.
+  math::Vector3 local_d(dx, dy, 0);
+  local_d = current_pelvis_pose.rot.RotateVectorReverse(local_d);
+
+  // Build a cmd_vel message
+  _twist->linear.x = local_d.x / _dt;
+  _twist->linear.y = local_d.y / _dt;
+  _twist->linear.z = 0.0;
+  _twist->angular.x = 0.0;
+  _twist->angular.y = 0.0;
+  _twist->angular.z = dyaw / _dt;
+
+  ROS_DEBUG("Current pose: %f %f %f",
+    current_pelvis_pose.pos.x,
+    current_pelvis_pose.pos.y,
+    current_pelvis_pose.rot.GetAsEuler().z);
+  ROS_DEBUG("Goal pose: %f %f %f",
+    goal_pelvis_pose.pos.x,
+    goal_pelvis_pose.pos.y,
+    goal_pelvis_pose.rot.GetAsEuler().z);
+  ROS_DEBUG("Computed velocity (dt=%f): %f %f %f", 
+    _dt, _twist->linear.x, _twist->linear.y, _twist->angular.z);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetFakeASIC(
+  const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_asic)
+{
+  // Disable the real BDI behavior library
+  atlas_msgs::AtlasSimInterfaceCommand ac;
+  ac.header.stamp = ros::Time::now();
+  ac.behavior = ac.USER;
+  for (size_t i=0; i<this->atlasCommandController.jointNames.size(); i++)
+    ac.k_effort.push_back(255);
+  this->atlasCommandController.pubAtlasSimInterfaceCommand.publish(ac);
+
+  geometry_msgs::Twist::Ptr zero_vel(new geometry_msgs::Twist);
+  if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND)
+  {
+    // We fake STAND by pinning the robot.
+    this->PinAtlas(true);
+    this->SetRobotCmdVel(zero_vel, 0.0);
+  }
+  else if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::USER)
+  {
+    this->UnpinAtlas();
+    this->SetRobotCmdVel(zero_vel, 0.0);
+  }
+  else if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::FREEZE)
+  {
+    // We fake FREEZE by doing PID around current joint positions.
+    if (!this->atlasCommandController.js_valid)
+    {
+      ROS_WARN("FREEZE commanded, but no valid joint state yet,"
+               "so I can't set PID position goals.");
+      return;
+    }
+    ROS_ASSERT(this->atlasCommandController.js->position.size() ==
+      this->atlasCommandController.ac.position.size());
+    for (size_t i=0; i < this->atlasCommandController.js->position.size(); i++)
+    {
+      // Here we just set desired positions.
+      // We assume that everything else in
+      // this->atlasCommandController->ac was set properly in
+      // VRCPlugin::AtlasCommandController::InitModel().
+      this->atlasCommandController.ac.k_effort[i] = 255;
+      this->atlasCommandController.ac.position[i] =
+        this->atlasCommandController.js->position[i];
+    }
+    this->atlasCommandController.pubAtlasCommand.publish(
+      this->atlasCommandController.ac);
+    this->UnpinAtlas();
+    this->SetRobotCmdVel(zero_vel, 0.0);
+  }
+  else if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::STAND_PREP)
+  {
+    // no-op
+    this->SetRobotCmdVel(zero_vel, 0.0);
+  }
+  else if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::WALK)
+  {
+    if (_asic->walk_params.use_demo_walk)
+    {
+      ROS_WARN("Demo walk requested, but it's unsupported.");
+      return;
+    }
+    // We fake WALK by turning it into a planar velocity and passing it to
+    // the existing fake teleop system.
+
+    // How much time should we take?
+    double dt = 0.0;
+    for (size_t i=0; i<_asic->walk_params.step_queue.size(); i++)
+    {
+      dt += _asic->walk_params.step_queue[i].duration;
+    }
+    size_t step_idx = _asic->walk_params.step_queue.size()-1;
+    geometry_msgs::Twist::Ptr cmd_vel(new geometry_msgs::Twist);
+    this->StepDataToTwist(_asic->walk_params.step_queue[step_idx],
+                          dt, cmd_vel);
+    this->atlas.currentStepIndex = _asic->walk_params.step_queue[0].step_index;
+    this->atlas.lastStepIndex =
+      _asic->walk_params.step_queue[step_idx].step_index;
+    this->SetFeetCollide("none");
+    this->SetRobotCmdVel(cmd_vel, dt);
+  }
+  else if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::STEP)
+  {
+    if (_asic->step_params.use_demo_walk)
+    {
+      ROS_WARN("Demo walk requested, but it's unsupported.");
+      return;
+    }
+    // We fake STEP by turning it into a planar velocity and passing it to
+    // the existing fake teleop system.
+
+    // How much time should we take?
+    double dt = _asic->step_params.desired_step.duration;
+    geometry_msgs::Twist::Ptr cmd_vel(new geometry_msgs::Twist);
+    this->StepDataToTwist(_asic->step_params.desired_step, dt, cmd_vel);
+    this->atlas.currentStepIndex = _asic->step_params.desired_step.step_index;
+    this->atlas.lastStepIndex = _asic->step_params.desired_step.step_index;
+    this->SetFeetCollide("none");
+    this->SetRobotCmdVel(cmd_vel, dt);
+  }
+  else if (_asic->behavior == atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE)
+  {
+    // We fake STAND by pinning the robot.
+    this->PinAtlas(true);
+    this->SetRobotCmdVel(zero_vel, 0.0);
+  }
+  else
+  {
+    ROS_WARN("SetFakeASIC: ignoring unknown behavior type %u",
+      _asic->behavior);
+    return;
+  }
+  this->atlas.currentBehavior = _asic->behavior;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetRobotCmdVelTopic(const geometry_msgs::Twist::ConstPtr &_cmd)
+{
+  this->SetRobotCmdVel(_cmd, 0.0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VRCPlugin::SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd,
+                               double _duration)
+{
+  if (_duration > 0.0)
+    this->warpRobotStopTime = this->world->GetSimTime() + _duration;
+  else
+    this->warpRobotStopTime = common::Time(0,0);
+
   if (_cmd->linear.x == 0 && _cmd->linear.y == 0 && _cmd->angular.z == 0)
   {
     this->warpRobotWithCmdVel = false;
@@ -737,7 +967,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-              atlas.startupStandPrepDuration)
+              (atlas.startupStandPrepDuration - 0.2))
           {
             ROS_INFO("going into Dynamic Stand Behavior");
             this->atlasCommandController.SetBDIStand();
@@ -799,7 +1029,8 @@ void VRCPlugin::UpdateStates()
 
     double dt = curTime - this->lastUpdateTime;
 
-    if (this->warpRobotWithCmdVel)
+    if (this->warpRobotWithCmdVel &&
+        (this->world->GetSimTime() <= this->warpRobotStopTime))
     {
       this->lastUpdateTime = curTime;
       math::Pose cur_pose = this->atlas.pinLink->GetWorldPose();
@@ -827,6 +1058,79 @@ void VRCPlugin::UpdateStates()
                      this->atlas.pinJoint,
                      new_pose);
     }
+  }
+
+  if ((this->atlas.startupSequence == Robot::INITIALIZED) &&
+      this->cheatsEnabled)
+  {
+    // publish fake AtlasSimInterfaceState via this->pubFakeASIS
+    atlas_msgs::AtlasSimInterfaceState asis;
+    asis.error_code = atlas_msgs::AtlasSimInterfaceState::NO_ERRORS;
+    asis.current_behavior = this->atlas.currentBehavior;
+    asis.desired_behavior = this->atlas.currentBehavior;
+    for (size_t i=0; i<asis.f_out.size(); i++)
+      asis.f_out[i] = 0.0;
+    math::Pose cur_pose = this->atlas.pinLink->GetWorldPose();
+    asis.pos_est.position.x = cur_pose.pos.x;
+    asis.pos_est.position.y = cur_pose.pos.y;
+    asis.pos_est.position.z = cur_pose.pos.z;
+    math::Vector3 cur_vel = this->atlas.pinLink->GetWorldLinearVel();
+    asis.pos_est.velocity.x = cur_vel.x;
+    asis.pos_est.velocity.y = cur_vel.y;
+    asis.pos_est.velocity.z = cur_vel.z;
+    physics::LinkPtr l_foot_link = this->atlas.model->GetLink("l_foot");
+    if (!l_foot_link)
+      ROS_WARN("Couldn't find l_foot link when publishing fake behavior data.");
+    else
+    {
+      math::Pose l_foot_pose = l_foot_link->GetWorldPose();
+      asis.foot_pos_est[0].position.x = l_foot_pose.pos.x;
+      asis.foot_pos_est[0].position.y = l_foot_pose.pos.y;
+      asis.foot_pos_est[0].position.z = l_foot_pose.pos.z;
+      asis.foot_pos_est[0].orientation.w = l_foot_pose.rot.w;
+      asis.foot_pos_est[0].orientation.x = l_foot_pose.rot.x;
+      asis.foot_pos_est[0].orientation.y = l_foot_pose.rot.y;
+      asis.foot_pos_est[0].orientation.z = l_foot_pose.rot.z;
+    }
+    physics::LinkPtr r_foot_link = this->atlas.model->GetLink("r_foot");
+    if (!l_foot_link)
+      ROS_WARN("Couldn't find l_foot link when publishing fake behavior data.");
+    else
+    {
+      math::Pose r_foot_pose = r_foot_link->GetWorldPose();
+      asis.foot_pos_est[1].position.x = r_foot_pose.pos.x;
+      asis.foot_pos_est[1].position.y = r_foot_pose.pos.y;
+      asis.foot_pos_est[1].position.z = r_foot_pose.pos.z;
+      asis.foot_pos_est[1].orientation.w = r_foot_pose.rot.w;
+      asis.foot_pos_est[1].orientation.x = r_foot_pose.rot.x;
+      asis.foot_pos_est[1].orientation.y = r_foot_pose.rot.y;
+      asis.foot_pos_est[1].orientation.z = r_foot_pose.rot.z;
+    }
+    for (size_t i=0; i<asis.k_effort.size(); i++)
+      asis.k_effort[i] = 0;
+
+    // Do what we can for the behavior-specific feedback data
+    if (asis.current_behavior == atlas_msgs::AtlasSimInterfaceCommand::WALK)
+    {
+      double time_remaining =
+        (this->warpRobotStopTime - this->world->GetSimTime()).Double();
+      if (time_remaining > 0.0)
+      {
+        // Assuming that t_step_rem should be in milliseconds
+        asis.walk_feedback.t_step_rem = time_remaining * 1e3;
+        asis.walk_feedback.current_step_index = this->atlas.currentStepIndex;
+      }
+      else
+      {
+        asis.walk_feedback.t_step_rem = 0.0;
+        asis.walk_feedback.current_step_index = this->atlas.lastStepIndex;
+      }
+      asis.walk_feedback.next_step_index_needed = this->atlas.lastStepIndex+1;
+      //asis.walk_feedback.status_flags
+      //asis.walk_feedback.step_queue_saturated
+    }
+
+    this->atlas.pubFakeASIS.publish(asis);
   }
 }
 
@@ -1067,6 +1371,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
 ////////////////////////////////////////////////////////////////////////////////
 VRCPlugin::Robot::Robot()
+ : currentBehavior(-1)
 {
   this->startupSequence = Robot::NONE;
   this->bdiStandSequence = Robot::BS_NONE;
@@ -1265,7 +1570,7 @@ void VRCPlugin::LoadRobotROSAPI()
     ros::SubscribeOptions trajectory_so =
       ros::SubscribeOptions::create<geometry_msgs::Twist>(
       trajectory_topic_name, 100,
-      boost::bind(&VRCPlugin::SetRobotCmdVel, this, _1),
+      boost::bind(&VRCPlugin::SetRobotCmdVelTopic, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subTrajectory = this->rosNode->subscribe(trajectory_so);
 
@@ -1293,6 +1598,19 @@ void VRCPlugin::LoadRobotROSAPI()
       boost::bind(&VRCPlugin::SetRobotModeTopic, this, _1),
       ros::VoidPtr(), &this->rosQueue);
     this->atlas.subMode = this->rosNode->subscribe(mode_so);
+
+    std::string fake_asic_topic_name = "atlas/fake/atlas_sim_interface_command";
+    ros::SubscribeOptions fake_asic_so =
+      ros::SubscribeOptions::create<atlas_msgs::AtlasSimInterfaceCommand>(
+      fake_asic_topic_name, 100,
+      boost::bind(&VRCPlugin::SetFakeASIC, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
+    this->atlas.subFakeASIC = this->rosNode->subscribe(fake_asic_so);
+
+    // ros advertisement
+    this->atlas.pubFakeASIS =
+      this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
+      "atlas/fake/atlas_sim_interface_state", 1, true);
   }
 }
 
@@ -1328,6 +1646,7 @@ std::string VRCPlugin::AtlasCommandController::FindJoint(
 
 ////////////////////////////////////////////////////////////////////////////////
 VRCPlugin::AtlasCommandController::AtlasCommandController()
+ : js_valid(false)
 {
 }
 
@@ -1419,19 +1738,18 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
 
   this->pubAtlasCommand =
     this->rosNode->advertise<atlas_msgs::AtlasCommand>(
-    "/atlas/atlas_command", 1, true);
+    "atlas/atlas_command", 1, true);
 
   this->pubAtlasSimInterfaceCommand =
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceCommand>(
-    "/atlas/atlas_sim_interface_command", 1, true);
+    "atlas/atlas_sim_interface_command", 1, true);
 
-  // ros::SubscribeOptions jointStatesSo =
-  //   ros::SubscribeOptions::create<sensor_msgs::JointState>(
-  //   "/atlas/joint_states", 1,
-  //   boost::bind(&AtlasCommandController::GetJointStates, this, _1),
-  //   ros::VoidPtr(), this->rosNode->getCallbackQueue());
-  // this->subJointStates =
-  //   this->rosNode->subscribe(jointStatesSo);
+  ros::SubscribeOptions jointStatesSo =
+    ros::SubscribeOptions::create<sensor_msgs::JointState>(
+    "atlas/joint_states", 1,
+    boost::bind(&AtlasCommandController::GetJointStates, this, _1),
+    ros::VoidPtr(), this->rosNode->getCallbackQueue());
+  this->subJointStates = this->rosNode->subscribe(jointStatesSo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1446,6 +1764,8 @@ void VRCPlugin::AtlasCommandController::GetJointStates(
         const sensor_msgs::JointState::ConstPtr &_js)
 {
   /// \todo: implement joint state monitoring when setting configuration
+  this->js = _js;
+  this->js_valid = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
