@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo)
 set(CMAKE_BUILD_TYPE "Debug")
 
+
+# Used by test/ and script/
+set(ROS_PACKAGE_NAME drcsim_gazebo)
+
 find_package(catkin REQUIRED COMPONENTS atlas_description drcsim_gazebo_plugins atlas_msgs drcsim_gazebo_ros_plugins drcsim_model_resources irobot_hand_description multisense_sl_description sandia_hand_description)
 
 include_directories(
@@ -70,7 +74,6 @@ link_directories(${Boost_LIBRARY_DIRS})
 add_executable(bdi_parser src/bdi_parser.cpp)
 target_link_libraries(bdi_parser ${urdfdom_LIBRARIES} ${tinyxml_libraries} ${console_bridge_LIBRARIES} ${Boost_LIBRARIES})
 
-# INSTALL(TARGETS bdi_parser DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/bin/)
 install(TARGETS bdi_parser DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/bin/)
 
 # Include test subdirectory
