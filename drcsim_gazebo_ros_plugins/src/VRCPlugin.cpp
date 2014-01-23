@@ -835,7 +835,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    ROS_ERROR("VRCPlugin: fire_hose_model [%s] not found",
+    ROS_INFO("VRCPlugin: fire_hose_model [%s] not found, threading disabled.",
       fireHoseModelName.c_str());
     return;
   }
@@ -846,7 +846,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
   if (!this->couplingLink)
   {
-    ROS_ERROR("VRCPlugin: coupling link [%s] not found",
+    ROS_INFO("VRCPlugin: coupling link [%s] not found, threading disabled.",
       couplingLinkName.c_str());
     return;
   }
