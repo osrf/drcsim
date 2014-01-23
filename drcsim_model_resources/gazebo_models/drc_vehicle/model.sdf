@@ -24,13 +24,18 @@
       <back_torque>1000</back_torque>
       <front_brake_torque>2000</front_brake_torque>
       <back_brake_torque>2000</back_brake_torque>
-      <tire_angle_range>0.5</tire_angle_range>
       <!-- 16 km/hr ~= 4.5 m/s -->
       <max_speed>4.5</max_speed>
       <!-- 37 deg ~= 0.6458 rad -->
       <max_steer>0.6458</max_steer>
       <aero_load>0.1</aero_load>
       <min_brake_percent>0.04</min_brake_percent>
+      <flwheel_steering_p_gain>500</flwheel_steering_p_gain>
+      <frwheel_steering_p_gain>500</frwheel_steering_p_gain>
+      <flwheel_steering_i_gain>0</flwheel_steering_i_gain>
+      <frwheel_steering_i_gain>0</frwheel_steering_i_gain>
+      <flwheel_steering_d_gain>50</flwheel_steering_d_gain>
+      <frwheel_steering_d_gain>50</frwheel_steering_d_gain>
     </plugin>
     <plugin name="seat_mud" filename="libMudPlugin.so">
       <contact_sensor_name>polaris_ranger_ev/chassis/seat_contact</contact_sensor_name>

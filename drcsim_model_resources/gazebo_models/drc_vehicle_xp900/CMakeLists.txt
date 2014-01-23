@@ -1,4 +1,4 @@
-set(MODEL_NAME drc_vehicle)
+set(MODEL_NAME drc_vehicle_xp900)
 set (files
   model.sdf
   model.config
