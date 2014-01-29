@@ -97,7 +97,7 @@
   </library_lights>
   <library_images>
     <image id="image10_png" name="image10_png">
-      <init_from>platform_4.png</init_from>
+      <init_from>../materials/textures/platform_4.png</init_from>
     </image>
   </library_images>
   <library_effects>

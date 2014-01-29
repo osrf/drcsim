@@ -230,7 +230,7 @@
       <static>true</static>
       <pose>175 95 0 0 0 1.5707</pose>
     </include>
- 
+
     <include>
       <uri>model://gate</uri>
       <name>gate_3</name>
@@ -492,7 +492,7 @@
       <point>150 100 0.01</point>
       <point>200 100 0.01</point>
     </road>
-    
+
     <model name="road_boxes">
       <static>true</static>
       <link name="link">

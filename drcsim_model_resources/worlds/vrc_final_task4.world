@@ -63,7 +63,7 @@
       </attenuation>
     </light>
 
-    <include> 
+    <include>
       <uri>model://jersey_barrier</uri>
       <name>jersey_barrier_1</name>
       <pose>-30.782961 12.987309 0 0 0 -0.160001</pose>
@@ -490,7 +490,7 @@
       <point>-100 100 0.01</point>
       <point>0 130 0.01</point>
     </road>
-    
+
     <model name="road_boxes">
       <static>true</static>
       <link name="link">

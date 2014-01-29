@@ -176,6 +176,10 @@ void ASIActionServer::ASIStateCB(
     atlas_msgs::AtlasSimInterfaceCommand command;
     command.header = this->activeGoal.header;
     command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+
+    // also reset internal state variable: activeGoal to STAND
+    this->activeGoal.behavior = atlas_msgs::WalkDemoGoal::STAND;
+
     this->atlasCommandPublisher.publish(command);
     ROS_INFO("New goal received while executing an original goal, switching to "
              "stand before switching goal.");

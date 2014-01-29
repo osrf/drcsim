@@ -22,12 +22,14 @@
   <build_depend>trajectory_msgs</build_depend>
   <build_depend>control_msgs</build_depend>
   <build_depend>atlas_msgs</build_depend>
+  <build_depend>handle_msgs</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>actionlib</build_depend>
   <build_depend>gazebo_plugins</build_depend>
   <build_depend>gazebo_ros</build_depend>
   <build_depend>gazebo_msgs</build_depend>
+  <build_depend>angles</build_depend>
 
   <run_depend>pr2_mechanism</run_depend>
   <run_depend>drcsim_model_resources</run_depend>
@@ -43,6 +45,7 @@
   <run_depend>trajectory_msgs</run_depend>
   <run_depend>control_msgs</run_depend>
   <run_depend>atlas_msgs</run_depend>
+  <run_depend>handle_msgs</run_depend>
   <run_depend>image_transport</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>actionlib</run_depend>

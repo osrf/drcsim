@@ -163,7 +163,7 @@ namespace gazebo
     private: double updateRate;
 
     // ros publish multi queue, prevents publish() blocking
-    private: PubMultiQueue pmq;
+    private: PubMultiQueue* pmq;
   };
 }
 #endif

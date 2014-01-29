@@ -1,5 +1,5 @@
 set(MODEL_NAME drc_vehicle)
-set (files 
+set (files
   model.sdf
   model.config
 )
