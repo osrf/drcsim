@@ -371,6 +371,14 @@ namespace gazebo
     private: double frWheelState;
     private: double blWheelState;
     private: double brWheelState;
+
+    /// PID gains
+    private: double fLwheelSteeringPgain;
+    private: double fRwheelSteeringPgain;
+    private: double fLwheelSteeringIgain;
+    private: double fRwheelSteeringIgain;
+    private: double fLwheelSteeringDgain;
+    private: double fRwheelSteeringDgain;
   };
 /// \}
 }
