@@ -38,7 +38,7 @@ select="substring-after($text,$replace)"/>
   <xsl:template match="plugin"/>
 
   <!-- Modify the filename attribute of mesh tags -->
-  <xsl:template match="robot/link/visual/geometry/mesh">
+  <xsl:template match="robot/link/*/geometry/mesh">
     <xsl:copy>
       <xsl:copy-of select="@*"/>
       <xsl:attribute name="filename">
