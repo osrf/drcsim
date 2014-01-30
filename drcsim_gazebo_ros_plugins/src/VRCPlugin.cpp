@@ -1128,7 +1128,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    ROS_DEBUG("fire_hose_model [%s] not found", fireHoseModelName.c_str());
+    ROS_INFO("VRCPlugin: fire_hose_model [%s] not found, threading disabled.",
+      fireHoseModelName.c_str());
     return;
   }
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
@@ -1138,7 +1139,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
   if (!this->couplingLink)
   {
-    ROS_ERROR("coupling link [%s] not found", couplingLinkName.c_str());
+    ROS_INFO("VRCPlugin: coupling link [%s] not found, threading disabled.",
+      couplingLinkName.c_str());
     return;
   }
 
@@ -1153,7 +1155,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->standpipeModel = _world->GetModel(standpipeModelName);
   if (!this->standpipeModel)
   {
-    ROS_ERROR("standpipe model [%s] not found", standpipeModelName.c_str());
+    ROS_ERROR("VRCPlugin: standpipe model [%s] not found",
+      standpipeModelName.c_str());
     return;
   }
 
@@ -1162,7 +1165,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->spoutLink = this->standpipeModel->GetLink(spoutLinkName);
   if (!this->spoutLink)
   {
-    ROS_ERROR("spout link [%s] not found", spoutLinkName.c_str());
+    ROS_ERROR("VRCPlugin: spout link [%s] not found",
+      spoutLinkName.c_str());
     return;
   }
 
@@ -1175,19 +1179,22 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->valveModel = _world->GetModel(valveModelName);
   if (!this->valveModel)
   {
-    ROS_ERROR("valve model [%s] not found", valveModelName.c_str());
-    return;
+    ROS_WARN("VRCPlugin: valve model [%s] not found, scoring will be wrong",
+      valveModelName.c_str());
   }
-  std::string valveJointName;
-  if (sdf->HasElement("valve_joint"))
-    valveJointName = sdf->Get<std::string>("valve_joint");
   else
-    valveJointName = "valve";
-  this->valveJoint = this->valveModel->GetJoint(valveJointName);
-  if (!this->valveJoint)
   {
-    ROS_ERROR("valve joint [%s] not found", valveJointName.c_str());
-    return;
+    std::string valveJointName;
+    if (sdf->HasElement("valve_joint"))
+      valveJointName = sdf->Get<std::string>("valve_joint");
+    else
+      valveJointName = "valve";
+    this->valveJoint = this->valveModel->GetJoint(valveJointName);
+    if (!this->valveJoint)
+    {
+      ROS_WARN("VRCPlugin: valve joint [%s] not found, scoring will be wrong",
+        valveJointName.c_str());
+    }
   }
 
   this->threadPitch = sdf->Get<double>("thread_pitch");
@@ -1240,23 +1247,28 @@ void VRCPlugin::CheckThreadStart()
                         fabs(relativePose.pos.y - connectPose.pos.y);
   double rotErr = (relativePose.rot.GetXAxis() -
                    connectPose.rot.GetXAxis()).GetLength();
-  double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
+  double valveAng = 0;
+  if (this->drcFireHose.valveJoint)
+    valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
 
-  // gzdbg << " connectPose [" << connectPose
-  //       << "] [" << connectPose.rot.GetXAxis()
-  //       << "] [" << connectPose.rot.GetYAxis()
-  //       << "] [" << connectPose.rot.GetZAxis() << "]\n";
-  // gzdbg << " relativePose [" << relativePose
-  //       << "] [" << relativePose.rot.GetXAxis()  // bingo
-  //       << "] [" << relativePose.rot.GetYAxis()
-  //       << "] [" << relativePose.rot.GetZAxis() << "]\n";
-  // math::Pose connectOffset = relativePose - connectPose;
-  // gzdbg << "connect offset [" << connectOffset << "]\n";
-  // gzerr << "insert [" << posErrInsert
-  //       << "] center [" << posErrCenter
-  //       << "] rpy [" << rotErr
-  //       << "] valve [" << valveAng
-  //       << "]\n";
+  /* uncomment for debugging
+  gzdbg << " connectPose [" << connectPose
+        << "] [" << connectPose.rot.GetXAxis()
+        << "] [" << connectPose.rot.GetYAxis()
+        << "] [" << connectPose.rot.GetZAxis() << "]\n";
+  gzerr << "<coupling_relative_pose>"
+        << relativePose + math::Pose(0, 0, collisionSurfaceZOffset, 0, 0, 0)
+        << "</coupling_relative_pose>\n";
+  gzdbg << "relativePose axis [" << relativePose.rot.GetXAxis()  // bingo
+        << "] [" << relativePose.rot.GetYAxis()
+        << "] [" << relativePose.rot.GetZAxis() << "]\n";
+  gzdbg << "offset [" << relativePose - connectPose << "]\n";
+  gzwarn << "insert [" << posErrInsert
+         << "] center [" << posErrCenter
+         << "] rpy [" << rotErr
+         << "] valve [" << valveAng
+         << "]\n";
+  */
 
   if (!this->drcFireHose.screwJoint)
   {
