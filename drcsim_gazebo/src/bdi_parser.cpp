@@ -414,22 +414,50 @@ int main(int argc, char** argv)
             {
               link->inertial->origin.position.z =
                 boost::lexical_cast<double>(val);
-            }
+	    }
+	    else if (key == "visual")
+	      {
+		link->visual.reset(); // This may cause a memory leak?
+
+		boost::shared_ptr<urdf::Mesh> mesh_dae;
+		mesh_dae.reset(new urdf::Mesh);
+		mesh_dae->filename = std::string("package://atlas_description/meshes_v3/") +
+		  val + std::string(".dae");
+		boost::shared_ptr<urdf::Visual> visual(new urdf::Visual);
+		// visual = new urdf::Visual();
+		visual->geometry = mesh_dae;
+		link->visual_array.push_back(visual);
+	      }
+	    else if (key == "collision")
+	      {
+		link->collision.reset(); // This may cause a memory leak?
+
+		boost::shared_ptr<urdf::Mesh> mesh_stl;
+		mesh_stl.reset(new urdf::Mesh);
+		mesh_stl->filename = std::string("package://atlas_description/meshes_v3/") +
+		  val + std::string(".stl");
+		boost::shared_ptr<urdf::Collision> collision(new urdf::Collision);
+		collision->geometry = mesh_stl;
+		link->collision_array.push_back(collision);
+	      }
 
             // insert collision and visual block for the robot manually,
             // currently the files I get have names that corresponds to
             // link name, so I can hack up a filename reference for each link
+	    if (link->visual) {
             boost::shared_ptr<urdf::Mesh> mesh_dae;
             mesh_dae.reset(new urdf::Mesh);
-            mesh_dae->filename = std::string("package://atlas/meshes/") +
+            mesh_dae->filename = std::string("package://atlas_description/meshes_v3/") +
                                  entity_name + std::string(".dae");
             link->visual->geometry = mesh_dae;
-
+	    }
+	    if (link->collision) {
             boost::shared_ptr<urdf::Mesh> mesh_stl;
             mesh_stl.reset(new urdf::Mesh);
-            mesh_stl->filename = std::string("package://atlas/meshes/") +
+            mesh_stl->filename = std::string("package://atlas_description/meshes_v3/") +
                                  entity_name + std::string(".stl");
             link->collision->geometry = mesh_stl;
+	    }
           }
           else
           {
