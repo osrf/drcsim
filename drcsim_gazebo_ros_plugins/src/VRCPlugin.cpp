@@ -154,9 +154,10 @@ void VRCPlugin::UnpinAtlas()
     this->RemoveJoint(this->vehicleRobotJoint);
   this->SetFeetCollide("all");
 
-  if (this->world->GetPhysicsEngine()->GetType() == "simbody")
+  if (this->world->GetPhysicsEngine()->GetType() == "simbody" ||
+      this->world->GetPhysicsEngine()->GetType() == "dart")
   {
-    // simulate un-freezing simbody unlock free joints
+    // simulate un-freezing simbody or dart unlock free joints
     // Currently we do this to all the links in the model,
     // but ideally we can do this to only the link(s) with
     // a free 6-dof mobilizer.
@@ -682,9 +683,10 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
         _link2->SetCollideMode("fixed");
     }
   }
-  else if (_world->GetPhysicsEngine()->GetType() == "simbody")
+  else if (_world->GetPhysicsEngine()->GetType() == "simbody" ||
+           _world->GetPhysicsEngine()->GetType() == "dart")
   {
-    // simulate freezing lock simbody free joints
+    // simulate freezing lock simbody or dart free joints
     // Currently we do this to all the links in the model,
     // but ideally we can do this to only the link(s) with
     // a free 6-dof mobilizer.
