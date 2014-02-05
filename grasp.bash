@@ -9,6 +9,8 @@ roslaunch drcsim_gazebo grasp_exp.launch &
 
 sleep 18
 
+echo damping $1
+
 echo pinning
 rostopic pub --once /atlas/mode std_msgs/String -- pinned_with_gravity
 
@@ -31,6 +33,11 @@ gzfactory spawn -f ~/.gazebo/models/cordless_drill/model.sdf -x -0.303 -y 0.686 
 sleep 1
 
 rosservice call /sandia_hands/r_hand/simple_grasp ' { grasp: { name: "cylindrical", closed_amount: 0.9 } }'
+
+if [ 'x$1' != 'x' ] ; then
+echo set joint damping $1
+rosservice call /sandia_hands/set_joint_damping "{ damping_coefficients: [$1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1, $1] }"
+fi
 
 sleep 3
 

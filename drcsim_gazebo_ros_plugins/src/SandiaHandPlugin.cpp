@@ -145,30 +145,30 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     this->jointDampingMax.push_back(30.0);  // right_f3_j1
     this->jointDampingMax.push_back(30.0);  // right_f3_j2
 
-    this->jointDampingMin.push_back(1.0);  // left_f0_j0
-    this->jointDampingMin.push_back(1.0);  // left_f0_j1
-    this->jointDampingMin.push_back(1.0);  // left_f0_j2
-    this->jointDampingMin.push_back(1.0);  // left_f1_j0
-    this->jointDampingMin.push_back(1.0);  // left_f1_j1
-    this->jointDampingMin.push_back(1.0);  // left_f1_j2
-    this->jointDampingMin.push_back(1.0);  // left_f2_j0
-    this->jointDampingMin.push_back(1.0);  // left_f2_j1
-    this->jointDampingMin.push_back(1.0);  // left_f2_j2
-    this->jointDampingMin.push_back(1.0);  // left_f3_j0
-    this->jointDampingMin.push_back(1.0);  // left_f3_j1
-    this->jointDampingMin.push_back(1.0);  // left_f3_j2
-    this->jointDampingMin.push_back(1.0);  // right_f0_j0
-    this->jointDampingMin.push_back(1.0);  // right_f0_j1
-    this->jointDampingMin.push_back(1.0);  // right_f0_j2
-    this->jointDampingMin.push_back(1.0);  // right_f1_j0
-    this->jointDampingMin.push_back(1.0);  // right_f1_j1
-    this->jointDampingMin.push_back(1.0);  // right_f1_j2
-    this->jointDampingMin.push_back(1.0);  // right_f2_j0
-    this->jointDampingMin.push_back(1.0);  // right_f2_j1
-    this->jointDampingMin.push_back(1.0);  // right_f2_j2
-    this->jointDampingMin.push_back(1.0);  // right_f3_j0
-    this->jointDampingMin.push_back(1.0);  // right_f3_j1
-    this->jointDampingMin.push_back(1.0);  // right_f3_j2
+    this->jointDampingMin.push_back(0);  // left_f0_j0
+    this->jointDampingMin.push_back(0);  // left_f0_j1
+    this->jointDampingMin.push_back(0);  // left_f0_j2
+    this->jointDampingMin.push_back(0);  // left_f1_j0
+    this->jointDampingMin.push_back(0);  // left_f1_j1
+    this->jointDampingMin.push_back(0);  // left_f1_j2
+    this->jointDampingMin.push_back(0);  // left_f2_j0
+    this->jointDampingMin.push_back(0);  // left_f2_j1
+    this->jointDampingMin.push_back(0);  // left_f2_j2
+    this->jointDampingMin.push_back(0);  // left_f3_j0
+    this->jointDampingMin.push_back(0);  // left_f3_j1
+    this->jointDampingMin.push_back(0);  // left_f3_j2
+    this->jointDampingMin.push_back(0);  // right_f0_j0
+    this->jointDampingMin.push_back(0);  // right_f0_j1
+    this->jointDampingMin.push_back(0);  // right_f0_j2
+    this->jointDampingMin.push_back(0);  // right_f1_j0
+    this->jointDampingMin.push_back(0);  // right_f1_j1
+    this->jointDampingMin.push_back(0);  // right_f1_j2
+    this->jointDampingMin.push_back(0);  // right_f2_j0
+    this->jointDampingMin.push_back(0);  // right_f2_j1
+    this->jointDampingMin.push_back(0);  // right_f2_j2
+    this->jointDampingMin.push_back(0);  // right_f3_j0
+    this->jointDampingMin.push_back(0);  // right_f3_j1
+    this->jointDampingMin.push_back(0);  // right_f3_j2
   }
 
   this->errorTerms.resize(this->joints.size());
