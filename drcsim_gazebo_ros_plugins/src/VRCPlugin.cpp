@@ -1026,10 +1026,79 @@ void VRCPlugin::UpdateStates()
     // data collection
     physics::PhysicsEnginePtr physics = this->world->GetPhysicsEngine();
 
-    std::cout << curTime << ", "
-      << boost::any_cast<double>(physics->GetParam("rms_error")) << ", "
-      << boost::any_cast<double>(physics->GetParam("bilateral_residual"))
-      << "\n";
+    physics::LinkPtr lFootLink = this->atlas.model->GetLink("l_foot");
+    physics::LinkPtr rFootLink = this->atlas.model->GetLink("r_foot");
+
+    static bool title = false;
+    if (!title)
+    {
+      std::cout << "Sim Time(sec)"
+        << ", " << "Real Time(sec)"
+        << ", " << "RMS(\Delta \lambda)"
+        << ", " << "Sum(Abs({Jv}_i))"
+        << ", " << "Sum(Abs({Jv}_i))_{bilateral}"
+        << ", " << "Sum(Abs({Jv}_i))_{contacts}"
+        << ", " << "Num. Contacts"
+        << ", " << "Left Foot Position X (m)"
+        << ", " << "Left Foot Position Y (m)"
+        << ", " << "Left Foot Position Z (m)"
+        << ", " << "Left Foot Orientation Z (m)"
+        << ", " << "Left Foot Orientation Z (m)"
+        << ", " << "Left Foot Orientation Z (m)"
+        << ", " << "Left Foot Velocity X (m/s)"
+        << ", " << "Left Foot Velocity Y (m/s)"
+        << ", " << "Left Foot Velocity Z (m/s)"
+        << ", " << "Left Foot Roll Rate (rad/s)"
+        << ", " << "Left Foot Pitch Rate (rad/s)"
+        << ", " << "Left Foot Yaw Rate (rad/s)"
+        << ", " << "Right Foot Position X (m)"
+        << ", " << "Right Foot Position Y (m)"
+        << ", " << "Right Foot Position Z (m)"
+        << ", " << "Right Foot Orientation Z (m)"
+        << ", " << "Right Foot Orientation Z (m)"
+        << ", " << "Right Foot Orientation Z (m)"
+        << ", " << "Right Foot Velocity X (m/s)"
+        << ", " << "Right Foot Velocity Y (m/s)"
+        << ", " << "Right Foot Velocity Z (m/s)"
+        << ", " << "Right Foot Roll Rate (rad/s)"
+        << ", " << "Right Foot Pitch Rate (rad/s)"
+        << ", " << "Right Foot Yaw Rate (rad/s)"
+        << "\n";
+      title = true;
+    }
+    else
+      std::cout << curTime
+        << ", " << this->world->GetRealTime().Double()
+        << ", " << boost::any_cast<double>(physics->GetParam("rms_error"))
+        << ", " << boost::any_cast<double>(physics->GetParam("constraint_residual"))
+        << ", " << boost::any_cast<double>(physics->GetParam("bilateral_residual"))
+        << ", " << boost::any_cast<double>(physics->GetParam("contact_residual"))
+        << ", " << boost::any_cast<int>(physics->GetParam("num_contacts"))
+        << ", " << lFootLink->GetWorldPose().pos.x
+        << ", " << lFootLink->GetWorldPose().pos.y
+        << ", " << lFootLink->GetWorldPose().pos.z
+        << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().x
+        << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().y
+        << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().z
+        << ", " << lFootLink->GetWorldLinearVel().x
+        << ", " << lFootLink->GetWorldLinearVel().y
+        << ", " << lFootLink->GetWorldLinearVel().z
+        << ", " << lFootLink->GetWorldAngularVel().x
+        << ", " << lFootLink->GetWorldAngularVel().y
+        << ", " << lFootLink->GetWorldAngularVel().z
+        << ", " << rFootLink->GetWorldPose().pos.x
+        << ", " << rFootLink->GetWorldPose().pos.y
+        << ", " << rFootLink->GetWorldPose().pos.z
+        << ", " << rFootLink->GetWorldPose().rot.GetAsEuler().x
+        << ", " << rFootLink->GetWorldPose().rot.GetAsEuler().y
+        << ", " << rFootLink->GetWorldPose().rot.GetAsEuler().z
+        << ", " << rFootLink->GetWorldLinearVel().x
+        << ", " << rFootLink->GetWorldLinearVel().y
+        << ", " << rFootLink->GetWorldLinearVel().z
+        << ", " << rFootLink->GetWorldAngularVel().x
+        << ", " << rFootLink->GetWorldAngularVel().y
+        << ", " << rFootLink->GetWorldAngularVel().z
+        << "\n";
   }
   else
   {
