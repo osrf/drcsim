@@ -221,7 +221,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   {
     /// TODO: hardcoded for now
-    static const double jointDampingLowerBound = 0.1;
+    static const double jointDampingLowerBound = 0.0;
     ROS_INFO("Bounds for dynamically changing joint damping coefficients "
              "is computed from ratio of max allowed joint command effort "
              "to max allowed joint velocity.");

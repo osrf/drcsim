@@ -57,6 +57,8 @@ set (worlds
      vrc_task_3.world
      vrc_task_3_cpu_lidar.world
      vrc_task_3_firehose_start.world
+
+     grasp_exp.world
 )
 
 install(FILES ${worlds} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/worlds/)
