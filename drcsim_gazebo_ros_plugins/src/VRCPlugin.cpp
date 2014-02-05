@@ -1025,7 +1025,6 @@ void VRCPlugin::UpdateStates()
 
     // data collection
     physics::PhysicsEnginePtr physics = this->world->GetPhysicsEngine();
-
     physics::LinkPtr lFootLink = this->atlas.model->GetLink("l_foot");
     physics::LinkPtr rFootLink = this->atlas.model->GetLink("r_foot");
 
@@ -1033,13 +1032,16 @@ void VRCPlugin::UpdateStates()
     if (!title)
     {
       std::cout << "Sim Time(sec)"
-        << ", " << "Real Time(sec)"
-        << ", " << "RMS(\Delta \lambda)"
+        << ", " << "Real Time(sec)";
+      if (physics->GetType() == "ode")
+      {
+      std::cout << ", " << "RMS(\Delta \lambda)"
         << ", " << "Sum(Abs({Jv}_i))"
         << ", " << "Sum(Abs({Jv}_i))_{bilateral}"
         << ", " << "Sum(Abs({Jv}_i))_{contacts}"
-        << ", " << "Num. Contacts"
-        << ", " << "Left Foot Position X (m)"
+        << ", " << "Num. Contacts";
+      }
+      std::cout << ", " << "Left Foot Position X (m)"
         << ", " << "Left Foot Position Y (m)"
         << ", " << "Left Foot Position Z (m)"
         << ", " << "Left Foot Orientation Z (m)"
@@ -1068,13 +1070,17 @@ void VRCPlugin::UpdateStates()
     }
     else
       std::cout << curTime
-        << ", " << this->world->GetRealTime().Double()
+        << ", " << this->world->GetRealTime().Double();
+      if (physics->GetType() == "ode")
+      {
+      std::cout
         << ", " << boost::any_cast<double>(physics->GetParam("rms_error"))
         << ", " << boost::any_cast<double>(physics->GetParam("constraint_residual"))
         << ", " << boost::any_cast<double>(physics->GetParam("bilateral_residual"))
         << ", " << boost::any_cast<double>(physics->GetParam("contact_residual"))
-        << ", " << boost::any_cast<int>(physics->GetParam("num_contacts"))
-        << ", " << lFootLink->GetWorldPose().pos.x
+        << ", " << boost::any_cast<int>(physics->GetParam("num_contacts"));
+      }
+      std::cout << ", " << lFootLink->GetWorldPose().pos.x
         << ", " << lFootLink->GetWorldPose().pos.y
         << ", " << lFootLink->GetWorldPose().pos.z
         << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().x
