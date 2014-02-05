@@ -899,6 +899,7 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
 void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
+
   // if user chooses bdi_stand mode, robot will be initialized
   // with PID stand in BDI stand pose pinned.
   // At t-t0 < startupStandPrepDuration seconds, pinned.
@@ -1021,6 +1022,14 @@ void VRCPlugin::UpdateStates()
   else if (this->atlas.startupSequence == Robot::INITIALIZED)
   {
     // done, do nothing
+
+    // data collection
+    physics::PhysicsEnginePtr physics = this->world->GetPhysicsEngine();
+
+    std::cout << curTime << ", "
+      << boost::any_cast<double>(physics->GetParam("rms_error")) << ", "
+      << boost::any_cast<double>(physics->GetParam("bilateral_residual"))
+      << "\n";
   }
   else
   {
