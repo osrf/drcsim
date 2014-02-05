@@ -135,7 +135,7 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
   {
     links[i]->SetGravityMode(_with_gravity);
   }
-  this->SetFeetCollide("none");
+  //this->SetFeetCollide("none");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -374,7 +374,7 @@ void VRCPlugin::StepDataToTwist(
   }
   math::Pose current_foot_pose = foot_link->GetWorldPose();
   math::Pose T_foot_pelvis = current_pelvis_pose - current_foot_pose;
-  ROS_DEBUG("Current foot pose: %f %f %f", 
+  ROS_DEBUG("Current foot pose: %f %f %f",
     current_foot_pose.pos.x,
     current_foot_pose.pos.y,
     current_foot_pose.pos.z);
@@ -390,7 +390,7 @@ void VRCPlugin::StepDataToTwist(
   goal_foot_pose.rot.y = tmp_pose.orientation.y;
   goal_foot_pose.rot.z = tmp_pose.orientation.z;
 
-  ROS_DEBUG("Goal foot pose: %f %f %f", 
+  ROS_DEBUG("Goal foot pose: %f %f %f",
     goal_foot_pose.pos.x,
     goal_foot_pose.pos.y,
     goal_foot_pose.pos.z);
@@ -406,7 +406,7 @@ void VRCPlugin::StepDataToTwist(
     current_pelvis_pose.rot.GetAsEuler().z,
     goal_pelvis_pose.rot.GetAsEuler().z);
 
-  // Transform into ego-centric frame, which is how the resulting velocities 
+  // Transform into ego-centric frame, which is how the resulting velocities
   // will be interpreted.
   math::Vector3 local_d(dx, dy, 0);
   local_d = current_pelvis_pose.rot.RotateVectorReverse(local_d);
@@ -427,7 +427,7 @@ void VRCPlugin::StepDataToTwist(
     goal_pelvis_pose.pos.x,
     goal_pelvis_pose.pos.y,
     goal_pelvis_pose.rot.GetAsEuler().z);
-  ROS_DEBUG("Computed velocity (dt=%f): %f %f %f", 
+  ROS_DEBUG("Computed velocity (dt=%f): %f %f %f",
     _dt, _twist->linear.x, _twist->linear.y, _twist->angular.z);
 }
 
