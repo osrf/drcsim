@@ -992,12 +992,12 @@ void VRCPlugin::UpdateStates()
           this->SetRobotMode("pinned");
           if (math::equal(this->atlas.startupHarnessDuration, 0.0))
           {
-            ROS_ERROR("Atlas will stay pinned.");
+            ROS_INFO("Atlas will stay pinned.");
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
           }
           else
           {
-            ROS_ERROR("Resume to nominal mode after %f seconds.",
+            ROS_INFO("Resume to nominal mode after %f seconds.",
               this->atlas.startupHarnessDuration);
             this->atlas.pinnedSequence = Robot::PS_PINNED;
           }
