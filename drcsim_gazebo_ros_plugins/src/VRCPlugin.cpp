@@ -901,8 +901,10 @@ void VRCPlugin::UpdateStates()
   double curTime = this->world->GetSimTime().Double();
   // if user chooses bdi_stand mode, robot will be initialized
   // with PID stand in BDI stand pose pinned.
-  // After startupStandPrepDuration - 1 seconds, pin released.
-  // After startupStandPrepDuration seconds, start Stand mode
+  // At t-t0 < startupStandPrepDuration seconds, pinned.
+  // At t-t0 = startupStandPrepDuration seconds, begin StandPrep mode.
+  // At t-t0 = startupNominal seconds, unpinned, nominal.
+  // At t-t0 = startupStand seconds, start Stand mode.
   if (this->atlas.startupSequence == Robot::NONE)
   {
     // Load and Spawn Robot
@@ -945,7 +947,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_PID_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 8.0))
+            atlas.startupStandPrepDuration)
           {
             ROS_INFO("going into stand prep");
             this->atlasCommandController.SetBDIStandPrep();
@@ -957,7 +959,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 0.3))
+            atlas.startupNominal)
           {
             ROS_INFO("going into Nominal");
             this->SetRobotMode("nominal");
@@ -969,7 +971,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-              (atlas.startupStandPrepDuration - 0.2))
+              atlas.startupStand)
           {
             ROS_INFO("going into Dynamic Stand Behavior");
             this->atlasCommandController.SetBDIStand();
@@ -990,12 +992,12 @@ void VRCPlugin::UpdateStates()
           this->SetRobotMode("pinned");
           if (math::equal(this->atlas.startupHarnessDuration, 0.0))
           {
-            ROS_DEBUG("Atlas will stay pinned.");
+            ROS_ERROR("Atlas will stay pinned.");
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
           }
           else
           {
-            ROS_DEBUG("Resume to nominal mode after %f seconds.",
+            ROS_ERROR("Resume to nominal mode after %f seconds.",
               this->atlas.startupHarnessDuration);
             this->atlas.pinnedSequence = Robot::PS_PINNED;
           }
@@ -1378,6 +1380,13 @@ VRCPlugin::Robot::Robot()
   this->startupSequence = Robot::NONE;
   this->bdiStandSequence = Robot::BS_NONE;
   this->pinnedSequence = Robot::PS_NONE;
+
+  // bunch of hardcoded presets
+  this->startupHarnessDuration = 5;
+  this->startupStandPrepDuration = 2.0;
+  this->startupNominal = this->startupStandPrepDuration + 2.0;
+  this->startupStand = this->startupNominal + 0.1;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1389,10 +1398,6 @@ VRCPlugin::Robot::~Robot()
 void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   sdf::ElementPtr _sdf)
 {
-  // bunch of hardcoded presets
-  this->startupHarnessDuration = 5;
-  this->startupStandPrepDuration = 5;
-
   // changed by ros param
   this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
 
@@ -1542,7 +1547,7 @@ void VRCPlugin::LoadRobotROSAPI()
   if (!this->rosNode->getParam("atlas/time_to_unpin",
     atlas.startupHarnessDuration))
   {
-    ROS_DEBUG("atlas/time_to_unpin not specified, default harness duration to"
+    ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
              " %f seconds", atlas.startupHarnessDuration);
   }
 
