@@ -2,6 +2,28 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
+# Check for 32/64 bits support
+STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
+STRING (REGEX MATCH "BSD" BSD ${CMAKE_SYSTEM_NAME})
+
+if (NOT DEFINED USE_ATLASSIMINTERFACE_BLOB)
+  if (LINUX)
+    # Check for 64bits machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(USE_ATLASSIMINTERFACE_BLOB True)
+    else()
+      set(USE_ATLASSIMINTERFACE_BLOB False)
+      message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. If you want to use DRCSim without the AtlasSimInterface binary interface, run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
+    endif() 
+  elseif(BSD)
+    message(STATUS "Warning: system check for 32/64 bit is not implemented for")
+    message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: please use USE_ATLASSIMINTERFACE_BLOB flag if you want")
+    message(STATUS "Warning: not to use 64 bits AtlasSIMINTERFACE library")
+    set(USE_ATLASSIMINTERFACE_BLOB True)
+  endif()
+endif()
+
 set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
 
 find_package(catkin REQUIRED COMPONENTS
@@ -20,6 +42,7 @@ find_package(catkin REQUIRED COMPONENTS
              tf
              actionlib
              atlas_msgs
+             handle_msgs
              gazebo_plugins
 )
 
@@ -44,9 +67,9 @@ endif()
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  ${PROJECT_SOURCE_DIR}/include
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include
 )
 
 link_directories(
@@ -61,6 +84,12 @@ target_link_libraries(VRCPlugin ${catkin_LIBRARIES})
 add_library(SandiaHandPlugin src/SandiaHandPlugin.cpp)
 target_link_libraries(SandiaHandPlugin ${catkin_LIBRARIES})
 add_dependencies(SandiaHandPlugin atlas_msgs_gencpp)
+
+add_library(IRobotHandPlugin src/IRobotHandPlugin.cpp)
+set_target_properties(IRobotHandPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
+set_target_properties(IRobotHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(IRobotHandPlugin ${catkin_LIBRARIES})
+add_dependencies(IRobotHandPlugin handle_msgs_gencpp atlas_msgs_gencpp)
 
 add_library(MultiSenseSLPlugin src/MultiSenseSLPlugin.cpp)
 target_link_libraries(MultiSenseSLPlugin ${catkin_LIBRARIES})
@@ -122,7 +151,7 @@ add_dependencies(actionlib_server atlas_msgs_gencpp) # or atlas_msgs_generate_me
 #############
 ## Install ##
 #############
-install(TARGETS VRCPlugin SandiaHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin pub_atlas_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
+install(TARGETS VRCPlugin SandiaHandPlugin IRobotHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin pub_atlas_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
 )
 

@@ -1,5 +1,5 @@
 set (files 
-  canvas.jpg
+  canvas.png
   coupling_hexagon.png
   vrc_connector.png
 )

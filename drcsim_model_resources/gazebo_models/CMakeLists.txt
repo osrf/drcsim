@@ -1,6 +1,7 @@
 add_subdirectory(cutout_wall)
 add_subdirectory(drc_terrain)
 add_subdirectory(drc_vehicle)
+add_subdirectory(drc_vehicle_xp900)
 add_subdirectory(fire_hose)
 add_subdirectory(gate)
 add_subdirectory(gate_number_1)
@@ -19,7 +20,6 @@ add_subdirectory(platform_2)
 add_subdirectory(platform_3)
 add_subdirectory(platform_4)
 add_subdirectory(powerplant)
-add_subdirectory(standpipe)
 add_subdirectory(stepping_block)
 add_subdirectory(vehicle_gate)
 add_subdirectory(vrc_firehose_long)
@@ -40,8 +40,27 @@ add_subdirectory(vrc_valve_a)
 add_subdirectory(vrc_valve_b)
 
 
-set (files 
+set (files
   database.config
 )
 
 install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/gazebo_models/environments/)
+
+# Create symlinks to our sibling ROS packages that are also Gazebo models, so
+# that they can be found by Gazebo in our gazebo_models/environments directory
+# along with the other models.  This is a workaround for Gazebo #905; once
+# GAZEBO_MODEL_PATH can contain elements that are themselves models (as opposed
+# to parents of models), these symlink can be removed and our cmake/setup.sh.in
+# can be modified to point GAZEBO_MODEL_PATH at the installed locations for
+# these sibling packages.
+set(package_models
+    atlas_description
+    irobot_hand_description
+    multisense_sl_description)
+if(UNIX)
+  foreach(pm ${package_models})
+    install(CODE "execute_process(
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ../../../${pm} ${pm}
+      WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/gazebo_models/environments/)")
+  endforeach()
+endif(UNIX)

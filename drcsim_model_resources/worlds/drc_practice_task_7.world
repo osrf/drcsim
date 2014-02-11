@@ -62,8 +62,8 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
-        <seat_link>polaris_ranger_ev::chassis</seat_link>
+        <model_name>drc_vehicle_xp900</model_name>
+        <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
         <fire_hose_model>fire_hose</fire_hose_model>
