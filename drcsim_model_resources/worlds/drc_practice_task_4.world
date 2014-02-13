@@ -74,8 +74,8 @@
         <pin_link>utorso</pin_link>
       </atlas>
       <drc_vehicle>
-        <model_name>drc_vehicle</model_name>
-        <seat_link>polaris_ranger_ev::chassis</seat_link>
+        <model_name>drc_vehicle_xp900</model_name>
+        <seat_link>polaris_ranger_xp900::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
         <fire_hose_model>fire_hose</fire_hose_model>
@@ -95,13 +95,13 @@ This model shows a representative configuration for the Doorway challenge.  Thre
 
 NOTES:
   - collision/material properties are estimates only
- 
+
   - Handle:
       * mechanics of handle not modelled (turning handle will not release latch)
       * physical dimensions estimated
       * collision and visual geometries use the same mesh data
           - it is possible for other parts to become “embedded” within this model, which is incorrect.
- 
+
 DISCLAIMER:
 The models are intended to represent the type of obstacles to be encountered during the DRC trials, but may not match the exact configurations used in the trial events (doors may appear in different orientations).  DARPA reserves the right to change any elements of these tasks without updating these model files.
 -->
