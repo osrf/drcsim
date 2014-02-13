@@ -1,25 +1,25 @@
 #!/bin/bash
 
-killall roslaunch
-killall gzserver
-
-export VRC_CHEATS_ENABLED=1
-
-roslaunch drcsim_gazebo grasp_exp.launch &
-
-sleep 18
-
-echo pinning
-rostopic pub --once /atlas/mode std_msgs/String -- pinned_with_gravity
-
-sleep 3
-
-rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'
-rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]}'
-rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]}'
-rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}'
-rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0]}'
-rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]}'
+#   killall roslaunch
+#   killall gzserver
+#  
+#   export VRC_CHEATS_ENABLED=1
+#  
+#   roslaunch drcsim_gazebo grasp_exp.launch &
+#  
+#   sleep 18
+#  
+#   echo pinning
+#   rostopic pub --once /atlas/mode std_msgs/String -- pinned_with_gravity
+#  
+#   sleep 3
+#  
+#   rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'
+#   rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]}'
+#   rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]}'
+#   rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}'
+#   rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0]}'
+#   rosservice call /sandia_hands/set_joint_damping '{damping_coefficients: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]}'
 
 rostopic pub --once /atlas/joint_commands osrf_msgs/JointCommands '{ position: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.7] }'
 
@@ -37,7 +37,7 @@ rosservice call /gazebo/set_physics_properties "{ time_step: 0.001, max_update_r
 sleep 5
 
 # gzfactory spawn -f ~/.gazebo/models/cordless_drill/model.sdf -x -0.303 -y 0.686 -z 1.417 -R 0 -P 0 -Y 1.57
-gzfactory spawn -f ~/.gazebo/models/beer_heavy/model.sdf -x -0.278 -y 0.701 -z 1.517 -R 0 -P 0 -Y 1.57
+gzfactory spawn -f ~/.gazebo/models/beer_heavy/model.sdf -x 0.063191 -y -1.016631 -z 1.517 -R 0 -P 0 -Y 1.57
 
 sleep 1
 
