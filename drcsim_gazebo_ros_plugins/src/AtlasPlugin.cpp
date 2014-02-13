@@ -44,10 +44,13 @@ AtlasPlugin::AtlasPlugin()
   // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "imu_link";
 
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
+  #endif
 
   // setup behavior to string map
+  this->behaviorMap["None"] = atlas_msgs::AtlasSimInterfaceCommand::NONE;
   this->behaviorMap["User"] = atlas_msgs::AtlasSimInterfaceCommand::USER;
   this->behaviorMap["Stand"] = atlas_msgs::AtlasSimInterfaceCommand::STAND;
   this->behaviorMap["Walk"] = atlas_msgs::AtlasSimInterfaceCommand::WALK;
@@ -75,19 +78,25 @@ AtlasPlugin::AtlasPlugin()
   this->startupStep = AtlasPlugin::FREEZE;
 
   this->controllerStatsConnectCount = 0;
+
+  this->pmq = new PubMultiQueue();
+  this->rosNode = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 AtlasPlugin::~AtlasPlugin()
 {
   event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  delete this->pmq;
   this->rosNode->shutdown();
   this->rosQueue.clear();
   this->rosQueue.disable();
-  this->callbackQueeuThread.join();
+  this->callbackQueueThread.join();
   delete this->rosNode;
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // shutdown behavior library
   destroy_atlas_sim_interface();
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,6 +311,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->ZeroJointCommands();
   }
 
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   {
     // AtlasSimInterface:  initialize controlOutput
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -496,6 +506,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     for(unsigned int i = 0; i < this->jointNames.size(); ++i)
       this->asiState.k_effort[i] = 255;
   }
+  #endif
 
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
@@ -564,7 +575,7 @@ void AtlasPlugin::LoadROS()
   this->rosNode = new ros::NodeHandle("");
 
   // publish multi queue
-  this->pmq.startServiceThread();
+  this->pmq->startServiceThread();
 
   ////////////////////////////////////////////////////////////////
   //                                                            //
@@ -642,14 +653,14 @@ void AtlasPlugin::LoadROS()
   {
     // these topics are used for debugging only
     this->pubLFootContactQueue =
-      this->pmq.addPub<geometry_msgs::WrenchStamped>();
+      this->pmq->addPub<geometry_msgs::WrenchStamped>();
     this->pubLFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/l_foot_contact", 10);
 
     // these topics are used for debugging only
     this->pubRFootContactQueue =
-      this->pmq.addPub<geometry_msgs::WrenchStamped>();
+      this->pmq->addPub<geometry_msgs::WrenchStamped>();
     this->pubRFootContact =
       this->rosNode->advertise<geometry_msgs::WrenchStamped>(
         "atlas/debug/r_foot_contact", 10);
@@ -664,14 +675,14 @@ void AtlasPlugin::LoadROS()
 
   // controller synchronization statistics
   this->pubDelayStatisticsQueue =
-    this->pmq.addPub<atlas_msgs::SynchronizationStatistics>();
+    this->pmq->addPub<atlas_msgs::SynchronizationStatistics>();
   this->pubDelayStatistics =
     this->rosNode->advertise<atlas_msgs::SynchronizationStatistics>(
     "atlas/synchronization_statistics", 100, true);
 
   // ros publication
   this->pubControllerStatisticsQueue =
-    this->pmq.addPub<atlas_msgs::ControllerStatistics>();
+    this->pmq->addPub<atlas_msgs::ControllerStatistics>();
   this->pubControllerStatistics =
     this->rosNode->advertise<atlas_msgs::ControllerStatistics>(
     "atlas/controller_statistics", 10,
@@ -679,31 +690,31 @@ void AtlasPlugin::LoadROS()
     boost::bind(&AtlasPlugin::ControllerStatsDisconnect, this));
 
   // publish separate /atlas/imu topic, to be deprecated
-  this->pubImuQueue = this->pmq.addPub<sensor_msgs::Imu>();
+  this->pubImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
   this->pubImu = this->rosNode->advertise<sensor_msgs::Imu>(
     "atlas/imu", 10);
 
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   this->pubForceTorqueSensorsQueue =
-    this->pmq.addPub<atlas_msgs::ForceTorqueSensors>();
+    this->pmq->addPub<atlas_msgs::ForceTorqueSensors>();
   this->pubForceTorqueSensors =
     this->rosNode->advertise<atlas_msgs::ForceTorqueSensors>(
     "atlas/force_torque_sensors", 10);
 
   // broadcasts the robot joint states
-  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
   this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
     "atlas/joint_states", 1);
 
   //broadcasts atlas states
-  this->pubAtlasStateQueue = this->pmq.addPub<atlas_msgs::AtlasState>();
+  this->pubAtlasStateQueue = this->pmq->addPub<atlas_msgs::AtlasState>();
   this->pubAtlasState = this->rosNode->advertise<atlas_msgs::AtlasState>(
     "atlas/atlas_state", 100, true);
 
   // AtlasSimInterface:
   // closing the loop on BDI Dynamic Behavior Library
   this->pubASIStateQueue =
-    this->pmq.addPub<atlas_msgs::AtlasSimInterfaceState>();
+    this->pmq->addPub<atlas_msgs::AtlasSimInterfaceState>();
   this->pubASIState =
     this->rosNode->advertise<atlas_msgs::AtlasSimInterfaceState>(
     "atlas/atlas_sim_interface_state", 1);
@@ -830,7 +841,7 @@ void AtlasPlugin::LoadROS()
   //  ROS Custom callback queue                                 //
   //                                                            //
   ////////////////////////////////////////////////////////////////
-  this->callbackQueeuThread = boost::thread(
+  this->callbackQueueThread = boost::thread(
     boost::bind(&AtlasPlugin::RosQueueThread, this));
 
   ////////////////////////////////////////////////////////////////
@@ -863,6 +874,7 @@ void AtlasPlugin::UpdateStates()
     }
     else if (this->startupStep == AtlasPlugin::USER)
     {
+      #ifdef WITH_ATLASSIMINTERFACE_BLOB
       // startup 2
       // AtlasSimInterface:
       // Calling into the behavior library to set control mode to USER.
@@ -874,9 +886,11 @@ void AtlasPlugin::UpdateStates()
       this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::USER;
       this->startupStep = AtlasPlugin::NOMINAL;
+      #endif
     }
     else if (this->startupStep == AtlasPlugin::FREEZE)
     {
+      #ifdef WITH_ATLASSIMINTERFACE_BLOB
       // startup 1
       // AtlasSimInterface:
       // Calling into the behavior library to reset controls (FREEZE Mode).
@@ -887,6 +901,7 @@ void AtlasPlugin::UpdateStates()
         ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
                   "error code (%d).", this->asiState.error_code);
       this->startupStep = AtlasPlugin::USER;
+      #endif
     }
     else
     {
@@ -1215,6 +1230,7 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   atlas_msgs::ResetControls::Response &_res)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   _res.success = true;
   _res.status_message = "success";
 
@@ -1254,12 +1270,14 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   }
 
   return _res.success;
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // copy _msg contents directly into
   // atlasControlInput::stand_params
   // atlasControlInput::step_params
@@ -1364,6 +1382,7 @@ void AtlasPlugin::SetASICommand(
     // Try and set desired behavior (reverse map of behaviorMap)
     switch (this->asiState.desired_behavior)
     {
+      case atlas_msgs::AtlasSimInterfaceCommand::NONE:
       case atlas_msgs::AtlasSimInterfaceCommand::USER:
         this->asiState.error_code =
           this->atlasSimInterface->set_desired_behavior("User");
@@ -1418,6 +1437,7 @@ void AtlasPlugin::SetASICommand(
         break;
     }
   }
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1657,6 +1677,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
 // the command is passed to the AtlasSimInterface library.
 void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // to make it Stand
   //  * StandPrep:  puts robot in standing pose while harnessed
   //  * remove the harness
@@ -1763,11 +1784,13 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     ROS_WARN("Unknown robot mode [%s]", _mode->data.c_str());
   }
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   if (this->imuSensor)
   {
     // AtlasSimInterface: populate imu in atlasRobotState
@@ -1840,11 +1863,13 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
     // publish separate /atlas/imu topic, to be deprecated
     this->pubImuQueue->push(imuMsg, this->pubImu);
   }
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
@@ -1948,6 +1973,7 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg,
     this->pubForceTorqueSensors);
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1955,6 +1981,8 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 {
   switch(_behavior)
   {
+    case atlas_msgs::AtlasSimInterfaceCommand::NONE:
+      return "None";
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
       return "User";
     case atlas_msgs::AtlasSimInterfaceCommand::STAND:
@@ -1973,6 +2001,7 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // 80 characters
   atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
   AtlasControlOutput *fbOut = &(this->controlOutput);
@@ -2075,6 +2104,7 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->manipulate_feedback.clamped.pelvis_yaw;
   fb->manipulate_feedback.clamped.pelvis_lat =
     fbOut->manipulate_feedback.clamped.pelvis_lat;
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2179,6 +2209,7 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   boost::mutex::scoped_lock lock(this->asiMutex);
 
   // AtlasSimInterface:
@@ -2233,6 +2264,7 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
   AtlasControlOutput *fbOut = &(this->controlOutput);
   switch (this->asiState.current_behavior)
   {
+    case atlas_msgs::AtlasSimInterfaceCommand::NONE:
     case atlas_msgs::AtlasSimInterfaceCommand::USER:
       {
       }
@@ -2310,11 +2342,13 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
   }
   // set asiState and publish asiState
   this->pubASIStateQueue->push(this->asiState, this->pubASIState);
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // Keep track of age of atlasCommand age in seconds.
   // Note the value is invalid as a moving window average age
   // until the buffer is full.
@@ -2351,11 +2385,13 @@ void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
   this->atlasCommandAgeBufferIndex =
    (this->atlasCommandAgeBufferIndex + 1) %
    this->atlasCommandAgeBuffer.size();
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdatePIDControl(double _dt)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   /// update pid with feedforward force
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
@@ -2450,6 +2486,7 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // before process_control_input?
     this->atlasRobotState.j[i].f = forceClamped;
   }
+   #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2479,6 +2516,7 @@ void AtlasPlugin::PublishConstrollerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
 {
+  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   boost::mutex::scoped_lock lock(this->mutex);
 
   // get imu data from imu sensor
@@ -2525,6 +2563,7 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
   // publish robot states
   this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

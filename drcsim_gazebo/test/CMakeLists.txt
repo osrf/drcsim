@@ -50,7 +50,7 @@ endif()
 # get away with running most of the test from the source tree, but it's clearer
 # and safer to run them from the install tree.  Plus we get to use things like
 # $(find drcsim_gazebo) in rostest files.
-set(files
+install(FILES
   ${rostests}
   atlas_rosapi.yaml
   multisense_sl_rosapi.yaml
@@ -58,14 +58,19 @@ set(files
   atlas_cheats_rosapi.yaml
   drc_vehicle_cheats_rosapi.yaml
   vrc_rosapi.yaml
+  golf_cart_cheats_rosapi.yaml
+  atlas_arenas_start_testing.launch
+  atlas_arenas_logging.launch
   ros_subscribers.launch
   pub_atlas_command.launch
   perf_test.launch
   perf_test_local.launch
   vrc_task_1_commander.launch
   vrc_task_1_zlib_compression.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
 )
-set(scripts
+
+install(PROGRAMS
   ros_api_checker
   run_gzstats.sh
   run_pub_atlas_command.sh
@@ -79,7 +84,5 @@ set(scripts
   gzlog_stop_checker.py
   vrc_walking_test
   multicamera_subscriber
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
 )
-install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
-install(PROGRAMS ${scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}-${DRC_SIM_VERSION}/ros/${ROS_PACKAGE_NAME}/test/)
-

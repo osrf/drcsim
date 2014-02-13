@@ -353,7 +353,7 @@
   <link name="${side}_base_link">
       <inertial>
         <!-- needs update -->
-        <mass value="1.0"/>
+        <mass value="1.305"/>
         <origin xyz="0 0 0"/>
         <inertia ixx="0.00125" ixy="0.0" ixz="0.0" iyy="0.00125" iyz="0.0" izz="0.0002"/>
       </inertial>
@@ -641,7 +641,7 @@
     <child link="${side}_finger[0]/proximal_link"/>
     <origin xyz="0 0 0.0135" rpy="${pi/2} 0 -${pi}" />
     <axis xyz="-1 0 0"/>
-    <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
+    <limit effort="1000.0" lower="0.0" upper="${7*pi/8}" velocity="0.5"/>
 
   </joint>
   <gazebo reference="${side}_finger[1]/joint_base_rotation">
@@ -687,7 +687,7 @@
     <child link="${side}_finger[1]/proximal_link"/>
     <origin xyz="0 0 0.0135" rpy="${pi/2} 0 -${pi}" />
     <axis xyz="-1 0 0"/>
-    <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
+    <limit effort="1000.0" lower="0.0" upper="${7*pi/8}" velocity="0.5"/>
   </joint>
 
   <gazebo reference="${side}_finger[2]/joint_base">
@@ -698,7 +698,7 @@
     <child link="${side}_finger[2]/proximal_link"/>
     <origin xyz="0 -0.038 0.082755" rpy="${pi/2} 0 0" />
     <axis xyz="-1 0 0"/>
-    <limit effort="1000.0" lower="0.0" upper="${pi/2}" velocity="0.5"/>
+    <limit effort="1000.0" lower="0.0" upper="${7*pi/8}" velocity="0.5"/>
   </joint>
 </xacro:macro>
 

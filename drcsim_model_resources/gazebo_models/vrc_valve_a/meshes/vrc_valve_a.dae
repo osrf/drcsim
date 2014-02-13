@@ -12,7 +12,7 @@
   </asset>
   <library_images>
     <image id="valve_png" name="valve_png">
-      <init_from>vrc_valve_a.png</init_from>
+      <init_from>../materials/textures/vrc_valve_a.png</init_from>
     </image>
   </library_images>
   <library_effects>

@@ -2,6 +2,28 @@ cmake_minimum_required(VERSION 2.8.3)
 project(drcsim_gazebo_ros_plugins)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
+# Check for 32/64 bits support
+STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
+STRING (REGEX MATCH "BSD" BSD ${CMAKE_SYSTEM_NAME})
+
+if (NOT DEFINED USE_ATLASSIMINTERFACE_BLOB)
+  if (LINUX)
+    # Check for 64bits machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(USE_ATLASSIMINTERFACE_BLOB True)
+    else()
+      set(USE_ATLASSIMINTERFACE_BLOB False)
+      message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. If you want to use DRCSim without the AtlasSimInterface binary interface, run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
+    endif() 
+  elseif(BSD)
+    message(STATUS "Warning: system check for 32/64 bit is not implemented for")
+    message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: please use USE_ATLASSIMINTERFACE_BLOB flag if you want")
+    message(STATUS "Warning: not to use 64 bits AtlasSIMINTERFACE library")
+    set(USE_ATLASSIMINTERFACE_BLOB True)
+  endif()
+endif()
+
 set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
 
 find_package(catkin REQUIRED COMPONENTS
@@ -37,13 +59,17 @@ find_package(gazebo REQUIRED)
 ## Build ##
 ###########
 
+if (USE_ATLASSIMINTERFACE_BLOB)
+  add_definitions(-DWITH_ATLASSIMINTERFACE_BLOB=1)
+endif()
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  ${PROJECT_SOURCE_DIR}/include
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include
 )
 
 link_directories(
@@ -78,7 +104,9 @@ target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_PROJECT_PATH}/lib64/")
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_PROJECT_PATH}/include")
-target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
+if (USE_ATLASSIMINTERFACE_BLOB)
+  target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
+endif()
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
