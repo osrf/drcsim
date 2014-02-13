@@ -11,7 +11,7 @@ macro(make_standalone_models old_model_name new_model_name standalone_name)
   # model files, which we'll consider to be optional.
   find_program(xsltproc xsltproc)
   if(NOT xsltproc)
-    message(WARNING "Couldn't find xsltproc, so won't do XML transformations.")
+    message(WARNING "Couldn't find xsltproc, so won't do XML transformations and will skip building of gazebo standalone models.")
   endif()
   
   # For each .xacro file, run xacro on it to produce a standalone URDF file.  If
