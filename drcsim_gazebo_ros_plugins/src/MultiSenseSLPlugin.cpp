@@ -170,9 +170,21 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
-  ros::SubscribeOptions set_multi_camera_frame_rate_so =
+  /// for deprecation from ~/multisense_sl/fps to ~/multisense_sl/set_fps
+  /// per issue 272
+  ros::SubscribeOptions set_multi_camera_frame_rate_so_old =
     ros::SubscribeOptions::create<std_msgs::Float64>(
     "multisense_sl/fps", 100,
+    boost::bind(static_cast<void (MultiSenseSL::*)
+      (const std_msgs::Float64::ConstPtr&)>(
+        &MultiSenseSL::SetMultiCameraFrameRateOld), this, _1),
+    ros::VoidPtr(), &this->queue_);
+  this->set_multi_camera_frame_rate_sub_old_ =
+    this->rosnode_->subscribe(set_multi_camera_frame_rate_so_old);
+
+  ros::SubscribeOptions set_multi_camera_frame_rate_so =
+    ros::SubscribeOptions::create<std_msgs::Float64>(
+    "multisense_sl/set_fps", 100,
     boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraFrameRate), this, _1),
@@ -369,6 +381,14 @@ void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
   this->spindleOn = static_cast<double>(_msg->data);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void MultiSenseSL::SetMultiCameraFrameRateOld(const std_msgs::Float64::ConstPtr
+                                          &_msg)
+{
+  ROS_WARN("ros topic ~/mutlisense_sl/fps has been replaced by"
+           " ~/mutlisense_sl/set_fps per issue 272.");
+  this->SetMultiCameraFrameRate(_msg);
+}
 ////////////////////////////////////////////////////////////////////////////////
 void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                           &_msg)
