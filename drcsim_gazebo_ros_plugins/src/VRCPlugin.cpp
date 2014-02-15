@@ -111,6 +111,15 @@ void VRCPlugin::DeferredLoad()
   // simulation iteration.
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
      boost::bind(&VRCPlugin::UpdateStates, this));
+
+  // publish simulation state stuff for analysis
+  this->rtfs.resize(20);
+  this->rtfsIter = this->rtfs.begin();
+  this->lastSimTime = this->world->GetSimTime().Double();
+  this->lastRealTime = this->world->GetRealTime().Double();
+  this->pubSimulationState =
+    this->rosNode->advertise<atlas_msgs::SimulationState>(
+    "/simulation_state", 1000, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1026,9 +1035,11 @@ void VRCPlugin::UpdateStates()
 
 
     // data collection
-    physics::ModelPtr cylinderModel = this->world->GetModel("beer_heavy");
-    if (true && cylinderModel)
+    if (false)
     {
+      physics::ModelPtr cylinderModel = this->world->GetModel("beer_heavy");
+      if (cylinderModel)
+      {
       // collect data for cylinder grasp case
       physics::PhysicsEnginePtr physics = this->world->GetPhysicsEngine();
       physics::LinkPtr lHandLink = this->atlas.model->GetLink("l_hand");
@@ -1042,14 +1053,14 @@ void VRCPlugin::UpdateStates()
           << ", " << "Real Time(sec)";
         if (physics->GetType() == "ode")
         {
-        std::cout
-          << ", " << "Bilateral RMS(\Delta \lambda)"
-          << ", " << "Contact RMS(\Delta \lambda)"
-          << ", " << "Friction RMS(\Delta \lambda)"
-          << ", " << "Sum(Abs({Jv}_i))"
-          << ", " << "Sum(Abs({Jv}_i))_{bilateral}"
-          << ", " << "Sum(Abs({Jv}_i))_{contacts}"
-          << ", " << "Num. Contacts";
+          std::cout
+            << ", " << "Bilateral RMS(\Delta \lambda)"
+            << ", " << "Contact RMS(\Delta \lambda)"
+            << ", " << "Friction RMS(\Delta \lambda)"
+            << ", " << "Sum(Abs({Jv}_i))"
+            << ", " << "Sum(Abs({Jv}_i))_{bilateral}"
+            << ", " << "Sum(Abs({Jv}_i))_{contacts}"
+            << ", " << "Num. Contacts";
         }
         std::cout
           << ", " << "Right Cyl-Hand Position X (m)"
@@ -1132,7 +1143,7 @@ void VRCPlugin::UpdateStates()
           << ", " << rHandLink->GetWorldAngularVel().z
           << "\n";
       }
-
+      }
     }
     else if (false)
     {
@@ -1235,102 +1246,121 @@ void VRCPlugin::UpdateStates()
     }
     else if (true)
     {
-      // collect energy related data to show stability
+      // collect simulation data and publish it
       physics::PhysicsEnginePtr physics = this->world->GetPhysicsEngine();
+
+      // collect data for cylinder and hand grasp case
+      physics::ModelPtr cylinderModel = this->world->GetModel("beer_heavy");
+      physics::LinkPtr cylinderLink;
+      if (cylinderModel)
+        physics::LinkPtr cylinderLink = cylinderModel->GetLink("link");
+      physics::LinkPtr lHandLink = this->atlas.model->GetLink("l_hand");
+      physics::LinkPtr rHandLink = this->atlas.model->GetLink("r_hand");
+
+      // collect simulation data and publish it
       physics::LinkPtr lFootLink = this->atlas.model->GetLink("l_foot");
       physics::LinkPtr rFootLink = this->atlas.model->GetLink("r_foot");
 
-      static bool title = false;
-      if (!title)
+      atlas_msgs::SimulationState ss;
+
+      ss.header.stamp = ros::Time::now();
+
+      ss.sim_time = curTime;
+      ss.wall_time = this->world->GetRealTime().Double();
+
+      // compute rtf
+      *this->rtfsIter = (ss.sim_time - this->lastSimTime) /
+                       (ss.wall_time - this->lastRealTime);
+      this->rtfsIter++;
+      if (this->rtfsIter == this->rtfs.end())
+        this->rtfsIter = this->rtfs.begin();
+      ss.real_time_factor = 0;
+      for (std::vector<double>::iterator iter = this->rtfs.begin();
+                                         iter != this->rtfs.end(); ++iter)
+        ss.real_time_factor += *iter;
+      this->lastSimTime = ss.sim_time;
+      this->lastRealTime = ss.wall_time;
+
+      double *e = boost::any_cast<double*>(physics->GetParam("rms_error"));
+      ss.rms_error_bilateral = e[0];
+      ss.rms_error_contact_normal = e[1];
+      ss.rms_error_friction = e[2];
+      ss.jv_total =
+        boost::any_cast<double>(physics->GetParam("constraint_residual"));
+      ss.jv_bilaterals =
+        boost::any_cast<double>(physics->GetParam("bilateral_residual"));
+      ss.jv_contacts =   // normal and frictional directions
+        boost::any_cast<double>(physics->GetParam("contact_residual"));
+      ss.num_contacts =
+        boost::any_cast<int>(physics->GetParam("num_contacts"));
+      ss.inertia_ratio_reduction =
+        boost::any_cast<bool>(physics->GetParam("inertia_ratio_reduction"));
+      ss.experimental_row_reordering =
+        boost::any_cast<bool>(physics->GetParam("experimental_row_reordering"));
+      ss.contact_residual_smoothing =
+        boost::any_cast<double>(physics->GetParam("contact_residual_smoothing"));
+      ss.warm_start_factor =
+        boost::any_cast<double>(physics->GetParam("warm_start_factor"));
+      ss.extra_friction_iterations =
+        boost::any_cast<int>(physics->GetParam("extra_friction_iterations"));
+      ss.atlas_energy = this->atlas.model->GetWorldEnergy();
+      ss.atlas_energy_potential = this->atlas.model->GetWorldEnergyPotential();
+      ss.atlas_energy_kinetic = this->atlas.model->GetWorldEnergyKinetic();
+      ss.atlas_energy_kinetic_filtered =
+        this->atlas.model->GetWorldEnergyKineticFiltered();
+      ss.atlas_energy_filtered = this->atlas.model->GetWorldEnergyFiltered();
+      ss.atlas_energy_kinetic_vibrational =
+        this->atlas.model->GetWorldEnergyKineticVibrational();
+      ss.l_foot_pos_x    = lFootLink->GetWorldPose().pos.x;
+      ss.l_foot_pos_y    = lFootLink->GetWorldPose().pos.y;
+      ss.l_foot_pos_z    = lFootLink->GetWorldPose().pos.z;
+      ss.l_foot_rot_x    = lFootLink->GetWorldPose().rot.GetAsEuler().x;
+      ss.l_foot_rot_y    = lFootLink->GetWorldPose().rot.GetAsEuler().y;
+      ss.l_foot_rot_z    = lFootLink->GetWorldPose().rot.GetAsEuler().z;
+      ss.l_foot_linvel_x = lFootLink->GetWorldLinearVel().x;
+      ss.l_foot_linvel_y = lFootLink->GetWorldLinearVel().y;
+      ss.l_foot_linvel_z = lFootLink->GetWorldLinearVel().z;
+      ss.l_foot_angvel_x = lFootLink->GetWorldAngularVel().x;
+      ss.l_foot_angvel_y = lFootLink->GetWorldAngularVel().y;
+      ss.l_foot_angvel_z = lFootLink->GetWorldAngularVel().z;
+      ss.r_foot_pos_x    = rFootLink->GetWorldPose().pos.x;
+      ss.r_foot_pos_y    = rFootLink->GetWorldPose().pos.y;
+      ss.r_foot_pos_z    = rFootLink->GetWorldPose().pos.z;
+      ss.r_foot_rot_x    = rFootLink->GetWorldPose().rot.GetAsEuler().x;
+      ss.r_foot_rot_y    = rFootLink->GetWorldPose().rot.GetAsEuler().y;
+      ss.r_foot_rot_z    = rFootLink->GetWorldPose().rot.GetAsEuler().z;
+      ss.r_foot_linvel_x = rFootLink->GetWorldLinearVel().x;
+      ss.r_foot_linvel_y = rFootLink->GetWorldLinearVel().y;
+      ss.r_foot_linvel_z = rFootLink->GetWorldLinearVel().z;
+      ss.r_foot_angvel_x = rFootLink->GetWorldAngularVel().x;
+      ss.r_foot_angvel_y = rFootLink->GetWorldAngularVel().y;
+      ss.r_foot_angvel_z = rFootLink->GetWorldAngularVel().z;
+
+      // publish cylinder relative to hand data
+      if (cylinderModel)
       {
-        std::cout << "Sim Time(sec)"
-          << ", " << "Real Time(sec)";
-        if (physics->GetType() == "ode")
-        {
-        std::cout
-          << ", " << "Bilateral RMS(\Delta \lambda)"
-          << ", " << "Contact RMS(\Delta \lambda)"
-          << ", " << "Friction RMS(\Delta \lambda)"
-          << ", " << "Sum(Abs({Jv}_i))"
-          << ", " << "Sum(Abs({Jv}_i))_{bilateral}"
-          << ", " << "Sum(Abs({Jv}_i))_{contacts}"
-          << ", " << "Num. Contacts";
-        }
-        std::cout
-          << ", " << "Left Foot Position X (m)"
-          << ", " << "Left Foot Position Y (m)"
-          << ", " << "Left Foot Position Z (m)"
-          << ", " << "Left Foot Orientation X (m)"
-          << ", " << "Left Foot Orientation Y (m)"
-          << ", " << "Left Foot Orientation Z (m)"
-          << ", " << "Left Foot Velocity X (m/s)"
-          << ", " << "Left Foot Velocity Y (m/s)"
-          << ", " << "Left Foot Velocity Z (m/s)"
-          << ", " << "Left Foot Roll Rate (rad/s)"
-          << ", " << "Left Foot Pitch Rate (rad/s)"
-          << ", " << "Left Foot Yaw Rate (rad/s)"
-          << ", " << "Right Foot Position X (m)"
-          << ", " << "Right Foot Position Y (m)"
-          << ", " << "Right Foot Position Z (m)"
-          << ", " << "Right Foot Orientation X (m)"
-          << ", " << "Right Foot Orientation Y (m)"
-          << ", " << "Right Foot Orientation Z (m)"
-          << ", " << "Right Foot Velocity X (m/s)"
-          << ", " << "Right Foot Velocity Y (m/s)"
-          << ", " << "Right Foot Velocity Z (m/s)"
-          << ", " << "Right Foot Roll Rate (rad/s)"
-          << ", " << "Right Foot Pitch Rate (rad/s)"
-          << ", " << "Right Foot Yaw Rate (rad/s)"
-          << "\n";
-        title = true;
+        math::Pose relPose =
+          cylinderLink->GetWorldPose() - rHandLink->GetWorldPose();
+        math::Vector3 relLinearVel =
+          cylinderLink->GetWorldLinearVel() - rHandLink->GetWorldLinearVel();
+        math::Vector3 relAngularVel =
+          cylinderLink->GetWorldAngularVel() - rHandLink->GetWorldAngularVel();
+
+        ss.cylinder_hand_pos_x    = relPose.pos.x;
+        ss.cylinder_hand_pos_y    = relPose.pos.y;
+        ss.cylinder_hand_pos_z    = relPose.pos.z;
+        ss.cylinder_hand_rot_x    = relPose.rot.GetAsEuler().x;
+        ss.cylinder_hand_rot_y    = relPose.rot.GetAsEuler().y;
+        ss.cylinder_hand_rot_z    = relPose.rot.GetAsEuler().z;
+        ss.cylinder_hand_linvel_x = relLinearVel.x;
+        ss.cylinder_hand_linvel_y = relLinearVel.y;
+        ss.cylinder_hand_linvel_z = relLinearVel.z;
+        ss.cylinder_hand_angvel_x = relAngularVel.x;
+        ss.cylinder_hand_angvel_y = relAngularVel.y;
+        ss.cylinder_hand_angvel_z = relAngularVel.z;
       }
-      else
-      {
-        std::cout << curTime
-          << ", " << this->world->GetRealTime().Double();
-        if (physics->GetType() == "ode")
-        {
-          double *e = boost::any_cast<double*>(physics->GetParam("rms_error"));
-          std::cout
-            << ", " << e[0]
-            << ", " << e[1]
-            << ", " << e[2]
-            << ", "
-            << boost::any_cast<double>(physics->GetParam("constraint_residual"))
-            << ", "
-            << boost::any_cast<double>(physics->GetParam("bilateral_residual"))
-            << ", "
-            << boost::any_cast<double>(physics->GetParam("contact_residual"))
-            << ", "
-            << boost::any_cast<int>(physics->GetParam("num_contacts"));
-        }
-        std::cout
-          << ", " << lFootLink->GetWorldPose().pos.x
-          << ", " << lFootLink->GetWorldPose().pos.y
-          << ", " << lFootLink->GetWorldPose().pos.z
-          << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().x
-          << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().y
-          << ", " << lFootLink->GetWorldPose().rot.GetAsEuler().z
-          << ", " << lFootLink->GetWorldLinearVel().x
-          << ", " << lFootLink->GetWorldLinearVel().y
-          << ", " << lFootLink->GetWorldLinearVel().z
-          << ", " << lFootLink->GetWorldAngularVel().x
-          << ", " << lFootLink->GetWorldAngularVel().y
-          << ", " << lFootLink->GetWorldAngularVel().z
-          << ", " << rFootLink->GetWorldPose().pos.x
-          << ", " << rFootLink->GetWorldPose().pos.y
-          << ", " << rFootLink->GetWorldPose().pos.z
-          << ", " << rFootLink->GetWorldPose().rot.GetAsEuler().x
-          << ", " << rFootLink->GetWorldPose().rot.GetAsEuler().y
-          << ", " << rFootLink->GetWorldPose().rot.GetAsEuler().z
-          << ", " << rFootLink->GetWorldLinearVel().x
-          << ", " << rFootLink->GetWorldLinearVel().y
-          << ", " << rFootLink->GetWorldLinearVel().z
-          << ", " << rFootLink->GetWorldAngularVel().x
-          << ", " << rFootLink->GetWorldAngularVel().y
-          << ", " << rFootLink->GetWorldAngularVel().z
-          << "\n";
-      }
+
+      this->pubSimulationState.publish(ss);
     }
     // else
     //   std::cout << "not collecting data\n";

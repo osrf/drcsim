@@ -34,6 +34,7 @@
 #include <atlas_msgs/AtlasCommand.h>
 #include <atlas_msgs/AtlasSimInterfaceCommand.h>
 #include <atlas_msgs/AtlasSimInterfaceState.h>
+#include <atlas_msgs/SimulationState.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -509,6 +510,12 @@ namespace gazebo
     // items below are used for deferred load in case ros is blocking
     private: sdf::ElementPtr sdf;
     private: boost::thread deferredLoadThread;
+
+    private: std::vector<double> rtfs;
+    private: std::vector<double>::iterator rtfsIter;
+    private: double lastSimTime;
+    private: double lastRealTime;
+    private: ros::Publisher pubSimulationState;
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
