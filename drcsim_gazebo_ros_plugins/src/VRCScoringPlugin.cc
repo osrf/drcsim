@@ -88,11 +88,13 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   // Everybody needs Atlas.
   this->atlas = _world->GetModel("atlas");
-  if (!this->atlas)
+  while (!this->atlas)
   {
-    gzerr << "Failed to find atlas" << std::endl;
-    return;
+    gzwarn << "Failed to find atlas, retrying in 1sec." << std::endl;
+    sleep(1);
+    this->atlas = _world->GetModel("atlas");
   }
+
   this->atlasHead = this->atlas->GetLink("head");
   if (!this->atlasHead)
   {
