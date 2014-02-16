@@ -1067,6 +1067,7 @@ void VRCPlugin::UpdateStates()
       for (std::vector<double>::iterator iter = this->rtfs.begin();
                                          iter != this->rtfs.end(); ++iter)
         ss.real_time_factor += *iter;
+      ss.real_time_factor /= static_cast<double>(this->rtfs.size());
       this->lastSimTime = ss.sim_time;
       this->lastRealTime = ss.wall_time;
 
@@ -1074,12 +1075,13 @@ void VRCPlugin::UpdateStates()
       ss.rms_error_bilateral = e[0];
       ss.rms_error_contact_normal = e[1];
       ss.rms_error_friction = e[2];
-      ss.jv_total =
-        boost::any_cast<double>(physics->GetParam("constraint_residual"));
-      ss.jv_bilaterals =
-        boost::any_cast<double>(physics->GetParam("bilateral_residual"));
-      ss.jv_contacts =   // normal and frictional directions
-        boost::any_cast<double>(physics->GetParam("contact_residual"));
+      ss.rms_error_total = e[3];
+      double *r =
+        boost::any_cast<double*>(physics->GetParam("constraint_residual"));
+      ss.jv_bilateral = r[0];
+      ss.jv_contact_normal = r[1];
+      ss.jv_friction = r[2];
+      ss.jv_total = r[3];
       ss.num_contacts =
         boost::any_cast<int>(physics->GetParam("num_contacts"));
       ss.inertia_ratio_reduction =

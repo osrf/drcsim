@@ -7,9 +7,11 @@ float64 real_time_factor
 float64 rms_error_bilateral
 float64 rms_error_contact_normal
 float64 rms_error_friction
+float64 rms_error_total
+float64 jv_bilateral
+float64 jv_contact_normal
+float64 jv_friction
 float64 jv_total
-float64 jv_bilaterals
-float64 jv_contacts   # normal and frictional directions
 int32   num_contacts
 bool    inertia_ratio_reduction
 bool    experimental_row_reordering
