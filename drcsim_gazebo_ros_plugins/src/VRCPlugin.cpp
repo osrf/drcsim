@@ -1031,11 +1031,9 @@ void VRCPlugin::UpdateStates()
   }
   else if (this->atlas.startupSequence == Robot::INITIALIZED)
   {
-    // done, do nothing
-
-
+    // done, do nothing, or...
     // data collection
-    // if (true)
+    if (this->pubSimulationState.getNumSubscribers() > 0)
     {
       // collect simulation data and publish it
       physics::PhysicsEnginePtr physics = this->world->GetPhysicsEngine();
@@ -1043,8 +1041,8 @@ void VRCPlugin::UpdateStates()
       // collect data for cylinder and hand grasp case
       physics::ModelPtr cylinderModel = this->world->GetModel("beer_heavy");
       physics::LinkPtr cylinderLink;
-      if (cylinderModel)
-        physics::LinkPtr cylinderLink = cylinderModel->GetLink("link");
+      if (cylinderModel.get() != NULL)
+        cylinderLink = cylinderModel->GetLink("link");
       physics::LinkPtr lHandLink = this->atlas.model->GetLink("l_hand");
       physics::LinkPtr rHandLink = this->atlas.model->GetLink("r_hand");
 
@@ -1128,7 +1126,7 @@ void VRCPlugin::UpdateStates()
       ss.r_foot_angvel_z = rFootLink->GetWorldAngularVel().z;
 
       // publish cylinder relative to hand data
-      if (cylinderModel)
+      if (cylinderLink.get() != NULL)
       {
         math::Pose relPose =
           cylinderLink->GetWorldPose() - rHandLink->GetWorldPose();
@@ -1153,8 +1151,6 @@ void VRCPlugin::UpdateStates()
 
       this->pubSimulationState.publish(ss);
     }
-    // else
-    //   std::cout << "not collecting data\n";
   }
   else
   {

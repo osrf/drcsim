@@ -7,7 +7,7 @@
         <solver>
           <type>quick</type>
           <iters>50</iters>
-          <sor>1.4</sor>
+          <sor>1.0</sor>
         </solver>
         <constraints>
           <cfm>0.0</cfm>
