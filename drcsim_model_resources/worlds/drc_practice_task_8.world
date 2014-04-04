@@ -68,12 +68,12 @@
         <seat_link>polaris_ranger_ev::chassis</seat_link>
       </drc_vehicle>
       <drc_fire_hose>
-        <fire_hose_model>fire_hose</fire_hose_model>
+        <fire_hose_model>fire_hose_long_curled</fire_hose_model>
         <coupling_link>coupling</coupling_link>
         <standpipe_model>standpipe</standpipe_model>
         <spout_link>standpipe</spout_link>
         <thread_pitch>-1000</thread_pitch>
-        <coupling_relative_pose>1.17038e-05 -0.125623 0.35 -0.0412152 -1.57078 1.61199</coupling_relative_pose>
+        <coupling_relative_pose>-0.000368 -3.5e-05 0.020779 2.09531 1.5666 0.460447</coupling_relative_pose>
       </drc_fire_hose>
     </plugin>
   </world>

@@ -86,20 +86,6 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     return;
   }
 
-  // Everybody needs Atlas.
-  this->atlas = _world->GetModel("atlas");
-  if (!this->atlas)
-  {
-    gzerr << "Failed to find atlas" << std::endl;
-    return;
-  }
-  this->atlasHead = this->atlas->GetLink("head");
-  if (!this->atlasHead)
-  {
-    gzerr << "Unable to find head for scoring falls" << std::endl;
-    return;
-  }
-
   // Arena-specific setup
   switch (this->worldType)
   {
@@ -196,16 +182,27 @@ void VRCScoringPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   this->deferredLoadThread =
     boost::thread(boost::bind(&VRCScoringPlugin::DeferredLoad, this));
-
-  // Listen to the update event. This event is broadcast every
-  // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-      boost::bind(&VRCScoringPlugin::OnUpdate, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void VRCScoringPlugin::DeferredLoad()
 {
+  // Everybody needs Atlas.
+  this->atlas = this->world->GetModel("atlas");
+  while (!this->atlas)
+  {
+    gzwarn << "Failed to find atlas, wait 1sec and retry." << std::endl;
+    sleep(1);
+    this->atlas = this->world->GetModel("atlas");
+  }
+
+  this->atlasHead = this->atlas->GetLink("head");
+  if (!this->atlasHead)
+  {
+    gzerr << "Unable to find head for scoring falls" << std::endl;
+    return;
+  }
+
   // initialize ros
   if (!ros::isInitialized())
   {
@@ -224,6 +221,11 @@ void VRCScoringPlugin::DeferredLoad()
   this->pubScoreQueue = this->pmq->addPub<atlas_msgs::VRCScore>();
   this->pubScore = this->rosNode->advertise<atlas_msgs::VRCScore>(
     "vrc_score", 1, true);
+
+  // Listen to the update event. This event is broadcast every
+  // simulation iteration.
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+      boost::bind(&VRCScoringPlugin::OnUpdate, this, _1));
 }
 
 

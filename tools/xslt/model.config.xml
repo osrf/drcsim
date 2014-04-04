@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+<model>
+  <name></name>
+  <description></description>
+  <version>0.0.0</version>
+  <sdf></sdf>
+  <author>
+    <name>OSRF</name>
+    <email>drcsim@osrfoundation.org</email>
+  </author>
+  <description>
+    This model is used in the DRC Simulator.
+  </description>
+</model>
