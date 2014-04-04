@@ -385,8 +385,8 @@ void MultiSenseSL::SetSpindleState(const std_msgs::Bool::ConstPtr &_msg)
 void MultiSenseSL::SetMultiCameraFrameRateOld(const std_msgs::Float64::ConstPtr
                                           &_msg)
 {
-  ROS_WARN("ros topic ~/mutlisense_sl/fps has been replaced by"
-           " ~/mutlisense_sl/set_fps per issue 272.");
+  ROS_WARN("Frame rate was modified but the ros topic ~/mutlisense_sl/fps"
+           " has been replaced by ~/mutlisense_sl/set_fps per issue 272.");
   this->SetMultiCameraFrameRate(_msg);
 }
 ////////////////////////////////////////////////////////////////////////////////
