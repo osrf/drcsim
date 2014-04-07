@@ -527,7 +527,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   // Get sensors
   this->imuSensor =
-    boost::shared_dynamic_cast<sensors::ImuSensor>
+    boost::dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::pelvis::"
@@ -536,7 +536,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     gzerr << "imu_sensor not found\n" << "\n";
 
   this->rFootContactSensor =
-    boost::shared_dynamic_cast<sensors::ContactSensor>
+    boost::dynamic_pointer_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::r_foot::"
@@ -545,7 +545,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     gzerr << "r_foot_contact_sensor not found\n" << "\n";
 
   this->lFootContactSensor =
-    boost::shared_dynamic_cast<sensors::ContactSensor>
+    boost::dynamic_pointer_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::l_foot::"
