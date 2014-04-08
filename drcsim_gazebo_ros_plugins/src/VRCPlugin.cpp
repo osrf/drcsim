@@ -1098,10 +1098,10 @@ void VRCPlugin::UpdateStates()
       ss.atlas_energy_potential = this->atlas.model->GetWorldEnergyPotential();
       ss.atlas_energy_kinetic = this->atlas.model->GetWorldEnergyKinetic();
       ss.atlas_energy_kinetic_filtered =
-        this->atlas.model->GetWorldEnergyKineticFiltered();
-      ss.atlas_energy_filtered = this->atlas.model->GetWorldEnergyFiltered();
+        0; // this->atlas.model->GetWorldEnergyKineticFiltered();
+      ss.atlas_energy_filtered = 0; // this->atlas.model->GetWorldEnergyFiltered();
       ss.atlas_energy_kinetic_vibrational =
-        this->atlas.model->GetWorldEnergyKineticVibrational();
+        0; // this->atlas.model->GetWorldEnergyKineticVibrational();
       ss.l_foot_pos_x    = lFootLink->GetWorldPose().pos.x;
       ss.l_foot_pos_y    = lFootLink->GetWorldPose().pos.y;
       ss.l_foot_pos_z    = lFootLink->GetWorldPose().pos.z;

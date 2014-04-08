@@ -4,7 +4,9 @@
     <pose>0 0 0.93 0 0 0</pose>
   </gazebo>
   <gazebo>
+<!--
     <plugin name="atlas_plugin" filename="libAtlasPlugin.so"/>
+-->
     <plugin filename="libgazebo_ros_joint_pose_trajectory.so" name="joint_trajectory_plugin">
       <topicName>joint_trajectory</topicName>
       <updateRate>1000.0</updateRate>
