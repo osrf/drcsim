@@ -1,0 +1,12 @@
+<launch>
+  <!-- additional nodes to publish joint states for the hands -->
+  <node pkg="robot_state_publisher" type="state_publisher" name="irobot_hands_l_hand_robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <remap from="joint_states" to="/irobot_hands/l_hand/joint_states" />
+  </node>
+
+  <node pkg="robot_state_publisher" type="state_publisher" name="irobot_hands_r_hand_robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <remap from="joint_states" to="/irobot_hands/r_hand/joint_states" />
+  </node>
+</launch>
