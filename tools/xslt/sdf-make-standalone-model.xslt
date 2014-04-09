@@ -34,8 +34,9 @@ select="substring-after($text,$replace)"/>
     </xsl:copy>
   </xsl:template>
 
-  <!-- Remove plugin tags -->
+  <!-- Remove plugin tags
   <xsl:template match="plugin"/>
+  -->
 
   <!-- Modify the filename attribute of mesh tags -->
   <xsl:template match="robot/link/*/geometry/mesh">
