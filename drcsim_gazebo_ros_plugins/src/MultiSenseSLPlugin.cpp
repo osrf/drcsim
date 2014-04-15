@@ -80,7 +80,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   // Get sensors
   this->imuSensor =
-    boost::shared_dynamic_cast<sensors::ImuSensor>
+    boost::dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->atlasModel->GetScopedName()
         + "::head::"
@@ -115,7 +115,7 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   //   gzerr << (*siter)->GetName() << "\n";
 
   this->multiCameraSensor =
-    boost::shared_dynamic_cast<sensors::MultiCameraSensor>(
+    boost::dynamic_pointer_cast<sensors::MultiCameraSensor>(
     sensors::SensorManager::Instance()->GetSensor("stereo_camera"));
   if (!this->multiCameraSensor)
     gzerr << "multicamera sensor not found\n";
