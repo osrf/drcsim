@@ -245,7 +245,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
   // Get imu sensors
   this->leftImuSensor =
-    boost::shared_dynamic_cast<sensors::ImuSensor>
+    boost::dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->leftImuLink->GetScopedName()
         + "::imu_sensor"));
@@ -253,7 +253,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     gzerr << "left imu_sensor not found\n" << "\n";
 
   this->rightImuSensor =
-    boost::shared_dynamic_cast<sensors::ImuSensor>
+    boost::dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->rightImuLink->GetScopedName()
         + "::imu_sensor"));

@@ -26,6 +26,8 @@
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
 
+#include <sensor_msgs/JointState.h>
+
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
@@ -56,6 +58,13 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
 
   /// \brief ROS callback queue thread
   private: boost::thread callbackQueeuThread;
+
+  /// \brief for publishing joint states (rviz visualization)
+  private: ros::Publisher pubJointStates;
+  private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
+
+  /// \brief for publishing joint states (rviz visualization)
+  private: sensor_msgs::JointState jointStates;
 
   // ros publish multi queue, prevents publish() blocking
   private: PubMultiQueue pmq;
@@ -162,10 +171,20 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: gazebo::physics::ModelPtr model;
   private: sdf::ElementPtr sdf;
   private: std::string side;
+
+  /// \brief vector of 3, one for each finger (2 index, 1 thumb).
   private: gazebo::physics::Joint_V fingerBaseJoints;
+
+  /// \brief vector of 2, one for each index finger.
   private: gazebo::physics::Joint_V fingerBaseRotationJoints;
+
+  /// \brief numver of flexure twist joints * 3 (1 for each finger).
   private: std::vector<gazebo::physics::Joint_V> flexureTwistJoints;
+
+  /// \brief numver of flexure flex joints * 3 (1 for each finger).
   private: std::vector<gazebo::physics::Joint_V> flexureFlexJoints;
+
+  /// \brief control angle for the thumb antagonist dof.
   private: double thumbAntagonistAngle;
 
   /// \brief save thumb upper limit as we change it per antagonist control
