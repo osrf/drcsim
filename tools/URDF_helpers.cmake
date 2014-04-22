@@ -13,6 +13,11 @@ macro(make_standalone_models old_model_name new_model_name standalone_name)
   if(NOT xsltproc)
     message(WARNING "Couldn't find xsltproc, so won't do XML transformations and will skip building of gazebo standalone models.")
   endif()
+
+  find_program(rosrun rosrun)
+  if(NOT rosrun)
+    message(FATAL_ERROR "Couldn't find rosrun, please install the rosbash package")
+  endif()
   
   # For each .xacro file, run xacro on it to produce a standalone URDF file.  If
   # xsltproc is available, also strip out Gazebo-specific tags (e.g, <plugin>) and

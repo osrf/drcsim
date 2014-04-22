@@ -9,6 +9,7 @@
   <url type="website">http://gazebosim.org/wiki/DRC</url>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>multisense_sl_description</build_depend>
+  <build_depend>rosbash</build_depend>
   <build_depend>sandia_hand_description</build_depend>
   <build_depend>irobot_hand_description</build_depend>
   <run_depend>multisense_sl_description</run_depend>
