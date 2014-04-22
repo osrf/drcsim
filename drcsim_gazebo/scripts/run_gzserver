@@ -3,4 +3,4 @@
 # First argument should be a fully-qualified path to a .world file
 # (e.g., `rospack find drcsim_gazebo`/worlds/atlas.world)
 # or a world that's install in $GAZEBO_RESOURCE_PATH/worlds/atlas
-optirun gzserver -s libgazebo_ros_api_plugin.so $@
+gzserver -s libgazebo_ros_api_plugin.so $@
