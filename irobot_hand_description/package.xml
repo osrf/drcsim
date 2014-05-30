@@ -15,5 +15,6 @@
   <license>Apache 2.0</license>
   <url type="website">http://gazebosim.org/wiki/DRC</url>
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rosbash</build_depend>
   <run_depend>xacro</run_depend>
 </package>
