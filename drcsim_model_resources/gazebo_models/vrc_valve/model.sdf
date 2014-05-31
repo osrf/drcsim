@@ -25,6 +25,14 @@
             <uri>model://vrc_valve/meshes/vrc_valve.dae</uri>
           </mesh>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.7</mu>
+              <mu2>0.7</mu2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
 
       <visual name="visual">
@@ -66,6 +74,14 @@
             <length>0.23</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.7</mu>
+              <mu2>0.7</mu2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
       <visual name="visual">
         <pose>0 0 0.017 0 0 0</pose>
