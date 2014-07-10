@@ -1215,7 +1215,7 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
     // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
-    this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+    this->fireHoseJoints[i]->SetPosition(0u, 0.0);
   }
 }
 
@@ -1289,7 +1289,7 @@ void VRCPlugin::CheckThreadStart()
                        math::Vector3(0, -1, 0),
                        20, -0.5, false);
 
-      this->drcFireHose.screwJoint->SetAttribute("thread_pitch", 0,
+      this->drcFireHose.screwJoint->SetParam("thread_pitch", 0,
         this->drcFireHose.threadPitch);
 
       // name of the joint
