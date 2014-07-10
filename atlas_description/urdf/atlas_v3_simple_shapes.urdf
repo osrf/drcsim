@@ -67,12 +67,28 @@
                 <mesh filename="package://atlas_description/meshes_v3/l_foot.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_foot.stl" scale="1 1 1" />
             </geometry>
         </collision>
+        -->
+        <collision group="default">
+          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.26 0.124887 0.05"/>
+          </geometry>
+        </collision>
+        <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
+        <collision group="other">
+          <origin xyz="0.0 0 -0.0528735" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.0373" length="0.037827"/>
+          </geometry>
+        </collision>
+        -->
     </link>
     <link name="l_hand">
         <inertial>
@@ -136,11 +152,25 @@
                 <mesh filename="package://atlas_description/meshes_v3/l_lglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_lglut.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="1.5707963267949 0 0" xyz="0.049968 0.022488 -0.0501165"/>
+          <geometry>
+            <cylinder radius="0.02009687" length="0.060306"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.02" length="0.12"/>
+          </geometry>
         </collision>
     </link>
     <link name="l_lleg">
@@ -155,11 +185,19 @@
                 <mesh filename="package://atlas_description/meshes_v3/l_lleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_lleg.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 0.10 0" xyz="0.02 0.00295 -0.18"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.40"/>
+          </geometry>
         </collision>
     </link>
     <link name="l_scap">
@@ -199,11 +237,25 @@
                 <mesh filename="package://atlas_description/meshes_v3/l_talus.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_talus.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.010181" length="0.029542"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="1.5707963267949 0 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.010348" length="0.010059"/>
+          </geometry>
         </collision>
     </link>
     <link name="l_uarm">
@@ -243,11 +295,25 @@
                 <mesh filename="package://atlas_description/meshes_v3/l_uglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_uglut.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.019096" length="0.078396"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.019841" length="0.080842"/>
+          </geometry>
         </collision>
     </link>
     <link name="l_uleg">
@@ -262,11 +328,44 @@
                 <mesh filename="package://atlas_description/meshes_v3/l_uleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_uleg.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 0 0" xyz="-0.0179 0.02085 -0.13"/>
+          <geometry>
+            <cylinder radius="0.1" length="0.10"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 -0.3 0" xyz="-0.03 0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0.3 0" xyz="-0.005 0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="-0.25 0 0" xyz="-0.02 0.03 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <!-- to cover the logo shield -->
+        <collision group="other">
+          <origin rpy="-0.15 0.13 0" xyz="0.005 0.03 -0.26"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
         </collision>
     </link>
     <link name="ltorso">
@@ -394,12 +493,28 @@
                 <mesh filename="package://atlas_description/meshes_v3/r_foot.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_foot.stl" scale="1 1 1" />
             </geometry>
         </collision>
+        -->
+        <collision group="default">
+          <origin xyz="0.048 0 -0.056119" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.26 0.124887 0.05"/>
+          </geometry>
+        </collision>
+        <!-- ankle FIXME: adding this collision body destabilizes robot, shouldn't
+        <collision group="other">
+          <origin xyz="0.0 0 -0.0528735" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.0373" length="0.037827"/>
+          </geometry>
+        </collision>
+        -->
     </link>
     <link name="r_hand">
         <inertial>
@@ -463,11 +578,25 @@
                 <mesh filename="package://atlas_description/meshes_v3/r_lglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_lglut.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="1.5707963267949 0 0" xyz="0.049968 -0.022488 -0.0501165"/>
+          <geometry>
+            <cylinder radius="0.02009687" length="0.060306"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.02" length="0.12"/>
+          </geometry>
         </collision>
     </link>
     <link name="r_lleg">
@@ -482,11 +611,19 @@
                 <mesh filename="package://atlas_description/meshes_v3/r_lleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_lleg.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 0.10 0" xyz="0.02 -0.00295 -0.18"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.40"/>
+          </geometry>
         </collision>
     </link>
     <link name="r_scap">
@@ -526,11 +663,25 @@
                 <mesh filename="package://atlas_description/meshes_v3/r_talus.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_talus.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.010181" length="0.029542"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="1.5707963267949 0 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.010348" length="0.010059"/>
+          </geometry>
         </collision>
     </link>
     <link name="r_uarm">
@@ -570,11 +721,25 @@
                 <mesh filename="package://atlas_description/meshes_v3/r_uglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_uglut.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.019096" length="0.078396"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.019841" length="0.080842"/>
+          </geometry>
         </collision>
     </link>
     <link name="r_uleg">
@@ -589,11 +754,44 @@
                 <mesh filename="package://atlas_description/meshes_v3/r_uleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_uleg.stl" scale="1 1 1" />
             </geometry>
+        </collision>
+        -->
+        <collision group="default">
+          <origin rpy="0 0 0" xyz="-0.0179 -0.02085 -0.13"/>
+          <geometry>
+            <cylinder radius="0.1" length="0.10"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 -0.3 0" xyz="-0.03 -0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0.3 0" xyz="-0.005 -0.01 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0.25 0 0" xyz="-0.02 -0.03 -0.23"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <!-- to cover the logo shield -->
+        <collision group="other">
+          <origin rpy="0.15 0.13 0" xyz="0.005 -0.03 -0.26"/>
+          <geometry>
+            <cylinder radius="0.07" length="0.15"/>
+          </geometry>
         </collision>
     </link>
     <!-- with backpack -->
