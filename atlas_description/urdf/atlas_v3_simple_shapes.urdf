@@ -161,15 +161,15 @@
         </collision>
         -->
         <collision group="default">
-          <origin rpy="1.5707963267949 0 0" xyz="0.049968 0.022488 -0.0501165"/>
+          <origin rpy="1.5707963267949 0 0" xyz="0.05 0.022488 -0.05"/>
           <geometry>
             <cylinder radius="0.02009687" length="0.060306"/>
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <origin rpy="0 1.5707963267949 0" xyz="0.0115 0 0"/>
           <geometry>
-            <cylinder radius="0.02" length="0.12"/>
+            <cylinder radius="0.02" length="0.144"/>
           </geometry>
         </collision>
     </link>
@@ -365,6 +365,20 @@
           <origin rpy="-0.15 0.13 0" xyz="0.005 0.03 -0.26"/>
           <geometry>
             <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <!-- inside strut -->
+        <collision group="other">
+          <origin rpy="-0.052 0.0 0" xyz="-0.005 -0.023 -0.058"/>
+          <geometry>
+            <box size="0.07 0.016 0.15"/>
+          </geometry>
+        </collision>
+        <!-- outside strut -->
+        <collision group="other">
+          <origin rpy="0.0 0.0 0" xyz="-0.015 0.078 -0.055"/>
+          <geometry>
+            <box size="0.07 0.038 0.15"/>
           </geometry>
         </collision>
     </link>
@@ -573,7 +587,10 @@
             <inertia ixx="0.000691326" ixy="2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="-0.000137862" izz="0.00106487" />
         </inertial>
         <visual>
+            <!-- there appears to be a bug in the visuals provided, not aligned with the other left one in x-direction
             <origin xyz="0 0 0" rpy="0 -0 0" />
+            -->
+            <origin xyz="0.01 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_lglut.dae" scale="1 1 1" />
             </geometry>
@@ -587,15 +604,15 @@
         </collision>
         -->
         <collision group="default">
-          <origin rpy="1.5707963267949 0 0" xyz="0.049968 -0.022488 -0.0501165"/>
+          <origin rpy="1.5707963267949 0 0" xyz="0.05 -0.022488 -0.05"/>
           <geometry>
             <cylinder radius="0.02009687" length="0.060306"/>
           </geometry>
         </collision>
         <collision group="other">
-          <origin rpy="0 1.5707963267949 0" xyz="0 0 0"/>
+          <origin rpy="0 1.5707963267949 0" xyz="0.0105 0 0"/>
           <geometry>
-            <cylinder radius="0.02" length="0.12"/>
+            <cylinder radius="0.02" length="0.142"/>
           </geometry>
         </collision>
     </link>
@@ -791,6 +808,20 @@
           <origin rpy="0.15 0.13 0" xyz="0.005 -0.03 -0.26"/>
           <geometry>
             <cylinder radius="0.07" length="0.15"/>
+          </geometry>
+        </collision>
+        <!-- inside strut -->
+        <collision group="other">
+          <origin rpy="0.052 0.0 0" xyz="-0.005 0.023 -0.058"/>
+          <geometry>
+            <box size="0.07 0.016 0.15"/>
+          </geometry>
+        </collision>
+        <!-- outside strut -->
+        <collision group="other">
+          <origin rpy="0.0 0.0 0" xyz="-0.015 -0.078 -0.055"/>
+          <geometry>
+            <box size="0.07 0.038 0.15"/>
           </geometry>
         </collision>
     </link>
