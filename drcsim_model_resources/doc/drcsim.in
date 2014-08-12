@@ -661,9 +661,9 @@ WARN_LOGFILE           = /tmp/drcsim_dox.warn
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = @CMAKE_SOURCE_DIR@/doc/mainpage.html \
-                         @CMAKE_SOURCE_DIR@/plugins \
-                         @CMAKE_SOURCE_DIR@/ros
+INPUT                  = @CMAKE_SOURCE_DIR@/drcsim/drcsim_model_resources/doc/mainpage.html \
+                         @CMAKE_SOURCE_DIR@/drcsim/drcsim_model_resources/plugins \
+                         @CMAKE_SOURCE_DIR@/drcsim/drcsim_model_resources/ros
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -894,13 +894,13 @@ HTML_FILE_EXTENSION    = .html
 # have to redo this when upgrading to a newer version of doxygen or when
 # changing the value of configuration settings such as GENERATE_TREEVIEW!
 
-HTML_HEADER            = "@CMAKE_SOURCE_DIR@/doc/header.html"
+HTML_HEADER            = "@CMAKE_SOURCE_DIR@/drcsim/drcsim_model_resources/doc/header.html"
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard footer.
 
-HTML_FOOTER            = "@CMAKE_SOURCE_DIR@/doc/footer.html"
+HTML_FOOTER            = "@CMAKE_SOURCE_DIR@/drcsim/drcsim_model_resources/doc/footer.html"
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading
 # style sheet that is used by each HTML page. It can be used to
@@ -909,7 +909,7 @@ HTML_FOOTER            = "@CMAKE_SOURCE_DIR@/doc/footer.html"
 # HTML_EXTRA_STYLESHEET instead of this one, as it is more robust and this
 # tag will in the future become obsolete.
 
-HTML_STYLESHEET        = "@CMAKE_SOURCE_DIR@/doc/doxygen.css"
+HTML_STYLESHEET        = "@CMAKE_SOURCE_DIR@/drcsim/drcsim_model_resources/doc/doxygen.css"
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify an additional
 # user-defined cascading style sheet that is included after the standard
