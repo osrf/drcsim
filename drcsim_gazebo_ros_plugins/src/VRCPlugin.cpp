@@ -1215,7 +1215,11 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
     // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+#if GAZEBO_MAJOR_VERSION >= 4
+    this->fireHoseJoints[i]->SetPosition(0u, 0.0);
+#else
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+#endif
   }
 }
 
