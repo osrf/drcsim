@@ -6,10 +6,9 @@ if (DOXYGEN_FOUND)
 
   # FIXME TODO move this to drcsim_gazebo_plugins
   # Get the AtlasSimInterface PATH non depending upon versions
-  # file (GLOB atlas_dir "${PROJECT_SOURCE_DIR}/plugins/AtlasSimInterface*/doc/html")
+  file (GLOB atlas_dir "${PROJECT_SOURCE_DIR}/AtlasSimInterface*/doc/html")
 
   add_custom_target(doc
-
     # Generate the API documentation
     ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/drcsim.dox
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
