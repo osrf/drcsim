@@ -14,7 +14,7 @@ if (NOT DEFINED USE_ATLASSIMINTERFACE_BLOB)
     else()
       set(USE_ATLASSIMINTERFACE_BLOB False)
       message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. If you want to use DRCSim without the AtlasSimInterface binary interface, run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
-    endif() 
+    endif()
   elseif(BSD)
     message(STATUS "Warning: system check for 32/64 bit is not implemented for")
     message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
@@ -24,7 +24,7 @@ if (NOT DEFINED USE_ATLASSIMINTERFACE_BLOB)
   endif()
 endif()
 
-set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
+set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_2.10.2")
 
 find_package(catkin REQUIRED COMPONENTS
              drcsim_model_resources
@@ -106,6 +106,7 @@ set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_PRO
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_PROJECT_PATH}/include")
 if (USE_ATLASSIMINTERFACE_BLOB)
   target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
+#  target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} Atlas_shim)
 endif()
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 

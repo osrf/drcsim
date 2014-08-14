@@ -356,7 +356,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->controlOutput.manipulate_feedback.status_flags = 0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_height = 0.0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_yaw = 0.0;
-    this->controlOutput.manipulate_feedback.clamped.pelvis_lat = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_pitch = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_roll = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.com_v0 = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.com_v1 = 0.0;
   }
 
   {
@@ -447,7 +450,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     manipulateParams->use_desired = false;
     manipulateParams->desired.pelvis_height = 0.0;
     manipulateParams->desired.pelvis_yaw = 0.0;
-    manipulateParams->desired.pelvis_lat = 0.0;
+    manipulateParams->desired.pelvis_pitch = 0.0;
+    manipulateParams->desired.pelvis_roll = 0.0;
+    manipulateParams->desired.com_v0 = 0.0;
+    manipulateParams->desired.com_v1 = 0.0;
     manipulateParams->use_demo_mode = false;
   }
 
@@ -498,7 +504,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       fb->manipulate_feedback.status_flags = 0;
       fb->manipulate_feedback.clamped.pelvis_height = 0.0;
       fb->manipulate_feedback.clamped.pelvis_yaw = 0.0;
-      fb->manipulate_feedback.clamped.pelvis_lat = 0.0;
+      fb->manipulate_feedback.clamped.pelvis_pitch = 0.0;
+      fb->manipulate_feedback.clamped.pelvis_roll = 0.0;
+      fb->manipulate_feedback.clamped.com_v0 = 0.0;
+      fb->manipulate_feedback.clamped.com_v1 = 0.0;
     }
 
     // start with PID control
@@ -1362,8 +1371,14 @@ void AtlasPlugin::SetASICommand(
       _msg->manipulate_params.desired.pelvis_height;
     manipulateParams->desired.pelvis_yaw =
       _msg->manipulate_params.desired.pelvis_yaw;
-    manipulateParams->desired.pelvis_lat =
-      _msg->manipulate_params.desired.pelvis_lat;
+    manipulateParams->desired.pelvis_pitch =
+      _msg->manipulate_params.desired.pelvis_pitch;
+    manipulateParams->desired.pelvis_roll =
+      _msg->manipulate_params.desired.pelvis_roll;
+    manipulateParams->desired.com_v0 =
+      _msg->manipulate_params.desired.com_v0;
+    manipulateParams->desired.com_v1 =
+      _msg->manipulate_params.desired.com_v1;
     manipulateParams->use_demo_mode = false;
       _msg->manipulate_params.use_demo_mode;
 
@@ -2102,8 +2117,14 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->manipulate_feedback.clamped.pelvis_height;
   fb->manipulate_feedback.clamped.pelvis_yaw =
     fbOut->manipulate_feedback.clamped.pelvis_yaw;
-  fb->manipulate_feedback.clamped.pelvis_lat =
-    fbOut->manipulate_feedback.clamped.pelvis_lat;
+  fb->manipulate_feedback.clamped.pelvis_pitch =
+    fbOut->manipulate_feedback.clamped.pelvis_pitch;
+  fb->manipulate_feedback.clamped.pelvis_roll =
+    fbOut->manipulate_feedback.clamped.pelvis_roll;
+  fb->manipulate_feedback.clamped.com_v0 =
+    fbOut->manipulate_feedback.clamped.com_v0;
+  fb->manipulate_feedback.clamped.com_v1 =
+    fbOut->manipulate_feedback.clamped.com_v1;
   #endif
 }
 
