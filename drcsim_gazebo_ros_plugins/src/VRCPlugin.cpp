@@ -652,7 +652,8 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                                       bool _disableCollision)
 {
   physics::JointPtr joint;
-  if (_world->GetPhysicsEngine()->GetType() == "ode")
+  if (_world->GetPhysicsEngine()->GetType() == "ode" ||
+      _world->GetPhysicsEngine()->GetType() == "bullet")
   {
     joint = _world->GetPhysicsEngine()->CreateJoint(
       _type, _model);
