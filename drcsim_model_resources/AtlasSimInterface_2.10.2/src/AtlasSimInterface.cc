@@ -34,7 +34,12 @@ void destroy_atlas_sim_interface()
 {
 }
 
-} // extern "C"
+} // end extern "C"
+
+//////////////////////////////////////////////////
+AtlasSimInterface::AtlasSimInterface()
+{
+}
 
 //////////////////////////////////////////////////
 int AtlasSimInterface::get_version_major()
@@ -51,11 +56,14 @@ int AtlasSimInterface::get_version_minor()
 //////////////////////////////////////////////////
 int AtlasSimInterface::get_version_point()
 {
-  return 2;
+  // The -1 means that this library is just a shim library and it doesn't
+  // provide real functionality.
+  return -1;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode process_control_input(const AtlasControlInput& control_input,
+AtlasErrorCode AtlasSimInterface::process_control_input(
+    const AtlasControlInput& control_input,
     const AtlasRobotState& robot_state,
     AtlasControlOutput& control_output)
 {
@@ -63,64 +71,70 @@ AtlasErrorCode process_control_input(const AtlasControlInput& control_input,
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode reset_control()
+AtlasErrorCode AtlasSimInterface::reset_control()
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode set_desired_behavior(const std::string& behavior)
+AtlasErrorCode AtlasSimInterface::set_desired_behavior(
+    const std::string& behavior)
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_desired_behavior(std::string& desired_behavior)
+AtlasErrorCode AtlasSimInterface::get_desired_behavior(
+    std::string& desired_behavior)
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_current_behavior(std::string& current_behavior)
+AtlasErrorCode AtlasSimInterface::get_current_behavior(
+    std::string& current_behavior)
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_num_behaviors(int& num_behaviors)
+AtlasErrorCode AtlasSimInterface::get_num_behaviors(int& num_behaviors)
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_behavior_at_index(int index, std::string& behavior)
+AtlasErrorCode AtlasSimInterface::get_behavior_at_index(int index,
+    std::string& behavior)
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_behavior_joint_weights(const std::string& behavior,
+AtlasErrorCode AtlasSimInterface::get_behavior_joint_weights(
+    const std::string& behavior,
     float joint_control_weights[NUM_JOINTS])
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_current_behavior_joint_weights(
+AtlasErrorCode AtlasSimInterface::get_current_behavior_joint_weights(
     float joint_control_weights[NUM_JOINTS])
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-AtlasErrorCode get_estimated_position(AtlasPositionData& robot_pos_est,
+AtlasErrorCode AtlasSimInterface::get_estimated_position(
+    AtlasPositionData& robot_pos_est,
     AtlasVec3f foot_pos_est[Atlas::NUM_FEET])
 {
   return AtlasSim::NO_ERRORS;
 }
 
 //////////////////////////////////////////////////
-std::string get_error_code_text(AtlasErrorCode ec)
+std::string AtlasSimInterface::get_error_code_text(AtlasErrorCode ec)
 {
   return std::string("NO ERRORS");
 }

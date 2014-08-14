@@ -92,10 +92,10 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
-add_library(Atlas_shim SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
-target_link_libraries(Atlas_shim)
+add_library(AtlasSimInterface SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
+target_link_libraries(AtlasSimInterface)
 
-install (TARGETS Atlas_shim DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
 
 # install AtlasSimInterface Binary
