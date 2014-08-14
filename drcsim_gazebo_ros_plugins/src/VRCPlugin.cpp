@@ -154,9 +154,10 @@ void VRCPlugin::UnpinAtlas()
     this->RemoveJoint(this->vehicleRobotJoint);
   this->SetFeetCollide("all");
 
-  if (this->world->GetPhysicsEngine()->GetType() == "simbody")
+  if (this->world->GetPhysicsEngine()->GetType() == "simbody" ||
+      this->world->GetPhysicsEngine()->GetType() == "dart")
   {
-    // simulate un-freezing simbody unlock free joints
+    // simulate un-freezing simbody or dart unlock free joints
     // Currently we do this to all the links in the model,
     // but ideally we can do this to only the link(s) with
     // a free 6-dof mobilizer.
@@ -682,9 +683,10 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
         _link2->SetCollideMode("fixed");
     }
   }
-  else if (_world->GetPhysicsEngine()->GetType() == "simbody")
+  else if (_world->GetPhysicsEngine()->GetType() == "simbody" ||
+           _world->GetPhysicsEngine()->GetType() == "dart")
   {
-    // simulate freezing lock simbody free joints
+    // simulate freezing lock simbody or dart free joints
     // Currently we do this to all the links in the model,
     // but ideally we can do this to only the link(s) with
     // a free 6-dof mobilizer.
@@ -899,8 +901,10 @@ void VRCPlugin::UpdateStates()
   double curTime = this->world->GetSimTime().Double();
   // if user chooses bdi_stand mode, robot will be initialized
   // with PID stand in BDI stand pose pinned.
-  // After startupStandPrepDuration - 1 seconds, pin released.
-  // After startupStandPrepDuration seconds, start Stand mode
+  // At t-t0 < startupStandPrepDuration seconds, pinned.
+  // At t-t0 = startupStandPrepDuration seconds, begin StandPrep mode.
+  // At t-t0 = startupNominal seconds, unpinned, nominal.
+  // At t-t0 = startupStand seconds, start Stand mode.
   if (this->atlas.startupSequence == Robot::NONE)
   {
     // Load and Spawn Robot
@@ -943,7 +947,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_PID_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 8.0))
+            atlas.startupStandPrepDuration)
           {
             ROS_INFO("going into stand prep");
             this->atlasCommandController.SetBDIStandPrep();
@@ -955,7 +959,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 0.3))
+            atlas.startupNominal)
           {
             ROS_INFO("going into Nominal");
             this->SetRobotMode("nominal");
@@ -967,7 +971,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-              (atlas.startupStandPrepDuration - 0.2))
+              atlas.startupStand)
           {
             ROS_INFO("going into Dynamic Stand Behavior");
             this->atlasCommandController.SetBDIStand();
@@ -988,12 +992,12 @@ void VRCPlugin::UpdateStates()
           this->SetRobotMode("pinned");
           if (math::equal(this->atlas.startupHarnessDuration, 0.0))
           {
-            ROS_DEBUG("Atlas will stay pinned.");
+            ROS_INFO("Atlas will stay pinned.");
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
           }
           else
           {
-            ROS_DEBUG("Resume to nominal mode after %f seconds.",
+            ROS_INFO("Resume to nominal mode after %f seconds.",
               this->atlas.startupHarnessDuration);
             this->atlas.pinnedSequence = Robot::PS_PINNED;
           }
@@ -1156,7 +1160,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    ROS_DEBUG("fire_hose_model [%s] not found", fireHoseModelName.c_str());
+    ROS_INFO("VRCPlugin: fire_hose_model [%s] not found, threading disabled.",
+      fireHoseModelName.c_str());
     return;
   }
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
@@ -1166,7 +1171,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->couplingLink = this->fireHoseModel->GetLink(couplingLinkName);
   if (!this->couplingLink)
   {
-    ROS_ERROR("coupling link [%s] not found", couplingLinkName.c_str());
+    ROS_INFO("VRCPlugin: coupling link [%s] not found, threading disabled.",
+      couplingLinkName.c_str());
     return;
   }
 
@@ -1181,7 +1187,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->standpipeModel = _world->GetModel(standpipeModelName);
   if (!this->standpipeModel)
   {
-    ROS_ERROR("standpipe model [%s] not found", standpipeModelName.c_str());
+    ROS_ERROR("VRCPlugin: standpipe model [%s] not found",
+      standpipeModelName.c_str());
     return;
   }
 
@@ -1190,7 +1197,8 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->spoutLink = this->standpipeModel->GetLink(spoutLinkName);
   if (!this->spoutLink)
   {
-    ROS_ERROR("spout link [%s] not found", spoutLinkName.c_str());
+    ROS_ERROR("VRCPlugin: spout link [%s] not found",
+      spoutLinkName.c_str());
     return;
   }
 
@@ -1203,19 +1211,22 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->valveModel = _world->GetModel(valveModelName);
   if (!this->valveModel)
   {
-    ROS_ERROR("valve model [%s] not found", valveModelName.c_str());
-    return;
+    ROS_WARN("VRCPlugin: valve model [%s] not found, scoring will be wrong",
+      valveModelName.c_str());
   }
-  std::string valveJointName;
-  if (sdf->HasElement("valve_joint"))
-    valveJointName = sdf->Get<std::string>("valve_joint");
   else
-    valveJointName = "valve";
-  this->valveJoint = this->valveModel->GetJoint(valveJointName);
-  if (!this->valveJoint)
   {
-    ROS_ERROR("valve joint [%s] not found", valveJointName.c_str());
-    return;
+    std::string valveJointName;
+    if (sdf->HasElement("valve_joint"))
+      valveJointName = sdf->Get<std::string>("valve_joint");
+    else
+      valveJointName = "valve";
+    this->valveJoint = this->valveModel->GetJoint(valveJointName);
+    if (!this->valveJoint)
+    {
+      ROS_WARN("VRCPlugin: valve joint [%s] not found, scoring will be wrong",
+        valveJointName.c_str());
+    }
   }
 
   this->threadPitch = sdf->Get<double>("thread_pitch");
@@ -1268,23 +1279,28 @@ void VRCPlugin::CheckThreadStart()
                         fabs(relativePose.pos.y - connectPose.pos.y);
   double rotErr = (relativePose.rot.GetXAxis() -
                    connectPose.rot.GetXAxis()).GetLength();
-  double valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
+  double valveAng = 0;
+  if (this->drcFireHose.valveJoint)
+    valveAng = this->drcFireHose.valveJoint->GetAngle(0).Radian();
 
-  // gzdbg << " connectPose [" << connectPose
-  //       << "] [" << connectPose.rot.GetXAxis()
-  //       << "] [" << connectPose.rot.GetYAxis()
-  //       << "] [" << connectPose.rot.GetZAxis() << "]\n";
-  // gzdbg << " relativePose [" << relativePose
-  //       << "] [" << relativePose.rot.GetXAxis()  // bingo
-  //       << "] [" << relativePose.rot.GetYAxis()
-  //       << "] [" << relativePose.rot.GetZAxis() << "]\n";
-  // math::Pose connectOffset = relativePose - connectPose;
-  // gzdbg << "connect offset [" << connectOffset << "]\n";
-  // gzerr << "insert [" << posErrInsert
-  //       << "] center [" << posErrCenter
-  //       << "] rpy [" << rotErr
-  //       << "] valve [" << valveAng
-  //       << "]\n";
+  /* uncomment for debugging
+  gzdbg << " connectPose [" << connectPose
+        << "] [" << connectPose.rot.GetXAxis()
+        << "] [" << connectPose.rot.GetYAxis()
+        << "] [" << connectPose.rot.GetZAxis() << "]\n";
+  gzerr << "<coupling_relative_pose>"
+        << relativePose + math::Pose(0, 0, collisionSurfaceZOffset, 0, 0, 0)
+        << "</coupling_relative_pose>\n";
+  gzdbg << "relativePose axis [" << relativePose.rot.GetXAxis()  // bingo
+        << "] [" << relativePose.rot.GetYAxis()
+        << "] [" << relativePose.rot.GetZAxis() << "]\n";
+  gzdbg << "offset [" << relativePose - connectPose << "]\n";
+  gzwarn << "insert [" << posErrInsert
+         << "] center [" << posErrCenter
+         << "] rpy [" << rotErr
+         << "] valve [" << valveAng
+         << "]\n";
+  */
 
   if (!this->drcFireHose.screwJoint)
   {
@@ -1376,6 +1392,13 @@ VRCPlugin::Robot::Robot()
   this->startupSequence = Robot::NONE;
   this->bdiStandSequence = Robot::BS_NONE;
   this->pinnedSequence = Robot::PS_NONE;
+
+  // bunch of hardcoded presets
+  this->startupHarnessDuration = 5;
+  this->startupStandPrepDuration = 2.0;
+  this->startupNominal = this->startupStandPrepDuration + 2.0;
+  this->startupStand = this->startupNominal + 0.1;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1387,10 +1410,6 @@ VRCPlugin::Robot::~Robot()
 void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   sdf::ElementPtr _sdf)
 {
-  // bunch of hardcoded presets
-  this->startupHarnessDuration = 5;
-  this->startupStandPrepDuration = 5;
-
   // changed by ros param
   this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
 
@@ -1540,7 +1559,7 @@ void VRCPlugin::LoadRobotROSAPI()
   if (!this->rosNode->getParam("atlas/time_to_unpin",
     atlas.startupHarnessDuration))
   {
-    ROS_DEBUG("atlas/time_to_unpin not specified, default harness duration to"
+    ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
              " %f seconds", atlas.startupHarnessDuration);
   }
 
