@@ -90,6 +90,7 @@ set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATL
 # Atlas_shim library
 include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
 add_library(Atlas_shim SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
 target_link_libraries(Atlas_shim)
