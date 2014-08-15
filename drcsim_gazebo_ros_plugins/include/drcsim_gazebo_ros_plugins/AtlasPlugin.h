@@ -284,7 +284,6 @@ namespace gazebo
     /// \brief enforce delay policy
     private: void EnforceSynchronizationDelay(const common::Time &_curTime);
 
-    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //  BDI Controller AtlasSimInterface Internals                            //
@@ -295,7 +294,6 @@ namespace gazebo
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
-    #endif
 
     /// \brief AtlasSimInterface: ROS subscriber
     private: ros::Subscriber subASICommand;
@@ -474,7 +472,6 @@ namespace gazebo
       return result;
     }
 
-    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
     {
@@ -484,8 +481,6 @@ namespace gazebo
       result.z = _v.n[2];
       return result;
     }
-    #endif
-
 
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
@@ -499,7 +494,6 @@ namespace gazebo
       return result;
     }
 
-    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
@@ -582,7 +576,6 @@ namespace gazebo
 
       return this->ToQ(math::Quaternion(rx, ry, rz));
     }
-    #endif
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
