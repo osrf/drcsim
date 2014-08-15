@@ -394,12 +394,6 @@
                 <mesh filename="package://atlas_description/meshes_v3/ltorso.dae" scale="1 1 1" />
             </geometry>
         </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/ltorso.stl" scale="1 1 1" />
-            </geometry>
-        </collision>
     </link>
     <link name="mtorso">
         <inertial>
@@ -413,11 +407,17 @@
                 <mesh filename="package://atlas_description/meshes_v3/mtorso.dae" scale="1 1 1" />
             </geometry>
         </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/mtorso.stl" scale="1 1 1" />
-            </geometry>
+        <collision group="default">
+          <origin rpy="1.5707963267949 0 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder radius="0.017" length="0.06"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="0.0 0 0.05"/>
+          <geometry>
+            <cylinder radius="0.02" length="0.08"/>
+          </geometry>
         </collision>
     </link>
     <link name="pelvis">
@@ -432,12 +432,37 @@
                 <mesh filename="package://atlas_description/meshes_v3/pelvis.dae" scale="1 1 1" />
             </geometry>
         </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/pelvis.stl" scale="1 1 1" />
-            </geometry>
+        <collision group="default">
+          <origin rpy="1.5707963267949 0 0" xyz="0.046 0.0 -0.02"/>
+          <geometry>
+            <cylinder radius="0.11" length="0.06"/>
+          </geometry>
         </collision>
+        <collision group="other">
+          <origin rpy="1.5707963267949 0 0" xyz="-0.03 0.0 -0.02"/>
+          <geometry>
+            <cylinder radius="0.11" length="0.06"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="0.01 0.042 0.09"/>
+          <geometry>
+            <cylinder radius="0.16" length="0.05"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="0.01 -0.042 0.09"/>
+          <geometry>
+            <cylinder radius="0.16" length="0.05"/>
+          </geometry>
+        </collision>
+        <collision group="other">
+          <origin rpy="0 0 0" xyz="-0.1 0 -0.05"/>
+          <geometry>
+            <box size="0.1 0.15 0.2"/>
+          </geometry>
+        </collision>
+
     </link>
     <link name="r_clav">
         <inertial>
@@ -839,23 +864,62 @@
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.048395 0 0.20" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso.stl" scale="1 1 1" />
+              <box size="0.530175 0.25 0.340"/>
             </geometry>
         </collision>
+        <collision>
+            <origin xyz="-0.2 0 0.46" rpy="0 0 0" />
+            <geometry>
+              <box size="0.266306 0.381719 0.18"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="-0.2 0 0.58" rpy="0 0 0" />
+            <geometry>
+              <box size="0.266306 0.223 0.091"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="0.05 0 0.45" rpy="0 0 0" />
+            <geometry>
+              <box size="0.4 0.3 0.18"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="0.15 0 0.724" rpy="1.5707 0 0" />
+            <geometry>
+              <cylinder radius="0.008" length="0.1"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="-0.002 0 0.71" rpy="1.5707 0 0" />
+            <geometry>
+              <cylinder radius="0.008" length="0.13"/>
+            </geometry>
+        </collision>
+
+        <collision>
+            <origin xyz="0.02 0.163 0.57" rpy="0 1.5707 -0.078" />
+            <geometry>
+              <cylinder radius="0.007" length="0.41"/>
+            </geometry>
+        </collision>
+
+        <collision>
+            <origin xyz="0.02 -0.163 0.57" rpy="0 1.5707 0.078" />
+            <geometry>
+              <cylinder radius="0.007" length="0.41"/>
+            </geometry>
+        </collision>
+
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/utorso_pack.dae" scale="1 1 1" />
             </geometry>
         </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.stl" scale="1 1 1" />
-            </geometry>
-        </collision>
     </link>
     <!-- inertia without backpack
     <link name="utorso">
