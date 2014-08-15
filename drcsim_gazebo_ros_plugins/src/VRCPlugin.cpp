@@ -144,7 +144,7 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
   {
     links[i]->SetGravityMode(_with_gravity);
   }
-  //this->SetFeetCollide("none");
+  this->SetFeetCollide("none");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,13 +163,13 @@ void VRCPlugin::UnpinAtlas()
     this->RemoveJoint(this->vehicleRobotJoint);
   this->SetFeetCollide("all");
 
+  // simulate un-freezing simbody or dart unlock free joints
+  // Currently we do this to all the links in the model,
+  // but ideally we can do this to only the link(s) with
+  // a free 6-dof mobilizer.
   if (this->world->GetPhysicsEngine()->GetType() == "simbody" ||
       this->world->GetPhysicsEngine()->GetType() == "dart")
   {
-    // simulate un-freezing simbody or dart unlock free joints
-    // Currently we do this to all the links in the model,
-    // but ideally we can do this to only the link(s) with
-    // a free 6-dof mobilizer.
     physics::Link_V links = this->atlas.model->GetLinks();
     for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
       (*li)->SetLinkStatic(false);
@@ -255,52 +255,61 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // where to start down casting ray to check for ground
     math::Pose rayStart = atlasPose - math::Pose(0, 0, -2.0, 0, 0, 0);
 
-    physics::EntityPtr objectBelow =
-      this->world->GetEntityBelowPoint(rayStart.pos);
-    double groundHeight;
-    if (objectBelow)
+    double distBelow = 0.0;
+    physics::EntityPtr entityBelow;
+    physics::EntityPtr fromEntity = this->atlas.pinLink;
+    std::string objectBelow;
+    fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+    entityBelow = this->world->GetEntity(objectBelow);
+    gzerr << fromEntity->GetName() << " "
+          << distBelow << " " << objectBelow << "\n";
+    while (entityBelow && (entityBelow->GetParentModel() ==
+      fromEntity->GetParentModel()))
     {
-      math::Box groundBB = objectBelow->GetBoundingBox();
-      groundHeight = groundBB.max.z;
+      objectBelow.clear();
+      fromEntity = entityBelow;
+      fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+      entityBelow = this->world->GetEntity(objectBelow);
+      gzerr << fromEntity->GetName() << " "
+            << distBelow << " " << objectBelow << "\n";
+    }
+    if (entityBelow && fromEntity)
+    {
+      // gzdbg << objectBelow << "\n";
+      // gzdbg << groundHeight << "\n";
+      // gzdbg << groundBB.max.z << "\n";
+      // gzdbg << groundBB.min.z << "\n";
+
+      // slightly above ground and upright
+      atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
+        distBelow + 1.15;
+      atlasPose.rot.SetFromEuler(0, 0, 0);
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
+                                        physics::LinkPtr(),
+                                        this->atlas.pinLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
+      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+      // turning off effect of gravity
+      physics::Link_V links = this->atlas.model->GetLinks();
+      for (unsigned int i = 0; i < links.size(); ++i)
+      {
+        links[i]->SetGravityMode(false);
+      }
     }
     else
     {
-      ROS_ERROR("failed to find ground height, guessing 0.0");
-      groundHeight = 0.0;
+      gzwarn << "No entity below robot, or GetEntityBelowPoint "
+             << "returned NULL pointer.\n";
+      // put atlas back
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
     }
-
-    if (this->world->GetPhysicsEngine()->GetType() == "bullet")
-    {
-      ROS_ERROR("Bullet GetEntityBelowPoint broken, see issue #539.");
-      groundHeight = 0.0;
-    }
-
-    // gzdbg << objectBelow->GetName() << "\n";
-    // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
-    // gzdbg << groundHeight << "\n";
-    // gzdbg << groundBB.max.z << "\n";
-    // gzdbg << groundBB.min.z << "\n";
-
-    // slightly above ground and upright
-    atlasPose.pos.z = groundHeight + 1.15;
-    atlasPose.rot.SetFromEuler(0, 0, 0);
-    this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
-
-    this->atlas.pinJoint = this->AddJoint(this->world,
-                                      this->atlas.model,
-                                      physics::LinkPtr(),
-                                      this->atlas.pinLink,
-                                      "revolute",
-                                      math::Vector3(0, 0, 0),
-                                      math::Vector3(0, 0, 1),
-                                      0.0, 0.0);
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    // turning off effect of gravity
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-      links[i]->SetGravityMode(false);
-
     this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
