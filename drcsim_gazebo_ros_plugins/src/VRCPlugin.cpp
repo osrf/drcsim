@@ -253,24 +253,18 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     {
       math::Box groundBB = objectBelow->GetBoundingBox();
       groundHeight = groundBB.max.z;
+      if (this->world->GetPhysicsEngine()->GetType() == "bullet" &&
+          objectBelow->GetScopedName().find("plane") != std::string::npos)
+      {
+        ROS_ERROR("BulletPlaneShape::GetBoundingBox broken, see issue #1265.");
+        groundHeight = 0.0;
+      }
     }
     else
     {
       ROS_ERROR("failed to find ground height, guessing 0.0");
       groundHeight = 0.0;
     }
-
-    if (this->world->GetPhysicsEngine()->GetType() == "bullet")
-    {
-      ROS_ERROR("Bullet GetEntityBelowPoint broken, see issue #539.");
-      groundHeight = 0.0;
-    }
-
-    // gzdbg << objectBelow->GetName() << "\n";
-    // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
-    // gzdbg << groundHeight << "\n";
-    // gzdbg << groundBB.max.z << "\n";
-    // gzdbg << groundBB.min.z << "\n";
 
     // slightly above ground and upright
     atlasPose.pos.z = groundHeight + 1.15;
@@ -661,7 +655,6 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
     // load adds the joint to a vector of shared pointers kept
     // in parent and child links, preventing joint from being destroyed.
     joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
-    // joint->SetAnchor(0, _anchor);
     joint->SetAxis(0, _axis);
     joint->SetHighStop(0, _upper);
     joint->SetLowStop(0, _lower);
