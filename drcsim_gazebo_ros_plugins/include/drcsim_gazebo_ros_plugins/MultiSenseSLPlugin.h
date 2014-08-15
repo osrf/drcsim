@@ -99,6 +99,12 @@ namespace gazebo
     private: ros::Subscriber set_spindle_state_sub_;
     private: void SetSpindleState(const std_msgs::Bool::ConstPtr &_msg);
 
+    /// for deprecation from ~/multisense_sl/fps to ~/multisense_sl/set_fps
+    /// per issue 272
+    private: ros::Subscriber set_multi_camera_frame_rate_sub_old_;
+    private: void SetMultiCameraFrameRateOld(const std_msgs::Float64::ConstPtr
+                                         &_msg);
+
     private: ros::Subscriber set_multi_camera_frame_rate_sub_;
     private: void SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
                                          &_msg);

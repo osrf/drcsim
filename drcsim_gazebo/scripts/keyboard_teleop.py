@@ -71,9 +71,9 @@ class AtlasTeleop(object):
         self.client = actionlib.SimpleActionClient('atlas/bdi_control', \
           WalkDemoAction)
         self.mode = rospy.Publisher('/atlas/mode', String, None, False, \
-          True, None)
+          True, queue_size=1)
         self.control_mode = rospy.Publisher('/atlas/control_mode', \
-          String, None, False, True, None)
+          String, None, False, True, queue_size=1)
     
         # Waits until the action server has started up and started
         # listening for goals.

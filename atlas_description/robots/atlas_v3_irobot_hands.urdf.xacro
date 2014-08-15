@@ -7,7 +7,7 @@
     <origin xyz="-0.00179 -0.09516 0.01176" rpy="1.57079 0 0"/>
   </xacro:irobot_hand>
   <xacro:irobot_hand side="left" parent="l_hand" reflect="-1">
-    <origin xyz="0.00179  0.09516 0.01176" rpy="1.57079 0 3.14159"/>
+    <origin xyz="0.00179  0.09516 0.01176" rpy="-1.57079 0 0"/>
   </xacro:irobot_hand>
 
   <gazebo>
