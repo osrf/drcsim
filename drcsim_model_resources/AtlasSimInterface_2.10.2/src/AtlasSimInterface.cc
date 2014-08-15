@@ -15,8 +15,8 @@
  *
 */
 
-#include <string>
 #include <iostream>
+#include <string>
 #include "AtlasControlTypes.h"
 #include "AtlasSimInterface.h"
 #include "AtlasSimInterfaceTypes.h"
@@ -27,7 +27,7 @@ extern "C" {
 //////////////////////////////////////////////////
 AtlasSimInterface* create_atlas_sim_interface()
 {
-  std::cerr << "\nWarning: Using Atla Shim interface. "
+  std::cerr << "\nWarning: Using Atlas Shim interface. "
     << "Atlas will be uncontrolled\n";
   return new AtlasSimInterface();
 }
