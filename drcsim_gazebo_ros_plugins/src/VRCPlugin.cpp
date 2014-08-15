@@ -290,7 +290,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     this->UnpinAtlas();
   }
-  else if (_str == "bdi_stand")
+  else if (_str == "pid_stand")
   {
     // Robot is PID controlled in BDI stand Pose and PINNED.
 
@@ -905,7 +905,7 @@ void VRCPlugin::UpdateStates()
         case Robot::BS_NONE:
         {
           // ROS_INFO("BS_NONE");
-          this->SetRobotMode("bdi_stand");
+          this->SetRobotMode("pid_stand");
           // start the rest of the sequence
           this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
           this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
