@@ -551,8 +551,12 @@ namespace gazebo
         double yz = sqrt(_normal.n[1]*_normal.n[1] +
                          _normal.n[2]*_normal.n[2]);
         if (math::equal(yz, 0.0))
+        {
+          /*
           ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                    "zero length or is parallel to the x-axis");
+          */
+        }
         else
           rx = 0.5*M_PI - asin(_normal.n[2] / yz);
       }
@@ -563,8 +567,12 @@ namespace gazebo
         double xz = sqrt(_normal.n[0]*_normal.n[0] +
                          _normal.n[2]*_normal.n[2]);
         if (math::equal(xz, 0.0))
+        {
+          /*
           ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                    "zero length or is parallel to the y-axis");
+          */
+        }
         else
           ry = 0.5*M_PI - asin(_normal.n[2] / xz);
       }
