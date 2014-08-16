@@ -25,7 +25,7 @@ rostopic pub --once /atlas/joint_commands osrf_msgs/JointCommands '{ position: [
 
 sleep 3
 
-gzfactory delete -m beer_heavy
+gz model --delete -m beer_heavy
 
 rostopic pub --once /sandia_hands/r_hand/joint_commands osrf_msgs/JointCommands "{name: ['f0_j0', 'f0_j1', 'f0_j2', 'f1_j0', 'f1_j1', 'f1_j2', 'f2_j0', 'f2_j1', 'f2_j2', 'f3_j0', 'f3_j1', 'f3_j2'], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0],  kp_position: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}"
 rosservice call /sandia_hands/r_hand/simple_grasp ' { grasp: { name: "cylindrical", closed_amount: 0.5 } }'
@@ -36,8 +36,9 @@ rosservice call /gazebo/set_physics_properties "{ time_step: 0.001, max_update_r
 
 sleep 5
 
-# gzfactory spawn -f ~/.gazebo/models/cordless_drill/model.sdf -x -0.303 -y 0.686 -z 1.417 -R 0 -P 0 -Y 1.57
-gzfactory spawn -f ~/.gazebo/models/beer_heavy/model.sdf -x 0.063191 -y -1.016631 -z 1.517 -R 0 -P 0 -Y 1.57
+# gz model -f ~/.gazebo/models/cordless_drill/model.sdf -m beer_heavy -x -0.303 -y 0.686 -z 1.417 -R 0 -P 0 -Y 1.57
+gz model -f ~/.gazebo/models/beer_heavy/model.sdf -m beer_heavy -x 0.063191 -y -1.016631 -z 1.517 -R 0 -P 0 -Y 1.57 # spawn model
+# gz model -m beer_heavy -x 0.063191 -y -1.016631 -z 1.517 -R 0 -P 0 -Y 1.57 # move model only
 
 sleep 1
 

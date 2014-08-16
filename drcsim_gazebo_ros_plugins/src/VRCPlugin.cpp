@@ -144,7 +144,7 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
   {
     links[i]->SetGravityMode(_with_gravity);
   }
-  this->SetFeetCollide("none");
+  // this->SetFeetCollide("none");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
