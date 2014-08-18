@@ -234,21 +234,34 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // where to start down casting ray to check for ground
     math::Pose rayStart = atlasPose - math::Pose(0, 0, -2.0, 0, 0, 0);
 
-    physics::EntityPtr objectBelow =
-      this->world->GetEntityBelowPoint(rayStart.pos);
-    if (objectBelow)
+    double distBelow = 0.0;
+    physics::EntityPtr entityBelow;
+    physics::EntityPtr fromEntity = this->atlas.pinLink;
+    std::string objectBelow;
+    fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+    entityBelow = this->world->GetEntity(objectBelow);
+    gzerr << fromEntity->GetName() << " "
+          << distBelow << " " << objectBelow << "\n";
+    while (entityBelow && (entityBelow->GetParentModel() ==
+      fromEntity->GetParentModel()))
     {
-      math::Box groundBB = objectBelow->GetBoundingBox();
-      double groundHeight = groundBB.max.z;
-
-      // gzdbg << objectBelow->GetName() << "\n";
-      // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
+      objectBelow.clear();
+      fromEntity = entityBelow;
+      fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+      entityBelow = this->world->GetEntity(objectBelow);
+      gzerr << fromEntity->GetName() << " "
+            << distBelow << " " << objectBelow << "\n";
+    }
+    if (entityBelow && fromEntity)
+    {
+      // gzdbg << objectBelow << "\n";
       // gzdbg << groundHeight << "\n";
       // gzdbg << groundBB.max.z << "\n";
       // gzdbg << groundBB.min.z << "\n";
 
       // slightly above ground and upright
-      atlasPose.pos.z = groundHeight + 1.15;
+      atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
+        distBelow + 1.15;
       atlasPose.rot.SetFromEuler(0, 0, 0);
       this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
 
@@ -1215,7 +1228,11 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
     // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+#if GAZEBO_MAJOR_VERSION >= 4
+    this->fireHoseJoints[i]->SetPosition(0u, 0.0);
+#else
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+#endif
   }
 }
 
