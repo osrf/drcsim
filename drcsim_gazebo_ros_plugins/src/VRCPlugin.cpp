@@ -130,11 +130,8 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
                                       0.0, 0.0);
   this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
-  physics::Link_V links = this->atlas.model->GetLinks();
-  for (unsigned int i = 0; i < links.size(); ++i)
-  {
-    links[i]->SetGravityMode(_with_gravity);
-  }
+  this->atlas.model->SetGravityMode(_with_gravity);
+
   this->SetFeetCollide("none");
 }
 
@@ -143,11 +140,7 @@ void VRCPlugin::UnpinAtlas()
 {
   // nominal
   this->warpRobotWithCmdVel = false;
-  physics::Link_V links = this->atlas.model->GetLinks();
-  for (unsigned int i = 0; i < links.size(); ++i)
-  {
-    links[i]->SetGravityMode(true);
-  }
+  this->atlas.model->SetGravityMode(true);
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
   if (this->vehicleRobotJoint)
@@ -184,11 +177,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->atlas.model->SetGravityMode(false);
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
@@ -198,14 +187,11 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
-        links[i]->SetGravityMode(true);
-      else
-        links[i]->SetGravityMode(false);
-    }
+
+    this->atlas.model->SetGravityMode(false);
+    this->atlas.model->GetLink("l_foot")->SetGravityMode(true);
+    this->atlas.model->GetLink("r_foot")->SetGravityMode(true);
+
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
@@ -276,11 +262,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
       // turning off effect of gravity
-      physics::Link_V links = this->atlas.model->GetLinks();
-      for (unsigned int i = 0; i < links.size(); ++i)
-      {
-        links[i]->SetGravityMode(false);
-      }
+      this->atlas.model->SetGravityMode(false);
     }
     else
     {
@@ -321,11 +303,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                       math::Vector3(0, 0, 1),
                                       0.0, 0.0);
     // turning off effect of gravity
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->atlas.model->SetGravityMode(false);
 
     // turn physics off while manipulating things
     bool physics = this->world->GetEnablePhysicsEngine();
