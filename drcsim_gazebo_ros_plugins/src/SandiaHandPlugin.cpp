@@ -410,7 +410,7 @@ void SandiaHandPlugin::DeferredLoad()
   // Offer teams ability to change damping coef. between preset bounds
   ros::AdvertiseServiceOptions setJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
-      "sandia_hands/set_joint_damping", boost::bind(
+      topic_base+std::string("_hand/set_joint_damping"), boost::bind(
         &SandiaHandPlugin::SetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->setJointDampingService = this->rosNode->advertiseService(
@@ -419,7 +419,7 @@ void SandiaHandPlugin::DeferredLoad()
   // Offer teams ability to get damping coef.
   ros::AdvertiseServiceOptions getJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
-      "sandia_hands/get_joint_damping", boost::bind(
+      topic_base+std::string("_hand/get_joint_damping"), boost::bind(
         &SandiaHandPlugin::GetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->getJointDampingService = this->rosNode->advertiseService(
