@@ -50,7 +50,11 @@ void OnResponse(ConstResponsePtr &_msg)
 int main(int _argc, char **_argv)
 {
   // Load gazebo
+#if GAZEBO_MAJOR_VERSION > 2
+  gazebo::setupClient(_argc, _argv);
+#else
   gazebo::load(_argc, _argv);
+#endif
 
   std::string name = _argv[1];
   int id   = 0;

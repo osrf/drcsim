@@ -200,7 +200,7 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
   // Get imu sensors
   this->ImuSensor =
-    boost::shared_dynamic_cast<sensors::ImuSensor>
+    boost::dynamic_pointer_cast<sensors::ImuSensor>
        (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->ImuLink->GetScopedName()
          + "::imu_sensor"));

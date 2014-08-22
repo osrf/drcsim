@@ -104,6 +104,16 @@ void IRobotHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   // publish multi queue
   this->pmq.startServiceThread();
 
+  // ros publication / subscription
+  /// brief broadcasts the robot states
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  if (this->side == "left")
+    this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+      "irobot_hands/l_hand/joint_states", 10);
+  else if (this->side == "right")
+    this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+      "irobot_hands/r_hand/joint_states", 10);
+
   // broadcasts handle state
   std::string sensorStr = this->side + "_hand/sensors/raw";
   this->pubHandleStateQueue = this->pmq.addPub<handle_msgs::HandleSensors>();
@@ -262,6 +272,83 @@ void IRobotHandPlugin::GetAndPublishHandleState(
 
   // publish robot states
   this->pubHandleStateQueue->push(this->handleState, this->pubHandleState);
+
+
+  // setup and publish hands joint states
+  int njs = 0;
+
+  // setup hands joint states
+  this->jointStates.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
+
+  // base rotation joint of finger
+  this->jointStates.name[njs] =
+    this->fingerBaseRotationJoints[0]->GetName();
+  this->jointStates.position[njs] =
+    this->fingerBaseRotationJoints[0]->GetAngle(0).Radian();
+  this->jointStates.velocity[njs] =
+    this->fingerBaseRotationJoints[0]->GetVelocity(0);
+  this->jointStates.effort[njs] =
+    this->fingerBaseRotationJoints[0]->GetForce(0);
+  ++njs;
+
+  // base rotation joint of right finger
+  this->jointStates.name[njs] =
+    this->fingerBaseRotationJoints[1]->GetName();
+  this->jointStates.position[njs] =
+    this->fingerBaseRotationJoints[1]->GetAngle(0).Radian();
+  this->jointStates.velocity[njs] =
+    this->fingerBaseRotationJoints[1]->GetVelocity(0);
+  this->jointStates.effort[njs] =
+    this->fingerBaseRotationJoints[1]->GetForce(0);
+  ++njs;
+
+  // base joint flex
+  for (unsigned int i = 0; i < 3; ++i)
+  {
+    this->jointStates.name[njs] =
+      this->fingerBaseJoints[i]->GetName();
+    this->jointStates.position[njs] =
+      this->fingerBaseJoints[i]->GetAngle(0).Radian();
+    this->jointStates.velocity[njs] =
+      this->fingerBaseJoints[i]->GetVelocity(0);
+    this->jointStates.effort[njs] =
+      this->fingerBaseJoints[i]->GetForce(0u);
+    ++njs;
+  }
+
+  // flexure joints
+  for (int nFinger = 0; nFinger < 3; ++nFinger)
+  {
+    int numFlex = this->flexureFlexJoints[nFinger].size();
+    for (int nFlexure = 0; nFlexure < numFlex; ++nFlexure)
+    {
+      // flexure flex joints
+      this->jointStates.name[njs] =
+        this->flexureFlexJoints[nFinger][nFlexure]->GetName();
+      this->jointStates.position[njs] =
+        this->flexureFlexJoints[nFinger][nFlexure]->GetAngle(0).Radian();
+      this->jointStates.velocity[njs] =
+        this->flexureFlexJoints[nFinger][nFlexure]->GetVelocity(0);
+      this->jointStates.effort[njs] =
+        this->flexureFlexJoints[nFinger][nFlexure]->GetForce(0u);
+      ++njs;
+
+      // flexure twist joints
+      this->jointStates.name[njs] =
+        this->flexureTwistJoints[nFinger][nFlexure]->GetName();
+      this->jointStates.position[njs] =
+        this->flexureTwistJoints[nFinger][nFlexure]->GetAngle(0).Radian();
+      this->jointStates.velocity[njs] =
+        this->flexureTwistJoints[nFinger][nFlexure]->GetVelocity(0);
+      this->jointStates.effort[njs] =
+        this->flexureTwistJoints[nFinger][nFlexure]->GetForce(0u);
+      ++njs;
+    }
+  }
+
+  // publish joint states
+  this->pubJointStatesQueue->push(this->jointStates,
+    this->pubJointStates);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -443,13 +530,36 @@ void IRobotHandPlugin::UpdatePIDControl(double _dt)
       }
       else
       {
+        // hack: increase damping coefficient to reduce jitter and increase
+        // grasp stability
+        double damping = 0.5*tendonTorque;
+        this->fingerBaseJoints[j]->SetStiffnessDamping(0u,
+          this->fingerBaseJoints[j]->GetStiffness(0u),
+          damping);
+
         this->fingerBaseJoints[j]->SetForce(0, std::max(0.0, tendonTorque/2.0));
       }
       for (int i = 0; i < numFlex; ++i)
+      {
+        // hack: increase damping coefficient to reduce jitter and increase
+        // grasp stability
+        double damping = 0.5*tendonTorque/numFlex;
+        this->flexureFlexJoints[j][i]->SetStiffnessDamping(0u,
+          this->flexureFlexJoints[j][i]->GetStiffness(0u),
+          damping);
+
         this->flexureFlexJoints[j][i]->SetForce(0, (tendonTorque/2.0)/numFlex);
+      }
     }
     else  // control spread
     {
+      // hack: increase damping coefficient to reduce jitter and increase
+      // grasp stability
+      double damping = torque;
+      this->fingerBaseRotationJoints[0]->SetStiffnessDamping(0u,
+        this->fingerBaseRotationJoints[0]->GetStiffness(0u),
+        damping);
+
       /// update index/middle finger spread
       this->fingerBaseRotationJoints[0]->SetForce(0, torque);
       // setting one joint is enough due to gearbox
@@ -599,6 +709,19 @@ bool IRobotHandPlugin::FindJoints()
 
   gzlog << "IRobotHandPlugin found all joints for " << this->side
         << " hand." << std::endl;
+
+  // resize joint states vector
+  int numJoints = this->fingerBaseRotationJoints.size() +
+    this->fingerBaseJoints.size();
+  for (unsigned int i = 0; i < this->flexureFlexJoints.size(); ++i)
+    numJoints += this->flexureFlexJoints[i].size();
+  for (unsigned int i = 0; i < this->flexureTwistJoints.size(); ++i)
+    numJoints += this->flexureTwistJoints[i].size();
+  this->jointStates.name.resize(numJoints);
+  this->jointStates.position.resize(numJoints);
+  this->jointStates.velocity.resize(numJoints);
+  this->jointStates.effort.resize(numJoints);
+
   return true;
 }
 

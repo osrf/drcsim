@@ -79,23 +79,37 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 #####################################
-set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 1)
-set (ATLAS_SIM_INTERFACE_MINOR_VERSION 1)
-set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
+set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 2)
+set (ATLAS_SIM_INTERFACE_MINOR_VERSION 10)
+set (ATLAS_SIM_INTERFACE_PATCH_VERSION 2)
 set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
 set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
 
 #message(status "------------------\n\n\n\n  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL} && cp ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL} ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so \n\n\n----------------------\n")
 
+# Atlas_shim library
+include_directories(
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
+)
+add_library(AtlasSimInterface SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
+target_link_libraries(AtlasSimInterface)
+
+install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+
 
 # install AtlasSimInterface Binary
-install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-          RENAME libAtlasSimInterface.so)
+#install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
+#          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+#          RENAME libAtlasSimInterface.so)
+#install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libQuadProg_x86-64_gcc46_noqt.so
+#          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+#install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libqpOASES_x86-64_gcc46_noqt.so
+#          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+#install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
+#         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
 #####################################
 # Configure the setup script
@@ -107,7 +121,7 @@ install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}
 # Avoid to use symlinks for portability reasons. Copy the file twice.
 if(UNIX AND NOT APPLE)
   # Hack: only install setup.sh in /usr/share/drcsim if destination if /opt/ros.
-  # This will cover the cases of system installations from source and 
+  # This will cover the cases of system installations from source and
   # debs and respects catkin workspaces. Installing outside of
   # /opt/ros is mostly to be broken for system instalations.
   string(SUBSTRING "${CMAKE_INSTALL_PREFIX}" 0 8 PREFIX_START)

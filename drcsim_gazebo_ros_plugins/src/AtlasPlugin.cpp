@@ -44,10 +44,8 @@ AtlasPlugin::AtlasPlugin()
   // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "imu_link";
 
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
-  #endif
 
   // setup behavior to string map
   this->behaviorMap["None"] = atlas_msgs::AtlasSimInterfaceCommand::NONE;
@@ -93,10 +91,8 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.disable();
   this->callbackQueueThread.join();
   delete this->rosNode;
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // shutdown behavior library
   destroy_atlas_sim_interface();
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +307,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->ZeroJointCommands();
   }
 
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   {
     // AtlasSimInterface:  initialize controlOutput
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -356,7 +351,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->controlOutput.manipulate_feedback.status_flags = 0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_height = 0.0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_yaw = 0.0;
-    this->controlOutput.manipulate_feedback.clamped.pelvis_lat = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_pitch = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_roll = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.com_v0 = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.com_v1 = 0.0;
   }
 
   {
@@ -447,7 +445,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     manipulateParams->use_desired = false;
     manipulateParams->desired.pelvis_height = 0.0;
     manipulateParams->desired.pelvis_yaw = 0.0;
-    manipulateParams->desired.pelvis_lat = 0.0;
+    manipulateParams->desired.pelvis_pitch = 0.0;
+    manipulateParams->desired.pelvis_roll = 0.0;
+    manipulateParams->desired.com_v0 = 0.0;
+    manipulateParams->desired.com_v1 = 0.0;
     manipulateParams->use_demo_mode = false;
   }
 
@@ -498,7 +499,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       fb->manipulate_feedback.status_flags = 0;
       fb->manipulate_feedback.clamped.pelvis_height = 0.0;
       fb->manipulate_feedback.clamped.pelvis_yaw = 0.0;
-      fb->manipulate_feedback.clamped.pelvis_lat = 0.0;
+      fb->manipulate_feedback.clamped.pelvis_pitch = 0.0;
+      fb->manipulate_feedback.clamped.pelvis_roll = 0.0;
+      fb->manipulate_feedback.clamped.com_v0 = 0.0;
+      fb->manipulate_feedback.clamped.com_v1 = 0.0;
     }
 
     // start with PID control
@@ -506,7 +510,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     for(unsigned int i = 0; i < this->jointNames.size(); ++i)
       this->asiState.k_effort[i] = 255;
   }
-  #endif
 
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
@@ -527,7 +530,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
 
   // Get sensors
   this->imuSensor =
-    boost::shared_dynamic_cast<sensors::ImuSensor>
+    boost::dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::pelvis::"
@@ -536,7 +539,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     gzerr << "imu_sensor not found\n" << "\n";
 
   this->rFootContactSensor =
-    boost::shared_dynamic_cast<sensors::ContactSensor>
+    boost::dynamic_pointer_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::r_foot::"
@@ -545,7 +548,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     gzerr << "r_foot_contact_sensor not found\n" << "\n";
 
   this->lFootContactSensor =
-    boost::shared_dynamic_cast<sensors::ContactSensor>
+    boost::dynamic_pointer_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::l_foot::"
@@ -874,7 +877,6 @@ void AtlasPlugin::UpdateStates()
     }
     else if (this->startupStep == AtlasPlugin::USER)
     {
-      #ifdef WITH_ATLASSIMINTERFACE_BLOB
       // startup 2
       // AtlasSimInterface:
       // Calling into the behavior library to set control mode to USER.
@@ -886,11 +888,9 @@ void AtlasPlugin::UpdateStates()
       this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::USER;
       this->startupStep = AtlasPlugin::NOMINAL;
-      #endif
     }
     else if (this->startupStep == AtlasPlugin::FREEZE)
     {
-      #ifdef WITH_ATLASSIMINTERFACE_BLOB
       // startup 1
       // AtlasSimInterface:
       // Calling into the behavior library to reset controls (FREEZE Mode).
@@ -901,7 +901,6 @@ void AtlasPlugin::UpdateStates()
         ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
                   "error code (%d).", this->asiState.error_code);
       this->startupStep = AtlasPlugin::USER;
-      #endif
     }
     else
     {
@@ -1230,7 +1229,6 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   atlas_msgs::ResetControls::Response &_res)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   _res.success = true;
   _res.status_message = "success";
 
@@ -1270,14 +1268,12 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   }
 
   return _res.success;
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // copy _msg contents directly into
   // atlasControlInput::stand_params
   // atlasControlInput::step_params
@@ -1362,8 +1358,14 @@ void AtlasPlugin::SetASICommand(
       _msg->manipulate_params.desired.pelvis_height;
     manipulateParams->desired.pelvis_yaw =
       _msg->manipulate_params.desired.pelvis_yaw;
-    manipulateParams->desired.pelvis_lat =
-      _msg->manipulate_params.desired.pelvis_lat;
+    manipulateParams->desired.pelvis_pitch =
+      _msg->manipulate_params.desired.pelvis_pitch;
+    manipulateParams->desired.pelvis_roll =
+      _msg->manipulate_params.desired.pelvis_roll;
+    manipulateParams->desired.com_v0 =
+      _msg->manipulate_params.desired.com_v0;
+    manipulateParams->desired.com_v1 =
+      _msg->manipulate_params.desired.com_v1;
     manipulateParams->use_demo_mode = false;
       _msg->manipulate_params.use_demo_mode;
 
@@ -1437,7 +1439,6 @@ void AtlasPlugin::SetASICommand(
         break;
     }
   }
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1677,7 +1678,6 @@ void AtlasPlugin::SetExperimentalDampingPID(
 // the command is passed to the AtlasSimInterface library.
 void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // to make it Stand
   //  * StandPrep:  puts robot in standing pose while harnessed
   //  * remove the harness
@@ -1784,13 +1784,11 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     ROS_WARN("Unknown robot mode [%s]", _mode->data.c_str());
   }
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   if (this->imuSensor)
   {
     // AtlasSimInterface: populate imu in atlasRobotState
@@ -1863,13 +1861,11 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
     // publish separate /atlas/imu topic, to be deprecated
     this->pubImuQueue->push(imuMsg, this->pubImu);
   }
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
@@ -1973,7 +1969,6 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg,
     this->pubForceTorqueSensors);
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2001,7 +1996,6 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // 80 characters
   atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
   AtlasControlOutput *fbOut = &(this->controlOutput);
@@ -2067,6 +2061,9 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     this->OrientationFromNormalAndYaw(
     fbOut->step_feedback.desired_step_saturated.normal,
     fbOut->step_feedback.desired_step_saturated.yaw);
+  // gzerr << this->OrientationFromNormalAndYaw(
+  //   fbOut->step_feedback.desired_step_saturated.normal,
+  //   fbOut->step_feedback.desired_step_saturated.yaw) << "\n";
 
   // walk_feedback
   fb->walk_feedback.t_step_rem = fbOut->walk_feedback.t_step_rem;
@@ -2090,6 +2087,9 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
       this->OrientationFromNormalAndYaw(
       fbOut->walk_feedback.step_queue_saturated[i].normal,
       fbOut->walk_feedback.step_queue_saturated[i].yaw);
+  // gzerr << this->OrientationFromNormalAndYaw(
+  //   fbOut->step_feedback.desired_step_saturated.normal,
+  //   fbOut->step_feedback.desired_step_saturated.yaw) << "\n";
 
     fb->walk_feedback.step_queue_saturated[i].swing_height =
       fbOut->walk_feedback.step_queue_saturated[i].swing_height;
@@ -2102,9 +2102,14 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->manipulate_feedback.clamped.pelvis_height;
   fb->manipulate_feedback.clamped.pelvis_yaw =
     fbOut->manipulate_feedback.clamped.pelvis_yaw;
-  fb->manipulate_feedback.clamped.pelvis_lat =
-    fbOut->manipulate_feedback.clamped.pelvis_lat;
-  #endif
+  fb->manipulate_feedback.clamped.pelvis_pitch =
+    fbOut->manipulate_feedback.clamped.pelvis_pitch;
+  fb->manipulate_feedback.clamped.pelvis_roll =
+    fbOut->manipulate_feedback.clamped.pelvis_roll;
+  fb->manipulate_feedback.clamped.com_v0 =
+    fbOut->manipulate_feedback.clamped.com_v0;
+  fb->manipulate_feedback.clamped.com_v1 =
+    fbOut->manipulate_feedback.clamped.com_v1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2140,7 +2145,13 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 
         // calculate amount of time to wait based on rules
         boost::system_time timeout = boost::get_system_time();
+#if BOOST_VERSION < 105300
         common::Time delayTime(boost::detail::get_timespec(timeout));
+#else
+        // Workaround for drcsim issue #419
+        // boost::detail::get_timespec removed in boost 1.53
+        common::Time delayTime;
+#endif
         timeout += boost::posix_time::microseconds(1000000 * std::min(
             (this->delayMaxPerStep - delayInStepSum).Double(),
             (this->delayMaxPerWindow - this->delayInWindow).Double()));
@@ -2209,7 +2220,6 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   boost::mutex::scoped_lock lock(this->asiMutex);
 
   // AtlasSimInterface:
@@ -2342,13 +2352,11 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
   }
   // set asiState and publish asiState
   this->pubASIStateQueue->push(this->asiState, this->pubASIState);
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   // Keep track of age of atlasCommand age in seconds.
   // Note the value is invalid as a moving window average age
   // until the buffer is full.
@@ -2385,13 +2393,11 @@ void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
   this->atlasCommandAgeBufferIndex =
    (this->atlasCommandAgeBufferIndex + 1) %
    this->atlasCommandAgeBuffer.size();
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdatePIDControl(double _dt)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   /// update pid with feedforward force
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
@@ -2486,7 +2492,6 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // before process_control_input?
     this->atlasRobotState.j[i].f = forceClamped;
   }
-   #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2516,7 +2521,6 @@ void AtlasPlugin::PublishConstrollerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
   boost::mutex::scoped_lock lock(this->mutex);
 
   // get imu data from imu sensor
@@ -2563,7 +2567,6 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
   // publish robot states
   this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

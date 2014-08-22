@@ -110,7 +110,11 @@ void DRCBuildingPlugin::UpdateStates()
     {
       this->doorJoint->SetHighStop(0, 0);
       this->doorJoint->SetLowStop(0, 0);
+#if GAZEBO_MAJOR_VERSION >= 4
+      this->doorJoint->SetPosition(0, 0);
+#else
       this->doorJoint->SetAngle(0, 0);
+#endif
     }
     else
     {
