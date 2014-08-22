@@ -15,7 +15,13 @@
   <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl_v3.urdf" />
 
   <gazebo>
-    <!-- include plugin for sandia hands -->
-    <plugin name="sandia_hand_plugin" filename="libSandiaHandPlugin.so"/>
+    <!-- include plugin for the left sandia hand -->
+    <plugin name="leftsandia_hand_plugin" filename="libSandiaHandPlugin.so">
+      <side>left</side>
+    </plugin>
+    <!-- include plugin for the right sandia hand -->
+    <plugin name="right_sandia_hand_plugin" filename="libSandiaHandPlugin.so">
+      <side>right</side>
+    </plugin>
   </gazebo>
 </robot>
