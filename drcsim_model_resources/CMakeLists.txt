@@ -93,9 +93,11 @@ set (ATLAS_ROBOT_INTERFACE_VERSION_FULL ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.$
 
 #####################################
 # AtlasSimInterface shim library
+find_package(Eigen REQUIRED)
 include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
+  ${Eigen_INCLUDE_DIRS}
 )
 
 add_library(AtlasSimInterface SHARED
@@ -105,7 +107,7 @@ add_library(AtlasSimInterface SHARED
   AtlasSimInterface_2.10.2/src/simbicon/StateMachine.cpp
   AtlasSimInterface_2.10.2/src/simbicon/TerminalCondition.cpp)
 
-target_link_libraries(AtlasSimInterface)
+target_link_libraries(AtlasSimInterface ${Eigen_LIBRARIES})
 
 install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 

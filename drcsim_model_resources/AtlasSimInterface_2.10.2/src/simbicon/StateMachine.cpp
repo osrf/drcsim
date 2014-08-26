@@ -34,9 +34,10 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "simbody/StateMachine.h"
+#include <iostream>
+#include "simbicon/StateMachine.h"
 
-#include "simbody/State.h"
+#include "simbicon/State.h"
 
 // Macro for functions not implemented yet
 #define NOT_YET(FUNCTION) std::cout << #FUNCTION\
@@ -100,8 +101,6 @@ void StateMachine::setInitialState(State* _state)
 //==============================================================================
 void StateMachine::begin(double _currentTime)
 {
-//  dtmsg << "StateMachine [" << getName() << "]: begin()." << endl;
-
   mBeginTime = _currentTime;
   mFrame = 0;
   mElapsedTime = 0.0;
@@ -127,8 +126,6 @@ void StateMachine::computeControlForce(double _dt)
 void StateMachine::end(double _currentTime)
 {
   mEndTime = _currentTime;
-
-//  dtmsg << "StateMachine [" << getName() << "]: end()." << endl;
 }
 
 //==============================================================================
@@ -158,9 +155,9 @@ void StateMachine::transiteTo(State* _state, double _currentTime)
   mCurrentState = _state;
   mCurrentState->begin(_currentTime);
 
-  dtmsg << "Transition: ["
-        << prevStateName << "] --> ["
-        << nextStateName << "]." << endl;
+  std::cout << "Transition: ["
+            << prevStateName << "] --> ["
+            << nextStateName << "]." << endl;
 }
 
 //==============================================================================

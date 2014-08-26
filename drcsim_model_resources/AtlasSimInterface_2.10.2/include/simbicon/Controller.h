@@ -72,9 +72,6 @@ public:
   /// \brief Keyboard control
   void keyboard(unsigned char _key, int _x, int _y, double _currentTime);
 
-  /// \brief Print debug information
-  void printDebugInfo() const;
-
 protected:
   /// \brief List of state machines
   std::vector<StateMachine*> mStateMachines;

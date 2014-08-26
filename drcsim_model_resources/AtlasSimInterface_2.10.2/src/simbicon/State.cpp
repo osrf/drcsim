@@ -34,6 +34,11 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+#include <Eigen/Core>
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
+
 #include "simbicon/State.h"
 
 #include "simbicon/TerminalCondition.h"
@@ -42,6 +47,8 @@
 #define NOT_YET(FUNCTION) std::cout << #FUNCTION\
                                   << "Not implemented yet."\
                                   << std::endl;
+
+typedef Eigen::Matrix<double, 6, 1> Vector6d;
 
 using namespace std;
 
@@ -63,7 +70,7 @@ State::State(std::vector<double> _positions, std::vector<double> _velocities,
     mDesiredGlobalPelvisAngleOnSagital(0.0),
     mDesiredGlobalPelvisAngleOnCoronal(0.0)
 {
-  int dof = mPositions.size();
+  int dof = 6; // mPositions.size();
 
   mDesiredJointPositions        = Eigen::VectorXd::Zero(dof);
   mDesiredJointPositionsBalance = Eigen::VectorXd::Zero(dof);
@@ -450,7 +457,7 @@ void State::_buildJointMap()
 }
 
 //==============================================================================
-Eigen::Vector3d State::Eigen::Vector3d _getJointPosition(int _bodyIndex) const
+Eigen::Vector3d State::_getJointPosition(int _bodyIndex) const
 {
   /// \brief Get the parent joint's position of _bodyNode
   /// note: this function returns the position of the parent joint frame,
