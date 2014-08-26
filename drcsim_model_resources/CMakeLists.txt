@@ -101,7 +101,6 @@ add_library(AtlasSimInterface SHARED
   AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
   AtlasSimInterafce_2.10.2/src/simbicon/Controller.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/Humanoid.cpp
-  AtlasSimInterafce_2.10.2/src/simbicon/MyWindow.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/State.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/StateMachine.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/TerminalCondition.cpp)
