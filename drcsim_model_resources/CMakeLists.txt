@@ -91,20 +91,36 @@ set (ATLAS_ROBOT_INTERFACE_PATCH_VERSION 0)
 set (ATLAS_ROBOT_INTERFACE_VERSION ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.${ATLAS_ROBOT_INTERFACE_MINOR_VERSION})
 set (ATLAS_ROBOT_INTERFACE_VERSION_FULL ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.${ATLAS_ROBOT_INTERFACE_MINOR_VERSION}.${ATLAS_ROBOT_INTERFACE_PATCH_VERSION})
 
+#####################################
 # AtlasSimInterface shim library
 include_directories(
-  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/simbicon
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
-add_library(AtlasSimInterface SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
+add_library(AtlasSimInterface SHARED
+  AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
+  AtlasSimInterafce_2.10.2/src/simbicon/Controller.cpp
+  AtlasSimInterafce_2.10.2/src/simbicon/Humanoid.cpp
+  AtlasSimInterafce_2.10.2/src/simbicon/Main.cpp
+  AtlasSimInterafce_2.10.2/src/simbicon/MyWindow.cpp
+  AtlasSimInterafce_2.10.2/src/simbicon/State.cpp
+  AtlasSimInterafce_2.10.2/src/simbicon/StateMachine.cpp
+  AtlasSimInterafce_2.10.2/src/simbicon/TerminalCondition.cpp)
+
 target_link_libraries(AtlasSimInterface)
 
 install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
-
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
+# install simbicon headers
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/simbicon
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+# Controller.h Humanoid.h MyWindow.h State.h StateMachine.h TerminalCondition.h
+
+#####################################
 # AtlasRobotInterface shim library
 include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}/include/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}
@@ -113,7 +129,6 @@ add_library(AtlasRobotInterface SHARED AtlasRobotInterface_2.12.0/src/AtlasInter
 target_link_libraries(AtlasRobotInterface AtlasSimInterface)
 
 install (TARGETS AtlasRobotInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL})
-
 
 install (DIRECTORY AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}/include/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}
          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
