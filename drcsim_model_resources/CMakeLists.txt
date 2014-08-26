@@ -94,7 +94,7 @@ set (ATLAS_ROBOT_INTERFACE_VERSION_FULL ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.$
 #####################################
 # AtlasSimInterface shim library
 include_directories(
-  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/simbicon
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
 
