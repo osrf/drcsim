@@ -21,6 +21,7 @@
 #include "AtlasSimInterface.h"
 #include "AtlasSimInterfaceTypes.h"
 #include "AtlasVectorTypes.h"
+#include "simbicon/Controller.h"
 
 extern "C" {
 

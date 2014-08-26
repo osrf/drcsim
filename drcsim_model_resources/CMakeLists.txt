@@ -97,12 +97,13 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/simbicon
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
+
 add_library(AtlasSimInterface SHARED
   AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
-  AtlasSimInterafce_2.10.2/src/simbicon/Controller.cpp
-  AtlasSimInterafce_2.10.2/src/simbicon/State.cpp
-  AtlasSimInterafce_2.10.2/src/simbicon/StateMachine.cpp
-  AtlasSimInterafce_2.10.2/src/simbicon/TerminalCondition.cpp)
+  AtlasSimInterface_2.10.2/src/simbicon/Controller.cpp
+  AtlasSimInterface_2.10.2/src/simbicon/State.cpp
+  AtlasSimInterface_2.10.2/src/simbicon/StateMachine.cpp
+  AtlasSimInterface_2.10.2/src/simbicon/TerminalCondition.cpp)
 
 target_link_libraries(AtlasSimInterface)
 

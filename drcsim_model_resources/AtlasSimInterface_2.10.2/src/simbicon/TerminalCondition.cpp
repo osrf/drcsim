@@ -34,7 +34,7 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "apps/atlasRobot/TerminalCondition.h"
+#include "simbicon/TerminalCondition.h"
 
 #include "simbicon/State.h"
 
