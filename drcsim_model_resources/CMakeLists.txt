@@ -101,7 +101,6 @@ add_library(AtlasSimInterface SHARED
   AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
   AtlasSimInterafce_2.10.2/src/simbicon/Controller.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/Humanoid.cpp
-  AtlasSimInterafce_2.10.2/src/simbicon/Main.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/MyWindow.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/State.cpp
   AtlasSimInterafce_2.10.2/src/simbicon/StateMachine.cpp
@@ -111,12 +110,14 @@ target_link_libraries(AtlasSimInterface)
 
 install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install (DIRECTORY
+  AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 # install simbicon headers
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/simbicon
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install (DIRECTORY
+  AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/simbicon
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 # Controller.h Humanoid.h MyWindow.h State.h StateMachine.h TerminalCondition.h
 
