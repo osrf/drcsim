@@ -52,17 +52,6 @@
 #define ATLAS_DEFAULT_CORONAL_CD 0.1
 #define ATLAS_DEFAULT_CORONAL_CV 0.1
 
-namespace dart {
-namespace dynamics {
-class BodyNode;
-class Joint;
-class Skeleton;
-}  // namespace dynamics
-namespace constraint {
-class OldConstraintDynamics;
-}  // namespace constraint
-}  // namespace dart
-
 class TerminalCondition;
 
 //==============================================================================
@@ -71,7 +60,9 @@ class State
 {
 public:
   /// \brief Constructor
-  explicit State(dart::dynamics::Skeleton* _skeleton, const std::string& _name);
+  explicit State(std::vector<double> _positions,
+                 std::vector<double> _velocities,
+                 const std::string& _name);
 
   /// \brief Destructor
   virtual ~State();
@@ -236,7 +227,8 @@ protected:
   std::string mName;
 
   /// \brief Target skeleton for control
-  dart::dynamics::Skeleton* mSkeleton;
+  std::vector<double> mPositions;
+  std::vector<double> mVelocities;
 
   /// \brief Next state. Default is myself.
   State* mNextState;
@@ -300,7 +292,7 @@ private:
   void _buildJointMap();
 
   /// \brief Get the parent joint's position of _bodyNode
-  Eigen::Vector3d _getJointPosition(dart::dynamics::BodyNode* _bodyNode) const;
+  Eigen::Vector3d _getJointPosition(int _bodyIndex) const;
 
   /// \brief Compute the angle between two vectors
   double _getAngleBetweenTwoVectors(const Eigen::Vector3d& _v1,
@@ -309,23 +301,14 @@ private:
   /// \brief Update torque for torso and swing hip
   void _updateTorqueForStanceLeg();
 
-  /// \brief Pelvis body node
-  dart::dynamics::BodyNode* mPelvis;
+  /// \brief Left foot body node
+  int mStanceFootIndex;
 
   /// \brief Left foot body node
-  dart::dynamics::BodyNode* mLeftThigh;
+  int mLeftFootIndex;
 
   /// \brief Right foot body node
-  dart::dynamics::BodyNode* mRightThigh;
-
-  /// \brief Left foot body node
-  dart::dynamics::BodyNode* mStanceFoot;
-
-  /// \brief Left foot body node
-  dart::dynamics::BodyNode* mLeftFoot;
-
-  /// \brief Right foot body node
-  dart::dynamics::BodyNode* mRightFoot;
+  int mRightFootIndex;
 
   /// \brief Desired joint positions with balance feedback
   Eigen::VectorXd mDesiredJointPositionsBalance;

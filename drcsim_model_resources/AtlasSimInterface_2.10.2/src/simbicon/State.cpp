@@ -34,18 +34,9 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "apps/atlasRobot/State.h"
+#include "simbicon/State.h"
 
-#include "dart/common/Console.h"
-#include "dart/math/Helpers.h"
-#include "dart/dynamics/Skeleton.h"
-#include "dart/dynamics/BodyNode.h"
-#include "dart/dynamics/Joint.h"
-#include "dart/dynamics/Shape.h"
-//#include "dart/constraint/OldConstraintDynamics.h"
-#include "dart/collision/CollisionDetector.h"
-
-#include "apps/atlasRobot/TerminalCondition.h"
+#include "simbicon/TerminalCondition.h"
 
 // Macro for functions not implemented yet
 #define NOT_YET(FUNCTION) std::cout << #FUNCTION\
@@ -56,13 +47,12 @@ using namespace std;
 
 using namespace Eigen;
 
-using namespace dart::dynamics;
-using namespace dart::constraint;
-
 //==============================================================================
-State::State(Skeleton* _skeleton, const std::string& _name)
+State::State(std::vector<double> _positions, std::vector<double> _velocities,
+  const std::string& _name)
   : mName(_name),
-    mSkeleton(_skeleton),
+    mPositions(_positions),
+    mVelocities(_velocities),
     mNextState(this),
     mBeginTime(0.0),
     mEndTime(0.0),
@@ -73,7 +63,7 @@ State::State(Skeleton* _skeleton, const std::string& _name)
     mDesiredGlobalPelvisAngleOnSagital(0.0),
     mDesiredGlobalPelvisAngleOnCoronal(0.0)
 {
-  int dof = mSkeleton->getDof();
+  int dof = mPositions.size();
 
   mDesiredJointPositions        = Eigen::VectorXd::Zero(dof);
   mDesiredJointPositionsBalance = Eigen::VectorXd::Zero(dof);
@@ -93,19 +83,11 @@ State::State(Skeleton* _skeleton, const std::string& _name)
 
   _buildJointMap();
 
-  mPelvis     = mSkeleton->getBodyNode("pelvis");
-  mLeftFoot   = mSkeleton->getBodyNode("l_foot");
-  mRightFoot  = mSkeleton->getBodyNode("r_foot");
-  mLeftThigh  = mSkeleton->getBodyNode("l_uleg");
-  mRightThigh = mSkeleton->getBodyNode("r_uleg");
-  mStanceFoot = NULL;
-
-  assert(mPelvis     != NULL);
-  assert(mLeftFoot   != NULL);
-  assert(mRightFoot  != NULL);
-  assert(mLeftThigh  != NULL);
-  assert(mRightThigh != NULL);
-//  assert(mStanceFoot != NULL);
+  // translate following iterms to indices, or do we use IMU for
+  // model COM (pelvis) approximation?
+  mLeftFootIndex   = 0;  // index to left foot
+  mRightFootIndex  = 0;  // index to rigth foot
+  mStanceFootIndex = -1;
 }
 
 //==============================================================================
@@ -153,9 +135,17 @@ void State::computeControlForce(double _timestep)
 {
   assert(mNextState != NULL && "Next state should be set.");
 
-  int dof = mSkeleton->getDof();
-  VectorXd q = mSkeleton->getPositions();
-  VectorXd dq = mSkeleton->getVelocities();
+  // get joints vector from data structure
+  std::vector<double> jointPositions;
+  std::vector<double> jointVelocities;
+  double *pPtr = &jointPositions[0];
+  double *vPtr = &jointVelocities[0];
+
+  int dof = jointPositions.size();
+
+  // copy std::vector to VectorXd
+  Eigen::Map<Eigen::VectorXd> q(pPtr, dof);
+  Eigen::Map<Eigen::VectorXd> dq(pPtr, dof);
 
   // Compute relative joint angles from desired global angles of the pelvis and
   // the swing leg
@@ -206,7 +196,8 @@ void State::computeControlForce(double _timestep)
   _updateTorqueForStanceLeg();
 
   // Apply control torque to the skeleton
-  mSkeleton->setForces(mTorque);
+  // mSkeleton->setForces(mTorque);
+  // return joint torque vector instead
 
   mElapsedTime += _timestep;
   mFrame++;
@@ -229,13 +220,24 @@ void State::end(double _currentTime)
 //==============================================================================
 Eigen::Vector3d State::getCOM() const
 {
-  return mSkeleton->getWorldCOM();
+  Eigen::Vector3d comLocation;
+
+  // get COM of the entire mdoel, or some approximation by pelvis location
+  // ...
+
+  return comLocation;
 }
 
 //==============================================================================
 Eigen::Vector3d State::getCOMVelocity() const
 {
-  return mSkeleton->getWorldCOMVelocity();
+  Eigen::Vector3d comVelocity;
+
+  // get COM velocity of the entire mdoel,
+  // or some approximation by pelvis location
+  // ...
+
+  return comVelocity;
 }
 
 //==============================================================================
@@ -247,11 +249,13 @@ Eigen::Isometry3d State::getCOMFrame() const
   Eigen::Vector3d yAxis = Eigen::Vector3d::UnitY();
 
   // X-axis
-  Eigen::Vector3d xAxis = mPelvis->getTransform().linear().col(0);
-  Eigen::Vector3d pelvisXAxis = mPelvis->getTransform().linear().col(0);
+  Eigen::Vector3d pelvisXAxis; // xAxis of the pelvis frame
+                               // = mPelvis->getTransform().linear().col(0);
+
+  // compute X-axis
   double mag = yAxis.dot(pelvisXAxis);
   pelvisXAxis -= mag * yAxis;
-  xAxis = pelvisXAxis.normalized();
+  Eigen::Vector3d xAxis = pelvisXAxis.normalized();
 
   // Z-axis
   Eigen::Vector3d zAxis = xAxis.cross(yAxis);
@@ -304,22 +308,22 @@ double State::getCoronalCOMVelocity()
 //==============================================================================
 Eigen::Vector3d State::getStanceAnklePosition() const
 {
-  if (mStanceFoot == NULL)
+  if (mStanceFootIndex < 0)
     return getCOM();
   else
-    return _getJointPosition(mStanceFoot);
+    return _getJointPosition(mStanceFootIndex);
 }
 
 //==============================================================================
 Eigen::Vector3d State::getLeftAnklePosition() const
 {
-  return _getJointPosition(mLeftFoot);
+  return _getJointPosition(mLeftFootIndex);
 }
 
 //==============================================================================
 Eigen::Vector3d State::getRightAnklePosition() const
 {
-  return _getJointPosition(mRightFoot);
+  return _getJointPosition(mRightFootIndex);
 }
 
 //==============================================================================
@@ -328,7 +332,8 @@ double State::getSagitalPelvisAngle() const
   Matrix3d comR = getCOMFrame().linear();
   Vector3d comY = comR.col(1);
 
-  Vector3d pelvisZ = mPelvis->getTransform().linear().col(2);
+  Vector3d pelvisZ;  // z-axis of the pelvis frame
+                     // = mPelvis->getTransform().linear().col(2);
   Vector3d projPelvisZ = (comR.transpose() * pelvisZ);
   projPelvisZ[2] = 0.0;
   projPelvisZ.normalize();
@@ -347,7 +352,8 @@ double State::getCoronalPelvisAngle() const
 {
   Matrix3d comR = getCOMFrame().linear();
   Vector3d comY = comR.col(1);
-  Vector3d pelvisZ = mPelvis->getTransform().linear().col(2);
+  Vector3d pelvisZ;  // z-axis of the pelvis frame
+                     // = mPelvis->getTransform().linear().col(2);
   Vector3d projPelvisZ = (comR.transpose() * pelvisZ);
   projPelvisZ[0] = 0.0;
   projPelvisZ.normalize();
@@ -366,7 +372,8 @@ double State::getSagitalLeftLegAngle() const
 {
   Matrix3d comR = getCOMFrame().linear();
   Vector3d comY = comR.col(1);
-  Vector3d thighAxisZ = mLeftThigh->getTransform().linear().col(2);
+  Vector3d thighAxisZ;  // z axis of thigh
+                        // = mLeftThigh->getTransform().linear().col(2);
   Vector3d projThighAZ = (comR.transpose() * thighAxisZ);
   projThighAZ[2] = 0.0;
   projThighAZ.normalize();
@@ -385,7 +392,8 @@ double State::getSagitalRightLegAngle() const
 {
   Matrix3d comR = getCOMFrame().linear();
   Vector3d comY = comR.col(1);
-  Vector3d thighAxisZ = mRightThigh->getTransform().linear().col(2);
+  Vector3d thighAxisZ;  // z axis of thigh
+                        // = mRightThigh->getTransform().linear().col(2);
   Vector3d projThighAZ = (comR.transpose() * thighAxisZ);
   projThighAZ[2] = 0.0;
   projThighAZ.normalize();
@@ -404,7 +412,8 @@ double State::getCoronalLeftLegAngle() const
 {
   Matrix3d comR = getCOMFrame().linear();
   Vector3d comY = comR.col(1);
-  Vector3d thighAxisZ = mLeftThigh->getTransform().linear().col(2);
+  Vector3d thighAxisZ;  // z axis of thigh
+                        // = mLeftThigh->getTransform().linear().col(2);
   Vector3d projThighAZ = (comR.transpose() * thighAxisZ);
   projThighAZ[0] = 0.0;
   projThighAZ.normalize();
@@ -423,7 +432,8 @@ double State::getCoronalRightLegAngle() const
 {
   Matrix3d comR = getCOMFrame().linear();
   Vector3d comY = comR.col(1);
-  Vector3d thighAxisZ = mRightThigh->getTransform().linear().col(2);
+  Vector3d thighAxisZ;  // z axis of thigh
+                        // = mRightThigh->getTransform().linear().col(2);
   Vector3d projThighAZ = (comR.transpose() * thighAxisZ);
   projThighAZ[0] = 0.0;
   projThighAZ.normalize();
@@ -442,17 +452,27 @@ void State::_buildJointMap()
 {
   mJointMap.clear();
 
-  for (size_t i = 0; i < mSkeleton->getNumBodyNodes(); ++i)
-    mJointMap[mSkeleton->getJoint(i)->getName()] = i;
+  // build joint name / joint index map from data structure
+  std::vector<std::string> jointNames;
+  int dof = 0;
+
+  for (size_t i = 0; i < dof; ++i)
+    mJointMap[jointNames[i]] = i;
 }
 
 //==============================================================================
-Eigen::Vector3d State::_getJointPosition(BodyNode* _bodyNode) const
+Eigen::Vector3d State::Eigen::Vector3d _getJointPosition(int _bodyIndex) const
 {
-  Joint* parentJoint = _bodyNode->getParentJoint();
-  Eigen::Vector3d localJointPosition
-      = parentJoint->getTransformFromChildBodyNode().translation();
-  return _bodyNode->getTransform() * localJointPosition;
+  /// \brief Get the parent joint's position of _bodyNode
+  /// note: this function returns the position of the parent joint frame,
+  /// NOT joint angle (position) per se.
+  Eigen::Vector3d position;
+
+  /// Joint* parentJoint = _bodyNode->getParentJoint();
+  /// Eigen::Vector3d localJointPosition
+  ///     = parentJoint->getTransformFromChildBodyNode().translation();
+  /// return _bodyNode->getTransform() * localJointPosition;
+  return position;
 }
 
 
@@ -467,7 +487,7 @@ double State::_getAngleBetweenTwoVectors(const Eigen::Vector3d& _v1,
 void State::_updateTorqueForStanceLeg()
 {
   // Stance leg is left leg
-  if (mStanceFoot == mLeftFoot)
+  if (mStanceFootIndex == mLeftFootIndex)
   {
 //    std::cout << "Sagital Pelvis Angle: " << DART_DEGREE * getSagitalPelvisAngle() << std::endl;
 
@@ -500,7 +520,7 @@ void State::_updateTorqueForStanceLeg()
 
   }
   // Stance leg is right leg
-  else if (mStanceFoot == mRightFoot)
+  else if (mStanceFootIndex == mRightFootIndex)
   {
 //    cout << "Stance foot: Right foot" << endl;
 
@@ -561,8 +581,6 @@ void State::setDesiredJointPosition(const string& _jointName, double _val)
   // TODO(JS)
   NOT_YET(State::setDesiredJointPosition());
 
-  assert(mSkeleton->getJoint(_jointName) != NULL);
-
   mDesiredJointPositions[mJointMap[_jointName]] = _val;
 }
 
@@ -580,8 +598,6 @@ double State::getDesiredJointPosition(const string& _jointName) const
 {
   // TODO(JS)
   NOT_YET(State::getDesiredJointPosition());
-
-  assert(mSkeleton->getJoint(_jointName) != NULL);
 
   return mDesiredJointPositions[mJointMap.at(_jointName)];
 }
@@ -638,8 +654,6 @@ double State::getProportionalGain(const string& _jointName) const
 {
   // TODO(JS)
   NOT_YET(State::getProportionalGain());
-
-  assert(mSkeleton->getJoint(_jointName) != NULL);
 
   return mKp[mJointMap.at(_jointName)];
 }
@@ -709,12 +723,12 @@ void State::setFeedbackCoronalCOMVelocity(int _idx, double _val)
 //==============================================================================
 void State::setStanceFootToLeftFoot()
 {
-  mStanceFoot = mLeftFoot;
+  mStanceFootIndex = mLeftFootIndex;
 }
 
 //==============================================================================
 void State::setStanceFootToRightFoot()
 {
-  mStanceFoot = mRightFoot;
+  mStanceFootIndex = mRightFootIndex;
 }
 

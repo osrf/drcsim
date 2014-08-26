@@ -42,16 +42,6 @@
 
 #include <Eigen/Dense>
 
-namespace dart {
-namespace dynamics {
-class BodyNode;
-class Skeleton;
-}  // namespace dynamics
-namespace constraint {
-class OldConstraintDynamics;
-}  // namespace constraint
-}  // namespace dart
-
 class State;
 
 /// \brief StateMachine for Atlas robot

@@ -34,17 +34,9 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "apps/atlasRobot/StateMachine.h"
+#include "simbody/StateMachine.h"
 
-#include "dart/common/Console.h"
-#include "dart/math/Helpers.h"
-#include "dart/dynamics/Skeleton.h"
-#include "dart/dynamics/BodyNode.h"
-#include "dart/dynamics/Shape.h"
-//#include "dart/constraint/OldConstraintDynamics.h"
-#include "dart/collision/CollisionDetector.h"
-
-#include "apps/atlasRobot/State.h"
+#include "simbody/State.h"
 
 // Macro for functions not implemented yet
 #define NOT_YET(FUNCTION) std::cout << #FUNCTION\
@@ -52,9 +44,6 @@
                                   << std::endl;
 
 using namespace std;
-
-using namespace dart::dynamics;
-using namespace dart::constraint;
 
 //==============================================================================
 StateMachine::StateMachine(const std::string& _name)
