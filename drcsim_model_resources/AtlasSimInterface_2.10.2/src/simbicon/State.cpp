@@ -48,7 +48,7 @@
                                   << "Not implemented yet."\
                                   << std::endl;
 
-typedef Eigen::Matrix<double, 6, 1> Vector6d;
+// typedef Eigen::Matrix<double, 6, 1> Vector6d;
 
 using namespace std;
 
@@ -70,7 +70,7 @@ State::State(std::vector<double> _positions, std::vector<double> _velocities,
     mDesiredGlobalPelvisAngleOnSagital(0.0),
     mDesiredGlobalPelvisAngleOnCoronal(0.0)
 {
-  int dof = 6; // mPositions.size();
+  int dof = mPositions.size();
 
   mDesiredJointPositions        = Eigen::VectorXd::Zero(dof);
   mDesiredJointPositionsBalance = Eigen::VectorXd::Zero(dof);
@@ -138,17 +138,15 @@ void State::begin(double _currentTime)
 }
 
 //==============================================================================
-void State::computeControlForce(double _timestep)
+std::vector<double> State::computeControlForce(double _timestep)
 {
   assert(mNextState != NULL && "Next state should be set.");
 
   // get joints vector from data structure
-  std::vector<double> jointPositions;
-  std::vector<double> jointVelocities;
-  double *pPtr = &jointPositions[0];
-  double *vPtr = &jointVelocities[0];
+  double *pPtr = &mPositions[0];
+  double *vPtr = &mVelocities[0];
 
-  int dof = jointPositions.size();
+  int dof = mPositions.size();
 
   // copy std::vector to VectorXd
   Eigen::Map<Eigen::VectorXd> q(pPtr, dof);
@@ -174,29 +172,34 @@ void State::computeControlForce(double _timestep)
   //  cout << endl;
 
   // Compute torques for all the joints except for hip (standing and swing)
-  // joints. The first 6 dof is for base body force so it is set to zero.
-  mTorque.head<6>() = Vector6d::Zero();
-  for (int i = 6; i < dof; ++i)
+  // joints.
+  for (int i = 0; i < dof; ++i)
   {
     mTorque[i] = -mKp[i] * (q[i] - mDesiredJointPositionsBalance[i])
                  -mKd[i] * dq[i];
   }
-//  cout << "q: " << q.transpose() << endl;
-//  cout << "dq: " << dq.transpose() << endl;
-//  cout << "mKp: " << mKp.transpose() << endl;
-//  cout << "mKd: " << mKd.transpose() << endl;
-//  cout << "mTorque: " << mTorque.transpose() << endl;
-//  cout << "Theta_d: " << mDesiredJointPositionsBalance.transpose() << endl;
+  //  cout << "q: " << q.transpose() << endl;
+  //  cout << "dq: " << dq.transpose() << endl;
+  //  cout << "mKp: " << mKp.transpose() << endl;
+  //  cout << "mKd: " << mKd.transpose() << endl;
+  //  cout << "mTorque: " << mTorque.transpose() << endl;
+  //  cout << "Theta_d: " << mDesiredJointPositionsBalance.transpose() << endl;
 
   // Torso and swing-hip control
   _updateTorqueForStanceLeg();
 
-  // Apply control torque to the skeleton
-  // mSkeleton->setForces(mTorque);
-  // return joint torque vector instead
-
   mElapsedTime += _timestep;
   mFrame++;
+
+  // Return joint torque vector instead
+  std::vector<double> torques;
+  torques.resize(dof);
+  for (int i = 0; i < dof; ++i)
+  {
+    torques[i] = mTorque[i];
+  }
+
+  return torques;
 }
 
 //==============================================================================
@@ -490,14 +493,18 @@ void State::_updateTorqueForStanceLeg()
     double tauTorsoSagital
         = -5000.0 * (pelvisSagitalAngle + mDesiredGlobalPelvisAngleOnSagital)
           - 1.0 * (0);
-    mTorque[13] = tauTorsoSagital - mTorque[14];
+    const int l_hpy = 13;
+    const int r_hpy = 14;
+    mTorque[l_hpy] = tauTorsoSagital - mTorque[r_hpy];
 
     // Torso control on coronal plane
     double pelvisCoronalAngle = getCoronalPelvisAngle();
     double tauTorsoCoronal
         = -5000.0 * (pelvisCoronalAngle - mDesiredGlobalPelvisAngleOnCoronal)
           - 1.0 * (0);
-    mTorque[10] = -tauTorsoCoronal - mTorque[11];
+    const int l_hpx = 10;
+    const int r_hpx = 11;
+    mTorque[l_hpx] = -tauTorsoCoronal - mTorque[r_hpx];
 
   }
   // Stance leg is right leg
@@ -508,14 +515,18 @@ void State::_updateTorqueForStanceLeg()
     double tauTorsoSagital
         = -5000.0 * (pelvisSagitalAngle + mDesiredGlobalPelvisAngleOnSagital)
           - 1.0 * (0);
-    mTorque[14] = tauTorsoSagital - mTorque[13];
+    const int l_hpy = 13;
+    const int r_hpy = 14;
+    mTorque[r_hpy] = tauTorsoSagital - mTorque[l_hpy];
 
     // Torso control on coronal plane
     double pelvisCoronalAngle = getCoronalPelvisAngle();
     double tauTorsoCoronal
         = -5000.0 * (pelvisCoronalAngle - mDesiredGlobalPelvisAngleOnCoronal)
           - 1.0 * (0);
-    mTorque[11] = -tauTorsoCoronal - mTorque[10];
+    const int l_hpx = 10;
+    const int r_hpx = 11;
+    mTorque[r_hpx] = -tauTorsoCoronal - mTorque[l_hpx];
 
     //    cout << "Torque[10]     : " << mTorque[10] << endl;
     //    cout << "Torque[11]     : " << mTorque[11] << endl;

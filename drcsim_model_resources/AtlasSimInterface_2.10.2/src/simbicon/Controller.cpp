@@ -49,8 +49,11 @@ using namespace std;
 using namespace Eigen;
 
 //==============================================================================
-Controller::Controller()
-  : mCurrentStateMachine(NULL)
+Controller::Controller(std::vector<double> _positions,
+  std::vector<double> _velocities)
+  : mCurrentStateMachine(NULL),
+    mPositions(_positions),
+    mVelocities(_velocities)
 {
   _buildStateMachines();
 
@@ -68,10 +71,10 @@ Controller::~Controller()
 }
 
 //==============================================================================
-void Controller::update(double _dt)
+std::vector<double> Controller::update(double _dt)
 {
   // Compute control force
-  mCurrentStateMachine->computeControlForce(_dt);
+  return mCurrentStateMachine->computeControlForce(_dt);
 }
 
 StateMachine*Controller::getCurrentState()
@@ -179,10 +182,7 @@ StateMachine* Controller::_createStandingStateMachine()
 {
   StateMachine* standing = new StateMachine("standing");
 
-  std::vector<double> positions;
-  std::vector<double> velocities;
-
-  State* standingState0 = new State(positions, velocities, "0");
+  State* standingState0 = new State(mPositions, mVelocities, "0");
 
   TerminalCondition* tcStanding0 = new TimerCondition(standingState0, 0.3);
 
@@ -237,13 +237,10 @@ StateMachine* Controller::_createWalkingInPlaceStateMachine()
 
   StateMachine* sm = new StateMachine("walking in place");
 
-  std::vector<double> positions;
-  std::vector<double> velocities;
-
-  State* state0 = new State(positions, velocities, "0");
-  State* state1 = new State(positions, velocities, "1");
-  State* state2 = new State(positions, velocities, "2");
-  State* state3 = new State(positions, velocities, "3");
+  State* state0 = new State(mPositions, mVelocities, "0");
+  State* state1 = new State(mPositions, mVelocities, "1");
+  State* state2 = new State(mPositions, mVelocities, "2");
+  State* state3 = new State(mPositions, mVelocities, "3");
 
   // index to state of the feet
   int rightFootIndex = 0;
@@ -413,13 +410,10 @@ StateMachine* Controller::_createWalkingStateMachine()
 
   StateMachine* sm = new StateMachine("walking");
 
-  std::vector<double> positions;
-  std::vector<double> velocities;
-
-  State* state0 = new State(positions, velocities, "0");
-  State* state1 = new State(positions, velocities, "1");
-  State* state2 = new State(positions, velocities, "2");
-  State* state3 = new State(positions, velocities, "3");
+  State* state0 = new State(mPositions, mVelocities, "0");
+  State* state1 = new State(mPositions, mVelocities, "1");
+  State* state2 = new State(mPositions, mVelocities, "2");
+  State* state3 = new State(mPositions, mVelocities, "3");
 
   // index to state of the feet
   int rightFootIndex = 0;
@@ -583,11 +577,8 @@ StateMachine* Controller::_createRunningStateMachine()
 
   StateMachine* sm = new StateMachine("running");
 
-  std::vector<double> positions;
-  std::vector<double> velocities;
-
-  State* state0 = new State(positions, velocities, "0");
-  State* state1 = new State(positions, velocities, "1");
+  State* state0 = new State(mPositions, mVelocities, "0");
+  State* state1 = new State(mPositions, mVelocities, "1");
 
   TerminalCondition* cond0 = new TimerCondition(state0, 0.15);
   TerminalCondition* cond1 = new TimerCondition(state1, 0.15);

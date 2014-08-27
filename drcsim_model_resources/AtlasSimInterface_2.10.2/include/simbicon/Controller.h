@@ -48,14 +48,14 @@ class Controller
 {
 public:
   /// \brief Constructor
-  Controller();
+  Controller(std::vector<double> _positions, std::vector<double> _velocities);
 
   /// \brief Destructor
   virtual ~Controller();
 
   /// \brief Called before every simulation time step in MyWindow class.
   /// Compute control force and apply it to Atlas robot
-  virtual void update(double _dt);
+  virtual std::vector<double> update(double _dt);
 
   /// \brief Get current state machine
   StateMachine* getCurrentState();
@@ -107,6 +107,9 @@ private:
 
   /// \brief Initial state of the robot
   Eigen::VectorXd mInitialState;
+
+  std::vector<double> mPositions;
+  std::vector<double> mVelocities;
 };
 
 #endif  // APPS_ATLASROBOT_CONTROLLER_H_

@@ -159,7 +159,7 @@ public:
   virtual void begin(double _currentTime);
 
   /// \brief Compute control force and apply it to Atlas robot
-  virtual void computeControlForce(double _timestep);
+  virtual std::vector<double> computeControlForce(double _timestep);
 
   /// \brief Check if terminal condision is satisfied
   virtual bool isTerminalConditionSatisfied() const;

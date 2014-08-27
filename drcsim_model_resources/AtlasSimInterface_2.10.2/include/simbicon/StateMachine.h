@@ -73,7 +73,7 @@ public:
   void begin(double _currentTime);
 
   /// \brief Compute control force and apply it to Atlas robot
-  void computeControlForce(double _dt);
+  std::vector<double> computeControlForce(double _dt);
 
   /// \brief Finalize state. This is called when the state machine stransite
   ///        from this state to the next state.

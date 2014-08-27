@@ -107,7 +107,7 @@ void StateMachine::begin(double _currentTime)
 }
 
 //==============================================================================
-void StateMachine::computeControlForce(double _dt)
+std::vector<double> StateMachine::computeControlForce(double _dt)
 {
   assert(mCurrentState != NULL && "Invaild current state.");
 
@@ -115,11 +115,11 @@ void StateMachine::computeControlForce(double _dt)
   if (mCurrentState->isTerminalConditionSatisfied())
     transiteTo(mCurrentState->getNextState(), mBeginTime + mElapsedTime);
 
-  // Update control force
-  mCurrentState->computeControlForce(_dt);
-
   mElapsedTime += _dt;
   mFrame++;
+
+  // Update and return control force
+  return mCurrentState->computeControlForce(_dt);
 }
 
 //==============================================================================
