@@ -55,7 +55,7 @@ public:
 
   /// \brief Called before every simulation time step in MyWindow class.
   /// Compute control force and apply it to Atlas robot
-  virtual void update(double _currentTime);
+  virtual void update(double _dt);
 
   /// \brief Get current state machine
   StateMachine* getCurrentState();

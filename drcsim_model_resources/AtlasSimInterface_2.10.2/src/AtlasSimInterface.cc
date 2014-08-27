@@ -23,6 +23,8 @@
 #include "AtlasVectorTypes.h"
 #include "simbicon/Controller.h"
 
+Controller simbiconController;
+
 extern "C" {
 
 //////////////////////////////////////////////////
@@ -71,6 +73,8 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
     const AtlasRobotState& robot_state,
     AtlasControlOutput& control_output)
 {
+  const double dt = 0.001;
+  simbiconController.update(dt);
   return AtlasSim::NO_ERRORS;
 }
 
