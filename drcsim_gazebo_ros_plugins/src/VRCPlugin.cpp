@@ -246,52 +246,66 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     // where to start down casting ray to check for ground
     math::Pose rayStart = atlasPose - math::Pose(0, 0, -2.0, 0, 0, 0);
 
-    physics::EntityPtr objectBelow =
-      this->world->GetEntityBelowPoint(rayStart.pos);
-    double groundHeight;
-    if (objectBelow)
+    double distBelow = 0.0;
+    physics::EntityPtr entityBelow;
+    physics::EntityPtr fromEntity = this->atlas.pinLink;
+    std::string objectBelow;
+    fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+    entityBelow = this->world->GetEntity(objectBelow);
+    gzdbg << fromEntity->GetName() << " "
+          << distBelow << " " << objectBelow << "\n";
+    // if entity below is part of atlas, set it to fromEntity
+    // and keep searching below
+    while (entityBelow && (entityBelow->GetParentModel() ==
+      fromEntity->GetParentModel()))
     {
-      math::Box groundBB = objectBelow->GetBoundingBox();
-      groundHeight = groundBB.max.z;
+      objectBelow.clear();
+      fromEntity = entityBelow;
+      fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
+      entityBelow = this->world->GetEntity(objectBelow);
+      gzdbg << fromEntity->GetName() << " "
+            << distBelow << " " << objectBelow << "\n";
+    }
+    if (entityBelow && fromEntity)
+    {
+      // gzdbg << objectBelow << "\n";
+      // gzdbg << groundHeight << "\n";
+      // gzdbg << groundBB.max.z << "\n";
+      // gzdbg << groundBB.min.z << "\n";
+
+      // slightly above ground and upright
+      // fromEntity->GetCollisionBoundingBox().min.z gives us the
+      // lowest point of atlas robot. Set pin location to 1.15m
+      // above it.
+      atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
+        distBelow + 1.15;
+      atlasPose.rot.SetFromEuler(0, 0, 0);
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+      this->atlas.pinJoint = this->AddJoint(this->world,
+                                        this->atlas.model,
+                                        physics::LinkPtr(),
+                                        this->atlas.pinLink,
+                                        "revolute",
+                                        math::Vector3(0, 0, 0),
+                                        math::Vector3(0, 0, 1),
+                                        0.0, 0.0);
+      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+      // turning off effect of gravity
+      physics::Link_V links = this->atlas.model->GetLinks();
+      for (unsigned int i = 0; i < links.size(); ++i)
+      {
+        links[i]->SetGravityMode(false);
+      }
     }
     else
     {
-      ROS_ERROR("failed to find ground height, guessing 0.0");
-      groundHeight = 0.0;
+      gzwarn << "No entity below robot, or GetEntityBelowPoint "
+             << "returned NULL pointer.\n";
+      // put atlas back
+      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
     }
-
-    if (this->world->GetPhysicsEngine()->GetType() == "bullet")
-    {
-      ROS_ERROR("Bullet GetEntityBelowPoint broken, see issue #539.");
-      groundHeight = 0.0;
-    }
-
-    // gzdbg << objectBelow->GetName() << "\n";
-    // gzdbg << objectBelow->GetParentModel()->GetName() << "\n";
-    // gzdbg << groundHeight << "\n";
-    // gzdbg << groundBB.max.z << "\n";
-    // gzdbg << groundBB.min.z << "\n";
-
-    // slightly above ground and upright
-    atlasPose.pos.z = groundHeight + 1.15;
-    atlasPose.rot.SetFromEuler(0, 0, 0);
-    this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
-
-    this->atlas.pinJoint = this->AddJoint(this->world,
-                                      this->atlas.model,
-                                      physics::LinkPtr(),
-                                      this->atlas.pinLink,
-                                      "revolute",
-                                      math::Vector3(0, 0, 0),
-                                      math::Vector3(0, 0, 1),
-                                      0.0, 0.0);
-    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-    // turning off effect of gravity
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-      links[i]->SetGravityMode(false);
-
     this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
@@ -652,7 +666,8 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                                       bool _disableCollision)
 {
   physics::JointPtr joint;
-  if (_world->GetPhysicsEngine()->GetType() == "ode")
+  if (_world->GetPhysicsEngine()->GetType() == "ode" ||
+      _world->GetPhysicsEngine()->GetType() == "bullet")
   {
     joint = _world->GetPhysicsEngine()->CreateJoint(
       _type, _model);
@@ -660,7 +675,6 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
     // load adds the joint to a vector of shared pointers kept
     // in parent and child links, preventing joint from being destroyed.
     joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
-    // joint->SetAnchor(0, _anchor);
     joint->SetAxis(0, _axis);
     joint->SetHighStop(0, _upper);
     joint->SetLowStop(0, _lower);
@@ -1247,7 +1261,11 @@ void VRCPlugin::FireHose::SetInitialConfiguration()
   for (unsigned int i = 0; i < this->fireHoseJoints.size(); ++i)
   {
     // gzerr << "joint [" << this->fireHoseJoints[i]->GetName() << "]\n";
+#if GAZEBO_MAJOR_VERSION >= 4
+    this->fireHoseJoints[i]->SetPosition(0u, 0.0);
+#else
     this->fireHoseJoints[i]->SetAngle(0u, 0.0);
+#endif
   }
 }
 
