@@ -266,11 +266,6 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     }
     if (entityBelow && fromEntity)
     {
-      // gzdbg << objectBelow << "\n";
-      // gzdbg << groundHeight << "\n";
-      // gzdbg << groundBB.max.z << "\n";
-      // gzdbg << groundBB.min.z << "\n";
-
       // slightly above ground and upright
       atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
         distBelow + 1.15;
