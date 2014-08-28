@@ -252,8 +252,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     std::string objectBelow;
     fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
     entityBelow = this->world->GetEntity(objectBelow);
-    gzerr << fromEntity->GetName() << " "
+    gzdbg << fromEntity->GetName() << " "
           << distBelow << " " << objectBelow << "\n";
+    // if entity below is part of atlas, set it to fromEntity
+    // and keep searching below
     while (entityBelow && (entityBelow->GetParentModel() ==
       fromEntity->GetParentModel()))
     {
@@ -261,12 +263,15 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       fromEntity = entityBelow;
       fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
       entityBelow = this->world->GetEntity(objectBelow);
-      gzerr << fromEntity->GetName() << " "
+      gzdbg << fromEntity->GetName() << " "
             << distBelow << " " << objectBelow << "\n";
     }
     if (entityBelow && fromEntity)
     {
       // slightly above ground and upright
+      // fromEntity->GetCollisionBoundingBox().min.z gives us the
+      // lowest point of atlas robot. Set pin location to 1.15m
+      // above it.
       atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
         distBelow + 1.15;
       atlasPose.rot.SetFromEuler(0, 0, 0);
