@@ -103,7 +103,30 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
   // Joint [xx]: r_arm_elx (1) Parent body: r_uarm Child body : r_larm 
   // Joint [xx]: l_arm_wry (1) Parent body: l_larm
 
-  // convert control_input to controller usable data
+  // convert control_input to local vectors
+  std::vector<double> q_d;
+  std::vector<double> qd_d;
+  std::vector<double> f_d;
+  std::vector<double> k_q_p;
+  std::vector<double> k_q_i;
+  std::vector<double> k_qd_p;
+  q_d.resize(Atlas::NUM_JOINTS);
+  qd_d.resize(Atlas::NUM_JOINTS);
+  f_d.resize(Atlas::NUM_JOINTS);
+  k_q_p.resize(Atlas::NUM_JOINTS);
+  k_q_i.resize(Atlas::NUM_JOINTS);
+  k_qd_p.resize(Atlas::NUM_JOINTS);
+  for (unsigned int i = 0; i < Atlas::NUM_JOINTS; ++i)
+  {
+    q_d[i] = control_input.j[i].q_d;
+    qd_d[i] = control_input.j[i].qd_d;
+    f_d[i] = control_input.j[i].f_d;
+    k_q_p[i] = control_input.jparams[i].k_q_p;
+    k_q_i[i] = control_input.jparams[i].k_q_i;
+    k_qd_p[i] = control_input.jparams[i].k_qd_p;
+  }
+
+  // control robot_state to local vectors
   std::vector<double> p;
   p.resize(Atlas::NUM_JOINTS);
   std::vector<double> v;
@@ -177,6 +200,7 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
     //   this->joints[i]->GetLowStop(0).Radian(),
     //   this->joints[i]->GetHighStop(0).Radian());
 
+/*
     double q_p = positionTarget - this->atlasState.position[i];
 
     if (!math::equal(_dt, 0.0))
@@ -261,6 +285,7 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
     // FIXME: Is this used by the controller?  i.e. should this happen
     // before process_control_input?
     this->atlasRobotState.j[i].f = forceClamped;
+*/
   }
 #endif
 
