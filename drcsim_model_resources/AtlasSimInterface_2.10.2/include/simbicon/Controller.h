@@ -48,14 +48,23 @@ class Controller
 {
 public:
   /// \brief Constructor
-  Controller(std::vector<double> _positions, std::vector<double> _velocities);
+  Controller(unsigned int _numj,
+    const double *_positions = NULL, const double *_velocities = NULL,
+    const double *_imu_q = NULL, const double *_imu_w = NULL,
+    const double *_imu_a = NULL,
+    double _l_foot_fz = 0.0, double _l_foot_mx = 0.0, double _l_foot_my = 0.0,
+    double _r_foot_fz = 0.0, double _r_foot_mx = 0.0, double _r_foot_my = 0.0);
 
   /// \brief Destructor
   virtual ~Controller();
 
   /// \brief Called before every simulation time step in MyWindow class.
   /// Compute control force and apply it to Atlas robot
-  virtual std::vector<double> update(double _dt);
+  virtual std::vector<double> update(double _dt, unsigned int _numj,
+    const double *_positions, const double *_velocities,
+    const double *_imu_q, const double *_imu_w, const double *_imu_a,
+    double _l_foot_fz, double _l_foot_mx, double _l_foot_my,
+    double _r_foot_fz, double _r_foot_mx, double _r_foot_my);
 
   /// \brief Get current state machine
   StateMachine* getCurrentState();

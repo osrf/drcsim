@@ -49,12 +49,20 @@ using namespace std;
 using namespace Eigen;
 
 //==============================================================================
-Controller::Controller(std::vector<double> _positions,
-  std::vector<double> _velocities)
-  : mCurrentStateMachine(NULL),
-    mPositions(_positions),
-    mVelocities(_velocities)
+Controller::Controller( unsigned int _numj,
+  const double *_positions, const double *_velocities,
+  const double *_imu_q, const double *_imu_w, const double *_imu_a,
+  double _l_foot_fz, double _l_foot_mx, double _l_foot_my,
+  double _r_foot_fz, double _r_foot_mx, double _r_foot_my)
+  : mCurrentStateMachine(NULL)
 {
+  mPositions.resize(_numj);
+  mVelocities.resize(_numj);
+  for (unsigned int i = 0; i < _numj; ++i)
+  {
+    this->mPositions[i] = _positions[i];
+    this->mVelocities[i] = _velocities[i];
+  }
   _buildStateMachines();
 
   mInitialState = Eigen::VectorXd();
@@ -71,7 +79,11 @@ Controller::~Controller()
 }
 
 //==============================================================================
-std::vector<double> Controller::update(double _dt)
+std::vector<double> Controller::update(double _dt, unsigned int _numj,
+  const double *_positions, const double *_velocities,
+  const double *_imu_q, const double *_imu_w, const double *_imu_a,
+  double _l_foot_fz, double _l_foot_mx, double _l_foot_my,
+  double _r_foot_fz, double _r_foot_mx, double _r_foot_my)
 {
   // Compute control force
   return mCurrentStateMachine->computeControlForce(_dt);
