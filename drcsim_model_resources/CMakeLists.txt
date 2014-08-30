@@ -108,19 +108,6 @@ install (DIRECTORY
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 #####################################
-# AtlasRobotInterface shim library
-include_directories(
-  ${PROJECT_SOURCE_DIR}/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}/include/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}
-)
-add_library(AtlasRobotInterface SHARED AtlasRobotInterface_2.12.0/src/AtlasInterface.cc)
-target_link_libraries(AtlasRobotInterface AtlasSimInterface)
-
-install (TARGETS AtlasRobotInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL})
-
-install (DIRECTORY AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}/include/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-#####################################
 # Configure the setup script
 configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)

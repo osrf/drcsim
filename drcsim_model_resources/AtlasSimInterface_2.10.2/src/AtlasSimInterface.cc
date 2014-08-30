@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include "AtlasControlTypes.h"
 #include "AtlasSimInterface.h"
 #include "AtlasSimInterfaceTypes.h"
