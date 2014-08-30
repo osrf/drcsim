@@ -1370,15 +1370,26 @@ void AtlasPlugin::SetASICommand(
       _msg->manipulate_params.use_demo_mode;
 
 
-    /// \TODO: Set atlasControlInput from _msg
+    bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS);
+    bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS);
+    bool fSize = (_msg->effort.size() == Atlas::NUM_JOINTS);
+    bool kqpSize = (_msg->kp_position.size() == Atlas::NUM_JOINTS);
+    bool kqiSize = (_msg->ki_position.size() == Atlas::NUM_JOINTS);
+    bool kqdpSize = (_msg->kp_velocity.size() == Atlas::NUM_JOINTS);
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      this->atlasControlInput.j[i].q_d = 0.0;
-      this->atlasControlInput.j[i].qd_d = 0.0;
-      this->atlasControlInput.j[i].f_d = 0.0;
-      this->atlasControlInput.jparams[i].k_q_p = 0.0;
-      this->atlasControlInput.jparams[i].k_q_i = 0.0;
-      this->atlasControlInput.jparams[i].k_qd_p = 0.0;
+      if (pSize)
+        this->atlasControlInput.j[i].q_d = _msg->position[i];
+      if (vSize)
+        this->atlasControlInput.j[i].qd_d = _msg->velocity[i];
+      if (fSize)
+        this->atlasControlInput.j[i].f_d = _msg->effort[i];
+      if (kqpSize)
+        this->atlasControlInput.jparams[i].k_q_p = _msg->kp_position[i];
+      if (kqiSize)
+        this->atlasControlInput.jparams[i].k_q_i = _msg->ki_position[i];
+      if (kqdpSize)
+        this->atlasControlInput.jparams[i].k_qd_p = _msg->kp_velocity[i];
     }
 
     // Try and set desired behavior (reverse map of behaviorMap)
@@ -1597,6 +1608,11 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     this->atlasState.i_effort_max[i] =  i_clamp_val;
     // default k_effort is set to 1, controller relies on PID.
     this->atlasState.k_effort[i] = 255;
+
+    // for libAtlasSimInterface
+    this->atlasControlInput.jparams[i].k_q_p = p_val;
+    this->atlasControlInput.jparams[i].k_q_i = i_val;
+    this->atlasControlInput.jparams[i].k_qd_p = d_val;
   }
 }
 
