@@ -21,15 +21,7 @@
 #include "AtlasSimInterface.h"
 #include "AtlasSimInterfaceTypes.h"
 #include "AtlasVectorTypes.h"
-#include "simbicon/Controller.h"
 
-#ifndef HAVE_EIGEN3
-#undef USE_SIMBICON
-#endif
-
-#ifdef USE_SIMBICON
-Controller *simbiconController;
-#else
 struct ErrorTerms
 {
   /// error term contributions to final control output
@@ -46,7 +38,6 @@ struct ErrorTerms
   }
 };
 ErrorTerms errorTerms[Atlas::NUM_JOINTS];
-#endif
 
 extern "C" {
 
@@ -54,22 +45,14 @@ extern "C" {
 AtlasSimInterface* create_atlas_sim_interface()
 {
   std::cerr << "\nWarning: Using Atlas Shim interface. "
-    << "Atlas will be uncontrolled\n";
+    << "Atlas will be more or less uncontrolled\n";
 
-#ifdef USE_SIMBICON
-  simbiconController = new Controller(Atlas::NUM_JOINTS);
-#else
-#endif
   return new AtlasSimInterface();
 }
 
 //////////////////////////////////////////////////
 void destroy_atlas_sim_interface()
 {
-#ifdef USE_SIMBICON
-  delete simbiconController;
-#else
-#endif
 }
 
 } // end extern "C"
@@ -212,20 +195,6 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
   /// \TODO: compute dt from timestamps
   const double dt = 0.001;
 
-#ifdef USE_SIMBICON
-  /// \TODO: use states passed into simbicon controller
-  /// to trigger state change.
-  std::vector<double> torques = simbiconController->update(dt,
-    Atlas::NUM_JOINTS, &q[0], &qd[0], imu_q, imu_w, imu_a,
-    foot_fz[0], foot_mx[0], foot_my[0],   // left foot
-    foot_fz[1], foot_mx[1], foot_my[1]);  // right foot
-
-  // copy control torque to control_output
-  for (int i = 0; i < Atlas::NUM_JOINTS; ++i)
-  {
-    control_output.f_out[i] = torques[i];
-  }
-#else
   // Copied from AtlasPlugin::UpdatePIDControl and modified locally
   for (unsigned int i = 0; i < Atlas::NUM_JOINTS; ++i)
   {
@@ -285,7 +254,6 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
     // fill in control output command efforts.
     control_output.f_out[i] = forceUnclamped;
   }
-#endif
 
   return AtlasSim::NO_ERRORS;
 }

@@ -93,37 +93,19 @@ set (ATLAS_ROBOT_INTERFACE_VERSION_FULL ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.$
 
 #####################################
 # AtlasSimInterface shim library
-pkg_check_modules(eigen3 eigen3)
-if (NOT eigen3_FOUND)
-  message(STATUS "eigen3 not found. Simbicon capabilities will be disabled.")
-else()
-  include_directories(${eigen3_INCLUDE_DIRS})
-  add_definitions(-DHAVE_EIGEN3)
-endif ()
 include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
 
 add_library(AtlasSimInterface SHARED
-  AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
-  AtlasSimInterface_2.10.2/src/simbicon/Controller.cpp
-  AtlasSimInterface_2.10.2/src/simbicon/State.cpp
-  AtlasSimInterface_2.10.2/src/simbicon/StateMachine.cpp
-  AtlasSimInterface_2.10.2/src/simbicon/TerminalCondition.cpp)
+  AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
 
 install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
 
 install (DIRECTORY
   AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-# install simbicon headers
-install (DIRECTORY
-  AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/simbicon
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-# Controller.h Humanoid.h MyWindow.h State.h StateMachine.h TerminalCondition.h
 
 #####################################
 # AtlasRobotInterface shim library
