@@ -4,14 +4,14 @@ Gazebo is the basis for the DRC Simulator, which is used by participants in the 
 
 For more detailed documentations please see
 
-http://gazebosim.org/wiki/DRC
+https://bitbucket.org/osrf/drcsim/wiki
+
 
 Some quick links:
 
- * [installation instructions](http://gazebosim.org/wiki/DRC/Install)
- * [user guide](http://gazebosim.org/wiki/DRC/UserGuide)
- * [tutorials](http://gazebosim.org/wiki/DRC/Tutorials)
- * [changelog](http://gazebosim.org/wiki/DRC/Change_log)
- * [roadmap](http://gazebosim.org/wiki/DRC/Roadmap)
- * [release schedule](http://gazebosim.org/wiki/DRC/ReleaseSchedule)
-
+ * [Installation instructions](http://gazebosim.org/tutorials?tut=drcsim_install&cat=drcsim)
+ * [Tutorials](http://gazebosim.org/tutorials?cat=drcsim)
+ * [User guide](https://bitbucket.org/osrf/drcsim/wiki/DRC/UserGuide)
+ * [Changelog](https://bitbucket.org/osrf/drcsim/wiki/DRC/Change%20log)
+ * [Roadmap](https://bitbucket.org/osrf/drcsim/wiki/DRC/Roadmap)
+ * [Release schedule](https://bitbucket.org/osrf/drcsim/wiki/DRC/ReleaseSchedule)
