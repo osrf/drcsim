@@ -1023,6 +1023,47 @@ void AtlasPlugin::SetAtlasCommand(
   this->atlasCommand.desired_controller_period_ms =
     _msg->desired_controller_period_ms;
 
+  // also copy joint servo commands to AtlasSimInterfaceCommand
+  // for atlas shim interface maintains joint servo control as well.
+  bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS);
+  bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS);
+  bool fSize = (_msg->effort.size() == Atlas::NUM_JOINTS);
+  bool kqpSize = (_msg->kp_position.size() == Atlas::NUM_JOINTS);
+  bool kqiSize = (_msg->ki_position.size() == Atlas::NUM_JOINTS);
+  bool kqdpSize = (_msg->kp_velocity.size() == Atlas::NUM_JOINTS);
+  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    if (pSize)
+      this->atlasControlInput.j[i].q_d = _msg->position[i];
+    if (vSize)
+      this->atlasControlInput.j[i].qd_d = _msg->velocity[i];
+    if (fSize)
+      this->atlasControlInput.j[i].f_d = _msg->effort[i];
+    if (kqpSize)
+      this->atlasControlInput.jparams[i].k_q_p = _msg->kp_position[i];
+    if (kqiSize)
+      this->atlasControlInput.jparams[i].k_q_i = _msg->ki_position[i];
+    if (kqdpSize)
+    {
+      this->atlasControlInput.jparams[i].k_qd_p = _msg->kp_velocity[i];
+      this->joints[i]->SetDamping(0, _msg->kp_velocity[i]);
+      this->joints[i]->SetDamping(0, 1.0);
+    }
+  }
+  /* debug
+  this->joints[ 0]->SetDamping(0, 10.0);
+  this->joints[ 1]->SetDamping(0, 10.0);
+  this->joints[ 2]->SetDamping(0, 10.0);
+  this->joints[ 3]->SetDamping(0, 10.0);
+  this->joints[ 6]->SetDamping(0, 10.0);
+  this->joints[ 7]->SetDamping(0, 10.0);
+  this->joints[ 8]->SetDamping(0, 10.0);
+  this->joints[11]->SetDamping(0, 10.0);
+  this->joints[12]->SetDamping(0, 10.0);
+  this->joints[13]->SetDamping(0, 10.0);
+  */
+
+  // in case we are blocking on receipt of command
   this->delayCondition.notify_one();
 }
 
@@ -1389,7 +1430,10 @@ void AtlasPlugin::SetASICommand(
       if (kqiSize)
         this->atlasControlInput.jparams[i].k_q_i = _msg->ki_position[i];
       if (kqdpSize)
+      {
         this->atlasControlInput.jparams[i].k_qd_p = _msg->kp_velocity[i];
+        this->joints[i]->SetDamping(0, _msg->kp_velocity[i]);
+      }
     }
 
     // Try and set desired behavior (reverse map of behaviorMap)
@@ -1613,7 +1657,22 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     this->atlasControlInput.jparams[i].k_q_p = p_val;
     this->atlasControlInput.jparams[i].k_q_i = i_val;
     this->atlasControlInput.jparams[i].k_qd_p = d_val;
+    // TEST: hard code joint damping
+    this->joints[i]->SetDamping(0, this->atlasControlInput.jparams[i].k_qd_p);
+    this->joints[i]->SetDamping(0, 1.0);
   }
+  /* debug
+  this->joints[ 0]->SetDamping(0, 10.0);
+  this->joints[ 1]->SetDamping(0, 10.0);
+  this->joints[ 2]->SetDamping(0, 10.0);
+  this->joints[ 3]->SetDamping(0, 10.0);
+  this->joints[ 6]->SetDamping(0, 10.0);
+  this->joints[ 7]->SetDamping(0, 10.0);
+  this->joints[ 8]->SetDamping(0, 10.0);
+  this->joints[11]->SetDamping(0, 10.0);
+  this->joints[12]->SetDamping(0, 10.0);
+  this->joints[13]->SetDamping(0, 10.0);
+  */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
