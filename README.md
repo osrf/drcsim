@@ -12,6 +12,6 @@ Some quick links:
  * [Installation instructions](http://gazebosim.org/tutorials?tut=drcsim_install&cat=drcsim)
  * [Tutorials](http://gazebosim.org/tutorials?cat=drcsim)
  * [User guide](https://bitbucket.org/osrf/drcsim/wiki/DRC/UserGuide)
- * [Changelog](https://bitbucket.org/osrf/drcsim/wiki/DRC/Change%20log)
+ * [Changelog](https://bitbucket.org/osrf/drcsim/wiki/DRC/ChangeLog)
  * [Roadmap](https://bitbucket.org/osrf/drcsim/wiki/DRC/Roadmap)
  * [Release schedule](https://bitbucket.org/osrf/drcsim/wiki/DRC/ReleaseSchedule)
