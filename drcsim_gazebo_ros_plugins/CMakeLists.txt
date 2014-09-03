@@ -87,7 +87,7 @@ target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include)
 
 add_library(AtlasV3Plugin src/AtlasV3Plugin.cpp)
-set_target_properties(AtlasV3Plugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_2_PROJECT_PATH}/lib64/")
+# set_target_properties(AtlasV3Plugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_2_PROJECT_PATH}/lib64/")
 set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_PROJECT_PATH}/include")
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasV3Plugin atlas_msgs_gencpp AtlasSimInterface_include)

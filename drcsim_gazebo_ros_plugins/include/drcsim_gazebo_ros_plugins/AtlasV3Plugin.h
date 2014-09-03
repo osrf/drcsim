@@ -43,11 +43,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-#ifdef WITH_ATLAS_SIM_INTERFACE_1
-#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#else
 #include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
-#endif
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
