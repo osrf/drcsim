@@ -274,33 +274,36 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       // above it.
       atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
         distBelow + 1.15;
-      atlasPose.rot.SetFromEuler(0, 0, 0);
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
-
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-      // turning off effect of gravity
-      physics::Link_V links = this->atlas.model->GetLinks();
-      for (unsigned int i = 0; i < links.size(); ++i)
-      {
-        links[i]->SetGravityMode(false);
-      }
     }
     else
     {
       gzwarn << "No entity below robot, or GetEntityBelowPoint "
-             << "returned NULL pointer.\n";
+             << "returned NULL pointer. Assume ground height = 0.0m\n";
       // put atlas back
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+      atlasPose.pos.z =  1.15;
     }
+
+    // set robot pose and pin it
+    atlasPose.rot.SetFromEuler(0, 0, 0);
+    this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    // turning off effect of gravity
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
+
     this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
