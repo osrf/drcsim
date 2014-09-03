@@ -112,9 +112,9 @@ install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/inclu
 
 #####################################
 # install AtlasSimInterface 1 Binary
-install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface1.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
-          RENAME libAtlasSimInterface.so)
+          RENAME libAtlasSimInterface1.so)
 
 
 #####################################

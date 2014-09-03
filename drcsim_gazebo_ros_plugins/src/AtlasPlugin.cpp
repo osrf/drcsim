@@ -44,7 +44,7 @@ AtlasPlugin::AtlasPlugin()
   // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "imu_link";
 
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
   #endif
@@ -93,7 +93,7 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.disable();
   this->callbackQueueThread.join();
   delete this->rosNode;
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // shutdown behavior library
   destroy_atlas_sim_interface();
   #endif
@@ -311,7 +311,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->ZeroJointCommands();
   }
 
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   {
     // AtlasSimInterface:  initialize controlOutput
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -874,7 +874,7 @@ void AtlasPlugin::UpdateStates()
     }
     else if (this->startupStep == AtlasPlugin::USER)
     {
-      #ifdef WITH_ATLASSIMINTERFACE_BLOB
+      #ifdef WITH_ATLAS_SIM_INTERFACE_1
       // startup 2
       // AtlasSimInterface:
       // Calling into the behavior library to set control mode to USER.
@@ -890,7 +890,7 @@ void AtlasPlugin::UpdateStates()
     }
     else if (this->startupStep == AtlasPlugin::FREEZE)
     {
-      #ifdef WITH_ATLASSIMINTERFACE_BLOB
+      #ifdef WITH_ATLAS_SIM_INTERFACE_1
       // startup 1
       // AtlasSimInterface:
       // Calling into the behavior library to reset controls (FREEZE Mode).
@@ -1230,7 +1230,7 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   atlas_msgs::ResetControls::Response &_res)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   _res.success = true;
   _res.status_message = "success";
 
@@ -1277,7 +1277,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
 void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // copy _msg contents directly into
   // atlasControlInput::stand_params
   // atlasControlInput::step_params
@@ -1677,7 +1677,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
 // the command is passed to the AtlasSimInterface library.
 void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // to make it Stand
   //  * StandPrep:  puts robot in standing pose while harnessed
   //  * remove the harness
@@ -1790,7 +1790,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   if (this->imuSensor)
   {
     // AtlasSimInterface: populate imu in atlasRobotState
@@ -1869,7 +1869,7 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
@@ -2001,7 +2001,7 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // 80 characters
   atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
   AtlasControlOutput *fbOut = &(this->controlOutput);
@@ -2215,7 +2215,7 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   boost::mutex::scoped_lock lock(this->asiMutex);
 
   // AtlasSimInterface:
@@ -2354,7 +2354,7 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // Keep track of age of atlasCommand age in seconds.
   // Note the value is invalid as a moving window average age
   // until the buffer is full.
@@ -2397,7 +2397,7 @@ void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdatePIDControl(double _dt)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   /// update pid with feedforward force
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
@@ -2522,7 +2522,7 @@ void AtlasPlugin::PublishConstrollerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLASSIMINTERFACE_BLOB
+  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   boost::mutex::scoped_lock lock(this->mutex);
 
   // get imu data from imu sensor

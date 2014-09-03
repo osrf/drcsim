@@ -83,14 +83,14 @@ target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_1_PROJECT_PATH}/lib64/")
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-DWITH_ATLAS_SIM_INTERFACE_1 -I${ATLAS_INTERFACE_1_PROJECT_PATH}/include")
-target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
-add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include)
+target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface1)
+add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
 add_library(AtlasV3Plugin src/AtlasV3Plugin.cpp)
 # set_target_properties(AtlasV3Plugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_2_PROJECT_PATH}/lib64/")
 set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_PROJECT_PATH}/include")
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} AtlasSimInterface)
-add_dependencies(AtlasV3Plugin atlas_msgs_gencpp AtlasSimInterface_include)
+add_dependencies(AtlasV3Plugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
 target_link_libraries(VRCScoringPlugin ${catkin_LIBRARIES})
@@ -134,7 +134,7 @@ add_dependencies(actionlib_server atlas_msgs_gencpp) # or atlas_msgs_generate_me
 #############
 ## Install ##
 #############
-install(TARGETS VRCPlugin SandiaHandPlugin IRobotHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin VRCScoringPlugin test_ros_plugin pub_atlas_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
+install(TARGETS VRCPlugin SandiaHandPlugin IRobotHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin AtlasV3Plugin VRCScoringPlugin test_ros_plugin pub_atlas_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
 )
 
