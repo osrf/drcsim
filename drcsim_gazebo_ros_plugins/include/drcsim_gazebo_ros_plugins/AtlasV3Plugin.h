@@ -15,8 +15,8 @@
  *
 */
 
-#ifndef GAZEBO_ATLAS_PLUGIN_HH
-#define GAZEBO_ATLAS_PLUGIN_HH
+#ifndef GAZEBO_ATLAS_V3_PLUGIN_HH
+#define GAZEBO_ATLAS_V3_PLUGIN_HH
 
 // filter coefficients
 #define FIL_N_GJOINTS 28
@@ -43,10 +43,10 @@
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-
-#ifdef WITH_ATLASSIMINTERFACE_BLOB
-  // AtlasSimInterface: header
-  #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
+#ifdef WITH_ATLAS_SIM_INTERFACE_1
+#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
+#else
+#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
 #endif
 
 #include <gazebo/math/Vector3.hh>
@@ -92,13 +92,13 @@
 
 namespace gazebo
 {
-  class AtlasPlugin : public ModelPlugin
+  class AtlasV3Plugin : public ModelPlugin
   {
     /// \brief Constructor
-    public: AtlasPlugin();
+    public: AtlasV3Plugin();
 
     /// \brief Destructor
-    public: virtual ~AtlasPlugin();
+    public: virtual ~AtlasV3Plugin();
 
     /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
@@ -288,7 +288,6 @@ namespace gazebo
     /// \brief enforce delay policy
     private: void EnforceSynchronizationDelay(const common::Time &_curTime);
 
-    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //  BDI Controller AtlasSimInterface Internals                            //
@@ -299,7 +298,6 @@ namespace gazebo
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
-    #endif
 
     /// \brief AtlasSimInterface: ROS subscriber
     private: ros::Subscriber subASICommand;
@@ -375,7 +373,7 @@ namespace gazebo
         double d_q_p_dt;
         double k_i_q_i;  // integral term weighted by k_i
         double qd_p;
-        friend class AtlasPlugin;
+        friend class AtlasV3Plugin;
       };
     private: std::vector<ErrorTerms> errorTerms;
 
@@ -478,7 +476,6 @@ namespace gazebo
       return result;
     }
 
-    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
     {
@@ -488,8 +485,6 @@ namespace gazebo
       result.z = _v.n[2];
       return result;
     }
-    #endif
-
 
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
@@ -503,7 +498,6 @@ namespace gazebo
       return result;
     }
 
-    #ifdef WITH_ATLASSIMINTERFACE_BLOB
     /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
@@ -555,8 +549,12 @@ namespace gazebo
         double yz = sqrt(_normal.n[1]*_normal.n[1] +
                          _normal.n[2]*_normal.n[2]);
         if (math::equal(yz, 0.0))
+        {
+          /*
           ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                    "zero length or is parallel to the x-axis");
+          */
+        }
         else
           rx = 0.5*M_PI - asin(_normal.n[2] / yz);
       }
@@ -567,8 +565,12 @@ namespace gazebo
         double xz = sqrt(_normal.n[0]*_normal.n[0] +
                          _normal.n[2]*_normal.n[2]);
         if (math::equal(xz, 0.0))
+        {
+          /*
           ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                    "zero length or is parallel to the y-axis");
+          */
+        }
         else
           ry = 0.5*M_PI - asin(_normal.n[2] / xz);
       }
@@ -578,7 +580,6 @@ namespace gazebo
 
       return this->ToQ(math::Quaternion(rx, ry, rz));
     }
-    #endif
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
