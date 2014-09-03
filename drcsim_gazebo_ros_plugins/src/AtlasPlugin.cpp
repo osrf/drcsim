@@ -44,10 +44,8 @@ AtlasPlugin::AtlasPlugin()
   // the <pose> tag in the imu_senosr block.
   this->imuLinkName = "imu_link";
 
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // initialize behavior library
   this->atlasSimInterface = create_atlas_sim_interface();
-  #endif
 
   // setup behavior to string map
   this->behaviorMap["None"] = atlas_msgs::AtlasSimInterfaceCommand::NONE;
@@ -93,10 +91,8 @@ AtlasPlugin::~AtlasPlugin()
   this->rosQueue.disable();
   this->callbackQueueThread.join();
   delete this->rosNode;
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // shutdown behavior library
   destroy_atlas_sim_interface();
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +307,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     this->ZeroJointCommands();
   }
 
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   {
     // AtlasSimInterface:  initialize controlOutput
     for(unsigned int i = 0; i < this->joints.size(); ++i)
@@ -506,7 +501,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     for(unsigned int i = 0; i < this->jointNames.size(); ++i)
       this->asiState.k_effort[i] = 255;
   }
-  #endif
 
   // Get force torque joints
   this->lWristJoint = this->model->GetJoint(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
@@ -874,7 +868,6 @@ void AtlasPlugin::UpdateStates()
     }
     else if (this->startupStep == AtlasPlugin::USER)
     {
-      #ifdef WITH_ATLAS_SIM_INTERFACE_1
       // startup 2
       // AtlasSimInterface:
       // Calling into the behavior library to set control mode to USER.
@@ -886,11 +879,9 @@ void AtlasPlugin::UpdateStates()
       this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::USER;
       this->startupStep = AtlasPlugin::NOMINAL;
-      #endif
     }
     else if (this->startupStep == AtlasPlugin::FREEZE)
     {
-      #ifdef WITH_ATLAS_SIM_INTERFACE_1
       // startup 1
       // AtlasSimInterface:
       // Calling into the behavior library to reset controls (FREEZE Mode).
@@ -901,7 +892,6 @@ void AtlasPlugin::UpdateStates()
         ROS_ERROR("AtlasSimInterface: reset controls on startup failed with "
                   "error code (%d).", this->asiState.error_code);
       this->startupStep = AtlasPlugin::USER;
-      #endif
     }
     else
     {
@@ -1230,7 +1220,6 @@ bool AtlasPlugin::AtlasFilters(atlas_msgs::AtlasFilters::Request &_req,
 bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   atlas_msgs::ResetControls::Response &_res)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   _res.success = true;
   _res.status_message = "success";
 
@@ -1270,14 +1259,12 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
   }
 
   return _res.success;
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // copy _msg contents directly into
   // atlasControlInput::stand_params
   // atlasControlInput::step_params
@@ -1437,7 +1424,6 @@ void AtlasPlugin::SetASICommand(
         break;
     }
   }
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1677,7 +1663,6 @@ void AtlasPlugin::SetExperimentalDampingPID(
 // the command is passed to the AtlasSimInterface library.
 void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // to make it Stand
   //  * StandPrep:  puts robot in standing pose while harnessed
   //  * remove the harness
@@ -1784,13 +1769,11 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
   {
     ROS_WARN("Unknown robot mode [%s]", _mode->data.c_str());
   }
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   if (this->imuSensor)
   {
     // AtlasSimInterface: populate imu in atlasRobotState
@@ -1863,13 +1846,11 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
     // publish separate /atlas/imu topic, to be deprecated
     this->pubImuQueue->push(imuMsg, this->pubImu);
   }
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   atlas_msgs::ForceTorqueSensors forceTorqueSensorsMsg;
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
@@ -1973,7 +1954,6 @@ void AtlasPlugin::GetForceTorqueSensorState(const common::Time &_curTime)
   // publish separate /atlas/force_torque_sensors topic, to be deprecated
   this->pubForceTorqueSensorsQueue->push(forceTorqueSensorsMsg,
     this->pubForceTorqueSensors);
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2001,7 +1981,6 @@ std::string AtlasPlugin::GetBehavior(int _behavior)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // 80 characters
   atlas_msgs::AtlasSimInterfaceState *fb = &(this->asiState);
   AtlasControlOutput *fbOut = &(this->controlOutput);
@@ -2104,7 +2083,6 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->manipulate_feedback.clamped.pelvis_yaw;
   fb->manipulate_feedback.clamped.pelvis_lat =
     fbOut->manipulate_feedback.clamped.pelvis_lat;
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2215,7 +2193,6 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   boost::mutex::scoped_lock lock(this->asiMutex);
 
   // AtlasSimInterface:
@@ -2348,13 +2325,11 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
   }
   // set asiState and publish asiState
   this->pubASIStateQueue->push(this->asiState, this->pubASIState);
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   // Keep track of age of atlasCommand age in seconds.
   // Note the value is invalid as a moving window average age
   // until the buffer is full.
@@ -2391,13 +2366,11 @@ void AtlasPlugin::CalculateControllerStatistics(const common::Time &_curTime)
   this->atlasCommandAgeBufferIndex =
    (this->atlasCommandAgeBufferIndex + 1) %
    this->atlasCommandAgeBuffer.size();
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::UpdatePIDControl(double _dt)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   /// update pid with feedforward force
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
@@ -2492,7 +2465,6 @@ void AtlasPlugin::UpdatePIDControl(double _dt)
     // before process_control_input?
     this->atlasRobotState.j[i].f = forceClamped;
   }
-   #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2522,7 +2494,6 @@ void AtlasPlugin::PublishConstrollerStatistics(const common::Time &_curTime)
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
 {
-  #ifdef WITH_ATLAS_SIM_INTERFACE_1
   boost::mutex::scoped_lock lock(this->mutex);
 
   // get imu data from imu sensor
@@ -2569,7 +2540,6 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
   // publish robot states
   this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
   this->pubAtlasStateQueue->push(this->atlasState, this->pubAtlasState);
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

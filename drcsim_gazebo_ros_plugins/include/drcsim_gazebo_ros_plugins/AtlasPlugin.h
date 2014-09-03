@@ -44,10 +44,8 @@
 #include <boost/thread/condition.hpp>
 
 
-#ifdef WITH_ATLAS_SIM_INTERFACE_1
-  // AtlasSimInterface: header
-  #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#endif
+// AtlasSimInterface: header
+#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
@@ -288,7 +286,6 @@ namespace gazebo
     /// \brief enforce delay policy
     private: void EnforceSynchronizationDelay(const common::Time &_curTime);
 
-    #ifdef WITH_ATLAS_SIM_INTERFACE_1
     ////////////////////////////////////////////////////////////////////////////
     //                                                                        //
     //  BDI Controller AtlasSimInterface Internals                            //
@@ -299,7 +296,6 @@ namespace gazebo
     private: AtlasRobotState atlasRobotState;
     private: AtlasControlInput atlasControlInput;
     private: AtlasSimInterface* atlasSimInterface;
-    #endif
 
     /// \brief AtlasSimInterface: ROS subscriber
     private: ros::Subscriber subASICommand;
@@ -478,7 +474,6 @@ namespace gazebo
       return result;
     }
 
-    #ifdef WITH_ATLAS_SIM_INTERFACE_1
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Point ToPoint(const AtlasVec3f &_v) const
     {
@@ -488,7 +483,6 @@ namespace gazebo
       result.z = _v.n[2];
       return result;
     }
-    #endif
 
 
     /// \brief Conversion helper functions
@@ -503,7 +497,6 @@ namespace gazebo
       return result;
     }
 
-    #ifdef WITH_ATLAS_SIM_INTERFACE_1
     /// \brief Conversion helper functions
     private: inline AtlasVec3f ToVec3(const geometry_msgs::Point &_point) const
     {
@@ -578,7 +571,6 @@ namespace gazebo
 
       return this->ToQ(math::Quaternion(rx, ry, rz));
     }
-    #endif
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
