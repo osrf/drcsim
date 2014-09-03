@@ -22,7 +22,8 @@ fi
 
 # Step 3: Modify LD_LIBRARY_PATH to include some unusual locations.
 # Make AtlasSimInterface plugins visible to the runtime loader
-export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_INTERFACE_VERSION_FULL@:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_INTERFACE_1_VERSION_FULL@:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/AtlasSimInterface_@ATLAS_SIM_INTERFACE_2_VERSION_FULL@:$LD_LIBRARY_PATH
 # Make Gazebo-ROS plugins visible to the runtime loader; they'll be
 # pulled in by ROS via pluginlib
 export LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$LD_LIBRARY_PATH

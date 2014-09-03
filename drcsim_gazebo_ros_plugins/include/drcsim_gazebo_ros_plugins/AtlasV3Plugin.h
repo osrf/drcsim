@@ -15,8 +15,8 @@
  *
 */
 
-#ifndef GAZEBO_ATLAS_PLUGIN_HH
-#define GAZEBO_ATLAS_PLUGIN_HH
+#ifndef GAZEBO_ATLAS_V3_PLUGIN_HH
+#define GAZEBO_ATLAS_V3_PLUGIN_HH
 
 // filter coefficients
 #define FIL_N_GJOINTS 28
@@ -43,9 +43,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-
-// AtlasSimInterface: header
-#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
+#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
@@ -90,13 +88,13 @@
 
 namespace gazebo
 {
-  class AtlasPlugin : public ModelPlugin
+  class AtlasV3Plugin : public ModelPlugin
   {
     /// \brief Constructor
-    public: AtlasPlugin();
+    public: AtlasV3Plugin();
 
     /// \brief Destructor
-    public: virtual ~AtlasPlugin();
+    public: virtual ~AtlasV3Plugin();
 
     /// \brief Load the controller
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
@@ -371,7 +369,7 @@ namespace gazebo
         double d_q_p_dt;
         double k_i_q_i;  // integral term weighted by k_i
         double qd_p;
-        friend class AtlasPlugin;
+        friend class AtlasV3Plugin;
       };
     private: std::vector<ErrorTerms> errorTerms;
 
@@ -484,7 +482,6 @@ namespace gazebo
       return result;
     }
 
-
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
       const
@@ -548,8 +545,12 @@ namespace gazebo
         double yz = sqrt(_normal.n[1]*_normal.n[1] +
                          _normal.n[2]*_normal.n[2]);
         if (math::equal(yz, 0.0))
+        {
+          /*
           ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                    "zero length or is parallel to the x-axis");
+          */
+        }
         else
           rx = 0.5*M_PI - asin(_normal.n[2] / yz);
       }
@@ -560,8 +561,12 @@ namespace gazebo
         double xz = sqrt(_normal.n[0]*_normal.n[0] +
                          _normal.n[2]*_normal.n[2]);
         if (math::equal(xz, 0.0))
+        {
+          /*
           ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                    "zero length or is parallel to the y-axis");
+          */
+        }
         else
           ry = 0.5*M_PI - asin(_normal.n[2] / xz);
       }

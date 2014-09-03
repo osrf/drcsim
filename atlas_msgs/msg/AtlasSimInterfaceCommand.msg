@@ -41,3 +41,11 @@ uint8[] k_effort       # k_effort can be an unsigned int 8value from 0 to 255,
                        # at run time, a double between 0 and 1 is obtained
                        # by dividing by 255.0d.
 
+# servo control in AtlasSimInterface
+float64[] position
+float64[] velocity
+float64[] effort
+
+float32[] kp_position
+float32[] ki_position
+float32[] kp_velocity
