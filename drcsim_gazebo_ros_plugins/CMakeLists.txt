@@ -6,7 +6,8 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
 STRING (REGEX MATCH "BSD" BSD ${CMAKE_SYSTEM_NAME})
 
-set(ATLAS_INTERFACE_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_2.10.2")
+set(ATLAS_INTERFACE_1_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
+set(ATLAS_INTERFACE_2_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_2.10.2")
 
 find_package(catkin REQUIRED COMPONENTS
              drcsim_model_resources
@@ -79,9 +80,15 @@ add_dependencies(DRCVehicleROSPlugin DRCVehiclePlugin)
 add_library(ContactModelPlugin src/ContactModelPlugin.cpp)
 target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
+add_library(AtlasPlugin1 src/AtlasPlugin.cpp)
+set_target_properties(AtlasPlugin1 PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_1_PROJECT_PATH}/lib64/")
+set_target_properties(AtlasPlugin1 PROPERTIES COMPILE_FLAGS "-DWITH_ATLAS_SIM_INTERFACE_1 -I${ATLAS_INTERFACE_1_PROJECT_PATH}/include")
+target_link_libraries(AtlasPlugin1 ${catkin_LIBRARIES} AtlasSimInterface)
+add_dependencies(AtlasPlugin1 atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
+
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
-set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_PROJECT_PATH}/lib64/")
-set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_PROJECT_PATH}/include")
+set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_2_PROJECT_PATH}/lib64/")
+set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_PROJECT_PATH}/include")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
