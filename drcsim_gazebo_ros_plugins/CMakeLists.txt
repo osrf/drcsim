@@ -6,9 +6,6 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
 STRING (REGEX MATCH "BSD" BSD ${CMAKE_SYSTEM_NAME})
 
-set(ATLAS_INTERFACE_1_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_1.1.1")
-set(ATLAS_INTERFACE_2_PROJECT_PATH "${PROJECT_SOURCE_DIR}/../drcsim_model_resources/AtlasSimInterface_2.10.2")
-
 find_package(catkin REQUIRED COMPONENTS
              drcsim_model_resources
              drcsim_gazebo_plugins
@@ -80,15 +77,17 @@ add_dependencies(DRCVehicleROSPlugin DRCVehiclePlugin)
 add_library(ContactModelPlugin src/ContactModelPlugin.cpp)
 target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
+set(ATLAS_INTERFACE_1_LIBRARY_DIR "${drcsim_model_resources_SOURCE_PREFIX}/AtlasSimInterface_1.1.1/lib64")
+set(ATLAS_INTERFACE_1_INCLUDE_DIR "${drcsim_model_resources_SOURCE_PREFIX}/AtlasSimInterface_1.1.1/include")
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
-set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_1_PROJECT_PATH}/lib64/")
-set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-DWITH_ATLAS_SIM_INTERFACE_1 -I${ATLAS_INTERFACE_1_PROJECT_PATH}/include")
+set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_1_LIBRARY_DIR}")
+set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-DWITH_ATLAS_SIM_INTERFACE_1 -I${ATLAS_INTERFACE_1_INCLUDE_DIR}")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} AtlasSimInterface1)
 add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
+set(ATLAS_INTERFACE_2_INCLUDE_DIR "${drcsim_model_resources_SOURCE_PREFIX}/AtlasSimInterface_2.10.2/include")
 add_library(AtlasV3Plugin src/AtlasV3Plugin.cpp)
-# set_target_properties(AtlasV3Plugin PROPERTIES LINK_FLAGS "-L${ATLAS_INTERFACE_2_PROJECT_PATH}/lib64/")
-set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_PROJECT_PATH}/include")
+set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_INCLUDE_DIR}/include")
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasV3Plugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 

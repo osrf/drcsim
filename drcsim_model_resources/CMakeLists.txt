@@ -116,6 +116,9 @@ install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/lib
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
           RENAME libAtlasSimInterface1.so)
 
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
 
 #####################################
 # Configure the setup script
