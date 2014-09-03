@@ -130,11 +130,8 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
                                       0.0, 0.0);
   this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
-  physics::Link_V links = this->atlas.model->GetLinks();
-  for (unsigned int i = 0; i < links.size(); ++i)
-  {
-    links[i]->SetGravityMode(_with_gravity);
-  }
+  this->atlas.model->SetGravityMode(_with_gravity);
+
   this->SetFeetCollide("none");
 }
 
@@ -143,11 +140,7 @@ void VRCPlugin::UnpinAtlas()
 {
   // nominal
   this->warpRobotWithCmdVel = false;
-  physics::Link_V links = this->atlas.model->GetLinks();
-  for (unsigned int i = 0; i < links.size(); ++i)
-  {
-    links[i]->SetGravityMode(true);
-  }
+  this->atlas.model->SetGravityMode(true);
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
   if (this->vehicleRobotJoint)
@@ -184,11 +177,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->atlas.model->SetGravityMode(false);
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
@@ -198,14 +187,11 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
-        links[i]->SetGravityMode(true);
-      else
-        links[i]->SetGravityMode(false);
-    }
+
+    this->atlas.model->SetGravityMode(false);
+    this->atlas.model->GetLink("l_foot")->SetGravityMode(true);
+    this->atlas.model->GetLink("r_foot")->SetGravityMode(true);
+
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
@@ -276,11 +262,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
       // turning off effect of gravity
-      physics::Link_V links = this->atlas.model->GetLinks();
-      for (unsigned int i = 0; i < links.size(); ++i)
-      {
-        links[i]->SetGravityMode(false);
-      }
+      this->atlas.model->SetGravityMode(false);
     }
     else
     {
@@ -303,7 +285,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     this->UnpinAtlas();
   }
-  else if (_str == "bdi_stand")
+  else if (_str == "pid_stand")
   {
     // Robot is PID controlled in BDI stand Pose and PINNED.
 
@@ -321,11 +303,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                       math::Vector3(0, 0, 1),
                                       0.0, 0.0);
     // turning off effect of gravity
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->atlas.model->SetGravityMode(false);
 
     // turn physics off while manipulating things
     bool physics = this->world->GetEnablePhysicsEngine();
@@ -918,7 +896,7 @@ void VRCPlugin::UpdateStates()
         case Robot::BS_NONE:
         {
           // ROS_INFO("BS_NONE");
-          this->SetRobotMode("bdi_stand");
+          this->SetRobotMode("pid_stand");
           // start the rest of the sequence
           this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
           this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
@@ -1809,34 +1787,34 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   */
 
   // StandPrep end pose --> Stand  pose
-  this->ac.position[0]  =   2.438504816382192e-05;
+  this->ac.position[0]  =   0.0;
   this->ac.position[1]  =   0.0015186156379058957;
-  this->ac.position[2]  =   9.983908967114985e-06;
+  this->ac.position[2]  =   0.0;
   this->ac.position[3]  =   -0.0010675729718059301;
   this->ac.position[4]  =   -0.0003740221436601132;
   this->ac.position[5]  =   0.06201673671603203;
   this->ac.position[6]  =  -0.2333149015903473;
   this->ac.position[7]  =   0.5181407332420349;
-  this->ac.position[8]  =  -0.27610817551612854;
-  this->ac.position[9]  =   -0.062101610004901886;
+  this->ac.position[8]  =  -0.27610817551612854 - 0.06;   // l_aky
+  this->ac.position[9]  =   -0.06201673671603203;
   this->ac.position[10] =  0.00035181696875952184;
   this->ac.position[11] =   -0.06218484416604042;
-  this->ac.position[12] =  -0.2332201600074768;
-  this->ac.position[13] =   0.51811283826828;
-  this->ac.position[14] =  -0.2762000858783722;
-  this->ac.position[15] =   0.06211360543966293;
-  this->ac.position[16] =   0.29983898997306824;
+  this->ac.position[12] =  -0.2333149015903473;
+  this->ac.position[13] =   0.5181407332420349;
+  this->ac.position[14] =  -0.27610817551612854 - 0.06;   // r_aky
+  this->ac.position[15] =   0.06201673671603203;
+  this->ac.position[16] =   0.29983898997306824;  // l_shy
   this->ac.position[17] =   -1.303462266921997;
-  this->ac.position[18] =   2.0007927417755127;
+  this->ac.position[18] =   2.0;
   this->ac.position[19] =   0.49823325872421265;
   this->ac.position[20] =  0.0003098883025813848;
   this->ac.position[21] =   -0.0044272784143686295;
-  this->ac.position[22] =   0.29982614517211914;
-  this->ac.position[23] =   1.3034454584121704;
-  this->ac.position[24] =   2.000779867172241;
-  this->ac.position[25] =  -0.498238742351532;
-  this->ac.position[26] =  0.0003156556049361825;
-  this->ac.position[27] =   0.004448802210390568;
+  this->ac.position[22] =   0.29983898997306824;  // r_shy
+  this->ac.position[23] =   1.303462266921997;
+  this->ac.position[24] =   2.0;
+  this->ac.position[25] =  -0.49823325872421265;
+  this->ac.position[26] =  0.0003098883025813848;
+  this->ac.position[27] =   0.0044272784143686295;
 
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
