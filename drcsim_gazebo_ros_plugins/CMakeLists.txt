@@ -130,7 +130,25 @@ add_dependencies(actionlib_server atlas_msgs_gencpp) # or atlas_msgs_generate_me
 #############
 ## Install ##
 #############
-install(TARGETS VRCPlugin SandiaHandPlugin IRobotHandPlugin MultiSenseSLPlugin DRCVehicleROSPlugin ContactModelPlugin AtlasPlugin AtlasV3Plugin VRCScoringPlugin test_ros_plugin pub_atlas_joint_trajectory_test pub_joint_states pub_joint_commands pub_atlas_state pub_atlas_command_fast pub_atlas_command gz_model_teleport actionlib_server
+install(TARGETS
+  VRCPlugin
+  SandiaHandPlugin
+  IRobotHandPlugin
+  MultiSenseSLPlugin
+  DRCVehicleROSPlugin
+  ContactModelPlugin
+  AtlasPlugin
+  AtlasV3Plugin
+  VRCScoringPlugin
+  test_ros_plugin
+  pub_atlas_joint_trajectory_test
+  pub_joint_states
+  pub_joint_commands
+  pub_atlas_state
+  pub_atlas_command_fast
+  pub_atlas_command
+  gz_model_teleport
+  actionlib_server
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/${PROJECT_NAME}/plugins/
 )
 
