@@ -79,7 +79,12 @@ target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
 find_package(drcsim_model_resources REQUIRED)
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
-message(status "\n\n\n\n\n-----------------------------------------\n${AtlasSimInterface1_INCLUDE_DIR}\n\n\n\n")
+
+# message(fatal_error "\n\n\n\n\n-----------------------------------------\n${AtlasSimInterface1_INCLUDE_DIR}\n\n\n\n")
+# message(fatal_error "\n\n\n\n\n-----------------------------------------\n${AtlasSimInterface1_LIBRARY}\n\n\n\n")
+# message(fatal_error "\n\n\n\n\n-----------------------------------------\n${AtlasSimInterface2_INCLUDE_DIR}\n\n\n\n")
+# message(fatal_error "\n\n\n\n\n-----------------------------------------\n${AtlasSimInterface2_LIBRARY}\n\n\n\n")
+
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-DWITH_ATLAS_SIM_INTERFACE_1 -I${AtlasSimInterface1_INCLUDE_DIR}")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} ${AtlasSimInterface1_LIBRARY})
 add_dependencies(AtlasPlugin atlas_msgs_gencpp)
