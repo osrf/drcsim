@@ -1,5 +1,4 @@
 set(AtlasSimInterface1_INCLUDE_DIR "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_1_VERSION_FULL@/include")
 set(AtlasSimInterface1_LIBRARY "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_1_VERSION_FULL@/lib64/libAtlasSimInterface.so.@ATLAS_SIM_INTERFACE_1_VERSION_FULL@")
 set(AtlasSimInterface2_INCLUDE_DIR "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_2_VERSION_FULL@/include")
-# set(AtlasSimInterface2_LIBRARY "libAtlasSimInterface.so.@ATLAS_SIM_INTERFACE_2_VERSION_FULL@")
 set(AtlasSimInterface2_LIBRARY "AtlasSimInterface")
