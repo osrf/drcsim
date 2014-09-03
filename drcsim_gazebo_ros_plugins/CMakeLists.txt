@@ -87,7 +87,7 @@ add_dependencies(AtlasPlugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSi
 
 set(ATLAS_INTERFACE_2_INCLUDE_DIR "${drcsim_model_resources_SOURCE_PREFIX}/AtlasSimInterface_2.10.2/include")
 add_library(AtlasV3Plugin src/AtlasV3Plugin.cpp)
-set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_INCLUDE_DIR}/include")
+set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${ATLAS_INTERFACE_2_INCLUDE_DIR}")
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} AtlasSimInterface)
 add_dependencies(AtlasV3Plugin atlas_msgs_gencpp AtlasSimInterface_include AtlasSimInterface_lib)
 
