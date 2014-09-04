@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include "AtlasControlTypes.h"
 #include "AtlasSimInterface.h"
 #include "AtlasSimInterfaceTypes.h"
@@ -50,6 +51,27 @@ struct ErrorTerms
 ErrorTerms errorTerms[Atlas::NUM_JOINTS];
 #endif
 
+double q_d[Atlas::NUM_JOINTS];
+double qd_d[Atlas::NUM_JOINTS];
+double f_d[Atlas::NUM_JOINTS];
+double k_q_p[Atlas::NUM_JOINTS];
+double k_q_i[Atlas::NUM_JOINTS];
+double k_qd_p[Atlas::NUM_JOINTS];
+
+double q[Atlas::NUM_JOINTS];
+double qd[Atlas::NUM_JOINTS];
+
+double imu_q[4];
+double imu_w[3];
+double imu_a[3];
+
+float foot_fz[Atlas::NUM_FOOT_SENSORS];
+float foot_mx[Atlas::NUM_FOOT_SENSORS];
+float foot_my[Atlas::NUM_FOOT_SENSORS];
+
+AtlasVec3f wrist_f[Atlas::NUM_WRIST_SENSORS];
+AtlasVec3f wrist_m[Atlas::NUM_WRIST_SENSORS];
+
 extern "C" {
 
 //////////////////////////////////////////////////
@@ -59,7 +81,7 @@ AtlasSimInterface* create_atlas_sim_interface()
     << "Atlas will be uncontrolled\n";
 
 #ifdef USE_SIMBICON
-  simbiconController = new Controller(Atlas::NUM_JOINTS);
+  simbiconController = new Controller(Atlas::NUM_JOINTS, q, qd);
 #else
 #endif
   return new AtlasSimInterface();
@@ -134,19 +156,8 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
   // Joint [xx]: r_arm_elx (1) Parent body: r_uarm Child body : r_larm 
   // Joint [xx]: l_arm_wry (1) Parent body: l_larm
 
+
   // convert control_input to local vectors
-  std::vector<double> q_d;
-  std::vector<double> qd_d;
-  std::vector<double> f_d;
-  std::vector<double> k_q_p;
-  std::vector<double> k_q_i;
-  std::vector<double> k_qd_p;
-  q_d.resize(Atlas::NUM_JOINTS);
-  qd_d.resize(Atlas::NUM_JOINTS);
-  f_d.resize(Atlas::NUM_JOINTS);
-  k_q_p.resize(Atlas::NUM_JOINTS);
-  k_q_i.resize(Atlas::NUM_JOINTS);
-  k_qd_p.resize(Atlas::NUM_JOINTS);
   for (unsigned int i = 0; i < Atlas::NUM_JOINTS; ++i)
   {
     q_d[i] = control_input.j[i].q_d;
@@ -156,12 +167,7 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
     k_q_i[i] = control_input.jparams[i].k_q_i;
     k_qd_p[i] = control_input.jparams[i].k_qd_p;
   }
-
   // control robot_state to local vectors
-  std::vector<double> q;
-  q.resize(Atlas::NUM_JOINTS);
-  std::vector<double> qd;
-  qd.resize(Atlas::NUM_JOINTS);
   double time = robot_state.t;
   for (int i = 0; i < Atlas::NUM_JOINTS; ++i)
   {
@@ -169,20 +175,16 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
     q[i] = robot_state.j[i].q;
     qd[i] = robot_state.j[i].qd;
     // f[i] = robot_state.j[i].f;
-
   }
 
   // AtlasIMUData
   uint64_t t = robot_state.imu.imu_timestamp;
-  double imu_q[4];
   imu_q[0] = robot_state.imu.orientation_estimate.m_qw;
   imu_q[1] = robot_state.imu.orientation_estimate.m_qx;
   imu_q[2] = robot_state.imu.orientation_estimate.m_qy;
   imu_q[3] = robot_state.imu.orientation_estimate.m_qz;
   AtlasVec3f imu_wf = robot_state.imu.angular_velocity;
   AtlasVec3f imu_af = robot_state.imu.linear_acceleration;
-  double imu_w[3];
-  double imu_a[3];
   for (unsigned int i = 0; i < 3; ++i)
   {
     imu_w[i] = imu_wf.n[i];
@@ -190,26 +192,19 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
   }
 
   // AtlasFootSensor
-  std::vector<float> foot_fz;
-  std::vector<float> foot_mx;
-  std::vector<float> foot_my;
-	for (int i = 0; i < Atlas::NUM_FOOT_SENSORS; ++i)
-	{
-    foot_fz.push_back(robot_state.foot_sensors[i].fz);
-    foot_mx.push_back(robot_state.foot_sensors[i].mx);
-    foot_my.push_back(robot_state.foot_sensors[i].my);
-	}
+  for (int i = 0; i < Atlas::NUM_FOOT_SENSORS; ++i)
+  {
+    foot_fz[i] = robot_state.foot_sensors[i].fz;
+    foot_mx[i] = robot_state.foot_sensors[i].mx;
+    foot_my[i] = robot_state.foot_sensors[i].my;
+  }
 
   // AtlasWristSensor
-  std::vector<AtlasVec3f> wrist_f;
-  std::vector<AtlasVec3f> wrist_m;
-	for (int i = 0; i < Atlas::NUM_WRIST_SENSORS; ++i)
-	{
-    wrist_f.push_back(robot_state.wrist_sensors[i].f);
-    wrist_m.push_back(robot_state.wrist_sensors[i].m);
-	}
-
-  // convert robot_state to controller usable data
+  for (int i = 0; i < Atlas::NUM_WRIST_SENSORS; ++i)
+  {
+    wrist_f[i] = robot_state.wrist_sensors[i].f;
+    wrist_m[i] = robot_state.wrist_sensors[i].m;
+  }
 
   /// \TODO: compute dt from timestamps
   const double dt = 0.001;
@@ -225,7 +220,7 @@ AtlasErrorCode AtlasSimInterface::process_control_input(
   // copy control torque to control_output
   for (int i = 0; i < Atlas::NUM_JOINTS; ++i)
   {
-    control_output.f_out[i] = torques[i];
+    // control_output.f_out[i] = torques[i];
   }
 #else
   // Copied from AtlasPlugin::UpdatePIDControl and modified locally
