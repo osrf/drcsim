@@ -2,8 +2,27 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 enable_testing()
 
 project (drcsim_model_resources)
+
+#####################################
+set (ATLAS_SIM_INTERFACE_2_MAJOR_VERSION 2)
+set (ATLAS_SIM_INTERFACE_2_MINOR_VERSION 10)
+set (ATLAS_SIM_INTERFACE_2_PATCH_VERSION 2)
+
+set (ATLAS_SIM_INTERFACE_1_MAJOR_VERSION 1)
+set (ATLAS_SIM_INTERFACE_1_MINOR_VERSION 1)
+set (ATLAS_SIM_INTERFACE_1_PATCH_VERSION 1)
+
+set (ATLAS_SIM_INTERFACE_2_VERSION ${ATLAS_SIM_INTERFACE_2_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_2_MINOR_VERSION})
+set (ATLAS_SIM_INTERFACE_2_VERSION_FULL ${ATLAS_SIM_INTERFACE_2_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_2_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_2_PATCH_VERSION})
+
+set (ATLAS_SIM_INTERFACE_1_VERSION ${ATLAS_SIM_INTERFACE_1_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_1_MINOR_VERSION})
+set (ATLAS_SIM_INTERFACE_1_VERSION_FULL ${ATLAS_SIM_INTERFACE_1_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_1_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_1_PATCH_VERSION})
+
+#####################################
 find_package(catkin)
-catkin_package()
+catkin_package(
+  CFG_EXTRAS drcsim_model_resources-extras.cmake
+)
 
 # set (DRC_SIM_MAJOR_VERSION 3)
 # set (DRC_SIM_MINOR_VERSION 0)
@@ -79,67 +98,35 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 #####################################
-set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 2)
-set (ATLAS_SIM_INTERFACE_MINOR_VERSION 10)
-set (ATLAS_SIM_INTERFACE_PATCH_VERSION 2)
-set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
-set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
-
-set (ATLAS_ROBOT_INTERFACE_MAJOR_VERSION 2)
-set (ATLAS_ROBOT_INTERFACE_MINOR_VERSION 12)
-set (ATLAS_ROBOT_INTERFACE_PATCH_VERSION 0)
-set (ATLAS_ROBOT_INTERFACE_VERSION ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.${ATLAS_ROBOT_INTERFACE_MINOR_VERSION})
-set (ATLAS_ROBOT_INTERFACE_VERSION_FULL ${ATLAS_ROBOT_INTERFACE_MAJOR_VERSION}.${ATLAS_ROBOT_INTERFACE_MINOR_VERSION}.${ATLAS_ROBOT_INTERFACE_PATCH_VERSION})
-
-#####################################
-# AtlasSimInterface shim library
-find_package(Eigen REQUIRED)
+# AtlasSimInterface 2.10.2 V3 shim library
 include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
-  ${Eigen_INCLUDE_DIRS}
 )
+add_library(AtlasSimInterface SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
 
-add_library(AtlasSimInterface SHARED
-  AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
-  AtlasSimInterface_2.10.2/src/simbicon/Controller.cpp
-  AtlasSimInterface_2.10.2/src/simbicon/State.cpp
-  AtlasSimInterface_2.10.2/src/simbicon/StateMachine.cpp
-  AtlasSimInterface_2.10.2/src/simbicon/TerminalCondition.cpp)
+set_target_properties (AtlasSimInterface PROPERTIES SUFFIX .so.${ATLAS_SIM_INTERFACE_2_VERSION_FULL})
 
-target_link_libraries(AtlasSimInterface ${Eigen_LIBRARIES})
+install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL})
 
-install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}
+         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install (DIRECTORY
-  AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-# install simbicon headers
-install (DIRECTORY
-  AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/simbicon
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-# Controller.h Humanoid.h MyWindow.h State.h StateMachine.h TerminalCondition.h
 
 #####################################
-# AtlasRobotInterface shim library
-include_directories(
-  ${PROJECT_SOURCE_DIR}/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}/include/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}
-)
-add_library(AtlasRobotInterface SHARED AtlasRobotInterface_2.12.0/src/AtlasInterface.cc)
-target_link_libraries(AtlasRobotInterface AtlasSimInterface)
+# install AtlasSimInterface 1 Binary
+install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+          DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
 
-install (TARGETS AtlasRobotInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL})
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install (DIRECTORY AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}/include/AtlasRobotInterface_${ATLAS_ROBOT_INTERFACE_VERSION_FULL}
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 #####################################
 # Configure the setup script
 configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 # Install also a copy of setup.sh in /usr/share/drcsim/setup.sh for backwards compatibility
 # Avoid to use symlinks for portability reasons. Copy the file twice.
@@ -158,8 +145,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}/)
-# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}/)
+# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 
