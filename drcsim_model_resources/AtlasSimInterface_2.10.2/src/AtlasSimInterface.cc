@@ -23,6 +23,8 @@
 #include "AtlasVectorTypes.h"
 #include "simbicon/Controller.h"
 
+#define USE_SIMBICON
+
 #ifndef HAVE_EIGEN3
 #undef USE_SIMBICON
 #endif

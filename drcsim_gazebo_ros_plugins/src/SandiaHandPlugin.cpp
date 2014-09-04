@@ -32,11 +32,8 @@ GZ_REGISTER_MODEL_PLUGIN(SandiaHandPlugin)
 // Constructor
 SandiaHandPlugin::SandiaHandPlugin()
 {
-  this->leftImuLinkName = "l_hand";
-  this->rightImuLinkName = "r_hand";
   this->hasStumps = false;
-  this->leftTactileConnectCount = 0;
-  this->rightTactileConnectCount = 0;
+  this->tactileConnectCount = 0;
   this->pmq = new PubMultiQueue();
   this->rosNode = NULL;
 }
@@ -66,34 +63,36 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->sdf = _sdf;
   this->lastControllerUpdateTime = this->world->GetSimTime();
 
+  // determine which hand (left/right)
+  if(!this->sdf->HasElement("side") ||
+     !this->sdf->GetElement("side")->GetValue()->Get(this->side) ||
+     ((this->side != "left") && (this->side != "right")))
+    {
+      gzerr << "Failed to determine which hand we're controlling; "
+        "aborting plugin load." << std::endl;
+      return;
+    }
+
+  gzlog << "SandiaHandPlugin loading for " << this->side << " hand." <<
+    std::endl;
+
   // initialize imu
+  this->ImuLinkName = this->side[0] + std::string("_hand");
   this->lastImuTime = this->world->GetSimTime();
 
   // get joints
-  this->jointNames.push_back("left_f0_j0");
-  this->jointNames.push_back("left_f0_j1");
-  this->jointNames.push_back("left_f0_j2");
-  this->jointNames.push_back("left_f1_j0");
-  this->jointNames.push_back("left_f1_j1");
-  this->jointNames.push_back("left_f1_j2");
-  this->jointNames.push_back("left_f2_j0");
-  this->jointNames.push_back("left_f2_j1");
-  this->jointNames.push_back("left_f2_j2");
-  this->jointNames.push_back("left_f3_j0");
-  this->jointNames.push_back("left_f3_j1");
-  this->jointNames.push_back("left_f3_j2");
-  this->jointNames.push_back("right_f0_j0");
-  this->jointNames.push_back("right_f0_j1");
-  this->jointNames.push_back("right_f0_j2");
-  this->jointNames.push_back("right_f1_j0");
-  this->jointNames.push_back("right_f1_j1");
-  this->jointNames.push_back("right_f1_j2");
-  this->jointNames.push_back("right_f2_j0");
-  this->jointNames.push_back("right_f2_j1");
-  this->jointNames.push_back("right_f2_j2");
-  this->jointNames.push_back("right_f3_j0");
-  this->jointNames.push_back("right_f3_j1");
-  this->jointNames.push_back("right_f3_j2");
+  this->jointNames.push_back(this->side+"_f0_j0");
+  this->jointNames.push_back(this->side+"_f0_j1");
+  this->jointNames.push_back(this->side+"_f0_j2");
+  this->jointNames.push_back(this->side+"_f1_j0");
+  this->jointNames.push_back(this->side+"_f1_j1");
+  this->jointNames.push_back(this->side+"_f1_j2");
+  this->jointNames.push_back(this->side+"_f2_j0");
+  this->jointNames.push_back(this->side+"_f2_j1");
+  this->jointNames.push_back(this->side+"_f2_j2");
+  this->jointNames.push_back(this->side+"_f3_j0");
+  this->jointNames.push_back(this->side+"_f3_j1");
+  this->jointNames.push_back(this->side+"_f3_j2");
 
   this->joints.resize(this->jointNames.size());
 
@@ -120,86 +119,46 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
   {
     // kp_velocity bounds Nms/rad
-    this->jointDampingMax.push_back(30.0);  // left_f0_j0
-    this->jointDampingMax.push_back(30.0);  // left_f0_j1
-    this->jointDampingMax.push_back(30.0);  // left_f0_j2
-    this->jointDampingMax.push_back(30.0);  // left_f1_j0
-    this->jointDampingMax.push_back(30.0);  // left_f1_j1
-    this->jointDampingMax.push_back(30.0);  // left_f1_j2
-    this->jointDampingMax.push_back(30.0);  // left_f2_j0
-    this->jointDampingMax.push_back(30.0);  // left_f2_j1
-    this->jointDampingMax.push_back(30.0);  // left_f2_j2
-    this->jointDampingMax.push_back(30.0);  // left_f3_j0
-    this->jointDampingMax.push_back(30.0);  // left_f3_j1
-    this->jointDampingMax.push_back(30.0);  // left_f3_j2
-    this->jointDampingMax.push_back(30.0);  // right_f0_j0
-    this->jointDampingMax.push_back(30.0);  // right_f0_j1
-    this->jointDampingMax.push_back(30.0);  // right_f0_j2
-    this->jointDampingMax.push_back(30.0);  // right_f1_j0
-    this->jointDampingMax.push_back(30.0);  // right_f1_j1
-    this->jointDampingMax.push_back(30.0);  // right_f1_j2
-    this->jointDampingMax.push_back(30.0);  // right_f2_j0
-    this->jointDampingMax.push_back(30.0);  // right_f2_j1
-    this->jointDampingMax.push_back(30.0);  // right_f2_j2
-    this->jointDampingMax.push_back(30.0);  // right_f3_j0
-    this->jointDampingMax.push_back(30.0);  // right_f3_j1
-    this->jointDampingMax.push_back(30.0);  // right_f3_j2
+    this->jointDampingMax.push_back(30.0);  // f0_j0
+    this->jointDampingMax.push_back(30.0);  // f0_j1
+    this->jointDampingMax.push_back(30.0);  // f0_j2
+    this->jointDampingMax.push_back(30.0);  // f1_j0
+    this->jointDampingMax.push_back(30.0);  // f1_j1
+    this->jointDampingMax.push_back(30.0);  // f1_j2
+    this->jointDampingMax.push_back(30.0);  // f2_j0
+    this->jointDampingMax.push_back(30.0);  // f2_j1
+    this->jointDampingMax.push_back(30.0);  // f2_j2
+    this->jointDampingMax.push_back(30.0);  // f3_j0
+    this->jointDampingMax.push_back(30.0);  // f3_j1
+    this->jointDampingMax.push_back(30.0);  // f3_j2
 
-    this->jointDampingMin.push_back(1.0);  // left_f0_j0
-    this->jointDampingMin.push_back(1.0);  // left_f0_j1
-    this->jointDampingMin.push_back(1.0);  // left_f0_j2
-    this->jointDampingMin.push_back(1.0);  // left_f1_j0
-    this->jointDampingMin.push_back(1.0);  // left_f1_j1
-    this->jointDampingMin.push_back(1.0);  // left_f1_j2
-    this->jointDampingMin.push_back(1.0);  // left_f2_j0
-    this->jointDampingMin.push_back(1.0);  // left_f2_j1
-    this->jointDampingMin.push_back(1.0);  // left_f2_j2
-    this->jointDampingMin.push_back(1.0);  // left_f3_j0
-    this->jointDampingMin.push_back(1.0);  // left_f3_j1
-    this->jointDampingMin.push_back(1.0);  // left_f3_j2
-    this->jointDampingMin.push_back(1.0);  // right_f0_j0
-    this->jointDampingMin.push_back(1.0);  // right_f0_j1
-    this->jointDampingMin.push_back(1.0);  // right_f0_j2
-    this->jointDampingMin.push_back(1.0);  // right_f1_j0
-    this->jointDampingMin.push_back(1.0);  // right_f1_j1
-    this->jointDampingMin.push_back(1.0);  // right_f1_j2
-    this->jointDampingMin.push_back(1.0);  // right_f2_j0
-    this->jointDampingMin.push_back(1.0);  // right_f2_j1
-    this->jointDampingMin.push_back(1.0);  // right_f2_j2
-    this->jointDampingMin.push_back(1.0);  // right_f3_j0
-    this->jointDampingMin.push_back(1.0);  // right_f3_j1
-    this->jointDampingMin.push_back(1.0);  // right_f3_j2
+    this->jointDampingMin.push_back(1.0);  // f0_j0
+    this->jointDampingMin.push_back(1.0);  // f0_j1
+    this->jointDampingMin.push_back(1.0);  // f0_j2
+    this->jointDampingMin.push_back(1.0);  // f1_j0
+    this->jointDampingMin.push_back(1.0);  // f1_j1
+    this->jointDampingMin.push_back(1.0);  // f1_j2
+    this->jointDampingMin.push_back(1.0);  // f2_j0
+    this->jointDampingMin.push_back(1.0);  // f2_j1
+    this->jointDampingMin.push_back(1.0);  // f2_j2
+    this->jointDampingMin.push_back(1.0);  // f3_j0
+    this->jointDampingMin.push_back(1.0);  // f3_j1
+    this->jointDampingMin.push_back(1.0);  // f3_j2
   }
 
   this->errorTerms.resize(this->joints.size());
 
-  this->leftJointStates.name.resize(this->joints.size() / 2);
-  this->leftJointStates.position.resize(this->joints.size() / 2);
-  this->leftJointStates.velocity.resize(this->joints.size() / 2);
-  this->leftJointStates.effort.resize(this->joints.size() / 2);
-
-  this->rightJointStates.name.resize(this->joints.size() / 2);
-  this->rightJointStates.position.resize(this->joints.size() / 2);
-  this->rightJointStates.velocity.resize(this->joints.size() / 2);
-  this->rightJointStates.effort.resize(this->joints.size() / 2);
+  this->jointStates.name.resize(this->joints.size());
+  this->jointStates.position.resize(this->joints.size());
+  this->jointStates.velocity.resize(this->joints.size());
+  this->jointStates.effort.resize(this->joints.size());
 
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
-    if (i < this->joints.size() / 2)
-    {
-      this->leftJointStates.name[i] = this->jointNames[i];
-      this->leftJointStates.position[i] = 0;
-      this->leftJointStates.velocity[i] = 0;
-      this->leftJointStates.effort[i] = 0;
-    }
-    else
-    {
-      unsigned j = i - this->joints.size() / 2;
-      this->rightJointStates.name[j] = this->jointNames[i];
-      this->rightJointStates.position[j] = 0;
-      this->rightJointStates.velocity[j] = 0;
-      this->rightJointStates.effort[j] = 0;
-    }
+    this->jointStates.name[i] = this->jointNames[i];
+    this->jointStates.position[i] = 0;
+    this->jointStates.velocity[i] = 0;
+    this->jointStates.effort[i] = 0;
   }
 
   this->jointCommands.name.resize(this->joints.size());
@@ -235,31 +194,18 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   }
 
   // Get imu link
-  this->leftImuLink = this->model->GetLink(this->leftImuLinkName);
-  if (!this->leftImuLink)
-    gzerr << this->leftImuLinkName << " not found\n";
-
-  this->rightImuLink = this->model->GetLink(this->rightImuLinkName);
-  if (!this->rightImuLink)
-    gzerr << this->rightImuLinkName << " not found\n";
+  this->ImuLink = this->model->GetLink(this->ImuLinkName);
+  if (!this->ImuLink)
+    gzerr << this->ImuLinkName << " not found\n";
 
   // Get imu sensors
-  this->leftImuSensor =
+  this->ImuSensor =
     boost::dynamic_pointer_cast<sensors::ImuSensor>
-      (sensors::SensorManager::Instance()->GetSensor(
-        this->world->GetName() + "::" + this->leftImuLink->GetScopedName()
-        + "::imu_sensor"));
-  if (!this->leftImuSensor)
-    gzerr << "left imu_sensor not found\n" << "\n";
-
-  this->rightImuSensor =
-    boost::dynamic_pointer_cast<sensors::ImuSensor>
-      (sensors::SensorManager::Instance()->GetSensor(
-        this->world->GetName() + "::" + this->rightImuLink->GetScopedName()
-        + "::imu_sensor"));
-  if (!this->rightImuSensor)
-    gzerr << "right imu_sensor not found\n" << "\n";
-
+       (sensors::SensorManager::Instance()->GetSensor(
+        this->world->GetName() + "::" + this->ImuLink->GetScopedName()
+         + "::imu_sensor"));
+  if (!this->ImuSensor)
+    gzerr << "imu_sensor not found\n" << "\n";
 
   // Tactile data
   this->tactileFingerArraySize = 18;
@@ -270,31 +216,21 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   this->maxTactileOut = 33500;
   this->minTactileOut = 26500;
 
-  this->leftTactile.f0.resize(this->tactileFingerArraySize);
-  this->leftTactile.f1.resize(this->tactileFingerArraySize);
-  this->leftTactile.f2.resize(this->tactileFingerArraySize);
-  this->leftTactile.f3.resize(this->tactileFingerArraySize);
-  this->rightTactile.f0.resize(this->tactileFingerArraySize);
-  this->rightTactile.f1.resize(this->tactileFingerArraySize);
-  this->rightTactile.f2.resize(this->tactileFingerArraySize);
-  this->rightTactile.f3.resize(this->tactileFingerArraySize);
-  this->leftTactile.palm.resize(this->tactilePalmArraySize);
-  this->rightTactile.palm.resize(this->tactilePalmArraySize);
+  this->tactile.f0.resize(this->tactileFingerArraySize);
+  this->tactile.f1.resize(this->tactileFingerArraySize);
+  this->tactile.f2.resize(this->tactileFingerArraySize);
+  this->tactile.f3.resize(this->tactileFingerArraySize);
+  this->tactile.palm.resize(this->tactilePalmArraySize);
   for (int i = 0; i < this->tactileFingerArraySize; ++i)
   {
-    this->leftTactile.f0[i] = this->minTactileOut;
-    this->leftTactile.f1[i] = this->minTactileOut;
-    this->leftTactile.f2[i] = this->minTactileOut;
-    this->leftTactile.f3[i] = this->minTactileOut;
-    this->rightTactile.f0[i] = this->minTactileOut;
-    this->rightTactile.f1[i] = this->minTactileOut;
-    this->rightTactile.f2[i] = this->minTactileOut;
-    this->rightTactile.f3[i] = this->minTactileOut;
+    this->tactile.f0[i] = this->minTactileOut;
+    this->tactile.f1[i] = this->minTactileOut;
+    this->tactile.f2[i] = this->minTactileOut;
+    this->tactile.f3[i] = this->minTactileOut;
   }
   for (int i = 0; i < this->tactilePalmArraySize; ++i)
   {
-    this->leftTactile.palm[i] = this->minTactileOut;
-    this->rightTactile.palm[i] = this->minTactileOut;
+    this->tactile.palm[i] = this->minTactileOut;
   }
 
   if (!hasStumps)
@@ -337,12 +273,9 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
     this->node->Init(this->world->GetName());
 
     std::string modelName = this->model->GetName();
-    this->contactSub[0] =
-        this->node->Subscribe("~/" + modelName + "/contact_0",
-        &SandiaHandPlugin::OnRContacts, this);
-    this->contactSub[1] =
-        this->node->Subscribe("~/" + modelName + "/contact_1",
-        &SandiaHandPlugin::OnLContacts, this);
+    this->contactSub =
+        this->node->Subscribe("~/" + modelName + "/contact",
+        &SandiaHandPlugin::OnContacts, this);
   }
 
   // \todo: add ros topic / service to reset imu (imuReferencePose, etc.)
@@ -354,35 +287,31 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
 
 // helper function to save some typing
 void SandiaHandPlugin::CopyVectorIfValid(const std::vector<double> &from,
-                                         std::vector<double> &to,
-                                         const unsigned joint_offset)
+                                         std::vector<double> &to)
 {
-  if (joint_offset != 0 && joint_offset != to.size() / 2)
-    return;  // get outta here, it's all over
-  if (!from.size() || from.size() != to.size() / 2)
+  if (!from.size() || from.size() != to.size())
     return;
   for (size_t i = 0; i < from.size(); i++)
-    to[i + joint_offset] = from[i];
+    to[i] = from[i];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set Joint Commands
 void SandiaHandPlugin::SetJointCommands(
-  const osrf_msgs::JointCommands::ConstPtr &_msg,
-  const unsigned ofs)  // ofs = joint offset
+  const osrf_msgs::JointCommands::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->mutex);
   // this implementation does not check the ordering of the joints. they must
   // agree with the structure initialized above!
-  CopyVectorIfValid(_msg->position, this->jointCommands.position, ofs);
-  CopyVectorIfValid(_msg->velocity, this->jointCommands.velocity, ofs);
-  CopyVectorIfValid(_msg->effort, this->jointCommands.effort, ofs);
-  CopyVectorIfValid(_msg->kp_position, this->jointCommands.kp_position, ofs);
-  CopyVectorIfValid(_msg->ki_position, this->jointCommands.ki_position, ofs);
-  CopyVectorIfValid(_msg->kd_position, this->jointCommands.kd_position, ofs);
-  CopyVectorIfValid(_msg->kp_velocity, this->jointCommands.kp_velocity, ofs);
-  CopyVectorIfValid(_msg->i_effort_min, this->jointCommands.i_effort_min, ofs);
-  CopyVectorIfValid(_msg->i_effort_max, this->jointCommands.i_effort_max, ofs);
+  CopyVectorIfValid(_msg->position, this->jointCommands.position);
+  CopyVectorIfValid(_msg->velocity, this->jointCommands.velocity);
+  CopyVectorIfValid(_msg->effort, this->jointCommands.effort);
+  CopyVectorIfValid(_msg->kp_position, this->jointCommands.kp_position);
+  CopyVectorIfValid(_msg->ki_position, this->jointCommands.ki_position);
+  CopyVectorIfValid(_msg->kd_position, this->jointCommands.kd_position);
+  CopyVectorIfValid(_msg->kp_velocity, this->jointCommands.kp_velocity);
+  CopyVectorIfValid(_msg->i_effort_min, this->jointCommands.i_effort_min);
+  CopyVectorIfValid(_msg->i_effort_max, this->jointCommands.i_effort_max);
 }
 
 
@@ -406,40 +335,34 @@ void SandiaHandPlugin::DeferredLoad()
   this->pmq->startServiceThread();
 
   // pull down controller parameters; they should be on the param server by now
-  const int NUM_SIDES = 2, NUM_FINGERS = 4, NUM_FINGER_JOINTS = 3;
-  const char *sides[NUM_SIDES] = {"left", "right"};
-  for (int side = 0; side < NUM_SIDES; side++)
+  const int NUM_FINGERS = 4, NUM_FINGER_JOINTS = 3;
+  for (int finger = 0; finger < NUM_FINGERS; finger++)
   {
-    for (int finger = 0; finger < NUM_FINGERS; finger++)
+    for (int joint = 0; joint < NUM_FINGER_JOINTS; joint++)
     {
-      for (int joint = 0; joint < NUM_FINGER_JOINTS; joint++)
+      char joint_ns[200] = "";
+      snprintf(joint_ns, sizeof(joint_ns), "sandia_hands/gains/%s_f%d_j%d/",
+               this->side.c_str(), finger, joint);
+      // this is so ugly
+      double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
+      string p_str = string(joint_ns)+"p";
+      string i_str = string(joint_ns)+"i";
+      string d_str = string(joint_ns)+"d";
+      string i_clamp_str = string(joint_ns)+"i_clamp";
+      if (!this->rosNode->getParam(p_str, p_val) ||
+          !this->rosNode->getParam(i_str, i_val) ||
+          !this->rosNode->getParam(d_str, d_val) ||
+          !this->rosNode->getParam(i_clamp_str, i_clamp_val))
       {
-        char joint_ns[200] = "";
-        snprintf(joint_ns, sizeof(joint_ns), "sandia_hands/gains/%s_f%d_j%d/",
-                 sides[side], finger, joint);
-        // this is so ugly
-        double p_val = 0, i_val = 0, d_val = 0, i_clamp_val = 0;
-        string p_str = string(joint_ns)+"p";
-        string i_str = string(joint_ns)+"i";
-        string d_str = string(joint_ns)+"d";
-        string i_clamp_str = string(joint_ns)+"i_clamp";
-        if (!this->rosNode->getParam(p_str, p_val) ||
-            !this->rosNode->getParam(i_str, i_val) ||
-            !this->rosNode->getParam(d_str, d_val) ||
-            !this->rosNode->getParam(i_clamp_str, i_clamp_val))
-        {
-          ROS_ERROR("couldn't find a param for %s", joint_ns);
-          continue;
-        }
-        int joint_idx = side * (NUM_FINGERS * NUM_FINGER_JOINTS) +
-                        finger * NUM_FINGER_JOINTS +
-                        joint;
-        this->jointCommands.kp_position[joint_idx]  =  p_val;
-        this->jointCommands.ki_position[joint_idx]  =  i_val;
-        this->jointCommands.kd_position[joint_idx]  =  d_val;
-        this->jointCommands.i_effort_min[joint_idx] = -i_clamp_val;
-        this->jointCommands.i_effort_max[joint_idx] =  i_clamp_val;
+        ROS_ERROR("couldn't find a param for %s", joint_ns);
+        continue;
       }
+      int joint_idx = finger * NUM_FINGER_JOINTS + joint;
+      this->jointCommands.kp_position[joint_idx]  =  p_val;
+      this->jointCommands.ki_position[joint_idx]  =  i_val;
+      this->jointCommands.kd_position[joint_idx]  =  d_val;
+      this->jointCommands.i_effort_min[joint_idx] = -i_clamp_val;
+      this->jointCommands.i_effort_max[joint_idx] =  i_clamp_val;
     }
   }
 
@@ -447,53 +370,31 @@ void SandiaHandPlugin::DeferredLoad()
 
   // ros publication / subscription
   /// brief broadcasts the robot states
-  this->pubLeftJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
-  this->pubLeftJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-    "sandia_hands/l_hand/joint_states", 10);
-
-
-  this->pubRightJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
-  this->pubRightJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
-    "sandia_hands/r_hand/joint_states", 10);
+  std::string topic_base = std::string("sandia_hands/") + this->side[0];
+  this->pubJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
+  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+    topic_base+std::string("_hand/joint_states"), 10);
 
   // ros topic subscriptions
   ros::SubscribeOptions jointCommandsSo =
     ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    "sandia_hands/l_hand/joint_commands", 100,
-    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1, 0),
+    topic_base+std::string("_hand/joint_commands"), 100, 
+    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1), 
     ros::VoidPtr(), &this->rosQueue);
-  this->subJointCommands[0] = this->rosNode->subscribe(jointCommandsSo);
-  jointCommandsSo =
-    ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    "sandia_hands/r_hand/joint_commands", 100,
-    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1, 12),
-    ros::VoidPtr(), &this->rosQueue);
-  this->subJointCommands[1] = this->rosNode->subscribe(jointCommandsSo);
+  this->subJointCommands = this->rosNode->subscribe(jointCommandsSo);
 
   // publish imu data
-  this->pubLeftImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
-  this->pubLeftImu =
-    this->rosNode->advertise<sensor_msgs::Imu>(
-      "sandia_hands/l_hand/imu", 10);
-  this->pubRightImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
-  this->pubRightImu =
-    this->rosNode->advertise<sensor_msgs::Imu>(
-      "sandia_hands/r_hand/imu", 10);
+  this->pubImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
+  this->pubImu = this->rosNode->advertise<sensor_msgs::Imu>(
+    topic_base+std::string("_hand/imu"), 10);
 
   // publish contact data
-  this->pubLeftTactileQueue = this->pmq->addPub<sandia_hand_msgs::RawTactile>();
-  this->pubLeftTactile =
+  this->pubTactileQueue = this->pmq->addPub<sandia_hand_msgs::RawTactile>();
+  this->pubTactile =
     this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
-      "sandia_hands/l_hand/tactile_raw", 10,
-    boost::bind(&SandiaHandPlugin::LeftTactileConnect, this),
-    boost::bind(&SandiaHandPlugin::LeftTactileDisconnect, this));
-
-  this->pubRightTactileQueue = this->pmq->addPub<sandia_hand_msgs::RawTactile>();
-  this->pubRightTactile =
-    this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
-      "sandia_hands/r_hand/tactile_raw", 10,
-    boost::bind(&SandiaHandPlugin::RightTactileConnect, this),
-    boost::bind(&SandiaHandPlugin::RightTactileDisconnect, this));
+    topic_base+std::string("_hand/tactile_raw"), 10, 
+    boost::bind(&SandiaHandPlugin::TactileConnect, this),
+    boost::bind(&SandiaHandPlugin::TactileDisconnect, this));
 
   // initialize status pub time
   this->lastStatusTime = this->world->GetSimTime().Double();
@@ -509,7 +410,7 @@ void SandiaHandPlugin::DeferredLoad()
   // Offer teams ability to change damping coef. between preset bounds
   ros::AdvertiseServiceOptions setJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::SetJointDamping>(
-      "sandia_hands/set_joint_damping", boost::bind(
+      topic_base+std::string("_hand/set_joint_damping"), boost::bind(
         &SandiaHandPlugin::SetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->setJointDampingService = this->rosNode->advertiseService(
@@ -518,7 +419,7 @@ void SandiaHandPlugin::DeferredLoad()
   // Offer teams ability to get damping coef.
   ros::AdvertiseServiceOptions getJointDampingAso =
     ros::AdvertiseServiceOptions::create<atlas_msgs::GetJointDamping>(
-      "sandia_hands/get_joint_damping", boost::bind(
+      topic_base+std::string("_hand/get_joint_damping"), boost::bind(
         &SandiaHandPlugin::GetJointDamping, this, _1, _2),
         ros::VoidPtr(), &this->rosQueue);
   this->getJointDampingService = this->rosNode->advertiseService(
@@ -589,56 +490,30 @@ void SandiaHandPlugin::UpdateStates()
     // get imu data from imu link
     if (curTime > this->lastImuTime)
     {
-      if (this->leftImuSensor)
+      if (this->ImuSensor)
       {
-        math::Vector3 angularVel = this->leftImuSensor->GetAngularVelocity();
-        math::Vector3 linearAcc = this->leftImuSensor->GetLinearAcceleration();
-        math::Quaternion orientation = this->leftImuSensor->GetOrientation();
+        math::Vector3 angularVel = this->ImuSensor->GetAngularVelocity();
+        math::Vector3 linearAcc = this->ImuSensor->GetLinearAcceleration();
+        math::Quaternion orientation = this->ImuSensor->GetOrientation();
 
-        sensor_msgs::Imu leftImuMsg;
-        leftImuMsg.header.frame_id = this->leftImuLinkName;
-        leftImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+        sensor_msgs::Imu ImuMsg;
+        ImuMsg.header.frame_id = this->ImuLinkName;
+        ImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
 
-        leftImuMsg.angular_velocity.x = angularVel.x;
-        leftImuMsg.angular_velocity.y = angularVel.y;
-        leftImuMsg.angular_velocity.z = angularVel.z;
+        ImuMsg.angular_velocity.x = angularVel.x;
+        ImuMsg.angular_velocity.y = angularVel.y;
+        ImuMsg.angular_velocity.z = angularVel.z;
 
-        leftImuMsg.linear_acceleration.x = linearAcc.x;
-        leftImuMsg.linear_acceleration.y = linearAcc.y;
-        leftImuMsg.linear_acceleration.z = linearAcc.z;
+        ImuMsg.linear_acceleration.x = linearAcc.x;
+        ImuMsg.linear_acceleration.y = linearAcc.y;
+        ImuMsg.linear_acceleration.z = linearAcc.z;
 
-        leftImuMsg.orientation.x = orientation.x;
-        leftImuMsg.orientation.y = orientation.y;
-        leftImuMsg.orientation.z = orientation.z;
-        leftImuMsg.orientation.w = orientation.w;
+        ImuMsg.orientation.x = orientation.x;
+        ImuMsg.orientation.y = orientation.y;
+        ImuMsg.orientation.z = orientation.z;
+        ImuMsg.orientation.w = orientation.w;
 
-        this->pubLeftImuQueue->push(leftImuMsg, this->pubLeftImu);
-      }
-
-      if (this->rightImuSensor)
-      {
-        math::Vector3 angularVel = this->rightImuSensor->GetAngularVelocity();
-        math::Vector3 linearAcc = this->rightImuSensor->GetLinearAcceleration();
-        math::Quaternion orientation = this->rightImuSensor->GetOrientation();
-
-        sensor_msgs::Imu rightImuMsg;
-        rightImuMsg.header.frame_id = this->rightImuLinkName;
-        rightImuMsg.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-
-        rightImuMsg.angular_velocity.x = angularVel.x;
-        rightImuMsg.angular_velocity.y = angularVel.y;
-        rightImuMsg.angular_velocity.z = angularVel.z;
-
-        rightImuMsg.linear_acceleration.x = linearAcc.x;
-        rightImuMsg.linear_acceleration.y = linearAcc.y;
-        rightImuMsg.linear_acceleration.z = linearAcc.z;
-
-        rightImuMsg.orientation.x = orientation.x;
-        rightImuMsg.orientation.y = orientation.y;
-        rightImuMsg.orientation.z = orientation.z;
-        rightImuMsg.orientation.w = orientation.w;
-
-        this->pubRightImuQueue->push(rightImuMsg, this->pubRightImu);
+        this->pubImuQueue->push(ImuMsg, this->pubImu);
       }
 
       // update time
@@ -646,34 +521,20 @@ void SandiaHandPlugin::UpdateStates()
     }
 
     // populate FromRobot from robot
-    this->leftJointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-    this->rightJointStates.header.stamp = this->leftJointStates.header.stamp;
+    this->jointStates.header.stamp = ros::Time(curTime.sec, curTime.nsec);
     if (!this->hasStumps)
     {
       for (unsigned int i = 0; i < this->joints.size(); ++i)
       {
-        if (i < this->joints.size() / 2)
-        {
-          this->leftJointStates.position[i] =
-            this->joints[i]->GetAngle(0).Radian();
-          this->leftJointStates.velocity[i] = this->joints[i]->GetVelocity(0);
-          // better to use GetForceTorque dot joint axis
-          this->leftJointStates.effort[i] = this->joints[i]->GetForce(0u);
-        }
-        else
-        {
-          unsigned j = i - this->joints.size() / 2;
-          this->rightJointStates.position[j] =
-            this->joints[i]->GetAngle(0).Radian();
-          this->rightJointStates.velocity[j] = this->joints[i]->GetVelocity(0);
-          this->rightJointStates.effort[j] = this->joints[i]->GetForce(0u);
-        }
+        this->jointStates.position[i] =
+          this->joints[i]->GetAngle(0).Radian();
+        this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
+        // better to use GetForceTorque dot joint axis
+        this->jointStates.effort[i] = this->joints[i]->GetForce(0u);
       }
     }
-    this->pubLeftJointStatesQueue->push(this->leftJointStates,
-      this->pubLeftJointStates);
-    this->pubRightJointStatesQueue->push(this->rightJointStates,
-      this->pubRightJointStates);
+    this->pubJointStatesQueue->push(this->jointStates,
+      this->pubJointStates);
 
     double dt = (curTime - this->lastControllerUpdateTime).Double();
 
@@ -682,17 +543,8 @@ void SandiaHandPlugin::UpdateStates()
     double velocity;
     for (unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      if (i < this->joints.size() / 2)
-      {
-        position = this->leftJointStates.position[i];
-        velocity = this->leftJointStates.velocity[i];
-      }
-      else
-      {
-        unsigned j = i - this->joints.size() / 2;
-        position = this->rightJointStates.position[j];
-        velocity = this->rightJointStates.velocity[j];
-      }
+      position = this->jointStates.position[i];
+      velocity = this->jointStates.velocity[i];
 
       double force;
       {
@@ -730,73 +582,36 @@ void SandiaHandPlugin::UpdateStates()
     }
 
     // publish tactile data
-    if (this->rightTactileConnectCount > 0)
+    if (this->tactileConnectCount > 0)
     {
       if (!this->hasStumps)
       {
         // first clear all previous tactile data
         for (int i = 0; i < this->tactileFingerArraySize; ++i)
         {
-          this->rightTactile.f0[i] = this->minTactileOut;
-          this->rightTactile.f1[i] = this->minTactileOut;
-          this->rightTactile.f2[i] = this->minTactileOut;
-          this->rightTactile.f3[i] = this->minTactileOut;
+          this->tactile.f0[i] = this->minTactileOut;
+          this->tactile.f1[i] = this->minTactileOut;
+          this->tactile.f2[i] = this->minTactileOut;
+          this->tactile.f3[i] = this->minTactileOut;
         }
 
         for (int i = 0; i < this->tactilePalmArraySize; ++i)
-          this->rightTactile.palm[i] = this->minTactileOut;
+          this->tactile.palm[i] = this->minTactileOut;
 
-        // Generate data and publish
         {
-          boost::mutex::scoped_lock lock(this->contactRMutex);
-          this->rightTactile.header.stamp =
-              ros::Time(curTime.sec, curTime.nsec);
-          this->FillTactileData(RIGHT_HAND, this->incomingRContacts,
-              &this->rightTactile);
-          // Clear the incoming contact list.
-          this->incomingRContacts.clear();
+          boost::mutex::scoped_lock lock(this->contactMutex);
+          this->tactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
+          this->FillTactileData(this->incomingContacts, &this->tactile);
+          this->incomingContacts.clear();
         }
       }
-      this->pubRightTactileQueue->push(this->rightTactile,
-          this->pubRightTactile);
+      this->pubTactileQueue->push(this->tactile,
+          this->pubTactile);
     }
     else if (!this->hasStumps)
     {
-      boost::mutex::scoped_lock lock(this->contactRMutex);
-      this->incomingRContacts.clear();
-    }
-
-    if (this->leftTactileConnectCount > 0)
-    {
-      if (!this->hasStumps)
-      {
-        // first clear all previous tactile data
-        for (int i = 0; i < this->tactileFingerArraySize; ++i)
-        {
-          this->leftTactile.f0[i] = this->minTactileOut;
-          this->leftTactile.f1[i] = this->minTactileOut;
-          this->leftTactile.f2[i] = this->minTactileOut;
-          this->leftTactile.f3[i] = this->minTactileOut;
-        }
-
-        for (int i = 0; i < this->tactilePalmArraySize; ++i)
-          this->leftTactile.palm[i] = this->minTactileOut;
-
-        {
-          boost::mutex::scoped_lock lock(this->contactLMutex);
-          this->leftTactile.header.stamp = ros::Time(curTime.sec, curTime.nsec);
-          this->FillTactileData(LEFT_HAND, this->incomingLContacts,
-              &this->leftTactile);
-          this->incomingLContacts.clear();
-        }
-      }
-      this->pubLeftTactileQueue->push(this->leftTactile,
-          this->pubLeftTactile);
-    }
-    else if (!this->hasStumps)
-    {
-      boost::mutex::scoped_lock lock(this->contactLMutex);
-      this->incomingLContacts.clear();
+      boost::mutex::scoped_lock lock(this->contactMutex);
+      this->incomingContacts.clear();
     }
     this->lastControllerUpdateTime = curTime;
   }
@@ -813,34 +628,20 @@ void SandiaHandPlugin::RosQueueThread()
 }
 
 //////////////////////////////////////////////////
-void SandiaHandPlugin::OnRContacts(ConstContactsPtr &_msg)
+void SandiaHandPlugin::OnContacts(ConstContactsPtr &_msg)
 {
-  boost::mutex::scoped_lock lock(this->contactRMutex);
+  boost::mutex::scoped_lock lock(this->contactMutex);
 
   // Store the contacts message for processing in UpdateImpl
-  this->incomingRContacts.push_back(_msg);
+  this->incomingContacts.push_back(_msg);
 
   // Prevent the incomingContacts list to grow indefinitely.
-  if (this->incomingRContacts.size() > 50)
-    this->incomingRContacts.pop_front();
+  if (this->incomingContacts.size() > 50)
+    this->incomingContacts.pop_front();
 }
 
 //////////////////////////////////////////////////
-void SandiaHandPlugin::OnLContacts(ConstContactsPtr &_msg)
-{
-  boost::mutex::scoped_lock lock(this->contactLMutex);
-
-  // Store the contacts message for processing in UpdateImpl
-  this->incomingLContacts.push_back(_msg);
-
-  // Prevent the incomingContacts list to grow indefinitely.
-  if (this->incomingLContacts.size() > 50)
-    this->incomingLContacts.pop_front();
-}
-
-//////////////////////////////////////////////////
-void SandiaHandPlugin::FillTactileData(HandEnum _side,
-    ContactMsgs_L _incomingContacts,
+void SandiaHandPlugin::FillTactileData(ContactMsgs_L _incomingContacts,
     sandia_hand_msgs::RawTactile *_tactileMsg)
 {
   // The method of generating tactile sensor output is specific
@@ -859,7 +660,6 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
     std::vector<std::string>::iterator collIter;
     std::string collision1;
 
-    std::string sideStr = (_side == LEFT_HAND) ? "left" : "right";
     // Iterate over all the contact messages
     for (ContactMsgs_L::iterator iter = _incomingContacts.begin();
         iter != _incomingContacts.end(); ++iter)
@@ -872,7 +672,7 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
         // Get the collision pointer from name in contact msg
         collision1 = (*iter)->contact(i).collision1();
 
-        if (collision1.find(sideStr + "_f") ==  std::string::npos
+        if (collision1.find(this->side + "_f") ==  std::string::npos
             && collision1.find("palm") ==  std::string::npos)
         {
           collision1 = (*iter)->contact(i).collision2();
@@ -1188,31 +988,17 @@ void SandiaHandPlugin::FillTactileData(HandEnum _side,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SandiaHandPlugin::RightTactileConnect()
+void SandiaHandPlugin::TactileConnect()
 {
-  boost::mutex::scoped_lock lock(this->rightTactileConnectionMutex);
-  this->rightTactileConnectCount++;
+  boost::mutex::scoped_lock lock(this->tactileConnectionMutex);
+  this->tactileConnectCount++;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SandiaHandPlugin::LeftTactileConnect()
+void SandiaHandPlugin::TactileDisconnect()
 {
-  boost::mutex::scoped_lock lock(this->leftTactileConnectionMutex);
-  this->leftTactileConnectCount++;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void SandiaHandPlugin::RightTactileDisconnect()
-{
-  boost::mutex::scoped_lock lock(this->rightTactileConnectionMutex);
-  this->rightTactileConnectCount--;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void SandiaHandPlugin::LeftTactileDisconnect()
-{
-  boost::mutex::scoped_lock lock(this->leftTactileConnectionMutex);
-  this->leftTactileConnectCount--;
+  boost::mutex::scoped_lock lock(this->tactileConnectionMutex);
+  this->tactileConnectCount--;
 }
 
 }
