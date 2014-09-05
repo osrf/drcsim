@@ -80,11 +80,13 @@ target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 find_package(drcsim_model_resources REQUIRED)
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface1_INCLUDE_DIR}")
+set_target_properties(AtlasPlugin PROPERTIES LINK_FLAGS "-L${AtlasSimInterface1_LIBRARY_DIR}")
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} ${AtlasSimInterface1_LIBRARY})
 add_dependencies(AtlasPlugin atlas_msgs_gencpp)
 
 add_library(AtlasV3Plugin src/AtlasV3Plugin.cpp)
 set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface2_INCLUDE_DIR}")
+set_target_properties(AtlasV3Plugin PROPERTIES LINK_FLAGS "-L${AtlasSimInterface2_LIBRARY_DIR}")
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})
 add_dependencies(AtlasV3Plugin atlas_msgs_gencpp)
 
