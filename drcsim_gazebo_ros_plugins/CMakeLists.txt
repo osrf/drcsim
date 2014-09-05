@@ -77,6 +77,7 @@ add_dependencies(DRCVehicleROSPlugin DRCVehiclePlugin)
 add_library(ContactModelPlugin src/ContactModelPlugin.cpp)
 target_link_libraries(ContactModelPlugin ${catkin_LIBRARIES})
 
+link_directories(${AtlasSimInterface1_LIBRARY_DIRS})
 find_package(drcsim_model_resources REQUIRED)
 add_library(AtlasPlugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface1_INCLUDE_DIR}")
