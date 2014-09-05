@@ -84,6 +84,7 @@ set_target_properties(AtlasPlugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterfac
 target_link_libraries(AtlasPlugin ${catkin_LIBRARIES} ${AtlasSimInterface1_LIBRARY})
 add_dependencies(AtlasPlugin atlas_msgs_gencpp)
 
+link_directories(${AtlasSimInterface2_LIBRARY_DIRS})
 add_library(AtlasV3Plugin src/AtlasV3Plugin.cpp)
 set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface2_INCLUDE_DIR}")
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})

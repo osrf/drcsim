@@ -5,4 +5,5 @@ set(AtlasSimInterface1_LIBRARY_DIRS "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATL
 
 # 2.10 The one tha is being built during compilation
 set(AtlasSimInterface2_LIBRARY "AtlasSimInterface2")
+set(AtlasSimInterface2_LIBRARY_DIRS "@CATKIN_DEVEL_PREFIX@/lib")
 set(AtlasSimInterface2_INCLUDE_DIR "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_2_VERSION_FULL@/include")
