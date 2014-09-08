@@ -106,6 +106,19 @@ void VRCPlugin::DeferredLoad()
   this->callbackQueueThread = boost::thread(
     boost::bind(&VRCPlugin::ROSQueueThread, this));
 
+  std::string cmdVelTimeout = "cmd_vel_timeout";
+  if (this->rosNode->getParam(cmdVelTimeout, this->cmdVelTopicTimeout))
+  {
+    ROS_INFO("atlas fake walk teleop command timeout set to %f seconds.",
+             this->cmdVelTopicTimeout);
+  }
+  else
+  {
+    ROS_INFO("atlas fake walk teleop command timeout param not set, "
+             "defaults to 0.1 seconds.\n");
+    this->cmdVelTopicTimeout = 0.1;
+  }
+
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -548,7 +561,8 @@ void VRCPlugin::SetFakeASIC(
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVelTopic(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
-  this->SetRobotCmdVel(_cmd, 0.0);
+  // hard code timeout to 0.1 seconds
+  this->SetRobotCmdVel(_cmd, this->cmdVelTopicTimeout);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

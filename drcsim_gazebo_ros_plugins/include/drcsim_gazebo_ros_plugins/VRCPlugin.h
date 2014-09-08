@@ -512,6 +512,9 @@ namespace gazebo
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
+
+    /// \brief time out when receiving fake teleop cmd_vel command
+    private: double cmdVelTopicTimeout;
   };
 /** \} */
 /// @}
