@@ -1852,13 +1852,13 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[5]  =   0.06201673671603203;
   this->ac.position[6]  =  -0.2333149015903473;
   this->ac.position[7]  =   0.5181407332420349;
-  this->ac.position[8]  =  -0.27610817551612854 - 0.06;   // l_aky
+  this->ac.position[8]  =  -0.27610817551612854;   // l_aky
   this->ac.position[9]  =   -0.06201673671603203;
   this->ac.position[10] =  0.00035181696875952184;
   this->ac.position[11] =   -0.06218484416604042;
   this->ac.position[12] =  -0.2333149015903473;
   this->ac.position[13] =   0.5181407332420349;
-  this->ac.position[14] =  -0.27610817551612854 - 0.06;   // r_aky
+  this->ac.position[14] =  -0.27610817551612854;   // r_aky
   this->ac.position[15] =   0.06201673671603203;
   this->ac.position[16] =   0.29983898997306824;  // l_shy
   this->ac.position[17] =   -1.303462266921997;
