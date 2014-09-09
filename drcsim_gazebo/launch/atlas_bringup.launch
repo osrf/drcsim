@@ -2,10 +2,6 @@
   <!-- Use sim time -->
   <param name="/use_sim_time" type="bool" value="true"/>
 
-  <!-- Controller Manager
-  <include file="$(find pr2_controller_manager)/controller_manager.launch" />
-  -->
-
   <!-- joint states to tf -->
   <node pkg="robot_state_publisher" type="state_publisher" name="atlas_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
