@@ -1517,11 +1517,6 @@ bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
       return false;
     }
 
-    // initial pose specified by user in ros param under robot_initial_pose
-    gzdbg << "spawnPose [" << this->spawnPose << "]\n";
-    this->model->SetInitialRelativePose(this->spawnPose);
-    this->model->SetWorldPose(this->spawnPose);
-
     // Note: hardcoded link by name: @todo: make this a pugin param
     this->initialPose = this->pinLink->GetWorldPose();
 
