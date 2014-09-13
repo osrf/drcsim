@@ -117,28 +117,28 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
   ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
 )
-add_library(AtlasSimInterface SHARED
+
+add_library(AtlasSimInterface2 SHARED
   AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc
   AtlasSimInterface_2.10.2/src/simbicon/Controller.cpp
   AtlasSimInterface_2.10.2/src/simbicon/State.cpp
   AtlasSimInterface_2.10.2/src/simbicon/StateMachine.cpp
   AtlasSimInterface_2.10.2/src/simbicon/TerminalCondition.cpp)
 
-set_target_properties (AtlasSimInterface PROPERTIES SUFFIX .so.${ATLAS_SIM_INTERFACE_2_VERSION_FULL})
+set_target_properties(AtlasSimInterface2 PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_2_VERSION_FULL})
 
-install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL})
-
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}
-         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install (TARGETS AtlasSimInterface2 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 #####################################
 # install AtlasSimInterface 1 Binary
 install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
-          DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
+          DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so
+          DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
          DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
 
 #####################################
 # Configure the setup script

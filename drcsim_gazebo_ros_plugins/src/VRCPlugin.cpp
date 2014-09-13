@@ -106,6 +106,19 @@ void VRCPlugin::DeferredLoad()
   this->callbackQueueThread = boost::thread(
     boost::bind(&VRCPlugin::ROSQueueThread, this));
 
+  std::string cmdVelTimeout = "cmd_vel_timeout";
+  if (this->rosNode->getParam(cmdVelTimeout, this->cmdVelTopicTimeout))
+  {
+    ROS_INFO("atlas fake walk teleop command timeout set to %f seconds.",
+             this->cmdVelTopicTimeout);
+  }
+  else
+  {
+    ROS_INFO("atlas fake walk teleop command timeout param not set, "
+             "defaults to 0.1 seconds.\n");
+    this->cmdVelTopicTimeout = 0.1;
+  }
+
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -146,6 +159,18 @@ void VRCPlugin::UnpinAtlas()
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
   this->SetFeetCollide("all");
+
+  if (this->world->GetPhysicsEngine()->GetType() == "simbody" ||
+      this->world->GetPhysicsEngine()->GetType() == "dart")
+  {
+    // simulate un-freezing simbody or dart unlock free joints
+    // Currently we do this to all the links in the model,
+    // but ideally we can do this to only the link(s) with
+    // a free 6-dof mobilizer.
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+      (*li)->SetLinkStatic(false);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -226,8 +251,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     std::string objectBelow;
     fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
     entityBelow = this->world->GetEntity(objectBelow);
-    gzerr << fromEntity->GetName() << " "
+    gzdbg << fromEntity->GetName() << " "
           << distBelow << " " << objectBelow << "\n";
+    // if entity below is part of atlas, set it to fromEntity
+    // and keep searching below
     while (entityBelow && (entityBelow->GetParentModel() ==
       fromEntity->GetParentModel()))
     {
@@ -235,7 +262,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       fromEntity = entityBelow;
       fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
       entityBelow = this->world->GetEntity(objectBelow);
-      gzerr << fromEntity->GetName() << " "
+      gzdbg << fromEntity->GetName() << " "
             << distBelow << " " << objectBelow << "\n";
     }
     if (entityBelow && fromEntity)
@@ -246,31 +273,41 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       // gzdbg << groundBB.min.z << "\n";
 
       // slightly above ground and upright
+      // fromEntity->GetCollisionBoundingBox().min.z gives us the
+      // lowest point of atlas robot. Set pin location to 1.15m
+      // above it.
       atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
         distBelow + 1.15;
-      atlasPose.rot.SetFromEuler(0, 0, 0);
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
-
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-      // turning off effect of gravity
-      this->atlas.model->SetGravityMode(false);
     }
     else
     {
       gzwarn << "No entity below robot, or GetEntityBelowPoint "
-             << "returned NULL pointer.\n";
+             << "returned NULL pointer. Assume ground height = 0.0m\n";
       // put atlas back
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+      atlasPose.pos.z =  1.15;
     }
+
+    // set robot pose and pin it
+    atlasPose.rot.SetFromEuler(0, 0, 0);
+    this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    // turning off effect of gravity
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
+
     this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
@@ -524,7 +561,8 @@ void VRCPlugin::SetFakeASIC(
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVelTopic(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
-  this->SetRobotCmdVel(_cmd, 0.0);
+  // hard code timeout to 0.1 seconds
+  this->SetRobotCmdVel(_cmd, this->cmdVelTopicTimeout);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -626,35 +664,49 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                                       double _upper, double _lower,
                                       bool _disableCollision)
 {
-  physics::JointPtr joint = _world->GetPhysicsEngine()->CreateJoint(
-    _type, _model);
-  joint->Attach(_link1, _link2);
-  // load adds the joint to a vector of shared pointers kept
-  // in parent and child links, preventing joint from being destroyed.
-  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
-  // joint->SetAnchor(0, _anchor);
-  joint->SetAxis(0, _axis);
-  joint->SetHighStop(0, _upper);
-  joint->SetLowStop(0, _lower);
-
-  if (_link1)
-    joint->SetName(_link1->GetName() + std::string("_") +
-                              _link2->GetName() + std::string("_joint"));
-  else
-    joint->SetName(std::string("world_") +
-                              _link2->GetName() + std::string("_joint"));
-  joint->Init();
-
-
-  // disable collision between the link pair
-  if (_disableCollision)
+  physics::JointPtr joint;
+  if (_world->GetPhysicsEngine()->GetType() == "ode" ||
+      _world->GetPhysicsEngine()->GetType() == "bullet")
   {
-    if (_link1)
-      _link1->SetCollideMode("fixed");
-    if (_link2)
-      _link2->SetCollideMode("fixed");
-  }
+    joint = _world->GetPhysicsEngine()->CreateJoint(
+      _type, _model);
+    joint->Attach(_link1, _link2);
+    // load adds the joint to a vector of shared pointers kept
+    // in parent and child links, preventing joint from being destroyed.
+    joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
+    joint->SetAxis(0, _axis);
+    joint->SetHighStop(0, _upper);
+    joint->SetLowStop(0, _lower);
 
+    if (_link1)
+      joint->SetName(_link1->GetName() + std::string("_") +
+                                _link2->GetName() + std::string("_joint"));
+    else
+      joint->SetName(std::string("world_") +
+                                _link2->GetName() + std::string("_joint"));
+    joint->Init();
+
+
+    // disable collision between the link pair
+    if (_disableCollision)
+    {
+      if (_link1)
+        _link1->SetCollideMode("fixed");
+      if (_link2)
+        _link2->SetCollideMode("fixed");
+    }
+  }
+  else if (_world->GetPhysicsEngine()->GetType() == "simbody" ||
+           _world->GetPhysicsEngine()->GetType() == "dart")
+  {
+    // simulate freezing lock simbody or dart free joints
+    // Currently we do this to all the links in the model,
+    // but ideally we can do this to only the link(s) with
+    // a free 6-dof mobilizer.
+    physics::Link_V links = _model->GetLinks();
+    for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
+      (*li)->SetLinkStatic(true);
+  }
 
   return joint;
 }
@@ -862,8 +914,10 @@ void VRCPlugin::UpdateStates()
   double curTime = this->world->GetSimTime().Double();
   // if user chooses bdi_stand mode, robot will be initialized
   // with PID stand in BDI stand pose pinned.
-  // After startupStandPrepDuration - 1 seconds, pin released.
-  // After startupStandPrepDuration seconds, start Stand mode
+  // At t-t0 < startupStandPrepDuration seconds, pinned.
+  // At t-t0 = startupStandPrepDuration seconds, begin StandPrep mode.
+  // At t-t0 = startupNominal seconds, unpinned, nominal.
+  // At t-t0 = startupStand seconds, start Stand mode.
   if (this->atlas.startupSequence == Robot::NONE)
   {
     // Load and Spawn Robot
@@ -906,7 +960,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_PID_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 8.0))
+            atlas.startupStandPrepDuration)
           {
             ROS_INFO("going into stand prep");
             this->atlasCommandController.SetBDIStandPrep();
@@ -918,7 +972,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP_PINNED");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-            (atlas.startupStandPrepDuration - 0.3))
+            atlas.startupNominal)
           {
             ROS_INFO("going into Nominal");
             this->SetRobotMode("nominal");
@@ -930,7 +984,7 @@ void VRCPlugin::UpdateStates()
         {
           // ROS_INFO("BS_STAND_PREP");
           if ((curTime - this->atlas.startupBDIStandStartTime.Double()) >
-              (atlas.startupStandPrepDuration - 0.2))
+              atlas.startupStand)
           {
             ROS_INFO("going into Dynamic Stand Behavior");
             this->atlasCommandController.SetBDIStand();
@@ -951,12 +1005,12 @@ void VRCPlugin::UpdateStates()
           this->SetRobotMode("pinned");
           if (math::equal(this->atlas.startupHarnessDuration, 0.0))
           {
-            ROS_DEBUG("Atlas will stay pinned.");
+            ROS_INFO("Atlas will stay pinned.");
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
           }
           else
           {
-            ROS_DEBUG("Resume to nominal mode after %f seconds.",
+            ROS_INFO("Resume to nominal mode after %f seconds.",
               this->atlas.startupHarnessDuration);
             this->atlas.pinnedSequence = Robot::PS_PINNED;
           }
@@ -1355,6 +1409,13 @@ VRCPlugin::Robot::Robot()
   this->startupSequence = Robot::NONE;
   this->bdiStandSequence = Robot::BS_NONE;
   this->pinnedSequence = Robot::PS_NONE;
+
+  // bunch of hardcoded presets
+  this->startupHarnessDuration = 5;
+  this->startupStandPrepDuration = 2.0;
+  this->startupNominal = this->startupStandPrepDuration + 2.0;
+  this->startupStand = this->startupNominal + 0.1;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1366,10 +1427,6 @@ VRCPlugin::Robot::~Robot()
 void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   sdf::ElementPtr _sdf)
 {
-  // bunch of hardcoded presets
-  this->startupHarnessDuration = 10;
-  this->startupStandPrepDuration = 10;
-
   // changed by ros param
   this->spawnPose = math::Pose(0, 0, 0, 0, 0, 0);
 
@@ -1460,11 +1517,6 @@ bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
       return false;
     }
 
-    // initial pose specified by user in ros param under robot_initial_pose
-    gzdbg << "spawnPose [" << this->spawnPose << "]\n";
-    this->model->SetInitialRelativePose(this->spawnPose);
-    this->model->SetWorldPose(this->spawnPose);
-
     // Note: hardcoded link by name: @todo: make this a pugin param
     this->initialPose = this->pinLink->GetWorldPose();
 
@@ -1519,7 +1571,7 @@ void VRCPlugin::LoadRobotROSAPI()
   if (!this->rosNode->getParam("atlas/time_to_unpin",
     atlas.startupHarnessDuration))
   {
-    ROS_DEBUG("atlas/time_to_unpin not specified, default harness duration to"
+    ROS_INFO("atlas/time_to_unpin not specified, default harness duration to"
              " %f seconds", atlas.startupHarnessDuration);
   }
 
@@ -1795,13 +1847,13 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[5]  =   0.06201673671603203;
   this->ac.position[6]  =  -0.2333149015903473;
   this->ac.position[7]  =   0.5181407332420349;
-  this->ac.position[8]  =  -0.27610817551612854 - 0.06;   // l_aky
+  this->ac.position[8]  =  -0.27610817551612854;   // l_aky
   this->ac.position[9]  =   -0.06201673671603203;
   this->ac.position[10] =  0.00035181696875952184;
   this->ac.position[11] =   -0.06218484416604042;
   this->ac.position[12] =  -0.2333149015903473;
   this->ac.position[13] =   0.5181407332420349;
-  this->ac.position[14] =  -0.27610817551612854 - 0.06;   // r_aky
+  this->ac.position[14] =  -0.27610817551612854;   // r_aky
   this->ac.position[15] =   0.06201673671603203;
   this->ac.position[16] =   0.29983898997306824;  // l_shy
   this->ac.position[17] =   -1.303462266921997;
