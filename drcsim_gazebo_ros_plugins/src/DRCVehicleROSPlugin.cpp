@@ -174,7 +174,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
           &DRCVehicleROSPlugin::SetHandWheelState), this, _1),
       ros::VoidPtr(), &this->queue);
     this->subHandWheelCmd = this->rosNode->subscribe(hand_wheel_cmd_so);
-  
+
     ros::SubscribeOptions hand_brake_cmd_so =
       ros::SubscribeOptions::create< std_msgs::Float64 >(
       this->model->GetName() + "/hand_brake/cmd", 100,
@@ -183,7 +183,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
           &DRCVehicleROSPlugin::SetHandBrakePercent), this, _1),
       ros::VoidPtr(), &this->queue);
     this->subHandBrakeCmd = this->rosNode->subscribe(hand_brake_cmd_so);
-  
+
     ros::SubscribeOptions gas_pedal_cmd_so =
       ros::SubscribeOptions::create< std_msgs::Float64 >(
       this->model->GetName() + "/gas_pedal/cmd", 100,
@@ -192,7 +192,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
           &DRCVehicleROSPlugin::SetGasPedalPercent), this, _1),
       ros::VoidPtr(), &this->queue);
     this->subGasPedalCmd = this->rosNode->subscribe(gas_pedal_cmd_so);
-  
+
     ros::SubscribeOptions brake_pedal_cmd_so =
       ros::SubscribeOptions::create< std_msgs::Float64 >(
       this->model->GetName() + "/brake_pedal/cmd", 100,
@@ -201,7 +201,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
           &DRCVehicleROSPlugin::SetBrakePedalPercent), this, _1),
       ros::VoidPtr(), &this->queue);
     this->subBrakePedalCmd = this->rosNode->subscribe(brake_pedal_cmd_so);
-  
+
     ros::SubscribeOptions key_cmd_so =
       ros::SubscribeOptions::create< std_msgs::Int8 >(
       this->model->GetName() + "/key/cmd", 100,
@@ -210,7 +210,7 @@ void DRCVehicleROSPlugin::Load(physics::ModelPtr _parent,
           &DRCVehicleROSPlugin::SetKeyState), this, _1),
       ros::VoidPtr(), &this->queue);
     this->subKeyCmd = this->rosNode->subscribe(key_cmd_so);
-  
+
     ros::SubscribeOptions direction_cmd_so =
       ros::SubscribeOptions::create< std_msgs::Int8 >(
       this->model->GetName() + "/direction/cmd", 100,
@@ -263,6 +263,10 @@ void DRCVehicleROSPlugin::SetRosPublishRate(double _hz)
 // Publish hand wheel, gas pedal, and brake pedal on ROS
 void DRCVehicleROSPlugin::RosPublishStates()
 {
+  // Handle the case when Gazeob is reset.
+  if (this->world->GetSimTime() - this->lastRosPublishTime < 0)
+    this->lastRosPublishTime = this->world->GetSimTime();
+
   if (this->world->GetSimTime() - this->lastRosPublishTime >=
       this->rosPublishPeriod)
   {
