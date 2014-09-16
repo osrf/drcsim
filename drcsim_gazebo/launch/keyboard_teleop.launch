@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="drcsim_gazebo_ros_plugins" type="actionlib_server" name="walking_actionlib_server"/>
+  <node pkg="drcsim_gazebo" type="keyboard_teleop.py" name="walking_actionlib_client" output="screen"/>
+</launch>

@@ -1,0 +1,12 @@
+<launch>
+  <env name="VRC_CHEATS_ENABLED" value="1"/>
+  <include file="$(find drcsim_gazebo)/launch/vrc_task_1.launch">
+    <arg name="gzname" value="gazebo"/>
+  </include>
+  <!-- Walking controller -->
+  <node pkg="drcsim_gazebo_ros_plugins" type="actionlib_server" name="walking_actionlib_server"/>
+  <!-- Send movement to go to the car -->
+  <node pkg="drcsim_gazebo" type="atlas_commander.py" name="atlas_commander" 
+        output="screen"
+        args="9 i i i i u u u u u u i i i i i u u u i u i" />
+</launch>

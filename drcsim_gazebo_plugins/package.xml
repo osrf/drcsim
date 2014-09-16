@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package>
+  <name>drcsim_gazebo_plugins</name>
+  <version>3.1.0</version>
+  <description>The drcsim_gazebo_plugins package</description>
+  <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
+  <license>Apache 2.0</license>
+  <url type="website">http://gazebosim.org/wiki/DRC</url>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>gazebo</build_depend>
+    <run_depend>gazebo</run_depend>
+</package>

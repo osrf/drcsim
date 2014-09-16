@@ -1,0 +1,23 @@
+<package>
+  <name>drcsim_model_resources</name>
+  <version>3.1.0</version>
+  <description>
+    This package installs DRC Simulator URDF/SDF Models, Gazebo Worlds and Model Resources.
+  </description>
+  <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
+  <license>Apache 2.0</license>
+  <author>Open Source Robotics Foundation</author>
+  <url>https://bitbucket.org/osrf/drcsim</url>
+  <!-- depedencies -->
+  <buildtool_depend>cmake</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>boost</build_depend>
+  <build_depend>tinyxml</build_depend>
+
+  <build_depend>gazebo</build_depend>
+    <run_depend>gazebo</run_depend>
+
+  <!-- Empty runtime dependencies. 
+       bloom/debuild should be able to hand runtime dependencies automatically -->
+</package>

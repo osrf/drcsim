@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>irobot_hand_description</name>
+  <version>3.1.0</version>
+  <description>
+    This package contains iRobot hand description files.
+    The files should yield identical model as the the one provided by
+    iRobot under the name handle_description with a couple of changes:
+    Currently, we are working on updating the inertia to be more realistic.
+    The meshes have been post processed with regenerated face and vertex normals.
+    Gazebo elements have been added for simulation needs.
+  </description>
+  <maintainer email="hsu@osrfoundation.org">John Hsu</maintainer>
+  <author email="hsu@osrfoundation.org">Brian Gerkey and John Hsu</author>
+  <license>Apache 2.0</license>
+  <url type="website">http://gazebosim.org/wiki/DRC</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>xacro</run_depend>
+</package>

@@ -1,0 +1,27 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
+  
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3_simple_shapes.urdf" />
+  <xacro:include filename="$(find irobot_hand_description)/urdf/irobot_hand.urdf.xacro" />
+
+  <xacro:irobot_hand side="right" parent="r_hand" reflect="1">
+    <origin xyz="-0.00179 -0.09516 0.01176" rpy="1.57079 0 0"/>
+  </xacro:irobot_hand>
+  <xacro:irobot_hand side="left" parent="l_hand" reflect="-1">
+    <origin xyz="0.00179  0.09516 0.01176" rpy="1.57079 0 3.14159"/>
+  </xacro:irobot_hand>
+
+  <gazebo>
+    <!-- plugin for right irobot hand -->
+    <plugin name="right_irobot_hand_plugin" filename="libIRobotHandPlugin.so">
+      <side>right</side>
+    </plugin>
+    <!-- plugin for left irobot hand -->
+    <plugin name="left_irobot_hand_plugin" filename="libIRobotHandPlugin.so">
+      <side>left</side>
+    </plugin>
+  </gazebo>
+
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.gazebo" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.transmission" />
+  <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
+</robot>

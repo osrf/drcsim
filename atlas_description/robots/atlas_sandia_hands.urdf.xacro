@@ -1,0 +1,27 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
+  
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_simple_shapes.urdf" />
+  <xacro:include filename="$(find sandia_hand_description)/urdf/sandia_hand_simple_shapes.urdf.xacro" />
+
+  <xacro:sandia_hand side="right" parent="r_hand" reflect="1" joint_type="revolute" thumb_angle="0">
+    <origin xyz="0 -0.1 0" rpy="-1.57079 0 -1.57079"/>
+  </xacro:sandia_hand>
+  <xacro:sandia_hand side="left" parent="l_hand" reflect="-1" joint_type="revolute" thumb_angle="0">
+    <origin xyz="0  0.1 0" rpy=" 1.57079 0  1.57079"/>
+  </xacro:sandia_hand>
+
+  <xacro:include filename="$(find atlas_description)/urdf/atlas.gazebo" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas.transmission" />
+  <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
+
+  <gazebo>
+    <!-- include plugin for the left sandia hand -->
+    <plugin name="leftsandia_hand_plugin" filename="libSandiaHandPlugin.so">
+      <side>left</side>
+    </plugin>
+    <!-- include plugin for the right sandia hand -->
+    <plugin name="right_sandia_hand_plugin" filename="libSandiaHandPlugin.so">
+      <side>right</side>
+    </plugin>
+  </gazebo>
+</robot>

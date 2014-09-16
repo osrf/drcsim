@@ -1,0 +1,67 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task4.launch" />
+
+  <!-- Test for nominal publication rates -->
+
+  <!-- TODO: Doing it like, with a re-launch for each test, is slow.  Consider writing a multi-hztester. -->
+
+  <!-- ATLAS -->
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_clock">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/clock"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_atlas_joint_states">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/atlas/joint_states"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_atlas_force_torque_sensors">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/atlas/force_torque_sensors"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_atlas_imu">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/atlas/imu"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <!-- MULTISENSE (but not camera tests; those are in another file, because they require a GPU) -->
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_joint_states">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/multisense_sl/joint_states"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_imu">
+    <param name="hz" value="1000.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/multisense_sl/imu"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_multisense_sl_scan">
+    <param name="hz" value="40.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="10.0"/>
+    <param name="topic" value="/multisense_sl/laser/scan"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+</launch>

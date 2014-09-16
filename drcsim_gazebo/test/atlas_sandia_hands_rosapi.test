@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/atlas_sandia_hands.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="drcsim_gazebo" type="ros_api_checker" test-name="atlas_sandia_hands_rosapi" 
+        args="$(find drcsim_gazebo)/test/atlas_rosapi.yaml $(find drcsim_gazebo)/test/sandia_hands_rosapi.yaml $(find drcsim_gazebo)/test/multisense_sl_rosapi.yaml"
+        time-limit="360.0"/>
+</launch>

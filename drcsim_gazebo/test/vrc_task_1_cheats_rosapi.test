@@ -1,0 +1,9 @@
+<launch>
+  <env name="VRC_CHEATS_ENABLED" value="1"/>
+  <include file="$(find drcsim_gazebo)/launch/vrc_task_1.launch">
+    <arg name="gzname" value="gzserver"/>
+  </include>
+  <test pkg="drcsim_gazebo" type="ros_api_checker" test-name="vrc_task_1_cheats_rosapi" 
+        args="$(find drcsim_gazebo)/test/atlas_rosapi.yaml $(find drcsim_gazebo)/test/sandia_hands_rosapi.yaml $(find drcsim_gazebo)/test/multisense_sl_rosapi.yaml $(find drcsim_gazebo)/test/atlas_cheats_rosapi.yaml $(find drcsim_gazebo)/test/drc_vehicle_cheats_rosapi.yaml $(find drcsim_gazebo)/test/vrc_rosapi.yaml"
+        time-limit="360.0"/>
+</launch>

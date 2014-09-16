@@ -1,0 +1,121 @@
+<launch>
+  <include file="$(find drcsim_gazebo)/launch/vrc_final_task12.launch" />
+
+  <!-- Test for nominal publication rates -->
+
+  <!-- TODO: Doing it like this , with a re-launch for each test, is slow.  
+       Consider writing a multi-hztester. -->
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_left_image_raw">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/left/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_left_camera_info">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/left/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_right_image_raw">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/right/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_right_camera_info">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/right/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_points">
+    <param name="hz" value="45"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/points"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_points2">
+    <param name="hz" value="45"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/points2"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_l_hand_camera_disparity">
+    <param name="hz" value="45"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/l_hand/camera/disparity"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_left_image_raw">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/left/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_left_camera_info">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/left/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_right_image_raw">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/right/image_raw"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_right_camera_info">
+    <param name="hz" value="60.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="35.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/right/camera_info"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_points">
+    <param name="hz" value="45.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/points"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_points2">
+    <param name="hz" value="45.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/points2"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+  <test pkg="rostest" time-limit="240.0" type="hztest" test-name="atlas_hztest_sandia_hands_r_hand_camera_disparity">
+    <param name="hz" value="45.0"/>
+    <param name="wait_time" value="20.0"/>
+    <param name="hzerror" value="20.0"/>
+    <param name="topic" value="/sandia_hands/r_hand/camera/disparity"/>
+    <param name="test_duration" value="10.0"/>
+  </test>
+
+</launch>

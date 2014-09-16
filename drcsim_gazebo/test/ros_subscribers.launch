@@ -1,0 +1,54 @@
+<!-- This file will launch a representative set of ROS subscribers for drcsim.  It's meant for use 
+     in teting to stand in for how teams will actually load the simulator (and ROS, and the network, 
+     etc.). -->
+<launch>
+
+<!-- Record the controller_statistics, for later analysis -->
+<node pkg="drcsim_gazebo" type="run_gzstats.sh" name="$(anon gzstats)"/>
+<node pkg="drcsim_gazebo" type="run_rosbag.sh" name="$(anon rosbag)"/>
+
+<!-- System -->
+<node pkg="rostopic" type="rostopic" name="hz_clock" args="hz -w 100 /clock"/>
+<node pkg="rostopic" type="rostopic" name="hz_rosout_agg" args="hz -w 100 /rosout_agg"/>
+<node pkg="rostopic" type="rostopic" name="hz_tf" args="hz -w 100 /tf"/>
+
+<!-- Atlas -->
+<node pkg="rostopic" type="rostopic" name="hz_atlas_atlas_state" args="hz -w 100 /atlas/atlas_state"/>
+
+<!-- Multisense-SL -->
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_imu" args="hz -w 100 /multisense_sl/imu"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_joint_states" args="hz -w 100 /multisense_sl/joint_states"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_laser_scan" args="hz -w 100 /multisense_sl/laser/scan"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_left_image_raw" args="hz -w 100 /multisense_sl/camera/left/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_left_camera_info" args="hz -w 100 /multisense_sl/camera/left/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_left_image_raw_compressed" args="hz -w 100 /multisense_sl/camera/left/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_right_image_raw" args="hz -w 100 /multisense_sl/camera/right/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_right_camera_info" args="hz -w 100 /multisense_sl/camera/right/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_right_image_raw_compressed" args="hz -w 100 /multisense_sl/camera/right/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="hz_multisense_sl_camera_points2" args="hz -w 100 /multisense_sl/camera/points2"/>
+
+<!-- Sandia hands (left) -->
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_imu" args="hz -w 100 /sandia_hands/l_hand/imu"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_joint_states" args="hz -w 100 /sandia_hands/l_hand/joint_states"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_tactile_raw" args="hz -w 100 /sandia_hands/l_hand/tactile_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_left_image_raw" args="hz -w 100 /sandia_hands/l_hand/camera/left/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_left_camera_info" args="hz -w 100 /sandia_hands/l_hand/camera/left/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_left_image_raw_compressed" args="hz -w 100 /sandia_hands/l_hand/camera/left/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_right_image_raw" args="hz -w 100 /sandia_hands/l_hand/camera/right/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_right_camera_info" args="hz -w 100 /sandia_hands/l_hand/camera/right/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_right_image_raw_compressed" args="hz -w 100 /sandia_hands/l_hand/camera/right/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_l_hand_camera_points2" args="hz -w 100 /sandia_hands/l_hand/camera/points2"/>
+
+<!-- Sandia hands (right) -->
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_imu" args="hz -w 100 /sandia_hands/r_hand/imu"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_joint_states" args="hz -w 100 /sandia_hands/r_hand/joint_states"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_tactile_raw" args="hz -w 100 /sandia_hands/r_hand/tactile_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_left_image_raw" args="hz -w 100 /sandia_hands/r_hand/camera/left/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_left_camera_info" args="hz -w 100 /sandia_hands/r_hand/camera/left/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_left_image_raw_compressed" args="hz -w 100 /sandia_hands/r_hand/camera/left/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_right_image_raw" args="hz -w 100 /sandia_hands/r_hand/camera/right/image_raw"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_right_camera_info" args="hz -w 100 /sandia_hands/r_hand/camera/right/camera_info"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_right_image_raw_compressed" args="hz -w 100 /sandia_hands/r_hand/camera/right/image_raw/compressed"/>
+<node pkg="rostopic" type="rostopic" name="hz_sandia_hands_r_hand_camera_points2" args="hz -w 100 /sandia_hands/r_hand/camera/points2"/>
+
+</launch>
