@@ -435,11 +435,9 @@ namespace gazebo
     /// \brief initialize filter
     private: void InitFilter();
 
-    /// \brief do velocity`filtering
-    private: void FilterVelocity();
-
-    /// \brief do position filtering
-    private: void FilterPosition();
+    /// \brief do `filtering
+    private: void Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
+                         double _out[FIL_N_GJOINTS][FIL_N_STEPS]);
 
     ////////////////////////////////////////////////////////////////////
     //                                                                //
