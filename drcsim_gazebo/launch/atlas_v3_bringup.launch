@@ -35,7 +35,7 @@
   -->
 
   <!-- Stereo image processing -->
-  <node ns="multisense" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="log">
+  <node ns="multisense_sl" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="log">
     <param name="disparity_range" type="int" value="128"/>
     <param name="approximate_sync" type="bool" value="false"/>
   </node>
@@ -47,23 +47,36 @@
     <param name="lazy" type="bool" value="True"/>
   </node>
 
+  <!-- relay for multisense_sl simulation topics
+       v1 hardware publishes to /multisense/lidar_points, sim publishes to /multisense/points -->
+  <node name="multisense_points_relay" pkg="topic_tools" type="relay"
+        args="/multisense/camera/points /multisense/lidar_points" respawn="false" output="screen">
+    <param name="lazy" type="bool" value="True"/>
+  </node>
+  <!-- relay for multisense_sl simulation topics
+       v1 hardware publishes to /multisense/lidar_points2, sim publishes to /multisense/points2 -->
+  <node name="multisense_points2_relay" pkg="topic_tools" type="relay"
+        args="/multisense/camera/points2 /multisense/lidar_points2" respawn="false" output="screen">
+    <param name="lazy" type="bool" value="True"/>
+  </node>
+
   <!-- relay for multisense simulation topics
-       hardware publishes to /multisense/[left|right]/[image_raw|camera_info],
+       hardware publishes to /multisense_sl/[left|right]/[image_raw|camera_info],
        sim legacy publishes to /multisense/camera/[left|right]/[image_raw|camera_info] -->
   <node name="multisense_left_image_raw_relay" pkg="topic_tools" type="relay"
-        args="/multisense/left/image_raw /multisense/camera/left/image_raw" respawn="false" output="screen">
+        args="/multisense_sl/left/image_raw /multisense/camera/left/image_raw" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node name="multisense_left_camera_info_relay" pkg="topic_tools" type="relay"
-        args="/multisense/left/camera_info /multisense/camera/left/camera_info" respawn="false" output="screen">
+        args="/multisense_sl/left/camera_info /multisense/camera/left/camera_info" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node name="multisense_right_image_raw_relay" pkg="topic_tools" type="relay"
-        args="/multisense/right/image_raw /multisense/camera/right/image_raw" respawn="false" output="screen">
+        args="/multisense_sl/right/image_raw /multisense/camera/right/image_raw" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node name="multisense_right_camera_info_relay" pkg="topic_tools" type="relay"
-        args="/multisense/right/camera_info /multisense/camera/right/camera_info" respawn="false" output="screen">
+        args="/multisense_sl/right/camera_info /multisense/camera/right/camera_info" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <!-- Stereo image processing for the relayed simulation legacy topics -->
