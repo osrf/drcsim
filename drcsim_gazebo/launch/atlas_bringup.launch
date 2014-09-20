@@ -2,6 +2,9 @@
   <!-- Use sim time -->
   <param name="/use_sim_time" type="bool" value="true"/>
 
+  <!-- flag to let gazebo plugins know which version of atlas is running -->
+  <param name="atlas_version"   value="1" type="int"/>
+
   <!-- joint states to tf -->
   <node pkg="robot_state_publisher" type="state_publisher" name="atlas_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
@@ -45,9 +48,9 @@
   </node>
 
   <!-- relay for multisense_sl simulation topics
-       hardware publishes to /laser/scan, sim legacy publishes to /multisense_sl/laser/scan -->
+       v1 hardware publishes to /laser/scan, v3 publishes to /multisense/lidar_scan -->
   <node name="multisense_sl_laser_scan_relay" pkg="topic_tools" type="relay"
-        args="/laser/scan /multisense_sl/laser/scan" respawn="false" output="screen">
+        args="/laser/scan /multisense/lidar_scan" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
 
