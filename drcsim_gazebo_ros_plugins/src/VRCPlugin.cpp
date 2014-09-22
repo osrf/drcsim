@@ -920,20 +920,39 @@ void VRCPlugin::UpdateStates()
   // At t-t0 = startupStand seconds, start Stand mode.
   if (this->atlas.startupSequence == Robot::NONE)
   {
-    // Load and Spawn Robot
-    this->atlas.InsertModel(this->world, this->sdf);
-    this->atlas.startupSequence = Robot::SPAWN_QUEUED;
+    this->atlas.model = this->world->GetModel(this->atlas.modelName);
+    if (this->atlas.model)
+    {
+      // robot already exists (e.g. included in world file)
+      this->atlas.startupSequence = Robot::SPAWN_SUCCESS;
+    }
+    else
+    {
+      // Load and Spawn Robot
+      this->atlas.InsertModel(this->world, this->sdf);
+      this->atlas.startupSequence = Robot::SPAWN_QUEUED;
+    }
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
   {
     if (this->atlas.CheckGetModel(this->world))
     {
       this->atlas.startupSequence = Robot::SPAWN_SUCCESS;
-      this->atlasCommandController.InitModel(this->atlas.model);
+    }
+    else
+    {
+      // still waiting for robot to be spawned
+      ROS_INFO("waiting for atlas robot to be spawned.");
     }
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_SUCCESS)
   {
+    // initialize Atlas Command Controller
+    // Advertise ros topics "atlas/atlas_command" and
+    // "atlas/atlas_sim_interface_command". Subscribe to
+    // "atlas/joint_states".
+    this->atlasCommandController.InitModel(this->atlas.model);
+
     // robot could have 2 distinct startup modes in sim:  bdi_stand | pinned
     // bdi_stand:
     //   Sets robot startup configuration to that of bdi stand behavior.
@@ -1516,6 +1535,11 @@ bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
       ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
       return false;
     }
+
+    // set initial pose of Atlas based on
+    // ros params "robot_initial_pose/[x|y|z|roll|pitch|yaw]"
+    this->model->SetInitialRelativePose(this->spawnPose);
+    this->model->SetWorldPose(this->spawnPose);
 
     // Note: hardcoded link by name: @todo: make this a pugin param
     this->initialPose = this->pinLink->GetWorldPose();
