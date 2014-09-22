@@ -952,7 +952,10 @@ void VRCPlugin::UpdateStates()
     // "atlas/atlas_sim_interface_command". Subscribe to
     // "atlas/joint_states".
     this->atlasCommandController.InitModel(this->atlas.model);
-
+    this->atlas.startupSequence = Robot::INIT_MODEL_SUCCESS;
+  }
+  else if (this->atlas.startupSequence == Robot::INIT_MODEL_SUCCESS)
+  {
     // robot could have 2 distinct startup modes in sim:  bdi_stand | pinned
     // bdi_stand:
     //   Sets robot startup configuration to that of bdi stand behavior.
