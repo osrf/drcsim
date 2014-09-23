@@ -110,12 +110,57 @@ install (TARGETS AtlasSimInterface2 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 #####################################
-# install AtlasSimInterface 1 Binary
-install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
-          DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
-install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so
-          DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+# install AtlasSimInterface 1.1.1 Binary
 
+# libAtlasSimInterface.so.1.1.1 provided by BDI for 64bit systems
+# on 32bit systems use shim library
+if (NOT DEFINED ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
+  if (LINUX)
+    # Check for 64bits machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS True)
+    else()
+      set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False)
+      message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. "
+                          "If you want to use DRCSim without the AtlasSimInterface binary interface, "
+                          "run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
+    endif() 
+  elseif(BSD)
+    message(STATUS "Warning: system check for 32/64 bit is not implemented for")
+    message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: please use ATLAS_SIMINTERFACE_1_BINARY_EXISTS flag if you want")
+    message(STATUS "Warning: not to use 64 bits AtlasSIMINTERFACE library")
+    set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS True)
+  endif()
+else()
+  message(STATUS "compiler definition ATLAS_SIMINTERFACE_1_BINARY_EXISTS defined by user, "
+                 "going forward assuming libAtlasSimInterface.so 1.1.1 binaries exist in "
+                 "drcsim_model_resources/AtlasSimInterface_1.1.1/lib64")
+endif()
+
+# set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False) #testing shim for AtlasSimInterface 1
+
+if (NOT ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
+  message(STATUS "============================================\n" 
+                 "Using AtlasSimInterface 1.1.1 shim interface\n" 
+                 "============================================")
+  include_directories(
+    ${PROJECT_SOURCE_DIR}/AtlasSimInterface_1.1.1/include/AtlasSimInterface_1.1.1
+  )
+  add_library(AtlasSimInterface1 SHARED AtlasSimInterface_1.1.1/src/AtlasSimInterface.cc)
+  set_target_properties(AtlasSimInterface1 PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
+  install (TARGETS AtlasSimInterface1 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+else()
+  message(STATUS "=======================================================\n" 
+                 "Installing AtlasSimInterface 1.1.1 BDI binary interface\n"
+                 "=======================================================")
+  install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+            DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+  install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so
+            DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+endif()
+
+# install headers
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
          DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
