@@ -344,14 +344,21 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[1] =
         0.0;
       this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[2] =
-        0.0;
+        1.0;
       this->controlOutput.walk_feedback.step_queue_saturated[i].swing_height =
         0.0;
     }
     this->controlOutput.manipulate_feedback.status_flags = 0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_height = 0.0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_yaw = 0.0;
+#if ATLAS_VERSION == 1
     this->controlOutput.manipulate_feedback.clamped.pelvis_lat = 0.0;
+#elif ATLAS_VERSION == 3
+    this->controlOutput.manipulate_feedback.clamped.pelvis_pitch = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.pelvis_roll = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.com_v0 = 0.0;
+    this->controlOutput.manipulate_feedback.clamped.com_v1 = 0.0;
+#endif
   }
 
   {
@@ -418,7 +425,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     stepParams->desired_step.duration = 0;
     stepParams->desired_step.position = AtlasVec3f(0, 0, 0);
     stepParams->desired_step.yaw = 0.0;
-    stepParams->desired_step.normal = AtlasVec3f(0, 0, 0);
+    stepParams->desired_step.normal = AtlasVec3f(0, 0, 1);
     stepParams->desired_step.swing_height = 0.0;
     stepParams->use_demo_walk = false;
     // walk
@@ -431,7 +438,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       walkParams->step_queue[stepId].duration = 0.0;
       walkParams->step_queue[stepId].position = AtlasVec3f(0, 0, 0);
       walkParams->step_queue[stepId].yaw = 0;
-      walkParams->step_queue[stepId].normal = AtlasVec3f(0, 0, 0);
+      walkParams->step_queue[stepId].normal = AtlasVec3f(0, 0, 1);
       walkParams->step_queue[stepId].swing_height = 0.0;
       walkParams->use_demo_walk = false;
     }
@@ -442,7 +449,14 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     manipulateParams->use_desired = false;
     manipulateParams->desired.pelvis_height = 0.0;
     manipulateParams->desired.pelvis_yaw = 0.0;
+#if ATLAS_VERSION == 1
     manipulateParams->desired.pelvis_lat = 0.0;
+#elif ATLAS_VERSION == 3
+    manipulateParams->desired.pelvis_pitch = 0.0;
+    manipulateParams->desired.pelvis_roll = 0.0;
+    manipulateParams->desired.com_v0 = 0.0;
+    manipulateParams->desired.com_v1 = 0.0;
+#endif
     manipulateParams->use_demo_mode = false;
   }
 
@@ -493,7 +507,14 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       fb->manipulate_feedback.status_flags = 0;
       fb->manipulate_feedback.clamped.pelvis_height = 0.0;
       fb->manipulate_feedback.clamped.pelvis_yaw = 0.0;
+#if ATLAS_VERSION == 1
       fb->manipulate_feedback.clamped.pelvis_lat = 0.0;
+#elif ATLAS_VERSION == 3
+      fb->manipulate_feedback.clamped.pelvis_pitch = 0.0;
+      fb->manipulate_feedback.clamped.pelvis_roll = 0.0;
+      fb->manipulate_feedback.clamped.com_v0 = 0.0;
+      fb->manipulate_feedback.clamped.com_v1 = 0.0;
+#endif
     }
 
     // start with PID control
@@ -1014,6 +1035,49 @@ void AtlasPlugin::SetAtlasCommand(
   this->atlasCommand.desired_controller_period_ms =
     _msg->desired_controller_period_ms;
 
+  /* for this to work, copy shim library from
+     AtlasSimInterface 2.10.2 into 1.1.1 */
+  // also copy joint servo commands to AtlasSimInterfaceCommand
+  // for atlas shim interface maintains joint servo control as well.
+  bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS);
+  bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS);
+  bool fSize = (_msg->effort.size() == Atlas::NUM_JOINTS);
+  bool kqpSize = (_msg->kp_position.size() == Atlas::NUM_JOINTS);
+  bool kqiSize = (_msg->ki_position.size() == Atlas::NUM_JOINTS);
+  bool kqdpSize = (_msg->kp_velocity.size() == Atlas::NUM_JOINTS);
+  for(unsigned int i = 0; i < this->joints.size(); ++i)
+  {
+    if (pSize)
+      this->atlasControlInput.j[i].q_d = _msg->position[i];
+    if (vSize)
+      this->atlasControlInput.j[i].qd_d = _msg->velocity[i];
+    if (fSize)
+      this->atlasControlInput.j[i].f_d = _msg->effort[i];
+    if (kqpSize)
+      this->atlasControlInput.jparams[i].k_q_p = _msg->kp_position[i];
+    if (kqiSize)
+      this->atlasControlInput.jparams[i].k_q_i = _msg->ki_position[i];
+    if (kqdpSize)
+    {
+      this->atlasControlInput.jparams[i].k_qd_p = _msg->kp_velocity[i];
+      this->joints[i]->SetDamping(0, _msg->kp_velocity[i]);
+      this->joints[i]->SetDamping(0, 1.0);
+    }
+  }
+  /* debug
+  this->joints[ 0]->SetDamping(0, 10.0);
+  this->joints[ 1]->SetDamping(0, 10.0);
+  this->joints[ 2]->SetDamping(0, 10.0);
+  this->joints[ 3]->SetDamping(0, 10.0);
+  this->joints[ 6]->SetDamping(0, 10.0);
+  this->joints[ 7]->SetDamping(0, 10.0);
+  this->joints[ 8]->SetDamping(0, 10.0);
+  this->joints[11]->SetDamping(0, 10.0);
+  this->joints[12]->SetDamping(0, 10.0);
+  this->joints[13]->SetDamping(0, 10.0);
+  */
+
+  // in case we are blocking on receipt of command
   this->delayCondition.notify_one();
 }
 
@@ -1349,21 +1413,48 @@ void AtlasPlugin::SetASICommand(
       _msg->manipulate_params.desired.pelvis_height;
     manipulateParams->desired.pelvis_yaw =
       _msg->manipulate_params.desired.pelvis_yaw;
+#if ATLAS_VERSION == 1
     manipulateParams->desired.pelvis_lat =
       _msg->manipulate_params.desired.pelvis_lat;
+#elif ATLAS_VERSION == 3
+    manipulateParams->desired.pelvis_pitch =
+      _msg->manipulate_params.desired.pelvis_pitch;
+    manipulateParams->desired.pelvis_roll =
+      _msg->manipulate_params.desired.pelvis_roll;
+    manipulateParams->desired.com_v0 =
+      _msg->manipulate_params.desired.com_v0;
+    manipulateParams->desired.com_v1 =
+      _msg->manipulate_params.desired.com_v1;
+#endif
     manipulateParams->use_demo_mode = false;
       _msg->manipulate_params.use_demo_mode;
 
 
-    /// \TODO: Set atlasControlInput from _msg
+    /// Set atlasControlInput from _msg
+    bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS);
+    bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS);
+    bool fSize = (_msg->effort.size() == Atlas::NUM_JOINTS);
+    bool kqpSize = (_msg->kp_position.size() == Atlas::NUM_JOINTS);
+    bool kqiSize = (_msg->ki_position.size() == Atlas::NUM_JOINTS);
+    bool kqdpSize = (_msg->kp_velocity.size() == Atlas::NUM_JOINTS);
     for(unsigned int i = 0; i < this->joints.size(); ++i)
     {
-      this->atlasControlInput.j[i].q_d = 0.0;
-      this->atlasControlInput.j[i].qd_d = 0.0;
-      this->atlasControlInput.j[i].f_d = 0.0;
-      this->atlasControlInput.jparams[i].k_q_p = 0.0;
-      this->atlasControlInput.jparams[i].k_q_i = 0.0;
-      this->atlasControlInput.jparams[i].k_qd_p = 0.0;
+      if (pSize)
+        this->atlasControlInput.j[i].q_d = _msg->position[i];
+      if (vSize)
+        this->atlasControlInput.j[i].qd_d = _msg->velocity[i];
+      if (fSize)
+        this->atlasControlInput.j[i].f_d = _msg->effort[i];
+      if (kqpSize)
+        this->atlasControlInput.jparams[i].k_q_p = _msg->kp_position[i];
+      if (kqiSize)
+        this->atlasControlInput.jparams[i].k_q_i = _msg->ki_position[i];
+      if (kqdpSize)
+      {
+        this->atlasControlInput.jparams[i].k_qd_p = _msg->kp_velocity[i];
+        // set joint damping from kp_velocity issue 
+        this->joints[i]->SetDamping(0, _msg->kp_velocity[i]);
+      }
     }
 
     // Try and set desired behavior (reverse map of behaviorMap)
@@ -1582,6 +1673,15 @@ void AtlasPlugin::LoadPIDGainsFromParameter()
     this->atlasState.i_effort_max[i] =  i_clamp_val;
     // default k_effort is set to 1, controller relies on PID.
     this->atlasState.k_effort[i] = 255;
+
+    // for libAtlasSimInterface
+    this->atlasControlInput.jparams[i].k_q_p = p_val;
+    this->atlasControlInput.jparams[i].k_q_i = i_val;
+    this->atlasControlInput.jparams[i].k_qd_p = d_val;
+    /* TEST: hard code joint damping
+    this->joints[i]->SetDamping(0, this->atlasControlInput.jparams[i].k_qd_p);
+    this->joints[i]->SetDamping(0, 1.0);
+    */
   }
 }
 
@@ -2081,8 +2181,19 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->manipulate_feedback.clamped.pelvis_height;
   fb->manipulate_feedback.clamped.pelvis_yaw =
     fbOut->manipulate_feedback.clamped.pelvis_yaw;
+#if ATLAS_VERSION == 1
   fb->manipulate_feedback.clamped.pelvis_lat =
     fbOut->manipulate_feedback.clamped.pelvis_lat;
+#elif ATLAS_VERSION == 3
+  fb->manipulate_feedback.clamped.pelvis_pitch =
+    fbOut->manipulate_feedback.clamped.pelvis_pitch;
+  fb->manipulate_feedback.clamped.pelvis_roll =
+    fbOut->manipulate_feedback.clamped.pelvis_roll;
+  fb->manipulate_feedback.clamped.com_v0 =
+    fbOut->manipulate_feedback.clamped.com_v0;
+  fb->manipulate_feedback.clamped.com_v1 =
+    fbOut->manipulate_feedback.clamped.com_v1;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2642,6 +2753,7 @@ void AtlasPlugin::ControllerStatsConnect()
   boost::mutex::scoped_lock lock(this->statsConnectionMutex);
   this->controllerStatsConnectCount++;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Decrement count
 void AtlasPlugin::ControllerStatsDisconnect()
@@ -2650,4 +2762,45 @@ void AtlasPlugin::ControllerStatsDisconnect()
   this->controllerStatsConnectCount--;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// helper function, convert normal and yaw
+geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
+  const AtlasVec3f &_normal, double _yaw)
+{
+  // compute rotation about x, y and z axis from normal and yaw
+  // given normal = (nx, ny, nz)
+
+  // rotation about x is pi/2 - asin(nz / sqrt(ny^2 + nz^2))
+  double rx = 0;
+  {
+    double yz = sqrt(_normal.n[1]*_normal.n[1] +
+                     _normal.n[2]*_normal.n[2]);
+    if (math::equal(yz, 0.0))
+    {
+      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+               "zero length or is parallel to the x-axis");
+    }
+    else
+      rx = 0.5*M_PI - asin(_normal.n[2] / yz);
+  }
+
+  // rotation about y is pi/2 - asin(nz / sqrt(nx^2 + nz^2))
+  double ry = 0;
+  {
+    double xz = sqrt(_normal.n[0]*_normal.n[0] +
+                     _normal.n[2]*_normal.n[2]);
+    if (math::equal(xz, 0.0))
+    {
+      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+               "zero length or is parallel to the y-axis");
+    }
+    else
+      ry = 0.5*M_PI - asin(_normal.n[2] / xz);
+  }
+
+  // rotation about z is yaw
+  double rz = _yaw;
+
+  return this->ToQ(math::Quaternion(rx, ry, rz));
+}
 }
