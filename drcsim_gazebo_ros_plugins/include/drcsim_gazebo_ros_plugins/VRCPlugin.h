@@ -307,7 +307,8 @@ namespace gazebo
         NONE = 0,
         SPAWN_QUEUED = 1,
         SPAWN_SUCCESS = 2,
-        INITIALIZED = 3
+        INIT_MODEL_SUCCESS = 3,
+        INITIALIZED = 4
       };
       private: int startupSequence;
 
