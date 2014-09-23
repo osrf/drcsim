@@ -138,7 +138,7 @@ else()
                  "drcsim_model_resources/AtlasSimInterface_1.1.1/lib64")
 endif()
 
-# set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False) #testing shim for AtlasSimInterface 1
+set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False) #testing shim for AtlasSimInterface 1
 
 if (NOT ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
   message(STATUS "============================================\n" 
