@@ -30,6 +30,18 @@
         <box size="0.045 0.03 0.04"/>
       </geometry>
     </collision>
+    <collision group="and_another">
+      <origin rpy="2.617996327 0 0" xyz="-0.08 -0.031 -0.315"/>
+      <geometry>
+        <cylinder radius="0.038" length="0.1225"/>
+      </geometry>
+    </collision>
+    <collision group="final">
+      <origin rpy="1.0472 0 0" xyz="-0.08 -0.041 -0.345"/>
+      <geometry>
+        <box size="0.130 0.06 0.06"/>
+      </geometry>
+    </collision>
   </link>
   <link name="l_farm">
     <inertial>
@@ -443,6 +455,19 @@
         <box size="0.045 0.03 0.04"/>
       </geometry>
     </collision>
+    <collision group="and_another">
+      <origin rpy="0.523596327 0 0" xyz="-0.08 0.031 -0.315"/>
+      <geometry>
+        <cylinder radius="0.038" length="0.1225"/>
+      </geometry>
+    </collision>
+    <collision group="final">
+      <origin rpy="-1.0472 0 0" xyz="-0.08 0.041 -0.345"/>
+      <geometry>
+        <box size="0.130 0.06 0.06"/>
+      </geometry>
+    </collision>
+
   </link>
   <link name="r_farm">
     <inertial>
