@@ -488,7 +488,6 @@ namespace gazebo
       return result;
     }
 
-
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
       const
