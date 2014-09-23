@@ -161,6 +161,7 @@ namespace gazebo
     /// \param[in] possible joint name
     /// \return _st1 or _st2 whichever is a valid joint, else empty str.
     private: std::string FindJoint(std::string _st1, std::string _st2);
+    private: std::string FindJoint(std::string _st1, std::string _st2, std::string _st3);
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;

@@ -92,6 +92,13 @@ set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterf
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})
 add_dependencies(AtlasV3Plugin atlas_msgs_gencpp)
 
+link_directories(${AtlasSimInterface2_LIBRARY_DIRS})
+add_library(AtlasV4Plugin src/AtlasPlugin.cpp)
+set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_DEFINITIONS ATLAS_VERSION=3)
+set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface2_INCLUDE_DIR}")
+target_link_libraries(AtlasV4Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})
+add_dependencies(AtlasV4Plugin atlas_msgs_gencpp)
+
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
 target_link_libraries(VRCScoringPlugin ${catkin_LIBRARIES})
 add_dependencies(VRCScoringPlugin atlas_msgs_gencpp)
@@ -143,6 +150,7 @@ install(TARGETS
   ContactModelPlugin
   AtlasPlugin
   AtlasV3Plugin
+  AtlasV4Plugin
   VRCScoringPlugin
   test_ros_plugin
   pub_atlas_joint_trajectory_test

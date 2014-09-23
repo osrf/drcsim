@@ -31,5 +31,5 @@
   <param name="robot_initial_pose/pitch" value="0.05" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
 
-  <include file="$(find drcsim_gazebo)/launch/atlas_v3_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas_v4_bringup.launch"/>
 </launch>

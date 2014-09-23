@@ -104,10 +104,16 @@ std::string AtlasPlugin::FindJoint(std::string _st1, std::string _st2)
     return _st2;
   else
   {
-    ROS_ERROR("joint by names [%s] or [%s] not found.",
+    ROS_INFO("Atlas[XX]Plugin: joint by names [%s] or [%s] not found, returning empty string.",
               _st1.c_str(), _st2.c_str());
     return std::string();
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+std::string AtlasPlugin::FindJoint(std::string _st1, std::string _st2, std::string _st3)
+{
+  return this->FindJoint(this->FindJoint(_st1, _st2), _st3);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,13 +165,13 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
   this->jointNames.push_back("r_leg_kny");
   this->jointNames.push_back(this->FindJoint("r_leg_aky", "r_leg_uay"));
   this->jointNames.push_back(this->FindJoint("r_leg_akx", "r_leg_lax"));
-  this->jointNames.push_back(this->FindJoint("l_arm_shy", "l_arm_usy"));
+  this->jointNames.push_back(this->FindJoint("l_arm_shz", "l_arm_shy", "l_arm_usy"));
   this->jointNames.push_back("l_arm_shx");
   this->jointNames.push_back("l_arm_ely");
   this->jointNames.push_back("l_arm_elx");
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
-  this->jointNames.push_back(this->FindJoint("r_arm_shy", "r_arm_usy"));
+  this->jointNames.push_back(this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
   this->jointNames.push_back("r_arm_shx");
   this->jointNames.push_back("r_arm_ely");
   this->jointNames.push_back("r_arm_elx");
