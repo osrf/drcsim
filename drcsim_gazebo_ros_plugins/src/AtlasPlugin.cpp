@@ -344,7 +344,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[1] =
         0.0;
       this->controlOutput.walk_feedback.step_queue_saturated[i].normal.n[2] =
-        0.0;
+        1.0;
       this->controlOutput.walk_feedback.step_queue_saturated[i].swing_height =
         0.0;
     }
@@ -425,7 +425,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
     stepParams->desired_step.duration = 0;
     stepParams->desired_step.position = AtlasVec3f(0, 0, 0);
     stepParams->desired_step.yaw = 0.0;
-    stepParams->desired_step.normal = AtlasVec3f(0, 0, 0);
+    stepParams->desired_step.normal = AtlasVec3f(0, 0, 1);
     stepParams->desired_step.swing_height = 0.0;
     stepParams->use_demo_walk = false;
     // walk
@@ -438,7 +438,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent,
       walkParams->step_queue[stepId].duration = 0.0;
       walkParams->step_queue[stepId].position = AtlasVec3f(0, 0, 0);
       walkParams->step_queue[stepId].yaw = 0;
-      walkParams->step_queue[stepId].normal = AtlasVec3f(0, 0, 0);
+      walkParams->step_queue[stepId].normal = AtlasVec3f(0, 0, 1);
       walkParams->step_queue[stepId].swing_height = 0.0;
       walkParams->use_demo_walk = false;
     }
@@ -2777,12 +2777,8 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
                      _normal.n[2]*_normal.n[2]);
     if (math::equal(yz, 0.0))
     {
-#if ATLAS_VERSION == 1
       ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                "zero length or is parallel to the x-axis");
-#elif ATLAS_VERSION == 3
-      // recover warning when we have the normal info
-#endif
     }
     else
       rx = 0.5*M_PI - asin(_normal.n[2] / yz);
@@ -2795,12 +2791,8 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
                      _normal.n[2]*_normal.n[2]);
     if (math::equal(xz, 0.0))
     {
-#if ATLAS_VERSION == 1
       ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
                "zero length or is parallel to the y-axis");
-#elif ATLAS_VERSION == 3
-      // recover warning when we have the normal info
-#endif
     }
     else
       ry = 0.5*M_PI - asin(_normal.n[2] / xz);
