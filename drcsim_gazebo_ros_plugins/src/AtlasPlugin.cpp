@@ -2753,6 +2753,7 @@ void AtlasPlugin::ControllerStatsConnect()
   boost::mutex::scoped_lock lock(this->statsConnectionMutex);
   this->controllerStatsConnectCount++;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Decrement count
 void AtlasPlugin::ControllerStatsDisconnect()
@@ -2761,4 +2762,53 @@ void AtlasPlugin::ControllerStatsDisconnect()
   this->controllerStatsConnectCount--;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// helper function, convert normal and yaw
+geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
+  const AtlasVec3f &_normal, double _yaw)
+{
+  // compute rotation about x, y and z axis from normal and yaw
+  // given normal = (nx, ny, nz)
+
+  // rotation about x is pi/2 - asin(nz / sqrt(ny^2 + nz^2))
+  double rx = 0;
+  {
+    double yz = sqrt(_normal.n[1]*_normal.n[1] +
+                     _normal.n[2]*_normal.n[2]);
+    if (math::equal(yz, 0.0))
+    {
+#if ATLAS_VERSION == 1
+      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+               "zero length or is parallel to the x-axis");
+#elif ATLAS_VERSION == 3
+      // recover warning when we have the normal info
+#endif
+    }
+    else
+      rx = 0.5*M_PI - asin(_normal.n[2] / yz);
+  }
+
+  // rotation about y is pi/2 - asin(nz / sqrt(nx^2 + nz^2))
+  double ry = 0;
+  {
+    double xz = sqrt(_normal.n[0]*_normal.n[0] +
+                     _normal.n[2]*_normal.n[2]);
+    if (math::equal(xz, 0.0))
+    {
+#if ATLAS_VERSION == 1
+      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+               "zero length or is parallel to the y-axis");
+#elif ATLAS_VERSION == 3
+      // recover warning when we have the normal info
+#endif
+    }
+    else
+      ry = 0.5*M_PI - asin(_normal.n[2] / xz);
+  }
+
+  // rotation about z is yaw
+  double rz = _yaw;
+
+  return this->ToQ(math::Quaternion(rx, ry, rz));
+}
 }
