@@ -147,9 +147,9 @@ if (NOT ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
   include_directories(
     ${PROJECT_SOURCE_DIR}/AtlasSimInterface_1.1.1/include/AtlasSimInterface_1.1.1
   )
-  add_library(AtlasSimInterface1 SHARED AtlasSimInterface_1.1.1/src/AtlasSimInterface.cc)
-  set_target_properties(AtlasSimInterface1 PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
-  install (TARGETS AtlasSimInterface1 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+  add_library(AtlasSimInterface SHARED AtlasSimInterface_1.1.1/src/AtlasSimInterface.cc)
+  set_target_properties(AtlasSimInterface PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
+  install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 else()
   message(STATUS "=======================================================\n" 
                  "Installing AtlasSimInterface 1.1.1 BDI binary interface\n"
