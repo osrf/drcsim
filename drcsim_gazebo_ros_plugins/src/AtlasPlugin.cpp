@@ -2121,9 +2121,7 @@ void AtlasPlugin::EnforceSynchronizationDelay(const common::Time &_curTime)
 #if BOOST_VERSION < 105300
         common::Time delayTime(boost::detail::get_timespec(timeout));
 #else
-        // Workaround for drcsim issue #419
-        // boost::detail::get_timespec removed in boost 1.53
-        common::Time delayTime;
+        common::Time delayTime(boost::detail::to_timespec(timeout));
 #endif
         timeout += boost::posix_time::microseconds(1000000 * std::min(
             (this->delayMaxPerStep - delayInStepSum).Double(),
