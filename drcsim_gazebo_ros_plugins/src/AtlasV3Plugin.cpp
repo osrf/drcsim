@@ -1657,9 +1657,10 @@ void AtlasV3Plugin::LoadPIDGainsFromParameter()
     this->atlasControlInput.jparams[i].k_q_p = p_val;
     this->atlasControlInput.jparams[i].k_q_i = i_val;
     this->atlasControlInput.jparams[i].k_qd_p = d_val;
-    // TEST: hard code joint damping
+    /* TEST: hard code joint damping
     this->joints[i]->SetDamping(0, this->atlasControlInput.jparams[i].k_qd_p);
     this->joints[i]->SetDamping(0, 1.0);
+    */
   }
   /* debug
   this->joints[ 0]->SetDamping(0, 10.0);
