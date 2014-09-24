@@ -158,11 +158,12 @@ void MultiSenseSL::LoadThread()
   this->rosnode_->getParam("/atlas_version", atlasVersion);
   if (atlasVersion == 1)
   {
+    ROS_INFO("ros param /atlas_version == 1");
     this->rosNamespace = "/multisense_sl";
   }
   if (atlasVersion == 3)
   {
-    ROS_WARN("/atlas_version == 3");
+    ROS_INFO("ros param /atlas_version == 3");
     this->rosNamespace = "/multisense";
   }
   else
