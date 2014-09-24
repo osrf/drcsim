@@ -18,6 +18,7 @@
 #define _GAZEBO_VRC_SCORING_PLUGIN_HH_
 
 #include <string>
+#include <list>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/filesystem.hpp>

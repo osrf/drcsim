@@ -18,6 +18,7 @@
 #define _GAZEBO_CONTACT_MODEL_PLUGIN_H_
 
 #include <string>
+#include <list>
 
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>

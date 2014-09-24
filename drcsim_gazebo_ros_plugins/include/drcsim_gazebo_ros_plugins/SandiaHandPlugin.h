@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered/unordered_map.hpp>
@@ -111,7 +112,7 @@ namespace gazebo
     private: physics::ModelPtr model;
 
     /// Which hand (left/right)
-    private: std::string side; 
+    private: std::string side;
 
     /// Pointer to the update event connections
     private: event::ConnectionPtr updateConnection;
@@ -274,7 +275,6 @@ namespace gazebo
 
     /// \brief Mutex to protect tactileConnectcount
     private: boost::mutex tactileConnectionMutex;
-
   };
 /** \} */
 /// @}

@@ -25,6 +25,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/thread/mutex.hpp>
 
@@ -42,14 +43,6 @@
 
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
-
-
-// AtlasSimInterface: header
-#if ATLAS_VERSION == 1
-#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#elif ATLAS_VERSION == 3
-#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
-#endif
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
@@ -91,6 +84,13 @@
 #include <atlas_msgs/Test.h>
 
 #include <gazebo_plugins/PubQueue.h>
+
+// AtlasSimInterface: header
+#if ATLAS_VERSION == 1
+#include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
+#elif ATLAS_VERSION == 3
+#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
+#endif
 
 namespace gazebo
 {
@@ -591,7 +591,6 @@ namespace gazebo
 
     /// \brief Mutex to protect controllerStatsConnectCount.
     private: boost::mutex statsConnectionMutex;
-
   };
 }
 #endif
