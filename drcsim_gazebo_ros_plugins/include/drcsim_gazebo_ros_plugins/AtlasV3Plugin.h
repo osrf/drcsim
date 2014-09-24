@@ -25,6 +25,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/thread/mutex.hpp>
 
@@ -43,7 +44,6 @@
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
 
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
@@ -85,6 +85,8 @@
 #include <atlas_msgs/Test.h>
 
 #include <gazebo_plugins/PubQueue.h>
+
+#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
 
 namespace gazebo
 {
@@ -626,7 +628,6 @@ namespace gazebo
 
     /// \brief Mutex to protect controllerStatsConnectCount.
     private: boost::mutex statsConnectionMutex;
-
   };
 }
 #endif
