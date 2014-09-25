@@ -18,6 +18,7 @@
 #define GAZEBO_IROBOT_HAND_PLUGIN_HH
 
 #include <vector>
+#include <string>
 
 #include <boost/thread/mutex.hpp>
 
@@ -204,7 +205,6 @@ class IRobotHandPlugin : public gazebo::ModelPlugin
   private: double kd_velocity[5];
   private: double i_velocity_effort_min[5];
   private: double i_velocity_effort_max[5];
-
 };
 
 #endif
