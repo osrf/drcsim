@@ -4,10 +4,10 @@
   <xacro:include filename="$(find robotiq_hand_description)/urdf/robotiq_hand.urdf.xacro" />
 
   <xacro:robotiq_hand prefix="right_" parent="r_hand" reflect="1">
-    <origin rpy="1.57079 0 0" xyz="0 -0.09 0"/>
+    <origin rpy="3.14159 0 0" xyz="-0.00125 -0.17 0.01"/>
   </xacro:robotiq_hand>
   <xacro:robotiq_hand prefix="left_" parent="l_hand" reflect="-1">
-    <origin rpy="1.57079 0 3.14159" xyz="0 0.09 0"/>
+    <origin rpy="3.14159 0 3.14159" xyz="-0.00125 0.17 0.01"/>
   </xacro:robotiq_hand>
 
   <!--<gazebo>-->
