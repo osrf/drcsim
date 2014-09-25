@@ -425,23 +425,17 @@ namespace gazebo
     private: double filCoefB[FIL_MAX_FILT_COEFF];
 
     /// \brief unfiltered velocity
-    private: double filVelIn[FIL_N_GJOINTS][FIL_N_STEPS];
+    private: double unfilteredIn[FIL_N_GJOINTS][FIL_N_STEPS];
 
     /// \brief filtered velocity
-    private: double filVelOut[FIL_N_GJOINTS][FIL_N_STEPS];
-
-    /// \brief unfiltered position
-    private: double filPosIn[FIL_N_GJOINTS][FIL_N_STEPS];
-
-    /// \brief filtered position
-    private: double filPosOut[FIL_N_GJOINTS][FIL_N_STEPS];
+    private: double unfilteredOut[FIL_N_GJOINTS][FIL_N_STEPS];
 
     /// \brief initialize filter
     private: void InitFilter();
 
-    /// \brief do `filtering
-    private: void Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
-                         double _out[FIL_N_GJOINTS][FIL_N_STEPS]);
+    /// \brief do filtering
+    private: void Filter(std::vector<float> &_atlasState,
+                         std::vector<double> &_jointState);
 
     ////////////////////////////////////////////////////////////////////
     //                                                                //
