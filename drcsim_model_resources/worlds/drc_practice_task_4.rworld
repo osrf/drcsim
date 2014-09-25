@@ -35,28 +35,40 @@
       <uri>model://drc_practice_base_4x8</uri>
     </include>
 
+    <% door_x = 0.692
+       door_y = 1.212
+       door_z = 0
+       door_yaw = 1.56048
+       
+       hall_width = 1.1176
+       block_width = 0.2032
+
+       wall_x = (hall_width+block_width)/2
+       wall_y = 0.560356
+       wall_z = 0.33464
+    %>
 
     <include>
       <name>Wall1</name>
       <uri>model://drc_practice_valve_wall</uri>
-      <pose>0.692 1.212 0 0 0 1.56048</pose>
+      <pose><%= door_x %> <%= door_y %> <%= door_z %> 0 0 <%= door_yaw %></pose>
     </include>
     <include>
       <name>Wall2</name>
       <uri>model://drc_practice_valve_wall</uri>
-      <pose>-0.692 1.212 0 0 0 1.56048</pose>
+      <pose><%= -door_x %> <%= door_y %> <%= door_z %> 0 0 <%= door_yaw %></pose>
     </include>
 
     <include>
       <name>SideWall_1</name>
       <uri>model://drc_practice_block_wall</uri>
-      <pose>-0.6604 0.560356 0.33464 0 0 1.5707</pose>
+      <pose>-<%= wall_x %> <%= wall_y%> <%= wall_z%> 0 0 1.5707</pose>
     </include>
 
     <include>
       <name>SideWall_2</name>
       <uri>model://drc_practice_block_wall</uri>
-      <pose>0.6604 0.560356 0.33464 0 0 1.5707</pose>
+      <pose><%= wall_x %> <%= wall_y%> <%= wall_z%> 0 0 1.5707</pose>
     </include>
 
     <include>
