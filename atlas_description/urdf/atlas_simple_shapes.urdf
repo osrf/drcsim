@@ -1,3 +1,5 @@
+<!-- These are atlas torso and limb models, for full Atlas robot model, please see
+     xacro files containing fully assembed robots in atlas_description/robots/ -->
 <robot name="drc_skeleton">
     <link name="l_clav">
         <inertial>
