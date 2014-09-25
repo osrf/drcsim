@@ -44,7 +44,6 @@
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-
 #include <gazebo/math/Vector3.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/physics/PhysicsTypes.hh>
@@ -87,8 +86,11 @@
 #include <gazebo_plugins/PubQueue.h>
 
 // AtlasSimInterface: header
+#if ATLAS_VERSION == 1
 #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-
+#elif ATLAS_VERSION == 3
+#include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
+#endif
 
 namespace gazebo
 {
@@ -159,6 +161,7 @@ namespace gazebo
     /// \param[in] possible joint name
     /// \return _st1 or _st2 whichever is a valid joint, else empty str.
     private: std::string FindJoint(std::string _st1, std::string _st2);
+    private: std::string FindJoint(std::string _st1, std::string _st2, std::string _st3);
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;
@@ -486,7 +489,6 @@ namespace gazebo
       return result;
     }
 
-
     /// \brief Conversion helper functions
     private: inline geometry_msgs::Quaternion ToQ(const math::Quaternion &_q)
       const
@@ -539,40 +541,7 @@ namespace gazebo
     /// \param[in] _yaw foot yaw angle in Atlas odom frame.
     /// \return a quaternion describing pose of foot.
     private: inline geometry_msgs::Quaternion OrientationFromNormalAndYaw(
-      const AtlasVec3f &_normal, double _yaw)
-    {
-      // compute rotation about x, y and z axis from normal and yaw
-      // given normal = (nx, ny, nz)
-
-      // rotation about x is pi/2 - asin(nz / sqrt(ny^2 + nz^2))
-      double rx = 0;
-      {
-        double yz = sqrt(_normal.n[1]*_normal.n[1] +
-                         _normal.n[2]*_normal.n[2]);
-        if (math::equal(yz, 0.0))
-          ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
-                   "zero length or is parallel to the x-axis");
-        else
-          rx = 0.5*M_PI - asin(_normal.n[2] / yz);
-      }
-
-      // rotation about y is pi/2 - asin(nz / sqrt(nx^2 + nz^2))
-      double ry = 0;
-      {
-        double xz = sqrt(_normal.n[0]*_normal.n[0] +
-                         _normal.n[2]*_normal.n[2]);
-        if (math::equal(xz, 0.0))
-          ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
-                   "zero length or is parallel to the y-axis");
-        else
-          ry = 0.5*M_PI - asin(_normal.n[2] / xz);
-      }
-
-      // rotation about z is yaw
-      double rz = _yaw;
-
-      return this->ToQ(math::Quaternion(rx, ry, rz));
-    }
+      const AtlasVec3f &_normal, double _yaw);
 
     // controls message age measure
     private: atlas_msgs::ControllerStatistics controllerStatistics;
