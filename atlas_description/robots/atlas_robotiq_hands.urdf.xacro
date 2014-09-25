@@ -3,16 +3,12 @@
   <xacro:include filename="$(find atlas_description)/urdf/atlas_simple_shapes.urdf" />
   <xacro:include filename="$(find robotiq_hand_description)/urdf/robotiq_hand.urdf.xacro" />
 
-  <!--<xacro:robotiq_hand side="right" parent="r_hand" reflect="1">
+  <xacro:robotiq_hand prefix="right_" parent="r_hand" reflect="1">
     <origin rpy="1.57079 0 0" xyz="0 -0.09 0"/>
   </xacro:robotiq_hand>
-  <xacro:robotiq_hand side="left" parent="l_hand" reflect="-1">
+  <xacro:robotiq_hand prefix="left_" parent="l_hand" reflect="-1">
     <origin rpy="1.57079 0 3.14159" xyz="0 0.09 0"/>
-  </xacro:robotiq_hand>-->
-
-  <xacro:robotiq_hand prefix="left_"/>
-  <!--  <origin rpy="1.57079 0 0" xyz="0 -0.09 0"/>
-  </xacro:robotiq_hand> -->
+  </xacro:robotiq_hand>
 
   <!--<gazebo>-->
     <!-- plugin for right robotiq hand -->

@@ -21,7 +21,7 @@
     </collision>
   </link>
 
-  <xacro:robotiq_hand side="left" parent="base" reflect="-1">
+  <xacro:robotiq_hand prefix="box_" parent="base" reflect="-1">
     <origin rpy="0 0 0" xyz="0 0 1.0"/>
   </xacro:robotiq_hand>
 </robot>

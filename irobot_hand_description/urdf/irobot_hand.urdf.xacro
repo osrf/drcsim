@@ -343,7 +343,7 @@
   -->
   <xacro:flex_joint_connector side="${side}" finger_id="2" />
 
-  <!-- joint to irobot hand -->
+  <!-- joint attaching parent link to irobot hand -->
   <joint name="${side}_irobot_hand_joint" type="fixed">
     <insert_block name="origin"/>
     <parent link="${parent}"/>

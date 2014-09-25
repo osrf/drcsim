@@ -165,7 +165,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
 		<!-- end of joint list -->
 	</xacro:macro>
 
-	<xacro:macro name="robotiq_hand" params="prefix">
+	<xacro:macro name="robotiq_hand" params="prefix *origin reflect parent">
+
+    <!-- joint attaching parent link to robotiq hand -->
+    <joint name="${prefix}robotiq_hand_joint" type="fixed">
+      <insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="${prefix}palm"/>
+    </joint>
 
 	  <xacro:robotiq_finger prefix="${prefix}finger_1_"/>
 	  <xacro:robotiq_finger prefix="${prefix}finger_2_"/>
@@ -239,6 +246,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 		<!-- end of joint list -->
 	</xacro:macro>
 
-	<!-- Just for testing the xacro -->
+	<!-- Just for testing the xacro
 	<xacro:robotiq_hand prefix="left_"/>
+  -->
 </robot>
