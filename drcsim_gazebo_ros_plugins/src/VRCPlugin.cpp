@@ -922,17 +922,45 @@ void VRCPlugin::UpdateStates()
   {
     // Load and Spawn Robot
     this->atlas.InsertModel(this->world, this->sdf);
-    this->atlas.startupSequence = Robot::SPAWN_QUEUED;
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
   {
     if (this->atlas.CheckGetModel(this->world))
     {
       this->atlas.startupSequence = Robot::SPAWN_SUCCESS;
-      this->atlasCommandController.InitModel(this->atlas.model);
+    }
+    else
+    {
+      // still waiting for robot to be spawned
+      ROS_INFO("waiting for atlas robot to be spawned.");
     }
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_SUCCESS)
+  {
+    // initialize Atlas Command Controller
+    // Advertise ros topics "atlas/atlas_command" and
+    // "atlas/atlas_sim_interface_command". Subscribe to
+    // "atlas/joint_states".
+    ROS_INFO("spawn success, set pinLink and call initialize controller");
+
+    this->atlas.pinLink = this->atlas.model->GetLink(this->atlas.pinLinkName);
+
+    if (!this->atlas.pinLink)
+    {
+      ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
+      this->atlas.startupSequence = Robot::NONE;
+      return;
+    }
+
+    // Note: hardcoded link by name: @todo: make this a pugin param
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    // initialize atlas command controller
+    this->atlasCommandController.InitModel(this->atlas.model);
+
+    this->atlas.startupSequence = Robot::INIT_MODEL_SUCCESS;
+  }
+  else if (this->atlas.startupSequence == Robot::INIT_MODEL_SUCCESS)
   {
     // robot could have 2 distinct startup modes in sim:  bdi_stand | pinned
     // bdi_stand:
@@ -1497,7 +1525,7 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
     {
       ROS_ERROR("failed to spawn model from rosparam: [%s].",
         robotDescriptionName.c_str());
-      return;
+      this->startupSequence = Robot::NONE;
     }
   }
 }
@@ -1509,16 +1537,10 @@ bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
   this->model = _world->GetModel(this->modelName);
   if (this->model)
   {
-    this->pinLink = this->model->GetLink(this->pinLinkName);
-
-    if (!this->pinLink)
-    {
-      ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
-      return false;
-    }
-
-    // Note: hardcoded link by name: @todo: make this a pugin param
-    this->initialPose = this->pinLink->GetWorldPose();
+    // set initial pose of Atlas based on
+    // ros params "robot_initial_pose/[x|y|z|roll|pitch|yaw]"
+    this->model->SetInitialRelativePose(this->spawnPose);
+    this->model->SetWorldPose(this->spawnPose);
 
     return true;
   }

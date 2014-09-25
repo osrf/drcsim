@@ -85,6 +85,9 @@ namespace gazebo
     /// Default plugin init call.
     public: virtual void Init();
 
+    /// Default plugin reset call.
+    public: virtual void Reset();
+
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
 
