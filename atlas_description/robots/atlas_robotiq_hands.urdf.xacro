@@ -10,16 +10,16 @@
     <origin rpy="1.57079 0 3.14159" xyz="0 0.09 0"/>
   </xacro:robotiq_hand>
 
-  <gazebo>
+  <!--<gazebo>-->
     <!-- plugin for right robotiq hand -->
-    <plugin name="right_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
+    <!--<plugin name="right_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
       <side>right</side>
-    </plugin>
+    </plugin>-->
     <!-- plugin for left robotiq hand -->
-    <plugin name="left_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
+    <!--<plugin name="left_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
       <side>left</side>
     </plugin>
-  </gazebo>
+  </gazebo>-->
 
   <xacro:include filename="$(find atlas_description)/urdf/atlas.gazebo" />
   <xacro:include filename="$(find atlas_description)/urdf/atlas.transmission" />

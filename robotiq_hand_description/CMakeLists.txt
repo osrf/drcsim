@@ -11,10 +11,10 @@ catkin_package(
 
 set(standalone_name "standalone_models")
 
-install(DIRECTORY
-  urdf meshes robots launch ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+#install(DIRECTORY
+#  urdf meshes robots launch ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}
+#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+#)
 
 # install below for gazebo to find this model through GAZEBO_MODEL_PATH.
 install(FILES
@@ -30,7 +30,7 @@ install(FILES
 #make_standalone_models(robotiq_hand_description robotiq_hand_description ${standalone_name})
 
 # Copy all the meshes and materials into standalone_models/atlas
-install(DIRECTORY
-  meshes
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${standalone_name}/robotiq_hand_description
-)
+#install(DIRECTORY
+#  meshes
+#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${standalone_name}/robotiq_hand_description
+#)
