@@ -22,4 +22,6 @@
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
 
   <include file="$(find drcsim_gazebo)/launch/atlas_robotiq_hands_bringup.launch"/>
+
+  <include file="$(find drcsim_gazebo)/launch/atlas$(arg atlas_version)_bringup.launch"/>
 </launch>
