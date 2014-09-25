@@ -10,9 +10,9 @@
     <origin rpy="1.57079 0 3.14159" xyz="0 0.09 0"/>
   </xacro:robotiq_hand>-->
 
-  <xacro:robotiq_hand prefix="left">
-    <origin rpy="1.57079 0 0" xyz="0 -0.09 0"/>
-  </xacro:robotiq_hand>
+  <xacro:robotiq_hand prefix="left_"/>
+  <!--  <origin rpy="1.57079 0 0" xyz="0 -0.09 0"/>
+  </xacro:robotiq_hand> -->
 
   <!--<gazebo>-->
     <!-- plugin for right robotiq hand -->

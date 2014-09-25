@@ -7,7 +7,7 @@ is only one hand in the urdf then an empty prefix can be used "".  If
 there are multiple hands then a prefix followed by an "_" is needed.
 
 -->
-<robot xmlns:xacro="http://ros.org/wiki/xacro" name="robotiq">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robotiq">
 
 	<xacro:macro name="robotiq_finger" params="prefix">
 	  <gazebo reference="${prefix}link_0">
@@ -179,7 +179,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 		  <link name="${prefix}palm">
 		  	<visual>
 		  		<geometry>
-		  			<mesh filename="package://robotiq_hand_description/meshes/s-  model_articulated/visual/palm.STL" />
+		  			<mesh filename="package://robotiq_hand_description/meshes/s-model_articulated/visual/palm.STL" />
 		  		</geometry>
 		  		<material name="green">
 		  			<color rgba="0 1 0 1"/>
@@ -238,4 +238,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 		</joint>
 		<!-- end of joint list -->
 	</xacro:macro>
+
+	<!-- Just for testing the xacro -->
+	<xacro:robotiq_hand prefix="left_"/>
 </robot>
