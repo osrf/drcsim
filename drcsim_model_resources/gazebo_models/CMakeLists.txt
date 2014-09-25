@@ -1,7 +1,6 @@
 add_subdirectory(block_angle_steps)
 add_subdirectory(block_level_steps)
 add_subdirectory(block_angle_base)
-add_subdirectory(floating_cinder_block_wide)
 add_subdirectory(cutout_wall)
 add_subdirectory(drc_terrain)
 add_subdirectory(drc_vehicle)
