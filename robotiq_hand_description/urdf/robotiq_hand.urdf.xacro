@@ -1,12 +1,13 @@
+<?xml version="1.0"?>
 <!--
-s-model_articulated_macro(prefix)
+robotiq_hand_macro(prefix)
 
 Creates an articulated s-model hand with the passed in prefix.  If there
 is only one hand in the urdf then an empty prefix can be used "".  If
 there are multiple hands then a prefix followed by an "_" is needed.
 
 -->
-<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="robotiq">
 
 	<xacro:macro name="robotiq_finger" params="prefix">
 	  <gazebo reference="${prefix}link_0">
@@ -164,7 +165,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 		<!-- end of joint list -->
 	</xacro:macro>
 
-	<xacro:macro name="s-model_articulated" params="prefix">
+	<xacro:macro name="robotiq_hand" params="prefix">
 
 	  <xacro:robotiq_finger prefix="${prefix}finger_1_"/>
 	  <xacro:robotiq_finger prefix="${prefix}finger_2_"/>

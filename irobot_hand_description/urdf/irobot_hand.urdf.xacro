@@ -516,13 +516,13 @@
   </link>
 
   <link name="${side}_finger[1]/proximal_accelerometer" />
-  
+
   <joint name="${side}_finger[1]/proximal_link_to_accelerometer" type="fixed">
     <parent link="${side}_finger[1]/proximal_link"/>
     <child link="${side}_finger[1]/proximal_accelerometer"/>
     <origin rpy="${pi/2} 0 0" xyz="0 0 0.05" />
   </joint>
-  
+
   <link name="${side}_finger[1]/distal_link">
       <inertial>
         <mass value="0.0133"/>
@@ -549,7 +549,7 @@
   </link>
 
   <link name="${side}_finger[1]/distal_accelerometer" />
-  
+
   <joint name="${side}_finger[1]/distal_link_to_accelerometer" type="fixed">
     <parent link="${side}_finger[1]/distal_link"/>
     <child link="${side}_finger[1]/distal_accelerometer"/>
@@ -582,7 +582,7 @@
   </link>
 
   <link name="${side}_finger[2]/proximal_accelerometer" />
-  
+
   <joint name="${side}_finger[2]/proximal_link_to_accelerometer" type="fixed">
     <parent link="${side}_finger[2]/proximal_link"/>
     <child link="${side}_finger[2]/proximal_accelerometer"/>
@@ -615,7 +615,7 @@
   </link>
 
   <link name="${side}_finger[2]/distal_accelerometer" />
-  
+
   <joint name="${side}_finger[2]/distal_link_to_accelerometer" type="fixed">
     <parent link="${side}_finger[2]/distal_link"/>
     <child link="${side}_finger[2]/distal_accelerometer"/>
