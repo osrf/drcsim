@@ -115,7 +115,7 @@ install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/inclu
 # libAtlasSimInterface.so.1.1.1 provided by BDI for 64bit systems
 # on 32bit systems use shim library
 if (NOT DEFINED ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
-  if (LINUX)
+  if (UNIX)
     # Check for 64bits machines
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS True)
@@ -125,9 +125,9 @@ if (NOT DEFINED ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
                           "If you want to use DRCSim without the AtlasSimInterface binary interface, "
                           "run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
     endif() 
-  elseif(BSD)
+  else()
     message(STATUS "Warning: system check for 32/64 bit is not implemented for")
-    message(STATUS "Warning: BSD system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: your system, assuming 64bit machine. Please use")
     message(STATUS "Warning: please use ATLAS_SIMINTERFACE_1_BINARY_EXISTS flag if you want")
     message(STATUS "Warning: not to use 64 bits AtlasSIMINTERFACE library")
     set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS True)
