@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
-  <world name="trials_task_3">
+  <world name="trials_task_4">
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <ode>
@@ -28,11 +28,46 @@
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+
+
+    <include>
+      <uri>model://drc_practice_hinged_door</uri>
+      <name>pull_door</name>
+      <pose>4.0 0.0 0 0 0 1.57</pose>
+    </include>
+
+
+    <include>
+      <uri>model://drc_practice_hinged_door</uri>
+      <name>push_door</name>
+      <pose>2 0.06 0 0 0 -1.57</pose>
     </include>
 
     <include>
-      <name>ladder</name>
-      <uri>model://drc_practice_ladder</uri>
+      <uri>model://drc_practice_hinged_door</uri>
+      <name>weighted_push_door</name>
+      <pose>0 .06 0 0 0 -1.57</pose>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <name>wall_1</name>
+      <pose>5.4 -2 0 0 0 1.571 </pose>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <name>wall_2</name>
+      <pose>2 1.86 0 0 0 0 </pose>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <name>wall_3</name>
+      <pose>-1.4 -2 0 0 0 1.571 </pose>
     </include>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
@@ -56,25 +91,19 @@
 
   </world>
 </sdf>
+
 <!--
-This world shows a representative configuration for the Ladder challenge.
-An industrial ladder will be placed against an ISO container and must be
-ascended to reach the top platform.
+This model shows a representative configuration for the Doorway challenge.  Three doors, placed in series with one door being "weighted", must be opened and passed through to reach the goal.
 
 NOTES:
-  - material/collision properties have been left at their default values
-  - The stock ladder model has been modified to extend the hand-rails to
-    contact the ground.  DARPA is still deciding whether to include this
-    modification to mitigate cable-management concerns.
+  - collision/material properties are estimates only
 
-  - Ladder:
+  - Handle:
+      * mechanics of handle not modelled (turning handle will not release latch)
+      * physical dimensions estimated
       * collision and visual geometries use the same mesh data
-          - it is possible for other parts to become “embedded” within this
-            model, which is incorrect.
+          - it is possible for other parts to become â€œembeddedâ€ within this model, which is incorrect.
 
 DISCLAIMER:
-The models are intended to represent the type of obstacles to be encountered
-during the DRC trials, but may not match the exact configurations used in
-the trial events.  DARPA reserves the right to change any elements of these
-tasks without updating these model files.
+The models are intended to represent the type of obstacles to be encountered during the DRC trials, but may not match the exact configurations used in the trial events (doors may appear in different orientations).  DARPA reserves the right to change any elements of these tasks without updating these model files.
 -->
