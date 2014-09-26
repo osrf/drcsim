@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<sdf version="1.5">
+<sdf version="1.4">
  
   <% 
     # Constant declarations
@@ -15,7 +15,7 @@
     block_y = 0.387
     block_z = 0.092
 
-    angle_inc = 10 * 3.14159/180 
+    angle_inc = 10 * Math::PI/180 
   %>
   <model name="block_angle_base">
     <static>true</static>

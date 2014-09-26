@@ -231,9 +231,7 @@ NOTES:
 
   - Terrain:
       * collision and visual geometries use the same mesh data
-          - it is possible for other parts to become â€œembeddedâ€ within this model, which is incorrect.
-      * this model does not include the final â€˜step-over obstacleâ€™ section
-      * the terrain is modeled as a single static object and will not shift in response to robot motions.  The actual terrain may shift and/or slide if impacted by the robot.
+          - it is possible for other parts to become "embedded" within this model, which is incorrect.
 
   - Options
     Three options have been provided due to slow load and run time speeds with a fully textured .dae file.
