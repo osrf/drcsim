@@ -2528,11 +2528,13 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
     boost::mutex::scoped_lock lock(this->filterMutex);
     // option to filter atlasState.velocity
     if (this->filterVelocity)
-      this->Filter(this->filVelIn, this->filVelOut);
+      this->Filter(this->filVelIn, this->filVelOut,
+                   this->atlasState.velocity, this->jointStates.velocity);
 
     // option to filter atlasState.position
     if (this->filterPosition)
-      this->Filter(this->filPosIn, this->filPosOut);
+      this->Filter(this->filPosIn, this->filPosOut,
+                   this->atlasState.position, this->jointStates.position);
   }
 
   // publish robot states
@@ -2574,13 +2576,15 @@ void AtlasPlugin::InitFilter()
 
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
-                         double _out[FIL_N_GJOINTS][FIL_N_STEPS])
+                         double _out[FIL_N_GJOINTS][FIL_N_STEPS],
+                         std::vector<float> &_aState,
+                         std::vector<double> &_jState)
 {
   // Actually do filtering on each tick for each joint:
   // filter velocities: assume a(0) is 1.0
   // a(0)*y(0) = b(0)*x(0) + b(1)*x(1) + ... + b(n-1)*x(n-1)
   //                       - a(1)*y(1) - ... - a(n-1)*y(n-1)
-  // filter each joint velocity
+  // filter each joint position/velocity
   for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
   {
     // move data back one step in time.
@@ -2590,7 +2594,7 @@ void AtlasPlugin::Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
       _out[i][j+1] = _out[i][j];
     }
     // load new input
-    _in[i][0] = this->atlasState.velocity[i];
+    _in[i][0] = _aState[i];
     // do filtering
     double tmp = 0;
     for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
@@ -2598,8 +2602,7 @@ void AtlasPlugin::Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
     for (unsigned int j = 1; j < FIL_N_STEPS; ++j)
       tmp -= this->filCoefA[j]*_out[i][j];
     // stash filtered value;
-    this->atlasState.velocity[i] = this->jointStates.velocity[i] =
-      _out[i][0] = tmp;
+    _aState[i] = _jState[i] = _out[i][0] = tmp;
   }
 }
 

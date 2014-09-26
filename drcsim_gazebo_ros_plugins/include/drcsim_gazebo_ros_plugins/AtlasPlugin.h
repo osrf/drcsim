@@ -441,7 +441,9 @@ namespace gazebo
 
     /// \brief do `filtering
     private: void Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
-                         double _out[FIL_N_GJOINTS][FIL_N_STEPS]);
+                         double _out[FIL_N_GJOINTS][FIL_N_STEPS],
+                         std::vector<float> &_aState,
+                         std::vector<double> &_jState);
 
     ////////////////////////////////////////////////////////////////////
     //                                                                //
