@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="cutout_wall">
+    <static>true</static>
+    <link name="wall">
+      <static>true</static>
+      <pose>0 0 1.4 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>10.0 0.2 3.8</size>
+          </box>
+        </geometry>
+        <!-- <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+            <collide_without_contact_bitmask>2</collide_without_contact_bitmask>
+          </contact>
+        </surface> -->
+
+      </collision>
+
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>10.0 0.2 3.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cutout_wall/materials/scripts</uri>
+            <uri>model://cutout_wall/materials/textures</uri>
+            <name>drc_practice/wall</name> <!-- ??? -->
+          </script>
+        </material>
+      </visual>
+      <!-- <sensor name="mud_contact" type="contact">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+        <contact>
+          <collision>collision</collision>
+        </contact>
+      </sensor> -->
+    </link>
+
+    <% px_per_m = 360
+       p1_px = [2150, 673]
+       p2_px = [1873, 839]
+       dim_px = [3600, 1368]
+       p1 = [0, 0]
+       p2 = [0, 0]
+       for i in (0..1)
+         p1[i] = (p1_px[i] - dim_px[i])/px_per_m
+         p2[i] = (p1_px[i] - dim_px[i])/px_per_m
+       end
+
+       block_size = 0.01
+       num_blocks_x = (p1[0] - p2[0])/block_size
+       num_blocks_y = (p1[1] - p2[1])/block_size
+       
+       xrange = (0..num_blocks_x-1).to_a
+       xrange.each do |i|
+         xrange[i] = xrange[i]*block_size+p2[0]
+       end
+
+       yrange = (0..num_blocks_y-1).to_a
+       yrange.each do |i|
+         yrange[i] = yrange[i]*block_size+p2[1]
+       end
+       m = (p1[1]-p2[1])/(p1[0]-p2[0])
+       xrange.each do |i|
+         yrange.each do |j|
+           if m*(xrange[i])+p2[1] > yrange[j]
+     %>
+          <link name=<%= '"triangle_'+i.to_s+'_'+j.to_s+'"' %>>
+            <pose> <%= xrange[i] %> 0 <% yrange[j] %> 0 0 0 </pose>
+            <collision>
+              <box>
+                <size><%= block_size %> <%= block_size %> <%= block_size %></size>
+              </box>
+            </collision>
+          </link>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <plugin name="gazebo_mud" filename="libMudPlugin.so">
+      <contact_sensor_name>link/mud_contact</contact_sensor_name>
+      <stiffness>0.0</stiffness>
+      <damping>40.0</damping>
+      <contact_surface_bitmask>2</contact_surface_bitmask>
+      <link_name>drill::link</link_name>
+    </plugin>
+  </model>
+</sdf>
