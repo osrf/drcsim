@@ -32,8 +32,8 @@
 
 using std::string;
 
-namespace gazebo
-{
+using namespace gazebo;
+
 GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2769,5 +2769,4 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
   double rz = _yaw;
 
   return this->ToQ(math::Quaternion(rx, ry, rz));
-}
 }
