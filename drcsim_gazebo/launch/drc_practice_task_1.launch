@@ -2,12 +2,13 @@
 
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="drc_practice_task_1"/>
-
+  <arg name="extra_gazebo_args" default=""/>
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/drc_practice.launch">
     <arg name="gzname" value="$(arg gzname)"/>
     <arg name="gzworld" value="$(arg gzworld)"/>
+    <arg name="extra_gazebo_args" value="$(arg extra_gazebo_args)"/>
   </include>
 
 
