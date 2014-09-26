@@ -1,7 +1,6 @@
 set(MODEL_NAME block_angle_base)
 set (files 
   model.sdf
-  model-1.4.sdf
   model.config
 )
 

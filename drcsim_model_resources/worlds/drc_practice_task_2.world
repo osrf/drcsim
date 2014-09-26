@@ -31,6 +31,23 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
+    <model name="green_tape">
+      <static>true</static>
+      <pose>-2.7 0 0 0 0 0</pose>
+      <link name="link">
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.13 2.41 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <script><name>Gazebo/Green</name></script>
+        </material>
+      </visual>
+      </link>
+    </model>
+
     <model name="ramp_0">
       <pose>-2 0 0 0 0 0</pose>
       <static>true</static>
@@ -158,6 +175,22 @@
       </include>
     </model> <!-- wall_2 (chevron wall)-->
 
+    <model name="yellow_tape">
+      <static>true</static>
+      <pose>-0.087 0 0 0 0 0</pose>
+      <link name="link">
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.13 2.41 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <script><name>Gazebo/Yellow</name></script>
+        </material>
+      </visual>
+      </link>
+    </model>
     
    <include>
     <name>level_block_0</name>
@@ -170,6 +203,23 @@
     <uri>model://block_level_steps</uri>
     <pose>5.416337 1.350520 0 0 0 3.14159</pose>
    </include>
+
+   <model name="orange_tape">
+     <static>true</static>
+     <pose>4.72546 0 0 0 0 -0.785397</pose>
+    <link name="link">
+     <visual name="visual">
+       <geometry>
+         <box>
+           <size>0.13 3.89146 0.01</size>
+         </box>
+       </geometry>
+       <material>
+         <script><name>DRCQual/Orange</name></script> <!--TODO: orange material -->
+       </material>
+     </visual>
+     </link>
+   </model>
 
    <include>
      <static>true</static>
@@ -198,6 +248,24 @@
      <uri>model://block_angle_steps</uri>
      <pose>9.25 1.27 0.02 0 0 3.14159</pose>
    </include>
+
+
+    <model name="red_tape">
+      <static>true</static>
+      <pose>9.56 0 0 0 0 0</pose>
+      <link name="link">
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.13 2.41 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <script><name>Gazebo/Red</name></script>
+        </material>
+      </visual>
+      </link>
+    </model>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
