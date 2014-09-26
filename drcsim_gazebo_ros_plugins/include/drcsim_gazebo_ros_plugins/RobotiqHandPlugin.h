@@ -22,23 +22,19 @@
 
 #include <boost/thread/mutex.hpp>
 
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo_plugins/PubQueue.h>
+
+#include <robotiq_s_model_control/SModel_robot_output.h>
+#include <robotiq_s_model_control/SModel_robot_input.h>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 #include <ros/subscribe_options.h>
 
 #include <sensor_msgs/JointState.h>
-
-#include <gazebo/common/Plugin.hh>
-#include <gazebo/physics/physics.hh>
-
-#include <gazebo_plugins/PubQueue.h>
-
-#include <handle_msgs/HandleSensors.h>
-#include <handle_msgs/HandleControl.h>
-
-#include <robotiq_s_model_control/SModel_robot_output.h>
-#include <robotiq_s_model_control/SModel_robot_input.h>
 
 class RobotiqHandPlugin : public gazebo::ModelPlugin
 {
@@ -119,7 +115,8 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: ros::Publisher pubHandleState;
 
   /// \brief ROS publisher queue for Robotiq Hand state.
-  private: PubQueue<robotiq_s_model_control::SModel_robot_input>::Ptr pubHandleStateQueue;
+  private: PubQueue<robotiq_s_model_control::SModel_robot_input>::Ptr
+    pubHandleStateQueue;
 
   /// \brief Update the controller
   private: void UpdateStates();
