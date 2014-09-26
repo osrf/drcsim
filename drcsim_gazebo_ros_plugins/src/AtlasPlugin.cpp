@@ -2528,13 +2528,11 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
     boost::mutex::scoped_lock lock(this->filterMutex);
     // option to filter atlasState.velocity
     if (this->filterVelocity)
-      this->Filter(this->filVelIn, this->filVelOut,
-                   this->atlasState.velocity, this->jointStates.velocity);
+      this->Filter(this->atlasState.velocity, this->jointStates.velocity);
 
     // option to filter atlasState.position
     if (this->filterPosition)
-      this->Filter(this->filPosIn, this->filPosOut,
-                   this->atlasState.position, this->jointStates.position);
+      this->Filter(this->atlasState.position, this->jointStates.position);
   }
 
   // publish robot states
@@ -2568,16 +2566,14 @@ void AtlasPlugin::InitFilter()
   {
     for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
     {
-      this->filVelIn[i][j] = 0;
-      this->filVelOut[i][j] = 0;
+      this->unfilteredIn[i][j] = 0;
+      this->unfilteredOut[i][j] = 0;
     }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
-                         double _out[FIL_N_GJOINTS][FIL_N_STEPS],
-                         std::vector<float> &_aState,
+void AtlasPlugin::Filter(std::vector<float> &_aState,
                          std::vector<double> &_jState)
 {
   // Actually do filtering on each tick for each joint:
@@ -2590,19 +2586,19 @@ void AtlasPlugin::Filter(double _in[FIL_N_GJOINTS][FIL_N_STEPS],
     // move data back one step in time.
     for (int j = FIL_N_STEPS - 2; j >= 0; --j)
     {
-      _in[i][j+1] = _in[i][j];
-      _out[i][j+1] = _out[i][j];
+      this->unfilteredIn[i][j+1] = this->unfilteredIn[i][j];
+      this->unfilteredOut[i][j+1] = this->unfilteredOut[i][j];
     }
     // load new input
-    _in[i][0] = _aState[i];
+    this->unfilteredIn[i][0] = _aState[i];
     // do filtering
     double tmp = 0;
     for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
-      tmp += this->filCoefB[j]*_in[i][j];
+      tmp += this->filCoefB[j]*this->unfilteredIn[i][j];
     for (unsigned int j = 1; j < FIL_N_STEPS; ++j)
-      tmp -= this->filCoefA[j]*_out[i][j];
+      tmp -= this->filCoefA[j]*this->unfilteredOut[i][j];
     // stash filtered value;
-    _aState[i] = _jState[i] = _out[i][0] = tmp;
+    _aState[i] = _jState[i] = this->unfilteredOut[i][0] = tmp;
   }
 }
 
