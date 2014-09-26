@@ -206,7 +206,7 @@
 
    <model name="orange_tape">
      <static>true</static>
-     <pose>4.72546 0 0 0 0 -0.785397</pose>
+     <pose>4.6 0 0 0 0 -0.785397</pose>
     <link name="link">
      <visual name="visual">
        <geometry>
