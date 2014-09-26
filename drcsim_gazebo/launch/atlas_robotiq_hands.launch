@@ -5,6 +5,9 @@
   <arg name="extra_gazebo_args" default="-q"/>
   <arg name="atlas_version" default=""/>
 
+  <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
+  <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
+
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
     <arg name="gzname" value="$(arg gzname)"/>
@@ -16,7 +19,7 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg atlas_version)_robotiq_hands.urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="0" type="double"/>
   <param name="robot_initial_pose/y"     value="0" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.93" type="double"/>
+  <param name="robot_initial_pose/z"     value="0.95" type="double"/>
   <param name="robot_initial_pose/roll"  value="0" type="double"/>
   <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
