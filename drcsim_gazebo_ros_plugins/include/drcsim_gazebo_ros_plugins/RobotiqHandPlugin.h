@@ -47,62 +47,13 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Load the controller
   public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-  /// \brief ROS NodeHanle
-  private: ros::NodeHandle* rosNode;
-
-  /// \brief ROS callback queue
-  private: ros::CallbackQueue rosQueue;
-
   /// \brief ROS callback queue thread
   private: void RosQueueThread();
-
-  /// \brief ROS callback queue thread
-  private: boost::thread callbackQueeuThread;
-
-  /// \brief for publishing joint states (rviz visualization)
-  private: ros::Publisher pubJointStates;
-  private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
-
-  /// \brief for publishing joint states (rviz visualization)
-  private: sensor_msgs::JointState jointStates;
-
-  // ros publish multi queue, prevents publish() blocking
-  private: PubMultiQueue pmq;
 
   /// \brief ros topic callback to update Robotiq Hand Control Commands
   /// \param[in] _msg Incoming ros message
   private: void SetHandleCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_msg);
-
-  /// \brief ROS control interface
-  private: ros::Subscriber subHandleCommand;
-
-  /// \brief HandleControl message (published by user)
-  private: robotiq_s_model_control::SModel_robot_output handleCommand;
-
-  /// \brief gazebo world update connection
-  private: gazebo::event::ConnectionPtr updateConnection;
-
-  /// \brief keep track of controller update sim-time
-  private: gazebo::common::Time lastControllerUpdateTime;
-
-  /// \brief Robotiq Hand State
-  private: robotiq_s_model_control::SModel_robot_input handleState;
-
-  /// \brief Controller update mutex
-  private: boost::mutex controlMutex;
-
-  /// \brief internal pid control
-  private: class ErrorTerms
-    {
-      double q_p;
-      double d_q_p_dt;
-      double q_i;
-      friend class RobotiqHandPlugin;
-    };
-
-  /// \brief internal pid control
-  private: std::vector<ErrorTerms> errorTerms;
 
   /// \brief Update PID Joint Servo Controllers
   /// \param[in] _dt time step size since last update
@@ -110,13 +61,6 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
 
   /// \brief Publish Robotiq Hand state
   private: void GetAndPublishHandleState(const gazebo::common::Time &_curTime);
-
-  /// \brief ROS publisher for Robotiq Hand state.
-  private: ros::Publisher pubHandleState;
-
-  /// \brief ROS publisher queue for Robotiq Hand state.
-  private: PubQueue<robotiq_s_model_control::SModel_robot_input>::Ptr
-    pubHandleStateQueue;
 
   /// \brief Update the controller
   private: void UpdateStates();
@@ -168,6 +112,63 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \return _angle desired baseRotationJoint angle.
   private: double HandleControlSpreadValueToSpreadJointAngle(int _value);
 
+  /// \brief ROS NodeHanle
+  private: ros::NodeHandle* rosNode;
+
+  /// \brief ROS callback queue
+  private: ros::CallbackQueue rosQueue;
+
+  /// \brief ROS callback queue thread
+  private: boost::thread callbackQueueThread;
+
+  /// \brief for publishing joint states (rviz visualization)
+  private: ros::Publisher pubJointStates;
+
+  private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
+
+  /// \brief for publishing joint states (rviz visualization)
+  private: sensor_msgs::JointState jointStates;
+
+  // ros publish multi queue, prevents publish() blocking
+  private: PubMultiQueue pmq;
+
+  /// \brief ROS control interface
+  private: ros::Subscriber subHandleCommand;
+
+  /// \brief HandleControl message (published by user)
+  private: robotiq_s_model_control::SModel_robot_output handleCommand;
+
+  /// \brief gazebo world update connection
+  private: gazebo::event::ConnectionPtr updateConnection;
+
+  /// \brief keep track of controller update sim-time
+  private: gazebo::common::Time lastControllerUpdateTime;
+
+  /// \brief Robotiq Hand State
+  private: robotiq_s_model_control::SModel_robot_input handleState;
+
+  /// \brief Controller update mutex
+  private: boost::mutex controlMutex;
+
+  /// \brief internal pid control
+  private: class ErrorTerms
+  {
+    double q_p;
+    double d_q_p_dt;
+    double q_i;
+    friend class RobotiqHandPlugin;
+  };
+
+  /// \brief internal pid control
+  private: std::vector<ErrorTerms> errorTerms;
+
+  /// \brief ROS publisher for Robotiq Hand state.
+  private: ros::Publisher pubHandleState;
+
+  /// \brief ROS publisher queue for Robotiq Hand state.
+  private: PubQueue<robotiq_s_model_control::SModel_robot_input>::Ptr
+    pubHandleStateQueue;
+
   private: gazebo::physics::WorldPtr world;
   private: gazebo::physics::ModelPtr model;
   private: sdf::ElementPtr sdf;
@@ -179,10 +180,10 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief vector of 2, one for each index finger.
   private: gazebo::physics::Joint_V fingerBaseRotationJoints;
 
-  /// \brief numver of flexure twist joints * 3 (1 for each finger).
+  /// \brief number of flexure twist joints * 3 (1 for each finger).
   private: std::vector<gazebo::physics::Joint_V> flexureTwistJoints;
 
-  /// \brief numver of flexure flex joints * 3 (1 for each finger).
+  /// \brief number of flexure flex joints * 3 (1 for each finger).
   private: std::vector<gazebo::physics::Joint_V> flexureFlexJoints;
 
   /// \brief control angle for the thumb antagonist dof.
@@ -193,18 +194,19 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
 
   private: static const int numFingers = 3;
   private: static const int numFlexLinks = 2;
+  private: static const int numActuators = 6;
 
   // TODO: make these constants configurable
-  private: double kp_position[5];
-  private: double ki_position[5];
-  private: double kd_position[5];
-  private: double i_position_effort_min[5];
-  private: double i_position_effort_max[5];
-  private: double kp_velocity[5];
-  private: double ki_velocity[5];
-  private: double kd_velocity[5];
-  private: double i_velocity_effort_min[5];
-  private: double i_velocity_effort_max[5];
+  private: double kp_position[numActuators];
+  private: double ki_position[numActuators];
+  private: double kd_position[numActuators];
+  private: double i_position_effort_min[numActuators];
+  private: double i_position_effort_max[numActuators];
+  private: double kp_velocity[numActuators];
+  private: double ki_velocity[numActuators];
+  private: double kd_velocity[numActuators];
+  private: double i_velocity_effort_min[numActuators];
+  private: double i_velocity_effort_max[numActuators];
 };
 
 #endif

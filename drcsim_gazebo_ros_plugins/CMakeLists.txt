@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
              atlas_msgs
              handle_msgs
              gazebo_plugins
+             robotiq_s_model_control
 )
 
 catkin_package(
@@ -71,7 +72,7 @@ add_library(RobotiqHandPlugin src/RobotiqHandPlugin.cpp)
 set_target_properties(RobotiqHandPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
 set_target_properties(RobotiqHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(RobotiqHandPlugin ${catkin_LIBRARIES})
-add_dependencies(RobotiqHandPlugin handle_msgs_gencpp atlas_msgs_gencpp)
+add_dependencies(RobotiqHandPlugin handle_msgs_gencpp atlas_msgs_gencpp robotiq_s_model_control_gencpp)
 
 add_library(MultiSenseSLPlugin src/MultiSenseSLPlugin.cpp)
 target_link_libraries(MultiSenseSLPlugin ${catkin_LIBRARIES})

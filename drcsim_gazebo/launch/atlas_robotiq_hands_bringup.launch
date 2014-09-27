@@ -1,3 +1,3 @@
 <launch>
-  <!--<include file="$(find drcsim_gazebo)/launch/atlas_robotiq_hands_state_publishers.launch"/>-->
+  <include file="$(find drcsim_gazebo)/launch/atlas_robotiq_hands_state_publishers.launch"/>
 </launch>

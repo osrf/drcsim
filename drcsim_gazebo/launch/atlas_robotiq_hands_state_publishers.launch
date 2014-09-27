@@ -7,6 +7,6 @@
 
   <node pkg="robot_state_publisher" type="state_publisher" name="robotiq_hands_r_hand_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/irobot_hands/r_hand/joint_states" />
+    <remap from="joint_states" to="/robotiq_hands/r_hand/joint_states" />
   </node>
 </launch>

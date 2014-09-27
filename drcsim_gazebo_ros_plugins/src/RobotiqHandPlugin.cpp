@@ -24,46 +24,42 @@
 #include <robotiq_s_model_control/SModel_robot_input.h>
 #include <ros/ros.h>
 
-#include "drcsim_gazebo_ros_plugins//RobotiqHandPlugin.h"
+#include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Based on the IRobotHand Plugin
 RobotiqHandPlugin::RobotiqHandPlugin()
 {
-  printf("RobotiqHandPlugin constructor\n");
-  for (int i = 0; i < 5; ++i)
+  std::cout << "RobotiqHandPlugin constructor\n" << std::endl;
+  this->errorTerms.resize(numActuators);
+  for (int i = 0; i < this->numActuators; ++i)
   {
   	this->kp_position[i] = 1.0;
-  	this->ki_position[i]  = 0.0;
-  	this->kd_position[i]  = 0.0;
+  	this->ki_position[i] = 0.0;
+  	this->kd_position[i] = 0.0;
   	this->i_position_effort_min[i] = 0.0;
   	this->i_position_effort_max[i] = 0.0;
-  	this->kp_velocity[i]  = 0.1;
-  	this->ki_velocity[i]  = 0.0;
-  	this->kd_velocity[i]  = 0.0;
+  	this->kp_velocity[i] = 0.1;
+  	this->ki_velocity[i] = 0.0;
+  	this->kd_velocity[i] = 0.0;
   	this->i_velocity_effort_min[i] = 0.0;
   	this->i_velocity_effort_max[i] = 0.0;
-  }
 
-  this->errorTerms.resize(5);  // hand has 5 DOF
-  for (unsigned i = 0; i < 5; ++i)
-  {
-	 this->errorTerms[i].q_p = 0;
-	 this->errorTerms[i].d_q_p_dt = 0;
-	 this->errorTerms[i].q_i = 0;
+    this->errorTerms[i].q_p = 0;
+    this->errorTerms[i].d_q_p_dt = 0;
+    this->errorTerms[i].q_i = 0;
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 RobotiqHandPlugin::~RobotiqHandPlugin()
 {
-    gazebo::event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
-    this->rosNode->shutdown();
-    this->rosQueue.clear();
-    this->rosQueue.disable();
-    this->callbackQueeuThread.join();
-    delete this->rosNode;
+  gazebo::event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  this->rosNode->shutdown();
+  this->rosQueue.clear();
+  this->rosQueue.disable();
+  this->callbackQueueThread.join();
+  delete this->rosNode;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,9 +83,7 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
         << " hand." << std::endl;
 
   if(!this->FindJoints())
-  {
 	  return;
-  }
 
   //this->SetJointSpringDamper();
 
@@ -143,7 +137,7 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   this->lastControllerUpdateTime = this->world->GetSimTime();
 
   // start callback queue
-  this->callbackQueeuThread =
+  this->callbackQueueThread =
     boost::thread(boost::bind(&RobotiqHandPlugin::RosQueueThread, this));
 
   // connect to gazebo world update
@@ -386,6 +380,21 @@ bool RobotiqHandPlugin::FindJoints()
   gazebo::physics::JointPtr joint;
   if (this->side == "l_")
   {
+    if(!this->GetAndPushBackJoint("l_palm_finger_1_joint",
+          this->fingerBaseJoints))
+    {
+      return false;
+    }
+    if(!this->GetAndPushBackJoint("l_palm_finger_2_joint",
+          this->fingerBaseJoints))
+    {
+      return false;
+    }
+    if(!this->GetAndPushBackJoint("l_palm_finger_middle_joint",
+          this->fingerBaseJoints))
+    {
+      return false;
+    }
 	  if(!this->GetAndPushBackJoint("l_finger_1_joint_1", this->fingerBaseJoints))
     {
 	    return false;
@@ -402,6 +411,21 @@ bool RobotiqHandPlugin::FindJoints()
   }
   else
   {
+    if(!this->GetAndPushBackJoint("r_palm_finger_1_joint",
+          this->fingerBaseJoints))
+    {
+      return false;
+    }
+    if(!this->GetAndPushBackJoint("r_palm_finger_2_joint",
+          this->fingerBaseJoints))
+    {
+      return false;
+    }
+    if(!this->GetAndPushBackJoint("r_palm_finger_middle_joint",
+          this->fingerBaseJoints))
+    {
+      return false;
+    }
 	  if(!this->GetAndPushBackJoint("r_finger_1_joint_1", this->fingerBaseJoints))
     {
 	    return false;
