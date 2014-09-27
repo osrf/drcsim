@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
-  <world name="trials_task_4">
+  <world name="trials_task_3">
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <ode>
@@ -35,6 +35,42 @@
       <uri>model://drc_practice_base_4x8</uri>
     </include>
 
+
+    <model name="green_tape">
+      <static>true</static>
+      <pose>0 -1.2396440000000002 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1176 0.13 0.01</size>
+            </box>
+          </geometry>
+
+          <material>
+            <script><name>Gazebo/Green</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="red_tape">
+      <static>true</static>
+      <pose>0 1.360356 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1176 0.13 0.01</size>
+            </box>
+          </geometry>
+
+          <material>
+            <script><name>Gazebo/Red</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
 
     <include>
       <name>Wall1</name>

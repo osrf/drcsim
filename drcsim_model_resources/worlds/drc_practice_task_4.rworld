@@ -46,7 +46,45 @@
        wall_x = (hall_width+block_width)/2
        wall_y = 0.560356
        wall_z = 0.33464
+       green_tape_y = wall_y - 0.9 - 0.9
+       red_tape_y = wall_y + 0.8
     %>
+
+    <model name="green_tape">
+      <static>true</static>
+      <pose>0 <%= green_tape_y %> 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1176 0.13 0.01</size>
+            </box>
+          </geometry>
+
+          <material>
+            <script><name>Gazebo/Green</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="red_tape">
+      <static>true</static>
+      <pose>0 <%= red_tape_y %> 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1176 0.13 0.01</size>
+            </box>
+          </geometry>
+
+          <material>
+            <script><name>Gazebo/Red</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
 
     <include>
       <name>Wall1</name>
