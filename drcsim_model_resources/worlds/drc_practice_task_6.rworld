@@ -62,21 +62,28 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
+    <% wall_y = -13.25
+       wall_x = -7.23
+     %>
     <include>
       <uri>model://cutout_wall</uri>
       <name>cutout_wall</name>
-      <pose>-7.23 -13.25 0 0 0 0</pose>
+      <pose><%= wall_x %> <%= wall_y %> 0 0 0 0</pose>
     </include>
 
+    <%
+      tape_width = 1.2
+      tape_wall_dist = 0.9
+     %>
 
     <model name="green_tape">
       <static>true</static>
-      <pose>-6.55 -14.15 0 0 0 0 </pose>
+      <pose>-6.55 <%= wall_y - tape_wall_dist %> 0 0 0 0 </pose>
       <link name="link">
         <visual name="visual">
           <geometry>
             <box>
-              <size>1.2 0.13 0.01</size>
+              <size><%= tape_width %> 0.13 0.01</size>
             </box>
           </geometry>
           <material>
