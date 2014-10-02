@@ -123,7 +123,7 @@ if (NOT DEFINED ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
       set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False)
       message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. "
                           "If you want to use DRCSim without the AtlasSimInterface binary interface, "
-                          "run cmake with -DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False")
+                          "run cmake with -DUSE_ATLASSIMINTERFACE_1_BINARY_EXISTS:BOOL=False")
     endif() 
   else()
     message(STATUS "Warning: system check for 32/64 bit is not implemented for")
