@@ -32,8 +32,8 @@
 
 using std::string;
 
-namespace gazebo
-{
+using namespace gazebo;
+
 GZ_REGISTER_MODEL_PLUGIN(AtlasPlugin)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2645,11 +2645,11 @@ void AtlasPlugin::GetAndPublishRobotStates(const common::Time &_curTime)
     boost::mutex::scoped_lock lock(this->filterMutex);
     // option to filter atlasState.velocity
     if (this->filterVelocity)
-      this->FilterVelocity();
+      this->Filter(this->atlasState.velocity, this->jointStates.velocity);
 
     // option to filter atlasState.position
     if (this->filterPosition)
-      this->FilterPosition();
+      this->Filter(this->atlasState.position, this->jointStates.position);
   }
 
   // publish robot states
@@ -2683,70 +2683,39 @@ void AtlasPlugin::InitFilter()
   {
     for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
     {
-      this->filVelIn[i][j] = 0;
-      this->filVelOut[i][j] = 0;
+      this->unfilteredIn[i][j] = 0;
+      this->unfilteredOut[i][j] = 0;
     }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::FilterVelocity()
+void AtlasPlugin::Filter(std::vector<float> &_aState,
+                         std::vector<double> &_jState)
 {
   // Actually do filtering on each tick for each joint:
   // filter velocities: assume a(0) is 1.0
   // a(0)*y(0) = b(0)*x(0) + b(1)*x(1) + ... + b(n-1)*x(n-1)
   //                       - a(1)*y(1) - ... - a(n-1)*y(n-1)
-  // filter each joint velocity
+  // filter each joint position/velocity
   for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
   {
     // move data back one step in time.
     for (int j = FIL_N_STEPS - 2; j >= 0; --j)
     {
-      this->filVelIn[i][j+1] = this->filVelIn[i][j];
-      this->filVelOut[i][j+1] = this->filVelOut[i][j];
+      this->unfilteredIn[i][j+1] = this->unfilteredIn[i][j];
+      this->unfilteredOut[i][j+1] = this->unfilteredOut[i][j];
     }
     // load new input
-    this->filVelIn[i][0] = this->atlasState.velocity[i];
+    this->unfilteredIn[i][0] = _aState[i];
     // do filtering
     double tmp = 0;
     for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
-      tmp += this->filCoefB[j]*this->filVelIn[i][j];
+      tmp += this->filCoefB[j]*this->unfilteredIn[i][j];
     for (unsigned int j = 1; j < FIL_N_STEPS; ++j)
-      tmp -= this->filCoefA[j]*this->filVelOut[i][j];
+      tmp -= this->filCoefA[j]*this->unfilteredOut[i][j];
     // stash filtered value;
-    this->atlasState.velocity[i] = this->jointStates.velocity[i] =
-      this->filVelOut[i][0] = tmp;
-
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::FilterPosition()
-{
-  // Actually do filtering on each tick for each joint:
-  // filter positions: assume a(0) is 1.0
-  // a(0)*y(0) = b(0)*x(0) + b(1)*x(1) + ... + b(n-1)*x(n-1)
-  //                       - a(1)*y(1) - ... - a(n-1)*y(n-1)
-  // filter each joint position
-  for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
-  {
-    // move data back one step in time.
-    for (int j = FIL_N_STEPS - 2; j >= 0; --j)
-    {
-      this->filPosIn[i][j+1] = this->filPosIn[i][j];
-      this->filPosOut[i][j+1] = this->filPosOut[i][j];
-    }
-    // load new input
-    this->filPosIn[i][0] = this->atlasState.position[i];
-    // do filtering
-    double tmp = 0;
-    for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
-      tmp += this->filCoefB[j]*this->filPosIn[i][j];
-    for (unsigned int j = 1; j < FIL_N_STEPS; ++j)
-      tmp -= this->filCoefA[j]*this->filPosOut[i][j];
-    // stash filtered value;
-    this->atlasState.position[i] = this->jointStates.position[i] =
-      this->filPosOut[i][0] = tmp;
+    _aState[i] = _jState[i] = this->unfilteredOut[i][0] = tmp;
   }
 }
 
