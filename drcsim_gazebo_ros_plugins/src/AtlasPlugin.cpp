@@ -2776,4 +2776,3 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
 
   return this->ToQ(math::Quaternion(rx, ry, rz));
 }
-}
