@@ -153,132 +153,132 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool VerifyCommand(
+bool RobotiqHandPlugin::VerifyCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command)
 {
   bool res = true;
   if (_command->rACT < 0 || _command->rACT > 1)
   {
-    std::cerr << "Illegal rACT value: [" << _command->rACT << "]. The correct"
+    std::cerr << "Illegal rACT value: [" << _command->rACT << "]. The correct "
               << "range is [0-1]" << std::endl;
     res = false;
   }
 
   if (_command->rMOD < 0 || _command->rMOD > 3)
   {
-    std::cerr << "Illegal rMOD value: [" << _command->rMOD << "]. The correct"
+    std::cerr << "Illegal rMOD value: [" << _command->rMOD << "]. The correct "
               << "range is [0-3]" << std::endl;
     res = false;
   }
 
   if (_command->rGTO < 0 || _command->rGTO > 1)
   {
-    std::cerr << "Illegal rGTO value: [" << _command->rGTO << "]. The correct"
+    std::cerr << "Illegal rGTO value: [" << _command->rGTO << "]. The correct "
               << "range is [0-1]" << std::endl;
     res = false;
   }
 
   if (_command->rATR < 0 || _command->rATR > 1)
   {
-    std::cerr << "Illegal rATR value: [" << _command->rATR << "]. The correct"
+    std::cerr << "Illegal rATR value: [" << _command->rATR << "]. The correct "
               << "range is [0-1]" << std::endl;
     res = false;
   }
 
   if (_command->rICF < 0 || _command->rICF > 1)
   {
-    std::cerr << "Illegal rICF value: [" << _command->rICF << "]. The correct"
+    std::cerr << "Illegal rICF value: [" << _command->rICF << "]. The correct "
               << "range is [0-1]" << std::endl;
     res = false;
   }
 
   if (_command->rICS < 0 || _command->rICS > 1)
   {
-    std::cerr << "Illegal rICS value: [" << _command->rICS << "]. The correct"
+    std::cerr << "Illegal rICS value: [" << _command->rICS << "]. The correct "
               << "range is [0-1]" << std::endl;
     res = false;
   }
 
-  if (_command->rPRA < 0 || _command->rPRA > 1)
+  if (_command->rPRA < 0 || _command->rPRA > 255)
   {
-    std::cerr << "Illegal rPRA value: [" << _command->rPRA << "]. The correct"
+    std::cerr << "Illegal rPRA value: [" << _command->rPRA << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rSPA < 0 || _command->rSPA > 1)
+  if (_command->rSPA < 0 || _command->rSPA > 255)
   {
-    std::cerr << "Illegal rSPA value: [" << _command->rSPA << "]. The correct"
+    std::cerr << "Illegal rSPA value: [" << _command->rSPA << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rFRA < 0 || _command->rFRA > 1)
+  if (_command->rFRA < 0 || _command->rFRA > 255)
   {
-    std::cerr << "Illegal rFRA value: [" << _command->rFRA << "]. The correct"
+    std::cerr << "Illegal rFRA value: [" << _command->rFRA << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rPRB < 0 || _command->rPRB > 1)
+  if (_command->rPRB < 0 || _command->rPRB > 255)
   {
-    std::cerr << "Illegal rPRB value: [" << _command->rPRB << "]. The correct"
+    std::cerr << "Illegal rPRB value: [" << _command->rPRB << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rSPB < 0 || _command->rSPB > 1)
+  if (_command->rSPB < 0 || _command->rSPB > 255)
   {
-    std::cerr << "Illegal rSPB value: [" << _command->rSPB << "]. The correct"
+    std::cerr << "Illegal rSPB value: [" << _command->rSPB << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rFRB < 0 || _command->rFRB > 1)
+  if (_command->rFRB < 0 || _command->rFRB > 255)
   {
-    std::cerr << "Illegal rFRB value: [" << _command->rFRB << "]. The correct"
+    std::cerr << "Illegal rFRB value: [" << _command->rFRB << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rPRC < 0 || _command->rPRC > 1)
+  if (_command->rPRC < 0 || _command->rPRC > 255)
   {
-    std::cerr << "Illegal rPRC value: [" << _command->rPRC << "]. The correct"
+    std::cerr << "Illegal rPRC value: [" << _command->rPRC << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rSPC < 0 || _command->rSPC > 1)
+  if (_command->rSPC < 0 || _command->rSPC > 255)
   {
-    std::cerr << "Illegal rSPC value: [" << _command->rSPC << "]. The correct"
+    std::cerr << "Illegal rSPC value: [" << _command->rSPC << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rFRC < 0 || _command->rFRC > 1)
+  if (_command->rFRC < 0 || _command->rFRC > 255)
   {
-    std::cerr << "Illegal rFRC value: [" << _command->rFRC << "]. The correct"
+    std::cerr << "Illegal rFRC value: [" << _command->rFRC << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rPRS < 0 || _command->rPRS > 1)
+  if (_command->rPRS < 0 || _command->rPRS > 255)
   {
-    std::cerr << "Illegal rPRS value: [" << _command->rPRS << "]. The correct"
+    std::cerr << "Illegal rPRS value: [" << _command->rPRS << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rSPS < 0 || _command->rSPS > 1)
+  if (_command->rSPS < 0 || _command->rSPS > 255)
   {
-    std::cerr << "Illegal rSPS value: [" << _command->rSPS << "]. The correct"
+    std::cerr << "Illegal rSPS value: [" << _command->rSPS << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
 
-  if (_command->rFRS < 0 || _command->rFRS > 1)
+  if (_command->rFRS < 0 || _command->rFRS > 255)
   {
-    std::cerr << "Illegal rFRS value: [" << _command->rFRS << "]. The correct"
+    std::cerr << "Illegal rFRS value: [" << _command->rFRS << "]. The correct "
               << "range is [0-255]" << std::endl;
     res = false;
   }
@@ -307,18 +307,29 @@ void RobotiqHandPlugin::SetHandleCommand(
 void RobotiqHandPlugin::ReleaseHand()
 {
   std::cout << "Release hand" << std::endl;
+  this->handleCommand.rPRA = 0;
+  this->handleCommand.rPRB = 0;
+  this->handleCommand.rPRC = 0;
+
+  for (int i = 0; i < 3; ++i)
+    std::cout << this->fingerBaseJoints[i + 3]->GetAngle(0).Radian();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::StopHand()
 {
   std::cout << "Stop hand" << std::endl;
+  this->handleCommand.rPRA = this->handleState.gPRA;
+  this->handleCommand.rPRB = this->handleState.gPRB;
+  this->handleCommand.rPRC = this->handleState.gPRC;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool RobotiqHandPlugin::IsHandFullyOpen()
 {
-  return true;
+  return (this->fingerBaseJoints[3]->GetAngle(0).Radian() < 0.02) &&
+         (this->fingerBaseJoints[4]->GetAngle(0).Radian() < 0.02) &&
+         (this->fingerBaseJoints[5]->GetAngle(0).Radian() < 0.02);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,16 +362,23 @@ void RobotiqHandPlugin::UpdateStates()
     }
     else
     {
+      std::cout << "Grasping!" << std::endl;
       // Change the grasping mode.
       if (this->handleCommand.rMOD != this->graspingMode)
       {
         this->handState = ChangingMode;
+        lastHandleCommand = handleCommand;
+      }
+      else if (this->handState != ChangingMode)
+      {
+        this->handState = Simplified;
       }
 
       // Grasping mode initialized, let's change the state to Simplified Mode.
       if (this->handState == ChangingMode && this->IsHandFullyOpen())
       {
-        this->StopHand();
+        // Restore the original command.
+        this->handleCommand = this->lastHandleCommand;
         this->handState = Simplified;
       }
     }
@@ -369,7 +387,7 @@ void RobotiqHandPlugin::UpdateStates()
     switch (this->handState)
     {
       case Disabled:
-        std::cout << "Deactivate gripper" << std::endl;
+        // std::cout << "Deactivate gripper" << std::endl;
         // Disable Hand.
         break;
 
@@ -388,7 +406,15 @@ void RobotiqHandPlugin::UpdateStates()
         break;
 
       case ICF:
-        std::cout << "Individual Control of Fingers not supported" << std::endl;
+        if (this->handleCommand.rGTO == 1)
+        {
+          std::cout << "Moving the hand to the requested position" << std::endl;
+        }
+        else
+        {
+          // "Stop" action.
+          this->StopHand();
+        }
         break;
 
       case ChangingMode:
@@ -403,15 +429,22 @@ void RobotiqHandPlugin::UpdateStates()
         break;
 
       case Simplified:
+        // We are in Simplified mode, so all the fingers should follow finger A.
+        this->handleCommand.rPRB = this->handleCommand.rPRA;
+        this->handleCommand.rPRC = this->handleCommand.rPRA;
+        this->handleCommand.rSPB = this->handleCommand.rSPA;
+        this->handleCommand.rSPC = this->handleCommand.rSPA;
+        this->handleCommand.rFRB = this->handleCommand.rFRA;
+        this->handleCommand.rFRC = this->handleCommand.rFRA;
+
         // "Go To" action.
         if (this->handleCommand.rGTO == 1)
         {
           std::cout << "Moving the hand to the requested position" << std::endl;
-          // MoveHand()
         }
-        // "Stop" action.
         else
         {
+          // "Stop" action.
           this->StopHand();
         }
         break;
@@ -489,6 +522,14 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 {
   boost::mutex::scoped_lock lock(this->controlMutex);
 
+  if (this->handState == Disabled)
+  {
+    for (int i = 0; i < this->numActuators; ++i)
+      this->fingerBaseJoints[i]->SetForce(0, 0.0);
+
+    return;
+  }
+
   for (int j = 0; j < 3; j++)
   {
   	double torque;
@@ -514,8 +555,8 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 	  double currentPos = 0;
 	  double currentVel = 0;
 
-	  baseJointPos = this->fingerBaseJoints[j]->GetAngle(0).Radian();
-	  baseJointVel = this->fingerBaseJoints[j]->GetVelocity(0);
+	  baseJointPos = this->fingerBaseJoints[j + 3]->GetAngle(0).Radian();
+	  baseJointVel = this->fingerBaseJoints[j + 3]->GetVelocity(0);
 	  currentPos = baseJointPos;
 	  currentVel = baseJointVel;
 
@@ -547,7 +588,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 	    kd * this->errorTerms[j].d_q_p_dt;
 
 	  //torque = -1.0;
-	  this->fingerBaseJoints[j]->SetForce(0, torque);
+	  this->fingerBaseJoints[j + 3]->SetForce(0, torque);
   }
 }
 

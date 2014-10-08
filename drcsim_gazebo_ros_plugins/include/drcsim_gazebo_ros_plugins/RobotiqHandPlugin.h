@@ -162,6 +162,9 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief HandleControl message (published by user)
   private: robotiq_s_model_control::SModel_robot_output handleCommand;
 
+  /// \brief HandleControl message (published by user)
+  private: robotiq_s_model_control::SModel_robot_output lastHandleCommand;
+
   /// \brief gazebo world update connection
   private: gazebo::event::ConnectionPtr updateConnection;
 
