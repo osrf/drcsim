@@ -49,6 +49,12 @@ RobotiqHandPlugin::RobotiqHandPlugin()
     this->errorTerms[i].d_q_p_dt = 0;
     this->errorTerms[i].q_i = 0;
   }
+
+  // Default grasping mode: Basic mode.
+  this->graspingMode = 0;
+
+  // Default hand state: Disabled.
+  this->handState = Disabled;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,16 +153,172 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool VerifyCommand(
+    const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command)
+{
+  bool res = true;
+  if (_command->rACT < 0 || _command->rACT > 1)
+  {
+    std::cerr << "Illegal rACT value: [" << _command->rACT << "]. The correct"
+              << "range is [0-1]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rMOD < 0 || _command->rMOD > 3)
+  {
+    std::cerr << "Illegal rMOD value: [" << _command->rMOD << "]. The correct"
+              << "range is [0-3]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rGTO < 0 || _command->rGTO > 1)
+  {
+    std::cerr << "Illegal rGTO value: [" << _command->rGTO << "]. The correct"
+              << "range is [0-1]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rATR < 0 || _command->rATR > 1)
+  {
+    std::cerr << "Illegal rATR value: [" << _command->rATR << "]. The correct"
+              << "range is [0-1]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rICF < 0 || _command->rICF > 1)
+  {
+    std::cerr << "Illegal rICF value: [" << _command->rICF << "]. The correct"
+              << "range is [0-1]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rICS < 0 || _command->rICS > 1)
+  {
+    std::cerr << "Illegal rICS value: [" << _command->rICS << "]. The correct"
+              << "range is [0-1]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rPRA < 0 || _command->rPRA > 1)
+  {
+    std::cerr << "Illegal rPRA value: [" << _command->rPRA << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rSPA < 0 || _command->rSPA > 1)
+  {
+    std::cerr << "Illegal rSPA value: [" << _command->rSPA << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rFRA < 0 || _command->rFRA > 1)
+  {
+    std::cerr << "Illegal rFRA value: [" << _command->rFRA << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rPRB < 0 || _command->rPRB > 1)
+  {
+    std::cerr << "Illegal rPRB value: [" << _command->rPRB << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rSPB < 0 || _command->rSPB > 1)
+  {
+    std::cerr << "Illegal rSPB value: [" << _command->rSPB << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rFRB < 0 || _command->rFRB > 1)
+  {
+    std::cerr << "Illegal rFRB value: [" << _command->rFRB << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rPRC < 0 || _command->rPRC > 1)
+  {
+    std::cerr << "Illegal rPRC value: [" << _command->rPRC << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rSPC < 0 || _command->rSPC > 1)
+  {
+    std::cerr << "Illegal rSPC value: [" << _command->rSPC << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rFRC < 0 || _command->rFRC > 1)
+  {
+    std::cerr << "Illegal rFRC value: [" << _command->rFRC << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rPRS < 0 || _command->rPRS > 1)
+  {
+    std::cerr << "Illegal rPRS value: [" << _command->rPRS << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rSPS < 0 || _command->rSPS > 1)
+  {
+    std::cerr << "Illegal rSPS value: [" << _command->rSPS << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  if (_command->rFRS < 0 || _command->rFRS > 1)
+  {
+    std::cerr << "Illegal rFRS value: [" << _command->rFRS << "]. The correct"
+              << "range is [0-255]" << std::endl;
+    res = false;
+  }
+
+  return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::SetHandleCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->controlMutex);
-  // Just looking at rPRA, rPRB, rPRC as three position values
 
-  // Update handleCommand
-  this->handleCommand.rPRA = _msg->rPRA;
-  this->handleCommand.rPRB = _msg->rPRB;
-  this->handleCommand.rPRC = _msg->rPRC;
+  // Sanity check.
+  if (!this->VerifyCommand(_msg))
+  {
+    std::cerr << "Ignoring command" << std::endl;
+    return;
+  }
+
+  // Update handleCommand.
+  this->handleCommand = *_msg;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void RobotiqHandPlugin::ReleaseHand()
+{
+  std::cout << "Release hand" << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void RobotiqHandPlugin::StopHand()
+{
+  std::cout << "Stop hand" << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool RobotiqHandPlugin::IsHandFullyOpen()
+{
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,8 +326,101 @@ void RobotiqHandPlugin::UpdateStates()
 {
   gazebo::common::Time curTime = this->world->GetSimTime();
 
+  // Step 1: State transitions.
   if (curTime > this->lastControllerUpdateTime)
   {
+    // Deactivate gripper.
+    if (this->handleCommand.rACT == 0)
+    {
+      this->handState = Disabled;
+    }
+    // Emergency auto-release.
+    else if (this->handleCommand.rATR == 1)
+    {
+      this->handState = Emergency;
+    }
+    // Individual Control of Scissor.
+    else if (this->handleCommand.rICS == 1)
+    {
+      this->handState = ICS;
+    }
+    // Individual Control of Fingers.
+    else if (this->handleCommand.rICF == 1)
+    {
+      this->handState = ICF;
+    }
+    else
+    {
+      // Change the grasping mode.
+      if (this->handleCommand.rMOD != this->graspingMode)
+      {
+        this->handState = ChangingMode;
+      }
+
+      // Grasping mode initialized, let's change the state to Simplified Mode.
+      if (this->handState == ChangingMode && this->IsHandFullyOpen())
+      {
+        this->StopHand();
+        this->handState = Simplified;
+      }
+    }
+
+    // Step 2: Actions in each state.
+    switch (this->handState)
+    {
+      case Disabled:
+        std::cout << "Deactivate gripper" << std::endl;
+        // Disable Hand.
+        break;
+
+      case Emergency:
+        std::cout << "Emergency auto-release" << std::endl;
+
+        // Open the hand.
+        if (this->IsHandFullyOpen())
+          this->StopHand();
+        else
+          this->ReleaseHand();
+        break;
+
+      case ICS:
+        std::cout << "Individual Control of Scissor not supported" << std::endl;
+        break;
+
+      case ICF:
+        std::cout << "Individual Control of Fingers not supported" << std::endl;
+        break;
+
+      case ChangingMode:
+        // Update the grasping mode.
+        this->graspingMode = this->handleCommand.rMOD;
+
+        std::cout << "Changing grasping mode [" << this->graspingMode << "]"
+                  << std::endl;
+
+        // Open the hand.
+        this->ReleaseHand();
+        break;
+
+      case Simplified:
+        // "Go To" action.
+        if (this->handleCommand.rGTO == 1)
+        {
+          std::cout << "Moving the hand to the requested position" << std::endl;
+          // MoveHand()
+        }
+        // "Stop" action.
+        else
+        {
+          this->StopHand();
+        }
+        break;
+
+      default:
+        std::cerr << "Unrecognized state [" << this->handState << "]"
+                  << std::endl;
+    }
+
 	  // gather robot state data and publish them
 	  this->GetAndPublishHandleState(curTime);
 	  this->UpdatePIDControl((curTime - this->lastControllerUpdateTime).Double());

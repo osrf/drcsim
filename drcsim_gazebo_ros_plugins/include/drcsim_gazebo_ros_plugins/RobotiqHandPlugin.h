@@ -38,6 +38,17 @@
 
 class RobotiqHandPlugin : public gazebo::ModelPlugin
 {
+  /// \brief Hand states.
+  enum State
+  {
+    Disabled = 0,
+    Emergency,
+    ICS,
+    ICF,
+    ChangingMode,
+    Simplified
+  };
+
   /// \brief Constructor
   public: RobotiqHandPlugin();
 
@@ -68,6 +79,12 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Grab pointers to all the joints we're going to use.
   /// \return true on success, false otherwise
   private: bool FindJoints();
+
+  private: void ReleaseHand();
+
+  private: void StopHand();
+
+  private: bool IsHandFullyOpen();
 
   /// \brief Set the damping and stiffness of various joints
   private: void SetJointSpringDamper();
@@ -112,6 +129,13 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \return _angle desired baseRotationJoint angle.
   private: double HandleControlSpreadValueToSpreadJointAngle(int _value);
 
+  /// \brief Verify that all the command fields are within the correct range.
+  /// \param _command Robot output message.
+  /// \return True if all the fields are withing the correct range or false
+  /// otherwise.
+  private: bool VerifyCommand(
+    const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command);
+
   /// \brief ROS NodeHanle
   private: ros::NodeHandle* rosNode;
 
@@ -149,6 +173,10 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
 
   /// \brief Controller update mutex
   private: boost::mutex controlMutex;
+
+  private: int graspingMode;
+
+  private: State handState;
 
   /// \brief internal pid control
   private: class ErrorTerms
