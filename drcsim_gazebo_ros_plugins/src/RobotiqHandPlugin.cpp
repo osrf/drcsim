@@ -310,6 +310,9 @@ void RobotiqHandPlugin::ReleaseHand()
   this->handleCommand.rPRA = 0;
   this->handleCommand.rPRB = 0;
   this->handleCommand.rPRC = 0;
+  this->handleCommand.rSPA = 127;
+  this->handleCommand.rSPB = 127;
+  this->handleCommand.rSPC = 127;
 
   for (int i = 0; i < 3; ++i)
     std::cout << this->fingerBaseJoints[i + 3]->GetAngle(0).Radian();
@@ -530,22 +533,79 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
     return;
   }
 
-  for (int j = 0; j < 3; j++)
+  for (int j = 0; j < 6; j++)
   {
   	double torque;
   	double target;
-	  if (j == 0)
+    double speed = 1.0;
+
+    if (j == 0)
+    {
+      switch (this->graspingMode)
+      {
+        case 0:
+          target = 0.0;
+          break;
+
+        case 1:
+          target = 255 * 0.006;
+          break;
+
+        case 2:
+          target = -255 * 0.006;
+          break;
+
+        case 3:
+          target = -255 * 0.006;
+          break;
+      }
+      speed = 0.5;
+    }
+    else if (j == 1)
+    {
+      switch (this->graspingMode)
+      {
+        case 0:
+          target = 0.0;
+          break;
+
+        case 1:
+          target = -255 * 0.006;
+          break;
+
+        case 2:
+          target = 255 * 0.006;
+          break;
+
+        case 3:
+          target = 255 * 0.006;
+          break;
+      }
+      speed = 0.5;
+    }
+    else if (j == 2)
+    {
+      target = 0.0;
+      speed = 0.5;
+    }
+	  else if (j == 3)
     {
 	    target = this->handleCommand.rPRA * 0.006;
+      speed = this->handleCommand.rSPA / 255.0;
 	  }
-	  else if (j == 1)
+	  else if (j == 4)
     {
 	    target = this->handleCommand.rPRB * 0.006;
+      speed = this->handleCommand.rSPB / 255.0;
 	  }
-	  else if (j == 2)
+	  else if (j == 5)
     {
 	    target = this->handleCommand.rPRC * 0.006;
+      speed = this->handleCommand.rSPC / 255.0;
 	  }
+
+    // Speed multiplier.
+    speed *= 2.0;
 
 	  double current;
 	  double baseJointPos = 0;
@@ -555,19 +615,20 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 	  double currentPos = 0;
 	  double currentVel = 0;
 
-	  baseJointPos = this->fingerBaseJoints[j + 3]->GetAngle(0).Radian();
-	  baseJointVel = this->fingerBaseJoints[j + 3]->GetVelocity(0);
+	  baseJointPos = this->fingerBaseJoints[j]->GetAngle(0).Radian();
+	  baseJointVel = this->fingerBaseJoints[j]->GetVelocity(0);
 	  currentPos = baseJointPos;
 	  currentVel = baseJointVel;
 
 	  double kp, ki, kd, i_effort_max, i_effort_min;
 
-	  // set state  for position control
+	  // Set state for position control.
 	  current = currentPos;
 
-	  kp = this->kp_position[j];
-	  ki = this->ki_position[j];
-	  kd = this->kd_position[j];
+    // Position PID.
+	  kp = this->kp_position[j] * speed;
+	  ki = this->ki_position[j] * speed;
+	  kd = this->kd_position[j] * speed;
 	  i_effort_min = this->i_position_effort_min[j];
 	  i_effort_max = this->i_position_effort_max[j];
 
@@ -588,7 +649,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 	    kd * this->errorTerms[j].d_q_p_dt;
 
 	  //torque = -1.0;
-	  this->fingerBaseJoints[j + 3]->SetForce(0, torque);
+	  this->fingerBaseJoints[j]->SetForce(0, torque);
   }
 }
 
