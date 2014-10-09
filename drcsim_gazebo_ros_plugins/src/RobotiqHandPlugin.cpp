@@ -306,22 +306,17 @@ void RobotiqHandPlugin::SetHandleCommand(
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::ReleaseHand()
 {
-  std::cout << "Release hand" << std::endl;
   this->handleCommand.rPRA = 0;
   this->handleCommand.rPRB = 0;
   this->handleCommand.rPRC = 0;
   this->handleCommand.rSPA = 127;
   this->handleCommand.rSPB = 127;
   this->handleCommand.rSPC = 127;
-
-  for (int i = 0; i < 3; ++i)
-    std::cout << this->fingerBaseJoints[i + 3]->GetAngle(0).Radian();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::StopHand()
 {
-  std::cout << "Stop hand" << std::endl;
   this->handleCommand.rPRA = this->handleState.gPRA;
   this->handleCommand.rPRB = this->handleState.gPRB;
   this->handleCommand.rPRC = this->handleState.gPRC;
@@ -338,6 +333,8 @@ bool RobotiqHandPlugin::IsHandFullyOpen()
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::UpdateStates()
 {
+  boost::mutex::scoped_lock lock(this->controlMutex);
+
   gazebo::common::Time curTime = this->world->GetSimTime();
 
   // Step 1: State transitions.
@@ -365,12 +362,14 @@ void RobotiqHandPlugin::UpdateStates()
     }
     else
     {
-      std::cout << "Grasping!" << std::endl;
       // Change the grasping mode.
-      if (this->handleCommand.rMOD != this->graspingMode)
+      if (static_cast<int>(this->handleCommand.rMOD) != this->graspingMode)
       {
         this->handState = ChangingMode;
         lastHandleCommand = handleCommand;
+
+        // Update the grasping mode.
+        this->graspingMode = static_cast<int>(this->handleCommand.rMOD);
       }
       else if (this->handState != ChangingMode)
       {
@@ -390,13 +389,10 @@ void RobotiqHandPlugin::UpdateStates()
     switch (this->handState)
     {
       case Disabled:
-        // std::cout << "Deactivate gripper" << std::endl;
         // Disable Hand.
         break;
 
       case Emergency:
-        std::cout << "Emergency auto-release" << std::endl;
-
         // Open the hand.
         if (this->IsHandFullyOpen())
           this->StopHand();
@@ -405,15 +401,11 @@ void RobotiqHandPlugin::UpdateStates()
         break;
 
       case ICS:
-        std::cout << "Individual Control of Scissor not supported" << std::endl;
+        std::cerr << "Individual Control of Scissor not supported" << std::endl;
         break;
 
       case ICF:
-        if (this->handleCommand.rGTO == 1)
-        {
-          std::cout << "Moving the hand to the requested position" << std::endl;
-        }
-        else
+        if (this->handleCommand.rGTO == 0)
         {
           // "Stop" action.
           this->StopHand();
@@ -421,11 +413,6 @@ void RobotiqHandPlugin::UpdateStates()
         break;
 
       case ChangingMode:
-        // Update the grasping mode.
-        this->graspingMode = this->handleCommand.rMOD;
-
-        std::cout << "Changing grasping mode [" << this->graspingMode << "]"
-                  << std::endl;
 
         // Open the hand.
         this->ReleaseHand();
@@ -441,15 +428,12 @@ void RobotiqHandPlugin::UpdateStates()
         this->handleCommand.rFRC = this->handleCommand.rFRA;
 
         // "Go To" action.
-        if (this->handleCommand.rGTO == 1)
-        {
-          std::cout << "Moving the hand to the requested position" << std::endl;
-        }
-        else
+        if (this->handleCommand.rGTO == 0)
         {
           // "Stop" action.
           this->StopHand();
         }
+
         break;
 
       default:
@@ -468,8 +452,6 @@ void RobotiqHandPlugin::UpdateStates()
 void RobotiqHandPlugin::GetAndPublishHandleState(
     const gazebo::common::Time &_curTime)
 {
-  boost::mutex::scoped_lock lock(this->controlMutex);
-
   //this->handleState.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
 
   this->handleState.gACT = 0;
@@ -523,8 +505,6 @@ void RobotiqHandPlugin::GetAndPublishHandleState(
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 {
-  boost::mutex::scoped_lock lock(this->controlMutex);
-
   if (this->handState == Disabled)
   {
     for (int i = 0; i < this->numActuators; ++i)
@@ -556,7 +536,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           break;
 
         case 3:
-          target = -255 * 0.006;
+          target = -this->handleCommand.rPRA * 0.006;
           break;
       }
       speed = 0.5;
@@ -578,7 +558,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           break;
 
         case 3:
-          target = 255 * 0.006;
+          target = this->handleCommand.rPRA * 0.006;
           break;
       }
       speed = 0.5;
@@ -590,17 +570,26 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
     }
 	  else if (j == 3)
     {
-	    target = this->handleCommand.rPRA * 0.006;
+      if (this->graspingMode == 3)
+        target = 0.0;
+      else
+	      target = this->handleCommand.rPRA * 0.006;
       speed = this->handleCommand.rSPA / 255.0;
 	  }
 	  else if (j == 4)
     {
-	    target = this->handleCommand.rPRB * 0.006;
+      if (this->graspingMode == 3)
+        target = 0.0;
+      else
+	      target = this->handleCommand.rPRB * 0.006;
       speed = this->handleCommand.rSPB / 255.0;
 	  }
 	  else if (j == 5)
     {
-	    target = this->handleCommand.rPRC * 0.006;
+     if (this->graspingMode == 3)
+        target = 0.0;
+      else
+	      target = this->handleCommand.rPRC * 0.006;
       speed = this->handleCommand.rSPC / 255.0;
 	  }
 

@@ -42,11 +42,11 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   enum State
   {
     Disabled = 0,
-    Emergency,
-    ICS,
-    ICF,
-    ChangingMode,
-    Simplified
+    Emergency = 1,
+    ICS = 2,
+    ICF = 3,
+    ChangingMode = 4,
+    Simplified = 5
   };
 
   /// \brief Constructor
