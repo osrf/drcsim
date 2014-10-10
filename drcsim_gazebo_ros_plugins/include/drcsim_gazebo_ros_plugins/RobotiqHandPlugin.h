@@ -42,11 +42,11 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   enum State
   {
     Disabled = 0,
-    Emergency = 1,
-    ICS = 2,
-    ICF = 3,
-    ChangingMode = 4,
-    Simplified = 5
+    Emergency,
+    ICS,
+    ICF,
+    ChangeModeInProgress,
+    Simplified
   };
 
   /// \brief Constructor
@@ -159,11 +159,17 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief ROS control interface
   private: ros::Subscriber subHandleCommand;
 
-  /// \brief HandleControl message (published by user)
+  /// \brief HandleControl message. Originally published by user but some of the
+  /// fields might change. E.g.: When releasing the hand for changing the
+  /// grasping mode.
   private: robotiq_s_model_control::SModel_robot_output handleCommand;
 
-  /// \brief HandleControl message (published by user)
+  /// \brief HandleControl message. Last command before changing the grasping
+  /// mode.
   private: robotiq_s_model_control::SModel_robot_output lastHandleCommand;
+
+  /// \brief Original HandleControl message (published by user).
+  private: robotiq_s_model_control::SModel_robot_output userHandleCommand;
 
   /// \brief gazebo world update connection
   private: gazebo::event::ConnectionPtr updateConnection;

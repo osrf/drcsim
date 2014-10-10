@@ -340,6 +340,8 @@ void RobotiqHandPlugin::UpdateStates()
   // Step 1: State transitions.
   if (curTime > this->lastControllerUpdateTime)
   {
+    this->userHandleCommand = this->handleCommand;
+
     // Deactivate gripper.
     if (this->handleCommand.rACT == 0)
     {
@@ -365,19 +367,19 @@ void RobotiqHandPlugin::UpdateStates()
       // Change the grasping mode.
       if (static_cast<int>(this->handleCommand.rMOD) != this->graspingMode)
       {
-        this->handState = ChangingMode;
+        this->handState = ChangeModeInProgress;
         lastHandleCommand = handleCommand;
 
         // Update the grasping mode.
         this->graspingMode = static_cast<int>(this->handleCommand.rMOD);
       }
-      else if (this->handState != ChangingMode)
+      else if (this->handState != ChangeModeInProgress)
       {
         this->handState = Simplified;
       }
 
       // Grasping mode initialized, let's change the state to Simplified Mode.
-      if (this->handState == ChangingMode && this->IsHandFullyOpen())
+      if (this->handState == ChangeModeInProgress && this->IsHandFullyOpen())
       {
         // Restore the original command.
         this->handleCommand = this->lastHandleCommand;
@@ -412,7 +414,7 @@ void RobotiqHandPlugin::UpdateStates()
         }
         break;
 
-      case ChangingMode:
+      case ChangeModeInProgress:
 
         // Open the hand.
         this->ReleaseHand();
@@ -454,52 +456,65 @@ void RobotiqHandPlugin::GetAndPublishHandleState(
 {
   //this->handleState.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
 
-  this->handleState.gACT = 0;
-  this->handleState.gMOD = 0;
-  this->handleState.gGTO = 0;
-  this->handleState.gIMC = 0;
+  this->handleState.gACT = this->userHandleCommand.rACT;
+  this->handleState.gMOD = this->userHandleCommand.rMOD;
+  this->handleState.gGTO = this->userHandleCommand.rGTO;
+
+  if (this->handState == Emergency)
+    this->handleState.gIMC = 0;
+  else if (this->handState == ChangeModeInProgress)
+    this->handleState.gIMC = 2;
+  else
+    this->handleState.gIMC = 3;
+
+  // ToDo (caguero): Check movement of the fingers.
   this->handleState.gSTA = 0;
-  // finger A (2 = has stopped due to a contact while closing)
+  // ToDo (caguero): Check movement of the fingers.
   this->handleState.gDTA = 0;
-  // Finger B (3 = at requested position)
+  // ToDo (caguero): Check movement of the fingers.
   this->handleState.gDTB = 0;
-  // Finger C (0,1 = ?)
+  // ToDo (caguero): Check movement of the fingers.
   this->handleState.gDTC = 0;
-  // Scissor
+  // ToDo (caguero): Check movement of the fingers.
   this->handleState.gDTS = 0;
-  // 0 is no fault
-  this->handleState.gFLT = 0;
+
+  if (this->handState == ChangeModeInProgress)
+    this->handleState.gFLT = 6;
+  else if (this->handState == Disabled)
+    this->handleState.gFLT = 7;
+  else if (this->handState == Emergency)
+    this->handleState.gFLT = 11;
+  else
+    this->handleState.gFLT = 0;
+
   // echo of requested position for finger a
-  this->handleState.gPRA = this->handleCommand.rPRA;
-  // current position of finger A
+  this->handleState.gPRA = this->userHandleCommand.rPRA;
+  // ToDo: Normalize position between [0-255].
   this->handleState.gPOA = 0;
-  // current of finger A
+  // Not implemented.
   this->handleState.gCUA = 0;
-  this->handleState.gPRB = this->handleCommand.rPRB;
+
+  this->handleState.gPRB = this->userHandleCommand.rPRB;
+  // ToDo (caguero): Normalize position between [0-255].
   this->handleState.gPOB = 0;
+  // Not implemented.
   this->handleState.gCUB = 0;
-  this->handleState.gPRC = this->handleCommand.rPRC;
+
+  this->handleState.gPRC = this->userHandleCommand.rPRC;
+  // ToDo (caguero): Normalize position between [0-255].
   this->handleState.gPOC = 0;
+  // Not implemented.
   this->handleState.gCUC = 0;
-  this->handleState.gPRS = 0;
+
+
+  this->handleState.gPRS = this->userHandleCommand.rPRS;
+  // ToDo: Implemented scissor current position [0-255].
   this->handleState.gPOS = 0;
+  // Not implemented.
   this->handleState.gCUS = 0;
 
   // publish robot states
   this->pubHandleStateQueue->push(this->handleState, this->pubHandleState);
-
-  //tmpCnt++;
-
-  /*
-  int ival = this->handleCommand.rPRA;
-  int ival2 = this->handleCommand.rPRB;
-  int ival3 = this->handleCommand.rPRC;
-  if ((tmpCnt % 1000) == 0)
-  {
-	  std::cout << this->side << " rPRA=" << ival << " rPRB=" << ival2
-              << " rPRC=" << ival3 << std::endl;
-  }
-  */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
