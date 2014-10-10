@@ -13,11 +13,11 @@
   <gazebo>
     <!-- plugin for right robotiq hand -->
     <plugin name="right_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
-      <side>r_</side>
+      <side>right</side>
     </plugin>
     <!-- plugin for left robotiq hand -->
     <plugin name="left_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
-      <side>l_</side>
+      <side>left</side>
     </plugin>
   </gazebo>
 

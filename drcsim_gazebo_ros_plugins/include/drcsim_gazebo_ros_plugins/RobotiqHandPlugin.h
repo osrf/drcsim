@@ -17,25 +17,22 @@
 #ifndef GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
 #define GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
 
-#include <vector>
 #include <string>
-
+#include <vector>
+#include <boost/scoped_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo_plugins/PubQueue.h>
-
-#include <robotiq_s_model_control/SModel_robot_output.h>
 #include <robotiq_s_model_control/SModel_robot_input.h>
-
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
+#include <robotiq_s_model_control/SModel_robot_output.h>
 #include <ros/advertise_options.h>
+#include <ros/callback_queue.h>
+#include <ros/ros.h>
 #include <ros/subscribe_options.h>
-
 #include <sensor_msgs/JointState.h>
 
+/// \brief A plugin that implements the Robotiq 3-Finger Adaptative Gripper.
 class RobotiqHandPlugin : public gazebo::ModelPlugin
 {
   /// \brief Hand states.
@@ -49,85 +46,63 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
     Simplified
   };
 
-  /// \brief Constructor
+  /// \brief Different grasping modes.
+  enum GraspingMode
+  {
+    Basic = 0,
+    Wide,
+    Pinch,
+    Scissor
+  };
+
+  /// \brief Constructor.
   public: RobotiqHandPlugin();
 
-  /// \brief Destructor
+  /// \brief Destructor.
   public: virtual ~RobotiqHandPlugin();
 
-  /// \brief Load the controller
+  /// \brief Load the controller.
   public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-  /// \brief ROS callback queue thread
+  /// \brief ROS callback queue thread.
   private: void RosQueueThread();
 
-  /// \brief ros topic callback to update Robotiq Hand Control Commands
-  /// \param[in] _msg Incoming ros message
+  /// \brief ros topic callback to update Robotiq Hand Control Commands.
+  /// \param[in] _msg Incoming ROS message with the next hand command.
   private: void SetHandleCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_msg);
 
-  /// \brief Update PID Joint Servo Controllers
-  /// \param[in] _dt time step size since last update
+  /// \brief Update PID Joint controllers.
+  /// \param[in] _dt time step size since last update.
   private: void UpdatePIDControl(double _dt);
 
-  /// \brief Publish Robotiq Hand state
-  private: void GetAndPublishHandleState(const gazebo::common::Time &_curTime);
+  /// \brief Publish Robotiq Hand state.
+  private: void GetAndPublishHandleState();
 
-  /// \brief Update the controller
+  /// \brief Update the controller.
   private: void UpdateStates();
 
   /// \brief Grab pointers to all the joints we're going to use.
-  /// \return true on success, false otherwise
+  /// \return true on success, false otherwise.
   private: bool FindJoints();
 
+  /// \brief Fully open the hand at half of the maximum speed.
   private: void ReleaseHand();
 
+  /// \brief Stop the fingers.
   private: void StopHand();
 
+  /// \brief Checks if the hand is fully open.
+  /// return True when all the fingers are fully open or false otherwise.
   private: bool IsHandFullyOpen();
 
-  /// \brief Set the damping and stiffness of various joints
-  private: void SetJointSpringDamper();
-
-  /// \brief Internal helper to reduce code duplication.
-  private: bool GetAndPushBackJoint(const std::string& _joint_name,
+  /// \brief Internal helper to reduce code duplication. If the joint name is
+  /// found, a pointer to the joint is added to a vector of joint pointers.
+  /// \param[in] _jointName Joint name.
+  /// \param[out] _joints Vector of joint pointers.
+  /// \return True when the joint was found or false otherwise.
+  private: bool GetAndPushBackJoint(const std::string& _jointName,
                                     gazebo::physics::Joint_V& _joints);
-
-  /// \brief Convert Kp and Kd to CFM and ERP
-  /// \param[in] _dt time step size
-  /// \param[in] _kp spring stiffness
-  /// \param[in] _kd spring damping
-  /// \param[out] _cfm equivalent constraint force mixing
-  /// \param[out] _erp equivalent error reduction parameter
-  private: void KpKdToCFMERP(const double _dt,
-                             const double _kp, const double _kd,
-                             double &_cfm, double &_erp);
-
-  /// \brief Convert CFM and ERP to Kp and Kd
-  /// \param[in] _dt time step size
-  /// \param[in] _cfm constraint force mixing
-  /// \param[in] _erp error reduction parameter
-  /// \param[out] _kp equivalent spring stiffness
-  /// \param[out] _kd equivalent spring damping
-  private: void CFMERPToKpKd(const double _dt,
-                             const double _cfm, const double _erp,
-                             double &_kp, double &_kd);
-
-  /// \brief Convert HandleControl message values to Joint angles
-  /// \param[in] _value handle_msgs::HandleControl::value[0-2], representing
-  /// internal motor joint angle in radians, to be converted to
-  /// tendon length, and subsequently converted to combined joint angle
-  /// for baseJoint and flexureFlexJoint joints.
-  /// \return _angle combined target joint angle for combined joint angle for
-  /// baseJoint and flexureFlexJoint joints.
-  private: double HandleControlFlexValueToFlexJointAngle(int _value);
-
-  /// \brief Convert HandleControl message values to Joint angles
-  /// \param[in] _value handle_msgs::HandleControl::value[4], representing
-  /// internal motor joint angle in radians, to be converted to
-  /// baseRotationJoint joint angle.
-  /// \return _angle desired baseRotationJoint angle.
-  private: double HandleControlSpreadValueToSpreadJointAngle(int _value);
 
   /// \brief Verify that all the command fields are within the correct range.
   /// \param _command Robot output message.
@@ -136,22 +111,14 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: bool VerifyCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command);
 
-  /// \brief ROS NodeHanle
-  private: ros::NodeHandle* rosNode;
+  /// \brief ROS NodeHanle.
+  private: boost::scoped_ptr<ros::NodeHandle> rosNode;
 
-  /// \brief ROS callback queue
+  /// \brief ROS callback queue.
   private: ros::CallbackQueue rosQueue;
 
-  /// \brief ROS callback queue thread
+  /// \brief ROS callback queue thread.
   private: boost::thread callbackQueueThread;
-
-  /// \brief for publishing joint states (rviz visualization)
-  private: ros::Publisher pubJointStates;
-
-  private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
-
-  /// \brief for publishing joint states (rviz visualization)
-  private: sensor_msgs::JointState jointStates;
 
   // ros publish multi queue, prevents publish() blocking
   private: PubMultiQueue pmq;
@@ -160,34 +127,36 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: ros::Subscriber subHandleCommand;
 
   /// \brief HandleControl message. Originally published by user but some of the
-  /// fields might change. E.g.: When releasing the hand for changing the
-  /// grasping mode.
+  /// fields might be internally modified. E.g.: When releasing the hand for
+  // changing the grasping mode.
   private: robotiq_s_model_control::SModel_robot_output handleCommand;
 
-  /// \brief HandleControl message. Last command before changing the grasping
-  /// mode.
+  /// \brief HandleControl message. Last command received before changing the
+  /// grasping mode.
   private: robotiq_s_model_control::SModel_robot_output lastHandleCommand;
 
-  /// \brief Original HandleControl message (published by user).
+  /// \brief Original HandleControl message (published by user and unmodified).
   private: robotiq_s_model_control::SModel_robot_output userHandleCommand;
 
-  /// \brief gazebo world update connection
+  /// \brief gazebo world update connection.
   private: gazebo::event::ConnectionPtr updateConnection;
 
-  /// \brief keep track of controller update sim-time
+  /// \brief keep track of controller update sim-time.
   private: gazebo::common::Time lastControllerUpdateTime;
 
-  /// \brief Robotiq Hand State
+  /// \brief Robotiq Hand State.
   private: robotiq_s_model_control::SModel_robot_input handleState;
 
-  /// \brief Controller update mutex
+  /// \brief Controller update mutex.
   private: boost::mutex controlMutex;
 
-  private: int graspingMode;
+  /// \brief Grasping mode.
+  private: GraspingMode graspingMode;
 
+  /// \brief Hand state.
   private: State handState;
 
-  /// \brief internal pid control
+  /// \brief Internal pid control class.
   private: class ErrorTerms
   {
     double q_p;
@@ -196,7 +165,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
     friend class RobotiqHandPlugin;
   };
 
-  /// \brief internal pid control
+  /// \brief Internal pid control.
   private: std::vector<ErrorTerms> errorTerms;
 
   /// \brief ROS publisher for Robotiq Hand state.
@@ -206,44 +175,35 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: PubQueue<robotiq_s_model_control::SModel_robot_input>::Ptr
     pubHandleStateQueue;
 
+  /// \brief World pointer.
   private: gazebo::physics::WorldPtr world;
+
+  /// \brief Parent model of the hand.
   private: gazebo::physics::ModelPtr model;
+
+  /// \brief Pointer to the SDF of this plugin.
   private: sdf::ElementPtr sdf;
+
+  /// \brief Used to select between 'left' or 'right' hand.
   private: std::string side;
 
-  /// \brief vector of 3, one for each finger (2 index, 1 thumb).
-  private: gazebo::physics::Joint_V fingerBaseJoints;
+  /// \brief Vector containing all the finger joints.
+  private: gazebo::physics::Joint_V fingerJoints;
 
-  /// \brief vector of 2, one for each index finger.
-  private: gazebo::physics::Joint_V fingerBaseRotationJoints;
+  /// \brief Number of joints in the hand (2 joints in each of the three finger)
+  private: static const int NumJoints = 6;
 
-  /// \brief number of flexure twist joints * 3 (1 for each finger).
-  private: std::vector<gazebo::physics::Joint_V> flexureTwistJoints;
-
-  /// \brief number of flexure flex joints * 3 (1 for each finger).
-  private: std::vector<gazebo::physics::Joint_V> flexureFlexJoints;
-
-  /// \brief control angle for the thumb antagonist dof.
-  private: double thumbAntagonistAngle;
-
-  /// \brief save thumb upper limit as we change it per antagonist control
-  private: double thumbUpperLimit;
-
-  private: static const int numFingers = 3;
-  private: static const int numFlexLinks = 2;
-  private: static const int numActuators = 6;
-
-  // TODO: make these constants configurable
-  private: double kp_position[numActuators];
-  private: double ki_position[numActuators];
-  private: double kd_position[numActuators];
-  private: double i_position_effort_min[numActuators];
-  private: double i_position_effort_max[numActuators];
-  private: double kp_velocity[numActuators];
-  private: double ki_velocity[numActuators];
-  private: double kd_velocity[numActuators];
-  private: double i_velocity_effort_min[numActuators];
-  private: double i_velocity_effort_max[numActuators];
+  /// \brief PID parameters.
+  private: double kpPosition[NumJoints];
+  private: double kiPosition[NumJoints];
+  private: double kdPosition[NumJoints];
+  private: double posEffortMin[NumJoints];
+  private: double posEffortMax[NumJoints];
+  private: double kpVelocity[NumJoints];
+  private: double kiVelocity[NumJoints];
+  private: double kdVelocity[NumJoints];
+  private: double velEffortMin[NumJoints];
+  private: double velEffortMax[NumJoints];
 };
 
 #endif

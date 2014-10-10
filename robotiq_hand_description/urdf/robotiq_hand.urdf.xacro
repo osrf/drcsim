@@ -139,7 +139,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 			<parent link="${prefix}link_0"/>
 			<child link="${prefix}link_1"/>
       <dynamics damping="1" friction="0" />
-      <!-- Limits: [0deg.-70deg.] -->
+      <!-- Limits: [0deg.,70deg.] -->
       <limit effort="20" velocity="-1" lower="0" upper="1.2217" />
       <!--<safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.6981" soft_upper_limit="10.6981" />-->
 		</joint>
