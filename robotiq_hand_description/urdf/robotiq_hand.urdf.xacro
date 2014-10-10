@@ -133,43 +133,43 @@ there are multiple hands then a prefix followed by an "_" is needed.
 		<!-- end of link list -->
 		<!-- joint list -->
 
-		<!-- WARNING: LIMITS NOT CORRECT -->
 		<joint name="${prefix}joint_1" type="revolute">
 			<origin rpy="0 0 0" xyz="0 0 0"/>
 			<axis xyz="0 0 1" />
 			<parent link="${prefix}link_0"/>
 			<child link="${prefix}link_1"/>
       <dynamics damping="1" friction="0" />
-      <limit effort="20" velocity="2" lower="-1.5" upper="1.5" />
-      <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.6981" soft_upper_limit="10.6981" />
+      <!-- Limits: [0deg.-70deg.] -->
+      <limit effort="20" velocity="-1" lower="0" upper="1.2217" />
+      <!--<safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.6981" soft_upper_limit="10.6981" />-->
 		</joint>
 
 		<gazebo reference="${prefix}joint_1">
 		  <implicitSpringDamper>1</implicitSpringDamper>
 		</gazebo>
 
-		<!-- WARNING: LIMITS NOT CORRECT -->
 		<joint name="${prefix}joint_2" type="revolute">
 			<parent link="${prefix}link_1"/>
 			<child link="${prefix}link_2"/>
 			<dynamics damping="1" friction="0" />
 			<axis xyz="0 0 1"/>
 			<origin rpy="0 0 -0.52" xyz="0.050 -.028 0"/>
-			<limit lower="0" upper="3.1416" effort="100" velocity="100"/>
+			<!-- Limits: [0deg.,90deg.] -->
+			<limit lower="0" upper="1.5708" effort="20" velocity="-1"/>
 		</joint>
 
 		<gazebo reference="${prefix}joint_2">
 		  <implicitSpringDamper>1</implicitSpringDamper>
 		</gazebo>
 
-		<!-- WARNING: LIMITS NOT CORRECT -->
 		<joint name="${prefix}joint_3" type="revolute">
 			<parent link="${prefix}link_2"/>
 			<child link="${prefix}link_3"/>
 			<dynamics damping="1" friction="0" />
 			<axis xyz="0 0 1"/>
-			<origin rpy="0 0 0.52" xyz="0.039 0 0"/>
-			<limit lower="0" upper="3.1416" effort="100" velocity="100"/>
+  		<origin rpy="0 0 0.52" xyz="0.039 0 0"/>
+	  	<!-- Limits: [-38deg.,60deg.] -->
+			<limit lower="-0.6632" upper="1.0471" effort="20" velocity="-1"/>
 		</joint>
 
 		<gazebo reference="${prefix}joint_3">
@@ -233,41 +233,40 @@ there are multiple hands then a prefix followed by an "_" is needed.
 
 		<!-- joint list -->
 
-		<!-- WARNING: LIMITS NOT CORRECT -->
 		<joint name="${prefix}palm_finger_1_joint" type="revolute">
 			<parent link="${prefix}palm"/>
 			<child link="${prefix}finger_1_link_0"/>
 			<dynamics damping="1" friction="0" />
 			<axis xyz="0 1 0"/>
 			<origin rpy="0 3.1416 -1.57" xyz="-0.0455 0.0214 0.036"/>
-			<limit lower="-0.16" upper="0.25" effort="100" velocity="100"/>
+			<!-- Limits: [-17deg.,17deg.] -->
+			<limit lower="-0.2967" upper="0.2967" effort="100" velocity="100"/>
 		</joint>
 
 		<gazebo reference="${prefix}palm_finger_1_joint">
 		  <implicitSpringDamper>1</implicitSpringDamper>
 		</gazebo>
 
-		<!-- WARNING: LIMITS NOT CORRECT -->
 		<joint name="${prefix}palm_finger_2_joint" type="revolute">
 			<parent link="${prefix}palm"/>
 			<child link="${prefix}finger_2_link_0"/>
 			<dynamics damping="1" friction="0" />
 			<axis xyz="0 1 0"/>
 			<origin rpy="0 3.1416 -1.57" xyz="-0.0455 0.0214 -0.036"/>
-			<limit lower="-0.25" upper="0.16" effort="100" velocity="100"/>
+			<!-- Limits: [-17deg.,17deg.] -->
+			<limit lower="-0.2967" upper="0.2967" effort="100" velocity="100"/>
 		</joint>
 
 		<gazebo reference="${prefix}palm_finger_2_joint">
 		  <implicitSpringDamper>1</implicitSpringDamper>
 		</gazebo>
-
 		<joint name="${prefix}palm_finger_middle_joint" type="revolute">
 			<parent link="${prefix}palm"/>
 			<child link="${prefix}finger_middle_link_0"/>
 			<dynamics damping="1" friction="0" />
 			<axis xyz="0 1 0"/>
 			<origin rpy="0 0 1.57" xyz="0.0455 0.0214 0"/>
-			<limit lower="-0.25" upper="0.16" effort="100" velocity="100"/>
+			<limit lower="0" upper="0" effort="100" velocity="100"/>
 		</joint>
 
 		<gazebo reference="${prefix}palm_finger_middle_joint">
