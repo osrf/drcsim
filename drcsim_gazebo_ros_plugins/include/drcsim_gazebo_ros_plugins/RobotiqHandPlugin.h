@@ -21,6 +21,7 @@
 #include <vector>
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/mutex.hpp>
+#include <gazebo/common/PID.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo_plugins/PubQueue.h>
@@ -33,6 +34,23 @@
 #include <sensor_msgs/JointState.h>
 
 /// \brief A plugin that implements the Robotiq 3-Finger Adaptative Gripper.
+/// The plugin exposes the next arguments via SDF parameters:
+///   * <side> Determines if we are controlling the left or right hand. This is
+///            a required parameter and the allowed values are 'left' or 'right'
+///   * <kp_position> P gain for the PID that controls the position
+///                   of the joints. This parameter is optional.
+///   * <ki_position> I gain for the PID that controls the position
+///                   of the joints. This parameter is optional.
+///   * <kd_position> D gain for the PID that controls the position
+///                   of the joints. This parameter is optional.
+///   * <position_effort_min> Minimum output of the PID that controls the position
+///                           of the joints. This parameter is optional.
+///   * <position_effort_max> Maximum output of the PID that controls the position
+///                           of the joints. This parameter is optional.
+///   * <topic_command> ROS topic name used to send new commands to the hand.
+///                     This parameter is optional.
+///   * <topic_state> ROS topic name used to receive state from the hand.
+///                   This parameter is optional.
 class RobotiqHandPlugin : public gazebo::ModelPlugin
 {
   /// \brief Hand states.
@@ -104,12 +122,44 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: bool GetAndPushBackJoint(const std::string& _jointName,
                                     gazebo::physics::Joint_V& _joints);
 
+  /// \brief Verify that one command field is within the correct range.
+  /// \param[in] _label Label of the field. E.g.: rACT, rMOD.
+  /// \param[in] _min Minimum value.
+  /// \param[in] _max Maximum value.
+  /// \param[in] _v Value to be verified.
+  /// \return True when the value is within the limits or false otherwise.
+  private: bool VerifyField(const std::string &_label, int _min, int _max,
+    int _v);
+
   /// \brief Verify that all the command fields are within the correct range.
-  /// \param _command Robot output message.
+  /// \param[in] _command Robot output message.
   /// \return True if all the fields are withing the correct range or false
   /// otherwise.
   private: bool VerifyCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command);
+
+  /// \brief Number of joints in the hand.
+  /// The three fingers can do abduction/adduction.
+  /// Fingers 1 and 2 can do circumduction in one axis.
+  private: static const int NumJoints = 5;
+
+  /// \brief Default topic name for sending control updates to the left hand.
+  private: static const std::string LeftTopicCommand;
+
+  /// \brief Default topic name for receiving state updates from the left hand.
+  private: static const std::string LeftTopicState;
+
+  /// \brief Default topic name for sending control updates to the right hand.
+  private: static const std::string RightTopicCommand;
+
+  /// \brief Default topic name for receiving state updates from the right hand.
+  private: static const std::string RightTopicState;
+
+  /// \brief ROS topic name for sending control updates to the hand.
+  private: std::string controlTopicName;
+
+  /// \brief ROS topic name for receiving state updates from the hand.
+  private: std::string stateTopicName;
 
   /// \brief ROS NodeHanle.
   private: boost::scoped_ptr<ros::NodeHandle> rosNode;
@@ -156,18 +206,6 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Hand state.
   private: State handState;
 
-  /// \brief Internal pid control class.
-  private: class ErrorTerms
-  {
-    double q_p;
-    double d_q_p_dt;
-    double q_i;
-    friend class RobotiqHandPlugin;
-  };
-
-  /// \brief Internal pid control.
-  private: std::vector<ErrorTerms> errorTerms;
-
   /// \brief ROS publisher for Robotiq Hand state.
   private: ros::Publisher pubHandleState;
 
@@ -190,20 +228,8 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Vector containing all the finger joints.
   private: gazebo::physics::Joint_V fingerJoints;
 
-  /// \brief Number of joints in the hand (2 joints in each of the three finger)
-  private: static const int NumJoints = 6;
-
-  /// \brief PID parameters.
-  private: double kpPosition[NumJoints];
-  private: double kiPosition[NumJoints];
-  private: double kdPosition[NumJoints];
-  private: double posEffortMin[NumJoints];
-  private: double posEffortMax[NumJoints];
-  private: double kpVelocity[NumJoints];
-  private: double kiVelocity[NumJoints];
-  private: double kdVelocity[NumJoints];
-  private: double velEffortMin[NumJoints];
-  private: double velEffortMax[NumJoints];
+  /// \brief PIDs used to control the finger positions.
+  private: gazebo::common::PID posePID[NumJoints];
 };
 
 #endif

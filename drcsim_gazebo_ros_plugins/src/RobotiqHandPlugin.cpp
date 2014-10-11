@@ -23,28 +23,20 @@
 #include <ros/ros.h>
 #include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
 
+// Default topic names initialization.
+const std::string RobotiqHandPlugin::LeftTopicCommand = "/left_hand/command";
+const std::string RobotiqHandPlugin::LeftTopicState = "/left_hand/state";
+const std::string RobotiqHandPlugin::RightTopicCommand = "/right_hand/command";
+const std::string RobotiqHandPlugin::RightTopicState = "/right_hand/state";
+
 ////////////////////////////////////////////////////////////////////////////////
 RobotiqHandPlugin::RobotiqHandPlugin()
 {
-  this->errorTerms.resize(this->NumJoints);
-
   // PID default parameters.
   for (int i = 0; i < this->NumJoints; ++i)
   {
-  	this->kpPosition[i]   = 1.0;
-  	this->kiPosition[i]   = 0.0;
-  	this->kdPosition[i]   = 0.0;
-  	this->posEffortMin[i] = 0.0;
-  	this->posEffortMax[i] = 0.0;
-  	this->kpVelocity[i]   = 0.1;
-  	this->kiVelocity[i]   = 0.0;
-  	this->kdVelocity[i]   = 0.0;
-  	this->velEffortMin[i] = 0.0;
-  	this->velEffortMax[i] = 0.0;
-
-    this->errorTerms[i].q_p      = 0;
-    this->errorTerms[i].d_q_p_dt = 0;
-    this->errorTerms[i].q_i      = 0;
+    this->posePID[i].Init(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    this->posePID[i].SetCmd(0.0);
   }
 
   // Default grasping mode: Basic mode.
@@ -77,47 +69,45 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
       ((this->side != "left") && (this->side != "right")))
   {
 	  gzerr << "Failed to determine which hand we're controlling; "
-	           "aborting plugin load. Side should be either 'left' or 'right'."
+	           "aborting plugin load. <Side> should be either 'left' or 'right'."
           << std::endl;
 	  return;
+  }
+
+  // Default ROS topic names.
+  std::string controlTopicName = this->LeftTopicCommand;
+  std::string stateTopicName   = this->LeftTopicState;
+  if (this->side == "right")
+  {
+    controlTopicName = this->RightTopicCommand;
+    stateTopicName   = this->RightTopicState;
   }
 
   // Overload the PID parameters if they are available.
   for (int i = 0; i < this->NumJoints; ++i)
   {
     if (this->sdf->HasElement("kp_position"))
-      this->kpPosition[i] = this->sdf->Get<double>("kp_position");
+      this->posePID[i].SetPGain(this->sdf->Get<double>("kp_position"));
 
     if (this->sdf->HasElement("ki_position"))
-      this->kiPosition[i] = this->sdf->Get<double>("ki_position");
+      this->posePID[i].SetIGain(this->sdf->Get<double>("ki_position"));
 
     if (this->sdf->HasElement("kd_position"))
-      this->kdPosition[i] = this->sdf->Get<double>("kd_position");
+      this->posePID[i].SetDGain(this->sdf->Get<double>("kd_position"));
 
     if (this->sdf->HasElement("position_effort_min"))
-      this->posEffortMin[i] = this->sdf->Get<double>("position_effort_min");
+      this->posePID[i].SetCmdMin(this->sdf->Get<double>("position_effort_min"));
 
     if (this->sdf->HasElement("position_effort_max"))
-      this->posEffortMax[i] = this->sdf->Get<double>("position_effort_max");
-
-    if (this->sdf->HasElement("kp_velocity"))
-      this->kpVelocity[i] = this->sdf->Get<double>("kp_velocity");
-
-    if (this->sdf->HasElement("ki_velocity"))
-      this->kiVelocity[i] = this->sdf->Get<double>("ki_velocity");
-
-    if (this->sdf->HasElement("kd_velocity"))
-      this->kdVelocity[i] = this->sdf->Get<double>("kd_velocity");
-
-    if (this->sdf->HasElement("velocity_effort_min"))
-      this->velEffortMin[i] = this->sdf->Get<double>("velocity_effort_min");
-
-    if (this->sdf->HasElement("velocity_effort_max"))
-      this->velEffortMax[i] = this->sdf->Get<double>("velocity_effort_max");
+      this->posePID[i].SetCmdMax(this->sdf->Get<double>("position_effort_max"));
   }
 
-  gzlog << "RobotiqHandPlugin loading for " << this->side
-        << " hand." << std::endl;
+  // Overload the ROS topics for the hand if they are available.
+  if (this->sdf->HasElement("topic_command"))
+    this->controlTopicName = this->sdf->Get<std::string>("topic_command");
+
+  if (this->sdf->HasElement("topic_state"))
+    this->stateTopicName = this->sdf->Get<std::string>("topic_state");
 
   // Load the vector of joints.
   if(!this->FindJoints())
@@ -127,8 +117,8 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   if (!ros::isInitialized())
   {
 	  gzerr << "Not loading plugin since ROS hasn't been "
-	        << "properly initialized.  Try starting gazebo with ros plugin:\n"
-	        << "  gazebo -s libgazebo_ros_api_plugin.so\n";
+	        << "properly initialized. Try starting gazebo with ros plugin:\n"
+	        << " gazebo -s libgazebo_ros_api_plugin.so\n";
 	  return;
   }
 
@@ -138,24 +128,17 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   // Publish multi queue.
   this->pmq.startServiceThread();
 
-  std::string sensorStr =  "/left_hand/state";
-  std::string controlStr = "/left_hand/command";
-  if (this->side != "left") {
-	  sensorStr =  "/right_hand/state";
-	  controlStr = "/right_hand/command";
-  }
-
   // Broadcasts state.
   this->pubHandleStateQueue =
     this->pmq.addPub<robotiq_s_model_control::SModel_robot_input>();
   this->pubHandleState =
     this->rosNode->advertise<robotiq_s_model_control::SModel_robot_input>(
-      sensorStr, 100, true);
+      this->stateTopicName, 100, true);
 
   // Subscribe to user published handle control commands.
   ros::SubscribeOptions handleCommandSo =
 	  ros::SubscribeOptions::create<robotiq_s_model_control::SModel_robot_output>(
-	    controlStr, 100,
+	    this->controlTopicName, 100,
 	    boost::bind(&RobotiqHandPlugin::SetHandleCommand, this, _1),
 	    ros::VoidPtr(), &this->rosQueue);
 
@@ -175,140 +158,62 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   this->updateConnection =
     gazebo::event::Events::ConnectWorldUpdateBegin(
       boost::bind(&RobotiqHandPlugin::UpdateStates, this));
+
+  // Log information.
+  gzlog << "RobotiqHandPlugin loaded for " << this->side << " hand."
+        << std::endl;
+  for (int i = 0; i < this->NumJoints; ++i)
+  {
+    gzlog << "Position PID parameters for joint ["
+          << this->fingerJoints[i]->GetName() << "]:"     << std::endl
+          << "\tKP: "     << this->posePID[i].GetPGain()  << std::endl
+          << "\tKI: "     << this->posePID[i].GetIGain()  << std::endl
+          << "\tKD: "     << this->posePID[i].GetDGain()  << std::endl
+          << "\tIMin: "   << this->posePID[i].GetIMin()   << std::endl
+          << "\tIMax: "   << this->posePID[i].GetIMax()   << std::endl
+          << "\tCmdMin: " << this->posePID[i].GetCmdMin() << std::endl
+          << "\tCmdMax: " << this->posePID[i].GetCmdMax() << std::endl
+          << std::endl;
+  }
+  gzlog << "Topic for sending hand commands: ["   << this->controlTopicName
+        << "]\nTopic for receiving hand state: [" << this->stateTopicName
+        << "]" << std::endl;
+}
+
+bool RobotiqHandPlugin::VerifyField(const std::string &_label, int _min,
+  int _max, int _v)
+{
+  if (_v < _min || _v > _max)
+  {
+    std::cerr << "Illegal " << _label << " value: [" << _v << "]. The correct "
+              << "range is [" << _min << "-" << _max << "]" << std::endl;
+    return false;
+  }
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool RobotiqHandPlugin::VerifyCommand(
     const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command)
 {
-  bool res = true;
-  if (_command->rACT < 0 || _command->rACT > 1)
-  {
-    std::cerr << "Illegal rACT value: [" << _command->rACT << "]. The correct "
-              << "range is [0-1]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rMOD < 0 || _command->rMOD > 3)
-  {
-    std::cerr << "Illegal rMOD value: [" << _command->rMOD << "]. The correct "
-              << "range is [0-3]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rGTO < 0 || _command->rGTO > 1)
-  {
-    std::cerr << "Illegal rGTO value: [" << _command->rGTO << "]. The correct "
-              << "range is [0-1]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rATR < 0 || _command->rATR > 1)
-  {
-    std::cerr << "Illegal rATR value: [" << _command->rATR << "]. The correct "
-              << "range is [0-1]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rICF < 0 || _command->rICF > 1)
-  {
-    std::cerr << "Illegal rICF value: [" << _command->rICF << "]. The correct "
-              << "range is [0-1]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rICS < 0 || _command->rICS > 1)
-  {
-    std::cerr << "Illegal rICS value: [" << _command->rICS << "]. The correct "
-              << "range is [0-1]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rPRA < 0 || _command->rPRA > 255)
-  {
-    std::cerr << "Illegal rPRA value: [" << _command->rPRA << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rSPA < 0 || _command->rSPA > 255)
-  {
-    std::cerr << "Illegal rSPA value: [" << _command->rSPA << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rFRA < 0 || _command->rFRA > 255)
-  {
-    std::cerr << "Illegal rFRA value: [" << _command->rFRA << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rPRB < 0 || _command->rPRB > 255)
-  {
-    std::cerr << "Illegal rPRB value: [" << _command->rPRB << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rSPB < 0 || _command->rSPB > 255)
-  {
-    std::cerr << "Illegal rSPB value: [" << _command->rSPB << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rFRB < 0 || _command->rFRB > 255)
-  {
-    std::cerr << "Illegal rFRB value: [" << _command->rFRB << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rPRC < 0 || _command->rPRC > 255)
-  {
-    std::cerr << "Illegal rPRC value: [" << _command->rPRC << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rSPC < 0 || _command->rSPC > 255)
-  {
-    std::cerr << "Illegal rSPC value: [" << _command->rSPC << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rFRC < 0 || _command->rFRC > 255)
-  {
-    std::cerr << "Illegal rFRC value: [" << _command->rFRC << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rPRS < 0 || _command->rPRS > 255)
-  {
-    std::cerr << "Illegal rPRS value: [" << _command->rPRS << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rSPS < 0 || _command->rSPS > 255)
-  {
-    std::cerr << "Illegal rSPS value: [" << _command->rSPS << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  if (_command->rFRS < 0 || _command->rFRS > 255)
-  {
-    std::cerr << "Illegal rFRS value: [" << _command->rFRS << "]. The correct "
-              << "range is [0-255]" << std::endl;
-    res = false;
-  }
-
-  return res;
+  return this->VerifyField("rACT", 0, 1, _command->rACT)   &&
+         this->VerifyField("rMOD", 0, 3, _command->rACT)   &&
+         this->VerifyField("rGTO", 0, 1, _command->rACT)   &&
+         this->VerifyField("rATR", 0, 1, _command->rACT)   &&
+         this->VerifyField("rICF", 0, 1, _command->rACT)   &&
+         this->VerifyField("rICS", 0, 1, _command->rACT)   &&
+         this->VerifyField("rPRA", 0, 255, _command->rACT) &&
+         this->VerifyField("rSPA", 0, 255, _command->rACT) &&
+         this->VerifyField("rFRA", 0, 255, _command->rACT) &&
+         this->VerifyField("rPRB", 0, 255, _command->rACT) &&
+         this->VerifyField("rSPB", 0, 255, _command->rACT) &&
+         this->VerifyField("rFRB", 0, 255, _command->rACT) &&
+         this->VerifyField("rPRC", 0, 255, _command->rACT) &&
+         this->VerifyField("rSPC", 0, 255, _command->rACT) &&
+         this->VerifyField("rFRC", 0, 255, _command->rACT) &&
+         this->VerifyField("rPRS", 0, 255, _command->rACT) &&
+         this->VerifyField("rSPS", 0, 255, _command->rACT) &&
+         this->VerifyField("rFRS", 0, 255, _command->rACT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -361,7 +266,7 @@ bool RobotiqHandPlugin::IsHandFullyOpen()
   gazebo::math::Angle tolerance;
   tolerance.SetFromDegree(1.0);
 
-  for (int i = 3; i < 6; ++i)
+  for (int i = 2; i < 5; ++i)
     fingersOpen = fingersOpen &&
       (this->fingerJoints[i]->GetAngle(0) <
        (this->fingerJoints[i]->GetLowerLimit(0) + tolerance));
@@ -566,105 +471,80 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
     return;
   }
 
-  for (int j = 0; j < 6; j++)
+  for (int i = 0; i < this->NumJoints; ++i)
   {
-  	double torque;
-  	double target;
-    double speed = 1.0;
+  	double target = 0.0;
+    double speed = 0.5;
 
-    if (j == 0)
+    if (i == 0)
     {
       switch (this->graspingMode)
       {
-        case Basic:
-          target = 0.0;
-          break;
-
         case Wide:
-          target = this->fingerJoints[j]->GetUpperLimit(0).Radian();
+          target = this->fingerJoints[i]->GetUpperLimit(0).Radian();
           break;
 
         case Pinch:
-          target = this->fingerJoints[j]->GetLowerLimit(0).Radian();
+          target = this->fingerJoints[i]->GetLowerLimit(0).Radian();
           break;
 
         case Scissor:
-          target = this->fingerJoints[j]->GetUpperLimit(0).Radian() -
-            (this->fingerJoints[j]->GetUpperLimit(0).Radian() -
-             this->fingerJoints[j]->GetLowerLimit(0).Radian())
+          target = this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+            (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+             this->fingerJoints[i]->GetLowerLimit(0).Radian())
             * this->handleCommand.rPRA / 255.0;
           break;
       }
-      speed = 0.5;
     }
-    else if (j == 1)
+    else if (i == 1)
     {
       switch (this->graspingMode)
       {
-        case Basic:
-          target = 0.0;
-          break;
-
         case Wide:
-          target = this->fingerJoints[j]->GetLowerLimit(0).Radian();
+          target = this->fingerJoints[i]->GetLowerLimit(0).Radian();
           break;
 
         case Pinch:
-          target = this->fingerJoints[j]->GetUpperLimit(0).Radian();
+          target = this->fingerJoints[i]->GetUpperLimit(0).Radian();
           break;
 
         case Scissor:
-          target = this->fingerJoints[j]->GetLowerLimit(0).Radian() +
-            (this->fingerJoints[j]->GetUpperLimit(0).Radian() -
-             this->fingerJoints[j]->GetLowerLimit(0).Radian())
+          target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+            (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+             this->fingerJoints[i]->GetLowerLimit(0).Radian())
             * this->handleCommand.rPRA / 255.0;
           break;
       }
-      speed = 0.5;
     }
-    else if (j == 2)
+	  else if (i == 2)
     {
-      target = 0.0;
-      speed = 0.5;
-    }
-	  else if (j == 3)
-    {
-      if (this->graspingMode == Scissor)
-        target = 0.0;
-      else
+      if (this->graspingMode != Scissor)
       {
-	      //target = this->handleCommand.rPRA * 0.006;
-        target = this->fingerJoints[j]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[j]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[j]->GetLowerLimit(0).Radian())
+        target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+           this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRA / 255.0;
       }
       speed = this->handleCommand.rSPA / 255.0;
 	  }
-	  else if (j == 4)
+	  else if (i == 3)
     {
-      if (this->graspingMode == Scissor)
-        target = 0.0;
-      else
+      if (this->graspingMode != Scissor)
       {
-        // target = this->handleCommand.rPRB * 0.006;
-        target = this->fingerJoints[j]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[j]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[j]->GetLowerLimit(0).Radian())
+        target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+           this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRB / 255.0;
       }
       speed = this->handleCommand.rSPB / 255.0;
 	  }
-	  else if (j == 5)
+	  else if (i == 4)
     {
-     if (this->graspingMode == Scissor)
-        target = 0.0;
-      else
+      if (this->graspingMode != Scissor)
       {
-        //target = this->handleCommand.rPRC * 0.006;
-        target = this->fingerJoints[j]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[j]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[j]->GetLowerLimit(0).Radian())
+        target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+           this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRC / 255.0;
       }
       speed = this->handleCommand.rSPC / 255.0;
@@ -673,48 +553,17 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
     // Speed multiplier.
     speed *= 2.0;
 
-	  double current;
-	  double baseJointPos = 0;
-	  double baseJointVel = 0;
-	  double flexureFlexJointPos = 0;
-	  double flexureFlexJointVel = 0;
-	  double currentPos = 0;
-	  double currentVel = 0;
+    // Get the current pose.
+	  double current = this->fingerJoints[i]->GetAngle(0).Radian();
 
-	  baseJointPos = this->fingerJoints[j]->GetAngle(0).Radian();
-	  baseJointVel = this->fingerJoints[j]->GetVelocity(0);
-	  currentPos = baseJointPos;
-	  currentVel = baseJointVel;
+    // Error pose.
+	  double poseError = target - current;
 
-	  double kp, ki, kd, effortMin, effortMax;
+    // Update the PID.
+    double torque = this->posePID[i].Update(poseError, _dt);
 
-	  // Set state for position control.
-	  current = currentPos;
-
-    // Position PID.
-	  kp = this->kpPosition[j] * speed;
-	  ki = this->kiPosition[j] * speed;
-	  kd = this->kdPosition[j] * speed;
-	  effortMin = this->posEffortMin[j];
-	  effortMax = this->posEffortMax[j];
-
-	  double qP = target - current;
-
-	  this->errorTerms[j].q_p = qP;
-	  if (!gazebo::math::equal(_dt, 0.0))
-    {
-	    this->errorTerms[j].d_q_p_dt = (qP - this->errorTerms[j].q_p) / _dt;
-	  }
-	  this->errorTerms[j].q_i = gazebo::math::clamp(
-	    this->errorTerms[j].q_i + _dt * this->errorTerms[j].q_p,
-	    effortMin, effortMax);
-
-	  // Use gain params to compute force cmd.
-	  torque = kp * this->errorTerms[j].q_p +
-	    ki * this->errorTerms[j].q_i +
-	    kd * this->errorTerms[j].d_q_p_dt;
-
-	  this->fingerJoints[j]->SetForce(0, torque);
+    // Apply the PID command.
+	  this->fingerJoints[i]->SetForce(0, -torque);
   }
 }
 
@@ -752,11 +601,6 @@ bool RobotiqHandPlugin::FindJoints()
     return false;
   }
   if (!this->GetAndPushBackJoint(prefix + "_palm_finger_2_joint",
-        this->fingerJoints))
-  {
-    return false;
-  }
-  if (!this->GetAndPushBackJoint(prefix + "_palm_finger_middle_joint",
         this->fingerJoints))
   {
     return false;
