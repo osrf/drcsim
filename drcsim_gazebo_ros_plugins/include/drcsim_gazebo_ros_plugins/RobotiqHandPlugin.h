@@ -43,10 +43,10 @@
 ///                   of the joints. This parameter is optional.
 ///   * <kd_position> D gain for the PID that controls the position
 ///                   of the joints. This parameter is optional.
-///   * <position_effort_min> Minimum output of the PID that controls the position
-///                           of the joints. This parameter is optional.
-///   * <position_effort_max> Maximum output of the PID that controls the position
-///                           of the joints. This parameter is optional.
+///   * <position_effort_min> Minimum output of the PID that controls the
+///                           position of the joints. This parameter is optional
+///   * <position_effort_max> Maximum output of the PID that controls the
+///                           position of the joints. This parameter is optional
 ///   * <topic_command> ROS topic name used to send new commands to the hand.
 ///                     This parameter is optional.
 ///   * <topic_state> ROS topic name used to receive state from the hand.

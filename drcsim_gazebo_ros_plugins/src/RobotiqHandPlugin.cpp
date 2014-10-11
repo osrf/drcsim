@@ -15,6 +15,7 @@
  *
 */
 
+#include <string>
 #include <vector>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
@@ -68,10 +69,10 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
       !this->sdf->GetElement("side")->GetValue()->Get(this->side) ||
       ((this->side != "left") && (this->side != "right")))
   {
-	  gzerr << "Failed to determine which hand we're controlling; "
-	           "aborting plugin load. <Side> should be either 'left' or 'right'."
+    gzerr << "Failed to determine which hand we're controlling; "
+             "aborting plugin load. <Side> should be either 'left' or 'right'."
           << std::endl;
-	  return;
+    return;
   }
 
   // Default ROS topic names.
@@ -110,16 +111,16 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
     this->stateTopicName = this->sdf->Get<std::string>("topic_state");
 
   // Load the vector of joints.
-  if(!this->FindJoints())
-	  return;
+  if (!this->FindJoints())
+    return;
 
   // Initialize ROS.
   if (!ros::isInitialized())
   {
-	  gzerr << "Not loading plugin since ROS hasn't been "
-	        << "properly initialized. Try starting gazebo with ros plugin:\n"
-	        << " gazebo -s libgazebo_ros_api_plugin.so\n";
-	  return;
+    gzerr << "Not loading plugin since ROS hasn't been "
+          << "properly initialized. Try starting gazebo with ros plugin:\n"
+          << " gazebo -s libgazebo_ros_api_plugin.so\n";
+    return;
   }
 
   // Create a ROS node.
@@ -137,10 +138,10 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
 
   // Subscribe to user published handle control commands.
   ros::SubscribeOptions handleCommandSo =
-	  ros::SubscribeOptions::create<robotiq_s_model_control::SModel_robot_output>(
-	    this->controlTopicName, 100,
-	    boost::bind(&RobotiqHandPlugin::SetHandleCommand, this, _1),
-	    ros::VoidPtr(), &this->rosQueue);
+    ros::SubscribeOptions::create<robotiq_s_model_control::SModel_robot_output>(
+      this->controlTopicName, 100,
+      boost::bind(&RobotiqHandPlugin::SetHandleCommand, this, _1),
+      ros::VoidPtr(), &this->rosQueue);
 
   // Enable TCP_NODELAY since TCP causes bursty communication with high jitter.
   handleCommandSo.transport_hints =
@@ -390,12 +391,12 @@ void RobotiqHandPlugin::UpdateStates()
                   << std::endl;
     }
 
-	  // Gather robot state data and publish them.
-	  this->GetAndPublishHandleState();
+    // Gather robot state data and publish them.
+    this->GetAndPublishHandleState();
 
     // Update the hand controller.
-	  this->UpdatePIDControl((curTime - this->lastControllerUpdateTime).Double());
-	  this->lastControllerUpdateTime = curTime;
+    this->UpdatePIDControl((curTime - this->lastControllerUpdateTime).Double());
+    this->lastControllerUpdateTime = curTime;
   }
 }
 
@@ -478,7 +479,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 
   for (int i = 0; i < this->NumJoints; ++i)
   {
-  	double target = 0.0;
+    double target = 0.0;
     double speed = 0.5;
 
     if (i == 0)
@@ -521,7 +522,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           break;
       }
     }
-	  else if (i == 2)
+    else if (i == 2)
     {
       if (this->graspingMode != Scissor)
       {
@@ -531,8 +532,8 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           * this->handleCommand.rPRA / 255.0;
       }
       speed = this->handleCommand.rSPA / 255.0;
-	  }
-	  else if (i == 3)
+    }
+    else if (i == 3)
     {
       if (this->graspingMode != Scissor)
       {
@@ -542,8 +543,8 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           * this->handleCommand.rPRB / 255.0;
       }
       speed = this->handleCommand.rSPB / 255.0;
-	  }
-	  else if (i == 4)
+    }
+    else if (i == 4)
     {
       if (this->graspingMode != Scissor)
       {
@@ -553,36 +554,36 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           * this->handleCommand.rPRC / 255.0;
       }
       speed = this->handleCommand.rSPC / 255.0;
-	  }
+    }
 
     // Speed multiplier.
     speed *= 2.0;
 
     // Get the current pose.
-	  double current = this->fingerJoints[i]->GetAngle(0).Radian();
+    double current = this->fingerJoints[i]->GetAngle(0).Radian();
 
     // Error pose.
-	  double poseError = target - current;
+    double poseError = target - current;
 
     // Update the PID.
     double torque = this->posePID[i].Update(poseError, _dt);
 
     // Apply the PID command.
-	  this->fingerJoints[i]->SetForce(0, -torque);
+    this->fingerJoints[i]->SetForce(0, -torque);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool RobotiqHandPlugin::GetAndPushBackJoint(const std::string& _jointName,
-					                                  gazebo::physics::Joint_V& _joints)
+                                            gazebo::physics::Joint_V& _joints)
 {
   gazebo::physics::JointPtr joint = this->model->GetJoint(_jointName);
 
   if (!joint)
   {
-	  gzerr << "Failed to find joint [" << _jointName
-	        << "] aborting plugin load." << std::endl;
-	  return false;
+    gzerr << "Failed to find joint [" << _jointName
+          << "] aborting plugin load." << std::endl;
+    return false;
   }
   _joints.push_back(joint);
   gzlog << "RobotiqHandPlugin found joint [" << _jointName << "]" << std::endl;
@@ -610,21 +611,21 @@ bool RobotiqHandPlugin::FindJoints()
   {
     return false;
   }
-	if (!this->GetAndPushBackJoint(prefix + "_finger_1_joint_1",
+  if (!this->GetAndPushBackJoint(prefix + "_finger_1_joint_1",
         this->fingerJoints))
   {
-	  return false;
-	}
-	if (!this->GetAndPushBackJoint(prefix + "_finger_2_joint_1",
+    return false;
+  }
+  if (!this->GetAndPushBackJoint(prefix + "_finger_2_joint_1",
          this->fingerJoints))
   {
-	  return false;
-	}
-	if (!this->GetAndPushBackJoint(prefix + "_finger_middle_joint_1",
+    return false;
+  }
+  if (!this->GetAndPushBackJoint(prefix + "_finger_middle_joint_1",
           this->fingerJoints))
   {
-	  return false;
- 	}
+    return false;
+  }
 
   gzlog << "RobotiqHandPlugin found all joints for " << this->side
         << " hand." << std::endl;
@@ -638,7 +639,7 @@ void RobotiqHandPlugin::RosQueueThread()
 
   while (this->rosNode->ok())
   {
-	  this->rosQueue.callAvailable(ros::WallDuration(timeout));
+    this->rosQueue.callAvailable(ros::WallDuration(timeout));
   }
 }
 
