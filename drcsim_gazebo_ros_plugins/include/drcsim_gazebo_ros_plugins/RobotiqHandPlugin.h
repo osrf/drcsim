@@ -34,7 +34,7 @@
 #include <sensor_msgs/JointState.h>
 
 /// \brief A plugin that implements the Robotiq 3-Finger Adaptative Gripper.
-/// The plugin exposes the next arguments via SDF parameters:
+/// The plugin exposes the next parameters via SDF tags:
 ///   * <side> Determines if we are controlling the left or right hand. This is
 ///            a required parameter and the allowed values are 'left' or 'right'
 ///   * <kp_position> P gain for the PID that controls the position
@@ -128,8 +128,8 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \param[in] _max Maximum value.
   /// \param[in] _v Value to be verified.
   /// \return True when the value is within the limits or false otherwise.
-  private: bool VerifyField(const std::string &_label, int _min, int _max,
-    int _v);
+  private: bool VerifyField(const std::string &_label, int _min,
+                            int _max, int _v);
 
   /// \brief Verify that all the command fields are within the correct range.
   /// \param[in] _command Robot output message.
@@ -144,16 +144,16 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: static const int NumJoints = 5;
 
   /// \brief Default topic name for sending control updates to the left hand.
-  private: static const std::string LeftTopicCommand;
+  private: static const std::string DefaultLeftTopicCommand;
 
   /// \brief Default topic name for receiving state updates from the left hand.
-  private: static const std::string LeftTopicState;
+  private: static const std::string DefaultLeftTopicState;
 
   /// \brief Default topic name for sending control updates to the right hand.
-  private: static const std::string RightTopicCommand;
+  private: static const std::string DefaultRightTopicCommand;
 
   /// \brief Default topic name for receiving state updates from the right hand.
-  private: static const std::string RightTopicState;
+  private: static const std::string DefaultRightTopicState;
 
   /// \brief ROS topic name for sending control updates to the hand.
   private: std::string controlTopicName;

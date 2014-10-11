@@ -75,12 +75,12 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   }
 
   // Default ROS topic names.
-  std::string controlTopicName = this->LeftTopicCommand;
-  std::string stateTopicName   = this->LeftTopicState;
+  std::string controlTopicName = this->DefaultLeftTopicCommand;
+  std::string stateTopicName   = this->DefaultLeftTopicState;
   if (this->side == "right")
   {
-    controlTopicName = this->RightTopicCommand;
-    stateTopicName   = this->RightTopicState;
+    controlTopicName = this->DefaultRightTopicCommand;
+    stateTopicName   = this->DefaultRightTopicState;
   }
 
   // Overload the PID parameters if they are available.
@@ -180,6 +180,7 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
         << "]" << std::endl;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool RobotiqHandPlugin::VerifyField(const std::string &_label, int _min,
   int _max, int _v)
 {
@@ -266,10 +267,12 @@ bool RobotiqHandPlugin::IsHandFullyOpen()
   gazebo::math::Angle tolerance;
   tolerance.SetFromDegree(1.0);
 
-  for (int i = 2; i < 5; ++i)
+  for (int i = 2; i < this->NumJoints; ++i)
+  {
     fingersOpen = fingersOpen &&
       (this->fingerJoints[i]->GetAngle(0) <
        (this->fingerJoints[i]->GetLowerLimit(0) + tolerance));
+  }
 
   return fingersOpen;
 }
@@ -430,19 +433,21 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
   else
     this->handleState.gFLT = 0;
 
-  // echo of requested position for finger a
+  // Echo of requested position for finger A.
   this->handleState.gPRA = this->userHandleCommand.rPRA;
   // ToDo: Normalize position between [0-255].
   this->handleState.gPOA = 0;
   // Not implemented.
   this->handleState.gCUA = 0;
 
+  // Echo of requested position for finger B.
   this->handleState.gPRB = this->userHandleCommand.rPRB;
   // ToDo (caguero): Normalize position between [0-255].
   this->handleState.gPOB = 0;
   // Not implemented.
   this->handleState.gCUB = 0;
 
+  // Echo of requested position for finger C.
   this->handleState.gPRC = this->userHandleCommand.rPRC;
   // ToDo (caguero): Normalize position between [0-255].
   this->handleState.gPOC = 0;
@@ -575,12 +580,12 @@ bool RobotiqHandPlugin::GetAndPushBackJoint(const std::string& _jointName,
 
   if (!joint)
   {
-	  gzerr << "Failed to find joint: " << _jointName
-	        << "; aborting plugin load." << std::endl;
+	  gzerr << "Failed to find joint [" << _jointName
+	        << "] aborting plugin load." << std::endl;
 	  return false;
   }
   _joints.push_back(joint);
-  gzlog << "RobotiqHandPlugin found joint: " << _jointName << std::endl;
+  gzlog << "RobotiqHandPlugin found joint [" << _jointName << "]" << std::endl;
   return true;
 }
 
