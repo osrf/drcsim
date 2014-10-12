@@ -17,18 +17,22 @@
 
 #include <string>
 #include <vector>
+#include <atlas_msgs/SModelRobotInput.h>
+#include <atlas_msgs/SModelRobotOutput.h>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
-#include <robotiq_s_model_control/SModel_robot_input.h>
-#include <robotiq_s_model_control/SModel_robot_output.h>
 #include <ros/ros.h>
 #include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
 
 // Default topic names initialization.
-const std::string RobotiqHandPlugin::LeftTopicCommand = "/left_hand/command";
-const std::string RobotiqHandPlugin::LeftTopicState = "/left_hand/state";
-const std::string RobotiqHandPlugin::RightTopicCommand = "/right_hand/command";
-const std::string RobotiqHandPlugin::RightTopicState = "/right_hand/state";
+const std::string RobotiqHandPlugin::DefaultLeftTopicCommand =
+  "/left_hand/command";
+const std::string RobotiqHandPlugin::DefaultLeftTopicState =
+  "/left_hand/state";
+const std::string RobotiqHandPlugin::DefaultRightTopicCommand =
+  "/right_hand/command";
+const std::string RobotiqHandPlugin::DefaultRightTopicState =
+  "/right_hand/state";
 
 ////////////////////////////////////////////////////////////////////////////////
 RobotiqHandPlugin::RobotiqHandPlugin()
@@ -105,10 +109,10 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
 
   // Overload the ROS topics for the hand if they are available.
   if (this->sdf->HasElement("topic_command"))
-    this->controlTopicName = this->sdf->Get<std::string>("topic_command");
+    controlTopicName = this->sdf->Get<std::string>("topic_command");
 
   if (this->sdf->HasElement("topic_state"))
-    this->stateTopicName = this->sdf->Get<std::string>("topic_state");
+    stateTopicName = this->sdf->Get<std::string>("topic_state");
 
   // Load the vector of joints.
   if (!this->FindJoints())
@@ -130,16 +134,14 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   this->pmq.startServiceThread();
 
   // Broadcasts state.
-  this->pubHandleStateQueue =
-    this->pmq.addPub<robotiq_s_model_control::SModel_robot_input>();
-  this->pubHandleState =
-    this->rosNode->advertise<robotiq_s_model_control::SModel_robot_input>(
-      this->stateTopicName, 100, true);
+  this->pubHandleStateQueue = this->pmq.addPub<atlas_msgs::SModelRobotInput>();
+  this->pubHandleState = this->rosNode->advertise<atlas_msgs::SModelRobotInput>(
+    stateTopicName, 100, true);
 
   // Subscribe to user published handle control commands.
   ros::SubscribeOptions handleCommandSo =
-    ros::SubscribeOptions::create<robotiq_s_model_control::SModel_robot_output>(
-      this->controlTopicName, 100,
+    ros::SubscribeOptions::create<atlas_msgs::SModelRobotOutput>(
+      controlTopicName, 100,
       boost::bind(&RobotiqHandPlugin::SetHandleCommand, this, _1),
       ros::VoidPtr(), &this->rosQueue);
 
@@ -176,8 +178,8 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
           << "\tCmdMax: " << this->posePID[i].GetCmdMax() << std::endl
           << std::endl;
   }
-  gzlog << "Topic for sending hand commands: ["   << this->controlTopicName
-        << "]\nTopic for receiving hand state: [" << this->stateTopicName
+  gzlog << "Topic for sending hand commands: ["   << controlTopicName
+        << "]\nTopic for receiving hand state: [" << stateTopicName
         << "]" << std::endl;
 }
 
@@ -196,7 +198,7 @@ bool RobotiqHandPlugin::VerifyField(const std::string &_label, int _min,
 
 ////////////////////////////////////////////////////////////////////////////////
 bool RobotiqHandPlugin::VerifyCommand(
-    const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command)
+    const atlas_msgs::SModelRobotOutput::ConstPtr &_command)
 {
   return this->VerifyField("rACT", 0, 1, _command->rACT)   &&
          this->VerifyField("rMOD", 0, 3, _command->rACT)   &&
@@ -220,7 +222,7 @@ bool RobotiqHandPlugin::VerifyCommand(
 
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::SetHandleCommand(
-    const robotiq_s_model_control::SModel_robot_output::ConstPtr &_msg)
+    const atlas_msgs::SModelRobotOutput::ConstPtr &_msg)
 {
   boost::mutex::scoped_lock lock(this->controlMutex);
 

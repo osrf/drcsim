@@ -19,14 +19,14 @@
 
 #include <string>
 #include <vector>
+#include <atlas_msgs/SModelRobotInput.h>
+#include <atlas_msgs/SModelRobotOutput.h>
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <gazebo/common/PID.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo_plugins/PubQueue.h>
-#include <robotiq_s_model_control/SModel_robot_input.h>
-#include <robotiq_s_model_control/SModel_robot_output.h>
 #include <ros/advertise_options.h>
 #include <ros/callback_queue.h>
 #include <ros/ros.h>
@@ -88,7 +88,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief ros topic callback to update Robotiq Hand Control Commands.
   /// \param[in] _msg Incoming ROS message with the next hand command.
   private: void SetHandleCommand(
-    const robotiq_s_model_control::SModel_robot_output::ConstPtr &_msg);
+    const atlas_msgs::SModelRobotOutput::ConstPtr &_msg);
 
   /// \brief Update PID Joint controllers.
   /// \param[in] _dt time step size since last update.
@@ -136,7 +136,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \return True if all the fields are withing the correct range or false
   /// otherwise.
   private: bool VerifyCommand(
-    const robotiq_s_model_control::SModel_robot_output::ConstPtr &_command);
+    const atlas_msgs::SModelRobotOutput::ConstPtr &_command);
 
   /// \brief Number of joints in the hand.
   /// The three fingers can do abduction/adduction.
@@ -154,12 +154,6 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
 
   /// \brief Default topic name for receiving state updates from the right hand.
   private: static const std::string DefaultRightTopicState;
-
-  /// \brief ROS topic name for sending control updates to the hand.
-  private: std::string controlTopicName;
-
-  /// \brief ROS topic name for receiving state updates from the hand.
-  private: std::string stateTopicName;
 
   /// \brief ROS NodeHanle.
   private: boost::scoped_ptr<ros::NodeHandle> rosNode;
@@ -179,14 +173,14 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief HandleControl message. Originally published by user but some of the
   /// fields might be internally modified. E.g.: When releasing the hand for
   // changing the grasping mode.
-  private: robotiq_s_model_control::SModel_robot_output handleCommand;
+  private: atlas_msgs::SModelRobotOutput handleCommand;
 
   /// \brief HandleControl message. Last command received before changing the
   /// grasping mode.
-  private: robotiq_s_model_control::SModel_robot_output lastHandleCommand;
+  private: atlas_msgs::SModelRobotOutput lastHandleCommand;
 
   /// \brief Original HandleControl message (published by user and unmodified).
-  private: robotiq_s_model_control::SModel_robot_output userHandleCommand;
+  private: atlas_msgs::SModelRobotOutput userHandleCommand;
 
   /// \brief gazebo world update connection.
   private: gazebo::event::ConnectionPtr updateConnection;
@@ -195,7 +189,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: gazebo::common::Time lastControllerUpdateTime;
 
   /// \brief Robotiq Hand State.
-  private: robotiq_s_model_control::SModel_robot_input handleState;
+  private: atlas_msgs::SModelRobotInput handleState;
 
   /// \brief Controller update mutex.
   private: boost::mutex controlMutex;
@@ -210,8 +204,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: ros::Publisher pubHandleState;
 
   /// \brief ROS publisher queue for Robotiq Hand state.
-  private: PubQueue<robotiq_s_model_control::SModel_robot_input>::Ptr
-    pubHandleStateQueue;
+  private: PubQueue<atlas_msgs::SModelRobotInput>::Ptr pubHandleStateQueue;
 
   /// \brief World pointer.
   private: gazebo::physics::WorldPtr world;
