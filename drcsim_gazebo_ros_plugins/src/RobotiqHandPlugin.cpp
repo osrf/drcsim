@@ -416,6 +416,14 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
   else
     this->handleState.gIMC = 3;
 
+  // Check fingers' speed.
+  double velA = this->fingerJoints[3].GetVelocity(0);
+  double velB = this->fingerJoints[4].GetVelocity(0);
+  double velC = this->fingerJoints[5].GetVelocity(0);
+
+  if (velA < 0.001 && velB < 0.001 && velC < 0.001)
+    std::cout << "Gripper stoped" << std::endl;
+
   // ToDo (caguero): Check movement of the fingers.
   this->handleState.gSTA = 0;
   // ToDo (caguero): Check movement of the fingers.
