@@ -4,7 +4,7 @@
   <xacro:include filename="$(find robotiq_hand_description)/urdf/robotiq_hand.urdf.xacro" />
 
   <xacro:robotiq_hand prefix="l_" parent="l_hand" reflect="-1">
-    <origin rpy="3.14159 0 3.14159" xyz="-0.00125 0.17 0.01"/>
+    <origin rpy="3.14159 3.14159 3.14159" xyz="-0.00125 0.17 0.01"/>
   </xacro:robotiq_hand>
   <xacro:robotiq_hand prefix="r_" parent="r_hand" reflect="1">
     <origin rpy="3.14159 0 0" xyz="-0.00125 -0.17 0.01"/>
