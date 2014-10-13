@@ -88,7 +88,7 @@
             </box>
           </geometry>
           <material>
-            <script><name>DRCQual/Orange</name></script>
+            <script><name>Gazebo/Orange</name></script>
           </material>
         </visual>
       </link>
