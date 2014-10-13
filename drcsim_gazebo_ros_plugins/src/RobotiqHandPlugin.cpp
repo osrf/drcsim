@@ -15,13 +15,13 @@
  *
 */
 
-#include <string>
-#include <vector>
 #include <atlas_msgs/SModelRobotInput.h>
 #include <atlas_msgs/SModelRobotOutput.h>
+#include <ros/ros.h>
+#include <string>
+#include <vector>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
-#include <ros/ros.h>
 #include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
 
 // Default topic names initialization.
@@ -334,7 +334,6 @@ void RobotiqHandPlugin::UpdateStates()
       // Grasping mode initialized, let's change the state to Simplified Mode.
       if (this->handState == ChangeModeInProgress && this->IsHandFullyOpen())
       {
-
         this->prevCommand = this->handleCommand;
 
         // Restore the original command.
@@ -509,7 +508,7 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
     }
     else
     {
-      // Gripper is stopped. One or two fingers stopped before requested position.
+      // Gripper stopped. One or two fingers stopped before requested position.
       this->handleState.gSTA = 1;
     }
   }
@@ -562,7 +561,7 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
 
   // gPRS. Echo of requested position of the scissor action
   this->handleState.gPRS = this->userHandleCommand.rPRS;
-  // gPOS. Scissor current position [0-255]. We use the angle of finger B as reference
+  // gPOS. Scissor current position [0-255]. We use finger B as reference.
   this->handleState.gPOS = this->GetCurrentPosition(this->fingerJoints[1]);
   // gCUS. Not implemented.
   this->handleState.gCUS = 0;
