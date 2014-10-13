@@ -114,6 +114,25 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// return True when all the fingers are fully open or false otherwise.
   private: bool IsHandFullyOpen();
 
+  /// \brief Get the object detection value.
+  /// \param[in] _joint Finger joint.
+  /// \param[in] _index of the PID for this joint.
+  /// \param[in] _rPR Current position request.
+  /// \param[in] _prevrPR Previous position request.
+  /// \return The information on possible object contact:
+  /// 0 Finger is in motion (only meaningful if gGTO = 1).
+  /// 1 Finger has stopped due to a contact while opening.
+  /// 2 Finger has stopped due to a contact while closing.
+  /// 3 Finger is at the requested position.
+  private: uint8_t GetObjectDetection(const gazebo::physics::JointPtr &_joint,
+                                    int _index, uint8_t _rPR, uint8_t _prevrPR);
+
+  /// \brief Get the actual position of the finger.
+  /// \param[in] _joint Finger joint.
+  /// \return The actual position of the finger. 0 is the minimum position
+  /// (fully open) and 255 is the maximum position (fully closed).
+  private: uint8_t GetCurrentPosition(const gazebo::physics::JointPtr &_joint);
+
   /// \brief Internal helper to reduce code duplication. If the joint name is
   /// found, a pointer to the joint is added to a vector of joint pointers.
   /// \param[in] _jointName Joint name.
@@ -142,6 +161,15 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// The three fingers can do abduction/adduction.
   /// Fingers 1 and 2 can do circumduction in one axis.
   private: static const int NumJoints = 5;
+
+  /// \brief Velocity tolerance. Below this value we assume that the joint is
+  /// stopped.
+  private: static const double VelTolerance = 0.002;
+
+  /// \brief Position tolerance. If the difference between target position and
+  /// current position is within this value we'll conclude that the joint
+  /// reached its target.
+  private: static const double PoseTolerance = 0.002;
 
   /// \brief Default topic name for sending control updates to the left hand.
   private: static const std::string DefaultLeftTopicCommand;
