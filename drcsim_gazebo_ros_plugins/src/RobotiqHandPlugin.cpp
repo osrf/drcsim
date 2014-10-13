@@ -21,17 +21,18 @@
 #include <string>
 #include <vector>
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/math/Angle.hh>
 #include <gazebo/physics/physics.hh>
 #include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
 
 // Default topic names initialization.
-const std::string RobotiqHandPlugin::DefaultLeftTopicCommand =
+const std::string RobotiqHandPlugin::DefaultLeftTopicCommand  =
   "/left_hand/command";
-const std::string RobotiqHandPlugin::DefaultLeftTopicState =
+const std::string RobotiqHandPlugin::DefaultLeftTopicState    =
   "/left_hand/state";
 const std::string RobotiqHandPlugin::DefaultRightTopicCommand =
   "/right_hand/command";
-const std::string RobotiqHandPlugin::DefaultRightTopicState =
+const std::string RobotiqHandPlugin::DefaultRightTopicState   =
   "/right_hand/state";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +191,7 @@ bool RobotiqHandPlugin::VerifyField(const std::string &_label, int _min,
   if (_v < _min || _v > _max)
   {
     std::cerr << "Illegal " << _label << " value: [" << _v << "]. The correct "
-              << "range is [" << _min << "-" << _max << "]" << std::endl;
+              << "range is [" << _min << "," << _max << "]" << std::endl;
     return false;
   }
   return true;
@@ -200,12 +201,12 @@ bool RobotiqHandPlugin::VerifyField(const std::string &_label, int _min,
 bool RobotiqHandPlugin::VerifyCommand(
     const atlas_msgs::SModelRobotOutput::ConstPtr &_command)
 {
-  return this->VerifyField("rACT", 0, 1, _command->rACT)   &&
-         this->VerifyField("rMOD", 0, 3, _command->rACT)   &&
-         this->VerifyField("rGTO", 0, 1, _command->rACT)   &&
-         this->VerifyField("rATR", 0, 1, _command->rACT)   &&
-         this->VerifyField("rICF", 0, 1, _command->rACT)   &&
-         this->VerifyField("rICS", 0, 1, _command->rACT)   &&
+  return this->VerifyField("rACT", 0, 1,   _command->rACT) &&
+         this->VerifyField("rMOD", 0, 3,   _command->rACT) &&
+         this->VerifyField("rGTO", 0, 1,   _command->rACT) &&
+         this->VerifyField("rATR", 0, 1,   _command->rACT) &&
+         this->VerifyField("rICF", 0, 1,   _command->rACT) &&
+         this->VerifyField("rICS", 0, 1,   _command->rACT) &&
          this->VerifyField("rPRA", 0, 255, _command->rACT) &&
          this->VerifyField("rSPA", 0, 255, _command->rACT) &&
          this->VerifyField("rFRA", 0, 255, _command->rACT) &&
@@ -415,7 +416,8 @@ uint8_t RobotiqHandPlugin::GetObjectDetection(
   // Check finger's speed.
   bool isMoving = _joint->GetVelocity(0) > this->VelTolerance;
 
-  // Check if the finger reached its target positions.
+  // Check if the finger reached its target positions. We look at the error in
+  // the position PID to decide if reached the target.
   double pe, ie, de;
   this->posePID[_index].GetErrors(pe, ie, de);
   bool reachPosition = pe < this->PoseTolerance;
@@ -449,8 +451,11 @@ uint8_t RobotiqHandPlugin::GetObjectDetection(
 uint8_t RobotiqHandPlugin::GetCurrentPosition(
   const gazebo::physics::JointPtr &_joint)
 {
+  // Full range of motion.
   gazebo::math::Angle range =
     _joint->GetUpperLimit(0) - _joint->GetLowerLimit(0);
+
+  // Angle relative to the lower limit.
   gazebo::math::Angle relAngle = _joint->GetAngle(0) - _joint->GetLowerLimit(0);
   return
     static_cast<uint8_t>(round(255.0 * relAngle.Radian() / range.Radian()));
@@ -459,14 +464,16 @@ uint8_t RobotiqHandPlugin::GetCurrentPosition(
 ////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::GetAndPublishHandleState()
 {
-  // gACT.
+  // gACT. Initialization status.
   this->handleState.gACT = this->userHandleCommand.rACT;
-  // gMOD.
+
+  // gMOD. Operation mode status.
   this->handleState.gMOD = this->userHandleCommand.rMOD;
-  // gGTO.
+
+  // gGTO. Action status.
   this->handleState.gGTO = this->userHandleCommand.rGTO;
 
-  // gIMC.
+  // gIMC. Gripper status.
   if (this->handState == Emergency)
     this->handleState.gIMC = 0;
   else if (this->handState == ChangeModeInProgress)
@@ -488,7 +495,7 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
   this->posePID[4].GetErrors(pe, ie, de);
   bool reachPositionC = pe < this->PoseTolerance;
 
-  // gSTA.
+  // gSTA. Motion status.
   if (isMovingA || isMovingB || isMovingC)
   {
     // Gripper is in motion.
@@ -513,22 +520,23 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
     }
   }
 
-  // gDTA.
+  // gDTA. Finger A object detection.
   this->handleState.gDTA = this->GetObjectDetection(this->fingerJoints[2], 2,
     this->handleCommand.rPRA, this->prevCommand.rPRA);
 
-  // gDTB.
+  // gDTB. Finger B object detection.
   this->handleState.gDTB = this->GetObjectDetection(this->fingerJoints[3], 3,
     this->handleCommand.rPRB, this->prevCommand.rPRB);
 
-  // gDTC.
+  // gDTC. Finger C object detection
   this->handleState.gDTC = this->GetObjectDetection(this->fingerJoints[4], 4,
     this->handleCommand.rPRC, this->prevCommand.rPRC);
 
-  // gDTS. We use the joint 0 of finger A as a reference.
+  // gDTS. Scissor object detection. We use finger A as a reference.
   this->handleState.gDTS = this->GetObjectDetection(this->fingerJoints[0], 0,
     this->handleCommand.rPRS, this->prevCommand.rPRS);
 
+  // gFLT. Fault status.
   if (this->handState == ChangeModeInProgress)
     this->handleState.gFLT = 6;
   else if (this->handState == Disabled)
@@ -549,7 +557,7 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
   this->handleState.gPRB = this->userHandleCommand.rPRB;
   // gPOB. Finger B position [0-255].
   this->handleState.gPOB = this->GetCurrentPosition(this->fingerJoints[3]);
-  // Not implemented.
+  // gCUB. Not implemented.
   this->handleState.gCUB = 0;
 
   // gPRC. Echo of requested position for finger C.

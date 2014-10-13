@@ -79,7 +79,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Destructor.
   public: virtual ~RobotiqHandPlugin();
 
-  /// \brief Load the controller.
+  // Documentation inherited.
   public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
   /// \brief ROS callback queue thread.
@@ -114,9 +114,9 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// return True when all the fingers are fully open or false otherwise.
   private: bool IsHandFullyOpen();
 
-  /// \brief Get the object detection value.
+  /// \brief Internal helper to get the object detection value.
   /// \param[in] _joint Finger joint.
-  /// \param[in] _index of the PID for this joint.
+  /// \param[in] _index Index of the position PID for this joint.
   /// \param[in] _rPR Current position request.
   /// \param[in] _prevrPR Previous position request.
   /// \return The information on possible object contact:
@@ -127,7 +127,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: uint8_t GetObjectDetection(const gazebo::physics::JointPtr &_joint,
                                     int _index, uint8_t _rPR, uint8_t _prevrPR);
 
-  /// \brief Get the actual position of the finger.
+  /// \brief Internal helper to get the actual position of the finger.
   /// \param[in] _joint Finger joint.
   /// \return The actual position of the finger. 0 is the minimum position
   /// (fully open) and 255 is the maximum position (fully closed).
@@ -207,6 +207,8 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// grasping mode.
   private: atlas_msgs::SModelRobotOutput lastHandleCommand;
 
+  /// \brief Previous command received. We know if the hand is opening or
+  /// closing by comparing the current command and the previous one.
   private: atlas_msgs::SModelRobotOutput prevCommand;
 
   /// \brief Original HandleControl message (published by user and unmodified).
