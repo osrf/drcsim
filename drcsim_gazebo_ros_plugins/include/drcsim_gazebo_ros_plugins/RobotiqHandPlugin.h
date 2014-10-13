@@ -179,6 +179,8 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// grasping mode.
   private: atlas_msgs::SModelRobotOutput lastHandleCommand;
 
+  private: atlas_msgs::SModelRobotOutput prevCommand;
+
   /// \brief Original HandleControl message (published by user and unmodified).
   private: atlas_msgs::SModelRobotOutput userHandleCommand;
 

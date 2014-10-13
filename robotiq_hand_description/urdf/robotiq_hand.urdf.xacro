@@ -240,7 +240,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 			<axis xyz="0 1 0"/>
 			<origin rpy="0 3.1416 -1.57" xyz="-0.0455 0.0214 0.036"/>
 			<!-- Limits: [-17deg.,17deg.] -->
-			<limit lower="-0.2967" upper="0.2967" effort="100" velocity="100"/>
+			<limit lower="-0.2967" upper="0.2967" effort="100" velocity="-1"/>
 		</joint>
 
 		<gazebo reference="${prefix}palm_finger_1_joint">
@@ -254,7 +254,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 			<axis xyz="0 1 0"/>
 			<origin rpy="0 3.1416 -1.57" xyz="-0.0455 0.0214 -0.036"/>
 			<!-- Limits: [-17deg.,17deg.] -->
-			<limit lower="-0.2967" upper="0.2967" effort="100" velocity="100"/>
+			<limit lower="-0.2967" upper="0.2967" effort="100" velocity="-1"/>
 		</joint>
 
 		<gazebo reference="${prefix}palm_finger_2_joint">
@@ -266,7 +266,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
 			<dynamics damping="1" friction="0" />
 			<axis xyz="0 1 0"/>
 			<origin rpy="0 0 1.57" xyz="0.0455 0.0214 0"/>
-			<limit lower="0" upper="0" effort="100" velocity="100"/>
+			<limit lower="0" upper="0" effort="100" velocity="-1"/>
 		</joint>
 
 		<gazebo reference="${prefix}palm_finger_middle_joint">

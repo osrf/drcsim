@@ -40,7 +40,7 @@ RobotiqHandPlugin::RobotiqHandPlugin()
   // PID default parameters.
   for (int i = 0; i < this->NumJoints; ++i)
   {
-    this->posePID[i].Init(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    this->posePID[i].Init(5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     this->posePID[i].SetCmd(0.0);
   }
 
@@ -233,6 +233,8 @@ void RobotiqHandPlugin::SetHandleCommand(
     return;
   }
 
+  this->prevCommand = this->handleCommand;
+
   // Update handleCommand.
   this->handleCommand = *_msg;
 }
@@ -332,6 +334,9 @@ void RobotiqHandPlugin::UpdateStates()
       // Grasping mode initialized, let's change the state to Simplified Mode.
       if (this->handState == ChangeModeInProgress && this->IsHandFullyOpen())
       {
+
+        this->prevCommand = this->handleCommand;
+
         // Restore the original command.
         this->handleCommand = this->lastHandleCommand;
         this->handState = Simplified;
@@ -393,11 +398,12 @@ void RobotiqHandPlugin::UpdateStates()
                   << std::endl;
     }
 
+    // Update the hand controller.
+    this->UpdatePIDControl((curTime - this->lastControllerUpdateTime).Double());
+
     // Gather robot state data and publish them.
     this->GetAndPublishHandleState();
 
-    // Update the hand controller.
-    this->UpdatePIDControl((curTime - this->lastControllerUpdateTime).Double());
     this->lastControllerUpdateTime = curTime;
   }
 }
@@ -417,23 +423,156 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
     this->handleState.gIMC = 3;
 
   // Check fingers' speed.
-  double velA = this->fingerJoints[3].GetVelocity(0);
-  double velB = this->fingerJoints[4].GetVelocity(0);
-  double velC = this->fingerJoints[5].GetVelocity(0);
+  const double VelTolerance = 0.002;
+  bool isMovingScissorA = this->fingerJoints[0]->GetVelocity(0) > VelTolerance;
+  bool isMovingScissorB = this->fingerJoints[1]->GetVelocity(0) > VelTolerance;
+  bool isMovingA = this->fingerJoints[2]->GetVelocity(0) > VelTolerance;
+  bool isMovingB = this->fingerJoints[3]->GetVelocity(0) > VelTolerance;
+  bool isMovingC = this->fingerJoints[4]->GetVelocity(0) > VelTolerance;
 
-  if (velA < 0.001 && velB < 0.001 && velC < 0.001)
-    std::cout << "Gripper stoped" << std::endl;
 
-  // ToDo (caguero): Check movement of the fingers.
-  this->handleState.gSTA = 0;
-  // ToDo (caguero): Check movement of the fingers.
-  this->handleState.gDTA = 0;
-  // ToDo (caguero): Check movement of the fingers.
-  this->handleState.gDTB = 0;
-  // ToDo (caguero): Check movement of the fingers.
-  this->handleState.gDTC = 0;
-  // ToDo (caguero): Check movement of the fingers.
-  this->handleState.gDTS = 0;
+  // Check if the fingers reached their target positions.
+  double pe, ie, de;
+  const double PoseTolerance = 0.002;
+  this->posePID[0].GetErrors(pe, ie, de);
+  bool reachPositionScissorA = pe < 0.002;
+  this->posePID[1].GetErrors(pe, ie, de);
+  bool reachPositionScissorB = pe < 0.002;
+  this->posePID[2].GetErrors(pe, ie, de);
+  bool reachPositionA = pe < 0.002;
+  this->posePID[3].GetErrors(pe, ie, de);
+  bool reachPositionB = pe < 0.002;
+  this->posePID[4].GetErrors(pe, ie, de);
+  bool reachPositionC = pe < 0.002;
+
+
+
+  // Motion status.
+  if (isMovingA || isMovingB || isMovingC)
+  {
+    // Gripper is in motion.
+    this->handleState.gSTA = 0;
+  }
+  else
+  {
+    if (reachPositionA && reachPositionB && reachPositionC)
+    {
+      // Gripper is stopped: All fingers reached requested position.
+      this->handleState.gSTA = 3;
+    }
+    else if (!reachPositionA && !reachPositionB && !reachPositionC)
+    {
+      // Gripper is stopped: All fingers stopped before requested position.
+      this->handleState.gSTA = 2;
+    }
+    else
+    {
+      // Gripper is stopped. One or two fingers stopped before requested position.
+      this->handleState.gSTA = 1;
+    }
+  }
+
+  // Object status.
+
+  // gDTA.
+  if (isMovingA)
+  {
+    // Finger A is in motion.
+    this->handleState.gDTA = 0;
+  }
+  else
+  {
+    if (reachPositionA)
+    {
+      // Finger A is at the requestedPosition.
+      this->handleState.gDTA = 3;
+    }
+    else if (this->handleCommand.rPRA - this->prevCommand.rPRA > 0)
+    {
+      // Finger A has stopped due to a contact while closing.
+      this->handleState.gDTA = 2;
+    }
+    else
+    {
+      // Finger A has stopped due to a contact while opening.
+      this->handleState.gDTA = 1;
+    }
+  }
+
+  // gDTB.
+  if (isMovingB)
+  {
+    // Finger B is in motion.
+    this->handleState.gDTB = 0;
+  }
+  else
+  {
+    if (reachPositionB)
+    {
+      // Finger B is at the requestedPosition.
+      this->handleState.gDTB = 3;
+    }
+    else if (this->handleCommand.rPRB - this->prevCommand.rPRB > 0)
+    {
+      // Finger B has stopped due to a contact while closing.
+      this->handleState.gDTB = 2;
+    }
+    else
+    {
+      // Finger B has stopped due to a contact while opening.
+      this->handleState.gDTB = 1;
+    }
+  }
+
+  // gDTC.
+  if (isMovingC)
+  {
+    // Finger C is in motion.
+    this->handleState.gDTC = 0;
+  }
+  else
+  {
+    if (reachPositionC)
+    {
+      // Finger C is at the requestedPosition.
+      this->handleState.gDTC = 3;
+    }
+    else if (this->handleCommand.rPRC - this->prevCommand.rPRC > 0)
+    {
+      // Finger C has stopped due to a contact while closing.
+      this->handleState.gDTC = 2;
+    }
+    else
+    {
+      // Finger C has stopped due to a contact while opening.
+      this->handleState.gDTC = 1;
+    }
+  }
+
+  // gDTS.
+  if (isMovingScissorA || isMovingScissorB)
+  {
+    // Scissor is in motion.
+    this->handleState.gDTS = 0;
+  }
+  else
+  {
+    if (reachPositionScissorA && reachPositionScissorB)
+    {
+      // Scissor is at the requestedPosition.
+      this->handleState.gDTS = 3;
+    }
+    else if (this->handleCommand.rPRS - this->prevCommand.rPRS > 0)
+    {
+      // Finger C has stopped due to a contact while closing.
+      this->handleState.gDTS = 2;
+    }
+    else
+    {
+      // Finger C has stopped due to a contact while opening.
+      this->handleState.gDTS = 1;
+    }
+  }
 
   if (this->handState == ChangeModeInProgress)
     this->handleState.gFLT = 6;
@@ -446,29 +585,50 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
 
   // Echo of requested position for finger A.
   this->handleState.gPRA = this->userHandleCommand.rPRA;
-  // ToDo: Normalize position between [0-255].
-  this->handleState.gPOA = 0;
+  // Finger A position [0-255].
+  gazebo::math::Angle range = this->fingerJoints[2]->GetUpperLimit(0) -
+    this->fingerJoints[2]->GetLowerLimit(0);
+  gazebo::math::Angle relAngle = this->fingerJoints[2]->GetAngle(0) -
+    this->fingerJoints[2]->GetLowerLimit(0);
+  this->handleState.gPOA =
+    static_cast<int>(round(255.0 * relAngle.Radian() / range.Radian()));
   // Not implemented.
   this->handleState.gCUA = 0;
 
+
   // Echo of requested position for finger B.
   this->handleState.gPRB = this->userHandleCommand.rPRB;
-  // ToDo (caguero): Normalize position between [0-255].
-  this->handleState.gPOB = 0;
+  // Finger B position [0-255].
+  range = this->fingerJoints[3]->GetUpperLimit(0) -
+    this->fingerJoints[3]->GetLowerLimit(0);
+  relAngle = this->fingerJoints[3]->GetAngle(0) -
+    this->fingerJoints[3]->GetLowerLimit(0);
+  this->handleState.gPOB =
+    static_cast<int>(round(255.0 * relAngle.Radian() / range.Radian()));
   // Not implemented.
   this->handleState.gCUB = 0;
 
   // Echo of requested position for finger C.
   this->handleState.gPRC = this->userHandleCommand.rPRC;
-  // ToDo (caguero): Normalize position between [0-255].
-  this->handleState.gPOC = 0;
+  // Finger C position [0-255].
+  range = this->fingerJoints[4]->GetUpperLimit(0) -
+    this->fingerJoints[4]->GetLowerLimit(0);
+  relAngle = this->fingerJoints[4]->GetAngle(0) -
+    this->fingerJoints[4]->GetLowerLimit(0);
+  this->handleState.gPOC =
+    static_cast<int>(round(255.0 * relAngle.Radian() / range.Radian()));
   // Not implemented.
   this->handleState.gCUC = 0;
 
-
+  // Echo of requested position of the scissor action
   this->handleState.gPRS = this->userHandleCommand.rPRS;
-  // ToDo: Implemented scissor current position [0-255].
-  this->handleState.gPOS = 0;
+  // Scissor current position [0-255]. We use the angle of finger B as reference
+  range = this->fingerJoints[1]->GetUpperLimit(0) -
+    this->fingerJoints[1]->GetLowerLimit(0);
+  relAngle = this->fingerJoints[1]->GetAngle(0) -
+    this->fingerJoints[1]->GetLowerLimit(0);
+  this->handleState.gPOS =
+    static_cast<int>(round(255.0 * relAngle.Radian() / range.Radian()));
   // Not implemented.
   this->handleState.gCUS = 0;
 
