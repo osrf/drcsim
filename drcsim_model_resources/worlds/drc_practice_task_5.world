@@ -167,7 +167,7 @@ NOTES:
       * mechanics of handle not modelled (turning handle will not release latch)
       * physical dimensions estimated
       * collision and visual geometries use the same mesh data
-          - it is possible for other parts to become â€œembeddedâ€ within this model, which is incorrect.
+          - it is possible for other parts to become "embedded" within this model, which is incorrect.
 
 DISCLAIMER:
 The models are intended to represent the type of obstacles to be encountered during the DRC trials, but may not match the exact configurations used in the trial events (doors may appear in different orientations).  DARPA reserves the right to change any elements of these tasks without updating these model files.
