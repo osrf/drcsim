@@ -25,6 +25,7 @@
 #include <boost/thread/mutex.hpp>
 #include <gazebo/common/PID.hh>
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Time.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo_plugins/PubQueue.h>
 #include <ros/advertise_options.h>
@@ -32,6 +33,21 @@
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
 #include <sensor_msgs/JointState.h>
+
+
+class RobotiqPID : public gazebo::common::PID
+{
+  /// \brief Update the Pid loop with nonuniform time step size.
+  /// \param[_in] _pError Position error since last call (p_state - p_target).
+  /// \param[_in] _vError Velocity error since last call.
+  /// \param[_in] _dt Change in time since last update call.
+  /// Normally, this is called at every time step,
+  /// The return value is an updated command to be passed
+  /// to the object being controlled.
+  /// \return the command value
+  public: double Update(double _pError, double vError,
+                        gazebo::common::Time _dt);
+};
 
 /// \brief A plugin that implements the Robotiq 3-Finger Adaptative Gripper.
 /// The plugin exposes the next parameters via SDF tags:
@@ -254,7 +270,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: gazebo::physics::Joint_V fingerJoints;
 
   /// \brief PIDs used to control the finger positions.
-  private: gazebo::common::PID posePID[NumJoints];
+  private: RobotiqPID posePID[NumJoints];
 };
 
 #endif

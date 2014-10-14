@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Time.hh>
 #include <gazebo/math/Angle.hh>
 #include <gazebo/physics/physics.hh>
 #include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
@@ -34,6 +35,13 @@ const std::string RobotiqHandPlugin::DefaultRightTopicCommand =
   "/right_hand/command";
 const std::string RobotiqHandPlugin::DefaultRightTopicState   =
   "/right_hand/state";
+
+////////////////////////////////////////////////////////////////////////////////
+double RobotiqPID::Update(double _pError, double vError,
+                          gazebo::common::Time _dt)
+{
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 RobotiqHandPlugin::RobotiqHandPlugin()
@@ -80,6 +88,10 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
     return;
   }
 
+  // Load the vector of joints.
+  if (!this->FindJoints())
+    return;
+
   // Default ROS topic names.
   std::string controlTopicName = this->DefaultLeftTopicCommand;
   std::string stateTopicName   = this->DefaultLeftTopicState;
@@ -89,9 +101,13 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
     stateTopicName   = this->DefaultRightTopicState;
   }
 
-  // Overload the PID parameters if they are available.
   for (int i = 0; i < this->NumJoints; ++i)
   {
+    // Set the PID effort limits.
+    this->posePID[i].SetCmdMin(-this->fingerJoints[i]->GetEffortLimit(0));
+    this->posePID[i].SetCmdMax(this->fingerJoints[i]->GetEffortLimit(0));
+
+    // Overload the PID parameters if they are available.
     if (this->sdf->HasElement("kp_position"))
       this->posePID[i].SetPGain(this->sdf->Get<double>("kp_position"));
 
@@ -114,10 +130,6 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
 
   if (this->sdf->HasElement("topic_state"))
     stateTopicName = this->sdf->Get<std::string>("topic_state");
-
-  // Load the vector of joints.
-  if (!this->FindJoints())
-    return;
 
   // Initialize ROS.
   if (!ros::isInitialized())
@@ -591,23 +603,23 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 
   for (int i = 0; i < this->NumJoints; ++i)
   {
-    double target = 0.0;
-    double speed = 0.5;
+    double targetPose = 0.0;
+    double targetSpeed = 0.5;
 
     if (i == 0)
     {
       switch (this->graspingMode)
       {
         case Wide:
-          target = this->fingerJoints[i]->GetUpperLimit(0).Radian();
+          targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian();
           break;
 
         case Pinch:
-          target = this->fingerJoints[i]->GetLowerLimit(0).Radian();
+          targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian();
           break;
 
         case Scissor:
-          target = this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+          targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian() -
             (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
              this->fingerJoints[i]->GetLowerLimit(0).Radian())
             * this->handleCommand.rPRA / 255.0;
@@ -619,15 +631,15 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
       switch (this->graspingMode)
       {
         case Wide:
-          target = this->fingerJoints[i]->GetLowerLimit(0).Radian();
+          targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian();
           break;
 
         case Pinch:
-          target = this->fingerJoints[i]->GetUpperLimit(0).Radian();
+          targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian();
           break;
 
         case Scissor:
-          target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+          targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
             (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
              this->fingerJoints[i]->GetLowerLimit(0).Radian())
             * this->handleCommand.rPRA / 255.0;
@@ -638,47 +650,49 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
     {
       if (this->graspingMode != Scissor)
       {
-        target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
           (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRA / 255.0;
       }
-      speed = this->handleCommand.rSPA / 255.0;
+      targetSpeed = this->handleCommand.rSPA / 255.0;
     }
     else if (i == 3)
     {
       if (this->graspingMode != Scissor)
       {
-        target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
           (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRB / 255.0;
       }
-      speed = this->handleCommand.rSPB / 255.0;
+      targetSpeed = this->handleCommand.rSPB / 255.0;
     }
     else if (i == 4)
     {
       if (this->graspingMode != Scissor)
       {
-        target = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
           (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRC / 255.0;
       }
-      speed = this->handleCommand.rSPC / 255.0;
+      targetSpeed = this->handleCommand.rSPC / 255.0;
     }
 
     // Speed multiplier.
-    speed *= 2.0;
+    targetSpeed *= 2.0;
 
     // Get the current pose.
     double current = this->fingerJoints[i]->GetAngle(0).Radian();
 
     // Error pose.
-    double poseError = target - current;
+    double poseError = targetPose - current;
 
     // Update the PID.
-    double torque = this->posePID[i].Update(poseError, _dt);
+    //double torque;
+
+    double torque = this->posePID[i].Update(poseError, 0.0, _dt);
 
     // Apply the PID command.
     this->fingerJoints[i]->SetForce(0, -torque);
