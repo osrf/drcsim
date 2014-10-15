@@ -218,7 +218,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
         <collision>
           <origin rpy="0 0 0" xyz="0 0 0"/>
           <geometry>
-            <box size="0.1 0.1 0.08"/>
+            <box size="0.1 0.1 0.1"/>
           </geometry>
           <material name="yellow">
             <color rgba="0 1 1 1"/>
