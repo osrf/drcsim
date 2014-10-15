@@ -81,9 +81,33 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
     return;
   }
 
-  // Load the vector of joints.
-  if (!this->FindJoints())
+  // Load the vector of all joints.
+  std::string prefix;
+  if (this->side == "left")
+    prefix = "l_";
+  else
+    prefix = "r_";
+
+  // Load the vector of all joints (rviz visualization).
+  if (!this->FindAllJoints())
     return;
+
+  // Load the vector of actuated joints (control).
+  if (!this->FindActuatedJoints())
+    return;
+
+  // Initialize joint state vector.
+  this->jointStates.name.resize(this->jointNames.size());
+  this->jointStates.position.resize(this->jointNames.size());
+  this->jointStates.velocity.resize(this->jointNames.size());
+  this->jointStates.effort.resize(this->jointNames.size());
+  for (size_t i = 0; i < this->jointNames.size(); ++i)
+  {
+    this->jointStates.name[i] = this->jointNames[i];
+    this->jointStates.position[i] = 0;
+    this->jointStates.velocity[i] = 0;
+    this->jointStates.effort[i] = 0;
+  }
 
   // Default ROS topic names.
   std::string controlTopicName = this->DefaultLeftTopicCommand;
@@ -147,6 +171,12 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   this->pubHandleStateQueue = this->pmq.addPub<atlas_msgs::SModelRobotInput>();
   this->pubHandleState = this->rosNode->advertise<atlas_msgs::SModelRobotInput>(
     stateTopicName, 100, true);
+
+  // Broadcast joint state.
+  std::string topicBase = std::string("robotiq_hands/") + this->side;
+  this->pubJointStatesQueue = this->pmq.addPub<sensor_msgs::JointState>();
+  this->pubJointStates = this->rosNode->advertise<sensor_msgs::JointState>(
+    topicBase + std::string("_hand/joint_states"), 10);
 
   // Subscribe to user published handle control commands.
   ros::SubscribeOptions handleCommandSo =
@@ -413,6 +443,9 @@ void RobotiqHandPlugin::UpdateStates()
     // Gather robot state data and publish them.
     this->GetAndPublishHandleState();
 
+    // Publish joint states.
+    this->GetAndPublishJointState(curTime);
+
     this->lastControllerUpdateTime = curTime;
   }
 }
@@ -588,6 +621,21 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void RobotiqHandPlugin::GetAndPublishJointState(
+                                           const gazebo::common::Time &_curTime)
+{
+  this->jointStates.header.stamp = ros::Time(_curTime.sec, _curTime.nsec);
+  for (size_t i = 0; i < this->joints.size(); ++i)
+  {
+    this->jointStates.position[i] = this->joints[i]->GetAngle(0).Radian();
+    this->jointStates.velocity[i] = this->joints[i]->GetVelocity(0);
+    // better to use GetForceTorque dot joint axis
+    this->jointStates.effort[i] = this->joints[i]->GetForce(0u);
+  }
+  this->pubJointStatesQueue->push(this->jointStates, this->pubJointStates);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 {
   if (this->handState == Disabled)
@@ -704,41 +752,142 @@ bool RobotiqHandPlugin::GetAndPushBackJoint(const std::string& _jointName,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool RobotiqHandPlugin::FindJoints()
+bool RobotiqHandPlugin::FindActuatedJoints()
 {
   // Load up the joints we expect to use, finger by finger.
   gazebo::physics::JointPtr joint;
   std::string prefix;
   if (this->side == "left")
-    prefix = "l";
+    prefix = "l_";
   else
-    prefix = "r";
+    prefix = "r_";
 
-  if (!this->GetAndPushBackJoint(prefix + "_palm_finger_1_joint",
+  if (!this->GetAndPushBackJoint(prefix + "palm_finger_1_joint",
         this->fingerJoints))
   {
     return false;
   }
-  if (!this->GetAndPushBackJoint(prefix + "_palm_finger_2_joint",
+  if (!this->GetAndPushBackJoint(prefix + "palm_finger_2_joint",
         this->fingerJoints))
   {
     return false;
   }
-  if (!this->GetAndPushBackJoint(prefix + "_finger_1_joint_1",
+  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_1",
         this->fingerJoints))
   {
     return false;
   }
-  if (!this->GetAndPushBackJoint(prefix + "_finger_2_joint_1",
+  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_1",
          this->fingerJoints))
   {
     return false;
   }
-  if (!this->GetAndPushBackJoint(prefix + "_finger_middle_joint_1",
+  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_1",
           this->fingerJoints))
   {
     return false;
   }
+
+  gzlog << "RobotiqHandPlugin found all actuated joints for " << this->side
+        << " hand." << std::endl;
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool RobotiqHandPlugin::FindAllJoints()
+{
+  // Load up the joints we expect to use, finger by finger.
+  gazebo::physics::JointPtr joint;
+  std::string prefix;
+  if (this->side == "left")
+    prefix = "l_";
+  else
+    prefix = "r_";
+
+  if (!this->GetAndPushBackJoint(prefix + "palm_finger_1_joint",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "palm_finger_1_joint");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_1",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_1_joint_1");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_2",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_1_joint_2");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_3",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_1_joint_3");
+
+  if (!this->GetAndPushBackJoint(prefix + "palm_finger_2_joint",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "palm_finger_2_joint");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_1",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_2_joint_1");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_2",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_2_joint_2");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_3",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_2_joint_3");
+
+  if (!this->GetAndPushBackJoint(prefix + "palm_finger_middle_joint",
+          this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "palm_finger_middle_joint");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_1",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_middle_joint_1");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_2",
+        this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_middle_joint_2");
+
+  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_3",
+         this->joints))
+  {
+    return false;
+  }
+  this->jointNames.push_back(prefix + "finger_middle_joint_3");
+
 
   gzlog << "RobotiqHandPlugin found all joints for " << this->side
         << " hand." << std::endl;

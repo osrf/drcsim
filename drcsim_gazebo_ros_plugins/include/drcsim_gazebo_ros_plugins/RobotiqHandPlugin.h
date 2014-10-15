@@ -98,12 +98,19 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Publish Robotiq Hand state.
   private: void GetAndPublishHandleState();
 
+  /// \brief Publish Robotiq Joint state.
+  private: void GetAndPublishJointState(const gazebo::common::Time &_curTime);
+
   /// \brief Update the controller.
   private: void UpdateStates();
 
-  /// \brief Grab pointers to all the joints we're going to use.
+  /// \brief Grab pointers to all the actuated joints.
   /// \return true on success, false otherwise.
-  private: bool FindJoints();
+  private: bool FindActuatedJoints();
+
+  /// \brief Grab pointers to all the joints.
+  /// \return true on success, false otherwise.
+  private: bool FindAllJoints();
 
   /// \brief Fully open the hand at half of the maximum speed.
   private: void ReleaseHand();
@@ -245,6 +252,15 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief ROS publisher queue for Robotiq Hand state.
   private: PubQueue<atlas_msgs::SModelRobotInput>::Ptr pubHandleStateQueue;
 
+  /// \brief Joint state publisher (rviz visualization).
+  private: ros::Publisher pubJointStates;
+
+  /// \brief ROS publisher queue for joint states.
+  private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
+
+  /// \brief ROS joint state message.
+  private: sensor_msgs::JointState jointStates;
+
   /// \brief World pointer.
   private: gazebo::physics::WorldPtr world;
 
@@ -257,8 +273,14 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Used to select between 'left' or 'right' hand.
   private: std::string side;
 
-  /// \brief Vector containing all the finger joints.
+  /// \brief Vector containing all the joint names.
+  private: std::vector<std::string> jointNames;
+
+  /// \brief Vector containing all the actuated finger joints.
   private: gazebo::physics::Joint_V fingerJoints;
+
+  /// \brief Vector containing all the joints.
+  private: gazebo::physics::Joint_V joints;
 
   /// \brief PIDs used to control the finger positions.
   private: gazebo::common::PID posePID[NumJoints];
