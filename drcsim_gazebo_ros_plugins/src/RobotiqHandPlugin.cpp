@@ -88,12 +88,8 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   else
     prefix = "r_";
 
-  // Load the vector of all joints (rviz visualization).
-  if (!this->FindAllJoints())
-    return;
-
-  // Load the vector of actuated joints (control).
-  if (!this->FindActuatedJoints())
+  // Load the vector of all joints.
+  if (!this->FindJoints())
     return;
 
   // Initialize joint state vector.
@@ -752,142 +748,98 @@ bool RobotiqHandPlugin::GetAndPushBackJoint(const std::string& _jointName,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool RobotiqHandPlugin::FindActuatedJoints()
+bool RobotiqHandPlugin::FindJoints()
 {
   // Load up the joints we expect to use, finger by finger.
   gazebo::physics::JointPtr joint;
   std::string prefix;
+  std::string suffix;
   if (this->side == "left")
     prefix = "l_";
   else
     prefix = "r_";
 
-  if (!this->GetAndPushBackJoint(prefix + "palm_finger_1_joint",
-        this->fingerJoints))
-  {
+  // palm_finger_1_joint (actuated).
+  suffix = "palm_finger_1_joint";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  if (!this->GetAndPushBackJoint(prefix + "palm_finger_2_joint",
-        this->fingerJoints))
-  {
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
     return false;
-  }
-  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_1",
-        this->fingerJoints))
-  {
-    return false;
-  }
-  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_1",
-         this->fingerJoints))
-  {
-    return false;
-  }
-  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_1",
-          this->fingerJoints))
-  {
-    return false;
-  }
+  this->jointNames.push_back(prefix + suffix);
 
-  gzlog << "RobotiqHandPlugin found all actuated joints for " << this->side
-        << " hand." << std::endl;
-  return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool RobotiqHandPlugin::FindAllJoints()
-{
-  // Load up the joints we expect to use, finger by finger.
-  gazebo::physics::JointPtr joint;
-  std::string prefix;
-  if (this->side == "left")
-    prefix = "l_";
-  else
-    prefix = "r_";
-
-  if (!this->GetAndPushBackJoint(prefix + "palm_finger_1_joint",
-        this->joints))
-  {
+  // palm_finger_2_joint (actuated).
+  suffix = "palm_finger_2_joint";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "palm_finger_1_joint");
-
-  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_1",
-        this->joints))
-  {
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
     return false;
-  }
+  this->jointNames.push_back(prefix + suffix);
+
+  // finger_1_joint_1 (actuated).
+  suffix = "finger_1_joint_1";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
+    return false;
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
+    return false;
   this->jointNames.push_back(prefix + "finger_1_joint_1");
 
-  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_2",
-        this->joints))
-  {
+  // finger_2_joint_1 (actuated).
+  suffix = "finger_2_joint_1";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
+    return false;
+  this->jointNames.push_back(prefix + suffix);
+
+  // finger_middle_joint_1 (actuated).
+  suffix = "finger_middle_joint_1";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
+    return false;
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
+    return false;
+  this->jointNames.push_back(prefix + suffix);
+
+  // finger_1_joint_2 (underactuated).
+  suffix = "finger_1_joint_2";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
+    return false;
   this->jointNames.push_back(prefix + "finger_1_joint_2");
 
-  if (!this->GetAndPushBackJoint(prefix + "finger_1_joint_3",
-        this->joints))
-  {
+  // finger_1_joint_3 (underactuated).
+  suffix = "finger_1_joint_3";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "finger_1_joint_3");
+  this->jointNames.push_back(prefix + suffix);
 
-  if (!this->GetAndPushBackJoint(prefix + "palm_finger_2_joint",
-        this->joints))
-  {
+  // finger_2_joint_2 (underactuated).
+  suffix = "finger_2_joint_2";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "palm_finger_2_joint");
+  this->jointNames.push_back(prefix + suffix);
 
-  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_1",
-        this->joints))
-  {
+  // finger_2_joint_3 (underactuated).
+  suffix = "finger_2_joint_3";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "finger_2_joint_1");
+  this->jointNames.push_back(prefix + suffix);
 
-  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_2",
-        this->joints))
-  {
+  // palm_finger_middle_joint (underactuated).
+  suffix = "palm_finger_middle_joint";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "finger_2_joint_2");
+  this->jointNames.push_back(prefix + suffix);
 
-  if (!this->GetAndPushBackJoint(prefix + "finger_2_joint_3",
-        this->joints))
-  {
+  // finger_middle_joint_2 (underactuated).
+  suffix = "finger_middle_joint_2";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "finger_2_joint_3");
+  this->jointNames.push_back(prefix + suffix);
 
-  if (!this->GetAndPushBackJoint(prefix + "palm_finger_middle_joint",
-          this->joints))
-  {
+  // finger_middle_joint_3 (underactuated).
+  suffix = "finger_middle_joint_3";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  }
-  this->jointNames.push_back(prefix + "palm_finger_middle_joint");
-
-  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_1",
-        this->joints))
-  {
-    return false;
-  }
-  this->jointNames.push_back(prefix + "finger_middle_joint_1");
-
-  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_2",
-        this->joints))
-  {
-    return false;
-  }
-  this->jointNames.push_back(prefix + "finger_middle_joint_2");
-
-  if (!this->GetAndPushBackJoint(prefix + "finger_middle_joint_3",
-         this->joints))
-  {
-    return false;
-  }
-  this->jointNames.push_back(prefix + "finger_middle_joint_3");
-
+  this->jointNames.push_back(prefix + suffix);
 
   gzlog << "RobotiqHandPlugin found all joints for " << this->side
         << " hand." << std::endl;

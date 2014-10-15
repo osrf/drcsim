@@ -104,13 +104,9 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Update the controller.
   private: void UpdateStates();
 
-  /// \brief Grab pointers to all the actuated joints.
-  /// \return true on success, false otherwise.
-  private: bool FindActuatedJoints();
-
   /// \brief Grab pointers to all the joints.
   /// \return true on success, false otherwise.
-  private: bool FindAllJoints();
+  private: bool FindJoints();
 
   /// \brief Fully open the hand at half of the maximum speed.
   private: void ReleaseHand();
