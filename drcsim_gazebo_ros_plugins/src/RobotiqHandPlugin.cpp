@@ -37,19 +37,12 @@ const std::string RobotiqHandPlugin::DefaultRightTopicState   =
   "/right_hand/state";
 
 ////////////////////////////////////////////////////////////////////////////////
-double RobotiqPID::Update(double _pError, double vError,
-                          gazebo::common::Time _dt)
-{
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
 RobotiqHandPlugin::RobotiqHandPlugin()
 {
   // PID default parameters.
   for (int i = 0; i < this->NumJoints; ++i)
   {
-    this->posePID[i].Init(5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    this->posePID[i].Init(1.0, 0, 0.5, 0.0, 0.0, 60.0, -60.0);
     this->posePID[i].SetCmd(0.0);
   }
 
@@ -115,7 +108,11 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
       this->posePID[i].SetIGain(this->sdf->Get<double>("ki_position"));
 
     if (this->sdf->HasElement("kd_position"))
+    {
       this->posePID[i].SetDGain(this->sdf->Get<double>("kd_position"));
+      std::cout << "dGain after overloading: " << this->posePID[i].GetDGain()
+                << std::endl;
+    }
 
     if (this->sdf->HasElement("position_effort_min"))
       this->posePID[i].SetCmdMin(this->sdf->Get<double>("position_effort_min"));
@@ -604,7 +601,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
   for (int i = 0; i < this->NumJoints; ++i)
   {
     double targetPose = 0.0;
-    double targetSpeed = 0.5;
+    double targetSpeed = (this->MinVelocity + this->MaxVelocity) / 2.0;
 
     if (i == 0)
     {
@@ -655,7 +652,8 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRA / 255.0;
       }
-      targetSpeed = this->handleCommand.rSPA / 255.0;
+      targetSpeed = this->MinVelocity +
+        ((this->MaxVelocity - this->MinVelocity) * this->handleCommand.rSPA / 255.0);
     }
     else if (i == 3)
     {
@@ -666,7 +664,8 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRB / 255.0;
       }
-      targetSpeed = this->handleCommand.rSPB / 255.0;
+      targetSpeed = this->MinVelocity +
+        ((this->MaxVelocity - this->MinVelocity) * this->handleCommand.rSPB / 255.0);
     }
     else if (i == 4)
     {
@@ -677,25 +676,21 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRC / 255.0;
       }
-      targetSpeed = this->handleCommand.rSPC / 255.0;
+      targetSpeed = this->MinVelocity +
+        ((this->MaxVelocity - this->MinVelocity) * this->handleCommand.rSPC / 255.0);
     }
 
-    // Speed multiplier.
-    targetSpeed *= 2.0;
-
     // Get the current pose.
-    double current = this->fingerJoints[i]->GetAngle(0).Radian();
+    double currentPose = this->fingerJoints[i]->GetAngle(0).Radian();
 
-    // Error pose.
-    double poseError = targetPose - current;
+    // Position error.
+    double poseError = currentPose - targetPose;
 
     // Update the PID.
-    //double torque;
-
-    double torque = this->posePID[i].Update(poseError, 0.0, _dt);
+    double torque = this->posePID[i].Update(poseError, _dt);
 
     // Apply the PID command.
-    this->fingerJoints[i]->SetForce(0, -torque);
+    this->fingerJoints[i]->SetForce(0, torque);
   }
 }
 

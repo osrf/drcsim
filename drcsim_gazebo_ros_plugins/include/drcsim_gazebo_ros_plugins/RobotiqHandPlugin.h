@@ -17,37 +17,22 @@
 #ifndef GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
 #define GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
 
-#include <string>
-#include <vector>
 #include <atlas_msgs/SModelRobotInput.h>
 #include <atlas_msgs/SModelRobotOutput.h>
-#include <boost/scoped_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <gazebo/common/PID.hh>
-#include <gazebo/common/Plugin.hh>
-#include <gazebo/common/Time.hh>
-#include <gazebo/physics/physics.hh>
 #include <gazebo_plugins/PubQueue.h>
 #include <ros/advertise_options.h>
 #include <ros/callback_queue.h>
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
 #include <sensor_msgs/JointState.h>
-
-
-class RobotiqPID : public gazebo::common::PID
-{
-  /// \brief Update the Pid loop with nonuniform time step size.
-  /// \param[_in] _pError Position error since last call (p_state - p_target).
-  /// \param[_in] _vError Velocity error since last call.
-  /// \param[_in] _dt Change in time since last update call.
-  /// Normally, this is called at every time step,
-  /// The return value is an updated command to be passed
-  /// to the object being controlled.
-  /// \return the command value
-  public: double Update(double _pError, double vError,
-                        gazebo::common::Time _dt);
-};
+#include <string>
+#include <vector>
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <gazebo/common/PID.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/common/Time.hh>
+#include <gazebo/physics/physics.hh>
 
 /// \brief A plugin that implements the Robotiq 3-Finger Adaptative Gripper.
 /// The plugin exposes the next parameters via SDF tags:
@@ -179,13 +164,19 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: static const int NumJoints = 5;
 
   /// \brief Velocity tolerance. Below this value we assume that the joint is
-  /// stopped.
+  /// stopped (rad/s).
   private: static const double VelTolerance = 0.002;
 
   /// \brief Position tolerance. If the difference between target position and
   /// current position is within this value we'll conclude that the joint
-  /// reached its target.
+  /// reached its target (rad).
   private: static const double PoseTolerance = 0.002;
+
+  /// \brief Min. joint speed (rad/s). Finger is 125mm and tip speed is 22mm/s.
+  private: static const double MinVelocity = 0.176;
+
+  /// \brief Max. joint speed (rad/s). Finger is 125mm and tip speed is 110mm/s.
+  private: static const double MaxVelocity = 0.88;
 
   /// \brief Default topic name for sending control updates to the left hand.
   private: static const std::string DefaultLeftTopicCommand;
@@ -270,7 +261,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   private: gazebo::physics::Joint_V fingerJoints;
 
   /// \brief PIDs used to control the finger positions.
-  private: RobotiqPID posePID[NumJoints];
+  private: gazebo::common::PID posePID[NumJoints];
 };
 
-#endif
+#endif  // GAZEBO_ROBOTIQ_HAND_PLUGIN_HH

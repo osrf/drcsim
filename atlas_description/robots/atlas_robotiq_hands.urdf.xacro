@@ -14,10 +14,14 @@
     <!-- plugin for left robotiq hand -->
     <plugin name="left_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
       <side>left</side>
+      <kp_position>1.0</kp_position>
+      <kd_position>0.5</kd_position>
     </plugin>
     <!-- plugin for right robotiq hand -->
     <plugin name="right_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
       <side>right</side>
+      <kp_position>1.0</kp_position>
+      <kd_position>0.5</kd_position>
     </plugin>
   </gazebo>
 
