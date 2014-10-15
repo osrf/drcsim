@@ -612,13 +612,15 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           break;
 
         case Pinch:
-          targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian();
+          // --11 degrees.
+          targetPose = -0.1919;
           break;
 
         case Scissor:
+          // Max position is reached at value 215.
           targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian() -
             (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-             this->fingerJoints[i]->GetLowerLimit(0).Radian())
+             this->fingerJoints[i]->GetLowerLimit(0).Radian()) * (215.0 / 255.0)
             * this->handleCommand.rPRA / 255.0;
           break;
       }
@@ -632,52 +634,42 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
           break;
 
         case Pinch:
-          targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian();
+          // 11 degrees.
+          targetPose = 0.1919;
           break;
 
         case Scissor:
+        // Max position is reached at value 215.
           targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
             (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-             this->fingerJoints[i]->GetLowerLimit(0).Radian())
+             this->fingerJoints[i]->GetLowerLimit(0).Radian()) * (215.0 / 255.0)
             * this->handleCommand.rPRA / 255.0;
           break;
       }
     }
-    else if (i == 2)
+    else if (i >= 2 && i <= 4)
     {
-      if (this->graspingMode != Scissor)
+      if (this->graspingMode == Pinch)
+      {
+        // Max position is reached at value 177.
+        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
+          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
+           this->fingerJoints[i]->GetLowerLimit(0).Radian()) * (177.0 / 255.0)
+          * this->handleCommand.rPRA / 255.0;
+      }
+      else if (this->graspingMode == Scissor)
+      {
+        targetSpeed = this->MinVelocity +
+          ((this->MaxVelocity - this->MinVelocity) *
+          this->handleCommand.rSPA / 255.0);
+      }
+      else
       {
         targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
           (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
            this->fingerJoints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRA / 255.0;
       }
-      targetSpeed = this->MinVelocity +
-        ((this->MaxVelocity - this->MinVelocity) * this->handleCommand.rSPA / 255.0);
-    }
-    else if (i == 3)
-    {
-      if (this->graspingMode != Scissor)
-      {
-        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[i]->GetLowerLimit(0).Radian())
-          * this->handleCommand.rPRB / 255.0;
-      }
-      targetSpeed = this->MinVelocity +
-        ((this->MaxVelocity - this->MinVelocity) * this->handleCommand.rSPB / 255.0);
-    }
-    else if (i == 4)
-    {
-      if (this->graspingMode != Scissor)
-      {
-        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[i]->GetLowerLimit(0).Radian())
-          * this->handleCommand.rPRC / 255.0;
-      }
-      targetSpeed = this->MinVelocity +
-        ((this->MaxVelocity - this->MinVelocity) * this->handleCommand.rSPC / 255.0);
     }
 
     // Get the current pose.
