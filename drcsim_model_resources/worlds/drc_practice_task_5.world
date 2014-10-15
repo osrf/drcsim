@@ -51,7 +51,7 @@
     <include>
       <uri>model://drc_practice_hinged_door</uri>
       <name>pull_door</name>
-      <pose>4.0 0.0 0 0 0 1.57</pose>
+      <pose>4.0 0.0 0 0 0 3.1416</pose>
     </include>
 
     <model name="yellow_tape">
@@ -74,7 +74,7 @@
     <include>
       <uri>model://drc_practice_hinged_door</uri>
       <name>push_door</name>
-      <pose>2 0.06 0 0 0 -1.57</pose>
+      <pose>2 0.06 0 0 0 0</pose>
     </include>
 
     <model name="orange_tape">
@@ -97,7 +97,7 @@
     <include>
       <uri>model://drc_practice_weighted_door</uri>
       <name>weighted_push_door</name>
-      <pose>0 .06 0 0 0 -1.57</pose>
+      <pose>0 .06 0 0 0 0</pose>
     </include>
 
     <model name="red_tape">
