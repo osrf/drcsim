@@ -69,8 +69,8 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   enum GraspingMode
   {
     Basic = 0,
-    Wide,
     Pinch,
+    Wide,
     Scissor
   };
 
@@ -86,7 +86,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief ROS callback queue thread.
   private: void RosQueueThread();
 
-  /// \brief ros topic callback to update Robotiq Hand Control Commands.
+  /// \brief ROS topic callback to update Robotiq Hand Control Commands.
   /// \param[in] _msg Incoming ROS message with the next hand command.
   private: void SetHandleCommand(
     const atlas_msgs::SModelRobotOutput::ConstPtr &_msg);
@@ -199,7 +199,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief ROS callback queue thread.
   private: boost::thread callbackQueueThread;
 
-  // ros publish multi queue, prevents publish() blocking
+  // ROS publish multi queue, prevents publish() blocking
   private: PubMultiQueue pmq;
 
   /// \brief ROS control interface
