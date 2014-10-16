@@ -111,6 +111,8 @@ namespace gazebo
 
     private: ros::Subscriber set_multi_camera_resolution_sub_;
 
+    private: std::string rosNamespace;
+
     /// \brief camera resolution modes
     /// available modes are:
     ///  0 - 2MP (2048*1088) @ up to 15 fps
