@@ -29,38 +29,38 @@
        hardware publishes to /sandia_hands_l_hand/[left|right]/[image_raw|camera_info],
        sim legacy publishes to /sandia_hands/l_hand/camera/[left|right]/[image_raw|camera_info] -->
   <node ns="sandia_hands" name="l_hand_left_image_raw_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/l_hand/left/image_raw /sandia_hands/l_hand/camera/left/image_raw" respawn="false" output="screen">
+        args="/sandia_hands/l_hand/camera/left/image_raw /sandia_hands/l_hand/left/image_raw" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node ns="sandia_hands" name="l_hand_left_camera_info_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/l_hand/left/camera_info /sandia_hands/l_hand/camera/left/camera_info" respawn="false" output="screen">
+        args="/sandia_hands/l_hand/camera/left/camera_info /sandia_hands/l_hand/left/camera_info" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node ns="sandia_hands" name="l_hand_right_image_raw_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/l_hand/right/image_raw /sandia_hands/l_hand/camera/right/image_raw" respawn="false" output="screen">
+        args="/sandia_hands/l_hand/camera/right/image_raw /sandia_hands/l_hand/right/image_raw" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node ns="sandia_hands" name="l_hand_right_camera_info_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/l_hand/right/camera_info /sandia_hands/l_hand/camera/right/camera_info" respawn="false" output="screen">
+        args="/sandia_hands/l_hand/camera/right/camera_info /sandia_hands/l_hand/right/camera_info" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <!-- relay for sandia_hands/r_hand simulation topics
        hardware publishes to /sandia_hands_r_hand/[left|right]/[image_raw|camera_info],
        sim legacy publishes to /sandia_hands/r_hand/camera/[left|right]/[image_raw|camera_info] -->
   <node ns="sandia_hands" name="r_hand_left_image_raw_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/r_hand/left/image_raw /sandia_hands/r_hand/camera/left/image_raw" respawn="false" output="screen">
+        args="/sandia_hands/r_hand/camera/left/image_raw /sandia_hands/r_hand/left/image_raw" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node ns="sandia_hands" name="r_hand_left_camera_info_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/r_hand/left/camera_info /sandia_hands/r_hand/camera/left/camera_info" respawn="false" output="screen">
+        args="/sandia_hands/r_hand/camera/left/camera_info /sandia_hands/r_hand/left/camera_info" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node ns="sandia_hands" name="r_hand_right_image_raw_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/r_hand/right/image_raw /sandia_hands/r_hand/camera/right/image_raw" respawn="false" output="screen">
+        args="/sandia_hands/r_hand/camera/right/image_raw /sandia_hands/r_hand/right/image_raw" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <node ns="sandia_hands" name="r_hand_right_camera_info_relay" pkg="topic_tools" type="relay"
-        args="/sandia_hands/r_hand/right/camera_info /sandia_hands/r_hand/camera/right/camera_info" respawn="false" output="screen">
+        args="/sandia_hands/r_hand/camera/right/camera_info /sandia_hands/r_hand/right/camera_info" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
   <!-- Stereo image processing for relayed simulation topics -->
