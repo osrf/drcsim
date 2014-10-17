@@ -88,7 +88,7 @@
 // AtlasSimInterface: header
 #if ATLAS_VERSION == 1
 #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#elif ATLAS_VERSION == 3
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
 #include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
 #endif
 
