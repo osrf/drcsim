@@ -1,5 +1,5 @@
 <robot name="multisense_sl">
-<!-- from atlas_v3
+<!-- from atlas_v4
     <link name="head">
         <inertial>
             <mass value="3.751" />
