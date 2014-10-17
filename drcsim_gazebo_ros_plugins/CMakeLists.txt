@@ -94,7 +94,7 @@ add_dependencies(AtlasV3Plugin atlas_msgs_gencpp)
 
 link_directories(${AtlasSimInterface2_LIBRARY_DIRS})
 add_library(AtlasV4Plugin src/AtlasPlugin.cpp)
-set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_DEFINITIONS ATLAS_VERSION=3)
+set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_DEFINITIONS ATLAS_VERSION=4)
 set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface2_INCLUDE_DIR}")
 target_link_libraries(AtlasV4Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})
 add_dependencies(AtlasV4Plugin atlas_msgs_gencpp)

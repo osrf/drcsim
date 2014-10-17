@@ -65,7 +65,7 @@
 
     <include>
       <uri>model://drc_vehicle_xp900</uri>
-      <pose>9 0 0 0 0 0</pose>
+      <pose>3 0 0 0 0 0</pose>
     </include>
 
     <include>
@@ -477,7 +477,7 @@ NOTES:
 
   - Course:
       * collision and visual geometries use the same mesh data
-          - it is possible for other parts to become “embedded” within this model, which is incorrect.
+          - it is possible for other parts to become embedded within this model, which is incorrect.
       * obstacles are modeled as static objects and will not move if impacted by vehicle or robot.
   - Vehicle:
       * this model does not include a vehicle.  Use the model from the VRC until an updated model is provided.
