@@ -121,6 +121,9 @@
     <axis xyz="1 0 0" />
     <dynamics damping="0.01" friction="0"/>
   </joint>
+  <gazebo reference="hokuyo_joint">
+    <implicitSpringDamper>1</implicitSpringDamper>
+  </gazebo>
 
   <!-- Hokuyo Laser -->
   <joint name="head_hokuyo_joint" type="fixed">
@@ -350,7 +353,7 @@
       <mass value="1e-5" />
       <!-- collocate with parent link and remove mass from it -->
       <origin xyz="-0.122993 0.035033383 0.02774" rpy="0 0 0" />
-      <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
