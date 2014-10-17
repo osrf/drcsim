@@ -1,0 +1,57 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="beer_heavy">
+    <link name='link'>
+      <pose>0 0 0.115 0 0 0</pose>
+      <inertial>
+        <mass>5.390</mass>
+        <inertia>
+          <ixx>0.049790</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.049790</iyy>
+          <iyz>0</iyz>
+          <izz>0.0017524</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <geometry>
+          <cylinder>
+            <radius>0.0255000</radius>
+            <length>0.330000</length>
+          </cylinder>
+        </geometry>
+        <surface>
+        <friction>
+        <ode>
+        <mu>1.5</mu>
+        <mu2>1.5</mu2>
+        </ode>
+        </friction>
+        <contact>
+        <ode>
+        <min_depth>0.003</min_depth>
+        </ode>
+        </contact>
+        </surface>
+      </collision>
+
+      <visual name='visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.0255000</radius>
+            <length>0.330000</length>
+          </cylinder>
+        </geometry>
+
+        <material>
+          <script>
+            <uri>model://beer/materials/scripts</uri>
+            <uri>model://beer/materials/textures</uri>
+            <name>Beer/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+    </link>     
+  </model>
+</sdf>
