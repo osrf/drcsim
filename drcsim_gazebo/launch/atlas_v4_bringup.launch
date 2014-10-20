@@ -3,7 +3,7 @@
   <param name="/use_sim_time" type="bool" value="true"/>
 
   <!-- flag to let gazebo plugins know which version of atlas is running -->
-  <param name="atlas_version"   value="3" type="int"/>
+  <param name="atlas_version"   value="4" type="int"/>
 
   <!-- joint states to tf -->
   <node pkg="robot_state_publisher" type="state_publisher" name="atlas_robot_state_publisher">
@@ -26,7 +26,7 @@
   </node>
 
   <!-- Arms -->
-  <rosparam command="load" file="$(find drcsim_gazebo)/config/whole_body_trajectory_controller_v3.yaml" />
+  <rosparam command="load" file="$(find drcsim_gazebo)/config/whole_body_trajectory_controller_v4.yaml" />
 
   <!-- Controllers that come up started
   <node name="atlas_controller_spawner"

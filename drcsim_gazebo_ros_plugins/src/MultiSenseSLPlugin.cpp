@@ -46,6 +46,7 @@ MultiSenseSL::MultiSenseSL()
   // change default imager mode to 1 (1Hz ~ 30Hz)
   // in simulation, we are using 800X800 pixels @30Hz
   this->imagerMode = 1;
+  this->rosNamespace = "/multisense";
 
   this->pmq = new PubMultiQueue();
 }
@@ -153,16 +154,39 @@ void MultiSenseSL::LoadThread()
   this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
     "joint_states", 10);
 
+  int atlasVersion;
+  this->rosnode_->getParam("/atlas_version", atlasVersion);
+  if (atlasVersion == 1)
+  {
+    ROS_INFO("ros param /atlas_version == 1");
+    this->rosNamespace = "/multisense_sl";
+  }
+  else if (atlasVersion == 3)
+  {
+    ROS_INFO("ros param /atlas_version == 3");
+    this->rosNamespace = "/multisense";
+  }
+  else if (atlasVersion == 4)
+  {
+    ROS_INFO("ros param /atlas_version == 4");
+    this->rosNamespace = "/multisense";
+  }
+  else
+  {
+    ROS_WARN("/atlas_version not specified (1 or 3), assuming atlas v1.");
+    this->rosNamespace = "/multisense_sl";
+  }
+
   // publish imu data
   this->pubImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
   this->pubImu =
     this->rosnode_->advertise<sensor_msgs::Imu>(
-      "multisense_sl/imu", 10);
+      this->rosNamespace + "/imu", 10);
 
   // ros subscription
   ros::SubscribeOptions set_spindle_speed_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_spindle_speed", 100,
+    this->rosNamespace + "/set_spindle_speed", 100,
     boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetSpindleSpeed), this, _1),
@@ -170,11 +194,11 @@ void MultiSenseSL::LoadThread()
   this->set_spindle_speed_sub_ =
     this->rosnode_->subscribe(set_spindle_speed_so);
 
-  /// for deprecation from ~/multisense_sl/fps to ~/multisense_sl/set_fps
+  /// for deprecation from ~/multisense[_sl]/fps to ~/multisense[_sl]/set_fps
   /// per issue 272
   ros::SubscribeOptions set_multi_camera_frame_rate_so_old =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/fps", 100,
+    this->rosNamespace + "/fps", 100,
     boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraFrameRateOld), this, _1),
@@ -184,7 +208,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_multi_camera_frame_rate_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_fps", 100,
+    this->rosNamespace + "/set_fps", 100,
     boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraFrameRate), this, _1),
@@ -195,7 +219,7 @@ void MultiSenseSL::LoadThread()
   /* FIXME currently this causes simulation to crash,
   ros::SubscribeOptions set_multi_camera_resolution_so =
     ros::SubscribeOptions::create<std_msgs::Int32>(
-    "multisense_sl/set_camera_resolution_mode", 100,
+    this->rosNamespace + "/set_camera_resolution_mode", 100,
     boost::bind(static_cast<void (MultiSenseSL::*)
       (const std_msgs::Int32::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraResolution), this, _1),
@@ -207,7 +231,7 @@ void MultiSenseSL::LoadThread()
   /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
     ros::SubscribeOptions::create<std_msgs::Bool>(
-    "multisense_sl/set_spindle_state", 100,
+    this->rosNamespace + "/set_spindle_state", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Bool::ConstPtr&)>(
         &MultiSenseSL::SetSpindleState),this,_1),
@@ -217,7 +241,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_multi_camera_exposure_time_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_camera_exposure_time", 100,
+    this->rosNamespace + "/set_camera_exposure_time", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraExposureTime),this,_1),
@@ -227,7 +251,7 @@ void MultiSenseSL::LoadThread()
 
   ros::SubscribeOptions set_multi_camera_gain_so =
     ros::SubscribeOptions::create<std_msgs::Float64>(
-    "multisense_sl/set_camera_gain", 100,
+    this->rosNamespace + "/set_camera_gain", 100,
     boost::bind( static_cast<void (MultiSenseSL::*)
       (const std_msgs::Float64::ConstPtr&)>(
         &MultiSenseSL::SetMultiCameraGain),this,_1),
@@ -239,7 +263,7 @@ void MultiSenseSL::LoadThread()
   /// \todo: waiting for gen_srv to be implemented (issue #37)
   /* Advertise services on the custom queue
   std::string set_spindle_speed_service_name(
-    "multisense_sl/set_spindle_speed");
+    this->rosNamespace + "/set_spindle_speed");
   ros::AdvertiseServiceOptions set_spindle_speed_aso =
     ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
       set_spindle_speed_service_name,
@@ -249,7 +273,7 @@ void MultiSenseSL::LoadThread()
     this->rosnode_->advertiseService(set_spindle_speed_aso);
 
   std::string set_spindle_state_service_name(
-    "multisense_sl/set_spindle_state");
+    this->rosNamespace + "/set_spindle_state");
   ros::AdvertiseServiceOptions set_spindle_state_aso =
     ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
       set_spindle_state_service_name,
@@ -451,7 +475,7 @@ void MultiSenseSL::SetMultiCameraResolution(
   /// see MultiSenseSLPlugin.h for available modes
   if (_msg->data < 0 || _msg->data > 3)
   {
-    ROS_WARN("/multisense_sl/set_camera_resolution_mode must"
+    ROS_WARN("set_camera_resolution_mode must"
               " be between 0 - 3:\n"
               "  0 - 2MP (2048*1088) @ up to 15 fps\n"
               "  1 - 1MP (2048*544) @ up to 30 fps\n"

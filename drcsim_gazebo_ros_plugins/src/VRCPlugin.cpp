@@ -1691,10 +1691,17 @@ std::string VRCPlugin::AtlasCommandController::FindJoint(
     return _st2;
   else
   {
-    ROS_ERROR("joint by names [%s] or [%s] not found.",
+    ROS_INFO("VRCPlugin: joint by names [%s] or [%s] not found.",
               _st1.c_str(), _st2.c_str());
     return std::string();
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+std::string VRCPlugin::AtlasCommandController::FindJoint(
+  std::string _st1, std::string _st2, std::string _st3)
+{
+  return this->FindJoint(this->FindJoint(_st1, _st2), _st3);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1738,13 +1745,13 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   this->jointNames.push_back("r_leg_kny");
   this->jointNames.push_back(this->FindJoint("r_leg_aky", "r_leg_uay"));
   this->jointNames.push_back(this->FindJoint("r_leg_akx", "r_leg_lax"));
-  this->jointNames.push_back(this->FindJoint("l_arm_shy", "l_arm_usy"));
+  this->jointNames.push_back(this->FindJoint("l_arm_shz", "l_arm_shy", "l_arm_usy"));
   this->jointNames.push_back("l_arm_shx");
   this->jointNames.push_back("l_arm_ely");
   this->jointNames.push_back("l_arm_elx");
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
-  this->jointNames.push_back(this->FindJoint("r_arm_shy", "r_arm_usy"));
+  this->jointNames.push_back(this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
   this->jointNames.push_back("r_arm_shx");
   this->jointNames.push_back("r_arm_ely");
   this->jointNames.push_back("r_arm_elx");
@@ -1877,13 +1884,16 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[13] =   0.5181407332420349;
   this->ac.position[14] =  -0.27610817551612854;   // r_aky
   this->ac.position[15] =   0.06201673671603203;
-  this->ac.position[16] =   0.29983898997306824;  // l_shy
+  this->ac.position[16] =   0.29983898997306824;  // l_shy || shz
   this->ac.position[17] =   -1.303462266921997;
   this->ac.position[18] =   2.0;
   this->ac.position[19] =   0.49823325872421265;
   this->ac.position[20] =  0.0003098883025813848;
   this->ac.position[21] =   -0.0044272784143686295;
-  this->ac.position[22] =   0.29983898997306824;  // r_shy
+  if (this->jointNames[22] == "r_arm_shz")  // v4
+    this->ac.position[22] =  -0.29983898997306824;  // -shz(v4)
+  else
+    this->ac.position[22] =   0.29983898997306824;  // r_shy(v1,v3)
   this->ac.position[23] =   1.303462266921997;
   this->ac.position[24] =   2.0;
   this->ac.position[25] =  -0.49823325872421265;

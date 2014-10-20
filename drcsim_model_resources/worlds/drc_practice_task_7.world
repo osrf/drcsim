@@ -31,30 +31,38 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
+    <model name="green_tape">
+      <static>true</static>
+      <pose>0 -0.9 0 0 0 0 </pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.5 0.13 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <script><name>Gazebo/Green</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
     <include>
       <uri>model://drc_practice_ball_valve_wall</uri>
       <pose>-1.5 0 0 0 0 3.1415</pose>
     </include>
 
     <include>
-      <uri>model://drc_practice_hand_wheel_valve_wall</uri>
-      <pose>-1 0 0 0 0 0</pose>
+      <uri>model://drc_practice_wheel_valve_large_wall</uri>
+      <pose>0 0 0 0 0 3.1415</pose>
     </include>
 
     <include>
       <uri>model://drc_practice_wheel_valve_wall</uri>
-      <pose>2 0 0 0 0 3.1415</pose>
+      <pose>1.5 0 0 0 0 3.1415</pose>
     </include>
 
-    <include>
-      <uri>model://drc_practice_handle_wheel_valve_wall</uri>
-      <pose>3.5 0 0 0 0 3.1415</pose>
-    </include>
-
-    <include>
-      <uri>model://drc_practice_wheel_valve_large_wall</uri>
-      <pose>5 0 0 0 0 3.1415</pose>
-    </include>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
