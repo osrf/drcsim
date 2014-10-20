@@ -149,11 +149,6 @@ void MultiSenseSL::LoadThread()
   // publish multi queue
   this->pmq->startServiceThread();
 
-  // ros publication
-  this->pubJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
-  this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
-    "joint_states", 10);
-
   int atlasVersion;
   this->rosnode_->getParam("/atlas_version", atlasVersion);
   if (atlasVersion == 1)
@@ -173,9 +168,15 @@ void MultiSenseSL::LoadThread()
   }
   else
   {
-    ROS_WARN("/atlas_version not specified (1 or 3), assuming atlas v1.");
+    ROS_WARN("/atlas_version not specified (1, 3 or 4), assuming atlas v1.");
     this->rosNamespace = "/multisense_sl";
   }
+
+  // ros publications
+  // publish joint states for tf (robot state publisher)
+  this->pubJointStatesQueue = this->pmq->addPub<sensor_msgs::JointState>();
+  this->pubJointStates = this->rosnode_->advertise<sensor_msgs::JointState>(
+    this->rosNamespace + "/joint_states", 10);
 
   // publish imu data
   this->pubImuQueue = this->pmq->addPub<sensor_msgs::Imu>();
