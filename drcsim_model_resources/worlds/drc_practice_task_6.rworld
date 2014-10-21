@@ -2,10 +2,12 @@
 <sdf version="1.4">
   <world name="drc_practice_task_6">
 
+    <% wall_y = -13.25
+       wall_x = -7.23 %>
     <!-- place user camera -->
     <gui>
       <camera name="user_camera">
-        <pose>2.7699999999999996 -23.25 13.466400 -0.000000 0.764000 2.140000</pose>
+        <pose><%= 10+ wall_x %> <%= -10 + wall_y %> 13.466400 -0.000000 0.764000 2.140000</pose>
       </camera>
     </gui>
     <scene>
@@ -47,7 +49,7 @@
     <!-- Point Light Source -->
     <light type="point" name="light_bulb_2">
       <cast_shadows>false</cast_shadows>
-      <pose>-10.23 -19.25 5 0 0 0</pose>
+      <pose><%= -3+wall_x %> <%= -6+wall_y %> 5 0 0 0</pose>
       <diffuse>0.5 0.5 0.5 1</diffuse>
       <specular>0.0 0.0 0.0 1</specular>
       <attenuation>
@@ -66,18 +68,22 @@
     <include>
       <uri>model://cutout_wall</uri>
       <name>cutout_wall</name>
-      <pose>-7.23 -13.25 0 0 0 0</pose>
+      <pose><%= wall_x %> <%= wall_y %> 0 0 0 0</pose>
     </include>
 
+    <%
+      tape_width = 1.2
+      tape_wall_dist = 0.9
+     %>
 
     <model name="green_tape">
       <static>true</static>
-      <pose>-6.550000000000001 -14.15 0 0 0 0 </pose>
+      <pose><%= 0.68 + wall_x %> <%= wall_y - tape_wall_dist %> 0 0 0 0 </pose>
       <link name="link">
         <visual name="visual">
           <geometry>
             <box>
-              <size>1.2 0.13 0.01</size>
+              <size><%= tape_width %> 0.13 0.01</size>
             </box>
           </geometry>
           <material>
@@ -90,11 +96,11 @@
     <include>
       <uri>model://table</uri>
       <static>true</static>
-      <pose>-6.460000000000001 -14.0 0 0 0 0</pose>
+      <pose><%= 0.77 + wall_x %> <%= -0.75 + wall_y %> 0 0 0 0</pose>
     </include>
     <include>
       <uri>model://cordless_drill</uri>
-      <pose>-6.86 -14.1 1.0 0 0 0</pose>
+      <pose><%= 0.37 + wall_x %> <%= -0.85 + wall_y %> 1.0 0 0 0</pose>
     </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
