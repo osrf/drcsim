@@ -2,14 +2,17 @@
   <!-- Use sim time -->
   <param name="/use_sim_time" type="bool" value="true"/>
 
+  <!-- flag to let gazebo plugins know which version of atlas is running -->
+  <param name="atlas_version"   value="4" type="int"/>
+
   <!-- joint states to tf -->
   <node pkg="robot_state_publisher" type="state_publisher" name="atlas_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
     <remap from="joint_states" to="/atlas/joint_states" />
   </node>
-  <node pkg="robot_state_publisher" type="state_publisher" name="multisense_sl_robot_state_publisher">
+  <node pkg="robot_state_publisher" type="state_publisher" name="multisense_robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/multisense_sl/joint_states" />
+    <remap from="joint_states" to="/multisense/joint_states" />
   </node>
 
   <!-- Fake Calibration
@@ -32,8 +35,34 @@
   -->
 
   <!-- Stereo image processing -->
-  <node ns="multisense_sl/camera" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="log">
+  <node ns="multisense" name="stereo_proc" pkg="stereo_image_proc" type="stereo_image_proc" respawn="false" output="log">
     <param name="disparity_range" type="int" value="128"/>
     <param name="approximate_sync" type="bool" value="false"/>
   </node>
+
+  <!-- relay for multisense simulation topics
+       hardware publishes to /joint_states, sim legacy publishes to /multisense/joint_states -->
+  <node name="multisense_joint_states_relay" pkg="topic_tools" type="relay"
+        args="/joint_states /multisense/joint_states" respawn="false" output="screen">
+    <param name="lazy" type="bool" value="True"/>
+  </node>
+
+  <!-- relay for multisense sl simulation topics
+       sim publishes to /multisense/points (from stereo_proc node), while
+       hardware publishes to /multisense/lidar_points
+  -->
+  <node name="multisense_points_relay" pkg="topic_tools" type="relay"
+        args="/multisense/points /multisense/lidar_points" respawn="false" output="screen">
+    <param name="lazy" type="bool" value="True"/>
+  </node>
+
+  <!-- relay for multisense sl simulation topics
+       sim publishes to /multisense/points2 (from stereo_proc node), while
+       hardware publishes to /multisense/lidar_points2
+  -->
+  <node name="multisense_points2_relay" pkg="topic_tools" type="relay"
+        args="/multisense/points2 /multisense/lidar_points2" respawn="false" output="screen">
+    <param name="lazy" type="bool" value="True"/>
+  </node>
+
 </launch>

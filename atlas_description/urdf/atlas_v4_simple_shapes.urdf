@@ -3,11 +3,11 @@
   <link name="l_clav">
     <inertial>
       <mass value="3.45" />
-      <origin xyz="0 0.048 -0.084" rpy="0 -0 0" />
+      <origin xyz="0 -0.00 -0.284" rpy="-0.5 -0 0" />
       <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="-0.004" izz="0.004" />
     </inertial>
     <visual>
-      <origin xyz="0 -0.05 -0.45" rpy="0 -0 0" />
+      <origin xyz="0 -0.048 -0.45" rpy="0 -0 0" />
       <geometry>
         <mesh filename="package://atlas_description/meshes_v3/l_clav.dae" scale="1 1 1" />
       </geometry>
@@ -428,11 +428,11 @@
   <link name="r_clav">
     <inertial>
       <mass value="3.45" />
-      <origin xyz="0 -0.048 0.084" rpy="0 -0 0" />
+      <origin xyz="0 0.00 -0.284" rpy="0.5 -0 0" />
       <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="0.004" izz="0.004" />
     </inertial>
     <visual>
-      <origin xyz="0 0.05 -0.45" rpy="0 -0 0" />
+      <origin xyz="0 0.048 -0.45" rpy="0 -0 0" />
       <geometry>
         <mesh filename="package://atlas_description/meshes_v3/r_clav.dae" scale="1 1 1" />
       </geometry>
@@ -1048,7 +1048,7 @@
     </joint>
     <joint name="r_arm_shz" type="revolute">
       <origin xyz="0.1406 -0.2036 0.4776" rpy="0 -0 0" />
-      <axis xyz="0 0 1" />
+      <axis xyz="0 0 1" /> <!-- note, this is opposite of v1 and v3 -->
       <parent link="utorso" />
       <child link="r_clav" />
       <dynamics damping="0.1" friction="0" />

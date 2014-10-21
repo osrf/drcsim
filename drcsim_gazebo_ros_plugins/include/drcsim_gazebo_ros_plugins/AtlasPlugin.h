@@ -88,7 +88,7 @@
 // AtlasSimInterface: header
 #if ATLAS_VERSION == 1
 #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#elif ATLAS_VERSION == 3
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
 #include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
 #endif
 
@@ -161,7 +161,8 @@ namespace gazebo
     /// \param[in] possible joint name
     /// \return _st1 or _st2 whichever is a valid joint, else empty str.
     private: std::string FindJoint(std::string _st1, std::string _st2);
-    private: std::string FindJoint(std::string _st1, std::string _st2, std::string _st3);
+    private: std::string FindJoint(std::string _st1, std::string _st2,
+      std::string _st3);
 
     /// \brief pointer to gazebo world
     private: physics::WorldPtr world;
@@ -427,26 +428,18 @@ namespace gazebo
     /// \brief filter coefficients
     private: double filCoefB[FIL_MAX_FILT_COEFF];
 
-    /// \brief unfiltered velocity
-    private: double filVelIn[FIL_N_GJOINTS][FIL_N_STEPS];
+    /// \brief filter temporary variable
+    private: double unfilteredIn[FIL_N_GJOINTS][FIL_N_STEPS];
 
-    /// \brief filtered velocity
-    private: double filVelOut[FIL_N_GJOINTS][FIL_N_STEPS];
-
-    /// \brief unfiltered position
-    private: double filPosIn[FIL_N_GJOINTS][FIL_N_STEPS];
-
-    /// \brief filtered position
-    private: double filPosOut[FIL_N_GJOINTS][FIL_N_STEPS];
+    /// \brief filter temporary variable
+    private: double unfilteredOut[FIL_N_GJOINTS][FIL_N_STEPS];
 
     /// \brief initialize filter
     private: void InitFilter();
 
-    /// \brief do velocity`filtering
-    private: void FilterVelocity();
-
-    /// \brief do position filtering
-    private: void FilterPosition();
+    /// \brief do `filtering
+    private: void Filter(std::vector<float> &_aState,
+                         std::vector<double> &_jState);
 
     ////////////////////////////////////////////////////////////////////
     //                                                                //

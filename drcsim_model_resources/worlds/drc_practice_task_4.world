@@ -28,44 +28,173 @@
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
-      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <!-- Base -->
+    <include>
+      <uri>model://drc_practice_base_4x8</uri>
     </include>
 
 
+    <model name="green_tape">
+      <static>true</static>
+      <pose>0 -1.2396440000000002 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1176 0.13 0.01</size>
+            </box>
+          </geometry>
+
+          <material>
+            <script><name>Gazebo/Green</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="red_tape">
+      <static>true</static>
+      <pose>0 1.360356 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.1176 0.13 0.01</size>
+            </box>
+          </geometry>
+
+          <material>
+            <script><name>Gazebo/Red</name></script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
     <include>
-      <uri>model://hinged_door</uri>
-      <name>door_1</name>
-      <pose>0.0 0.0 0 0 0 1.57</pose>
+      <name>Wall1</name>
+      <uri>model://drc_practice_valve_wall</uri>
+      <pose>0.692 1.212 0 0 0 1.56048</pose>
+    </include>
+    <include>
+      <name>Wall2</name>
+      <uri>model://drc_practice_valve_wall</uri>
+      <pose>-0.692 1.212 0 0 0 1.56048</pose>
     </include>
 
     <include>
-      <uri>model://hinged_door</uri>
-      <name>door_2</name>
-      <pose>-0.95 2.5 0 0 0 -1.57</pose>
+      <name>SideWall_1</name>
+      <uri>model://drc_practice_block_wall</uri>
+      <pose>-0.6604 0.560356 0.33464 0 0 1.5707</pose>
     </include>
 
     <include>
-      <uri>model://hinged_door</uri>
-      <name>door_3</name>
-      <pose>0.0 5.00 0 0 0 1.57</pose>
+      <name>SideWall_2</name>
+      <uri>model://drc_practice_block_wall</uri>
+      <pose>0.6604 0.560356 0.33464 0 0 1.5707</pose>
     </include>
 
     <include>
-      <uri>model://hinged_door</uri>
-      <name>door_4</name>
-      <pose>4.0 0.0 0 0 0 1.57</pose>
+      <name>truss</name>
+      <uri>model://drc_practice_truss</uri>
+      <pose>0 0.445855 0.16871 0 0 3.1415</pose>
     </include>
 
     <include>
-      <uri>model://hinged_door</uri>
-      <name>door_5</name>
-      <pose>3.0 2.5 0 0 0 -1.57</pose>
+      <name>2x4_1</name>
+      <uri>model://drc_practice_2x4</uri>
+      <pose>0.071296 1.14241 0.55 0 0.95 0</pose>
     </include>
 
     <include>
-      <uri>model://hinged_door</uri>
-      <name>door_6</name>
-      <pose>4.0 5.0 0 0 0 1.57</pose>
+      <name>2x4_2</name>
+      <uri>model://drc_practice_2x4</uri>
+      <pose>-0.071296 1.14241 0.55 0 0.95 3.1415</pose>
+    </include>
+
+    <include>
+      <name>2x4_3</name>
+      <uri>model://drc_practice_2x4</uri>
+      <pose>0.0 0.76 0.63 1.57 0 0</pose>
+    </include>
+
+    <include>
+      <name>2x4_4</name>
+      <uri>model://drc_practice_2x4</uri>
+      <pose>0.0 0.35 0.63 1.57 0 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x20_1</name>
+      <uri>model://drc_practice_4x4x20</uri>
+      <pose>-0.017436 0.209403 0.279366 0 1.5707 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x20_2</name>
+      <uri>model://drc_practice_4x4x20</uri>
+      <pose>0.031356 0.4436 0.279366 0 1.5707 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x20_3</name>
+      <uri>model://drc_practice_4x4x20</uri>
+      <pose>0.332 0.169429 0.47 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x20_4</name>
+      <uri>model://drc_practice_4x4x20</uri>
+      <pose>-0.331 0.169429 0.47 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x40_1</name>
+      <uri>model://drc_practice_4x4x40</uri>
+      <pose>-0.074179 0.66 0.445 0 -0.79 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x40_2</name>
+      <uri>model://drc_practice_4x4x40</uri>
+      <pose>0.074179 0.55 0.475 0 0.95 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x40_3</name>
+      <uri>model://drc_practice_4x4x40</uri>
+      <pose>0.2236 0.041327 0.5333 0 1.5707 0</pose>
+    </include>
+
+    <include>
+      <name>4x4x40_4</name>
+      <uri>model://drc_practice_4x4x40</uri>
+      <pose>-0.2236 0.041327 0.5333 0 1.5707 0</pose>
+    </include>
+
+    <include>
+      <name>2x6_2</name>
+      <uri>model://drc_practice_2x6</uri>
+      <pose>0.378209 -0.019775 0.413006 1.57 -0.65 1.57</pose>
+    </include>
+
+    <include>
+      <name>2x6_3</name>
+      <uri>model://drc_practice_2x6</uri>
+      <pose>-0.378418 -0.019758 0.413029 1.57 -0.65 1.57</pose>
+    </include>
+
+    <include>
+      <name>2x6_1</name>
+      <uri>model://drc_practice_2x6</uri>
+      <pose>0.0 -0.124239 0.430557 1.57 0 0</pose>
+    </include>
+
+    <include>
+      <name>2x6_4</name>
+      <uri>model://drc_practice_2x6</uri>
+      <pose>0.0 -0.46 0.2 1.57 0 0</pose>
     </include>
 
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
@@ -89,19 +218,27 @@
 
   </world>
 </sdf>
-
 <!--
-This model shows a representative configuration for the Doorway challenge.  Three doors, placed in series with one door being "weighted", must be opened and passed through to reach the goal.
+  This world shows a representative configuration for the Doorway Debris
+challenge.  A loose pile of lumber and structural elements is blocking the
+entry and must be removed to gain access to the doorway.
 
 NOTES:
-  - collision/material properties are estimates only
+  - mass/material properties are estimates only
 
-  - Handle:
-      * mechanics of handle not modelled (turning handle will not release latch)
-      * physical dimensions estimated
+  - Truss:
+      * does not match geometry of the currently-recommended physical part.
       * collision and visual geometries use the same mesh data
-          - it is possible for other parts to become “embedded” within this model, which is incorrect.
+          - it is possible for other parts to become "embedded" within this
+            model, which is incorrect.
 
+  - Cinder-Block Side Walls:
+      * collision and visual geometries use the same mesh data
+          - it is possible for other parts to become "embedded" within this
+            model, which is incorrect.
 DISCLAIMER:
-The models are intended to represent the type of obstacles to be encountered during the DRC trials, but may not match the exact configurations used in the trial events (doors may appear in different orientations).  DARPA reserves the right to change any elements of these tasks without updating these model files.
+The models are intended to represent the type of obstacles to be encountered
+during the DRC trials, but may not match the exact configurations used in
+the trial events.  DARPA reserves the right to change any elements of these
+tasks without updating these model files.
 -->
