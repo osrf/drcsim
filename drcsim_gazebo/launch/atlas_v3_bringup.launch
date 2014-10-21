@@ -48,21 +48,21 @@
   </node>
 
   <!-- relay for multisense sl simulation topics
-       sim publishes to /multisense/camera/points (from stereo_proc node), while
-       hardware publishes to /multisense/lidar_points
+       sim publishes to /multisense/camera/points2 (from stereo_proc node), while
+       hardware publishes to /multisense/lidar_points2
   -->
-  <node name="multisense_points_relay" pkg="topic_tools" type="relay"
-        args="/multisense/camera/points /multisense/lidar_points" respawn="false" output="screen">
+  <node name="multisense_points2_relay" pkg="topic_tools" type="relay"
+        args="/multisense/camera/points2 /multisense/image_points2" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
 
   <!-- relay for multisense sl simulation topics
        sim publishes to /multisense/camera/points2 (from stereo_proc node), while
-       hardware publishes to /multisense/lidar_points2
+       hardware publishes to /multisense/image_points2_color
   -->
   <node name="multisense_points2_relay" pkg="topic_tools" type="relay"
-        args="/multisense/camera/points2 /multisense/lidar_points2" respawn="false" output="screen">
+        args="/multisense/camera/points2 /multisense/image_points2_color" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
-  </node>
+  </node>  
 
 </launch>
