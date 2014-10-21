@@ -49,7 +49,7 @@
 
   <!-- relay for multisense sl simulation topics
        sim publishes to /multisense/camera/points2 (from stereo_proc node), while
-       hardware publishes to /multisense/lidar_points2
+       hardware publishes to /multisense/image_points2
   -->
   <node name="multisense_points2_relay" pkg="topic_tools" type="relay"
         args="/multisense/camera/points2 /multisense/image_points2" respawn="false" output="screen">
