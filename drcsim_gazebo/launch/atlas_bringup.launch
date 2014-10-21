@@ -48,7 +48,7 @@
   </node>
 
   <!-- relay for multisense_sl simulation topics
-       v1 hardware publishes to /laser/scan, v3 publishes to /multisense/lidar_scan -->       
+       v1 hardware publishes to /laser/scan, v3 publishes to /multisense/lidar_scan -->
   <node name="multisense_sl_laser_scan_relay" pkg="topic_tools" type="relay"
         args="/laser/scan /multisense_sl/laser/scan" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
