@@ -493,8 +493,13 @@ uint8_t RobotiqHandPlugin::GetCurrentPosition(
   gazebo::math::Angle range =
     _joint->GetUpperLimit(0) - _joint->GetLowerLimit(0);
 
+  // The maximum value in pinch mode is 177.
+  if (this->graspingMode == Pinch)
+    range *= 177.0 / 255.0;
+
   // Angle relative to the lower limit.
   gazebo::math::Angle relAngle = _joint->GetAngle(0) - _joint->GetLowerLimit(0);
+
   return
     static_cast<uint8_t>(round(255.0 * relAngle.Radian() / range.Radian()));
 }
