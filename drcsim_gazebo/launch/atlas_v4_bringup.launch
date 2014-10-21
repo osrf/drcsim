@@ -65,4 +65,11 @@
     <param name="lazy" type="bool" value="True"/>
   </node>
 
+  <node type="laser_scan_assembler" pkg="laser_assembler"
+        name="multisense_laser_assembler">
+    <remap from="scan" to="multisense/lidar_scan"/>
+    <param name="max_scans" type="int" value="400" />
+    <param name="fixed_frame" type="string" value="head_hokuyo_frame" />
+  </node>  
+
 </launch>
