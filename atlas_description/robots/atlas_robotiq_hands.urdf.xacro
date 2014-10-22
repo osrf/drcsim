@@ -3,6 +3,8 @@
   <xacro:include filename="$(find atlas_description)/urdf/atlas_simple_shapes.urdf" />
   <xacro:include filename="$(find robotiq_hand_description)/urdf/robotiq_hand.urdf.xacro" />
 
+  <!-- Set the initial hand position and orientation by changing 'rpy' and 'xyz'
+  to mach the values in your actual robot. -->
   <xacro:robotiq_hand prefix="l_" parent="l_hand" reflect="-1">
     <origin rpy="3.14159 3.14159 3.14159" xyz="-0.00125 0.17 0.01"/>
   </xacro:robotiq_hand>
