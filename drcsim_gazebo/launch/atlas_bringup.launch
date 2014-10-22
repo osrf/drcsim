@@ -41,9 +41,9 @@
   </node>
 
   <!-- relay for multisense_sl simulation topics
-       hardware publishes to /joint_states, sim legacy publishes to /multisense_sl/joint_states -->
+       sim publishes to /multisense_sl/joint_states, recover sim legacy publishes to /joint_states -->
   <node name="multisense_sl_joint_states_relay" pkg="topic_tools" type="relay"
-        args="/joint_states /multisense_sl/joint_states" respawn="false" output="screen">
+        args="/multisense_sl/joint_states /joint_states" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
 
