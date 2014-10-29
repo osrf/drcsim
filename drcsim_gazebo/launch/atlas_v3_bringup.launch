@@ -40,13 +40,6 @@
     <param name="approximate_sync" type="bool" value="false"/>
   </node>
 
-  <!-- relay for multisense simulation topics
-       hardware publishes to /joint_states, sim legacy publishes to /multisense/joint_states -->
-  <node name="multisense_joint_states_relay" pkg="topic_tools" type="relay"
-        args="/joint_states /multisense/joint_states" respawn="false" output="screen">
-    <param name="lazy" type="bool" value="True"/>
-  </node>
-
   <!-- relay for multisense sl simulation topics
        sim publishes to /multisense/camera/points2 (from stereo_proc node), while
        hardware publishes to /multisense/image_points2
