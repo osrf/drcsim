@@ -3,7 +3,7 @@
   <name>robotiq_hand_description</name>
   <version>0.0.1</version>
   <description>
-    This package contains Robotiq hand description files.
+    This package contains RobotiQ hand description files.
   </description>
   <maintainer email="caguero@osrfoundation.org">Carlos Agüero</maintainer>
   <author email="caguero@osrfoundation.org">Carlos Agüero and Shaun Edwards</author>
