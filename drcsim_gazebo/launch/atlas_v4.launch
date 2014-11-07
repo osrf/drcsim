@@ -5,9 +5,11 @@
   <arg name="hand_suffix" default=""/>
   <arg name="extra_gazebo_args" default="-q" />
 
-  <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
+  <param name="/atlas/time_to_unpin" type="double" value="0.0"/>
+  <param name="/atlas/startup_mode" type="string" value="pinned"/>
+  <!--
   <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
-  <!-- <param name="/atlas/startup_mode" type="string" value="pinned"/> -->
+  -->
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
@@ -28,7 +30,7 @@
   <param name="robot_initial_pose/y"     value="0" type="double"/>
   <param name="robot_initial_pose/z"     value="0.95" type="double"/>
   <param name="robot_initial_pose/roll"  value="0" type="double"/>
-  <param name="robot_initial_pose/pitch" value="0.05" type="double"/>
+  <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
 
   <include file="$(find drcsim_gazebo)/launch/atlas_v4_bringup.launch"/>

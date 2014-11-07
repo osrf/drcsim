@@ -40,6 +40,39 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
+    <!-- target box -->
+    <model name="box">
+      <pose>0.5 0.1 1.5 0 0 0</pose>
+      <link name="link">
+        <gravity>0</gravity>
+        <inertial>
+          <pose>0 0 0.0 0 0 0</pose>
+          <inertia>
+            <ixx>1.11</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>100.11</iyy>
+            <iyz>0</iyz>
+            <izz>1.01</izz>
+          </inertia>
+          <mass>101.0</mass>
+        </inertial>
+        <visual name="vis">
+          <pose>0 0 0.0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.02 0.02 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Blue</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
         <model_name>atlas</model_name>

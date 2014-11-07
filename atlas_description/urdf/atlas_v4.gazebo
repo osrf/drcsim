@@ -9,6 +9,7 @@
       <topicName>joint_trajectory</topicName>
       <updateRate>1000.0</updateRate>
     </plugin>
+    <plugin name="task_space_control_plugin" filename="libModelControlPlugin.so"/>
     <!--
     <plugin filename="libgazebo_ros_controller_manager.so" name="gazebo_ros_controller_manager">
       <alwaysOn>true</alwaysOn>
