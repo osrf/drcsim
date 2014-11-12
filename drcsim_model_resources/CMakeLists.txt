@@ -197,6 +197,16 @@ add_subdirectory(media)
 add_subdirectory(gazebo_models)
 add_subdirectory(worlds)
 
+########### generate standalone worlds (issue #384) ###############
+# create worlds with atlas v1 and atlas v4 models
+# do this for atlas.world, drc_practice_task_[1-8].world
+#
+# to do this, we can either start with a "no robot world"
+# and insert either VRCPlugin or atlas robot model.
+# or start with current worlds, strip VRCPlugin and replace with
+# atlas robot model.
+
+
 ########### Add uninstall target ###############
 configure_file(
   "${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
