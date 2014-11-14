@@ -63,6 +63,6 @@
     <remap from="scan" to="multisense/lidar_scan"/>
     <param name="max_scans" type="int" value="400" />
     <param name="fixed_frame" type="string" value="head_hokuyo_frame" />
-  </node>
+  </node>  
 
 </launch>
