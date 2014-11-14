@@ -16,7 +16,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/share
 )
 
-# install below for gazebo to find this model through GAZEBO_MODEL_PATH.
+# install below for gazebo to find this model through GAZEBO_MODEL_PATH .
 install(FILES
   model.config
   dummy.urdf
