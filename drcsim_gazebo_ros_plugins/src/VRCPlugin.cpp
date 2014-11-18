@@ -68,6 +68,7 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
   // this->deferredLoadThread = boost::thread(
   //   boost::bind(&VRCPlugin::DeferredLoad, this));
   this->DeferredLoad();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -922,6 +923,7 @@ void VRCPlugin::UpdateStates()
   {
     // Load and Spawn Robot
     this->atlas.InsertModel(this->world, this->sdf);
+
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
   {
@@ -971,7 +973,17 @@ void VRCPlugin::UpdateStates()
     //   Robot PID's to zero joint angles, and pinned to the world.
     //   If StartupHarnessDuration > 0 unpin the robot after duration.
 
-    if (atlas.startupMode == "bdi_stand")
+    std::string startInVehicleName = "robot_start_in_vehicle";
+    int startInVehicle = 0;
+    if (this->rosNode->getParam(startInVehicleName, startInVehicle) &&
+                                                            startInVehicle)
+    {
+      gzdbg << "Starting robot in vehicle." << std::endl;
+      geometry_msgs::Pose::Ptr poseMsg(new geometry_msgs::Pose());
+      this->RobotEnterCar(poseMsg);
+      this->atlas.startupSequence = Robot::INITIALIZED;
+    }
+    else if (atlas.startupMode == "bdi_stand")
     {
       switch (this->atlas.bdiStandSequence)
       {
@@ -1527,6 +1539,8 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
         robotDescriptionName.c_str());
       this->startupSequence = Robot::NONE;
     }
+
+
   }
 }
 
@@ -1552,6 +1566,7 @@ void VRCPlugin::LoadVRCROSAPI()
 {
   if (this->cheatsEnabled)
   {
+
     // ros subscription
     std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
     ros::SubscribeOptions robot_enter_car_so =
