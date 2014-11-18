@@ -68,7 +68,6 @@ void VRCPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
   // this->deferredLoadThread = boost::thread(
   //   boost::bind(&VRCPlugin::DeferredLoad, this));
   this->DeferredLoad();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -923,7 +922,6 @@ void VRCPlugin::UpdateStates()
   {
     // Load and Spawn Robot
     this->atlas.InsertModel(this->world, this->sdf);
-
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
   {
@@ -1539,8 +1537,6 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
         robotDescriptionName.c_str());
       this->startupSequence = Robot::NONE;
     }
-
-
   }
 }
 
@@ -1566,7 +1562,6 @@ void VRCPlugin::LoadVRCROSAPI()
 {
   if (this->cheatsEnabled)
   {
-
     // ros subscription
     std::string robot_enter_car_topic_name = "drc_world/robot_enter_car";
     ros::SubscribeOptions robot_enter_car_so =
