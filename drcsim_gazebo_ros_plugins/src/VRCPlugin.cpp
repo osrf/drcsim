@@ -974,7 +974,7 @@ void VRCPlugin::UpdateStates()
     //   If StartupHarnessDuration > 0 unpin the robot after duration.
 
     std::string startInVehicleName = "robot_start_in_vehicle";
-    int startInVehicle = 0;
+    bool startInVehicle = false;
     if (this->rosNode->getParam(startInVehicleName, startInVehicle) &&
                                                             startInVehicle)
     {

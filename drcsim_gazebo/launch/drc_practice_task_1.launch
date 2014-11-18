@@ -20,6 +20,6 @@
   <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
 
-  <param name="robot_start_in_vehicle" value="1" type="int"/>
+  <param name="robot_start_in_vehicle" value="1" type="bool"/>
 
 </launch>
