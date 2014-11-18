@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<sdf version="1.4">
+<sdf version="1.5">
  
   <% 
     # Constant declarations
@@ -18,6 +18,7 @@
     angle_inc = 10 * Math::PI/180 
   %>
   <model name="block_angle_steps">
+    <!--<static>true</static>-->
     <pose><%= origin_x %> <%= origin_y %> <%= origin_z %> 0 0 0</pose>
     <% for i in 0..width %>
       <% for j in 0..height %>

@@ -2,6 +2,7 @@
 <sdf version="1.4">
  
   <model name="block_level_steps">
+    <static>true</static>
     <pose>0 0 0 0 0 0</pose>
         
           <include>

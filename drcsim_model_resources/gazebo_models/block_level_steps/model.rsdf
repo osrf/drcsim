@@ -15,6 +15,7 @@
     block_z = 0.093
   %>
   <model name="block_level_steps">
+    <!--<static>true</static>-->
     <pose><%= origin_x %> <%= origin_y %> <%= origin_z %> 0 0 0</pose>
     <% for i in 0..width %>
       <% for j in 0..height %>
