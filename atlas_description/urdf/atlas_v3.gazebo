@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <robot name="drc_skeleton">
   <gazebo>
     <!-- robot model offset -->
@@ -262,7 +263,7 @@
     <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <gazebo reference="back_bkx">
-    <implicitSpringDamper>1</implicitSpringDamper>
+    <implicitSpringDamper>2</implicitSpringDamper>
   </gazebo>
   <gazebo reference="l_arm_elx">
     <implicitSpringDamper>1</implicitSpringDamper>

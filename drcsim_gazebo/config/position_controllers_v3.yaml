@@ -129,7 +129,7 @@ l_leg_hpx_position_controller:
   type: robot_mechanism_controllers/JointPositionController
   joint: l_leg_hpx
   pid: &l_leg_hpx_gains
-    p: 1000.0
+    p: 100.0
     d: 10.0
     i: 0.0
     i_clamp: 0.0
