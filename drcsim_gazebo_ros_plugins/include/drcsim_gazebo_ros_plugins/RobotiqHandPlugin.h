@@ -193,7 +193,7 @@ class RobotiqHandPlugin : public gazebo::ModelPlugin
   /// \brief Default topic name for receiving state updates from the right hand.
   private: static const std::string DefaultRightTopicState;
 
-  /// \brief ROS NodeHanle.
+  /// \brief ROS NodeHandle.
   private: boost::scoped_ptr<ros::NodeHandle> rosNode;
 
   /// \brief ROS callback queue.
