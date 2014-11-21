@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <robot name="drc_skeleton">
   <gazebo>
     <!-- robot model offset -->
