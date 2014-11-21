@@ -90,11 +90,11 @@
     <include>
       <uri>model://table</uri>
       <static>true</static>
-      <pose>-6.460000000000001 -14.0 0 0 0 0</pose>
+      <pose>-4.800000000000001 -14.0 0 0 0 0</pose>
     </include>
     <include>
       <uri>model://cordless_drill</uri>
-      <pose>-6.86 -14.1 1.0 0 0 0</pose>
+      <pose>-5.200000000000001 -14.1 1.0 0 0 0</pose>
     </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>
