@@ -43,6 +43,8 @@ add_message_files(
   AtlasState.msg
   ControllerStatistics.msg
   ForceTorqueSensors.msg
+  SModelRobotInput.msg
+  SModelRobotOutput.msg
   SynchronizationStatistics.msg
   Test.msg
   VRCScore.msg
