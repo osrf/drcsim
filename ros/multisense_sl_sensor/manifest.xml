@@ -1,0 +1,15 @@
+<package>
+  <description brief="multisense_sl_sensor">
+
+     multisense_sl_sensor
+
+  </description>
+  <author>hsu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/multisense_sl_sensor</url>
+  <depend package="xacro"/>
+
+</package>
+
+
