@@ -1,4 +1,5 @@
 <launch>
+  <arg name="model_args" default=""/>
   <rosparam file="$(find sandia_hand_description)/config/sandia_hand_gazebo_gains.yaml" ns="sandia_hands"/>
 
   <!-- launch some simple grasp controllers just for a strawman -->
