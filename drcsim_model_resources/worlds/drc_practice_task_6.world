@@ -16,6 +16,7 @@
       <gravity>0 0 -9.81</gravity>
       <ode>
         <solver>
+          <use_dynamic_moi_rescaling>true</use_dynamic_moi_rescaling>
           <type>quick</type>
           <iters>50</iters>
           <sor>1.4</sor>
@@ -90,11 +91,11 @@
     <include>
       <uri>model://table</uri>
       <static>true</static>
-      <pose>-6.460000000000001 -14.0 0 0 0 0</pose>
+      <pose>-4.800000000000001 -14.0 0 0 0 0</pose>
     </include>
     <include>
       <uri>model://cordless_drill</uri>
-      <pose>-6.86 -14.1 1.0 0 0 0</pose>
+      <pose>-5.200000000000001 -14.1 1.0 0 0 0</pose>
     </include>
     <plugin filename="libVRCPlugin.so" name="vrc_plugin">
       <atlas>

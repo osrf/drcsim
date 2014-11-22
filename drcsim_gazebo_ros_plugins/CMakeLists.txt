@@ -67,6 +67,12 @@ set_target_properties(IRobotHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
 target_link_libraries(IRobotHandPlugin ${catkin_LIBRARIES})
 add_dependencies(IRobotHandPlugin handle_msgs_gencpp atlas_msgs_gencpp)
 
+add_library(RobotiqHandPlugin src/RobotiqHandPlugin.cpp)
+set_target_properties(RobotiqHandPlugin PROPERTIES LINK_FLAGS "${ld_flags}")
+set_target_properties(RobotiqHandPlugin PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+target_link_libraries(RobotiqHandPlugin ${catkin_LIBRARIES})
+add_dependencies(RobotiqHandPlugin handle_msgs_gencpp atlas_msgs_gencpp)
+
 add_library(MultiSenseSLPlugin src/MultiSenseSLPlugin.cpp)
 target_link_libraries(MultiSenseSLPlugin ${catkin_LIBRARIES})
 
@@ -145,6 +151,7 @@ install(TARGETS
   VRCPlugin
   SandiaHandPlugin
   IRobotHandPlugin
+  RobotiqHandPlugin
   MultiSenseSLPlugin
   DRCVehicleROSPlugin
   ContactModelPlugin

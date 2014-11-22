@@ -971,7 +971,17 @@ void VRCPlugin::UpdateStates()
     //   Robot PID's to zero joint angles, and pinned to the world.
     //   If StartupHarnessDuration > 0 unpin the robot after duration.
 
-    if (atlas.startupMode == "bdi_stand")
+    std::string startInVehicleName = "robot_start_in_vehicle";
+    bool startInVehicle = false;
+    if (this->rosNode->getParam(startInVehicleName, startInVehicle) &&
+                                                            startInVehicle)
+    {
+      gzdbg << "Starting robot in vehicle." << std::endl;
+      geometry_msgs::Pose::Ptr poseMsg(new geometry_msgs::Pose());
+      this->RobotEnterCar(poseMsg);
+      this->atlas.startupSequence = Robot::INITIALIZED;
+    }
+    else if (atlas.startupMode == "bdi_stand")
     {
       switch (this->atlas.bdiStandSequence)
       {
