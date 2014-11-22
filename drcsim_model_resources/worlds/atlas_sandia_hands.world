@@ -18,6 +18,7 @@
       </simbody>
       <ode>
         <solver>
+          <use_dynamic_moi_rescaling>true</use_dynamic_moi_rescaling>
           <type>quick</type>
           <iters>50</iters>
           <sor>1.4</sor>

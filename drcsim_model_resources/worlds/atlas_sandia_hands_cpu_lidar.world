@@ -6,6 +6,7 @@
       <update_rate>1000</update_rate>
       <ode>
         <solver>
+          <use_dynamic_moi_rescaling>true</use_dynamic_moi_rescaling>
           <type>quick</type>
           <dt>0.001</dt>
           <iters>50</iters>
