@@ -636,6 +636,82 @@ there are multiple hands then a prefix followed by an "_" is needed.
     </gazebo>
     <!-- end of joint list -->
 
+    <!-- coupling joints in sdf -->
+    <gazebo>
+      <joint name="proximal_actuating_hinge_link_1" type="revolute">
+        <parent>${prefix}link_proximal_actuating_hinge</parent>
+        <child>${prefix}link_1</child>
+        <axis>
+          <dynamics>
+            <damping>1</damping>
+            <friction>1</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>true</use_parent_model_frame>
+        </axis>
+      </joint>
+      <joint name="proximal_actuating_bar_median_actuating_hinge" type="revolute">
+        <parent>${prefix}link_proximal_actuating_bar</parent>
+        <child>${prefix}link_median_actuating_hinge</child>
+        <axis>
+          <dynamics>
+            <damping>1</damping>
+            <friction>1</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>true</use_parent_model_frame>
+        </axis>
+      </joint>
+      <joint name="median_bar_paradistal_hinge" type="revolute">
+        <parent>${prefix}link_median_bar</parent>
+        <child>${prefix}link_paradistal_hinge</child>
+        <axis>
+          <dynamics>
+            <damping>1</damping>
+            <friction>1</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>true</use_parent_model_frame>
+        </axis>
+      </joint>
+      <joint name="paraproximal_actuating_hinge_link_1" type="revolute">
+        <parent>${prefix}link_paraproximal_actuating_hinge</parent>
+        <child>${prefix}link_1</child>
+        <axis>
+          <dynamics>
+            <damping>1</damping>
+            <friction>1</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>true</use_parent_model_frame>
+        </axis>
+      </joint>
+      <joint name="paraproximal_bar_paramedian_hinge" type="revolute">
+        <parent>${prefix}link_paraproximal_bar</parent>
+        <child>${prefix}link_paramedian_hinge</child>
+        <axis>
+          <dynamics>
+            <damping>1</damping>
+            <friction>1</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>true</use_parent_model_frame>
+        </axis>
+      </joint>
+      <joint name="median_bar_paradistal_hinge" type="revolute">
+        <parent>${prefix}link_median_bar</parent>
+        <child>${prefix}link_paradistal_hinge</child>
+        <axis>
+          <dynamics>
+            <damping>1</damping>
+            <friction>1</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>true</use_parent_model_frame>
+        </axis>
+      </joint>
+    </gazebo>
+
   </xacro:macro>
 
 </robot>
