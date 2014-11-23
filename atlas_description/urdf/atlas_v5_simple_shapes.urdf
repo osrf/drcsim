@@ -83,15 +83,15 @@
             <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 1.57 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_farm.dae" scale="1 1 1" />
+                <cylinder radius="0.03" length="0.05"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 1.57 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_farm.stl" scale="1 1 1" />
+                <cylinder radius="0.03" length="0.05"/>
             </geometry>
         </collision>
     </link>
@@ -197,15 +197,15 @@
             <inertia ixx="0.006" ixy="0" ixz="0" iyy="0.003" iyz="0" izz="0.006" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 -0.08 0" rpy="1.57 0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_farm.dae" scale="1 1 1" />
+                <cylinder radius="0.05" length="0.1"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 -0.08 0" rpy="1.57 0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_farm.stl" scale="1 1 1" />
+                <cylinder radius="0.05" length="0.1"/>
             </geometry>
         </collision>
     </link>
@@ -387,15 +387,15 @@
             <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.007" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 1.57 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_farm.dae" scale="1 1 1" />
+                <cylinder radius="0.03" length="0.05"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 0" rpy="0 1.57 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_farm.stl" scale="1 1 1" />
+                <cylinder radius="0.03" length="0.05"/>
             </geometry>
         </collision>
     </link>
@@ -501,15 +501,15 @@
             <inertia ixx="0.006" ixy="0" ixz="0" iyy="0.003" iyz="0" izz="0.006" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0.08 0" rpy="1.57 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_farm.dae" scale="1 1 1" />
+                <cylinder radius="0.05" length="0.1"/>
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0.08 0" rpy="1.57 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_farm.stl" scale="1 1 1" />
+                <cylinder radius="0.05" length="0.1"/>
             </geometry>
         </collision>
     </link>
@@ -689,7 +689,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.7628" soft_upper_limit="11.7628" />
     </joint>
     <joint name="l_arm_wry" type="revolute">
-        <origin xyz="0 -0.29955 -0.00921" rpy="0 -0 0" />
+        <origin xyz="0 0.29955 -0.00921" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="l_larm" />
         <child link="l_ufarm" />
@@ -815,7 +815,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.7628" soft_upper_limit="11.7628" />
     </joint>
     <joint name="r_arm_wry" type="revolute">
-        <origin xyz="0 0.29955 -0.00921" rpy="0 -0 0" />
+        <origin xyz="0 -0.29955 -0.00921" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="r_larm" />
         <child link="r_ufarm" />
