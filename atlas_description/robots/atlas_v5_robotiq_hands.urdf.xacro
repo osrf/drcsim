@@ -1,6 +1,6 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
 
-  <xacro:include filename="$(find atlas_description)/urdf/atlas_v4_simple_shapes.urdf" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v5_simple_shapes.urdf" />
   <xacro:include filename="$(find robotiq_hand_description)/urdf/robotiq_hand.urdf.xacro" />
 
   <!-- Set the initial hand position and orientation by changing 'rpy' and 'xyz'
@@ -28,7 +28,7 @@
     </plugin>
   </gazebo>
 
-  <xacro:include filename="$(find atlas_description)/urdf/atlas_v4.gazebo" />
-  <xacro:include filename="$(find atlas_description)/urdf/atlas_v4.transmission" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v5.gazebo" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v5.transmission" />
   <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl_v4.urdf" />
 </robot>
