@@ -132,19 +132,19 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <!-- Link proximal actuating hinge -->
     <link name="${prefix}link_proximal_actuating_hinge">
       <visual>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="-0.015 0 0"/>
         <geometry>
           <box size="0.03 .0075 .002"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="-0.015 0 0"/>
          <geometry>
           <box size="0.03 .0075 .002"/>
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="-0.015 0 0"/>
         <mass value="0.047"/>
         <inertia ixx="0.00000499332" ixy="0.00000091312" ixz="-0.00000000120" iyy  ="0.00006434531" iyz="-0.00000000007" izz="0.00006061917"/>
       </inertial>
@@ -185,19 +185,19 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <!-- Link proximal actuating bar -->
     <link name="${prefix}link_proximal_actuating_bar">
       <visual>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.026789 0 0"/>
         <geometry>
           <box size="0.053578 .0075 .002"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.026789 0 0"/>
          <geometry>
           <box size="0.053578 .0075 .002"/>
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.026789 0 0"/>
         <mass value="0.047"/>
         <inertia ixx="0.00000499332" ixy="0.00000091312" ixz="-0.00000000120" iyy  ="0.00006434531" iyz="-0.00000000007" izz="0.00006061917"/>
       </inertial>
@@ -372,7 +372,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <parent link="${prefix}link_0"/>
       <child link="${prefix}link_proximal_actuating_hinge"/>
       <axis xyz="0 0 1"/>
-      <origin rpy="0 0 1.051" xyz="-0.0071 -0.012 0.01"/>
+      <origin rpy="0 0 1.051" xyz="0 0 0.01"/>
       <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
     </joint>
 
@@ -530,7 +530,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     </gazebo>
     <!-- end of joint list -->
 
-    <!-- coupling joints in sdf -->
+    <!-- coupling joints in sdf
     <gazebo>
       <joint name="${prefix}link_proximal_actuating_hinge_link_1" type="revolute">
         <parent>${prefix}link_proximal_actuating_hinge</parent>
@@ -608,6 +608,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <gazebo reference="${prefix}link_paraproximal_bar_paramedian_hinge">
       <implicitSpringDamper>1</implicitSpringDamper>
     </gazebo>
+ -->
 
   </xacro:macro>
 
