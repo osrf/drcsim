@@ -76,21 +76,21 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <!-- Link 2 -->
     <link name="${prefix}link_2">
       <visual>
-        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0"/>
+        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0.0075"/>
         <geometry>
           <mesh filename="package://robotiq_hand_description/meshes/s-model_articulated/visual/link_2.STL" />
         </geometry>
         <material name="green"/>
       </visual>
       <collision>
-        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0"/>
+        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0.0075"/>
           <geometry>
             <mesh filename="package://robotiq_hand_description/meshes/s-model_articulated/collision/link_2.STL"/>
           </geometry>
         <material name="yellow"/>
       </collision>
       <inertial>
-        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0"/>
+        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0.0075"/>
         <mass value="0.03284"/>
         <inertia ixx="0.00000348008" ixy="0.00000031940" ixz="0.00000013041" iyy="0.00002248123" iyz="0.00000000291" izz="0.00001986346"/>
       </inertial>
@@ -104,21 +104,21 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <!-- Link 3 -->
     <link name="${prefix}link_3">
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 ${3.1416/2}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://robotiq_hand_description/meshes/s-model_articulated/visual/link_3.STL" />
         </geometry>
         <material name="green"/>
       </visual>
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 ${3.1416/2}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://robotiq_hand_description/meshes/s-model_articulated/collision/link_3.STL"/>
         </geometry>
         <material name="yellow"/>
       </collision>
       <inertial>
-        <origin rpy="0 0 ${3.1416/2}" xyz="0.01626 0.00049 0.0002"/>
+        <origin rpy="0 0 0" xyz="0.01626 0.00049 0.0002"/>
         <mass value="0.03354"/>
         <inertia ixx="0.00000305151" ixy="0.00000089792" ixz="0.00000000249" iyy="0.00001427978" iyz="-0.00000001191" izz="0.00001264126"/>
       </inertial>
@@ -263,19 +263,19 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <!-- Link median bar -->
     <link name="${prefix}link_median_bar">
       <visual>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.01905 0 0"/>
         <geometry>
           <box size="0.0381 .0075 .002"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.01905 0 0"/>
          <geometry>
           <box size="0.0381 .0075 .002"/>
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.01905 0 0"/>
         <mass value="0.047"/>
         <inertia ixx="0.00000499332" ixy="0.00000091312" ixz="-0.00000000120" iyy  ="0.00006434531" iyz="-0.00000000007" izz="0.00006061917"/>
       </inertial>
@@ -424,8 +424,8 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <parent link="${prefix}link_1"/>
       <child link="${prefix}link_median_actuating_hinge"/>
       <axis xyz="0 0 1"/>
-      <!--<origin rpy="0 0 -0.52" xyz="0.050 -.028 0.01"/>-->
-      <origin rpy="0 0 ${-0.29-3.14159/2}" xyz="0 0.05715 0.01"/>
+      <!-- \TODO: -0.37 is hand picked, double check -->
+      <origin rpy="0 0 ${-0.37}" xyz="0 0.05715 0.01"/>
       <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
     </joint>
 
@@ -438,7 +438,9 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <parent link="${prefix}link_1"/>
       <child link="${prefix}link_paramedian_hinge"/>
       <axis xyz="0 0 1"/>
-      <origin rpy="0 0 -0.52" xyz="0 0.05715 -0.01"/>
+      <!-- \TODO: -0.37 is hand picked, 0.9719 is hand calculated from atan(0.02381/0.01625), double check -->
+      <origin rpy="0 0 ${-0.37+0.9719}" xyz="0 0.05715 -0.01"/>
+      <origin rpy="0 0 0.29" xyz="0.01625 0.02381 0"/>
       <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
     </joint>
 
@@ -451,7 +453,8 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <parent link="${prefix}link_median_actuating_hinge"/>
       <child link="${prefix}link_median_bar"/>
       <axis xyz="0 0 1"/>
-      <origin rpy="0 0 0.29" xyz="0.019 -0.02381 0"/>
+      <!-- \TODO: hand calc 90 deg + atan(0.01516/0.01625) -->
+      <origin rpy="0 0 ${3.1416/2 + 0.7507}" xyz="0.01625 0.01516 0"/>
       <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
     </joint>
 
@@ -464,7 +467,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <parent link="${prefix}link_2"/>
       <child link="${prefix}link_paradistal_hinge"/>
       <axis xyz="0 0 1"/>
-      <origin rpy="0 0 0" xyz="0 0.039 0.01"/>
+      <origin rpy="0 0 0" xyz="0 0.039 -0.01"/>
       <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
     </joint>
 
@@ -521,7 +524,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <child link="${prefix}link_3"/>
       <dynamics damping="1" friction="0" />
       <axis xyz="0 0 1"/>
-      <origin rpy="0 0 0.5198" xyz="0 0.039 0"/>
+      <origin rpy="0 0 ${3.1416/2 + 0.5198}" xyz="0 0.039 0"/>
       <!-- Limits: [-38deg.,60deg.] -->
       <limit lower="-0.6632" upper="1.0471" effort="60" velocity="-1"/>
     </joint>
@@ -568,24 +571,25 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <gazebo reference="${prefix}link_proximal_actuating_bar_median_actuating_hinge">
       <implicitSpringDamper>1</implicitSpringDamper>
     </gazebo>
-    <!--
     <gazebo>
-      <joint name="${prefix}link_median_bar_paradistal_hinge" type="revolute">
-        <parent>${prefix}link_median_bar</parent>
-        <child>${prefix}link_paradistal_hinge</child>
+      <joint name="${prefix}link_median_bar_link_3" type="revolute">
+        <parent>${prefix}link_3</parent>
+        <child>${prefix}link_median_bar</child>
+        <pose>0.0381 0 0 0 0 0</pose>
         <axis>
           <dynamics>
             <damping>1</damping>
             <friction>0</friction>
           </dynamics>
           <xyz>0 0 1</xyz>
-          <use_parent_model_frame>true</use_parent_model_frame>
+          <use_parent_model_frame>false</use_parent_model_frame>
         </axis>
       </joint>
     </gazebo>
     <gazebo reference="${prefix}link_median_bar_paradistal_hinge">
       <implicitSpringDamper>1</implicitSpringDamper>
     </gazebo>
+    <!--
     <gazebo>
       <joint name="${prefix}link_paraproximal_actuating_hinge_link_1" type="revolute">
         <parent>${prefix}link_paraproximal_actuating_hinge</parent>
