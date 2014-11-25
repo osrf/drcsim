@@ -26,15 +26,15 @@
             <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.008" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.008 0.002 0.024" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_foot.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.008 0.002 0.024" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_foot.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_foot.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -102,15 +102,15 @@
             <inertia ixx="0.000691326" ixy="-2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="0.000137862" izz="0.00106487" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0.005 -0.010" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_lglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0.005 -0.010" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_lglut.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_lglut.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -121,13 +121,13 @@
             <inertia ixx="0.077" ixy="0" ixz="-0.003" iyy="0.076" iyz="0" izz="0.01" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 -0.002" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_lleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 -0.002" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/l_lleg.stl" scale="1 1 1" />
             </geometry>
@@ -159,15 +159,15 @@
             <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0.014 0 0.008" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_talus.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0.014 0 0.008" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_talus.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_talus.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -235,15 +235,15 @@
             <inertia ixx="0.09" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.02" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.002 -0.015 0.006" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_uleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.002 -0.015 0.006" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_uleg.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_uleg.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -330,15 +330,15 @@
             <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.008" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.008 -0.002 0.024" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_foot.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.008 -0.002 0.024" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_foot.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_foot.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -406,15 +406,15 @@
             <inertia ixx="0.000691326" ixy="2.24344e-05" ixz="2.50508e-06" iyy="0.00126856" iyz="-0.000137862" izz="0.00106487" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0.010 -0.005 -0.000" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_lglut.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0.010 -0.005 -0.000" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_lglut.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_lglut.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -425,13 +425,13 @@
             <inertia ixx="0.077" ixy="-0" ixz="-0.003" iyy="0.076" iyz="-0" izz="0.01" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 -0.002" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_lleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0 0 -0.002" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v3/r_lleg.stl" scale="1 1 1" />
             </geometry>
@@ -463,15 +463,15 @@
             <inertia ixx="1.01674e-05" ixy="0" ixz="0" iyy="8.42775e-06" iyz="0" izz="1.30101e-05" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0.014 0 0.008" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_talus.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="0.014 0 0.008" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_talus.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_talus.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -539,15 +539,15 @@
             <inertia ixx="0.09" ixy="0" ixz="0" iyy="0.09" iyz="0" izz="0.02" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.002 0.015 0.006" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_uleg.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <origin xyz="-0.002 0.015 0.006" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_uleg.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_uleg.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
