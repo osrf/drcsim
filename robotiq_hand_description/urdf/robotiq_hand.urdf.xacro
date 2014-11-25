@@ -161,7 +161,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0.015 0 0"/>
+        <origin rpy="0 0 0" xyz="0.0012 -0.00162 -0.00161"/>
         <mass value="0.02647"/>
         <inertia ixx= "0.00000156447"
                  ixy= "0.000000236226"
@@ -193,15 +193,15 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="-0.015 0 0" xyz="0 0 0"/>
+        <origin rpy="-0.015 0 0" xyz="0.0064 0 0"/>
         <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <mass value="0.00362"/>
+        <inertia ixx= "0.00000012043"
+                 ixy= "0"
+                 ixz= "0"
+                 iyy= "0.00000053588"
+                 iyz= "0"
+                 izz= "0.00000065322"/>
       </inertial>
     </link>
 
@@ -225,15 +225,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0.5398 0 0" xyz="0.026789 0 0"/>
-        <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <origin rpy="0 0 0" xyz="0.02699 -0.00122 0"/>
+        <mass value="0.00659"/>
+        <inertia ixx= "0.00000008348"
+                 ixy="-0.0000002179"
+                 ixz= "0.00000000134"
+                 iyy= "0.00000719076"
+                 iyz= "0"
+                 izz= "0.00000718272"/>
       </inertial>
     </link>
 
@@ -257,15 +256,15 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0.02858 -0.00129 0"/>
         <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <mass value="0.00732"/>
+        <inertia ixx= "0.00000009065"
+                 ixy="-0.00000027047"
+                 ixz= "0.00000000142"
+                 iyy= "0.00000878034"
+                 iyz= "0"
+                 izz= "0.00000877558"/>
       </inertial>
     </link>
 
@@ -289,15 +288,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <origin rpy="0 0 0" xyz="0.0092 0.00514 0"/>
+        <mass value="0.00359"/>
+        <inertia ixx= "0.00000024735"
+                 ixy= "0.00000023619"
+                 ixz= "0"
+                 iyy= "0.00000047681"
+                 iyz= "0"
+                 izz= "0.00000071813"/>
       </inertial>
     </link>
 
@@ -321,15 +319,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0.01905 0 0"/>
-        <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <origin rpy="0 0 0" xyz="0.01905 -0.00107 0"/>
+        <mass value="0.00538"/>
+        <inertia ixx= "0.00000006639"
+                 ixy="-0.00000010996"
+                 ixz= "0.00000000094"
+                 iyy= "0.00000305318"
+                 iyz= "0"
+                 izz= "0.00000304657"/>
       </inertial>
     </link>
 
@@ -353,15 +350,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <origin rpy="0 0 0" xyz="-0.01025 0.00046 0"/>
+        <mass value="0.00276"/>
+        <inertia ixx= "0.00000004213"
+                 ixy="-0.00000001491"
+                 ixz= "0"
+                 iyy= "0.00000050258"
+                 iyz= "0"
+                 izz= "0.00000054007"/>
       </inertial>
     </link>
 
@@ -385,15 +381,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <origin rpy="0 0 0" xyz="0.01905 -0.00107 0"/>
+        <mass value="0.00538"/>
+        <inertia ixx= "0.00000006639"
+                 ixy="-0.00000010996"
+                 ixz="-0.00000000094"
+                 iyy= "0.00000305318"
+                 iyz= "0"
+                 izz= "0.00000304657"/>
       </inertial>
     </link>
 
@@ -417,15 +412,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </geometry>
       </collision>
       <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <!-- copied from proximal_actuating_hinge -->
-        <mass value="0.02647"/>
-        <inertia ixx= "0.00000156447"
-                 ixy= "0.000000236226"
-                 ixz="-0.00000014862"
-                 iyy= "0.00000221068"
-                 iyz="-0.00000014369"
-                 izz= "0.00000323175"/>
+        <origin rpy="0 0 0" xyz="0.00548 0 0"/>
+        <mass value="0.00158"/>
+        <inertia ixx= "0.00000001907"
+                 ixy= "0"
+                 ixz= "0"
+                 iyy= "0.00000010970"
+                 iyz= "0"
+                 izz= "0.00000012610"/>
       </inertial>
     </link>
 
@@ -605,7 +599,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <!-- end of joint list -->
 
     <!-- coupling joints in sdf -->
-    <!-- 
+    <!--
     <gazebo>
       <joint name="${prefix}link_proximal_actuating_hinge_link_1_couple" type="revolute">
         <parent>${prefix}link_proximal_actuating_hinge</parent>
