@@ -544,7 +544,8 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <parent link="${prefix}link_paramedian_hinge"/>
       <child link="${prefix}link_median_bar_underactuated"/>
       <axis xyz="0 0 1"/>
-      <origin rpy="0 0 0" xyz="0.01786 -0.011905 0"/>
+      <!-- \TODO: hand calc 90 deg + atan(0.01227/0.00329) -->
+      <origin rpy="0 0 ${3.1416/2 + 1.30882484}" xyz="0.01227 0.00329 0"/>
       <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
     </joint>
 
