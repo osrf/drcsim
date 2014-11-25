@@ -62,9 +62,14 @@ there are multiple hands then a prefix followed by an "_" is needed.
         </material>
       </collision>
       <inertial>
-        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.05717 0"/>
+        <origin rpy="0 0 0" xyz="0 0.05717 0"/>
         <mass value="0.047"/>
-        <inertia ixx="0.00000499332" ixy="0.00000091312" ixz="-0.00000000120" iyy="0.00006434531" iyz="-0.00000000007" izz="0.00006061917"/>
+        <inertia ixx= "0.00000499332"
+                 ixy= "0.00000091312"
+                 ixz="-0.00000000120"
+                 iyy= "0.00006434531"
+                 iyz="-0.00000000007"
+                 izz= "0.00006061917"/>
       </inertial>
     </link>
 
@@ -90,7 +95,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
         <material name="yellow"/>
       </collision>
       <inertial>
-        <origin rpy="0 0 ${3.1416/2}" xyz="0 0.03810 0.0075"/>
+        <origin rpy="0 0 0" xyz="0 0.03810 0.0075"/>
         <mass value="0.03284"/>
         <inertia ixx="0.00000348008" ixy="0.00000031940" ixz="0.00000013041" iyy="0.00002248123" iyz="0.00000000291" izz="0.00001986346"/>
       </inertial>
@@ -145,8 +150,13 @@ there are multiple hands then a prefix followed by an "_" is needed.
       </collision>
       <inertial>
         <origin rpy="0 0 0" xyz="0.015 0 0"/>
-        <mass value="0.047"/>
-        <inertia ixx="0.00000499332" ixy="0.00000091312" ixz="-0.00000000120" iyy  ="0.00006434531" iyz="-0.00000000007" izz="0.00006061917"/>
+        <mass value="0.02647"/>
+        <inertia ixx= "0.00000156447"
+                 ixy= "0.000000236226"
+                 ixz="-0.00000014862"
+                 iyy= "0.00000221068"
+                 iyz="-0.00000014369"
+                 izz= "0.00000323175"/>
       </inertial>
     </link>
 
