@@ -217,7 +217,7 @@ void MultiSenseSL::LoadThread()
   this->set_multi_camera_frame_rate_sub_ =
     this->rosnode_->subscribe(set_multi_camera_frame_rate_so);
 
-  /* FIXME currently this causes simulation to crash,
+  /* FIXME currently this causes simulation to crash */
   ros::SubscribeOptions set_multi_camera_resolution_so =
     ros::SubscribeOptions::create<std_msgs::Int32>(
     this->rosNamespace + "/set_camera_resolution_mode", 100,
@@ -227,7 +227,6 @@ void MultiSenseSL::LoadThread()
     ros::VoidPtr(), &this->queue_);
   this->set_multi_camera_resolution_sub_ =
     this->rosnode_->subscribe(set_multi_camera_resolution_so);
-  */
 
   /* not implemented, not supported
   ros::SubscribeOptions set_spindle_state_so =
@@ -473,6 +472,7 @@ void MultiSenseSL::SetMultiCameraFrameRate(const std_msgs::Float64::ConstPtr
 void MultiSenseSL::SetMultiCameraResolution(
   const std_msgs::Int32::ConstPtr &_msg)
 {
+  ROS_ERROR("setting camera frame rate and resolution.");
   /// see MultiSenseSLPlugin.h for available modes
   if (_msg->data < 0 || _msg->data > 3)
   {
@@ -534,6 +534,8 @@ void MultiSenseSL::SetMultiCameraResolution(
 
   for (unsigned int i = 0; i < this->multiCameraSensor->GetCameraCount(); ++i)
   {
+    ROS_ERROR("setting camera [%s] resolution.",
+      this->multiCameraSensor->GetCamera(i)->GetName().c_str());
     this->multiCameraSensor->GetCamera(i)->SetImageWidth(width);
     this->multiCameraSensor->GetCamera(i)->SetImageHeight(height);
   }
