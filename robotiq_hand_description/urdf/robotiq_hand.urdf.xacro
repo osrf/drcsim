@@ -463,7 +463,8 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <child link="${prefix}link_proximal_actuating_bar"/>
       <axis xyz="0 0 1"/>
       <origin rpy="0 0 1.8616" xyz="0.02858 0 0"/>
-      <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
+      <!-- john changed lower from 0 to -3.1416 -->
+      <limit effort="100" lower="-3.1416" upper="3.1416" velocity="100"/>
     </joint>
 
     <gazebo reference="${prefix}joint_proximal_actuating_bar">
@@ -490,7 +491,8 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <axis xyz="0 0 1"/>
       <!-- \TODO: -0.37 is hand picked, double check -->
       <origin rpy="0 0 ${-0.37}" xyz="0 0.05715 0.01"/>
-      <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
+      <!-- john changed lower from 0 to -3.1416 -->
+      <limit effort="100" lower="-3.1416" upper="3.1416" velocity="100"/>
     </joint>
 
     <gazebo reference="${prefix}joint_median_actuating_hinge">
@@ -646,7 +648,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
         <pose>0.0381 0 0 0 0 0</pose>
         <axis>
           <dynamics>
-            <damping>1</damping>
+            <damping>0</damping>
             <friction>0</friction>
           </dynamics>
           <xyz>0 0 1</xyz>
