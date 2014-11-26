@@ -620,6 +620,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     </gazebo>
     -->
     <!--
+    -->
     <gazebo>
       <joint name="${prefix}link_proximal_actuating_bar_median_actuating_hinge_couple" type="revolute">
         <parent>${prefix}link_median_actuating_hinge</parent>
@@ -627,7 +628,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
         <pose>0.05398 0 0 0 0 0</pose>
         <axis>
           <dynamics>
-            <damping>1</damping>
+            <damping>0</damping>
             <friction>0</friction>
           </dynamics>
           <xyz>0 0 1</xyz>
@@ -656,6 +657,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <gazebo reference="${prefix}link_median_bar_paradistal_hinge_couple">
       <implicitSpringDamper>1</implicitSpringDamper>
     </gazebo>
+    <!--
     <gazebo>
       <joint name="${prefix}link_paraproximal_actuating_hinge_link_1_couple" type="revolute">
         <parent>${prefix}link_paraproximal_actuating_hinge</parent>
