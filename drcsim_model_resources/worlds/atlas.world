@@ -20,8 +20,8 @@
         <solver>
           <use_dynamic_moi_rescaling>true</use_dynamic_moi_rescaling>
           <type>quick</type>
-          <iters>50</iters>
-          <sor>1.4</sor>
+          <iters>200</iters>
+          <sor>1.0</sor>
         </solver>
         <constraints>
           <cfm>0.0</cfm>
