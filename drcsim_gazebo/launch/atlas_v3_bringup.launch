@@ -57,7 +57,7 @@
         args="/multisense/camera/points2 /multisense/image_points2_color" respawn="false" output="screen">
     <param name="lazy" type="bool" value="True"/>
   </node>
-  
+
   <node type="laser_scan_assembler" pkg="laser_assembler"
         name="multisense_laser_assembler">
     <remap from="scan" to="multisense/lidar_scan"/>

@@ -58,7 +58,7 @@ export GAZEBO_RESOURCE_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/worlds:$
 export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/drcsim_gazebo_standalone_models:$GAZEBO_MODEL_PATH
 
 # add path to gazebo models from drcsim_model_resources
-export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:$GAZEBO_MODEL_PATH
+export GAZEBO_MODEL_PATH=@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/gazebo_models/environments:@CMAKE_INSTALL_PREFIX@/share:$GAZEBO_MODEL_PATH
 
 # Add the directories containing our Gazebo plugins to GAZEBO_PLUGIN_PATH.
 export GAZEBO_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/drcsim_gazebo_ros_plugins/plugins:$GAZEBO_PLUGIN_PATH

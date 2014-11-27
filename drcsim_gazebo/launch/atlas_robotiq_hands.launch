@@ -3,7 +3,7 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas_robotiq_hands.world"/>
   <arg name="extra_gazebo_args" default="-q"/>
-  <arg name="atlas_version" default=""/>
+  <arg name="model_args" default="" />
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
   <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
@@ -22,7 +22,7 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg atlas_version)_robotiq_hands.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg model_args)_robotiq_hands.urdf.xacro'" />
   <param name="robot_initial_pose/x"     value="0" type="double"/>
   <param name="robot_initial_pose/y"     value="0" type="double"/>
   <param name="robot_initial_pose/z"     value="0.95" type="double"/>
@@ -32,5 +32,5 @@
 
   <include file="$(find drcsim_gazebo)/launch/atlas_robotiq_hands_bringup.launch"/>
 
-  <include file="$(find drcsim_gazebo)/launch/atlas$(arg atlas_version)_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas$(arg model_args)_bringup.launch"/>
 </launch>
