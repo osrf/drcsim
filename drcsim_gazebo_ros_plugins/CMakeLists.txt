@@ -113,12 +113,19 @@ set_target_properties(AtlasV3Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterf
 target_link_libraries(AtlasV3Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})
 add_dependencies(AtlasV3Plugin atlas_msgs_gencpp)
 
-link_directories(${AtlasSimInterface2_LIBRARY_DIRS})
+link_directories(${AtlasSimInterface3_LIBRARY_DIRS})
 add_library(AtlasV4Plugin src/AtlasPlugin.cpp)
 set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_DEFINITIONS ATLAS_VERSION=4)
-set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface2_INCLUDE_DIR}")
-target_link_libraries(AtlasV4Plugin ${catkin_LIBRARIES} ${AtlasSimInterface2_LIBRARY})
+set_target_properties(AtlasV4Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface3_INCLUDE_DIR}")
+target_link_libraries(AtlasV4Plugin ${catkin_LIBRARIES} ${AtlasSimInterface3_LIBRARY})
 add_dependencies(AtlasV4Plugin atlas_msgs_gencpp)
+
+link_directories(${AtlasSimInterface3_LIBRARY_DIRS})
+add_library(AtlasV5Plugin src/AtlasPlugin.cpp)
+set_target_properties(AtlasV5Plugin PROPERTIES COMPILE_DEFINITIONS ATLAS_VERSION=5)
+set_target_properties(AtlasV5Plugin PROPERTIES COMPILE_FLAGS "-I${AtlasSimInterface3_INCLUDE_DIR}")
+target_link_libraries(AtlasV5Plugin ${catkin_LIBRARIES} ${AtlasSimInterface3_LIBRARY})
+add_dependencies(AtlasV5Plugin atlas_msgs_gencpp)
 
 add_library(VRCScoringPlugin src/VRCScoringPlugin.cc)
 target_link_libraries(VRCScoringPlugin ${catkin_LIBRARIES})
@@ -173,6 +180,7 @@ install(TARGETS
   AtlasPlugin
   AtlasV3Plugin
   AtlasV4Plugin
+  AtlasV5Plugin
   VRCScoringPlugin
   test_ros_plugin
   pub_atlas_joint_trajectory_test
