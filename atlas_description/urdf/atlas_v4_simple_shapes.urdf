@@ -395,31 +395,31 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin rpy="1.5707963267949 0 0" xyz="0.046 0.0 ${-0.02+0.05}"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0.046 0.0 ${-0.02+0.03}"/>
       <geometry>
         <cylinder radius="0.11" length="0.06"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="1.5707963267949 0 0" xyz="-0.03 0.0 ${-0.02+0.05}"/>
+      <origin rpy="1.5707963267949 0 0" xyz="-0.03 0.0 ${-0.02+0.03}"/>
       <geometry>
         <cylinder radius="0.11" length="0.06"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.01 0.042 ${0.09+0.05}"/>
+      <origin rpy="0 0 0" xyz="0.01 0.042 ${0.09+0.03}"/>
       <geometry>
         <cylinder radius="0.16" length="0.05"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.01 -0.042 ${0.09+0.05}"/>
+      <origin rpy="0 0 0" xyz="0.01 -0.042 ${0.09+0.03}"/>
       <geometry>
         <cylinder radius="0.16" length="0.05"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="-0.1 0 ${-0.05+0.05}"/>
+      <origin rpy="0 0 0" xyz="-0.1 0 ${-0.05+0.03}"/>
       <geometry>
         <box size="0.1 0.15 0.2"/>
       </geometry>
