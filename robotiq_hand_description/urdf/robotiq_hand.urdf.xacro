@@ -172,7 +172,6 @@ there are multiple hands then a prefix followed by an "_" is needed.
       </inertial>
     </link>
 
-    <!-- Link 2 -->
     <gazebo reference="${prefix}link_proximal_actuating_hinge">
       <mu1>1.1</mu1>
       <mu2>1.1</mu2>
@@ -437,7 +436,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <child link="${prefix}link_proximal_actuating_hinge"/>
       <axis xyz="0 0 1"/>
       <origin rpy="0 0 -2.0906" xyz="0 0 0.01"/>
-      <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
+      <limit effort="100" lower="-3.1416" upper="3.1416" velocity="100"/>
     </joint>
 
     <gazebo reference="${prefix}joint_proximal_actuating_hinge">
@@ -450,7 +449,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
       <child link="${prefix}link_paraproximal_actuating_hinge"/>
       <axis xyz="0 0 1"/>
       <origin rpy="0 0 -2.0906" xyz="0 0 -0.01"/>
-      <limit effort="100" lower="0" upper="3.1416" velocity="100"/>
+      <limit effort="100" lower="-3.1416" upper="3.1416" velocity="100"/>
     </joint>
 
     <gazebo reference="${prefix}joint_paraproximal_actuating_hinge">
@@ -683,6 +682,25 @@ there are multiple hands then a prefix followed by an "_" is needed.
       </joint>
     </gazebo>
     <gazebo reference="${prefix}link_median_bar_link_3_couple">
+      <implicitSpringDamper>1</implicitSpringDamper>
+    </gazebo>
+
+    <gazebo>
+      <joint name="${prefix}link_paradistal_hinge_link_3_couple" type="revolute">
+        <parent>${prefix}link_paradistal_hinge</parent>
+        <child>${prefix}link_3</child>
+        <pose>0.0381 0 0 0 0 0</pose>
+        <axis>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+          <use_parent_model_frame>false</use_parent_model_frame>
+        </axis>
+      </joint>
+    </gazebo>
+    <gazebo reference="${prefix}link_paradistal_hinge_link_3_couple">
       <implicitSpringDamper>1</implicitSpringDamper>
     </gazebo>
 
