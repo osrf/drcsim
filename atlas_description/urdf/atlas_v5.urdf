@@ -7,13 +7,13 @@
             <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="-0.004" izz="0.004" />
         </inertial>
         <visual>
-            <origin xyz="0 -0.044 -0.34" rpy="0 -0 0" />
+            <origin xyz="0 ${-0.048+0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_clav.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 -0.044 -0.34" rpy="0 -0 0" />
+            <origin xyz="0 ${-0.048+0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_clav.dae" scale="1 1 1" />
             </geometry>
@@ -53,7 +53,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_hand.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_hand.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -72,7 +72,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_larm.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_larm.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -129,7 +129,7 @@
         <collision>
             <origin xyz="0 0 -0.002" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_lleg.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_lleg.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -148,7 +148,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_scap.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_scap.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -186,7 +186,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_uarm.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_uarm.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -224,7 +224,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_uglut.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_uglut.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -262,7 +262,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/ltorso.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/ltorso.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -281,7 +281,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/mtorso.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/mtorso.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -300,7 +300,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/pelvis.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/pelvis.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -311,13 +311,13 @@
             <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="0.004" izz="0.004" />
         </inertial>
         <visual>
-            <origin xyz="0 0.044 -0.34" rpy="0 -0 0" />
+            <origin xyz="0 ${0.048-0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_clav.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0.044 -0.34" rpy="0 -0 0" />
+            <origin xyz="0 ${0.048-0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_clav.dae" scale="1 1 1" />
             </geometry>
@@ -357,7 +357,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_hand.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_hand.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -433,7 +433,7 @@
         <collision>
             <origin xyz="0 0 -0.002" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_lleg.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_lleg.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -452,7 +452,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_scap.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_scap.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -490,7 +490,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_uarm.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_uarm.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -528,7 +528,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/r_uglut.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/r_uglut.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -567,55 +567,10 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso.stl" scale="1 1 1" />
-            </geometry>
-        </collision>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.dae" scale="1 1 1" />
-            </geometry>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.stl" scale="1 1 1" />
-            </geometry>
-        </collision>
-    </link>
-    <!-- inertia without backpack
-    <link name="utorso">
-        <inertial>
-            <mass value="22.260" />
-            <origin xyz="0.0255 -0.001 0.2180" rpy="0 -0 0" />
-            <inertia ixx="0.708" ixy="0.001" ixz="0.004" iyy="0.367" iyz="0.002" izz="0.530" />
-        </inertial>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/utorso.dae" scale="1 1 1" />
             </geometry>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso.stl" scale="1 1 1" />
-            </geometry>
-        </collision>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.dae" scale="1 1 1" />
-            </geometry>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
-            <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/utorso_pack.stl" scale="1 1 1" />
-            </geometry>
         </collision>
     </link>
-    -->
     <joint name="back_bkx" type="revolute">
         <origin xyz="0 0 0.05" rpy="0 -0 0" />
         <axis xyz="1 0 0" />
@@ -653,7 +608,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.3562" />
     </joint>
     <joint name="l_arm_ely" type="revolute">
-        <origin xyz="0 0.187 0.016" rpy="0 -0 0" />
+        <origin xyz="0 0.187 -0.016" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="l_scap" />
         <child link="l_uarm" />
@@ -779,7 +734,7 @@
         <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-12.3562" soft_upper_limit="10" />
     </joint>
     <joint name="r_arm_ely" type="revolute">
-        <origin xyz="0 -0.187 0.016" rpy="0 -0 0" />
+        <origin xyz="0 -0.187 -0.016" rpy="0 -0 0" />
         <axis xyz="0 1 0" />
         <parent link="r_scap" />
         <child link="r_uarm" />
