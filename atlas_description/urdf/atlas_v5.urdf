@@ -7,13 +7,13 @@
             <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="-0.004" izz="0.004" />
         </inertial>
         <visual>
-<!--            <origin xyz="0 -0.044 -0.34" rpy="0 -0 0" /> -->
+           <origin xyz="0 ${-0.048+0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_clav.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 -0.044 -0.34" rpy="0 -0 0" />
+            <origin xyz="0 ${-0.048+0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/l_clav.dae" scale="1 1 1" />
             </geometry>
@@ -64,15 +64,14 @@
             <inertia ixx="0.00265" ixy="0" ixz="0" iyy="0.00446" iyz="0" izz="0.00446" />
         </inertial>
         <visual>
-            <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v4/l_larm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_larm.dae"/>
             </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v3/l_larm.stl" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v4/l_larm.dae" scale="1 1 1" />
             </geometry>
         </collision>
     </link>
@@ -312,13 +311,13 @@
             <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="0.004" izz="0.004" />
         </inertial>
         <visual>
-<!--            <origin xyz="0 0.044 -0.34" rpy="0 -0 0" /> -->
+          <origin xyz="0 ${0.048-0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_clav.dae" scale="1 1 1" />
             </geometry>
         </visual>
         <collision>
-            <origin xyz="0 0.044 -0.34" rpy="0 -0 0" />
+            <origin xyz="0 ${0.048-0.004} ${-0.45+0.11}" rpy="0 -0 0" />
             <geometry>
                 <mesh filename="package://atlas_description/meshes_v4/r_clav.dae" scale="1 1 1" />
             </geometry>
@@ -369,9 +368,8 @@
             <inertia ixx="0.00265" ixy="0" ixz="0" iyy="0.00446" iyz="0" izz="0.00446" />
         </inertial>
         <visual>
-<!--            <origin xyz="0 0 0" rpy="0 -0 0" /> -->
             <geometry>
-                <mesh filename="package://atlas_description/meshes_v4/r_larm.dae" scale="1 1 1" />
+                <mesh filename="package://atlas_description/meshes_v3/r_larm.dae"/>
             </geometry>
         </visual>
         <collision>
