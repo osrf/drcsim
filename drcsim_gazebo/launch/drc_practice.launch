@@ -3,6 +3,9 @@
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="drc_practice_task_1"/>
   <arg name="extra_gazebo_args" default="-q" />
+  <arg name="model_args" default="_v3" />
+  <arg name="inertia_args" default="" /> <!-- _with_v1_inertia -->
+  <arg name="hand_suffix" default="_sandia_hands" />
 
   <param name="/atlas/time_to_unpin" type="double" value="1.0"/>
   <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
@@ -21,7 +24,10 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_v3_sandia_hands.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg model_args)$(arg inertia_args)$(arg hand_suffix).urdf.xacro'" />
 
-  <include file="$(find drcsim_gazebo)/launch/atlas_v3_sandia_hands_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas$(arg hand_suffix)_bringup.launch">
+  <arg name="model_args" value="$(arg model_args)" />
+  </include>
+
 </launch>
