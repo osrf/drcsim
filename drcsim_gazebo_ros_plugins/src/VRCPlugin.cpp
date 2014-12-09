@@ -1878,6 +1878,38 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   */
 
   // StandPrep end pose --> Stand  pose
+  /*this->ac.position[0]  =   0.0; // bkz?
+  this->ac.position[1]  =   0.0; // bky?
+  this->ac.position[2]  =   0.0; // bkx?
+  this->ac.position[3]  =   0.0; // neck_ry
+
+  this->ac.position[4]  =   0.0; // l_hpz
+  this->ac.position[5]  =   0.0620; // l_hpx
+  this->ac.position[6]  =   -0.433; // l_hpy
+  this->ac.position[7]  =   0.9; // 0.718; // l_kny
+  this->ac.position[8]  =  -0.45; //-0.276;   // l_aky
+  this->ac.position[9]  =  -0.062;  // l_akx
+
+  this->ac.position[10] = -this->ac.position[4];
+  this->ac.position[11] = -this->ac.position[5];
+  this->ac.position[12] = this->ac.position[6];
+  this->ac.position[13] = this->ac.position[7];
+  this->ac.position[14] = this->ac.position[8];
+  this->ac.position[15] = -this->ac.position[9];
+
+  this->ac.position[16] =   -0.1; // l_shz (l_shy on older versions) 
+  this->ac.position[17] =   -1.0; // l_shx
+  this->ac.position[18] =   2.0; // l_ely
+  this->ac.position[19] =   0.498; // l_elx
+  this->ac.position[20] =  0.0; // l_wry
+  this->ac.position[21] =   0.0; // l_wrx
+
+  this->ac.position[22] = -this->ac.position[16];
+  this->ac.position[23] = -this->ac.position[17];
+  this->ac.position[24] = this->ac.position[18];
+  this->ac.position[25] = -this->ac.position[19];
+  this->ac.position[26] = this->ac.position[20];
+  this->ac.position[27] = -this->ac.position[21];*/
   this->ac.position[0]  =   0.0;
   this->ac.position[1]  =   0.0015186156379058957;
   this->ac.position[2]  =   0.0;
@@ -1909,7 +1941,6 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[25] =  -0.49823325872421265;
   this->ac.position[26] =  0.0003098883025813848;
   this->ac.position[27] =   0.0044272784143686295;
-
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->ac.k_effort[i] =  255;
