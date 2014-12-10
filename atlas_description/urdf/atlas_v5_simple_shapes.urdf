@@ -348,18 +348,6 @@
         <cylinder radius="0.07" length="0.15"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="0 0.3 0" xyz="${-0.005-0.002} ${0.01-0.015} ${-0.23+0.006}"/>
-      <geometry>
-        <cylinder radius="0.05" length="0.15"/>
-      </geometry>
-    </collision>
-    <collision group="other">
-      <origin rpy="-0.25 0 0" xyz="${-0.02-0.002} ${0.03-0.015} ${-0.23+0.006}"/>
-      <geometry>
-        <cylinder radius="0.05" length="0.15"/>
-      </geometry>
-    </collision>
     <!-- to cover the logo shield -->
     <collision group="other">
       <origin rpy="-0.15 0.13 0" xyz="${0.005-0.002} ${0.03-0.015} ${-0.26+0.006}"/>
@@ -807,18 +795,6 @@
       <origin rpy="0 -0.3 0" xyz="${-0.03-0.002} ${-0.01+0.015} ${-0.23+0.006}"/>
       <geometry>
         <cylinder radius="0.07" length="0.15"/>
-      </geometry>
-    </collision>
-    <collision group="other">
-      <origin rpy="0 0.3 0" xyz="${-0.005-0.002} ${-0.01+0.015} ${-0.23+0.006}"/>
-      <geometry>
-        <cylinder radius="0.05" length="0.15"/>
-      </geometry>
-    </collision>
-    <collision group="other">
-      <origin rpy="-0.25 0 0" xyz="${-0.02-0.002} ${-0.03+0.015} ${-0.23+0.006}"/>
-      <geometry>
-        <cylinder radius="0.05" length="0.15"/>
       </geometry>
     </collision>
     <!-- to cover the logo shield -->
