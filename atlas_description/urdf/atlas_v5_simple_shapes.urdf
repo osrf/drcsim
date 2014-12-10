@@ -29,12 +29,6 @@
         <box size="0.1 0.07 0.072"/>
       </geometry>
     </collision>
-    <collision group="and_another">
-      <origin rpy="-2.25 0 0" xyz="0.076 0.1715 -0.2325"/>
-      <geometry>
-        <box size="0.02 0.029 0.015"/>
-      </geometry>
-    </collision>
     <collision group="final">
       <origin rpy="-1 0 0" xyz="-0.075 0.095 -0.2282"/>
       <geometry>
@@ -231,6 +225,12 @@
       <origin rpy="0 0 0" xyz="-0.005 0.075 -0.015"/>
       <geometry>
         <box size="0.16 0.17 0.08"/>
+      </geometry>
+    </collision>
+    <collision group="and_another">
+      <origin rpy="-2.25 0 0" xyz="0.076 0.0615 0.0128"/>
+      <geometry>
+        <box size="0.02 0.029 0.018"/>
       </geometry>
     </collision>
   </link>
