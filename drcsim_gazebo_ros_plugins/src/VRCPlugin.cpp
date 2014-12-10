@@ -1878,7 +1878,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   */
 
   // StandPrep end pose --> Stand  pose
-  this->ac.position[0]  =   0.0; // bkz?
+  /*this->ac.position[0]  =   0.0; // bkz?
   this->ac.position[1]  =   0.0; // bky?
   this->ac.position[2]  =   0.0; // bkx?
   this->ac.position[3]  =   0.0; // neck_ry
@@ -1909,7 +1909,38 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[24] = this->ac.position[18];
   this->ac.position[25] = -this->ac.position[19];
   this->ac.position[26] = this->ac.position[20];
-  this->ac.position[27] = -this->ac.position[21];
+  this->ac.position[27] = -this->ac.position[21];*/
+  this->ac.position[0]  =   0.0;
+  this->ac.position[1]  =   0.0015186156379058957;
+  this->ac.position[2]  =   0.0;
+  this->ac.position[3]  =   -0.0010675729718059301;
+  this->ac.position[4]  =   -0.0003740221436601132;
+  this->ac.position[5]  =   0.06201673671603203;
+  this->ac.position[6]  =  -0.1533149015903473;    // l_hpy
+  this->ac.position[7]  =   0.5181407332420349;
+  this->ac.position[8]  =  -0.35610817551612854;   // l_aky
+  this->ac.position[9]  =   -0.06201673671603203;
+  this->ac.position[10] =  0.00035181696875952184;
+  this->ac.position[11] =   -0.06218484416604042;
+  this->ac.position[12] =  -0.1533149015903473;    // r_hpy
+  this->ac.position[13] =   0.5181407332420349;
+  this->ac.position[14] =  -0.35610817551612854;   // r_aky
+  this->ac.position[15] =   0.06201673671603203;
+  this->ac.position[16] =   0.29983898997306824;  // l_shy || shz
+  this->ac.position[17] =   -1.303462266921997;
+  this->ac.position[18] =   2.0;
+  this->ac.position[19] =   0.49823325872421265;
+  this->ac.position[20] =  0.0003098883025813848;
+  this->ac.position[21] =   -0.0044272784143686295;
+  if (this->jointNames[22] == "r_arm_shz")  // v4
+    this->ac.position[22] =  -0.29983898997306824;  // -shz(v4)
+  else
+    this->ac.position[22] =   0.29983898997306824;  // r_shy(v1,v3)
+  this->ac.position[23] =   1.303462266921997;
+  this->ac.position[24] =   2.0;
+  this->ac.position[25] =  -0.49823325872421265;
+  this->ac.position[26] =  0.0003098883025813848;
+  this->ac.position[27] =   0.0044272784143686295;
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->ac.k_effort[i] =  255;
