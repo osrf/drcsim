@@ -12,39 +12,33 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin rpy="0 1.5707963267949 0" xyz="0 0.105 -0.248"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 0.11 -0.248"/>
       <geometry>
-        <cylinder radius="0.045" length="0.1525"/>
+        <cylinder radius="0.0555" length="0.1525"/>
       </geometry>
     </collision>
     <collision group="yet_another">
-      <origin rpy="0 0 0" xyz="0.035 0.015 -0.11"/>
+      <origin rpy="0 0 0" xyz="0.005 0.015 -0.08"/>
       <geometry>
-        <cylinder radius="0.067" length="0.22"/>
+        <cylinder radius="0.067" length="0.26"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="-1.05 0 0" xyz="0.004 0.056 -0.25"/>
+      <origin rpy="-1.05 0 0" xyz="0.004 0.064 -0.247"/>
       <geometry>
         <box size="0.1 0.07 0.072"/>
       </geometry>
     </collision>
-    <collision group="another">
-      <origin rpy="-1.017 0 0" xyz="0.073 0.132 -0.265"/>
-      <geometry>
-        <box size="0.02 0.19 0.072"/>
-      </geometry>
-    </collision>
     <collision group="and_another">
-      <origin rpy="-0.12 0 0" xyz="0.083 0.1495 -0.255"/>
+      <origin rpy="-2.25 0 0" xyz="0.076 0.1715 -0.2325"/>
       <geometry>
         <box size="0.02 0.029 0.015"/>
       </geometry>
     </collision>
     <collision group="final">
-      <origin rpy="-2.0 0 0" xyz="-0.067 0.1095 -0.188"/>
+      <origin rpy="-1 0 0" xyz="-0.075 0.095 -0.2282"/>
       <geometry>
-        <box size="0.024 0.090 0.03"/>
+        <box size="0.028 0.090 0.05"/>
       </geometry>
     </collision>
   </link>
@@ -80,16 +74,28 @@
         <mesh filename="package://atlas_description/meshes_v5/l_hand.dae" scale="1 1 1" />
       </geometry>
     </visual>
-    <collision group="default">
-      <origin rpy="-1.5707963267949 0 0" xyz="-0.002 0.106 0.004"/>
+    <collision group="connector">
+      <origin rpy="-1.5707963267949 0 0" xyz="0.00 0.104 0.00"/>
       <geometry>
-        <cylinder radius="0.031" length="0.03"/>
+        <cylinder radius="0.031" length="0.02"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="0 0 0" xyz="-0.001 0.043 0.001"/>
+    <collision group="connector_outer">
+      <origin rpy="-1.5707963267949 0 0" xyz="0.00 0.087 0.00"/>
       <geometry>
-        <box size="0.14 0.09 0.06"/>
+        <cylinder radius="0.045" length="0.015"/>
+      </geometry>
+    </collision>
+    <collision group="wrist_outer">
+      <origin rpy="-1.5707963267949 0 0" xyz="0.00 0.075 0.00"/>
+      <geometry>
+        <cylinder radius="0.052" length="0.015"/>
+      </geometry>
+    </collision>
+    <collision group="wrist">
+      <origin rpy="-1.5707963267949 0 0" xyz="0.00 0.052 0.00"/>
+      <geometry>
+        <cylinder radius="0.043" length="0.027"/>
       </geometry>
     </collision>
   </link>
@@ -107,21 +113,39 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin rpy="1.5707963267949 0 0" xyz="-0.005 0.165 0.0025"/>
+      <origin rpy="1.5707963267949 0 0" xyz="0.00 0.075 -0.01"/>
       <geometry>
-        <cylinder radius="0.041" length="0.04"/>
+        <cylinder radius="0.051" length="0.04"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="1.5707963267949 0 0" xyz="-0.005 0.09 0.0025"/>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.012 0 0.0025"/>
       <geometry>
-        <cylinder radius="0.058" length="0.105"/>
+        <cylinder radius="0.045" length="0.147"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="0 0 0" xyz="-0.07 0.065 -0.006"/>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.07 0.077 -0.015"/>
       <geometry>
-        <box size="0.025 0.125 0.075"/>
+        <box size="0.025 0.155 0.07"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 0.067 -0.009"/>
+      <geometry>
+        <box size="0.025 0.06 0.06"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.032 0.071 -0.06"/>
+      <geometry>
+        <box size="0.04 0.115 0.05"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.03 0.01 -0.05"/>
+      <geometry>
+        <box size="0.045 0.055 0.023"/>
       </geometry>
     </collision>
   </link>
@@ -132,12 +156,6 @@
       <origin xyz="0 -0.07 0" rpy="0 -0 0" />
       <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.007" />
     </inertial>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 1.57 0" />
-      <geometry>
-        <cylinder radius="0.03" length="0.05"/>
-      </geometry>
-    </collision>
   </link>
 
   <link name="l_lglut">
@@ -204,21 +222,15 @@
       </geometry>
     </visual>
    <collision group="another">
-      <origin rpy="-1.5707963267949 0 0" xyz="0.005 0.085 0.01521"/>
+      <origin rpy="-1.5707963267949 0 0" xyz="-0.005 0.115 -0.014"/>
       <geometry>
-        <cylinder radius="0.055" length="0.105"/>
-      </geometry>
-    </collision>
-    <collision group="default">
-      <origin rpy="-1.5707963267949 0 0" xyz="0.005 0.16 0.01521"/>
-      <geometry>
-        <cylinder radius="0.04" length="0.05"/>
+        <cylinder radius="0.057" length="0.105"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.001 0.05 0.016"/>
+      <origin rpy="0 0 0" xyz="-0.005 0.075 -0.015"/>
       <geometry>
-        <box size="0.15 0.15 0.06"/>
+        <box size="0.16 0.17 0.08"/>
       </geometry>
     </collision>
   </link>
@@ -261,19 +273,13 @@
       </geometry>
     </visual>
     <collision group="another">
-      <origin rpy="-1.5708 0 0" xyz="0.0 0.035 0.00"/>
+      <origin rpy="-1.5708 0 0" xyz="0.0 0.035 -0.005"/>
       <geometry>
         <cylinder radius="0.065" length="0.11"/>
       </geometry>
     </collision>
-    <collision group="default">
-      <origin rpy="0 1.5708 0" xyz="-0.005 0.111 0.017"/>
-      <geometry>
-        <cylinder radius="0.047" length="0.142"/>
-      </geometry>
-    </collision>
     <collision group="other">
-      <origin rpy="0 1.5707963267949 0" xyz="-0.001 0.043 0.01"/>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.01 0.043 0.002"/>
       <geometry>
         <box size="0.05 0.07 0.15"/>
       </geometry>
@@ -292,9 +298,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 -0.08 0" rpy="1.57 0 0" />
+      <origin xyz="0 -0.15 0" rpy="-1.57 0 0" />
       <geometry>
-        <cylinder radius="0.05" length="0.1"/>
+        <cylinder radius="0.053" length="0.1"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.001 -0.07 0.0"/>
+      <geometry>
+        <box size="0.08 0.09 0.11"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 -0.005 0" rpy="0 1.57 0" />
+      <geometry>
+        <cylinder radius="0.040" length="0.125"/>
       </geometry>
     </collision>
   </link>
@@ -461,39 +479,33 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin rpy="0 1.5707963267949 0" xyz="0 -0.105 -0.248"/>
+      <origin rpy="0 1.5707963267949 0" xyz="0 -0.11 -0.248"/>
       <geometry>
-        <cylinder radius="0.045" length="0.1525"/>
+        <cylinder radius="0.0555" length="0.1525"/>
       </geometry>
     </collision>
     <collision group="yet_another">
-      <origin rpy="0 0 0" xyz="0.035 -0.015 -0.11"/>
+      <origin rpy="0 0 0" xyz="0.005 -0.015 -0.08"/>
       <geometry>
-        <cylinder radius="0.067" length="0.22"/>
+        <cylinder radius="0.067" length="0.26"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="1.05 0 0" xyz="0.004 -0.056 -0.25"/>
+      <origin rpy="1.05 0 0" xyz="0.004 -0.064 -0.247"/>
       <geometry>
         <box size="0.1 0.07 0.072"/>
       </geometry>
     </collision>
-    <collision group="another">
-      <origin rpy="1.017 0 0" xyz="0.073 -0.132 -0.265"/>
-      <geometry>
-        <box size="0.02 0.19 0.072"/>
-      </geometry>
-    </collision>
     <collision group="and_another">
-      <origin rpy="0.12 0 0" xyz="0.083 -0.1495 -0.255"/>
+      <origin rpy="2.25 0 0" xyz="0.076 -0.1715 -0.2325"/>
       <geometry>
         <box size="0.02 0.029 0.015"/>
       </geometry>
     </collision>
     <collision group="final">
-      <origin rpy="2.0 0 0" xyz="-0.067 -0.1095 -0.188"/>
+      <origin rpy="1 0 0" xyz="-0.075 -0.095 -0.2282"/>
       <geometry>
-        <box size="0.024 0.090 0.03"/>
+        <box size="0.028 0.090 0.05"/>
       </geometry>
     </collision>
   </link>
@@ -529,16 +541,28 @@
         <mesh filename="package://atlas_description/meshes_v5/r_hand.dae" scale="1 1 1" />
       </geometry>
     </visual>
-    <collision group="default">
-      <origin rpy="1.5707963267949 0 0" xyz="-0.002 -0.106 0.004"/>
+    <collision group="connector">
+      <origin rpy="1.5707963267949 0 0" xyz="0.00 -0.104 0.00"/>
       <geometry>
-        <cylinder radius="0.031" length="0.03"/>
+        <cylinder radius="0.031" length="0.02"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="0 0 0" xyz="-0.001 -0.043 0.001"/>
+    <collision group="connector_outer">
+      <origin rpy="1.5707963267949 0 0" xyz="0.00 -0.087 0.00"/>
       <geometry>
-        <box size="0.14 0.09 0.06"/>
+        <cylinder radius="0.045" length="0.015"/>
+      </geometry>
+    </collision>
+    <collision group="wrist_outer">
+      <origin rpy="1.5707963267949 0 0" xyz="0.00 -0.075 0.00"/>
+      <geometry>
+        <cylinder radius="0.052" length="0.015"/>
+      </geometry>
+    </collision>
+    <collision group="wrist">
+      <origin rpy="1.5707963267949 0 0" xyz="0.00 -0.052 0.00"/>
+      <geometry>
+        <cylinder radius="0.043" length="0.027"/>
       </geometry>
     </collision>
   </link>
@@ -556,21 +580,39 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin rpy="-1.5707963267949 0 0" xyz="-0.005 -0.165 0.0025"/>
+      <origin rpy="-1.5707963267949 0 0" xyz="0.00 -0.075 -0.01"/>
       <geometry>
-        <cylinder radius="0.041" length="0.04"/>
+        <cylinder radius="0.051" length="0.04"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="-1.5707963267949 0 0" xyz="-0.005 -0.09 0.0025"/>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.012 0 0.0025"/>
       <geometry>
-        <cylinder radius="0.058" length="0.105"/>
+        <cylinder radius="0.045" length="0.147"/>
       </geometry>
     </collision>
-    <collision group="other">
-      <origin rpy="0 0 0" xyz="-0.07 -0.065 -0.006"/>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.07 -0.077 -0.015"/>
       <geometry>
-        <box size="0.025 0.125 0.075"/>
+        <box size="0.025 0.155 0.07"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 -0.067 -0.009"/>
+      <geometry>
+        <box size="0.025 0.06 0.06"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.032 -0.071 -0.06"/>
+      <geometry>
+        <box size="0.04 0.115 0.05"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.03 0.01 -0.05"/>
+      <geometry>
+        <box size="0.045 0.055 0.023"/>
       </geometry>
     </collision>
   </link>
@@ -581,12 +623,6 @@
       <origin xyz="0 0.07 0" rpy="0 -0 0" />
       <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.007" />
     </inertial>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 1.57 0" />
-      <geometry>
-        <cylinder radius="0.03" length="0.05"/>
-      </geometry>
-    </collision>
   </link>
 
   <link name="r_lglut">
@@ -652,21 +688,15 @@
       </geometry>
     </visual>
     <collision group="another">
-      <origin rpy="1.5707963267949 0 0" xyz="0.005 -0.085 0.01521"/>
+      <origin rpy="1.5707963267949 0 0" xyz="-0.005 -0.115 -0.014"/>
       <geometry>
-        <cylinder radius="0.055" length="0.105"/>
-      </geometry>
-    </collision>
-    <collision group="default">
-      <origin rpy="1.5707963267949 0 0" xyz="0.005 -0.16 0.01521"/>
-      <geometry>
-        <cylinder radius="0.04" length="0.05"/>
+        <cylinder radius="0.057" length="0.105"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.001 -0.05 0.016"/>
+      <origin rpy="0 0 0" xyz="-0.005 -0.075 -0.015"/>
       <geometry>
-        <box size="0.15 0.15 0.06"/>
+        <box size="0.16 0.17 0.08"/>
       </geometry>
     </collision>
   </link>
@@ -709,19 +739,13 @@
       </geometry>
     </visual>
     <collision group="another">
-      <origin rpy="1.5708 0 0" xyz="0.0 -0.035 0.00"/>
+      <origin rpy="1.5708 0 0" xyz="0.0 -0.035 -0.005"/>
       <geometry>
         <cylinder radius="0.065" length="0.11"/>
       </geometry>
     </collision>
-    <collision group="default">
-      <origin rpy="0 1.5708 0" xyz="-0.005 -0.111 0.017"/>
-      <geometry>
-        <cylinder radius="0.047" length="0.142"/>
-      </geometry>
-    </collision>
     <collision group="other">
-      <origin rpy="0 1.5707963267949 0" xyz="-0.001 -0.043 0.01"/>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.01 -0.043 0.002"/>
       <geometry>
         <box size="0.05 0.07 0.15"/>
       </geometry>
@@ -740,9 +764,21 @@
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 0.08 0" rpy="1.57 -0 0" />
+      <origin xyz="0 0.15 0" rpy="1.57 0 0" />
       <geometry>
-        <cylinder radius="0.05" length="0.1"/>
+        <cylinder radius="0.053" length="0.1"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.5707963267949 0" xyz="-0.001 0.07 0.0"/>
+      <geometry>
+        <box size="0.08 0.09 0.11"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0.005 0" rpy="0 1.57 0" />
+      <geometry>
+        <cylinder radius="0.040" length="0.125"/>
       </geometry>
     </collision>
   </link>
