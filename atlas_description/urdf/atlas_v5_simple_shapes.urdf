@@ -424,13 +424,13 @@
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.01 0.042 ${0.09+0.03}"/>
+      <origin rpy="0 0 0" xyz="0.01 0.042 ${0.09}"/>
       <geometry>
         <cylinder radius="0.16" length="0.05"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.01 -0.042 ${0.09+0.03}"/>
+      <origin rpy="0 0 0" xyz="0.01 -0.042 ${0.09}"/>
       <geometry>
         <cylinder radius="0.16" length="0.05"/>
       </geometry>
