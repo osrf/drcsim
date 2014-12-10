@@ -86,12 +86,6 @@
         <cylinder radius="0.031" length="0.03"/>
       </geometry>
     </collision>
-    <collision group="connector">
-      <origin rpy="-1.5707963267949 0 0" xyz="-0.002 0.124 0.0045"/>
-      <geometry>
-        <cylinder radius="0.048" length="0.012"/>
-      </geometry>
-    </collision>
     <collision group="other">
       <origin rpy="0 0 0" xyz="-0.001 0.043 0.001"/>
       <geometry>
@@ -533,12 +527,6 @@
       <origin rpy="1.5707963267949 0 0" xyz="-0.002 -0.106 0.004"/>
       <geometry>
         <cylinder radius="0.031" length="0.03"/>
-      </geometry>
-    </collision>
-    <collision group="connector">
-      <origin rpy="1.5707963267949 0 0" xyz="-0.002 -0.124 0.0045"/>
-      <geometry>
-        <cylinder radius="0.048" length="0.012"/>
       </geometry>
     </collision>
     <collision group="other">
