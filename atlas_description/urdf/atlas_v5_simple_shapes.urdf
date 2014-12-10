@@ -164,6 +164,12 @@
         <cylinder radius="0.02" length="0.144"/>
       </geometry>
     </collision>
+    <collision group="other">
+      <origin rpy="0 0 0" xyz="0.01 0.02 0.01"/>
+      <geometry>
+        <box size="0.0975 0.069 0.103"/>
+      </geometry>
+    </collision>
   </link>
 
   <link name="l_lleg">
@@ -604,6 +610,12 @@
       <origin rpy="0 1.5707963267949 0" xyz="0.0105 0 0"/>
       <geometry>
         <cylinder radius="0.02" length="0.142"/>
+      </geometry>
+    </collision>
+    <collision group="other">
+      <origin rpy="0 0 0" xyz="0.01 -0.02 0.01"/>
+      <geometry>
+        <box size="0.0975 0.069 0.103"/>
       </geometry>
     </collision>
   </link>
