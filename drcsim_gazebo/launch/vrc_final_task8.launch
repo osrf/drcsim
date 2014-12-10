@@ -4,7 +4,7 @@
   <arg name="extra_gazebo_args" default=""/>
   <arg name="model_args" default="" />
   <arg name="inertia_args" default="" /> <!-- _with_v1_inertia -->
-  <arg name="hand_suffix" default="_sandia_hands" />
+  <arg name="hand_suffix" default="" />
 
   <!-- initial robot position -->
   <param name="robot_initial_pose/x"     value="-3.0" type="double"/>
