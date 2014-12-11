@@ -311,8 +311,8 @@ bool RobotiqHandPlugin::IsHandFullyOpen()
   for (int i = 2; i < this->NumJoints; ++i)
   {
     fingersOpen = fingersOpen &&
-      (this->fingerJoints[i]->GetAngle(0) <
-       (this->fingerJoints[i]->GetLowerLimit(0) + tolerance));
+      (this->joints[i]->GetAngle(0) <
+       (this->joints[i]->GetLowerLimit(0) + tolerance));
   }
 
   return fingersOpen;
@@ -525,9 +525,9 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
     this->handleState.gIMC = 3;
 
   // Check fingers' speed.
-  bool isMovingA = this->fingerJoints[2]->GetVelocity(0) > this->VelTolerance;
-  bool isMovingB = this->fingerJoints[3]->GetVelocity(0) > this->VelTolerance;
-  bool isMovingC = this->fingerJoints[4]->GetVelocity(0) > this->VelTolerance;
+  bool isMovingA = this->joints[2]->GetVelocity(0) > this->VelTolerance;
+  bool isMovingB = this->joints[3]->GetVelocity(0) > this->VelTolerance;
+  bool isMovingC = this->joints[4]->GetVelocity(0) > this->VelTolerance;
 
   // Check if the fingers reached their target positions.
   double pe, ie, de;
@@ -564,19 +564,19 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
   }
 
   // gDTA. Finger A object detection.
-  this->handleState.gDTA = this->GetObjectDetection(this->fingerJoints[2], 2,
+  this->handleState.gDTA = this->GetObjectDetection(this->joints[2], 2,
     this->handleCommand.rPRA, this->prevCommand.rPRA);
 
   // gDTB. Finger B object detection.
-  this->handleState.gDTB = this->GetObjectDetection(this->fingerJoints[3], 3,
+  this->handleState.gDTB = this->GetObjectDetection(this->joints[3], 3,
     this->handleCommand.rPRB, this->prevCommand.rPRB);
 
   // gDTC. Finger C object detection
-  this->handleState.gDTC = this->GetObjectDetection(this->fingerJoints[4], 4,
+  this->handleState.gDTC = this->GetObjectDetection(this->joints[4], 4,
     this->handleCommand.rPRC, this->prevCommand.rPRC);
 
   // gDTS. Scissor object detection. We use finger A as a reference.
-  this->handleState.gDTS = this->GetObjectDetection(this->fingerJoints[0], 0,
+  this->handleState.gDTS = this->GetObjectDetection(this->joints[0], 0,
     this->handleCommand.rPRS, this->prevCommand.rPRS);
 
   // gFLT. Fault status.
@@ -592,28 +592,28 @@ void RobotiqHandPlugin::GetAndPublishHandleState()
   // gPRA. Echo of requested position for finger A.
   this->handleState.gPRA = this->userHandleCommand.rPRA;
   // gPOA. Finger A position [0-255].
-  this->handleState.gPOA = this->GetCurrentPosition(this->fingerJoints[2]);
+  this->handleState.gPOA = this->GetCurrentPosition(this->joints[2]);
   // gCUA. Not implemented.
   this->handleState.gCUA = 0;
 
   // gPRB. Echo of requested position for finger B.
   this->handleState.gPRB = this->userHandleCommand.rPRB;
   // gPOB. Finger B position [0-255].
-  this->handleState.gPOB = this->GetCurrentPosition(this->fingerJoints[3]);
+  this->handleState.gPOB = this->GetCurrentPosition(this->joints[3]);
   // gCUB. Not implemented.
   this->handleState.gCUB = 0;
 
   // gPRC. Echo of requested position for finger C.
   this->handleState.gPRC = this->userHandleCommand.rPRC;
   // gPOC. Finger C position [0-255].
-  this->handleState.gPOC = this->GetCurrentPosition(this->fingerJoints[4]);
+  this->handleState.gPOC = this->GetCurrentPosition(this->joints[4]);
   // gCUS. Not implemented.
   this->handleState.gCUC = 0;
 
   // gPRS. Echo of requested position of the scissor action
   this->handleState.gPRS = this->userHandleCommand.rPRS;
   // gPOS. Scissor current position [0-255]. We use finger B as reference.
-  this->handleState.gPOS = this->GetCurrentPosition(this->fingerJoints[1]);
+  this->handleState.gPOS = this->GetCurrentPosition(this->joints[1]);
   // gCUS. Not implemented.
   this->handleState.gCUS = 0;
 
@@ -657,7 +657,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
       switch (this->graspingMode)
       {
         case Wide:
-          targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian();
+          targetPose = this->joints[i]->GetUpperLimit(0).Radian();
           break;
 
         case Pinch:
@@ -667,9 +667,9 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 
         case Scissor:
           // Max position is reached at value 215.
-          targetPose = this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-            (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-             this->fingerJoints[i]->GetLowerLimit(0).Radian()) * (215.0 / 255.0)
+          targetPose = this->joints[i]->GetUpperLimit(0).Radian() -
+            (this->joints[i]->GetUpperLimit(0).Radian() -
+             this->joints[i]->GetLowerLimit(0).Radian()) * (215.0 / 255.0)
             * this->handleCommand.rPRA / 255.0;
           break;
       }
@@ -679,7 +679,7 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
       switch (this->graspingMode)
       {
         case Wide:
-          targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian();
+          targetPose = this->joints[i]->GetLowerLimit(0).Radian();
           break;
 
         case Pinch:
@@ -689,9 +689,9 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
 
         case Scissor:
         // Max position is reached at value 215.
-          targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
-            (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-             this->fingerJoints[i]->GetLowerLimit(0).Radian()) * (215.0 / 255.0)
+          targetPose = this->joints[i]->GetLowerLimit(0).Radian() +
+            (this->joints[i]->GetUpperLimit(0).Radian() -
+             this->joints[i]->GetLowerLimit(0).Radian()) * (215.0 / 255.0)
             * this->handleCommand.rPRA / 255.0;
           break;
       }
@@ -701,9 +701,9 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
       if (this->graspingMode == Pinch)
       {
         // Max position is reached at value 177.
-        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[i]->GetLowerLimit(0).Radian()) * (177.0 / 255.0)
+        targetPose = this->joints[i]->GetLowerLimit(0).Radian() +
+          (this->joints[i]->GetUpperLimit(0).Radian() -
+           this->joints[i]->GetLowerLimit(0).Radian()) * (177.0 / 255.0)
           * this->handleCommand.rPRA / 255.0;
       }
       else if (this->graspingMode == Scissor)
@@ -714,15 +714,15 @@ void RobotiqHandPlugin::UpdatePIDControl(double _dt)
       }
       else
       {
-        targetPose = this->fingerJoints[i]->GetLowerLimit(0).Radian() +
-          (this->fingerJoints[i]->GetUpperLimit(0).Radian() -
-           this->fingerJoints[i]->GetLowerLimit(0).Radian())
+        targetPose = this->joints[i]->GetLowerLimit(0).Radian() +
+          (this->joints[i]->GetUpperLimit(0).Radian() -
+           this->joints[i]->GetLowerLimit(0).Radian())
           * this->handleCommand.rPRA / 255.0;
       }
     }
 
     // Get the current pose.
-    double currentPose = this->fingerJoints[i]->GetAngle(0).Radian();
+    double currentPose = this->joints[i]->GetAngle(0).Radian();
 
     // Position error.
     double poseError = currentPose - targetPose;
@@ -780,27 +780,33 @@ bool RobotiqHandPlugin::FindJoints()
     return false;
   this->jointNames.push_back(prefix + suffix);
 
-  // finger_1_joint_1 (actuated).
+  // We read the joint state from finger_1_joint_1
+  // but we actuate finger_1_joint_proximal_actuating_hinge (actuated).
+  suffix = "finger_1_joint_proximal_actuating_hinge";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
+    return false;
   suffix = "finger_1_joint_1";
   if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
+  this->jointNames.push_back(prefix + suffix);
+
+  // We read the joint state from finger_2_joint_1
+  // but we actuate finger_2_proximal_actuating_hinge (actuated).
+  suffix = "finger_2_joint_proximal_actuating_hinge";
   if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
     return false;
-  this->jointNames.push_back(prefix + "finger_1_joint_1");
-
-  // finger_2_joint_1 (actuated).
   suffix = "finger_2_joint_1";
   if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
-    return false;
   this->jointNames.push_back(prefix + suffix);
 
-  // finger_middle_joint_1 (actuated).
+  // We read the joint state from finger_middle_joint_1
+  // but we actuate finger_middle_proximal_actuating_hinge (actuated).
+  suffix = "finger_middle_joint_proximal_actuating_hinge";
+  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
+    return false;
   suffix = "finger_middle_joint_1";
   if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
-    return false;
-  if (!this->GetAndPushBackJoint(prefix + suffix, this->fingerJoints))
     return false;
   this->jointNames.push_back(prefix + suffix);
 
@@ -808,7 +814,7 @@ bool RobotiqHandPlugin::FindJoints()
   suffix = "finger_1_joint_2";
   if (!this->GetAndPushBackJoint(prefix + suffix, this->joints))
     return false;
-  this->jointNames.push_back(prefix + "finger_1_joint_2");
+  this->jointNames.push_back(prefix + suffix);
 
   // finger_1_joint_3 (underactuated).
   suffix = "finger_1_joint_3";
