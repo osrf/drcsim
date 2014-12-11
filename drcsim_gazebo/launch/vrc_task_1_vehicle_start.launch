@@ -17,7 +17,7 @@
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
-    <arg name="gzname" value="gzserver_cheats"/>
+    <arg name="gzname" value="$(arg gzname)"/>
     <arg name="extra_gazebo_args" value="-q -r --record_encoding=zlib --record_path=/tmp/vrc_task_1" />
     <arg name="gzworld" value="$(arg gzworld)"/>
   </include>

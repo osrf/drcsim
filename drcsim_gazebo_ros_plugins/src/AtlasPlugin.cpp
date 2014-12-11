@@ -365,7 +365,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     this->controlOutput.manipulate_feedback.clamped.pelvis_yaw = 0.0;
 #if ATLAS_VERSION == 1
     this->controlOutput.manipulate_feedback.clamped.pelvis_lat = 0.0;
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4 || ATLAS_VERSION == 5
     this->controlOutput.manipulate_feedback.clamped.pelvis_pitch = 0.0;
     this->controlOutput.manipulate_feedback.clamped.pelvis_roll = 0.0;
     this->controlOutput.manipulate_feedback.clamped.com_v0 = 0.0;
@@ -463,7 +463,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     manipulateParams->desired.pelvis_yaw = 0.0;
 #if ATLAS_VERSION == 1
     manipulateParams->desired.pelvis_lat = 0.0;
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4 || ATLAS_VERSION == 5
     manipulateParams->desired.pelvis_pitch = 0.0;
     manipulateParams->desired.pelvis_roll = 0.0;
     manipulateParams->desired.com_v0 = 0.0;
@@ -521,7 +521,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
       fb->manipulate_feedback.clamped.pelvis_yaw = 0.0;
 #if ATLAS_VERSION == 1
       fb->manipulate_feedback.clamped.pelvis_lat = 0.0;
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4 || ATLAS_VERSION == 5
       fb->manipulate_feedback.clamped.pelvis_pitch = 0.0;
       fb->manipulate_feedback.clamped.pelvis_roll = 0.0;
       fb->manipulate_feedback.clamped.com_v0 = 0.0;
@@ -1432,7 +1432,7 @@ void AtlasPlugin::SetASICommand(
 #if ATLAS_VERSION == 1
     manipulateParams->desired.pelvis_lat =
       _msg->manipulate_params.desired.pelvis_lat;
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4 || ATLAS_VERSION == 5
     manipulateParams->desired.pelvis_pitch =
       _msg->manipulate_params.desired.pelvis_pitch;
     manipulateParams->desired.pelvis_roll =
@@ -2234,7 +2234,7 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 #if ATLAS_VERSION == 1
   fb->manipulate_feedback.clamped.pelvis_lat =
     fbOut->manipulate_feedback.clamped.pelvis_lat;
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4 || ATLAS_VERSION == 5
   fb->manipulate_feedback.clamped.pelvis_pitch =
     fbOut->manipulate_feedback.clamped.pelvis_pitch;
   fb->manipulate_feedback.clamped.pelvis_roll =
