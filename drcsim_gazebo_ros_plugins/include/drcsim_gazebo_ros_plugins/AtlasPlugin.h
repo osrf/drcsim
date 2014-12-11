@@ -88,8 +88,10 @@
 // AtlasSimInterface: header
 #if ATLAS_VERSION == 1
 #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3
 #include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
+#elif ATLAS_VERSION == 4 || ATLAS_VERSION == 5
+#include "AtlasSimInterface_3.0.0/AtlasSimInterface.h"
 #endif
 
 namespace gazebo
