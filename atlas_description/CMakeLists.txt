@@ -8,7 +8,7 @@ catkin_package(
 
 set(standalone_name "drcsim_gazebo_standalone_models")
 
-install(DIRECTORY urdf meshes meshes_v3 meshes_v4 materials robots raw
+install(DIRECTORY urdf meshes meshes_v3 meshes_v4 meshes_unplugged materials robots raw
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
@@ -34,6 +34,6 @@ make_standalone_models(atlas_description atlas_description ${standalone_name})
 
 # Copy all the meshes and materials into drcsim_standalone_models/atlas_description
 install(DIRECTORY
-  meshes meshes_v3 meshes_v4 materials
+  meshes meshes_v3 meshes_v4 meshes_unplugged materials
   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${standalone_name}/atlas_description
 )
