@@ -4,7 +4,7 @@
     <inertial>
       <mass value="3.45" />
       <origin xyz="0 0 -0.084" rpy="0 0 0" />
-      <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="-0.004" izz="0.004" />
+      <inertia ixx="0.011" ixy="0" ixz="0" iyy="0.009" iyz="0.004" izz="0.004" />
     </inertial>
     <visual>
       <geometry>
@@ -638,7 +638,7 @@
     <inertial>
       <mass value="5.479" />
       <origin xyz="0.001 0 -0.187" rpy="0 0 0" />
-      <inertia ixx="0.077" ixy="-0" ixz="-0.003" iyy="0.076" iyz="-0" izz="0.01" />
+      <inertia ixx="0.077" ixy="0" ixz="-0.003" iyy="0.076" iyz="0" izz="0.01" />
     </inertial>
     <visual>
       <geometry>
@@ -752,7 +752,7 @@
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 0.15 0" rpy="1.57 0 0" />
+      <origin xyz="0 0.15 0" rpy="-1.57 0 0" />
       <geometry>
         <cylinder radius="0.053" length="0.1"/>
       </geometry>
@@ -944,7 +944,7 @@
     <parent link="l_uarm" />
     <child link="l_larm" />
     <dynamics damping="0.1" friction="0" />
-    <limit effort="112" velocity="12" lower="0" upper="2.35619" />
+    <limit effort="112" velocity="12" lower="-2.35619" upper="0" />
     <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.3562" />
   </joint>
   <joint name="l_arm_ely" type="revolute">
@@ -1071,7 +1071,7 @@
     <child link="r_larm" />
     <dynamics damping="0.1" friction="0" />
     <limit effort="112" velocity="12" lower="-2.35619" upper="0" />
-    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-12.3562" soft_upper_limit="10" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.3562" />
   </joint>
   <joint name="r_arm_ely" type="revolute">
     <origin xyz="0 -0.187 -0.016" rpy="0 0 0" />
@@ -1097,8 +1097,8 @@
     <parent link="utorso" />
     <child link="r_clav" />
     <dynamics damping="0.1" friction="0" />
-    <limit effort="87" velocity="12" lower="-0.785398" upper="1.5708" />
-    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.7854" soft_upper_limit="11.5708" />
+    <limit effort="87" velocity="12" lower="-1.5708" upper="0.785398" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.5708" soft_upper_limit="10.7854" />
   </joint>
   <joint name="r_arm_wrx" type="revolute">
     <origin xyz="0 0 0" rpy="0 0 0" />
