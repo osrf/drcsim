@@ -19,7 +19,7 @@
 #define GAZEBO_ATLAS_PLUGIN_HH
 
 // filter coefficients
-#define FIL_N_GJOINTS 28
+// #define FIL_N_GJOINTS 28
 #define FIL_N_STEPS 2
 #define FIL_MAX_FILT_COEFF 10
 
@@ -156,6 +156,9 @@ namespace gazebo
 
     /// \brief: Load ROS related stuff
     private: void LoadROS();
+
+    /// \brief Read in the atlas version, and setup the joint information.
+    private: bool LoadJoints();
 
     /// \brief Checks atlas model for joint names
     /// used to find joint name since atlas_v3 remapped some joint names
@@ -431,10 +434,10 @@ namespace gazebo
     private: double filCoefB[FIL_MAX_FILT_COEFF];
 
     /// \brief filter temporary variable
-    private: double unfilteredIn[FIL_N_GJOINTS][FIL_N_STEPS];
+    private: std::vector<std::vector<double> > unfilteredIn;
 
     /// \brief filter temporary variable
-    private: double unfilteredOut[FIL_N_GJOINTS][FIL_N_STEPS];
+    private: std::vector<std::vector<double> > unfilteredOut;
 
     /// \brief initialize filter
     private: void InitFilter();
@@ -587,6 +590,10 @@ namespace gazebo
 
     /// \brief Mutex to protect controllerStatsConnectCount.
     private: boost::mutex statsConnectionMutex;
+
+    /// \brief Number of joints. This should be 28 for versions of Atlas
+    /// less than 4 and 30 for atlas v4 and v5.
+    private: unsigned int jointCount;
   };
 }
 #endif

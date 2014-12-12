@@ -473,6 +473,13 @@ namespace gazebo
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;
 
+      /// \brief Atlas version number.
+      private: int atlasVersion;
+
+      /// \brief Number of joints. Either 28 or 30, depending on the version
+      /// of atlas.
+      private: unsigned int jointCount;
+
       friend class VRCPlugin;
     } atlasCommandController;
 
@@ -517,6 +524,7 @@ namespace gazebo
 
     /// \brief time out when receiving fake teleop cmd_vel command
     private: double cmdVelTopicTimeout;
+
   };
 /** \} */
 /// @}

@@ -124,6 +124,10 @@ std::string AtlasPlugin::FindJoint(std::string _st1, std::string _st2,
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
+  // Read in the atlas version, and setup the joint information.
+  if (!this->LoadJoints())
+    return;
+
   // By default, cheats are off.  Allow override via environment variable.
   char* cheatsEnabledString = getenv("VRC_CHEATS_ENABLED");
   if (cheatsEnabledString && (std::string(cheatsEnabledString) == "1"))
@@ -152,37 +156,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->lastControllerUpdateTime = this->world->GetSimTime();
   // common::Time(2.0 * this->world->GetPhysicsEngine()->GetMaxStepSize());
 
-  // init joints, hardcoded for Atlas
-  this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
-  this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
-  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_ubx"));
-  this->jointNames.push_back(this->FindJoint("neck_ry",   "neck_ay"));
-  this->jointNames.push_back(this->FindJoint("l_leg_hpz", "l_leg_uhz"));
-  this->jointNames.push_back(this->FindJoint("l_leg_hpx", "l_leg_mhx"));
-  this->jointNames.push_back(this->FindJoint("l_leg_hpy", "l_leg_lhy"));
-  this->jointNames.push_back("l_leg_kny");
-  this->jointNames.push_back(this->FindJoint("l_leg_aky", "l_leg_uay"));
-  this->jointNames.push_back(this->FindJoint("l_leg_akx", "l_leg_lax"));
-  this->jointNames.push_back(this->FindJoint("r_leg_hpz", "r_leg_uhz"));
-  this->jointNames.push_back(this->FindJoint("r_leg_hpx", "r_leg_mhx"));
-  this->jointNames.push_back(this->FindJoint("r_leg_hpy", "r_leg_lhy"));
-  this->jointNames.push_back("r_leg_kny");
-  this->jointNames.push_back(this->FindJoint("r_leg_aky", "r_leg_uay"));
-  this->jointNames.push_back(this->FindJoint("r_leg_akx", "r_leg_lax"));
-  this->jointNames.push_back(
-    this->FindJoint("l_arm_shz", "l_arm_shy", "l_arm_usy"));
-  this->jointNames.push_back("l_arm_shx");
-  this->jointNames.push_back("l_arm_ely");
-  this->jointNames.push_back("l_arm_elx");
-  this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
-  this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
-  this->jointNames.push_back(
-    this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
-  this->jointNames.push_back("r_arm_shx");
-  this->jointNames.push_back("r_arm_ely");
-  this->jointNames.push_back("r_arm_elx");
-  this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
-  this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
   // get pointers to joints from gazebo
   this->joints.resize(this->jointNames.size());
@@ -539,12 +512,12 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->lWristJoint =
     this->model->GetJoint(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
   if (!this->lWristJoint)
-    gzerr << "left wrist joint (l_arm_wrx or l_arm_wrx) not found\n";
+    gzerr << "left wrist joint (l_arm_wrx or l_arm_mwx) not found\n";
 
   this->rWristJoint =
     this->model->GetJoint(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
   if (!this->rWristJoint)
-    gzerr << "right wrist joint (r_arm_mxw or r_arm_wrx) not found\n";
+    gzerr << "right wrist joint (r_arm_wrx or r_arm_mwx) not found\n";
 
   this->rAnkleJoint =
     this->model->GetJoint(this->FindJoint("r_leg_akx", "r_leg_lax"));
@@ -591,7 +564,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AtlasPlugin::LoadROS()
+bool AtlasPlugin::LoadJoints()
 {
   // initialize ros
   if (!ros::isInitialized())
@@ -599,12 +572,74 @@ void AtlasPlugin::LoadROS()
     gzerr << "Not loading plugin since ROS hasn't been "
           << "properly initialized.  Try starting gazebo with ros plugin:\n"
           << "  gazebo -s libgazebo_ros_api_plugin.so\n";
-    return;
+    return false;
   }
 
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // Get atlas version, and set joint count
+  this->atlasVersion = 5;
+  this->jointCount = 30;
+  if (!this->rosNode->getParam("atlas_version", atlasVersion))
+  {
+    ROS_WARN("atlas_version not set, assuming version 5");
+  }
+
+  if (this->atlasVersion >= 4)
+    this->jointCount = 30;
+  else
+    this->jointCount = 28;
+
+  // init joints, hardcoded for Atlas
+  this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
+  this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
+  this->jointNames.push_back(this->FindJoint("back_bkx",  "back_ubx"));
+  this->jointNames.push_back(this->FindJoint("neck_ry",   "neck_ay"));
+  this->jointNames.push_back(this->FindJoint("l_leg_hpz", "l_leg_uhz"));
+  this->jointNames.push_back(this->FindJoint("l_leg_hpx", "l_leg_mhx"));
+  this->jointNames.push_back(this->FindJoint("l_leg_hpy", "l_leg_lhy"));
+  this->jointNames.push_back("l_leg_kny");
+  this->jointNames.push_back(this->FindJoint("l_leg_aky", "l_leg_uay"));
+  this->jointNames.push_back(this->FindJoint("l_leg_akx", "l_leg_lax"));
+  this->jointNames.push_back(this->FindJoint("r_leg_hpz", "r_leg_uhz"));
+  this->jointNames.push_back(this->FindJoint("r_leg_hpx", "r_leg_mhx"));
+  this->jointNames.push_back(this->FindJoint("r_leg_hpy", "r_leg_lhy"));
+  this->jointNames.push_back("r_leg_kny");
+  this->jointNames.push_back(this->FindJoint("r_leg_aky", "r_leg_uay"));
+  this->jointNames.push_back(this->FindJoint("r_leg_akx", "r_leg_lax"));
+  this->jointNames.push_back(
+    this->FindJoint("l_arm_shz", "l_arm_shy", "l_arm_usy"));
+  this->jointNames.push_back("l_arm_shx");
+  this->jointNames.push_back("l_arm_ely");
+  this->jointNames.push_back("l_arm_elx");
+  this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
+  this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
+
+  if (this->atlasVersion >= 4)
+  {
+    this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
+  }
+
+  this->jointNames.push_back(
+    this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
+  this->jointNames.push_back("r_arm_shx");
+  this->jointNames.push_back("r_arm_ely");
+  this->jointNames.push_back("r_arm_elx");
+  this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
+  this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
+
+  if (this->atlasVersion >= 4)
+  {
+    this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
+  }
+
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void AtlasPlugin::LoadROS()
+{
   // publish multi queue
   this->pmq->startServiceThread();
 
@@ -613,6 +648,7 @@ void AtlasPlugin::LoadROS()
   //  ROS Parameters                                            //
   //                                                            //
   ////////////////////////////////////////////////////////////////
+
   // pull down controller parameters
   this->LoadPIDGainsFromParameter();
 
@@ -2721,12 +2757,12 @@ void AtlasPlugin::InitFilter()
   this->filCoefB[1] = 0.037804754170897;
 
   // initialize velocity filters
-  for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
+  for (unsigned int i = 0; i < this->jointCount; ++i)
   {
     for (unsigned int j = 0; j < FIL_N_STEPS; ++j)
     {
-      this->unfilteredIn[i][j] = 0;
-      this->unfilteredOut[i][j] = 0;
+      this->unfilteredIn[i].push_back(0);
+      this->unfilteredOut[i].push_back(0);
     }
   }
 }
@@ -2740,7 +2776,7 @@ void AtlasPlugin::Filter(std::vector<float> &_aState,
   // a(0)*y(0) = b(0)*x(0) + b(1)*x(1) + ... + b(n-1)*x(n-1)
   //                       - a(1)*y(1) - ... - a(n-1)*y(n-1)
   // filter each joint position/velocity
-  for (unsigned int i = 0; i < FIL_N_GJOINTS; ++i)
+  for (unsigned int i = 0; i < this->jointCount; ++i)
   {
     // move data back one step in time.
     for (int j = FIL_N_STEPS - 2; j >= 0; --j)
