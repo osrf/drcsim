@@ -19,7 +19,6 @@
 #define GAZEBO_ATLAS_PLUGIN_HH
 
 // filter coefficients
-// #define FIL_N_GJOINTS 28
 #define FIL_N_STEPS 2
 #define FIL_MAX_FILT_COEFF 10
 
