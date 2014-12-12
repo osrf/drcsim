@@ -520,7 +520,6 @@ namespace gazebo
 
     /// \brief time out when receiving fake teleop cmd_vel command
     private: double cmdVelTopicTimeout;
-
   };
 /** \} */
 /// @}
