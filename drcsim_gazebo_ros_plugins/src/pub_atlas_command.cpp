@@ -29,7 +29,7 @@ atlas_msgs::AtlasCommand ac;
 atlas_msgs::AtlasState as;
 boost::mutex mutex;
 ros::Time t0;
-unsigned int numJoints = 28;
+unsigned int numJoints = 30;
 unsigned int seed = 0;
 
 void SetAtlasState(const atlas_msgs::AtlasState::ConstPtr &_as)
@@ -63,7 +63,7 @@ void Work()
     usleep(2000);
 
     // assign arbitrary joint angle targets
-    for (unsigned int i = 0; i < numJoints; i++)
+    for (unsigned int i = 0; i < numJoints; ++i)
     {
       double randNorm = 2.0 * static_cast<double>(rand_r(&seed)) /
         static_cast<double>(RAND_MAX) - 1.0;
@@ -86,7 +86,19 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "pub_atlas_command");
 
-  ros::NodeHandle* rosnode = new ros::NodeHandle();
+  ros::NodeHandle *rosnode = new ros::NodeHandle();
+
+  // Get atlas version, and set joint count
+  int atlasVersion = 5;
+  if (!rosnode->getParam("atlas_version", atlasVersion))
+  {
+    ROS_WARN("atlas_version not set, assuming version 5");
+  }
+
+  if (atlasVersion >= 5)
+    numJoints = 30;
+  else
+    numJoints = 28;
 
   // this wait is needed to ensure this ros node has gotten
   // simulation published /clock message, containing
@@ -104,8 +116,8 @@ int main(int argc, char** argv)
   ac.k_effort.resize(numJoints);
 
   // default values for AtlasCommand
-  for (unsigned int i = 0; i < numJoints; i++)
-    ac.k_effort[i]     = 255;
+  for (unsigned int i = 0; i < numJoints; ++i)
+    ac.k_effort[i] = 255;
 
   // ros topic subscribtions
   ros::SubscribeOptions atlasStateSo =

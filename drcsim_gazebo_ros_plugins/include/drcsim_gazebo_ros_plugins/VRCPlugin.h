@@ -473,6 +473,9 @@ namespace gazebo
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;
 
+      /// \brief Atlas version number.
+      private: int atlasVersion;
+
       friend class VRCPlugin;
     } atlasCommandController;
 
