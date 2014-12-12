@@ -2079,9 +2079,9 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
 
   this->ac.position[index++] = -this->ac.position[16];
   this->ac.position[index++] = -this->ac.position[17];
-  this->ac.position[index++] =  this->ac.position[18];
+  this->ac.position[index++] = this->ac.position[18];
   this->ac.position[index++] = -this->ac.position[19];
-  this->ac.position[index++] =  this->ac.position[20];
+  this->ac.position[index++] = this->ac.position[20];
   this->ac.position[index++] = -this->ac.position[21];
 
   if (this->atlasVersion >= 5)
