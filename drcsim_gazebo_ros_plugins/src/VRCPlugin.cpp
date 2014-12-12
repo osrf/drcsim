@@ -1740,16 +1740,10 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
 
   // Get atlas version, and set joint count
   this->atlasVersion = 5;
-  this->jointCount = 30;
   if (!this->rosNode->getParam("atlas_version", this->atlasVersion))
   {
     ROS_WARN("atlas_version not set, assuming version 5");
   }
-
-  if (this->atlasVersion >= 4)
-    this->jointCount = 30;
-  else
-    this->jointCount = 28;
 
   // must match those inside AtlasPlugin
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));

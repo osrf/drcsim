@@ -157,8 +157,8 @@ namespace gazebo
     /// \brief: Load ROS related stuff
     private: void LoadROS();
 
-    /// \brief Read in the atlas version, and setup the joint information.
-    private: bool LoadJoints();
+    /// \brief Read in the atlas version.
+    private: bool GetAtlasVersion();
 
     /// \brief Checks atlas model for joint names
     /// used to find joint name since atlas_v3 remapped some joint names
@@ -591,9 +591,8 @@ namespace gazebo
     /// \brief Mutex to protect controllerStatsConnectCount.
     private: boost::mutex statsConnectionMutex;
 
-    /// \brief Number of joints. This should be 28 for versions of Atlas
-    /// less than 4 and 30 for atlas v4 and v5.
-    private: unsigned int jointCount;
+    /// \brief Atlas version number
+    private: int atlasVersion;
   };
 }
 #endif
