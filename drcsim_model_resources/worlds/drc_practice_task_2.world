@@ -194,7 +194,9 @@
     </model>
 
     <include>
-      <!-- Note: This should be false to match the real drc trials -->
+      <!-- Note: This should be false to match the real drc trials. 
+           It's static here to bypass a self-collide issue with embedded
+           models. -->
       <static>true</static>
       <name>level_block_0</name>
       <uri>model://block_level_steps</uri>
@@ -202,6 +204,9 @@
     </include>
 
     <include>
+      <!-- Note: This should be false to match the real drc trials. 
+           It's static here to bypass a self-collide issue with embedded
+           models. -->
       <static>true</static>
       <name>level_block_1</name>
       <uri>model://block_level_steps</uri>
@@ -240,6 +245,9 @@
     </include> 
 
     <include>
+      <!-- Note: This should be false to match the real drc trials. 
+           It's static here to bypass a self-collide issue with embedded
+           models. -->
       <static>true</static>
       <name>angle_block_0</name>
       <uri>model://block_angle_steps</uri>
@@ -247,6 +255,9 @@
     </include>
 
     <include>
+      <!-- Note: This should be false to match the real drc trials. 
+           It's static here to bypass a self-collide issue with embedded
+           models. -->
       <static>true</static>
       <name>angle_block_1</name>
       <uri>model://block_angle_steps</uri>
