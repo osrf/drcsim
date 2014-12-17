@@ -386,7 +386,7 @@ void VRCPlugin::StepDataToTwist(
   }
   math::Pose current_foot_pose = foot_link->GetWorldPose();
   math::Pose T_foot_pelvis = current_pelvis_pose - current_foot_pose;
-  ROS_DEBUG("Current foot pose: %f %f %f", 
+  ROS_DEBUG("Current foot pose: %f %f %f",
     current_foot_pose.pos.x,
     current_foot_pose.pos.y,
     current_foot_pose.pos.z);
@@ -402,7 +402,7 @@ void VRCPlugin::StepDataToTwist(
   goal_foot_pose.rot.y = tmp_pose.orientation.y;
   goal_foot_pose.rot.z = tmp_pose.orientation.z;
 
-  ROS_DEBUG("Goal foot pose: %f %f %f", 
+  ROS_DEBUG("Goal foot pose: %f %f %f",
     goal_foot_pose.pos.x,
     goal_foot_pose.pos.y,
     goal_foot_pose.pos.z);
@@ -418,7 +418,7 @@ void VRCPlugin::StepDataToTwist(
     current_pelvis_pose.rot.GetAsEuler().z,
     goal_pelvis_pose.rot.GetAsEuler().z);
 
-  // Transform into ego-centric frame, which is how the resulting velocities 
+  // Transform into ego-centric frame, which is how the resulting velocities
   // will be interpreted.
   math::Vector3 local_d(dx, dy, 0);
   local_d = current_pelvis_pose.rot.RotateVectorReverse(local_d);
@@ -439,7 +439,7 @@ void VRCPlugin::StepDataToTwist(
     goal_pelvis_pose.pos.x,
     goal_pelvis_pose.pos.y,
     goal_pelvis_pose.rot.GetAsEuler().z);
-  ROS_DEBUG("Computed velocity (dt=%f): %f %f %f", 
+  ROS_DEBUG("Computed velocity (dt=%f): %f %f %f",
     _dt, _twist->linear.x, _twist->linear.y, _twist->angular.z);
 }
 
@@ -818,7 +818,8 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
   this->world->SetPaused(true);
   this->world->EnablePhysicsEngine(false);
   // set robot configuration
-  this->atlasCommandController.SetStandingConfiguration(this->atlas.model);
+  //this->atlasCommandController.SetStandingConfiguration(this->atlas.model);
+  this->atlasCommandController.SetPIDStand(this->atlas.model);
   ros::spinOnce();
   // give some time for controllers to settle
   // \todo: use joint state subscriber to check if goal is obtained
@@ -1738,6 +1739,13 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // Get atlas version, and set joint count
+  this->atlasVersion = 5;
+  if (!this->rosNode->getParam("atlas_version", this->atlasVersion))
+  {
+    ROS_WARN("atlas_version not set, assuming version 5");
+  }
+
   // must match those inside AtlasPlugin
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
   this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
@@ -1761,12 +1769,23 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   this->jointNames.push_back("l_arm_elx");
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
+
+  if (this->atlasVersion >= 5)
+  {
+    this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
+  }
+
   this->jointNames.push_back(this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
   this->jointNames.push_back("r_arm_shx");
   this->jointNames.push_back("r_arm_ely");
   this->jointNames.push_back("r_arm_elx");
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
+
+  if (this->atlasVersion >= 5)
+  {
+    this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
+  }
 
   unsigned int n = this->jointNames.size();
   this->ac.position.resize(n);
@@ -1878,69 +1897,47 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   */
 
   // StandPrep end pose --> Stand  pose
-  /*this->ac.position[0]  =   0.0; // bkz?
-  this->ac.position[1]  =   0.0; // bky?
-  this->ac.position[2]  =   0.0; // bkx?
-  this->ac.position[3]  =   0.0; // neck_ry
 
-  this->ac.position[4]  =   0.0; // l_hpz
-  this->ac.position[5]  =   0.0620; // l_hpx
-  this->ac.position[6]  =   -0.433; // l_hpy
-  this->ac.position[7]  =   0.9; // 0.718; // l_kny
-  this->ac.position[8]  =  -0.45; //-0.276;   // l_aky
-  this->ac.position[9]  =  -0.062;  // l_akx
+  int index = 0;
+  this->ac.position[index++]  =  0.0; //back_bkz
+  this->ac.position[index++]  =  0.0015186156379058957; //back_bky
+  this->ac.position[index++]  =  0.0; //back_bkx
+  this->ac.position[index++]  =  -0.0010675729718059301; //neck_ry
 
-  this->ac.position[10] = -this->ac.position[4];
-  this->ac.position[11] = -this->ac.position[5];
-  this->ac.position[12] = this->ac.position[6];
-  this->ac.position[13] = this->ac.position[7];
-  this->ac.position[14] = this->ac.position[8];
-  this->ac.position[15] = -this->ac.position[9];
+  this->ac.position[index++]  =  -0.0003740221436601132; //l_hpz
+  this->ac.position[index++]  =  0.06201673671603203; //l_hpx
+  this->ac.position[index++]  = -0.1533149015903473;    // l_hpy
+  this->ac.position[index++]  =  0.5181407332420349; //l_kny
+  this->ac.position[index++]  = -0.35610817551612854;   // l_aky
+  this->ac.position[index++]  =  -0.06201673671603203; //l_akx
 
-  this->ac.position[16] =   -0.1; // l_shz (l_shy on older versions) 
-  this->ac.position[17] =   -1.0; // l_shx
-  this->ac.position[18] =   2.0; // l_ely
-  this->ac.position[19] =   0.498; // l_elx
-  this->ac.position[20] =  0.0; // l_wry
-  this->ac.position[21] =   0.0; // l_wrx
+  this->ac.position[index++] = -this->ac.position[4]; //r_hpz
+  this->ac.position[index++] = -this->ac.position[5]; //r_hpx
+  this->ac.position[index++] = this->ac.position[6]; //r_hpy
+  this->ac.position[index++] = this->ac.position[7]; //r_kny
+  this->ac.position[index++] = this->ac.position[8]; //r_aky
+  this->ac.position[index++] = -this->ac.position[9]; //r_akx
 
-  this->ac.position[22] = -this->ac.position[16];
-  this->ac.position[23] = -this->ac.position[17];
-  this->ac.position[24] = this->ac.position[18];
-  this->ac.position[25] = -this->ac.position[19];
-  this->ac.position[26] = this->ac.position[20];
-  this->ac.position[27] = -this->ac.position[21];*/
-  this->ac.position[0]  =   0.0;
-  this->ac.position[1]  =   0.0015186156379058957;
-  this->ac.position[2]  =   0.0;
-  this->ac.position[3]  =   -0.0010675729718059301;
-  this->ac.position[4]  =   -0.0003740221436601132;
-  this->ac.position[5]  =   0.06201673671603203;
-  this->ac.position[6]  =  -0.1533149015903473;    // l_hpy
-  this->ac.position[7]  =   0.5181407332420349;
-  this->ac.position[8]  =  -0.35610817551612854;   // l_aky
-  this->ac.position[9]  =   -0.06201673671603203;
-  this->ac.position[10] =  0.00035181696875952184;
-  this->ac.position[11] =   -0.06218484416604042;
-  this->ac.position[12] =  -0.1533149015903473;    // r_hpy
-  this->ac.position[13] =   0.5181407332420349;
-  this->ac.position[14] =  -0.35610817551612854;   // r_aky
-  this->ac.position[15] =   0.06201673671603203;
-  this->ac.position[16] =   0.29983898997306824;  // l_shy || shz
-  this->ac.position[17] =   -1.303462266921997;
-  this->ac.position[18] =   2.0;
-  this->ac.position[19] =   0.49823325872421265;
-  this->ac.position[20] =  0.0003098883025813848;
-  this->ac.position[21] =   -0.0044272784143686295;
-  if (this->jointNames[22] == "r_arm_shz")  // v4
-    this->ac.position[22] =  -0.29983898997306824;  // -shz(v4)
-  else
-    this->ac.position[22] =   0.29983898997306824;  // r_shy(v1,v3)
-  this->ac.position[23] =   1.303462266921997;
-  this->ac.position[24] =   2.0;
-  this->ac.position[25] =  -0.49823325872421265;
-  this->ac.position[26] =  0.0003098883025813848;
-  this->ac.position[27] =   0.0044272784143686295;
+  this->ac.position[index++] =  0.29983898997306824;  // l_shy || shz
+  this->ac.position[index++] =  -1.303462266921997; //l_shx
+  this->ac.position[index++] =  2.0; //l_ely
+  this->ac.position[index++] =  0.49823325872421265; //l_elx
+  this->ac.position[index++] =  0.0003098883025813848; //l_wry
+  this->ac.position[index++] =  -0.0044272784143686295; //l_wrx
+
+  if (this->atlasVersion >= 5)  // v4 / v5
+    this->ac.position[index++] =  0;  // l_arm_wry2
+
+  this->ac.position[index++] =  -this->ac.position[16]; //r_arm_shz
+  this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
+  this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
+  this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx
+  this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
+  this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
+
+  if (this->atlasVersion >= 5)  // v4 / v5
+    this->ac.position[index++] = this->ac.position[22];
+
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->ac.k_effort[i] =  255;
@@ -1994,36 +1991,45 @@ void VRCPlugin::AtlasCommandController::SetBDIStand()
 void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   physics::ModelPtr atlasModel)
 {
+  int index = 0;
+
   // seated configuration
   this->ac.header.stamp = ros::Time::now();
-  this->ac.position[0]  =   0.00;
-  this->ac.position[1]  =   0.00;
-  this->ac.position[2]  =   0.00;
-  this->ac.position[3]  =   0.00;
-  this->ac.position[4]  =   0.45;
-  this->ac.position[5]  =   0.00;
-  this->ac.position[6]  =  -1.60;
-  this->ac.position[7]  =   1.60;
-  this->ac.position[8]  =  -0.10;
-  this->ac.position[9]  =   0.00;
-  this->ac.position[10] =  -0.45;
-  this->ac.position[11] =   0.00;
-  this->ac.position[12] =  -1.60;
-  this->ac.position[13] =   1.60;
-  this->ac.position[14] =  -0.10;
-  this->ac.position[15] =   0.00;
-  this->ac.position[16] =   0.00;
-  this->ac.position[17] =   0.00;
-  this->ac.position[18] =   1.50;
-  this->ac.position[19] =   1.50;
-  this->ac.position[20] =  -3.00;
-  this->ac.position[21] =   0.00;
-  this->ac.position[22] =   0.00;
-  this->ac.position[23] =   0.00;
-  this->ac.position[24] =   1.50;
-  this->ac.position[25] =  -1.50;
-  this->ac.position[26] =  -3.00;
-  this->ac.position[27] =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.45;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =  -1.60;
+  this->ac.position[index++]  =   1.60;
+  this->ac.position[index++]  =  -0.10;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++] =  -0.45;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =  -1.60;
+  this->ac.position[index++] =   1.60;
+  this->ac.position[index++] =  -0.10;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   1.50;
+  this->ac.position[index++] =   1.50;
+  this->ac.position[index++] =  -3.00;
+  this->ac.position[index++] =   0.00;
+
+  if (this->atlasVersion >= 5)
+    this->ac.position[index++] = 0.0;
+
+  this->ac.position[index++] = -this->ac.position[16];
+  this->ac.position[index++] = -this->ac.position[17];
+  this->ac.position[index++] = this->ac.position[18];
+  this->ac.position[index++] = -this->ac.position[19];
+  this->ac.position[index++] = this->ac.position[20];
+  this->ac.position[index++] = -this->ac.position[21];
+
+  if (this->atlasVersion >= 5)
+    this->ac.position[index++] = this->ac.position[22];
 
   // set joint positions
   std::map<std::string, double> jps;
@@ -2041,36 +2047,45 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
 void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   physics::ModelPtr atlasModel)
 {
+  int index = 0;
+
   // standing configuration
   this->ac.header.stamp = ros::Time::now();
-  this->ac.position[0]  =   0.00;
-  this->ac.position[1]  =   0.00;
-  this->ac.position[2]  =   0.00;
-  this->ac.position[3]  =   0.00;
-  this->ac.position[4]  =   0.00;
-  this->ac.position[5]  =   0.00;
-  this->ac.position[6]  =   0.00;
-  this->ac.position[7]  =   0.00;
-  this->ac.position[8]  =   0.00;
-  this->ac.position[9]  =   0.00;
-  this->ac.position[10] =   0.00;
-  this->ac.position[11] =   0.00;
-  this->ac.position[12] =   0.00;
-  this->ac.position[13] =   0.00;
-  this->ac.position[14] =   0.00;
-  this->ac.position[15] =   0.00;
-  this->ac.position[16] =   0.00;
-  this->ac.position[17] =  -1.60;
-  this->ac.position[18] =   0.00;
-  this->ac.position[19] =   0.00;
-  this->ac.position[20] =   0.00;
-  this->ac.position[21] =   0.00;
-  this->ac.position[22] =   0.00;
-  this->ac.position[23] =   1.60;
-  this->ac.position[24] =   0.00;
-  this->ac.position[25] =   0.00;
-  this->ac.position[26] =   0.00;
-  this->ac.position[27] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =  -1.60;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+
+  if (this->atlasVersion >= 5)
+    this->ac.position[index++] =   0.00;
+
+  this->ac.position[index++] = -this->ac.position[16];
+  this->ac.position[index++] = -this->ac.position[17];
+  this->ac.position[index++] = this->ac.position[18];
+  this->ac.position[index++] = -this->ac.position[19];
+  this->ac.position[index++] = this->ac.position[20];
+  this->ac.position[index++] = -this->ac.position[21];
+
+  if (this->atlasVersion >= 5)
+    this->ac.position[index++] = this->ac.position[22];
 
   // set joint positions
   std::map<std::string, double> jps;

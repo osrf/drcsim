@@ -31,7 +31,7 @@ int32 desired_behavior                   # desired behavior specified by usesr
 
 # below are information from AtlasControlOutput in AtlasSimInterfaceTypes.h
 
-float64[28] f_out                        # torque command from BDI controller.
+float64[30] f_out                        # torque command from BDI controller. The first 28 values are used by Atlas versions < 4
 
 atlas_msgs/AtlasPositionData pos_est     # Position and velocity estimate of robot pelvis
 
