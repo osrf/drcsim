@@ -2816,6 +2816,8 @@ void AtlasPlugin::ControllerStatsDisconnect()
 geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
   const AtlasVec3f &_normal, double _yaw)
 {
+  static bool notified = false;
+
   // compute rotation about x, y and z axis from normal and yaw
   // given normal = (nx, ny, nz)
 
@@ -2826,8 +2828,12 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
                      _normal.n[2]*_normal.n[2]);
     if (math::equal(yz, 0.0))
     {
-      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
-               "zero length or is parallel to the x-axis");
+      if (!notified)
+      {
+        ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+            "zero length or is parallel to the x-axis");
+        notified = true;
+      }
     }
     else
       rx = 0.5*M_PI - asin(_normal.n[2] / yz);
@@ -2840,8 +2846,12 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
                      _normal.n[2]*_normal.n[2]);
     if (math::equal(xz, 0.0))
     {
-      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
-               "zero length or is parallel to the y-axis");
+      if (!notified)
+      {
+        ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+            "zero length or is parallel to the y-axis");
+        notified = true;
+      }
     }
     else
       ry = 0.5*M_PI - asin(_normal.n[2] / xz);
