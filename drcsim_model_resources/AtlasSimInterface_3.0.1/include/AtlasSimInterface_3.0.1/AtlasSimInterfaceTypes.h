@@ -10,16 +10,18 @@
 #endif
 
 /* Name mangled so that perl scan from Makefile doesn't find these 
+#if 0
 #define ATLAS_SIM_MANGLED_SOFTWARE_VERSION_STRING "1.1.1"
 #define ATLAS_SIM_MANGLED_SOFTWARE_VERSION_MAJOR 1
 #define ATLAS_SIM_MANGLED_SOFTWARE_VERSION_MINOR 1
 #define ATLAS_SIM_MANGLED_SOFTWARE_VERSION_POINT 1
+#endif
 */
 /* This should periodically be copied from ../AtlasRobotInterface/AtlasInterfaceTypes.h */
-#define ATLAS_SIM_SOFTWARE_VERSION_STRING "3.0.0"
+#define ATLAS_SIM_SOFTWARE_VERSION_STRING "3.0.1"
 #define ATLAS_SIM_SOFTWARE_VERSION_MAJOR 3
 #define ATLAS_SIM_SOFTWARE_VERSION_MINOR 0
-#define ATLAS_SIM_SOFTWARE_VERSION_POINT 0
+#define ATLAS_SIM_SOFTWARE_VERSION_POINT 1
 
 using namespace Atlas;
 
@@ -203,7 +205,12 @@ struct AtlasControlOutput
 	//!  \brief  Default constructor.  All data members set to 0.
 	//!
 	AtlasControlOutput()
-	{}
+	{
+		for(int i=0; i < Atlas::NUM_JOINTS; i++)
+		{
+			f_out[i] = 0;
+		}
+	}
 };
 
 
