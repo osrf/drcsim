@@ -198,40 +198,28 @@
         <mesh filename="package://atlas_description/meshes_unplugged/l_scap.dae" scale="1 1 1"/>
       </geometry>
     </visual>
-    <collision group="another">
-      <origin rpy="-1.5707963267949 0 0" xyz="0.005 0.085 0.01521"/>
+   <collision group="another">
+      <origin rpy="-1.5707963267949 0 0" xyz="-0.005 0.115 -0.014"/>
       <geometry>
-        <cylinder radius="0.055" length="0.105"/>
-      </geometry>
-    </collision>
-    <collision group="default">
-      <origin rpy="-1.5707963267949 0 0" xyz="0.005 0.16 0.01521"/>
-      <geometry>
-        <cylinder radius="0.04" length="0.05"/>
+        <cylinder radius="0.057" length="0.105"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.001 0.05 0.016"/>
+      <origin rpy="0 0 0" xyz="-0.005 0.075 -0.015"/>
       <geometry>
-        <box size="0.15 0.15 0.06"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin rpy="0 0 0" xyz="0.073 0.03 0.02"/>
-      <geometry>
-        <box size="0.02 0.19 0.072"/>
+        <box size="0.16 0.17 0.08"/>
       </geometry>
     </collision>
     <collision group="and_another">
-      <origin rpy="0.9 0 0" xyz="0.083 0.031 0.0415"/>
+      <origin rpy="-2.25 0 0" xyz="0.076 0.0615 0.0128"/>
       <geometry>
-        <box size="0.02 0.029 0.015"/>
+        <box size="0.02 0.029 0.018"/>
       </geometry>
     </collision>
     <collision group="final">
-      <origin rpy="2.15 0 0" xyz="-0.067 -0.045 0.045"/>
+      <origin rpy="-1 0 0" xyz="-0.075 -0.015 0.019"/>
       <geometry>
-        <box size="0.024 0.090 0.035"/>
+        <box size="0.028 0.090 0.05"/>
       </geometry>
     </collision>
   </link>
@@ -635,39 +623,27 @@
       </geometry>
     </visual>
     <collision group="another">
-      <origin rpy="1.5707963267949 0 0" xyz="0.005 -0.085 0.01521"/>
+      <origin rpy="1.5707963267949 0 0" xyz="-0.005 -0.115 -0.014"/>
       <geometry>
-        <cylinder radius="0.055" length="0.105"/>
-      </geometry>
-    </collision>
-    <collision group="default">
-      <origin rpy="1.5707963267949 0 0" xyz="0.005 -0.16 0.01521"/>
-      <geometry>
-        <cylinder radius="0.04" length="0.05"/>
+        <cylinder radius="0.057" length="0.105"/>
       </geometry>
     </collision>
     <collision group="other">
-      <origin rpy="0 0 0" xyz="0.001 -0.05 0.016"/>
+      <origin rpy="0 0 0" xyz="-0.005 -0.075 -0.015"/>
       <geometry>
-        <box size="0.15 0.15 0.06"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin rpy="0 0 0" xyz="0.073 -0.03 0.02"/>
-      <geometry>
-        <box size="0.02 0.19 0.072"/>
+        <box size="0.16 0.17 0.08"/>
       </geometry>
     </collision>
     <collision group="and_another">
-      <origin rpy="-0.9 0 0" xyz="0.083 -0.031 0.0415"/>
+      <origin rpy="2.25 0 0" xyz="0.076 -0.0615 0.0128"/>
       <geometry>
-        <box size="0.02 0.029 0.015"/>
+        <box size="0.02 0.029 0.018"/>
       </geometry>
     </collision>
     <collision group="final">
-      <origin rpy="-2.15 0 0" xyz="-0.067 0.045 0.045"/>
+      <origin rpy="1 0 0" xyz="-0.075 0.015 0.019"/>
       <geometry>
-        <box size="0.024 0.090 0.035"/>
+        <box size="0.028 0.090 0.05"/>
       </geometry>
     </collision>
   </link>
