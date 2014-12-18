@@ -20,7 +20,7 @@
         <solver>
           <use_dynamic_moi_rescaling>true</use_dynamic_moi_rescaling>
           <type>quick</type>
-          <iters>4000</iters>
+          <iters>200</iters>
           <sor>1.0</sor>
         </solver>
         <constraints>
@@ -31,7 +31,7 @@
         </constraints>
       </ode>
       <real_time_update_rate>1000</real_time_update_rate>
-      <max_step_size>0.0005</max_step_size>
+      <max_step_size>0.001</max_step_size>
     </physics>
     <!-- A global light source -->
     <include>
