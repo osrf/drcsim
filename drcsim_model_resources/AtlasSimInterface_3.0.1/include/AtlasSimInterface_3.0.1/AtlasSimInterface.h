@@ -23,9 +23,9 @@ using namespace AtlasSim;
 //!
 //!    Other things to look at:
 //!
-//!     \li <a href="Changes.html">API Changes</a>
+//!     \li <a href="Changes.html">API Changes/Release Notes</a>
 //!
-//! \image html atlas.jpg
+//! \image html Atlas_v4.jpg
 //!
 
 class AtlasSimInterface;
@@ -340,6 +340,11 @@ private:
 
 	AtlasSimInterface();   //!<  Do not call directly; call create_atlas_sim_interface()
 	~AtlasSimInterface();  //!<  Do not call directly; call destroy_atlas_sim_interface()
+
+	AtlasErrorCode exercise_the_robot(const AtlasControlInput& control_input,
+					  const AtlasRobotState& robot_state,
+					  AtlasControlOutput& control_output);
+	// Internal use only
 
 	friend AtlasSimInterface* create_atlas_sim_interface();
 	friend void destroy_atlas_sim_interface();

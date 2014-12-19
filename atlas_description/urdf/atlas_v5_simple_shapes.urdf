@@ -52,9 +52,9 @@
 
   <link name="l_hand">
     <inertial>
-      <mass value="0.53" />
-      <origin xyz="0 0.06 0" rpy="0 0 0" />
-      <inertia ixx="0.00265" ixy="0" ixz="0" iyy="0.00446" iyz="0" izz="0.00446" />
+      <mass value="0.5839" />
+      <origin xyz="0.00016 0.08159 0.00002" rpy="0 0 0" />
+      <inertia ixx="0.000388" ixy="0" ixz="0" iyy="0.000477" iyz="0" izz="0.000379" />
     </inertial>
   </link>
 
@@ -109,9 +109,9 @@
 
   <link name="l_lfarm">
     <inertial>
-      <mass value="2.65" />
-      <origin xyz="0 -0.07 0" rpy="0 0 0" />
-      <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.007" />
+      <mass value="0.648" />
+      <origin xyz="0.00017 0.02515 0.00163" rpy="0 0 0" />
+      <inertia ixx="0.000764" ixy="0" ixz="0" iyy="0.000429" iyz="0" izz="0.000825" />
     </inertial>
     <visual>
       <geometry>
@@ -260,7 +260,7 @@
   <link name="l_uarm">
     <inertial>
       <mass value="3.388" />
-      <origin xyz="0 -0.065 0" rpy="0 0 0" />
+      <origin xyz="0.0 0.065 0.0" rpy="0 0 0" />
       <inertia ixx="0.00656" ixy="0" ixz="0" iyy="0.00358" iyz="0" izz="0.00656" />
     </inertial>
     <visual>
@@ -284,9 +284,9 @@
 
   <link name="l_ufarm">
     <inertial>
-      <mass value="2.12" />
-      <origin xyz="0 -0.2 0" rpy="0 0 0" />
-      <inertia ixx="0.006" ixy="0" ixz="0" iyy="0.003" iyz="0" izz="0.006" />
+      <mass value="2.4798" />
+      <origin xyz="0.00015 -0.08296 0.00037" rpy="0 0 0" />
+      <inertia ixx="0.012731" ixy="0" ixz="0" iyy="0.002857" iyz="0" izz="0.011948" />
     </inertial>
     <visual>
       <geometry>
@@ -511,9 +511,9 @@
 
   <link name="r_hand">
     <inertial>
-      <mass value="0.53" />
-      <origin xyz="0 -0.06 0" rpy="0 0 0" />
-      <inertia ixx="0.00265" ixy="0" ixz="0" iyy="0.00446" iyz="0" izz="0.00446" />
+      <mass value="0.5839" />
+      <origin xyz="0.00016 -0.08159 0.00002" rpy="0 0 0" />
+      <inertia ixx="0.000388" ixy="0" ixz="0" iyy="0.000477" iyz="0" izz="0.000379" />
     </inertial>
   </link>
 
@@ -568,9 +568,9 @@
 
   <link name="r_lfarm">
     <inertial>
-      <mass value="2.65" />
-      <origin xyz="0 0.07 0" rpy="0 0 0" />
-      <inertia ixx="0.007" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.007" />
+      <mass value="0.648" />
+      <origin xyz="0.00017 -0.02515 0.00163" rpy="0 0 0" />
+      <inertia ixx="0.000764" ixy="0" ixz="0" iyy="0.000429" iyz="0" izz="0.000825" />
     </inertial>
     <visual>
       <geometry>
@@ -742,9 +742,9 @@
 
   <link name="r_ufarm">
     <inertial>
-      <mass value="2.12" />
-      <origin xyz="0 0.2 0" rpy="0 0 0" />
-      <inertia ixx="0.006" ixy="0" ixz="0" iyy="0.003" iyz="0" izz="0.006" />
+      <mass value="2.4798" />
+      <origin xyz="0.00015 0.08296 0.00037" rpy="0 0 0" />
+      <inertia ixx="0.012731" ixy="0" ixz="0" iyy="0.002857" iyz="0" izz="0.011948" />
     </inertial>
     <visual>
       <geometry>

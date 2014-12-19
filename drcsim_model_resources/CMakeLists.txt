@@ -6,7 +6,7 @@ project (drcsim_model_resources)
 #####################################
 set (ATLAS_SIM_INTERFACE_3_MAJOR_VERSION 3)
 set (ATLAS_SIM_INTERFACE_3_MINOR_VERSION 0)
-set (ATLAS_SIM_INTERFACE_3_PATCH_VERSION 0)
+set (ATLAS_SIM_INTERFACE_3_PATCH_VERSION 1)
 
 set (ATLAS_SIM_INTERFACE_2_MAJOR_VERSION 2)
 set (ATLAS_SIM_INTERFACE_2_MINOR_VERSION 10)
@@ -105,13 +105,13 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 #####################################
-# AtlasSimInterface 3.0.0 V4 and V5 shim library
+# AtlasSimInterface 3.0.x V4 and V5 shim library
 include_directories(
-  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_3.0.0/include
-  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_3.0.0/include/AtlasSimInterface_3.0.0
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/include
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}
 )
 
-add_library(AtlasSimInterface3 SHARED AtlasSimInterface_3.0.0/src/AtlasSimInterface.cc)
+add_library(AtlasSimInterface3 SHARED AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/src/AtlasSimInterface.cc)
 set_target_properties(AtlasSimInterface3 PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_3_VERSION_FULL})
 install (TARGETS AtlasSimInterface3 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})

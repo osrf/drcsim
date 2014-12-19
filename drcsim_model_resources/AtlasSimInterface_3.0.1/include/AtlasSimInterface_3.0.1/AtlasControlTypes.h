@@ -3,6 +3,7 @@
 #define __AtlasCommonTypes_H
 
 #include "AtlasVectorTypes.h"
+#include <stdio.h>
 
 #if BDI_OS_TYPE_win32
 
@@ -65,14 +66,16 @@ typedef enum
 	LINK_L_SCAP       = 18,
 	LINK_L_UARM       = 19,
 	LINK_L_LARM       = 20,
-	LINK_L_FARM       = 21,
-	LINK_L_HAND       = 22,
-	LINK_R_CLAV       = 23,
-	LINK_R_SCAP       = 24,
-	LINK_R_UARM       = 25,
-	LINK_R_LARM       = 26,
-	LINK_R_FARM       = 27,
-	LINK_R_HAND       = 28,
+	LINK_L_UFARM       = 21,
+	LINK_L_LFARM       = 22,
+	LINK_L_HAND       = 23,
+	LINK_R_CLAV       = 24,
+	LINK_R_SCAP       = 25,
+	LINK_R_UARM       = 26,
+	LINK_R_LARM       = 27,
+	LINK_R_UFARM       = 28,
+	LINK_R_LFARM       = 29,
+	LINK_R_HAND       = 30,
 	NUM_LINKS
 
 } AtlasLinkId;
@@ -103,18 +106,20 @@ typedef enum
 	JOINT_R_LEG_KNY   = 13,
 	JOINT_R_LEG_AKY   = 14,
 	JOINT_R_LEG_AKX   = 15,
-	JOINT_L_ARM_USY   = 16,
+	JOINT_L_ARM_SHZ   = 16,
 	JOINT_L_ARM_SHX   = 17,
 	JOINT_L_ARM_ELY   = 18,
 	JOINT_L_ARM_ELX   = 19,
 	JOINT_L_ARM_UWY   = 20,
 	JOINT_L_ARM_MWX   = 21,
-	JOINT_R_ARM_USY   = 22,
-	JOINT_R_ARM_SHX   = 23,
-	JOINT_R_ARM_ELY   = 24,
-	JOINT_R_ARM_ELX   = 25,
-	JOINT_R_ARM_UWY   = 26,
-	JOINT_R_ARM_MWX   = 27,
+	JOINT_L_ARM_LWY   = 22,
+	JOINT_R_ARM_SHZ   = 23,
+	JOINT_R_ARM_SHX   = 24,
+	JOINT_R_ARM_ELY   = 25,
+	JOINT_R_ARM_ELX   = 26,
+	JOINT_R_ARM_UWY   = 27,
+	JOINT_R_ARM_MWX   = 28,
+	JOINT_R_ARM_LWY   = 29,
 	NUM_JOINTS
 
 } AtlasJointId;
@@ -144,18 +149,20 @@ typedef enum
 	ACTUATOR_R_LEG_KNY   = 13,
 	ACTUATOR_R_LEG_LAK   = 14,
 	ACTUATOR_R_LEG_RAK   = 15,
-	ACTUATOR_L_ARM_USY   = 16,
+	ACTUATOR_L_ARM_SHZ   = 16,
 	ACTUATOR_L_ARM_SHX   = 17,
 	ACTUATOR_L_ARM_ELY   = 18,
 	ACTUATOR_L_ARM_ELX   = 19,
 	ACTUATOR_L_ARM_UWY   = 20,
 	ACTUATOR_L_ARM_MWX   = 21,
-	ACTUATOR_R_ARM_USY   = 22,
-	ACTUATOR_R_ARM_SHX   = 23,
-	ACTUATOR_R_ARM_ELY   = 24,
-	ACTUATOR_R_ARM_ELX   = 25,
-	ACTUATOR_R_ARM_UWY   = 26,
-	ACTUATOR_R_ARM_MWX   = 27,
+	ACTUATOR_L_ARM_LWY   = 22,
+	ACTUATOR_R_ARM_USY   = 23,
+	ACTUATOR_R_ARM_SHX   = 24,
+	ACTUATOR_R_ARM_ELY   = 25,
+	ACTUATOR_R_ARM_ELX   = 26,
+	ACTUATOR_R_ARM_UWY   = 27,
+	ACTUATOR_R_ARM_MWX   = 28,
+	ACTUATOR_R_ARM_LWY   = 29,
 	NUM_ACTUATORS
 
 } AtlasActuatorId;
@@ -240,6 +247,13 @@ struct AtlasBehaviorFootData
 		yaw(0.0f),
 		normal(0.0f, 0.0f, 1.0f)
 	{}
+
+  void print() const
+  {
+    printf("AtlasBehaviorFootData:\n\tposition %f %f %f %f\n\tnormal %f %f %f\n",
+	   position.x(), position.y(), position.z(), yaw,
+	   normal.x(), normal.y(), normal.z());
+  }
 };
 
 
@@ -350,6 +364,14 @@ struct AtlasBehaviorStepAction
 		knee_nominal(0.0f), max_body_accel(0.0f),
 		max_foot_vel(0.0f), sway_end_dist(0.1f), step_end_dist(0.1f)
 	{}
+  void print() const
+  {
+    printf("AtlasBehaviorStepAction:\n\tstep duration%f\n\tsway duration %f\n\tswing height %f\n\tlift height %f\n\ttoe_off %d\n\tknee nominal %f\n\tmax body accel %f\n\tmax foot vel %f\n\tsway end dist %f\n\tstep_end_dist %f\n",
+	   step_duration, sway_duration,
+	   swing_height, lift_height, toe_off,
+	   knee_nominal, max_body_accel,
+	   max_foot_vel, sway_end_dist, step_end_dist);
+  }
 };
 
 ///////////////////////////////////////////////////////////
@@ -373,6 +395,12 @@ struct AtlasBehaviorWalkAction
 	AtlasBehaviorWalkAction():
 		step_duration(0.7f), swing_height(0.0f)
 	{}
+
+  void print() const
+  {
+    printf("AtlasBehaviorWalkAction:\n\tstep duration %f\n\tswing height %f\n",
+	   step_duration, swing_height);
+  }
 };
 
 ///////////////////////////////////////////////////////////
@@ -409,6 +437,19 @@ struct AtlasBehaviorStepSpec
 	//!  \brief  Parameters of the stepping action
 	//!
 	AtlasBehaviorStepAction action;
+
+	AtlasBehaviorStepSpec():
+		step_index(-1),
+		foot_index(0)
+	{}
+
+  void print() const
+  {
+    printf("AtlasBehaviorStepSpec:\n\tstep idx %d\n\tfoot idx %d\n",
+	   step_index, foot_index);
+    foot.print();
+    action.print();
+  }
 };
 
 ///////////////////////////////////////////////////////////
@@ -448,6 +489,19 @@ struct AtlasBehaviorWalkSpec
 	//!  \brief  Parameters of the stepping action
 	//!
 	AtlasBehaviorWalkAction action;
+
+	AtlasBehaviorWalkSpec():
+		step_index(-1),
+		foot_index(0)
+	{}
+
+  void print() const
+  {
+    printf("AtlasBehaviorWalkSpec:\n\tstep idx %d\n\tfoot idx %d\n",
+	   step_index, foot_index);
+    foot.print();
+    action.print();
+  }
 };
 
 ///////////////////////////////////////////////////////////
@@ -537,6 +591,22 @@ struct AtlasBehaviorStepData
 		normal(_normal),
 		swing_height(_swing_height)
 	{}
+        
+  void print() const
+  {
+	    printf("AtlasBehaviorStepData:\n\tstep idx %d\n\tfoot idx %d\n\tduration %f\n\tpos %f %f %f %f\n\tnormal %f %f %f\n\tswing height %f\n", 
+			   step_index,
+			   foot_index,
+			   duration,
+			   position.x(),
+			   position.y(),
+			   position.z(),
+			   yaw,
+			   normal.x(),
+			   normal.y(),
+			   normal.z(),
+			   swing_height);  
+  }
 };
 
 
@@ -712,6 +782,24 @@ struct AtlasBehaviorStepParams
 		use_relative_step_height(false),
 		use_demo_walk(false)
 	{}
+  void print() const
+  {
+    printf("Step Parameters --\n");
+    printf("use_spec %d\n", use_spec);
+    if (use_spec)
+      {
+	printf("Desired Step (from spec) -\n");
+	desired_step_spec.print();
+      }
+    else
+      {
+	printf("Desired Step (from data not spec) -\n");
+	desired_step.print();
+      }
+    printf("use_relative_step_height %d\n", use_relative_step_height); 
+    printf("use_demo_walk %d\n", use_demo_walk); 
+    printf("pelvis orientation offset PRINT NOT IMPLEMENTED\n");
+  }
 };
 
 
@@ -1243,9 +1331,7 @@ typedef enum
 //!
 struct AtlasIMUData
 {
-#ifndef ATLAS3_API_SIM_INTERFACE
 	int64_t seq_id;
-#endif
 
 	//!
 	//!  \brief  Timestamp for IMU data (microseconds)
@@ -1258,7 +1344,7 @@ struct AtlasIMUData
 	AtlasQuaternion orientation_estimate;
 
 	//!
-	//!  \brief  Angular velocity (rad/s) of the pelvis frame w.r.t. the inertial frame.
+	//!  \brief  Angular velocity (rad/s) of the pelvis frame w.r.t. the pelvis frame.
 	//!
 	AtlasVec3f angular_velocity;
 
@@ -1275,9 +1361,7 @@ struct AtlasIMUData
 		angular_velocity(0.0f),
 		linear_acceleration(0.0f)
 	{
-#ifndef ATLAS3_API_SIM_INTERFACE
 		seq_id = 0;
-#endif
 	}
 };
 
@@ -1496,6 +1580,62 @@ enum
 	NUM_WRIST_STRAIN_GAUGES
 };
 
+///////////////////////////////////////////////////////////
+//!
+//!  \struct  AtlasBatteryData
+//!
+//!  \brief   Structure reporting battery properties
+//!
+//!    This structure holds the information regarding the battery
+//!    remaining life, charge, voltage, and current measurements.
+//!
+struct AtlasBatteryData
+{
+	//!
+	//!  \brief  Battery charging indicator (0 or 1).  A value of 1 implies charging.
+	//!
+	int32_t charging;
+
+	//!
+	//!  \brief  Last measured instantaneous load voltage (volts)
+	//!
+	float    voltage;
+
+	//!
+	//!  \brief  Last measured instantaneous load current (ampers)
+	//!
+	float    current;
+
+	//!
+	//!  \brief  Estimated Time before battery failure (seconds)
+	//!
+	//!  The seconds count will be multiples of 60 seconds due to granularity
+	//!
+	float    remaining_time;
+
+	//!
+	//!  \brief  Estimated charge transfer capacity of the battery (Amp-hours)
+	//!
+	//!  Analogous to your automobile's gas gauge.  It's an indication of the
+	//!  capability of the battery to deliver power at the current voltage.
+
+	//!
+	float    remaining_amp_hours;
+
+	//!
+	//!  \brief  Estimated percentage of charge remaining in the battery (percent)
+	//!
+	//!  The battery's output power will shut off when this reaches zero, causing
+	//!  the robot to fall.
+	//!
+	float    remaining_charge_percentage;
+
+	//!
+	//!  \brief  Battery charge/discharge cycle count (count) @@@ (Documentation Pending)
+	//!
+
+	uint32_t cycle_count;
+};
 
 ///@}
 
