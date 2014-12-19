@@ -1770,7 +1770,7 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
   {
     this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
   }
@@ -1782,7 +1782,7 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
   {
     this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
   }
@@ -1925,7 +1925,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[index++] =  0.0003098883025813848; //l_wry
   this->ac.position[index++] =  -0.0044272784143686295; //l_wrx
 
-  if (this->atlasVersion >= 5)  // v4 / v5
+  if (this->atlasVersion >= 4)  // v4 / v5
     this->ac.position[index++] =  0;  // l_arm_wry2
 
   this->ac.position[index++] =  -this->ac.position[16]; //r_arm_shz
@@ -1935,7 +1935,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
   this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
 
-  if (this->atlasVersion >= 5)  // v4 / v5
+  if (this->atlasVersion >= 4)  // v4 / v5
     this->ac.position[index++] = this->ac.position[22];
 
 
@@ -2018,7 +2018,7 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   this->ac.position[index++] =  -3.00;
   this->ac.position[index++] =   0.00;
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
     this->ac.position[index++] = 0.0;
 
   this->ac.position[index++] = -this->ac.position[16];
@@ -2028,7 +2028,7 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   this->ac.position[index++] = this->ac.position[20];
   this->ac.position[index++] = -this->ac.position[21];
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
     this->ac.position[index++] = this->ac.position[22];
 
   // set joint positions
@@ -2074,7 +2074,7 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   0.00;
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
     this->ac.position[index++] =   0.00;
 
   this->ac.position[index++] = -this->ac.position[16];
@@ -2084,7 +2084,7 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   this->ac.position[index++] = this->ac.position[20];
   this->ac.position[index++] = -this->ac.position[21];
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
     this->ac.position[index++] = this->ac.position[22];
 
   // set joint positions

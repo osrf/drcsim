@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     ROS_WARN("atlas_version not set, assuming version 5");
   }
 
-  if (atlasVersion >= 5)
+  if (atlasVersion >= 4)
     numJoints = 30;
   else
     numJoints = 28;

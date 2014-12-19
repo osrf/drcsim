@@ -181,7 +181,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
   {
     this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
   }
@@ -194,7 +194,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
   {
     this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
   }
