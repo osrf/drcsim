@@ -235,6 +235,7 @@ void ASIActionServer::ASIStateCB(
                 << "]");
           }
           // publish new set of commands
+          std::cerr << " ===== publish new goal cmd !!! " << std::endl;   
           this->atlasCommandPublisher.publish(command);
         }
         break;

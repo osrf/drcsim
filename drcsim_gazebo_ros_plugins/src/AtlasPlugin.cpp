@@ -1426,6 +1426,7 @@ void AtlasPlugin::SetASICommand(
     stepParams->use_demo_walk =
       _msg->step_params.use_demo_walk;
 
+      std::cerr << "SetASICommand ------------" << std::endl;
     // walk
     AtlasBehaviorWalkParams *walkParams =
       &this->atlasControlInput.walk_params;
@@ -1448,6 +1449,19 @@ void AtlasPlugin::SetASICommand(
 
       walkParams->step_queue[stepId].swing_height =
         _msg->walk_params.step_queue[stepId].swing_height;
+        
+      std::cerr << " step_index " << walkParams->step_queue[stepId].step_index << std::endl;
+      std::cerr << " foot_index " << walkParams->step_queue[stepId].foot_index << std::endl;
+      std::cerr << " duration " << walkParams->step_queue[stepId].duration << std::endl;
+      std::cerr << " position " << 
+        _msg->walk_params.step_queue[stepId].pose.position << std::endl;
+      std::cerr << " yaw " << walkParams->step_queue[stepId].yaw << std::endl;
+      std::cerr << " normal " << this->ToPose(
+        _msg->walk_params.step_queue[stepId].pose).rot.RotateVector(
+        math::Vector3(0, 0, 1)) << std::endl;
+      std::cerr << " swing height " << walkParams->step_queue[stepId].swing_height << std::endl;
+      std::cerr << "==========="<< std::endl;
+
     }
     walkParams->use_demo_walk = _msg->walk_params.use_demo_walk;
 
@@ -2513,6 +2527,7 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
     default:
       break;
   }
+    
   // set asiState and publish asiState
   this->pubASIStateQueue->push(this->asiState, this->pubASIState);
 }
