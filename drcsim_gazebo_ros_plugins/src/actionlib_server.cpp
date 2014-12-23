@@ -43,6 +43,8 @@ void ASIActionServer::ASIStateCB(
     this->robotPosition.x = _msg->pos_est.position.x;
     this->robotPosition.y = _msg->pos_est.position.y;
     this->robotPosition.z = _msg->pos_est.position.z;
+    
+    //std::cerr << " robot pos " << this->robotPosition << 
   }
 
   // 80 characters
@@ -146,7 +148,7 @@ void ASIActionServer::ASIStateCB(
                 "undocumented error state]");
       this->abortGoal("UNDOCUMENTED STATUS STATE");
       return;
-  }
+  } 
 
   // more check
   atlas_msgs::AtlasSimInterfaceCommand command;

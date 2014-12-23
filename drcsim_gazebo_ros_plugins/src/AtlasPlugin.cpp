@@ -2194,8 +2194,23 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
             fb->f_out.begin());
 
   // copy feet state
-  fb->pos_est.position = this->ToGeomVec3(fbOut->pos_est.position);
-  fb->pos_est.velocity = this->ToGeomVec3(fbOut->pos_est.velocity);
+  AtlasPositionData robotPosEst;
+  AtlasVec3f footPosEst[Atlas::NUM_FEET];  
+  this->atlasSimInterface->get_estimated_position(robotPosEst, footPosEst);
+  fb->pos_est.position = this->ToGeomVec3(robotPosEst.position);
+  fb->pos_est.velocity = this->ToGeomVec3(robotPosEst.velocity);
+  // fb->pos_est.position = this->ToGeomVec3(fbOut->pos_est.position);
+  // fb->pos_est.velocity = this->ToGeomVec3(fbOut->pos_est.velocity);
+
+  /*std::cerr << " atlas control output " << 
+      fb->pos_est.position.x << " " << 
+      fb->pos_est.position.y << " " << 
+      fb->pos_est.position.z << " vs " << 
+          robotPosEst.position.n[0] << " " << 
+          robotPosEst.position.n[1] << " " <<
+          robotPosEst.position.n[2] << std::endl;*/
+          
+  
   for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
   {
     fb->foot_pos_est[i].position = this->ToPoint(fbOut->foot_pos_est[i]);
@@ -2267,6 +2282,21 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
 
     fb->walk_feedback.step_queue_saturated[i].swing_height =
       fbOut->walk_feedback.step_queue_saturated[i].swing_height;
+
+
+/*      std::cerr << " fb step_index " << 
+          fb->walk_feedback.step_queue_saturated[i].step_index << std::endl;
+      std::cerr << " fb foot_index " << 
+          fb->walk_feedback.step_queue_saturated[i].foot_index << std::endl;
+      std::cerr << " fb duration " << 
+          fb->walk_feedback.step_queue_saturated[i].duration << std::endl;
+      std::cerr << " fb position " << 
+          this->ToPoint(fbOut->walk_feedback.step_queue_saturated[i].position) << std::endl;
+      std::cerr << " fb orientation " << this->OrientationFromNormalAndYaw(
+      fbOut->walk_feedback.step_queue_saturated[i].normal,
+      fbOut->walk_feedback.step_queue_saturated[i].yaw) << std::endl;
+      std::cerr << " fb swing height " << fb->walk_feedback.step_queue_saturated[i].swing_height << std::endl;
+      std::cerr << "==========="<< std::endl;*/  
   }
 
   // manipulate_feedback
@@ -2438,10 +2468,13 @@ void AtlasPlugin::UpdateAtlasSimInterface(const common::Time &_curTime)
     this->controlOutput);
 
   if (this->asiState.error_code != NO_ERRORS)
+  {
     ROS_ERROR("AtlasSimInterface: process_control_input returned "
               "error [%s].",
     this->atlasSimInterface->get_error_code_text(
       (AtlasErrorCode)(this->asiState.error_code)).c_str());
+    std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!! ERROR !!!!!!!!!!!!! " << std::endl;      
+  } 
 
   // AtlasSimInterfaceState: copy asiState from controlOutput
   this->AtlasControlOutputToAtlasSimInterfaceState();
