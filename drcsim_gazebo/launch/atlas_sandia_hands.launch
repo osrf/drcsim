@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="gzname" default="gazebo"/>
-  <arg name="gzworld" default="atlas_sandia_hands.world"/>
+  <arg name="gzworld" default="atlas.world"/>
   <arg name="hand_suffix" default=""/>
   <arg name="extra_gazebo_args" default="-q" />
   <arg name="model_args" default="" />
