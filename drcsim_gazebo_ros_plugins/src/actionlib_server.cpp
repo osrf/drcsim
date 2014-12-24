@@ -321,9 +321,11 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::WALK:
         {
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::WALK;
-          int startIndex =
+          int startIndex = (long)_msg->walk_feedback.next_step_index_needed;
+
+/*          int startIndex =
             std::min((long)_msg->walk_feedback.next_step_index_needed,
-              (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
+              (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);*/
 
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
           //   (int)_msg->walk_feedback.current_step_index,
@@ -338,20 +340,48 @@ void ASIActionServer::ASIStateCB(
           {
             ROS_INFO("Walk trajectory completed, switching to stand mode.");
             command.behavior = atlas_msgs::AtlasSimInterfaceCommand::STAND;
+            //command.walk_params = this->lastWalkCommand.walk_params;
             this->atlasCommandPublisher.publish(command);
             this->executingGoal = false;
             return;
           }
-
+                   
           /// \TODO: walk behavior sometimes fails/stalls, and no status_flags appear
           /// to be triggered/updated?  need to investigate.
           if (static_cast<int>(this->currentStepIndex) < startIndex)
           {
             this->currentStepIndex = static_cast<unsigned int>(startIndex);
+
+            int tempIndex =
+              std::min((long)_msg->walk_feedback.next_step_index_needed,
+              (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
+                          
+              std::cerr << " still walking  " << 
+                   this->currentStepIndex << " vs " << startIndex 
+                   << " vs "  << this->activeGoal.steps.size() << std::endl;
+
+                          
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
-            {
-              command.walk_params.step_queue[i] =
-                this->activeGoal.steps[this->currentStepIndex + i];
+            {              
+              int stepIndex = startIndex+i;
+              if (stepIndex < this->activeGoal.steps.size())
+              {
+                command.walk_params.step_queue[i] =
+                    this->activeGoal.steps[stepIndex];
+              }
+              else
+              {
+                unsigned int step =this->activeGoal.steps.size()-(i%2)-1;
+                command.walk_params.step_queue[i] =
+                    this->activeGoal.steps[step];
+                command.walk_params.step_queue[i].step_index = 
+                    stepIndex;                                      
+              }
+/*              if (startIndex + i >= this->activeGoal.steps.size())
+              {
+                command.walk_params.step_queue[i].step_index = 
+                    startIndex + i;
+              }*/
               ROS_DEBUG_STREAM("  building stepId : " << i
                   << "  traj id [" << this->currentStepIndex + i
                   << "] step_index["
@@ -365,6 +395,9 @@ void ASIActionServer::ASIStateCB(
                   << "]");
             }
             // publish new set of commands
+              std::cerr << " this->currentStepIndex " << 
+                   this->currentStepIndex <<   std::endl;
+            //this->lastWalkCommand = command;
             this->atlasCommandPublisher.publish(command);
           }
         }
@@ -489,6 +522,7 @@ void ASIActionServer::ActionServerCB()
           repeatStep.pose = this->activeGoal.steps[i-2].pose;
           repeatStep.swing_height = this->activeGoal.steps[i-2].swing_height;
           this->activeGoal.steps.push_back(repeatStep);
+          std::cerr << " push steps " << this->activeGoal.steps.size()<< std::endl;
         }
       }
       break;

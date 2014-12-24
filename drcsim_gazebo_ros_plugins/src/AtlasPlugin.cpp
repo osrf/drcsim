@@ -1371,7 +1371,7 @@ bool AtlasPlugin::ResetControls(atlas_msgs::ResetControls::Request &_req,
 
   return _res.success;
 }
-
+bool gotcmd = false;
 ////////////////////////////////////////////////////////////////////////////////
 void AtlasPlugin::SetASICommand(
   const atlas_msgs::AtlasSimInterfaceCommand::ConstPtr &_msg)
@@ -1426,10 +1426,14 @@ void AtlasPlugin::SetASICommand(
     stepParams->use_demo_walk =
       _msg->step_params.use_demo_walk;
 
-      std::cerr << "SetASICommand ------------" << std::endl;
+      std::cerr << "SetASICommand ------------" << 
+        ATLAS_VERSION << std::endl;
     // walk
     AtlasBehaviorWalkParams *walkParams =
       &this->atlasControlInput.walk_params;
+
+//    if (!gotcmd)      
+
     for (unsigned stepId = 0; stepId < NUM_REQUIRED_WALK_STEPS; ++stepId)
     {
       walkParams->step_queue[stepId].step_index =
@@ -1449,6 +1453,9 @@ void AtlasPlugin::SetASICommand(
 
       walkParams->step_queue[stepId].swing_height =
         _msg->walk_params.step_queue[stepId].swing_height;
+      
+      if (stepId == 0 && walkParams->step_queue[stepId].step_index == 1)
+        gotcmd = true;
         
       std::cerr << " step_index " << walkParams->step_queue[stepId].step_index << std::endl;
       std::cerr << " foot_index " << walkParams->step_queue[stepId].foot_index << std::endl;
@@ -1464,6 +1471,7 @@ void AtlasPlugin::SetASICommand(
 
     }
     walkParams->use_demo_walk = _msg->walk_params.use_demo_walk;
+ 
 
     // manipulate
     AtlasBehaviorManipulateParams *manipulateParams =
@@ -1544,6 +1552,7 @@ void AtlasPlugin::SetASICommand(
                     "with error code (%d).", this->asiState.error_code);
         break;
       case atlas_msgs::AtlasSimInterfaceCommand::STAND:
+        std::cerr << " set stand!!!!!!!!!!!!!!!!!!!!!! " << std::endl;
         this->asiState.error_code =
           this->atlasSimInterface->set_desired_behavior("Stand");
         if (this->asiState.error_code != NO_ERRORS)
@@ -2263,6 +2272,9 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
     fbOut->walk_feedback.current_step_index;
   fb->walk_feedback.next_step_index_needed =
     fbOut->walk_feedback.next_step_index_needed;
+    
+//  std::cerr << " fb->walk_feedback.next_step_index_needed " << 
+//      fb->walk_feedback.next_step_index_needed << std::endl;
   fb->walk_feedback.status_flags = fbOut->walk_feedback.status_flags;
   for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
   {

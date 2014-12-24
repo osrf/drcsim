@@ -132,4 +132,6 @@ class ASIActionServer
 
   /// \brief Keeps track of the current step in process when walking
   private: unsigned int currentStepIndex;
+  
+  private: atlas_msgs::AtlasSimInterfaceCommand lastWalkCommand;
 };
