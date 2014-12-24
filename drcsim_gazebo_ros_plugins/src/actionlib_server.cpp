@@ -318,9 +318,7 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::WALK:
         {
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::WALK;
-          int startIndex =
-            std::min((long)_msg->walk_feedback.next_step_index_needed,
-              (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
+          int nextIndex = (long)_msg->walk_feedback.next_step_index_needed;
 
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
           //   (int)_msg->walk_feedback.current_step_index,
@@ -339,16 +337,35 @@ void ASIActionServer::ASIStateCB(
             this->executingGoal = false;
             return;
           }
-
+                   
           /// \TODO: walk behavior sometimes fails/stalls, and no status_flags appear
           /// to be triggered/updated?  need to investigate.
-          if (static_cast<int>(this->currentStepIndex) < startIndex)
+          if (static_cast<int>(this->currentStepIndex) < nextIndex)
           {
-            this->currentStepIndex = static_cast<unsigned int>(startIndex);
+            this->currentStepIndex = static_cast<unsigned int>(nextIndex);
+
+            int tempIndex =
+              std::min((long)_msg->walk_feedback.next_step_index_needed,
+              (long)this->activeGoal.steps.size() - NUM_REQUIRED_WALK_STEPS);
+                          
+                          
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
-            {
-              command.walk_params.step_queue[i] =
-                this->activeGoal.steps[this->currentStepIndex + i];
+            {              
+              int stepIndex = nextIndex+i;
+              if (stepIndex < this->activeGoal.steps.size())
+              {
+                command.walk_params.step_queue[i] =
+                    this->activeGoal.steps[stepIndex];
+              }
+              else
+              {
+                unsigned int step =this->activeGoal.steps.size()-(i%2)-1;
+                command.walk_params.step_queue[i] =
+                    this->activeGoal.steps[step];
+                command.walk_params.step_queue[i].step_index = 
+                    stepIndex;                                      
+              }
+
               ROS_DEBUG_STREAM("  building stepId : " << i
                   << "  traj id [" << this->currentStepIndex + i
                   << "] step_index["

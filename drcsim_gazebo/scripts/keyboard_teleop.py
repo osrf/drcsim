@@ -60,7 +60,7 @@ class AtlasTeleop(object):
               "In Place Turn Size":{"value":math.pi / 16, "min":0, \
                                     "max":math.pi / 2, "type":"float"},
               "Turn Radius":{"value":2, "min":0.01, "max":100, "type":"float"},
-              "Swing Height":{"value":0.3, "min":0, "max":1, "type":"float"}}
+              "Swing Height":{"value":0.1, "min":0, "max":1, "type":"float"}}
     
     def init(self):
         # Saves terminal settings
