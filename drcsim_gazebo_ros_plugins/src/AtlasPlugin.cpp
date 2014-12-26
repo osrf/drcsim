@@ -2180,18 +2180,18 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
             fb->f_out.begin());
 
   // copy feet state
-  // issue #461: In AtlasSimInterface 3.0.1, AtlasControlOutput produces 
-  // zero position values (fbOut->pos_est) hence we are manually requesting  
-  // the estimated positions by calling 
+  // issue #461: In AtlasSimInterface 3.0.1, AtlasControlOutput produces
+  // zero position values (fbOut->pos_est) hence we are manually requesting
+  // the estimated positions by calling
   // this->atlasSimInterface->get_estimated_position
   AtlasPositionData robotPosEst;
-  AtlasVec3f footPosEst[Atlas::NUM_FEET];  
+  AtlasVec3f footPosEst[Atlas::NUM_FEET];
   this->atlasSimInterface->get_estimated_position(robotPosEst, footPosEst);
   fb->pos_est.position = this->ToGeomVec3(robotPosEst.position);
   fb->pos_est.velocity = this->ToGeomVec3(robotPosEst.velocity);
   // fb->pos_est.position = this->ToGeomVec3(fbOut->pos_est.position);
   // fb->pos_est.velocity = this->ToGeomVec3(fbOut->pos_est.velocity);
-  
+
   for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
   {
     fb->foot_pos_est[i].position = this->ToPoint(fbOut->foot_pos_est[i]);
