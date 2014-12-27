@@ -156,22 +156,6 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->lastControllerUpdateTime = this->world->GetSimTime();
   // common::Time(2.0 * this->world->GetPhysicsEngine()->GetMaxStepSize());
 
-#if ATLAS_VERSION == 4 || ATLAS_VERSION == 5
-  // physics engine and atlas version specific settings
-  physics::PhysicsEnginePtr physicsEngine = this->world->GetPhysicsEngine();
-  if (physicsEngine->GetType() == "ode")
-  {
-    int minODEIters = 55;
-    int iters = boost::any_cast<int>(physicsEngine->GetParam("iters"));
-    if (iters <= minODEIters)
-    {
-      ROS_WARN("Atlas v4 and v5 requires a higher number of ODE solver \
-          iterations for stable walking. Setting iters to 55");
-      physicsEngine->SetParam("iters", minODEIters);
-    }
-  }
-#endif
-
   // init joints, hardcoded for Atlas
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
   this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
@@ -621,6 +605,25 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
   this->LoadROS();
+
+#if ATLAS_VERSION == 4 || ATLAS_VERSION == 5
+  // physics engine and atlas version specific settings
+  physics::PhysicsEnginePtr physicsEngine = this->world->GetPhysicsEngine();
+  if (physicsEngine->GetType() == "ode")
+  {
+    int minODEIters = 55;
+    int iters = boost::any_cast<int>(physicsEngine->GetParam("iters"));
+    if (iters <= minODEIters)
+    {
+      std::stringstream msg;
+      msg << "Atlas v4 and v5 require a higher number of ODE solver iterations "
+          << "for more stable walking when using AtlasSimInterface3. "
+          << "Consider setting ODE solver iters to >"
+          << minODEIters << ".";
+      ROS_WARN("%s", msg.str().c_str());
+    }
+  }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
