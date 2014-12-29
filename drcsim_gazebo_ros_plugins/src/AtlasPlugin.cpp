@@ -611,16 +611,21 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   physics::PhysicsEnginePtr physicsEngine = this->world->GetPhysicsEngine();
   if (physicsEngine->GetType() == "ode")
   {
-    int minODEIters = 55;
+    int minODEIters = 100;
+    double ODESOR = 1.0;
     int iters = boost::any_cast<int>(physicsEngine->GetParam("iters"));
-    if (iters <= minODEIters)
+    double sor = boost::any_cast<double>(physicsEngine->GetParam("sor"));
+    if (iters <= minODEIters || !math::equal(sor, ODESOR))
     {
       std::stringstream msg;
-      msg << "Atlas v4 and v5 require a higher number of ODE solver iterations "
-          << "for more stable walking when using AtlasSimInterface3. "
-          << "Consider setting ODE solver iters to >"
-          << minODEIters << ".";
+      msg << "Atlas v4 and v5 require a minimum of " << minODEIters
+          << " ODE solver iterations and a successive over-relaxation"
+          << " parameter of " << ODESOR
+          << " for more stable walking when using AtlasSimInterface3."
+          << " Setting iters: " << minODEIters << ", sor: " << ODESOR;
       ROS_WARN("%s", msg.str().c_str());
+      physicsEngine->SetParam("iters", minODEIters);
+      physicsEngine->SetParam("sor", ODESOR);
     }
   }
 #endif
