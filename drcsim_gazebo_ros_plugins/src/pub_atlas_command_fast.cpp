@@ -29,7 +29,7 @@ atlas_msgs::AtlasCommand ac;
 atlas_msgs::AtlasState as;
 boost::mutex mutex;
 ros::Time t0;
-unsigned int numJoints = 28;
+unsigned int numJoints = 30;
 
 void UpdateControl()
 {

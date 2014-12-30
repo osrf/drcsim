@@ -3,12 +3,6 @@ set (worlds
      atlas_cpu_lidar.world
      atlas_drc_vehicle_fire_hose.world
      atlas_golf_cart_fire_hose.world
-     atlas_irobot_hands.world
-     atlas_robotiq_hands.world
-     atlas_sandia_hands.world
-     atlas_sandia_hands_cpu_lidar.world
-     atlas_sandia_hands_stumps.world
-     atlas_sandia_hands_stumps_cpu_lidar.world
 
      drc_practice_task_1.world
      drc_practice_task_2.world

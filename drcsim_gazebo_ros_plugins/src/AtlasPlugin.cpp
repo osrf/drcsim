@@ -181,7 +181,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
   {
     this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
   }
@@ -194,7 +194,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
-  if (this->atlasVersion >= 5)
+  if (this->atlasVersion >= 4)
   {
     this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
   }
@@ -605,6 +605,30 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
   this->LoadROS();
+
+#if ATLAS_VERSION == 4 || ATLAS_VERSION == 5
+  // physics engine and atlas version specific settings
+  physics::PhysicsEnginePtr physicsEngine = this->world->GetPhysicsEngine();
+  if (physicsEngine->GetType() == "ode")
+  {
+    int minODEIters = 100;
+    double ODESOR = 1.0;
+    int iters = boost::any_cast<int>(physicsEngine->GetParam("iters"));
+    double sor = boost::any_cast<double>(physicsEngine->GetParam("sor"));
+    if (iters <= minODEIters || !math::equal(sor, ODESOR))
+    {
+      std::stringstream msg;
+      msg << "Atlas v4 and v5 require a minimum of " << minODEIters
+          << " ODE solver iterations and a successive over-relaxation"
+          << " parameter of " << ODESOR
+          << " for more stable walking when using AtlasSimInterface3."
+          << " Setting iters: " << minODEIters << ", sor: " << ODESOR;
+      ROS_WARN("%s", msg.str().c_str());
+      physicsEngine->SetParam("iters", minODEIters);
+      physicsEngine->SetParam("sor", ODESOR);
+    }
+  }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2180,8 +2204,18 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
             fb->f_out.begin());
 
   // copy feet state
-  fb->pos_est.position = this->ToGeomVec3(fbOut->pos_est.position);
-  fb->pos_est.velocity = this->ToGeomVec3(fbOut->pos_est.velocity);
+  // issue #461: In AtlasSimInterface 3.0.1, AtlasControlOutput produces
+  // zero position values (fbOut->pos_est) hence we are manually requesting
+  // the estimated positions by calling
+  // this->atlasSimInterface->get_estimated_position
+  AtlasPositionData robotPosEst;
+  AtlasVec3f footPosEst[Atlas::NUM_FEET];
+  this->atlasSimInterface->get_estimated_position(robotPosEst, footPosEst);
+  fb->pos_est.position = this->ToGeomVec3(robotPosEst.position);
+  fb->pos_est.velocity = this->ToGeomVec3(robotPosEst.velocity);
+  // fb->pos_est.position = this->ToGeomVec3(fbOut->pos_est.position);
+  // fb->pos_est.velocity = this->ToGeomVec3(fbOut->pos_est.velocity);
+
   for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
   {
     fb->foot_pos_est[i].position = this->ToPoint(fbOut->foot_pos_est[i]);
@@ -2816,6 +2850,8 @@ void AtlasPlugin::ControllerStatsDisconnect()
 geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
   const AtlasVec3f &_normal, double _yaw)
 {
+  static bool notified = false;
+
   // compute rotation about x, y and z axis from normal and yaw
   // given normal = (nx, ny, nz)
 
@@ -2826,8 +2862,12 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
                      _normal.n[2]*_normal.n[2]);
     if (math::equal(yz, 0.0))
     {
-      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
-               "zero length or is parallel to the x-axis");
+      if (!notified)
+      {
+        ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+            "zero length or is parallel to the x-axis");
+        notified = true;
+      }
     }
     else
       rx = 0.5*M_PI - asin(_normal.n[2] / yz);
@@ -2840,8 +2880,12 @@ geometry_msgs::Quaternion AtlasPlugin::OrientationFromNormalAndYaw(
                      _normal.n[2]*_normal.n[2]);
     if (math::equal(xz, 0.0))
     {
-      ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
-               "zero length or is parallel to the y-axis");
+      if (!notified)
+      {
+        ROS_WARN("AtlasSimInterface: surface normal for foot placement has "
+            "zero length or is parallel to the y-axis");
+        notified = true;
+      }
     }
     else
       ry = 0.5*M_PI - asin(_normal.n[2] / xz);

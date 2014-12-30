@@ -282,6 +282,9 @@
   <gazebo reference="l_arm_wry">
     <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
+  <gazebo reference="l_arm_wry2">
+    <implicitSpringDamper>1</implicitSpringDamper>
+  </gazebo>
   <gazebo reference="l_leg_kny">
     <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
@@ -316,6 +319,9 @@
     <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <gazebo reference="r_arm_wry">
+    <implicitSpringDamper>1</implicitSpringDamper>
+  </gazebo>
+  <gazebo reference="r_arm_wry2">
     <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <gazebo reference="r_leg_kny">
