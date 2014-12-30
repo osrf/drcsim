@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="gzname" default="gazebo"/>
-  <arg name="gzworld" default="atlas_robotiq_hands.world"/>
+  <arg name="gzworld" default="atlas.world"/>
   <arg name="extra_gazebo_args" default="-q"/>
   <arg name="model_args" default="" />
 
@@ -30,7 +30,7 @@
   <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
 
-  <include file="$(find drcsim_gazebo)/launch/atlas_robotiq_hands_bringup.launch"/>
-
-  <include file="$(find drcsim_gazebo)/launch/atlas$(arg model_args)_bringup.launch"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas_robotiq_hands_bringup.launch">
+    <arg name="model_args" value="$(arg model_args)"/>
+  </include>  
 </launch>
