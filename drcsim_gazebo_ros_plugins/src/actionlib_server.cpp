@@ -205,6 +205,12 @@ void ASIActionServer::ASIStateCB(
     command.manipulate_params = this->activeGoal.manipulate_params;
     command.stand_params = this->activeGoal.stand_params;
 
+          std::cerr << " MANIPULATE !! " << std::endl;
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
+          this->atlasCommandPublisher.publish(command);
+          return;
+
     // do the proper thing based on behavior
     switch (this->activeGoal.behavior)
     {
@@ -270,7 +276,9 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::MANIPULATE:
         {
           /// \TODO: fill in manipulate command and pbulish it
-          ROS_ERROR("MANIPULATE mode not yet implemented in actionlib_server.");
+          //ROS_ERROR("MANIPULATE mode not yet implemented in actionlib_server.");
+
+
         }
         break;
       case atlas_msgs::WalkDemoGoal::STAND_PREP:
@@ -311,6 +319,14 @@ void ASIActionServer::ASIStateCB(
     command.step_params = this->activeGoal.step_params;
     command.manipulate_params = this->activeGoal.manipulate_params;
     command.stand_params = this->activeGoal.stand_params;
+
+              std::cerr << " MANIPULATE !! " << std::endl;
+          atlas_msgs::AtlasSimInterfaceCommand command;
+          command.behavior = atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
+          this->atlasCommandPublisher.publish(command);
+            this->executingGoal = false;
+            return;
+
 
     // do the proper thing based on behavior
     switch (this->activeGoal.behavior)
