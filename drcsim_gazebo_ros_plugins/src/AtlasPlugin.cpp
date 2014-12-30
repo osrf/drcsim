@@ -605,6 +605,30 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->lastControllerStatisticsTime = this->world->GetSimTime().Double();
 
   this->LoadROS();
+
+#if ATLAS_VERSION == 4 || ATLAS_VERSION == 5
+  // physics engine and atlas version specific settings
+  physics::PhysicsEnginePtr physicsEngine = this->world->GetPhysicsEngine();
+  if (physicsEngine->GetType() == "ode")
+  {
+    int minODEIters = 100;
+    double ODESOR = 1.0;
+    int iters = boost::any_cast<int>(physicsEngine->GetParam("iters"));
+    double sor = boost::any_cast<double>(physicsEngine->GetParam("sor"));
+    if (iters <= minODEIters || !math::equal(sor, ODESOR))
+    {
+      std::stringstream msg;
+      msg << "Atlas v4 and v5 require a minimum of " << minODEIters
+          << " ODE solver iterations and a successive over-relaxation"
+          << " parameter of " << ODESOR
+          << " for more stable walking when using AtlasSimInterface3."
+          << " Setting iters: " << minODEIters << ", sor: " << ODESOR;
+      ROS_WARN("%s", msg.str().c_str());
+      physicsEngine->SetParam("iters", minODEIters);
+      physicsEngine->SetParam("sor", ODESOR);
+    }
+  }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1476,7 +1500,6 @@ void AtlasPlugin::SetASICommand(
     manipulateParams->use_demo_mode = false;
       _msg->manipulate_params.use_demo_mode;
 
-
     /// Set atlasControlInput from _msg
     bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS);
     bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS);
@@ -2180,18 +2203,18 @@ void AtlasPlugin::AtlasControlOutputToAtlasSimInterfaceState()
             fb->f_out.begin());
 
   // copy feet state
-  // issue #461: In AtlasSimInterface 3.0.1, AtlasControlOutput produces 
-  // zero position values (fbOut->pos_est) hence we are manually requesting  
-  // the estimated positions by calling 
+  // issue #461: In AtlasSimInterface 3.0.1, AtlasControlOutput produces
+  // zero position values (fbOut->pos_est) hence we are manually requesting
+  // the estimated positions by calling
   // this->atlasSimInterface->get_estimated_position
   AtlasPositionData robotPosEst;
-  AtlasVec3f footPosEst[Atlas::NUM_FEET];  
+  AtlasVec3f footPosEst[Atlas::NUM_FEET];
   this->atlasSimInterface->get_estimated_position(robotPosEst, footPosEst);
   fb->pos_est.position = this->ToGeomVec3(robotPosEst.position);
   fb->pos_est.velocity = this->ToGeomVec3(robotPosEst.velocity);
   // fb->pos_est.position = this->ToGeomVec3(fbOut->pos_est.position);
   // fb->pos_est.velocity = this->ToGeomVec3(fbOut->pos_est.velocity);
-  
+
   for (unsigned int i = 0; i < Atlas::NUM_FEET; ++i)
   {
     fb->foot_pos_est[i].position = this->ToPoint(fbOut->foot_pos_est[i]);

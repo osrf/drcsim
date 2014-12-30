@@ -1928,7 +1928,8 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   if (this->atlasVersion >= 4)  // v4 / v5
     this->ac.position[index++] =  0;  // l_arm_wry2
 
-  this->ac.position[index++] =  -this->ac.position[16]; //r_arm_shz
+  this->ac.position[index++] =  (this->atlasVersion >= 4) ?
+      -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
   this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
   this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
   this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx

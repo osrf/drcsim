@@ -318,9 +318,6 @@ void ASIActionServer::ASIStateCB(
       case atlas_msgs::WalkDemoGoal::WALK:
         {
           command.behavior = atlas_msgs::AtlasSimInterfaceCommand::WALK;
-          unsigned int nextIndex = static_cast<unsigned int>(
-              _msg->walk_feedback.next_step_index_needed);
-
           // ROS_ERROR("debug: csi[%d] nsin[%d] t_rem[%f] traj id[%d] size[%d]",
           //   (int)_msg->walk_feedback.current_step_index,
           //   (int)_msg->walk_feedback.next_step_index_needed,
@@ -341,13 +338,15 @@ void ASIActionServer::ASIStateCB(
 
           /// \TODO: walk behavior sometimes fails/stalls, and no status_flags appear
           /// to be triggered/updated?  need to investigate.
-          if (this->currentStepIndex < nextIndex)
+          unsigned int startIndex = static_cast<unsigned int>(
+              _msg->walk_feedback.next_step_index_needed);
+          if (this->currentStepIndex < startIndex)
           {
-            this->currentStepIndex = nextIndex;
+            this->currentStepIndex = startIndex;
 
             for (unsigned int i = 0; i < NUM_REQUIRED_WALK_STEPS; ++i)
             {
-              unsigned int stepIndex = nextIndex+i;
+              unsigned int stepIndex = this->currentStepIndex+i;
               if (stepIndex < this->activeGoal.steps.size())
               {
                 command.walk_params.step_queue[i] =
@@ -355,11 +354,13 @@ void ASIActionServer::ASIStateCB(
               }
               else
               {
-                unsigned int step =this->activeGoal.steps.size()-(i%2)-1;
+                unsigned int step =
+                    this->activeGoal.steps.size()-(stepIndex%2)-2;
                 command.walk_params.step_queue[i] =
                     this->activeGoal.steps[step];
                 command.walk_params.step_queue[i].step_index =
                     stepIndex;
+                command.walk_params.step_queue[i].swing_height = 0;
               }
 
               ROS_DEBUG_STREAM("  building stepId : " << i
