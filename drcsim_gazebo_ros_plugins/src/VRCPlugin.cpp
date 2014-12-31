@@ -2016,7 +2016,7 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   1.50;
   this->ac.position[index++] =   1.50;
-  this->ac.position[index++] =  -3.00;
+  this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   0.00;
 
   if (this->atlasVersion >= 4)
