@@ -732,8 +732,10 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
+  math::Vector3 atlasVehicleRelPos = math::Vector3(-0.06, 0.3, 1.28);
+
   // hardcoded offset of the robot when it's seated in the vehicle driver seat.
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 2.02),
+  this->atlas.vehicleRelPose = math::Pose(atlasVehicleRelPos,
                                               math::Quaternion());
 
   // turn physics off while manipulating things
@@ -768,7 +770,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        0.0, 0.0);
 
   // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
-  this->atlas.vehicleRelPose = math::Pose(-0.06, 0.3, 1.26, 0, 0, 0);
+  this->atlas.vehicleRelPose = math::Pose(atlasVehicleRelPos,
+      math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
@@ -1928,7 +1931,8 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   if (this->atlasVersion >= 4)  // v4 / v5
     this->ac.position[index++] =  0;  // l_arm_wry2
 
-  this->ac.position[index++] =  -this->ac.position[16]; //r_arm_shz
+  this->ac.position[index++] =  (this->atlasVersion >= 4) ?
+      -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
   this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
   this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
   this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx
@@ -2015,7 +2019,7 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   1.50;
   this->ac.position[index++] =   1.50;
-  this->ac.position[index++] =  -3.00;
+  this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   0.00;
 
   if (this->atlasVersion >= 4)

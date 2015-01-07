@@ -6,7 +6,7 @@ project (drcsim_model_resources)
 #####################################
 set (ATLAS_SIM_INTERFACE_3_MAJOR_VERSION 3)
 set (ATLAS_SIM_INTERFACE_3_MINOR_VERSION 0)
-set (ATLAS_SIM_INTERFACE_3_PATCH_VERSION 1)
+set (ATLAS_SIM_INTERFACE_3_PATCH_VERSION 2)
 
 set (ATLAS_SIM_INTERFACE_2_MAJOR_VERSION 2)
 set (ATLAS_SIM_INTERFACE_2_MINOR_VERSION 10)
@@ -143,7 +143,7 @@ if (NOT DEFINED ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
       message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. "
                           "If you want to use DRCSim without the AtlasSimInterface binary interface, "
                           "run cmake with -DUSE_ATLASSIMINTERFACE_1_BINARY_EXISTS:BOOL=False")
-    endif() 
+    endif()
   else()
     message(STATUS "Warning: system check for 32/64 bit is not implemented for")
     message(STATUS "Warning: your system, assuming 64bit machine. Please use")
@@ -160,8 +160,8 @@ endif()
 # set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False) #testing shim for AtlasSimInterface 1
 
 if (NOT ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
-  message(STATUS "============================================\n" 
-                 "Using AtlasSimInterface 1.1.1 shim interface\n" 
+  message(STATUS "============================================\n"
+                 "Using AtlasSimInterface 1.1.1 shim interface\n"
                  "============================================")
   include_directories(
     ${PROJECT_SOURCE_DIR}/AtlasSimInterface_1.1.1/include/AtlasSimInterface_1.1.1
@@ -170,7 +170,7 @@ if (NOT ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
   set_target_properties(AtlasSimInterface PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
   install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 else()
-  message(STATUS "=======================================================\n" 
+  message(STATUS "=======================================================\n"
                  "Installing AtlasSimInterface 1.1.1 BDI binary interface\n"
                  "=======================================================")
   install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
