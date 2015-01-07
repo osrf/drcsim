@@ -18,10 +18,10 @@
 #endif
 */
 /* This should periodically be copied from ../AtlasRobotInterface/AtlasInterfaceTypes.h */
-#define ATLAS_SIM_SOFTWARE_VERSION_STRING "3.0.1"
+#define ATLAS_SIM_SOFTWARE_VERSION_STRING "3.0.2"
 #define ATLAS_SIM_SOFTWARE_VERSION_MAJOR 3
 #define ATLAS_SIM_SOFTWARE_VERSION_MINOR 0
-#define ATLAS_SIM_SOFTWARE_VERSION_POINT 1
+#define ATLAS_SIM_SOFTWARE_VERSION_POINT 2
 
 using namespace Atlas;
 
