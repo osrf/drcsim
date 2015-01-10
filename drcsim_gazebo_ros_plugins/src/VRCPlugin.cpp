@@ -1903,16 +1903,16 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
 
   int index = 0;
   this->ac.position[index++]  =  0.0; //back_bkz
-  this->ac.position[index++]  =  0.0015186156379058957; //back_bky
+  this->ac.position[index++]  =  0.0023; //back_bky
   this->ac.position[index++]  =  0.0; //back_bkx
-  this->ac.position[index++]  =  -0.0010675729718059301; //neck_ry
+  this->ac.position[index++]  =  -0.1106; //neck_ry
 
-  this->ac.position[index++]  =  -0.0003740221436601132; //l_hpz
-  this->ac.position[index++]  =  0.06201673671603203; //l_hpx
-  this->ac.position[index++]  = -0.1533149015903473;    // l_hpy
-  this->ac.position[index++]  =  0.5181407332420349; //l_kny
-  this->ac.position[index++]  = -0.35610817551612854;   // l_aky
-  this->ac.position[index++]  =  -0.06201673671603203; //l_akx
+  this->ac.position[index++]  =  -0.0013; //l_hpz
+  this->ac.position[index++]  =  0.0650; //l_hpx
+  this->ac.position[index++]  = -0.4739;    // l_hpy
+  this->ac.position[index++]  =  0.9319; //l_kny
+  this->ac.position[index++]  = -0.4401;   // l_aky
+  this->ac.position[index++]  =  -0.0652; //l_akx
 
   this->ac.position[index++] = -this->ac.position[4]; //r_hpz
   this->ac.position[index++] = -this->ac.position[5]; //r_hpx
@@ -1921,12 +1921,12 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   this->ac.position[index++] = this->ac.position[8]; //r_aky
   this->ac.position[index++] = -this->ac.position[9]; //r_akx
 
-  this->ac.position[index++] =  0.29983898997306824;  // l_shy || shz
-  this->ac.position[index++] =  -1.303462266921997; //l_shx
-  this->ac.position[index++] =  2.0; //l_ely
-  this->ac.position[index++] =  0.49823325872421265; //l_elx
-  this->ac.position[index++] =  0.0003098883025813848; //l_wry
-  this->ac.position[index++] =  -0.0044272784143686295; //l_wrx
+  this->ac.position[index++] =  -0.2997;  // l_shy || shz
+  this->ac.position[index++] =  -1.3066; //l_shx
+  this->ac.position[index++] =  1.853; //l_ely
+  this->ac.position[index++] =  0.4930; //l_elx
+  this->ac.position[index++] =  0.0079; //l_wry
+  this->ac.position[index++] =  -0.0010; //l_wrx
 
   if (this->atlasVersion >= 4)  // v4 / v5
     this->ac.position[index++] =  0;  // l_arm_wry2
@@ -1945,6 +1945,14 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->ac.k_effort[i] =  255;
+
+  this->ac.effort[1] = -27.6;
+  this->ac.effort[6] = -23.5;
+  this->ac.effort[7] = -105.7;
+  this->ac.effort[8] = 24.1;
+  this->ac.effort[6+6] = -23.5;
+  this->ac.effort[7+6] = -105.7;
+  this->ac.effort[8+6] = 24.1;
 
   // set joint positions
   std::map<std::string, double> jps;
