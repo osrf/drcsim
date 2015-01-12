@@ -1905,16 +1905,16 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   {
     // StandPrep end pose --> Stand  pose
     this->ac.position[index++]  =  0.0; //back_bkz
-    this->ac.position[index++]  =  0.0023; //back_bky
+    this->ac.position[index++]  =  0.00225254; //back_bkz
     this->ac.position[index++]  =  0.0; //back_bkx
     this->ac.position[index++]  =  -0.1106; //neck_ry
 
-    this->ac.position[index++]  =  -0.0013; //l_hpz
-    this->ac.position[index++]  =  0.0650; //l_hpx
-    this->ac.position[index++]  = -0.4739;    // l_hpy
-    this->ac.position[index++]  =  0.9319; //l_kny
-    this->ac.position[index++]  = -0.4401;   // l_aky
-    this->ac.position[index++]  =  -0.0652; //l_akx
+    this->ac.position[index++]  =  -0.00692196; //l_hpz
+    this->ac.position[index++]  =  0.0690; //l_hpx
+    this->ac.position[index++]  = -0.472917;    // l_hpy
+    this->ac.position[index++]  =  0.93299556; //l_kny
+    this->ac.position[index++]  = -0.4400587703;   // l_aky
+    this->ac.position[index++]  = -0.0689798; //l_akx
 
     this->ac.position[index++] = -this->ac.position[4]; //r_hpz
     this->ac.position[index++] = -this->ac.position[5]; //r_hpx
@@ -1923,23 +1923,29 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++] = this->ac.position[8]; //r_aky
     this->ac.position[index++] = -this->ac.position[9]; //r_akx
 
-    this->ac.position[index++] =  -0.2997;  // l_shy || shz
-    this->ac.position[index++] =  -1.3066; //l_shx
-    this->ac.position[index++] =  1.853; //l_ely
-    this->ac.position[index++] =  0.4930; //l_elx
-    this->ac.position[index++] =  0.0079; //l_wry
-    this->ac.position[index++] =  -0.0010; //l_wrx
+    this->ac.position[index++] =  -0.299681926;  // l_shy || shz
+    this->ac.position[index++] =  -1.300665; //l_shx
+    this->ac.position[index++] =  1.852762; //l_ely
+    this->ac.position[index++] =  0.492914; //l_elx
+    this->ac.position[index++] =  0.00165999; //l_wry
+    this->ac.position[index++] =  -0.00095767089; //l_wrx
 
-    if (this->atlasVersion >= 4)  // v4 / v5
-      this->ac.position[index++] =  0;  // l_arm_wry2
+    // v4 / v5
+    if (this->atlasVersion >= 4)
+      this->ac.position[index++] =  0.01305307;  // l_arm_wry2
 
     this->ac.position[index++] =  (this->atlasVersion >= 4) ?
       -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
+
     this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
     this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
     this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx
     this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
     this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
+
+    // v4 / v5
+    if (this->atlasVersion >= 4)
+      this->ac.position[index++] = this->ac.position[22];
 
     this->ac.effort[1] = -27.6;
     this->ac.effort[6] = -23.5;
@@ -1950,8 +1956,6 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.effort[8+6] = 24.1;
   }
 
-  if (this->atlasVersion >= 4)  // v4 / v5
-    this->ac.position[index++] = this->ac.position[22];
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
     this->ac.k_effort[i] =  255;
