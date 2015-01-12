@@ -9,7 +9,7 @@
   <!-- initial robot position -->
   <param name="robot_initial_pose/x"     value="-7.0" type="double"/>
   <param name="robot_initial_pose/y"     value="-15.0" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.95" type="double"/>
+  <param name="robot_initial_pose/z"     value="0.90" type="double"/>
   <param name="robot_initial_pose/roll"  value="0" type="double"/>
   <param name="robot_initial_pose/pitch" value="0" type="double"/>
   <param name="robot_initial_pose/yaw"   value="0" type="double"/>
