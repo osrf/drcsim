@@ -1930,9 +1930,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++] =  0.00165999; //l_wry
     this->ac.position[index++] =  -0.00095767089; //l_wrx
 
-    // v4 / v5
-    if (this->atlasVersion >= 4)
-      this->ac.position[index++] =  0.01305307;  // l_arm_wry2
+    this->ac.position[index++] =  0.01305307;  // l_arm_wry2
 
     this->ac.position[index++] =  (this->atlasVersion >= 4) ?
       -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
@@ -1943,9 +1941,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
     this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
 
-    // v4 / v5
-    if (this->atlasVersion >= 4)
-      this->ac.position[index++] = this->ac.position[22];
+    this->ac.position[index++] = this->ac.position[22];
 
     this->ac.effort[1] = -27.6;
     this->ac.effort[6] = -23.5;
