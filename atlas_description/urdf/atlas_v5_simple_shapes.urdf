@@ -43,9 +43,15 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin xyz="${0.048-0.007} 0 ${-0.056119+0.007}" rpy="0 0 0"/>
+      <origin xyz="${0.048-0.025} 0 ${-0.056119+0.007}" rpy="0 0 0"/>
       <geometry>
-        <box size="${0.26-0.0005} ${0.124887+0.009} 0.05"/>
+        <box size="${0.26-0.033} ${0.124887+0.009} 0.05"/>
+      </geometry>
+    </collision>
+    <collision group="toe">
+      <origin xyz="${0.1225} 0 ${-0.0641}" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 ${0.08} 0.02"/>
       </geometry>
     </collision>
   </link>
@@ -502,9 +508,15 @@
       </geometry>
     </visual>
     <collision group="default">
-      <origin xyz="${0.048-0.007} 0 ${-0.056119+0.007}" rpy="0 0 0"/>
+      <origin xyz="${0.048-0.025} 0 ${-0.056119+0.007}" rpy="0 0 0"/>
       <geometry>
-        <box size="${0.26-0.0005} ${0.124887+0.009} 0.05"/>
+        <box size="${0.26-0.033} ${0.124887+0.009} 0.05"/>
+      </geometry>
+    </collision>
+    <collision group="toe">
+      <origin xyz="${0.1225} 0 ${-0.0641}" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 ${0.08} 0.02"/>
       </geometry>
     </collision>
   </link>
