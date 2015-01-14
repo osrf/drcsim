@@ -1867,80 +1867,90 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   // seated configuration
   this->ac.header.stamp = ros::Time::now();
 
-  /*
-  // StandPrep initial pose
-  this->ac.position[0]  = -1.8823047867044806e-05;
-  this->ac.position[1]  =  0.0016903011128306389;
-  this->ac.position[2]  =  9.384587610838935e-05;
-  this->ac.position[3]  =  -0.6108658313751221;
-  this->ac.position[4]  =  0.30274710059165955;
-  this->ac.position[5]  =  0.05022283270955086;
-  this->ac.position[6]  =  -0.25109854340553284;
-  this->ac.position[7]  =  0.5067367553710938;
-  this->ac.position[8]  =  -0.2464604675769806;
-  this->ac.position[9]  =  -0.05848940089344978;
-  this->ac.position[10] =  -0.30258211493492126;
-  this->ac.position[11] =  -0.07534884661436081;
-  this->ac.position[12] =  -0.2539609372615814;
-  this->ac.position[13] =  0.5230700969696045;
-  this->ac.position[14] =  -0.2662496864795685;
-  this->ac.position[15] =  0.0634056106209755;
-  this->ac.position[16] =  0.29979637265205383;
-  this->ac.position[17] =  -1.303655982017517;
-  this->ac.position[18] =  2.000823736190796;
-  this->ac.position[19] =  0.4982665777206421;
-  this->ac.position[20] =  0.00030532144592143595;
-  this->ac.position[21] =  -0.004383780527859926;
-  this->ac.position[22] =  0.2997862696647644;
-  this->ac.position[23] =  1.303290843963623;
-  this->ac.position[24] =  2.0007426738739014;
-  this->ac.position[25] =  -0.4982258975505829;
-  this->ac.position[26] =  0.0002723461075220257;
-  this->ac.position[27] =  0.004452839493751526;
-  */
-
-  // StandPrep end pose --> Stand  pose
-
   int index = 0;
-  this->ac.position[index++]  =  0.0; //back_bkz
-  this->ac.position[index++]  =  0.0015186156379058957; //back_bky
-  this->ac.position[index++]  =  0.0; //back_bkx
-  this->ac.position[index++]  =  -0.0010675729718059301; //neck_ry
 
-  this->ac.position[index++]  =  -0.0003740221436601132; //l_hpz
-  this->ac.position[index++]  =  0.06201673671603203; //l_hpx
-  this->ac.position[index++]  = -0.1533149015903473;    // l_hpy
-  this->ac.position[index++]  =  0.5181407332420349; //l_kny
-  this->ac.position[index++]  = -0.35610817551612854;   // l_aky
-  this->ac.position[index++]  =  -0.06201673671603203; //l_akx
+  if (this->atlasVersion < 4)
+  {
+    // StandPrep initial pose
+    this->ac.position[0]  = -1.8823047867044806e-05;
+    this->ac.position[1]  =  0.0016903011128306389;
+    this->ac.position[2]  =  9.384587610838935e-05;
+    this->ac.position[3]  =  -0.6108658313751221;
+    this->ac.position[4]  =  0.30274710059165955;
+    this->ac.position[5]  =  0.05022283270955086;
+    this->ac.position[6]  =  -0.25109854340553284;
+    this->ac.position[7]  =  0.5067367553710938;
+    this->ac.position[8]  =  -0.2464604675769806;
+    this->ac.position[9]  =  -0.05848940089344978;
+    this->ac.position[10] =  -0.30258211493492126;
+    this->ac.position[11] =  -0.07534884661436081;
+    this->ac.position[12] =  -0.2539609372615814;
+    this->ac.position[13] =  0.5230700969696045;
+    this->ac.position[14] =  -0.2662496864795685;
+    this->ac.position[15] =  0.0634056106209755;
+    this->ac.position[16] =  0.29979637265205383;
+    this->ac.position[17] =  -1.303655982017517;
+    this->ac.position[18] =  2.000823736190796;
+    this->ac.position[19] =  0.4982665777206421;
+    this->ac.position[20] =  0.00030532144592143595;
+    this->ac.position[21] =  -0.004383780527859926;
+    this->ac.position[22] =  0.2997862696647644;
+    this->ac.position[23] =  1.303290843963623;
+    this->ac.position[24] =  2.0007426738739014;
+    this->ac.position[25] =  -0.4982258975505829;
+    this->ac.position[26] =  0.0002723461075220257;
+    this->ac.position[27] =  0.004452839493751526;
+  }
+  else
+  {
+    // StandPrep end pose --> Stand  pose
+    this->ac.position[index++]  =  0.0; //back_bkz
+    this->ac.position[index++]  =  0.00225254; //back_bkz
+    this->ac.position[index++]  =  0.0; //back_bkx
+    this->ac.position[index++]  =  -0.1106; //neck_ry
 
-  this->ac.position[index++] = -this->ac.position[4]; //r_hpz
-  this->ac.position[index++] = -this->ac.position[5]; //r_hpx
-  this->ac.position[index++] = this->ac.position[6]; //r_hpy
-  this->ac.position[index++] = this->ac.position[7]; //r_kny
-  this->ac.position[index++] = this->ac.position[8]; //r_aky
-  this->ac.position[index++] = -this->ac.position[9]; //r_akx
+    this->ac.position[index++]  =  -0.00692196; //l_hpz
+    this->ac.position[index++]  =  0.0690; //l_hpx
+    this->ac.position[index++]  = -0.472917;    // l_hpy
+    this->ac.position[index++]  =  0.93299556; //l_kny
+    this->ac.position[index++]  = -0.4400587703;   // l_aky
+    this->ac.position[index++]  = -0.0689798; //l_akx
 
-  this->ac.position[index++] =  0.29983898997306824;  // l_shy || shz
-  this->ac.position[index++] =  -1.303462266921997; //l_shx
-  this->ac.position[index++] =  2.0; //l_ely
-  this->ac.position[index++] =  0.49823325872421265; //l_elx
-  this->ac.position[index++] =  0.0003098883025813848; //l_wry
-  this->ac.position[index++] =  -0.0044272784143686295; //l_wrx
+    this->ac.position[index++] = -this->ac.position[4]; //r_hpz
+    this->ac.position[index++] = -this->ac.position[5]; //r_hpx
+    this->ac.position[index++] = this->ac.position[6]; //r_hpy
+    this->ac.position[index++] = this->ac.position[7]; //r_kny
+    this->ac.position[index++] = this->ac.position[8]; //r_aky
+    this->ac.position[index++] = -this->ac.position[9]; //r_akx
 
-  if (this->atlasVersion >= 4)  // v4 / v5
-    this->ac.position[index++] =  0;  // l_arm_wry2
+    this->ac.position[index++] =  -0.299681926;  // l_shy || shz
+    this->ac.position[index++] =  -1.300665; //l_shx
+    this->ac.position[index++] =  1.852762; //l_ely
+    this->ac.position[index++] =  0.492914; //l_elx
+    this->ac.position[index++] =  0.00165999; //l_wry
+    this->ac.position[index++] =  -0.00095767089; //l_wrx
 
-  this->ac.position[index++] =  (this->atlasVersion >= 4) ?
+    this->ac.position[index++] =  0.01305307;  // l_arm_wry2
+
+    this->ac.position[index++] =  (this->atlasVersion >= 4) ?
       -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
-  this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
-  this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
-  this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx
-  this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
-  this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
 
-  if (this->atlasVersion >= 4)  // v4 / v5
+    this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
+    this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
+    this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx
+    this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
+    this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
+
     this->ac.position[index++] = this->ac.position[22];
+
+    this->ac.effort[1] = -27.6;
+    this->ac.effort[6] = -23.5;
+    this->ac.effort[7] = -105.7;
+    this->ac.effort[8] = 24.1;
+    this->ac.effort[6+6] = -23.5;
+    this->ac.effort[7+6] = -105.7;
+    this->ac.effort[8+6] = 24.1;
+  }
 
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
