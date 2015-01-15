@@ -183,8 +183,7 @@ class AtlasTeleop(object):
         steps[idx].swing_height = 0.05
 
         # 0 for full BDI control, 255 for PID control
-        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        k_effort =  [0]*28
 
         stand_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
               AtlasBehaviorStepParams(steps[idx], False), AtlasBehaviorStandParams(), \
