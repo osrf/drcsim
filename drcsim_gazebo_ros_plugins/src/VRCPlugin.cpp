@@ -2006,7 +2006,7 @@ void VRCPlugin::AtlasCommandController::SetBDIStandPrep()
   ac.behavior = ac.STAND_PREP;
   ac.k_effort.resize(this->jointNames.size());
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    ac.k_effort[i] = 0;
+    this->ac.k_effort[i] = 0;
   this->pubAtlasSimInterfaceCommand.publish(ac);
 }
 
