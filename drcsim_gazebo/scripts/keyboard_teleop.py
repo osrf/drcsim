@@ -151,8 +151,8 @@ class AtlasTeleop(object):
         steps = self.build_steps(forward, lateral, turn)
 
         # 0 for full BDI control, 255 for PID control
-        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        k_effort = [0]*28
+
         for step in steps:
             self.debuginfo("foot: " + str(step.foot_index) + \
               " [" + str(step.pose.position.x) + \
@@ -176,14 +176,17 @@ class AtlasTeleop(object):
         self.is_static = True
         steps = self.build_steps(forward, lateral, turn)
 
-        idx = self.static_step_count % 2
+        if forward != 0:
+          idx = self.static_step_count % 2
+        else:
+          idx = lateral % 2
 
         # step needs index to be 1
         steps[idx].step_index = 1
         steps[idx].swing_height = 0.05
 
         # 0 for full BDI control, 255 for PID control
-        k_effort =  [0]*28
+        k_effort = [0]*28
 
         stand_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
               AtlasBehaviorStepParams(steps[idx], False), AtlasBehaviorStandParams(), \
