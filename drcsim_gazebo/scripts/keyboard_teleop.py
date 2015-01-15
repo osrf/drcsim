@@ -63,6 +63,8 @@ class AtlasTeleop(object):
               "Swing Height":{"value":0.1, "min":0, "max":1, "type":"float"}}
 
     def init(self):
+        self.static_step_count = 0
+
         # Saves terminal settings
         self.settings = termios.tcgetattr(sys.stdin)
 
@@ -149,8 +151,8 @@ class AtlasTeleop(object):
         steps = self.build_steps(forward, lateral, turn)
 
         # 0 for full BDI control, 255 for PID control
-        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        k_effort = [0]*28
+
         for step in steps:
             self.debuginfo("foot: " + str(step.foot_index) + \
               " [" + str(step.pose.position.x) + \
@@ -174,21 +176,26 @@ class AtlasTeleop(object):
         self.is_static = True
         steps = self.build_steps(forward, lateral, turn)
 
+        if forward != 0:
+          idx = self.static_step_count % 2
+        else:
+          idx = lateral % 2
+
         # step needs index to be 1
-        steps[0].step_index = 1
-        steps[0].swing_height = 0.05
+        steps[idx].step_index = 1
+        steps[idx].swing_height = 0.05
 
         # 0 for full BDI control, 255 for PID control
-        k_effort =  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        k_effort = [0]*28
 
         stand_goal = WalkDemoGoal(Header(), WalkDemoGoal.STEP, None, \
-              AtlasBehaviorStepParams(steps[0], False), AtlasBehaviorStandParams(), \
+              AtlasBehaviorStepParams(steps[idx], False), AtlasBehaviorStandParams(), \
               AtlasBehaviorManipulateParams(),  k_effort )
 
         self.client.send_goal(stand_goal)
         # self.client.wait_for_result()
 
+        self.static_step_count = self.static_step_count + 1
         rospy.sleep(0.3)
         # for step in steps:
         #     step.step_index = 1
