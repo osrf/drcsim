@@ -108,8 +108,6 @@ int main(int argc, char** argv)
     numJoints = 28;
   }
 
-  std::cerr << "\n\n NUMJOINTS!!![" << numJoints << "]\n\n\n";
-
   // this wait is needed to ensure this ros node has gotten
   // simulation published /clock message, containing
   // simulation time.
