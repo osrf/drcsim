@@ -95,10 +95,20 @@ int main(int argc, char** argv)
     ROS_WARN("atlas_version not set, assuming version 5");
   }
 
-  if (atlasVersion >= 4)
+  int atlasSubVersion = 0;
+  rosnode->getParam("atlas_sub_version", atlasSubVersion);
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((atlasVersion == 4 && atlasSubVersion == 0) || atlasVersion > 4)
+  {
     numJoints = 30;
+  }
   else
+  {
     numJoints = 28;
+  }
+
+  std::cerr << "\n\n NUMJOINTS!!![" << numJoints << "]\n\n\n";
 
   // this wait is needed to ensure this ros node has gotten
   // simulation published /clock message, containing
