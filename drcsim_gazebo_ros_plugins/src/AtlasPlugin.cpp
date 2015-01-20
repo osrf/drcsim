@@ -1882,7 +1882,7 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
     // start AtlasSimLibrary controller
     // this mode resets the timer, and automatically goes into Stand mode
     // after
-    ROS_WARN("controllign AtlasSimInteface library over /atlas/control_mode "
+    ROS_WARN("controlling AtlasSimInteface library over /atlas/control_mode "
              "is deprecated, please switch to uisng "
              "ROS topic /atlas/atlas_sim_interface_command and look "
              "for feedback on /atlas/atlas_sim_interface_state.");
