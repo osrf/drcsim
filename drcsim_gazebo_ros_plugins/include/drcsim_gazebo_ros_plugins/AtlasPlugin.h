@@ -592,6 +592,12 @@ namespace gazebo
 
     /// \brief Atlas version number
     private: int atlasVersion;
+
+    /// \brief Atlas sub version number. This was added to handle two
+    /// different versions of Atlas v4.
+    /// atlasVersion == 4 && atlasSubVersion == 0: wry2 joints exist.
+    /// atlasVersion == 4 && atlasSubVersion == 1: wry2 joints don't exist.
+    private: int atlasSubVersion;
   };
 }
 #endif

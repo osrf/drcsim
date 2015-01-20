@@ -1749,6 +1749,10 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
     ROS_WARN("atlas_version not set, assuming version 5");
   }
 
+  // Read the subversion of Atlas. The parameter is optional
+  this->atlasSubVersion = 0;
+  this->rosNode->getParam("atlas_sub_version", this->atlasSubVersion);
+
   // must match those inside AtlasPlugin
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
   this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
@@ -1773,19 +1777,24 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
   {
     this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
   }
 
-  this->jointNames.push_back(this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
+  this->jointNames.push_back(
+      this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
   this->jointNames.push_back("r_arm_shx");
   this->jointNames.push_back("r_arm_ely");
   this->jointNames.push_back("r_arm_elx");
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
   {
     this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
   }
@@ -1930,7 +1939,13 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++] =  0.00165999; //l_wry
     this->ac.position[index++] =  -0.00095767089; //l_wrx
 
-    this->ac.position[index++] =  0.01305307;  // l_arm_wry2
+    // Atlas version 4.1 has no wry2 joints
+    if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+        this->atlasVersion > 4)
+    {
+      // l_arm_wry2
+      this->ac.position[index++] =  0.01305307;
+    }
 
     this->ac.position[index++] =  (this->atlasVersion >= 4) ?
       -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
@@ -1941,7 +1956,13 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
     this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
 
-    this->ac.position[index++] = this->ac.position[22];
+    // Atlas version 4.1 has no wry2 joints
+    if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+        this->atlasVersion > 4)
+    {
+      // r_arm_wry2
+      this->ac.position[index++] = this->ac.position[22];
+    }
 
     this->ac.effort[1] = -27.6;
     this->ac.effort[6] = -23.5;
@@ -1985,7 +2006,7 @@ void VRCPlugin::AtlasCommandController::SetBDIStandPrep()
   ac.behavior = ac.STAND_PREP;
   ac.k_effort.resize(this->jointNames.size());
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    this->ac.k_effort[i] =  0;
+    this->ac.k_effort[i] = 0;
   this->pubAtlasSimInterfaceCommand.publish(ac);
 }
 
@@ -2032,8 +2053,12 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   0.00;
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
     this->ac.position[index++] = 0.0;
+  }
 
   this->ac.position[index++] = -this->ac.position[16];
   this->ac.position[index++] = -this->ac.position[17];
@@ -2042,8 +2067,12 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   this->ac.position[index++] = this->ac.position[20];
   this->ac.position[index++] = -this->ac.position[21];
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
     this->ac.position[index++] = this->ac.position[22];
+  }
 
   // set joint positions
   std::map<std::string, double> jps;
@@ -2088,8 +2117,12 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   this->ac.position[index++] =   0.00;
   this->ac.position[index++] =   0.00;
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
     this->ac.position[index++] =   0.00;
+  }
 
   this->ac.position[index++] = -this->ac.position[16];
   this->ac.position[index++] = -this->ac.position[17];
@@ -2098,8 +2131,12 @@ void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   this->ac.position[index++] = this->ac.position[20];
   this->ac.position[index++] = -this->ac.position[21];
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
     this->ac.position[index++] = this->ac.position[22];
+  }
 
   // set joint positions
   std::map<std::string, double> jps;

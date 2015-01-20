@@ -181,7 +181,9 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
   {
     this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
   }
@@ -194,12 +196,12 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
 
-  if (this->atlasVersion >= 4)
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
   {
     this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
   }
-
-
 
   // get pointers to joints from gazebo
   this->joints.resize(this->jointNames.size());
@@ -648,10 +650,14 @@ bool AtlasPlugin::GetAtlasVersion()
 
   // Get atlas version, and set joint count
   this->atlasVersion = 5;
-  if (!this->rosNode->getParam("atlas_version", atlasVersion))
+  if (!this->rosNode->getParam("atlas_version", this->atlasVersion))
   {
     ROS_WARN("atlas_version not set, assuming version 5");
   }
+
+  // Read the subversion of Atlas. The parameter is optional
+  this->atlasSubVersion = 0;
+  this->rosNode->getParam("atlas_sub_version", this->atlasSubVersion);
 
   return true;
 }
@@ -1110,12 +1116,19 @@ void AtlasPlugin::SetAtlasCommand(
      AtlasSimInterface 2.10.2 into 1.1.1 */
   // also copy joint servo commands to AtlasSimInterfaceCommand
   // for atlas shim interface maintains joint servo control as well.
-  bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS);
-  bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS);
-  bool fSize = (_msg->effort.size() == Atlas::NUM_JOINTS);
-  bool kqpSize = (_msg->kp_position.size() == Atlas::NUM_JOINTS);
-  bool kqiSize = (_msg->ki_position.size() == Atlas::NUM_JOINTS);
-  bool kqdpSize = (_msg->kp_velocity.size() == Atlas::NUM_JOINTS);
+  bool pSize = (_msg->position.size() == Atlas::NUM_JOINTS) ||
+    this->atlasSubVersion == 1 && this->atlasVersion == 4;
+  bool vSize = (_msg->velocity.size() == Atlas::NUM_JOINTS) ||
+    this->atlasSubVersion == 1 && this->atlasVersion == 4;
+  bool fSize = (_msg->effort.size() == Atlas::NUM_JOINTS) ||
+    this->atlasSubVersion == 1 && this->atlasVersion == 4;
+  bool kqpSize = (_msg->kp_position.size() == Atlas::NUM_JOINTS) ||
+    this->atlasSubVersion == 1 && this->atlasVersion == 4;
+  bool kqiSize = (_msg->ki_position.size() == Atlas::NUM_JOINTS) ||
+    this->atlasSubVersion == 1 && this->atlasVersion == 4;
+  bool kqdpSize = (_msg->kp_velocity.size() == Atlas::NUM_JOINTS) ||
+    this->atlasSubVersion == 1 && this->atlasVersion == 4;
+
   for (unsigned int i = 0; i < this->joints.size(); ++i)
   {
     if (pSize)
@@ -1412,12 +1425,16 @@ void AtlasPlugin::SetASICommand(
   {
     boost::mutex::scoped_lock lock(this->mutex);
     if (_msg->k_effort.size() == this->atlasState.k_effort.size())
+    {
       std::copy(_msg->k_effort.begin(), _msg->k_effort.end(),
         this->atlasState.k_effort.begin());
+    }
     else
+    {
       ROS_DEBUG("Test message contains different number of"
         " elements k_effort[%ld] than expected[%ld]",
         _msg->k_effort.size(), this->atlasState.k_effort.size());
+    }
   }
 
   {
