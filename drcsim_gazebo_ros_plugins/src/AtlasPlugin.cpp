@@ -1879,7 +1879,7 @@ void AtlasPlugin::SetExperimentalDampingPID(
 ////////////////////////////////////////////////////////////////////////////////
 // AtlasSimInterface:
 // subscribe to a control_mode string message, current valid commands are:
-//   Walk, Stand, Freeze, StandPrep, User
+//   Walk, Stand, Freeze, StandPrep, User, Manipulate
 // the command is passed to the AtlasSimInterface library.
 void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 {
@@ -1893,12 +1893,13 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
 
   // simple state machine here to do something
   if (_mode->data == "Freeze" || _mode->data == "StandPrep" ||
-      _mode->data == "Stand" || _mode->data == "Walk")
+      _mode->data == "Stand" || _mode->data == "Walk" ||
+      _mode->data == "Manipulate")
   {
     // start AtlasSimLibrary controller
     // this mode resets the timer, and automatically goes into Stand mode
     // after
-    ROS_WARN("controllign AtlasSimInteface library over /atlas/control_mode "
+    ROS_WARN("controlling AtlasSimInterface library over /atlas/control_mode "
              "is deprecated, please switch to uisng "
              "ROS topic /atlas/atlas_sim_interface_command and look "
              "for feedback on /atlas/atlas_sim_interface_state.");
@@ -1923,6 +1924,11 @@ void AtlasPlugin::OnRobotMode(const std_msgs::String::ConstPtr &_mode)
       this->asiState.desired_behavior =
         atlas_msgs::AtlasSimInterfaceCommand::WALK;
       this->atlasControlInput.step_params.use_demo_walk = true;
+    }
+    else if (_mode->data == "Manipulate")
+    {
+      this->asiState.desired_behavior =
+        atlas_msgs::AtlasSimInterfaceCommand::MANIPULATE;
     }
 
     this->asiState.error_code =
