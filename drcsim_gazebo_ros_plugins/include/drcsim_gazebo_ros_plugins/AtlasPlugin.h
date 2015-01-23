@@ -19,7 +19,6 @@
 #define GAZEBO_ATLAS_PLUGIN_HH
 
 // filter coefficients
-#define FIL_N_GJOINTS 28
 #define FIL_N_STEPS 2
 #define FIL_MAX_FILT_COEFF 10
 
@@ -88,8 +87,10 @@
 // AtlasSimInterface: header
 #if ATLAS_VERSION == 1
 #include "AtlasSimInterface_1.1.1/AtlasSimInterface.h"
-#elif ATLAS_VERSION == 3 || ATLAS_VERSION == 4
+#elif ATLAS_VERSION == 3
 #include "AtlasSimInterface_2.10.2/AtlasSimInterface.h"
+#elif ATLAS_VERSION == 4 || ATLAS_VERSION == 5
+#include "AtlasSimInterface_3.0.2/AtlasSimInterface.h"
 #endif
 
 namespace gazebo
@@ -154,6 +155,9 @@ namespace gazebo
 
     /// \brief: Load ROS related stuff
     private: void LoadROS();
+
+    /// \brief Read in the atlas version.
+    private: bool GetAtlasVersion();
 
     /// \brief Checks atlas model for joint names
     /// used to find joint name since atlas_v3 remapped some joint names
@@ -429,10 +433,10 @@ namespace gazebo
     private: double filCoefB[FIL_MAX_FILT_COEFF];
 
     /// \brief filter temporary variable
-    private: double unfilteredIn[FIL_N_GJOINTS][FIL_N_STEPS];
+    private: std::vector<std::vector<double> > unfilteredIn;
 
     /// \brief filter temporary variable
-    private: double unfilteredOut[FIL_N_GJOINTS][FIL_N_STEPS];
+    private: std::vector<std::vector<double> > unfilteredOut;
 
     /// \brief initialize filter
     private: void InitFilter();
@@ -585,6 +589,15 @@ namespace gazebo
 
     /// \brief Mutex to protect controllerStatsConnectCount.
     private: boost::mutex statsConnectionMutex;
+
+    /// \brief Atlas version number
+    private: int atlasVersion;
+
+    /// \brief Atlas sub version number. This was added to handle two
+    /// different versions of Atlas v4.
+    /// atlasVersion == 4 && atlasSubVersion == 0: wry2 joints exist.
+    /// atlasVersion == 4 && atlasSubVersion == 1: wry2 joints don't exist.
+    private: int atlasSubVersion;
   };
 }
 #endif

@@ -473,6 +473,15 @@ namespace gazebo
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;
 
+      /// \brief Atlas version number.
+      private: int atlasVersion;
+
+      /// \brief Atlas sub version number. This was added to handle two
+      /// different versions of Atlas v4.
+      /// atlasVersion == 4 && atlasSubVersion == 0: wry2 joints exist.
+      /// atlasVersion == 4 && atlasSubVersion == 1: wry2 joints don't exist.
+      private: int atlasSubVersion;
+
       friend class VRCPlugin;
     } atlasCommandController;
 

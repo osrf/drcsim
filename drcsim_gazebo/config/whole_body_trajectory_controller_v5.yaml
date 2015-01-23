@@ -1,0 +1,159 @@
+atlas_controller:
+  statistics_time_window_size: 1.0
+  type: "robot_mechanism_controllers/JointTrajectoryActionController"
+  joints:
+    - l_leg_hpz
+    - l_leg_hpx
+    - l_leg_hpy
+    - l_leg_kny
+    - l_leg_aky
+    - l_leg_akx
+    - r_leg_hpz
+    - r_leg_hpx
+    - r_leg_hpy
+    - r_leg_kny
+    - r_leg_aky
+    - r_leg_akx
+    - l_arm_shz
+    - l_arm_shx
+    - l_arm_ely
+    - l_arm_elx
+    - l_arm_wry
+    - l_arm_wry2
+    - l_arm_wrx
+    - r_arm_shz
+    - r_arm_shx
+    - r_arm_ely
+    - r_arm_elx
+    - r_arm_wry
+    - r_arm_wry2
+    - r_arm_wrx
+    - neck_ry
+    - back_bkz
+    - back_bky
+    - back_bkx
+  gains:
+    l_leg_hpz: {p:     5.0, d:  0.01, i:   0.0, i_clamp:    0.0}
+    l_leg_hpx: {p:   900.0, d:   1.0, i:   0.0, i_clamp:    0.0}
+    l_leg_hpy: {p:  2000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
+    l_leg_kny: {p:  2000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
+    l_leg_aky: {p:  2900.0, d:   2.0, i:   0.0, i_clamp:    0.0}
+    l_leg_akx: {p:   300.0, d:   1.0, i:   0.0, i_clamp:    0.0}
+    r_leg_hpz: {p:     5.0, d:  0.01, i:   0.0, i_clamp:    0.0}
+    r_leg_hpx: {p:   900.0, d:   1.0, i:   0.0, i_clamp:    0.0}
+    r_leg_hpy: {p:  2000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
+    r_leg_kny: {p:  2000.0, d:  10.0, i:   0.0, i_clamp:    0.0}
+    r_leg_aky: {p:  2900.0, d:   2.0, i:   0.0, i_clamp:    0.0}
+    r_leg_akx: {p:   300.0, d:   1.0, i:   0.0, i_clamp:    0.0}
+    l_arm_shz: {p:  2000.0, d:   3.0, i:   0.0, i_clamp:    0.0}
+    l_arm_shx: {p:  1000.0, d:  20.0, i:   0.0, i_clamp:    0.0}
+    l_arm_ely: {p:   200.0, d:   3.0, i:   0.0, i_clamp:    0.0}
+    l_arm_elx: {p:   200.0, d:   3.0, i:   0.0, i_clamp:    0.0}
+    l_arm_wry: {p:    50.0, d:   0.1, i:   0.0, i_clamp:    0.0}
+    l_arm_wry2: {p:    50.0, d:   0.1, i:   0.0, i_clamp:    0.0}
+    l_arm_wrx: {p:   100.0, d:   0.2, i:   0.0, i_clamp:    0.0}
+    r_arm_shz: {p:  2000.0, d:   3.0, i:   0.0, i_clamp:    0.0}
+    r_arm_shx: {p:  1000.0, d:  20.0, i:   0.0, i_clamp:    0.0}
+    r_arm_ely: {p:   200.0, d:   3.0, i:   0.0, i_clamp:    0.0}
+    r_arm_elx: {p:   200.0, d:   3.0, i:   0.0, i_clamp:    0.0}
+    r_arm_wry: {p:    50.0, d:   0.1, i:   0.0, i_clamp:    0.0}
+    r_arm_wry2: {p:    50.0, d:   0.1, i:   0.0, i_clamp:    0.0}
+    r_arm_wrx: {p:   100.0, d:   0.2, i:   0.0, i_clamp:    0.0}
+    neck_ry:   {p:    20.0, d:   1.0, i:   0.0, i_clamp:    0.0}
+    back_bkz:  {p:  5000.0, d:   0.1, i:   0.0, i_clamp:    0.0}
+    back_bky:  {p:  5000.0, d:  02.0, i:   0.0, i_clamp:    0.0}
+    back_bkx:  {p:  5000.0, d:  01.0, i:   0.0, i_clamp:    0.0}
+  joint_trajectory_action_node:
+    joints:
+      - l_leg_hpz
+      - l_leg_hpx
+      - l_leg_hpy
+      - l_leg_kny
+      - l_leg_aky
+      - l_leg_akx
+      - r_leg_hpz
+      - r_leg_hpx
+      - r_leg_hpy
+      - r_leg_kny
+      - r_leg_aky
+      - r_leg_akx
+      - l_arm_shz
+      - l_arm_shx
+      - l_arm_ely
+      - l_arm_elx
+      - l_arm_wry
+      - l_arm_wry2
+      - l_arm_wrx
+      - r_arm_shz
+      - r_arm_shx
+      - r_arm_ely
+      - r_arm_elx
+      - r_arm_wry
+      - r_arm_wry2
+      - r_arm_wrx
+      - neck_ry
+      - back_bkz
+      - back_bky
+      - back_bkx
+    constraints:
+      goal_time: 0.0
+      l_leg_hpz:
+        goal: 0.02
+      l_leg_hpx:
+        goal: 0.02
+      l_leg_hpy:
+        goal: 0.02
+      l_leg_kny:
+        goal: 0.02
+      l_leg_aky:
+        goal: 0.02
+      l_leg_akx:
+        goal: 0.02
+      r_leg_hpz:
+        goal: 0.02
+      r_leg_hpx:
+        goal: 0.02
+      r_leg_hpy:
+        goal: 0.02
+      r_leg_kny:
+        goal: 0.02
+      r_leg_aky:
+        goal: 0.02
+      r_leg_akx:
+        goal: 0.02
+      l_arm_shz:
+        goal: 0.02
+      l_arm_shx:
+        goal: 0.02
+      l_arm_ely:
+        goal: 0.02
+      l_arm_elx:
+        goal: 0.02
+      l_arm_wry:
+        goal: 0.02
+      l_arm_wry2:
+        goal: 0.02
+      l_arm_wrx:
+        goal: 0.02
+      r_arm_shz:
+        goal: 0.02
+      r_arm_shx:
+        goal: 0.02
+      r_arm_ely:
+        goal: 0.02
+      r_arm_elx:
+        goal: 0.02
+      r_arm_wry:
+        goal: 0.02
+      r_arm_wry2:
+        goal: 0.02
+      r_arm_wrx:
+        goal: 0.02
+      neck_ry:
+        goal: 0.02
+      back_bkz:
+        goal: 0.02
+      back_bky:
+        goal: 0.02
+      back_bkx:
+        goal: 0.02
