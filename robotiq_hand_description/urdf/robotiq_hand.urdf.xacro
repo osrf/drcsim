@@ -76,6 +76,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <gazebo reference="${prefix}link_1">
       <mu1>1.1</mu1>
       <mu2>1.1</mu2>
+      <minDepth>0.001</minDepth>
     </gazebo>
 
     <!-- Link 2 -->
@@ -109,6 +110,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <gazebo reference="${prefix}link_2">
       <mu1>1.1</mu1>
       <mu2>1.1</mu2>
+      <minDepth>0.001</minDepth>
     </gazebo>
 
     <!-- Link 3 -->
@@ -142,6 +144,7 @@ there are multiple hands then a prefix followed by an "_" is needed.
     <gazebo reference="${prefix}link_3">
       <mu1>1.1</mu1>
       <mu2>1.1</mu2>
+      <minDepth>0.001</minDepth>
     </gazebo>
 
     <!-- Link proximal actuating hinge -->
