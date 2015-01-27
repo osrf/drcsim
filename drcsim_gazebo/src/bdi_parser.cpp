@@ -497,7 +497,7 @@ int main(int argc, char** argv)
               std::cout << "  JOINT: Creating [" << entity_name << "]\n";
               joint.reset(new urdf::Joint);
               joint->name = entity_name;
-              model->joints_.insert(std::make_pair(joint->name, joint));
+              model->joints_.insert(std::make_pair(joint->name, joint))4
               */
               std::cout << "  JOINT: [" << entity_name
                         << "] is not referred to by any link\n";
