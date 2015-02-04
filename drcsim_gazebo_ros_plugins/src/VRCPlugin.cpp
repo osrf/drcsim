@@ -106,6 +106,19 @@ void VRCPlugin::DeferredLoad()
   this->callbackQueueThread = boost::thread(
     boost::bind(&VRCPlugin::ROSQueueThread, this));
 
+  std::string cmdVelTimeout = "cmd_vel_timeout";
+  if (this->rosNode->getParam(cmdVelTimeout, this->cmdVelTopicTimeout))
+  {
+    ROS_INFO("atlas fake walk teleop command timeout set to %f seconds.",
+             this->cmdVelTopicTimeout);
+  }
+  else
+  {
+    ROS_INFO("atlas fake walk teleop command timeout param not set, "
+             "defaults to 0.1 seconds.\n");
+    this->cmdVelTopicTimeout = 0.1;
+  }
+
   // Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -139,12 +152,9 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
                                       0.0, 0.0);
   this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
-  physics::Link_V links = this->atlas.model->GetLinks();
-  for (unsigned int i = 0; i < links.size(); ++i)
-  {
-    links[i]->SetGravityMode(_with_gravity);
-  }
-  // this->SetFeetCollide("none");
+  this->atlas.model->SetGravityMode(_with_gravity);
+
+  this->SetFeetCollide("none");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,24 +162,20 @@ void VRCPlugin::UnpinAtlas()
 {
   // nominal
   this->warpRobotWithCmdVel = false;
-  physics::Link_V links = this->atlas.model->GetLinks();
-  for (unsigned int i = 0; i < links.size(); ++i)
-  {
-    links[i]->SetGravityMode(true);
-  }
+  this->atlas.model->SetGravityMode(true);
   if (this->atlas.pinJoint)
     this->RemoveJoint(this->atlas.pinJoint);
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
   this->SetFeetCollide("all");
 
-  // simulate un-freezing simbody or dart unlock free joints
-  // Currently we do this to all the links in the model,
-  // but ideally we can do this to only the link(s) with
-  // a free 6-dof mobilizer.
   if (this->world->GetPhysicsEngine()->GetType() == "simbody" ||
       this->world->GetPhysicsEngine()->GetType() == "dart")
   {
+    // simulate un-freezing simbody or dart unlock free joints
+    // Currently we do this to all the links in the model,
+    // but ideally we can do this to only the link(s) with
+    // a free 6-dof mobilizer.
     physics::Link_V links = this->atlas.model->GetLinks();
     for(physics::Link_V::iterator li = links.begin(); li != links.end(); ++li)
       (*li)->SetLinkStatic(false);
@@ -205,11 +211,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->atlas.model->SetGravityMode(false);
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
@@ -219,14 +221,11 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     // stop warping robot
     this->warpRobotWithCmdVel = false;
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      if (links[i]->GetName() == "l_foot" || links[i]->GetName() == "r_foot")
-        links[i]->SetGravityMode(true);
-      else
-        links[i]->SetGravityMode(false);
-    }
+
+    this->atlas.model->SetGravityMode(false);
+    this->atlas.model->GetLink("l_foot")->SetGravityMode(true);
+    this->atlas.model->GetLink("r_foot")->SetGravityMode(true);
+
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
     if (this->vehicleRobotJoint)
@@ -261,8 +260,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     std::string objectBelow;
     fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
     entityBelow = this->world->GetEntity(objectBelow);
-    gzerr << fromEntity->GetName() << " "
+    gzdbg << fromEntity->GetName() << " "
           << distBelow << " " << objectBelow << "\n";
+    // if entity below is part of atlas, set it to fromEntity
+    // and keep searching below
     while (entityBelow && (entityBelow->GetParentModel() ==
       fromEntity->GetParentModel()))
     {
@@ -270,7 +271,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       fromEntity = entityBelow;
       fromEntity->GetNearestEntityBelow(distBelow, objectBelow);
       entityBelow = this->world->GetEntity(objectBelow);
-      gzerr << fromEntity->GetName() << " "
+      gzdbg << fromEntity->GetName() << " "
             << distBelow << " " << objectBelow << "\n";
     }
     if (entityBelow && fromEntity)
@@ -281,35 +282,41 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
       // gzdbg << groundBB.min.z << "\n";
 
       // slightly above ground and upright
+      // fromEntity->GetCollisionBoundingBox().min.z gives us the
+      // lowest point of atlas robot. Set pin location to 1.15m
+      // above it.
       atlasPose.pos.z = fromEntity->GetCollisionBoundingBox().min.z -
         distBelow + 1.15;
-      atlasPose.rot.SetFromEuler(0, 0, 0);
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
-
-      this->atlas.pinJoint = this->AddJoint(this->world,
-                                        this->atlas.model,
-                                        physics::LinkPtr(),
-                                        this->atlas.pinLink,
-                                        "revolute",
-                                        math::Vector3(0, 0, 0),
-                                        math::Vector3(0, 0, 1),
-                                        0.0, 0.0);
-      this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
-
-      // turning off effect of gravity
-      physics::Link_V links = this->atlas.model->GetLinks();
-      for (unsigned int i = 0; i < links.size(); ++i)
-      {
-        links[i]->SetGravityMode(false);
-      }
     }
     else
     {
       gzwarn << "No entity below robot, or GetEntityBelowPoint "
-             << "returned NULL pointer.\n";
+             << "returned NULL pointer. Assume ground height = 0.0m\n";
       // put atlas back
-      this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+      atlasPose.pos.z =  1.15;
     }
+
+    // set robot pose and pin it
+    atlasPose.rot.SetFromEuler(0, 0, 0);
+    this->atlas.model->SetLinkWorldPose(atlasPose, this->atlas.pinLink);
+
+    this->atlas.pinJoint = this->AddJoint(this->world,
+                                      this->atlas.model,
+                                      physics::LinkPtr(),
+                                      this->atlas.pinLink,
+                                      "revolute",
+                                      math::Vector3(0, 0, 0),
+                                      math::Vector3(0, 0, 1),
+                                      0.0, 0.0);
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    // turning off effect of gravity
+    physics::Link_V links = this->atlas.model->GetLinks();
+    for (unsigned int i = 0; i < links.size(); ++i)
+    {
+      links[i]->SetGravityMode(false);
+    }
+
     this->world->SetPaused(paused);
   }
   else if (_str == "pinned")
@@ -324,7 +331,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
   {
     this->UnpinAtlas();
   }
-  else if (_str == "bdi_stand")
+  else if (_str == "pid_stand")
   {
     // Robot is PID controlled in BDI stand Pose and PINNED.
 
@@ -342,11 +349,7 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
                                       math::Vector3(0, 0, 1),
                                       0.0, 0.0);
     // turning off effect of gravity
-    physics::Link_V links = this->atlas.model->GetLinks();
-    for (unsigned int i = 0; i < links.size(); ++i)
-    {
-      links[i]->SetGravityMode(false);
-    }
+    this->atlas.model->SetGravityMode(false);
 
     // turn physics off while manipulating things
     bool physics = this->world->GetEnablePhysicsEngine();
@@ -567,7 +570,8 @@ void VRCPlugin::SetFakeASIC(
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetRobotCmdVelTopic(const geometry_msgs::Twist::ConstPtr &_cmd)
 {
-  this->SetRobotCmdVel(_cmd, 0.0);
+  // hard code timeout to 0.1 seconds
+  this->SetRobotCmdVel(_cmd, this->cmdVelTopicTimeout);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -670,7 +674,8 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
                                       bool _disableCollision)
 {
   physics::JointPtr joint;
-  if (_world->GetPhysicsEngine()->GetType() == "ode")
+  if (_world->GetPhysicsEngine()->GetType() == "ode" ||
+      _world->GetPhysicsEngine()->GetType() == "bullet")
   {
     joint = _world->GetPhysicsEngine()->CreateJoint(
       _type, _model);
@@ -678,7 +683,6 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
     // load adds the joint to a vector of shared pointers kept
     // in parent and child links, preventing joint from being destroyed.
     joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
-    // joint->SetAnchor(0, _anchor);
     joint->SetAxis(0, _axis);
     joint->SetHighStop(0, _upper);
     joint->SetLowStop(0, _lower);
@@ -737,8 +741,10 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
   if (this->vehicleRobotJoint)
     this->RemoveJoint(this->vehicleRobotJoint);
 
+  math::Vector3 atlasVehicleRelPos = math::Vector3(-0.06, 0.3, 1.28);
+
   // hardcoded offset of the robot when it's seated in the vehicle driver seat.
-  this->atlas.vehicleRelPose = math::Pose(math::Vector3(-0.06, 0.3, 2.02),
+  this->atlas.vehicleRelPose = math::Pose(atlasVehicleRelPos,
                                               math::Quaternion());
 
   // turn physics off while manipulating things
@@ -773,7 +779,8 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
                                        0.0, 0.0);
 
   // this->atlas.vehicleRelPose = math::Pose(math::Vector3(0.52, 0.5, 1.27),
-  this->atlas.vehicleRelPose = math::Pose(-0.06, 0.3, 1.26, 0, 0, 0);
+  this->atlas.vehicleRelPose = math::Pose(atlasVehicleRelPos,
+      math::Quaternion());
 
   this->RemoveJoint(this->vehicleRobotJoint);
 
@@ -823,7 +830,8 @@ void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
   this->world->SetPaused(true);
   this->world->EnablePhysicsEngine(false);
   // set robot configuration
-  this->atlasCommandController.SetStandingConfiguration(this->atlas.model);
+  //this->atlasCommandController.SetStandingConfiguration(this->atlas.model);
+  this->atlasCommandController.SetPIDStand(this->atlas.model);
   ros::spinOnce();
   // give some time for controllers to settle
   // \todo: use joint state subscriber to check if goal is obtained
@@ -917,7 +925,6 @@ void VRCPlugin::Teleport(const physics::LinkPtr &_pinLink,
 void VRCPlugin::UpdateStates()
 {
   double curTime = this->world->GetSimTime().Double();
-
   // if user chooses bdi_stand mode, robot will be initialized
   // with PID stand in BDI stand pose pinned.
   // At t-t0 < startupStandPrepDuration seconds, pinned.
@@ -928,17 +935,45 @@ void VRCPlugin::UpdateStates()
   {
     // Load and Spawn Robot
     this->atlas.InsertModel(this->world, this->sdf);
-    this->atlas.startupSequence = Robot::SPAWN_QUEUED;
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_QUEUED)
   {
     if (this->atlas.CheckGetModel(this->world))
     {
       this->atlas.startupSequence = Robot::SPAWN_SUCCESS;
-      this->atlasCommandController.InitModel(this->atlas.model);
+    }
+    else
+    {
+      // still waiting for robot to be spawned
+      ROS_INFO("waiting for atlas robot to be spawned.");
     }
   }
   else if (this->atlas.startupSequence == Robot::SPAWN_SUCCESS)
+  {
+    // initialize Atlas Command Controller
+    // Advertise ros topics "atlas/atlas_command" and
+    // "atlas/atlas_sim_interface_command". Subscribe to
+    // "atlas/joint_states".
+    ROS_INFO("spawn success, set pinLink and call initialize controller");
+
+    this->atlas.pinLink = this->atlas.model->GetLink(this->atlas.pinLinkName);
+
+    if (!this->atlas.pinLink)
+    {
+      ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
+      this->atlas.startupSequence = Robot::NONE;
+      return;
+    }
+
+    // Note: hardcoded link by name: @todo: make this a pugin param
+    this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
+
+    // initialize atlas command controller
+    this->atlasCommandController.InitModel(this->atlas.model);
+
+    this->atlas.startupSequence = Robot::INIT_MODEL_SUCCESS;
+  }
+  else if (this->atlas.startupSequence == Robot::INIT_MODEL_SUCCESS)
   {
     // robot could have 2 distinct startup modes in sim:  bdi_stand | pinned
     // bdi_stand:
@@ -949,14 +984,24 @@ void VRCPlugin::UpdateStates()
     //   Robot PID's to zero joint angles, and pinned to the world.
     //   If StartupHarnessDuration > 0 unpin the robot after duration.
 
-    if (atlas.startupMode == "bdi_stand")
+    std::string startInVehicleName = "robot_start_in_vehicle";
+    bool startInVehicle = false;
+    if (this->rosNode->getParam(startInVehicleName, startInVehicle) &&
+                                                            startInVehicle)
+    {
+      gzdbg << "Starting robot in vehicle." << std::endl;
+      geometry_msgs::Pose::Ptr poseMsg(new geometry_msgs::Pose());
+      this->RobotEnterCar(poseMsg);
+      this->atlas.startupSequence = Robot::INITIALIZED;
+    }
+    else if (atlas.startupMode == "bdi_stand")
     {
       switch (this->atlas.bdiStandSequence)
       {
         case Robot::BS_NONE:
         {
           // ROS_INFO("BS_NONE");
-          this->SetRobotMode("bdi_stand");
+          this->SetRobotMode("pid_stand");
           // start the rest of the sequence
           this->atlas.bdiStandSequence = Robot::BS_PID_PINNED;
           this->atlas.startupBDIStandStartTime = this->world->GetSimTime();
@@ -1013,7 +1058,6 @@ void VRCPlugin::UpdateStates()
           {
             ROS_INFO("Atlas will stay pinned.");
             this->atlas.pinnedSequence = Robot::PS_INITIALIZED;
-            this->atlas.startupSequence = Robot::INITIALIZED;
           }
           else
           {
@@ -1625,7 +1669,7 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
     {
       ROS_ERROR("failed to spawn model from rosparam: [%s].",
         robotDescriptionName.c_str());
-      return;
+      this->startupSequence = Robot::NONE;
     }
   }
 }
@@ -1637,21 +1681,10 @@ bool VRCPlugin::Robot::CheckGetModel(physics::WorldPtr _world)
   this->model = _world->GetModel(this->modelName);
   if (this->model)
   {
-    this->pinLink = this->model->GetLink(this->pinLinkName);
-
-    if (!this->pinLink)
-    {
-      ROS_ERROR("atlas robot pin link not found, VRCPlugin will not work.");
-      return false;
-    }
-
-    // initial pose specified by user in ros param under robot_initial_pose
-    gzdbg << "spawnPose [" << this->spawnPose << "]\n";
+    // set initial pose of Atlas based on
+    // ros params "robot_initial_pose/[x|y|z|roll|pitch|yaw]"
     this->model->SetInitialRelativePose(this->spawnPose);
     this->model->SetWorldPose(this->spawnPose);
-
-    // Note: hardcoded link by name: @todo: make this a pugin param
-    this->initialPose = this->pinLink->GetWorldPose();
 
     return true;
   }
@@ -1802,10 +1835,17 @@ std::string VRCPlugin::AtlasCommandController::FindJoint(
     return _st2;
   else
   {
-    ROS_ERROR("joint by names [%s] or [%s] not found.",
+    ROS_INFO("VRCPlugin: joint by names [%s] or [%s] not found.",
               _st1.c_str(), _st2.c_str());
     return std::string();
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+std::string VRCPlugin::AtlasCommandController::FindJoint(
+  std::string _st1, std::string _st2, std::string _st3)
+{
+  return this->FindJoint(this->FindJoint(_st1, _st2), _st3);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1832,6 +1872,17 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   // ros stuff
   this->rosNode = new ros::NodeHandle("");
 
+  // Get atlas version, and set joint count
+  this->atlasVersion = 5;
+  if (!this->rosNode->getParam("atlas_version", this->atlasVersion))
+  {
+    ROS_WARN("atlas_version not set, assuming version 5");
+  }
+
+  // Read the subversion of Atlas. The parameter is optional
+  this->atlasSubVersion = 0;
+  this->rosNode->getParam("atlas_sub_version", this->atlasSubVersion);
+
   // must match those inside AtlasPlugin
   this->jointNames.push_back(this->FindJoint("back_bkz",  "back_lbz"));
   this->jointNames.push_back(this->FindJoint("back_bky",  "back_mby"));
@@ -1849,18 +1900,34 @@ void VRCPlugin::AtlasCommandController::InitModel(physics::ModelPtr _model)
   this->jointNames.push_back("r_leg_kny");
   this->jointNames.push_back(this->FindJoint("r_leg_aky", "r_leg_uay"));
   this->jointNames.push_back(this->FindJoint("r_leg_akx", "r_leg_lax"));
-  this->jointNames.push_back(this->FindJoint("l_arm_shy", "l_arm_usy"));
+  this->jointNames.push_back(this->FindJoint("l_arm_shz", "l_arm_shy", "l_arm_usy"));
   this->jointNames.push_back("l_arm_shx");
   this->jointNames.push_back("l_arm_ely");
   this->jointNames.push_back("l_arm_elx");
   this->jointNames.push_back(this->FindJoint("l_arm_wry", "l_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("l_arm_wrx", "l_arm_mwx"));
-  this->jointNames.push_back(this->FindJoint("r_arm_shy", "r_arm_usy"));
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
+    this->jointNames.push_back(this->FindJoint("l_arm_wry2", "l_arm_lwy"));
+  }
+
+  this->jointNames.push_back(
+      this->FindJoint("r_arm_shz", "r_arm_shy", "r_arm_usy"));
   this->jointNames.push_back("r_arm_shx");
   this->jointNames.push_back("r_arm_ely");
   this->jointNames.push_back("r_arm_elx");
   this->jointNames.push_back(this->FindJoint("r_arm_wry", "r_arm_uwy"));
   this->jointNames.push_back(this->FindJoint("r_arm_wrx", "r_arm_mwx"));
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
+    this->jointNames.push_back(this->FindJoint("r_arm_wry2", "r_arm_lwy"));
+  }
 
   unsigned int n = this->jointNames.size();
   this->ac.position.resize(n);
@@ -1939,67 +2006,102 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
   // seated configuration
   this->ac.header.stamp = ros::Time::now();
 
-  /*
-  // StandPrep initial pose
-  this->ac.position[0]  = -1.8823047867044806e-05;
-  this->ac.position[1]  =  0.0016903011128306389;
-  this->ac.position[2]  =  9.384587610838935e-05;
-  this->ac.position[3]  =  -0.6108658313751221;
-  this->ac.position[4]  =  0.30274710059165955;
-  this->ac.position[5]  =  0.05022283270955086;
-  this->ac.position[6]  =  -0.25109854340553284;
-  this->ac.position[7]  =  0.5067367553710938;
-  this->ac.position[8]  =  -0.2464604675769806;
-  this->ac.position[9]  =  -0.05848940089344978;
-  this->ac.position[10] =  -0.30258211493492126;
-  this->ac.position[11] =  -0.07534884661436081;
-  this->ac.position[12] =  -0.2539609372615814;
-  this->ac.position[13] =  0.5230700969696045;
-  this->ac.position[14] =  -0.2662496864795685;
-  this->ac.position[15] =  0.0634056106209755;
-  this->ac.position[16] =  0.29979637265205383;
-  this->ac.position[17] =  -1.303655982017517;
-  this->ac.position[18] =  2.000823736190796;
-  this->ac.position[19] =  0.4982665777206421;
-  this->ac.position[20] =  0.00030532144592143595;
-  this->ac.position[21] =  -0.004383780527859926;
-  this->ac.position[22] =  0.2997862696647644;
-  this->ac.position[23] =  1.303290843963623;
-  this->ac.position[24] =  2.0007426738739014;
-  this->ac.position[25] =  -0.4982258975505829;
-  this->ac.position[26] =  0.0002723461075220257;
-  this->ac.position[27] =  0.004452839493751526;
-  */
+  int index = 0;
 
-  // StandPrep end pose --> Stand  pose
-  this->ac.position[0]  =   2.438504816382192e-05;
-  this->ac.position[1]  =   0.0015186156379058957;
-  this->ac.position[2]  =   9.983908967114985e-06;
-  this->ac.position[3]  =   -0.0010675729718059301;
-  this->ac.position[4]  =   -0.0003740221436601132;
-  this->ac.position[5]  =   0.06201673671603203;
-  this->ac.position[6]  =  -0.2333149015903473;
-  this->ac.position[7]  =   0.5181407332420349;
-  this->ac.position[8]  =  -0.27610817551612854;
-  this->ac.position[9]  =   -0.062101610004901886;
-  this->ac.position[10] =  0.00035181696875952184;
-  this->ac.position[11] =   -0.06218484416604042;
-  this->ac.position[12] =  -0.2332201600074768;
-  this->ac.position[13] =   0.51811283826828;
-  this->ac.position[14] =  -0.2762000858783722;
-  this->ac.position[15] =   0.06211360543966293;
-  this->ac.position[16] =   0.29983898997306824;
-  this->ac.position[17] =   -1.303462266921997;
-  this->ac.position[18] =   2.0007927417755127;
-  this->ac.position[19] =   0.49823325872421265;
-  this->ac.position[20] =  0.0003098883025813848;
-  this->ac.position[21] =   -0.0044272784143686295;
-  this->ac.position[22] =   0.29982614517211914;
-  this->ac.position[23] =   1.3034454584121704;
-  this->ac.position[24] =   2.000779867172241;
-  this->ac.position[25] =  -0.498238742351532;
-  this->ac.position[26] =  0.0003156556049361825;
-  this->ac.position[27] =   0.004448802210390568;
+  if (this->atlasVersion < 4)
+  {
+    // StandPrep initial pose
+    this->ac.position[0]  = -1.8823047867044806e-05;
+    this->ac.position[1]  =  0.0016903011128306389;
+    this->ac.position[2]  =  9.384587610838935e-05;
+    this->ac.position[3]  =  -0.6108658313751221;
+    this->ac.position[4]  =  0.30274710059165955;
+    this->ac.position[5]  =  0.05022283270955086;
+    this->ac.position[6]  =  -0.25109854340553284;
+    this->ac.position[7]  =  0.5067367553710938;
+    this->ac.position[8]  =  -0.2464604675769806;
+    this->ac.position[9]  =  -0.05848940089344978;
+    this->ac.position[10] =  -0.30258211493492126;
+    this->ac.position[11] =  -0.07534884661436081;
+    this->ac.position[12] =  -0.2539609372615814;
+    this->ac.position[13] =  0.5230700969696045;
+    this->ac.position[14] =  -0.2662496864795685;
+    this->ac.position[15] =  0.0634056106209755;
+    this->ac.position[16] =  0.29979637265205383;
+    this->ac.position[17] =  -1.303655982017517;
+    this->ac.position[18] =  2.000823736190796;
+    this->ac.position[19] =  0.4982665777206421;
+    this->ac.position[20] =  0.00030532144592143595;
+    this->ac.position[21] =  -0.004383780527859926;
+    this->ac.position[22] =  0.2997862696647644;
+    this->ac.position[23] =  1.303290843963623;
+    this->ac.position[24] =  2.0007426738739014;
+    this->ac.position[25] =  -0.4982258975505829;
+    this->ac.position[26] =  0.0002723461075220257;
+    this->ac.position[27] =  0.004452839493751526;
+  }
+  else
+  {
+    // StandPrep end pose --> Stand  pose
+    this->ac.position[index++]  =  0.0; //back_bkz
+    this->ac.position[index++]  =  0.00225254; //back_bkz
+    this->ac.position[index++]  =  0.0; //back_bkx
+    this->ac.position[index++]  =  -0.1106; //neck_ry
+
+    this->ac.position[index++]  =  -0.00692196; //l_hpz
+    this->ac.position[index++]  =  0.0690; //l_hpx
+    this->ac.position[index++]  = -0.472917;    // l_hpy
+    this->ac.position[index++]  =  0.93299556; //l_kny
+    this->ac.position[index++]  = -0.4400587703;   // l_aky
+    this->ac.position[index++]  = -0.0689798; //l_akx
+
+    this->ac.position[index++] = -this->ac.position[4]; //r_hpz
+    this->ac.position[index++] = -this->ac.position[5]; //r_hpx
+    this->ac.position[index++] = this->ac.position[6]; //r_hpy
+    this->ac.position[index++] = this->ac.position[7]; //r_kny
+    this->ac.position[index++] = this->ac.position[8]; //r_aky
+    this->ac.position[index++] = -this->ac.position[9]; //r_akx
+
+    this->ac.position[index++] =  -0.299681926;  // l_shy || shz
+    this->ac.position[index++] =  -1.300665; //l_shx
+    this->ac.position[index++] =  1.852762; //l_ely
+    this->ac.position[index++] =  0.492914; //l_elx
+    this->ac.position[index++] =  0.00165999; //l_wry
+    this->ac.position[index++] =  -0.00095767089; //l_wrx
+
+    // Atlas version 4.1 has no wry2 joints
+    if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+        this->atlasVersion > 4)
+    {
+      // l_arm_wry2
+      this->ac.position[index++] =  0.01305307;
+    }
+
+    this->ac.position[index++] =  (this->atlasVersion >= 4) ?
+      -this->ac.position[16] : this->ac.position[16]; //r_arm_shz
+
+    this->ac.position[index++] =  -this->ac.position[17]; //r_arm_shx
+    this->ac.position[index++] =  this->ac.position[18]; //r_arm_ely
+    this->ac.position[index++] =  -this->ac.position[19]; //r_arm_elx
+    this->ac.position[index++] =  this->ac.position[20]; //r_arm_wry
+    this->ac.position[index++] =  -this->ac.position[21]; //r_arm_wrx
+
+    // Atlas version 4.1 has no wry2 joints
+    if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+        this->atlasVersion > 4)
+    {
+      // r_arm_wry2
+      this->ac.position[index++] = this->ac.position[22];
+    }
+
+    this->ac.effort[1] = -27.6;
+    this->ac.effort[6] = -23.5;
+    this->ac.effort[7] = -105.7;
+    this->ac.effort[8] = 24.1;
+    this->ac.effort[6+6] = -23.5;
+    this->ac.effort[7+6] = -105.7;
+    this->ac.effort[8+6] = 24.1;
+  }
 
 
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
@@ -2034,7 +2136,7 @@ void VRCPlugin::AtlasCommandController::SetBDIStandPrep()
   ac.behavior = ac.STAND_PREP;
   ac.k_effort.resize(this->jointNames.size());
   for (unsigned int i = 0; i < this->jointNames.size(); ++i)
-    this->ac.k_effort[i] =  0;
+    this->ac.k_effort[i] = 0;
   this->pubAtlasSimInterfaceCommand.publish(ac);
 }
 
@@ -2054,36 +2156,53 @@ void VRCPlugin::AtlasCommandController::SetBDIStand()
 void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
   physics::ModelPtr atlasModel)
 {
+  int index = 0;
+
   // seated configuration
   this->ac.header.stamp = ros::Time::now();
-  this->ac.position[0]  =   0.00;
-  this->ac.position[1]  =   0.00;
-  this->ac.position[2]  =   0.00;
-  this->ac.position[3]  =   0.00;
-  this->ac.position[4]  =   0.45;
-  this->ac.position[5]  =   0.00;
-  this->ac.position[6]  =  -1.60;
-  this->ac.position[7]  =   1.60;
-  this->ac.position[8]  =  -0.10;
-  this->ac.position[9]  =   0.00;
-  this->ac.position[10] =  -0.45;
-  this->ac.position[11] =   0.00;
-  this->ac.position[12] =  -1.60;
-  this->ac.position[13] =   1.60;
-  this->ac.position[14] =  -0.10;
-  this->ac.position[15] =   0.00;
-  this->ac.position[16] =   0.00;
-  this->ac.position[17] =   0.00;
-  this->ac.position[18] =   1.50;
-  this->ac.position[19] =   1.50;
-  this->ac.position[20] =  -3.00;
-  this->ac.position[21] =   0.00;
-  this->ac.position[22] =   0.00;
-  this->ac.position[23] =   0.00;
-  this->ac.position[24] =   1.50;
-  this->ac.position[25] =  -1.50;
-  this->ac.position[26] =  -3.00;
-  this->ac.position[27] =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =   0.45;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++]  =  -1.60;
+  this->ac.position[index++]  =   1.60;
+  this->ac.position[index++]  =  -0.10;
+  this->ac.position[index++]  =   0.00;
+  this->ac.position[index++] =  -0.45;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =  -1.60;
+  this->ac.position[index++] =   1.60;
+  this->ac.position[index++] =  -0.10;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   1.50;
+  this->ac.position[index++] =   1.50;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
+    this->ac.position[index++] = 0.0;
+  }
+
+  this->ac.position[index++] = -this->ac.position[16];
+  this->ac.position[index++] = -this->ac.position[17];
+  this->ac.position[index++] = this->ac.position[18];
+  this->ac.position[index++] = -this->ac.position[19];
+  this->ac.position[index++] = this->ac.position[20];
+  this->ac.position[index++] = -this->ac.position[21];
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
+    this->ac.position[index++] = this->ac.position[22];
+  }
 
   // set joint positions
   std::map<std::string, double> jps;
@@ -2101,36 +2220,53 @@ void VRCPlugin::AtlasCommandController::SetSeatingConfiguration(
 void VRCPlugin::AtlasCommandController::SetStandingConfiguration(
   physics::ModelPtr atlasModel)
 {
+  int index = 0;
+
   // standing configuration
   this->ac.header.stamp = ros::Time::now();
-  this->ac.position[0]  =   0.00;
-  this->ac.position[1]  =   0.00;
-  this->ac.position[2]  =   0.00;
-  this->ac.position[3]  =   0.00;
-  this->ac.position[4]  =   0.00;
-  this->ac.position[5]  =   0.00;
-  this->ac.position[6]  =   0.00;
-  this->ac.position[7]  =   0.00;
-  this->ac.position[8]  =   0.00;
-  this->ac.position[9]  =   0.00;
-  this->ac.position[10] =   0.00;
-  this->ac.position[11] =   0.00;
-  this->ac.position[12] =   0.00;
-  this->ac.position[13] =   0.00;
-  this->ac.position[14] =   0.00;
-  this->ac.position[15] =   0.00;
-  this->ac.position[16] =   0.00;
-  this->ac.position[17] =  -1.60;
-  this->ac.position[18] =   0.00;
-  this->ac.position[19] =   0.00;
-  this->ac.position[20] =   0.00;
-  this->ac.position[21] =   0.00;
-  this->ac.position[22] =   0.00;
-  this->ac.position[23] =   1.60;
-  this->ac.position[24] =   0.00;
-  this->ac.position[25] =   0.00;
-  this->ac.position[26] =   0.00;
-  this->ac.position[27] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =  -1.60;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+  this->ac.position[index++] =   0.00;
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
+    this->ac.position[index++] =   0.00;
+  }
+
+  this->ac.position[index++] = -this->ac.position[16];
+  this->ac.position[index++] = -this->ac.position[17];
+  this->ac.position[index++] = this->ac.position[18];
+  this->ac.position[index++] = -this->ac.position[19];
+  this->ac.position[index++] = this->ac.position[20];
+  this->ac.position[index++] = -this->ac.position[21];
+
+  // Atlas version 4.1 has no wry2 joints
+  if ((this->atlasVersion == 4 && this->atlasSubVersion == 0) ||
+      this->atlasVersion > 4)
+  {
+    this->ac.position[index++] = this->ac.position[22];
+  }
 
   // set joint positions
   std::map<std::string, double> jps;

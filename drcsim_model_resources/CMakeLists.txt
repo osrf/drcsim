@@ -2,8 +2,34 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 enable_testing()
 
 project (drcsim_model_resources)
+
+#####################################
+set (ATLAS_SIM_INTERFACE_3_MAJOR_VERSION 3)
+set (ATLAS_SIM_INTERFACE_3_MINOR_VERSION 0)
+set (ATLAS_SIM_INTERFACE_3_PATCH_VERSION 2)
+
+set (ATLAS_SIM_INTERFACE_2_MAJOR_VERSION 2)
+set (ATLAS_SIM_INTERFACE_2_MINOR_VERSION 10)
+set (ATLAS_SIM_INTERFACE_2_PATCH_VERSION 2)
+
+set (ATLAS_SIM_INTERFACE_1_MAJOR_VERSION 1)
+set (ATLAS_SIM_INTERFACE_1_MINOR_VERSION 1)
+set (ATLAS_SIM_INTERFACE_1_PATCH_VERSION 1)
+
+set (ATLAS_SIM_INTERFACE_3_VERSION ${ATLAS_SIM_INTERFACE_3_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_3_MINOR_VERSION})
+set (ATLAS_SIM_INTERFACE_3_VERSION_FULL ${ATLAS_SIM_INTERFACE_3_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_3_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_3_PATCH_VERSION})
+
+set (ATLAS_SIM_INTERFACE_2_VERSION ${ATLAS_SIM_INTERFACE_2_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_2_MINOR_VERSION})
+set (ATLAS_SIM_INTERFACE_2_VERSION_FULL ${ATLAS_SIM_INTERFACE_2_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_2_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_2_PATCH_VERSION})
+
+set (ATLAS_SIM_INTERFACE_1_VERSION ${ATLAS_SIM_INTERFACE_1_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_1_MINOR_VERSION})
+set (ATLAS_SIM_INTERFACE_1_VERSION_FULL ${ATLAS_SIM_INTERFACE_1_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_1_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_1_PATCH_VERSION})
+
+#####################################
 find_package(catkin)
-catkin_package()
+catkin_package(
+  CFG_EXTRAS drcsim_model_resources-extras.cmake
+)
 
 # set (DRC_SIM_MAJOR_VERSION 3)
 # set (DRC_SIM_MINOR_VERSION 0)
@@ -79,35 +105,95 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 #####################################
-set (ATLAS_SIM_INTERFACE_MAJOR_VERSION 1)
-set (ATLAS_SIM_INTERFACE_MINOR_VERSION 1)
-set (ATLAS_SIM_INTERFACE_PATCH_VERSION 1)
-set (ATLAS_SIM_INTERFACE_VERSION ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION})
-set (ATLAS_SIM_INTERFACE_VERSION_FULL ${ATLAS_SIM_INTERFACE_MAJOR_VERSION}.${ATLAS_SIM_INTERFACE_MINOR_VERSION}.${ATLAS_SIM_INTERFACE_PATCH_VERSION})
+# AtlasSimInterface 3.0.x V4 and V5 shim library
+include_directories(
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/include
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}
+)
 
-#message(status "------------------\n\n\n\n  COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL} && cp ${PROJECT_SOURCE_DIR}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL} ${CMAKE_INSTALL_PREFIX}/lib/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/libAtlasSimInterface.so \n\n\n----------------------\n")
+add_library(AtlasSimInterface3 SHARED AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/src/AtlasSimInterface.cc)
+set_target_properties(AtlasSimInterface3 PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_3_VERSION_FULL})
+install (TARGETS AtlasSimInterface3 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_3_VERSION_FULL} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
+#####################################
+# AtlasSimInterface 2.10.2 V3 shim library
+include_directories(
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include
+  ${PROJECT_SOURCE_DIR}/AtlasSimInterface_2.10.2/include/AtlasSimInterface_2.10.2
+)
 
-# install AtlasSimInterface Binary
-install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_VERSION_FULL}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-          RENAME libAtlasSimInterface.so)
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL}/doc
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/AtlasSimInterface_${ATLAS_SIM_INTERFACE_VERSION_FULL})
+add_library(AtlasSimInterface2 SHARED AtlasSimInterface_2.10.2/src/AtlasSimInterface.cc)
+set_target_properties(AtlasSimInterface2 PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_2_VERSION_FULL})
+install (TARGETS AtlasSimInterface2 DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_2_VERSION_FULL} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+#####################################
+# install AtlasSimInterface 1.1.1 Binary
+
+# libAtlasSimInterface.so.1.1.1 provided by BDI for 64bit systems
+# on 32bit systems use shim library
+if (NOT DEFINED ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
+  if (UNIX)
+    # Check for 64bits machines
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS True)
+    else()
+      set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False)
+      message(FATAL_ERROR "WARNING: AtlasSIMINTERFACE binary will *NOT* be used in 32 bits systems. "
+                          "If you want to use DRCSim without the AtlasSimInterface binary interface, "
+                          "run cmake with -DUSE_ATLASSIMINTERFACE_1_BINARY_EXISTS:BOOL=False")
+    endif()
+  else()
+    message(STATUS "Warning: system check for 32/64 bit is not implemented for")
+    message(STATUS "Warning: your system, assuming 64bit machine. Please use")
+    message(STATUS "Warning: please use ATLAS_SIMINTERFACE_1_BINARY_EXISTS flag if you want")
+    message(STATUS "Warning: not to use 64 bits AtlasSIMINTERFACE library")
+    set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS True)
+  endif()
+else()
+  message(STATUS "compiler definition ATLAS_SIMINTERFACE_1_BINARY_EXISTS defined by user, "
+                 "going forward assuming libAtlasSimInterface.so 1.1.1 binaries exist in "
+                 "drcsim_model_resources/AtlasSimInterface_1.1.1/lib64")
+endif()
+
+# set(ATLAS_SIMINTERFACE_1_BINARY_EXISTS False) #testing shim for AtlasSimInterface 1
+
+if (NOT ATLAS_SIMINTERFACE_1_BINARY_EXISTS)
+  message(STATUS "============================================\n"
+                 "Using AtlasSimInterface 1.1.1 shim interface\n"
+                 "============================================")
+  include_directories(
+    ${PROJECT_SOURCE_DIR}/AtlasSimInterface_1.1.1/include/AtlasSimInterface_1.1.1
+  )
+  add_library(AtlasSimInterface SHARED AtlasSimInterface_1.1.1/src/AtlasSimInterface.cc)
+  set_target_properties(AtlasSimInterface PROPERTIES SOVERSION ${ATLAS_SIM_INTERFACE_1_VERSION_FULL})
+  install (TARGETS AtlasSimInterface DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+else()
+  message(STATUS "=======================================================\n"
+                 "Installing AtlasSimInterface 1.1.1 BDI binary interface\n"
+                 "=======================================================")
+  install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so.${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+            DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+  install (FILES AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/lib64/libAtlasSimInterface.so
+            DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+endif()
+
+# install headers
+install (DIRECTORY AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}/include/AtlasSimInterface_${ATLAS_SIM_INTERFACE_1_VERSION_FULL}
+         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 #####################################
 # Configure the setup script
 configure_file(${PROJECT_SOURCE_DIR}/cmake/setup.sh.in
                ${PROJECT_BINARY_DIR}/setup.sh @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(FILES ${PROJECT_BINARY_DIR}/setup.sh DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 # Install also a copy of setup.sh in /usr/share/drcsim/setup.sh for backwards compatibility
 # Avoid to use symlinks for portability reasons. Copy the file twice.
 if(UNIX AND NOT APPLE)
   # Hack: only install setup.sh in /usr/share/drcsim if destination if /opt/ros.
-  # This will cover the cases of system installations from source and 
+  # This will cover the cases of system installations from source and
   # debs and respects catkin workspaces. Installing outside of
   # /opt/ros is mostly to be broken for system instalations.
   string(SUBSTRING "${CMAKE_INSTALL_PREFIX}" 0 8 PREFIX_START)
@@ -120,8 +206,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 configure_file(${PROJECT_SOURCE_DIR}/cmake/rosinstall.in ${PROJECT_BINARY_DIR}/.rosinstall @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}/)
-# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
+install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}/)
+# install(FILES ${PROJECT_BINARY_DIR}/.rosinstall DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${PROJECT_NAME}-${DRC_SIM_VERSION}/)
 install(PROGRAMS ${PROJECT_SOURCE_DIR}/tools/mkqual.bash DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 

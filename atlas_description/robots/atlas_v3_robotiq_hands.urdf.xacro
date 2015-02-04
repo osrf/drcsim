@@ -1,0 +1,33 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
+
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3_simple_shapes.urdf" />
+  <xacro:include filename="$(find robotiq_hand_description)/urdf/robotiq_hand.urdf.xacro" />
+
+  <!-- Set the initial hand position and orientation by changing 'rpy' and 'xyz'
+  to mach the values in your actual robot. -->
+  <xacro:robotiq_hand prefix="l_" parent="l_hand" reflect="-1">
+    <origin rpy="3.14159 3.14159 3.14159" xyz="-0.00125 0.17 0.01"/>
+  </xacro:robotiq_hand>
+  <xacro:robotiq_hand prefix="r_" parent="r_hand" reflect="1">
+    <origin rpy="3.14159 0 0" xyz="-0.00125 -0.17 0.01"/>
+  </xacro:robotiq_hand>
+
+  <gazebo>
+    <!-- plugin for left RobotiQ hand -->
+    <plugin name="left_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
+      <side>left</side>
+      <kp_position>5.0</kp_position>
+      <kd_position>0.5</kd_position>
+    </plugin>
+    <!-- plugin for right RobotiQ hand -->
+    <plugin name="right_robotiq_hand_plugin" filename="libRobotiqHandPlugin.so">
+      <side>right</side>
+      <kp_position>5.0</kp_position>
+      <kd_position>0.5</kd_position>
+    </plugin>
+  </gazebo>
+
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.gazebo" />
+  <xacro:include filename="$(find atlas_description)/urdf/atlas_v3.transmission" />
+  <xacro:include filename="$(find multisense_sl_description)/urdf/multisense_sl.urdf" />
+</robot>

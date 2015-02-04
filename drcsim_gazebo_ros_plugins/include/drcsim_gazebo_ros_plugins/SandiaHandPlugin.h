@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered/unordered_map.hpp>
@@ -66,12 +67,6 @@ namespace gazebo
 
   class SandiaHandPlugin : public ModelPlugin
   {
-    public: enum HandEnum
-    {
-      LEFT_HAND,
-      RIGHT_HAND
-    };
-
     /// \brief Constructor
     public: SandiaHandPlugin();
 
@@ -91,45 +86,33 @@ namespace gazebo
     /// with anything that might be blocking.
     private: void DeferredLoad();
     private: void CopyVectorIfValid(const std::vector<double> &from,
-                                    std::vector<double> &to,
-                                    const unsigned joint_offset);
+                                    std::vector<double> &to);
 
-    /// \brief Callback for contact messages from right hand
+    /// \brief Callback for contact messages
     /// \param[in] _msg Gazebo contact message
-    private: void OnRContacts(ConstContactsPtr &_msg);
-
-    /// \brief Callback for contact messages from left hand
-    /// \param[in] _msg Gazebo contact message
-    private: void OnLContacts(ConstContactsPtr &_msg);
+    private: void OnContacts(ConstContactsPtr &_msg);
 
     typedef std::list<boost::shared_ptr<msgs::Contacts const> > ContactMsgs_L;
 
     /// \brief Fill ROS tactile message using Gazebo contact message
-    /// \param[in] _side LEFT or RIGHT hand
     /// \param [in] _incomingContacts Gazebo contact message
     /// \param[in] _tactileMsg ROS tactile message
-    private: void FillTactileData(HandEnum _side,
-        ContactMsgs_L _incomingContacts,
+    private: void FillTactileData(ContactMsgs_L _incomingContacts,
         sandia_hand_msgs::RawTactile *_tactileMsg);
 
-    /// \brief ROS callback when a subscriber connects to right tactile
+    /// \brief ROS callback when a subscriber connects to tactile
     /// publisher
-    private: void RightTactileConnect();
+    private: void TactileConnect();
 
-    /// \brief ROS callback when a subscriber connects to left tactile
+    /// \brief ROS callback when a subscriber disconnects from tactile
     /// publisher
-    private: void LeftTactileConnect();
-
-    /// \brief ROS callback when a subscriber disconnects from right tactile
-    /// publisher
-    private: void RightTactileDisconnect();
-
-    /// \brief ROS callback when a subscriber disconnects from left tactile
-    /// publisher
-    private: void LeftTactileDisconnect();
+    private: void TactileDisconnect();
 
     private: physics::WorldPtr world;
     private: physics::ModelPtr model;
+
+    /// Which hand (left/right)
+    private: std::string side;
 
     /// Pointer to the update event connections
     private: event::ConnectionPtr updateConnection;
@@ -139,30 +122,19 @@ namespace gazebo
     private: double updateRate;
 
     // IMU sensor
-    private: boost::shared_ptr<sensors::ImuSensor> leftImuSensor;
-    private: boost::shared_ptr<sensors::ImuSensor> rightImuSensor;
+    private: boost::shared_ptr<sensors::ImuSensor> ImuSensor;
     private: common::Time lastImuTime;
-    private: std::string leftImuLinkName;
-    private: physics::LinkPtr leftImuLink;
-    private: ros::Publisher pubLeftImu;
-    private: PubQueue<sensor_msgs::Imu>::Ptr pubLeftImuQueue;
-    private: std::string rightImuLinkName;
-    private: physics::LinkPtr rightImuLink;
-    private: ros::Publisher pubRightImu;
-    private: PubQueue<sensor_msgs::Imu>::Ptr pubRightImuQueue;
+    private: std::string ImuLinkName;
+    private: physics::LinkPtr ImuLink;
+    private: ros::Publisher pubImu;
+    private: PubQueue<sensor_msgs::Imu>::Ptr pubImuQueue;
 
     // tactile sensor
-    /// \brief ROS publisher for the left hand tactile message
-    private: ros::Publisher pubLeftTactile;
+    /// \brief ROS publisher for the tactile message
+    private: ros::Publisher pubTactile;
 
-    /// \brief ROS publisher for the right hand tactile message
-    private: ros::Publisher pubRightTactile;
-
-    /// \brief ROS tactile message publisher queue for right hand
-    private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubRightTactileQueue;
-
-    /// \brief ROS tactile message publisher queue for left hand
-    private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubLeftTactileQueue;
+    /// \brief ROS tactile message publisher queue
+    private: PubQueue<sandia_hand_msgs::RawTactile>::Ptr pubTactileQueue;
 
     // deferred loading in case ros is blocking
     private: sdf::ElementPtr sdf;
@@ -172,15 +144,12 @@ namespace gazebo
     private: ros::NodeHandle* rosNode;
     private: ros::CallbackQueue rosQueue;
     private: boost::thread callbackQueeuThread;
-    private: ros::Publisher pubLeftJointStates;
-    private: PubQueue<sensor_msgs::JointState>::Ptr pubLeftJointStatesQueue;
-    private: ros::Publisher pubRightJointStates;
-    private: PubQueue<sensor_msgs::JointState>::Ptr pubRightJointStatesQueue;
+    private: ros::Publisher pubJointStates;
+    private: PubQueue<sensor_msgs::JointState>::Ptr pubJointStatesQueue;
 
-    private: ros::Subscriber subJointCommands[2];
+    private: ros::Subscriber subJointCommands;
     private: void SetJointCommands(
-      const osrf_msgs::JointCommands::ConstPtr &_msg,
-      const unsigned jointOffset);  // to handle left/right hands
+      const osrf_msgs::JointCommands::ConstPtr &_msg);
 
     private: std::vector<std::string> jointNames;
     private: physics::Joint_V joints;
@@ -195,14 +164,10 @@ namespace gazebo
     private: std::vector<ErrorTerms> errorTerms;
 
     private: osrf_msgs::JointCommands jointCommands;
-    private: sensor_msgs::JointState leftJointStates;
-    private: sensor_msgs::JointState rightJointStates;
+    private: sensor_msgs::JointState jointStates;
 
-    /// \brief Left hand ROS tactile message to be published
-    private: sandia_hand_msgs::RawTactile leftTactile;
-
-    /// \brief Right hand ROS tactile message to be published
-    private: sandia_hand_msgs::RawTactile rightTactile;
+    /// \brief ROS tactile message to be published
+    private: sandia_hand_msgs::RawTactile tactile;
 
     // Controls stuff
     private: common::Time lastControllerUpdateTime;
@@ -239,22 +204,16 @@ namespace gazebo
     private: bool hasStumps;
 
     /// \brief Subscription to contact messages
-    private: transport::SubscriberPtr contactSub[2];
+    private: transport::SubscriberPtr contactSub;
 
-    /// \brief Incoming Gazebo contact messages for the right hand.
-    private: ContactMsgs_L incomingRContacts;
-
-    /// \brief Incoming Gazebo contact messages for the left hand.
-    private: ContactMsgs_L incomingLContacts;
+    /// \brief Incoming Gazebo contact messages
+    private: ContactMsgs_L incomingContacts;
 
     /// \brief Transport node used for subscribing to contact sensor messages.
     private: transport::NodePtr node;
 
     /// \brief Mutex to protect reads and writes.
-    private: mutable boost::mutex contactRMutex;
-
-    /// \brief Mutex to protect reads and writes.
-    private: mutable boost::mutex contactLMutex;
+    private: mutable boost::mutex contactMutex;
 
     /// \brief List of contact collisions used for generating tactile sensor
     /// output
@@ -311,18 +270,11 @@ namespace gazebo
     /// \brief min tactile sensor data output
     private: int minTactileOut;
 
-    /// \brief Keep track of number of left tactile sensor connections
-    private: int leftTactileConnectCount;
+    /// \brief Keep track of number of tactile sensor connections
+    private: int tactileConnectCount;
 
-    /// \brief Keep track of number of right tactile sensor connections
-    private: int rightTactileConnectCount;
-
-    /// \brief Mutex to protect leftTactileConnectcount
-    private: boost::mutex leftTactileConnectionMutex;
-
-    /// \brief Mutex to protect rightTactileConnectcount
-    private: boost::mutex rightTactileConnectionMutex;
-
+    /// \brief Mutex to protect tactileConnectcount
+    private: boost::mutex tactileConnectionMutex;
   };
 /** \} */
 /// @}

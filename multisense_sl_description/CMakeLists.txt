@@ -6,11 +6,15 @@ find_package(catkin REQUIRED)
 catkin_package(
 )
 
-set(standalone_name "standalone_models")
+set(standalone_name "drcsim_gazebo_standalone_models")
 
 install(DIRECTORY
-  urdf meshes materials robots ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}
+  urdf meshes materials robots
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${standalone_name}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/share
 )
 
 # install below for gazebo to find this model through GAZEBO_MODEL_PATH.
@@ -29,5 +33,5 @@ make_standalone_models(multisense_sl_description multisense_sl_description ${sta
 # Copy all the meshes and materials into standalone_models/atlas
 install(DIRECTORY
   meshes materials
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${standalone_name}/multisense_sl_description
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${standalone_name}/multisense_sl_description
 )

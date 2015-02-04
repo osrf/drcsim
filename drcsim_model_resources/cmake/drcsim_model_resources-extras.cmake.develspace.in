@@ -1,0 +1,14 @@
+# 1.1.1 Binary blob provided in source
+set(AtlasSimInterface1_LIBRARY "AtlasSimInterface")
+set(AtlasSimInterface1_INCLUDE_DIR "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_1_VERSION_FULL@/include")
+set(AtlasSimInterface1_LIBRARY_DIRS "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_1_VERSION_FULL@/lib64")
+
+# 2.10 The shim library that is built during compilation
+set(AtlasSimInterface2_LIBRARY "AtlasSimInterface2")
+set(AtlasSimInterface2_LIBRARY_DIRS "@CATKIN_DEVEL_PREFIX@/lib")
+set(AtlasSimInterface2_INCLUDE_DIR "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_2_VERSION_FULL@/include")
+
+# 3.0 The shim library that is built during compilation
+set(AtlasSimInterface3_LIBRARY "AtlasSimInterface3")
+set(AtlasSimInterface3_LIBRARY_DIRS "@CATKIN_DEVEL_PREFIX@/lib")
+set(AtlasSimInterface3_INCLUDE_DIR "@PROJECT_SOURCE_DIR@/AtlasSimInterface_@ATLAS_SIM_INTERFACE_3_VERSION_FULL@/include")

@@ -77,11 +77,11 @@ namespace gazebo
     ///     and negative is robot-right.
     ///   - z is the desired heading angular velocity, positive makes
     ///     the robot turn left, and negative makes the robot turn right
-    /// \param[in] _duration If > 0.0 stop applying the commanded 
+    /// \param[in] _duration If > 0.0 stop applying the commanded
     ///                      velocity after the specific duration, in seconds.
     public: void SetRobotCmdVel(const geometry_msgs::Twist::ConstPtr &_cmd,
                                 double _duration);
-    
+
     /// \brief Calls through to SetRobotCmdVel with a _duration of 0.0.
     ///        Used as a ROS message callback.
     public: void SetRobotCmdVelTopic(
@@ -203,7 +203,7 @@ namespace gazebo
     private: void ROSQueueThread();
 
     /// \brief Helper for pinning Atlas to the world.
-    /// \param[in] _with_gravity Whether to enable gravity on the robot's 
+    /// \param[in] _with_gravity Whether to enable gravity on the robot's
     /// links after pinning it.
     private: void PinAtlas(bool _with_gravity);
 
@@ -211,7 +211,7 @@ namespace gazebo
     private: void UnpinAtlas();
 
     /// \brief Helper for disabling foot collisions
-    /// \param[in] _mode collision mode; will be passed to 
+    /// \param[in] _mode collision mode; will be passed to
     ///   gazebo::physics::Link::SetCollideMode()
     private: void SetFeetCollide(const std::string &_mode);
 
@@ -308,7 +308,8 @@ namespace gazebo
         NONE = 0,
         SPAWN_QUEUED = 1,
         SPAWN_SUCCESS = 2,
-        INITIALIZED = 3
+        INIT_MODEL_SUCCESS = 3,
+        INITIALIZED = 4
       };
       private: int startupSequence;
 
@@ -424,6 +425,7 @@ namespace gazebo
       /// \param[in] possible joint name
       /// \return _st1 or _st2 whichever is a valid joint, else empty str.
       private: std::string FindJoint(std::string _st1, std::string _st2);
+      private: std::string FindJoint(std::string _st1, std::string _st2, std::string _st3);
 
       /// \brief subscriber to joint_states of the atlas robot
       private: void GetJointStates(
@@ -472,6 +474,15 @@ namespace gazebo
       /// \brief hardcoded joint names for atlas
       private: std::vector<std::string> jointNames;
 
+      /// \brief Atlas version number.
+      private: int atlasVersion;
+
+      /// \brief Atlas sub version number. This was added to handle two
+      /// different versions of Atlas v4.
+      /// atlasVersion == 4 && atlasSubVersion == 0: wry2 joints exist.
+      /// atlasVersion == 4 && atlasSubVersion == 1: wry2 joints don't exist.
+      private: int atlasSubVersion;
+
       friend class VRCPlugin;
     } atlasCommandController;
 
@@ -519,6 +530,9 @@ namespace gazebo
 
     /// \brief Are cheats enabled?
     private: bool cheatsEnabled;
+
+    /// \brief time out when receiving fake teleop cmd_vel command
+    private: double cmdVelTopicTimeout;
   };
 /** \} */
 /// @}

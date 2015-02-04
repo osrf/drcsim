@@ -53,6 +53,12 @@ void DRCVehicleROSPlugin::Init()
   DRCVehiclePlugin::Init();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Reset
+void DRCVehicleROSPlugin::Reset()
+{
+  this->lastRosPublishTime.Set(0, 0);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void DRCVehicleROSPlugin::SetKeyState(const std_msgs::Int8::ConstPtr &_msg)

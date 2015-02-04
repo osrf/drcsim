@@ -3,11 +3,6 @@ set (worlds
      atlas_cpu_lidar.world
      atlas_drc_vehicle_fire_hose.world
      atlas_golf_cart_fire_hose.world
-     atlas_irobot_hands.world
-     atlas_sandia_hands.world
-     atlas_sandia_hands_cpu_lidar.world
-     atlas_sandia_hands_stumps.world
-     atlas_sandia_hands_stumps_cpu_lidar.world
 
      drc_practice_task_1.world
      drc_practice_task_2.world
@@ -27,7 +22,7 @@ set (worlds
      qual_task_3.world
      qual_task_3_stumps.world
      qual_task_4.world
- 
+
      vrc_final_task1.world
      vrc_final_task2.world
      vrc_final_task3.world
@@ -43,7 +38,7 @@ set (worlds
      vrc_final_task13.world
      vrc_final_task14.world
      vrc_final_task15.world
- 
+
      vrc_fire_hose.world
      vrc_task_1.world
      vrc_task_1_cpu_lidar.world

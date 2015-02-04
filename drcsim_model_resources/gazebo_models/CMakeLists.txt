@@ -1,3 +1,6 @@
+add_subdirectory(block_angle_steps)
+add_subdirectory(block_level_steps)
+add_subdirectory(block_angle_base)
 add_subdirectory(cutout_wall)
 add_subdirectory(drc_terrain)
 add_subdirectory(drc_vehicle)
@@ -53,14 +56,22 @@ install(FILES ${files} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}
 # to parents of models), these symlink can be removed and our cmake/setup.sh.in
 # can be modified to point GAZEBO_MODEL_PATH at the installed locations for
 # these sibling packages.
-set(package_models
-    atlas_description
-    irobot_hand_description
-    multisense_sl_description)
-if(UNIX)
-  foreach(pm ${package_models})
-    install(CODE "execute_process(
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ../../../${pm} ${pm}
-      WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/gazebo_models/environments/)")
-  endforeach()
-endif(UNIX)
+#
+# john:
+# by not renaming model name when installing standalone models in:
+#   atlas_description/CMakeLists.txt  "make_standalone_models(...)"
+#   robotiq_hand_description/CMakeLists.txt  "make_standalone_models(...)"
+# we don't have to do below
+#
+# set(package_models
+#     atlas_description
+#     irobot_hand_description
+#     robotiq_hand_description
+#     multisense_sl_description)
+# if(UNIX)
+#   foreach(pm ${package_models})
+#     install(CODE "execute_process(
+#       COMMAND ${CMAKE_COMMAND} -E create_symlink ../../../${pm} ${pm}
+#       WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/gazebo_models/environments/)")
+#   endforeach()
+# endif(UNIX)

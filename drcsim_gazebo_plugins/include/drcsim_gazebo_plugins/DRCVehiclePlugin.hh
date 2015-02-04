@@ -17,6 +17,8 @@
 #ifndef GAZEBO_DRC_VEHICLE_PLUGIN_HH
 #define GAZEBO_DRC_VEHICLE_PLUGIN_HH
 
+#include <string>
+
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 

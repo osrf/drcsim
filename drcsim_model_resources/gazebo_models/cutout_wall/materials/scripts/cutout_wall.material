@@ -1,6 +1,5 @@
 material drc_practice/cutout_wall
 {
-	receive_shadows off
 	technique
 	{
 		pass

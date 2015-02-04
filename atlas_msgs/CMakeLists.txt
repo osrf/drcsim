@@ -4,7 +4,7 @@ project(atlas_msgs)
 if ($ENV{ROS_DISTRO} STREQUAL "fuerte")
   # VERY IMPORTANT: For Fuerte, tell CMake not to strip off the RPATH from libs and executables during installation.
   # This is needed to resolve dependencies on ROS libraries that live in various places deep in /opt/ros/fuerte/stacks.
-  # Starting with Groovy, we can allow CMake to strip RPATH (its default behavior) because we use only catkinized 
+  # Starting with Groovy, we can allow CMake to strip RPATH (its default behavior) because we use only catkinized
   # packages from ROS.  Those packages' libraries are installed to /opt/ros/<distro>/lib, which we can assume will
   # be in LD_LIBRARY_PATH at run-time.
   set (CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
@@ -43,6 +43,8 @@ add_message_files(
   AtlasState.msg
   ControllerStatistics.msg
   ForceTorqueSensors.msg
+  SModelRobotInput.msg
+  SModelRobotOutput.msg
   SynchronizationStatistics.msg
   Test.msg
   VRCScore.msg
