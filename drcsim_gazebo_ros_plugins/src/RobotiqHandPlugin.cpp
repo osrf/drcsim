@@ -82,13 +82,6 @@ void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
   }
 
   // Load the vector of all joints.
-  std::string prefix;
-  if (this->side == "left")
-    prefix = "l_";
-  else
-    prefix = "r_";
-
-  // Load the vector of all joints.
   if (!this->FindJoints())
     return;
 

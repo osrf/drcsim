@@ -154,7 +154,8 @@ void VRCPlugin::PinAtlas(bool _with_gravity)
 
   this->atlas.model->SetGravityMode(_with_gravity);
 
-  this->SetFeetCollide("none");
+  // FIXME: this->SetFeetCollide buggy? turns off all collisions
+  // this->SetFeetCollide("none");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
