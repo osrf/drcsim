@@ -169,10 +169,10 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>720</samples>
+            <samples>1081</samples>
             <resolution>1</resolution>
-            <min_angle>-1.570796</min_angle>
-            <max_angle>1.570796</max_angle>
+            <min_angle>-2.356194</min_angle>
+            <max_angle>2.356194</max_angle>
           </horizontal>
         </scan>
         <range>
@@ -220,14 +220,14 @@
   <gazebo reference="left_camera_frame">
     <sensor type="multicamera" name="stereo_camera">
       <!-- see MultiSenseSLPlugin.h for available modes -->
-      <update_rate>30.0</update_rate>
+      <update_rate>10.0</update_rate>
       <camera name="left">
         <!-- Spec sheet says 80deg X 45deg @ 1024x544pix.  Based on feedback
              from teams, we're instead doing 80deg X 80deg @ 800x800pix. -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>800</width>
-          <height>800</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -248,12 +248,11 @@
       </camera>
       <camera name="right">
         <pose>0 -0.07 0 0 0 0</pose>
-        <!-- Spec sheet says 80deg X 45deg @ 1024x544pix.  Based on feedback
-             from teams, we're instead doing 80deg X 80deg @ 800x800pix. -->
+        <!-- Spec sheet says 80deg X 45deg @ 1024x544pix. -->
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>800</width>
-          <height>800</height>
+          <width>1024</width>
+          <height>544</height>
           <format>R8G8B8</format>
         </image>
         <clip>
