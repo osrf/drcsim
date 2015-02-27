@@ -855,8 +855,6 @@
           <cylinder radius="0.055" length="0.016"/>
         </geometry>
     </collision>
-
-
   </link>
 
     <joint name="back_bkx" type="revolute">
