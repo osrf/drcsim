@@ -1145,7 +1145,6 @@ void AtlasPlugin::SetAtlasCommand(
     {
       this->atlasControlInput.jparams[i].k_qd_p = _msg->kp_velocity[i];
       this->joints[i]->SetDamping(0, _msg->kp_velocity[i]);
-      this->joints[i]->SetDamping(0, 1.0);
     }
   }
   /* debug
