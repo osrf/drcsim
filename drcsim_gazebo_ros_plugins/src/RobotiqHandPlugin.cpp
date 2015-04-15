@@ -26,6 +26,11 @@
 #include <gazebo/physics/physics.hh>
 #include "drcsim_gazebo_ros_plugins/RobotiqHandPlugin.h"
 
+const double RobotiqHandPlugin::VelTolerance = 0.002;
+const double RobotiqHandPlugin::PoseTolerance = 0.002;
+const double RobotiqHandPlugin::MinVelocity = 0.176;
+const double RobotiqHandPlugin::MaxVelocity = 0.88;
+
 // Default topic names initialization.
 const std::string RobotiqHandPlugin::DefaultLeftTopicCommand  =
   "/left_hand/command";
