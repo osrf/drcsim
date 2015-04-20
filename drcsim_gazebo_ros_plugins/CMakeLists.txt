@@ -67,6 +67,8 @@ link_directories(
   ${OGRE-Paging_LIBRARY_DIRS}
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
+
 ## Declare a cpp library
 add_library(VRCPlugin src/VRCPlugin.cpp)
 add_dependencies(VRCPlugin atlas_msgs_gencpp)
