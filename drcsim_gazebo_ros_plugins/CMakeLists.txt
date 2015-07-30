@@ -61,6 +61,7 @@ include_directories(
 )
 
 link_directories(
+  ${catkin_LIBRARY_DIRS}
   ${GAZEBO_LIBRARY_DIRS}
   ${OGRE_LIBRARY_DIRS}
   ${OGRE-Terrain_LIBRARY_DIRS}
