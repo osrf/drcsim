@@ -67,6 +67,10 @@ link_directories(
   ${OGRE-Paging_LIBRARY_DIRS}
 )
 
+link_directories(
+  ${catkin_LIBRARY_DIRS}
+)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 ## Declare a cpp library
