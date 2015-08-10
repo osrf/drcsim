@@ -1475,8 +1475,10 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   // default names, can be changed in SDF
   this->modelName = "atlas";
   this->pinLinkName = "utorso";
-  std::string spawnPoseName = "robot_initial_pose";
-  std::string robotDescriptionName = "robot_description";
+
+  /// \TODO: undo hardcoding of these ros param names
+  std::string spawnPoseName = "/atlas/robot_initial_pose";
+  std::string robotDescriptionName = "/atlas/robot_description";
 
   // load parameters
   if (_sdf->HasElement("atlas"))
