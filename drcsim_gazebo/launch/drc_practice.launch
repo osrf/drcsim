@@ -24,7 +24,7 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg model_args)$(arg inertia_args)$(arg hand_suffix).urdf.xacro'" />
+  <param name="/atlas/robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas$(arg model_args)$(arg inertia_args)$(arg hand_suffix).urdf.xacro'" />
 
   <include file="$(find drcsim_gazebo)/launch/atlas$(arg hand_suffix)_bringup.launch">
     <arg name="model_args" value="$(arg model_args)"/>

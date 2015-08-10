@@ -20,13 +20,15 @@
   <param name="/atlas/delay_max_per_step" type="double" value="0.025"/>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
-  <param name="robot_initial_pose/x"     value="-0.244187" type="double"/>
-  <param name="robot_initial_pose/y"     value="-11.239895" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.927626" type="double"/>
-  <param name="robot_initial_pose/roll"  value="0" type="double"/>
-  <param name="robot_initial_pose/pitch" value="0" type="double"/>
-  <param name="robot_initial_pose/yaw"   value="1.570636" type="double"/>
+  <group ns="/atlas">
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
+    <param name="robot_initial_pose/x"     value="-0.244187" type="double"/>
+    <param name="robot_initial_pose/y"     value="-11.239895" type="double"/>
+    <param name="robot_initial_pose/z"     value="0.927626" type="double"/>
+    <param name="robot_initial_pose/roll"  value="0" type="double"/>
+    <param name="robot_initial_pose/pitch" value="0" type="double"/>
+    <param name="robot_initial_pose/yaw"   value="1.570636" type="double"/>
+  </group>
 
   <include file="$(find drcsim_gazebo)/launch/atlas_sandia_hands_bringup.launch"/>
 

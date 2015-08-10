@@ -13,13 +13,15 @@
   </include>
 
   <!-- Robot Description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands.urdf.xacro'" />
-  <param name="robot_initial_pose/x"     value="-1.7" type="double"/>
-  <param name="robot_initial_pose/y"     value="-0.5" type="double"/>
-  <param name="robot_initial_pose/z"     value="1.0" type="double"/>
-  <param name="robot_initial_pose/roll"  value="0" type="double"/>
-  <param name="robot_initial_pose/pitch" value="0" type="double"/>
-  <param name="robot_initial_pose/yaw"   value="0" type="double"/>
+  <group ns="/atlas">
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands.urdf.xacro'" />
+    <param name="robot_initial_pose/x"     value="-1.7" type="double"/>
+    <param name="robot_initial_pose/y"     value="-0.5" type="double"/>
+    <param name="robot_initial_pose/z"     value="1.0" type="double"/>
+    <param name="robot_initial_pose/roll"  value="0" type="double"/>
+    <param name="robot_initial_pose/pitch" value="0" type="double"/>
+    <param name="robot_initial_pose/yaw"   value="0" type="double"/>
+  </group>
 
   <include file="$(find drcsim_gazebo)/launch/atlas_sandia_hands_bringup.launch"/>
 

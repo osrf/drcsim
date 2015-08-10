@@ -7,13 +7,15 @@
   <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
   
   <!-- initial robot position -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
-  <param name="robot_initial_pose/x"     value="-0.290267" type="double"/>
-  <param name="robot_initial_pose/y"     value="-23.022961" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.927498" type="double"/>
-  <param name="robot_initial_pose/roll"  value="0" type="double"/>
-  <param name="robot_initial_pose/pitch" value="0" type="double"/>
-  <param name="robot_initial_pose/yaw"   value="1.5707" type="double"/>
+  <group ns="/atlas">
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find atlas_description)/robots/atlas_sandia_hands$(arg hand_suffix).urdf.xacro'" />
+    <param name="robot_initial_pose/x"     value="-0.290267" type="double"/>
+    <param name="robot_initial_pose/y"     value="-23.022961" type="double"/>
+    <param name="robot_initial_pose/z"     value="0.927498" type="double"/>
+    <param name="robot_initial_pose/roll"  value="0" type="double"/>
+    <param name="robot_initial_pose/pitch" value="0" type="double"/>
+    <param name="robot_initial_pose/yaw"   value="1.5707" type="double"/>
+  </group>
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
