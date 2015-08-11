@@ -1477,8 +1477,8 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   this->pinLinkName = "utorso";
 
   /// \TODO: undo hardcoding of these ros param names
-  std::string spawnPoseName = "/atlas/robot_initial_pose";
-  std::string robotDescriptionName = "/atlas/robot_description";
+  std::string spawnPoseName = "atlas/robot_initial_pose";
+  std::string robotDescriptionName = "atlas/robot_description";
 
   // load parameters
   if (_sdf->HasElement("atlas"))
@@ -1923,8 +1923,8 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++]  =  -0.00692196; //l_hpz
     this->ac.position[index++]  =  0.0690; //l_hpx
     this->ac.position[index++]  = -0.472917;    // l_hpy
-    this->ac.position[index++]  =  0.93299556; //l_kny
-    this->ac.position[index++]  = -0.4400587703;   // l_aky
+    this->ac.position[index++]  =  1.08299556; //l_kny
+    this->ac.position[index++]  = -0.5900587703;   // l_aky
     this->ac.position[index++]  = -0.0689798; //l_akx
 
     this->ac.position[index++] = -this->ac.position[4]; //r_hpz
@@ -1937,7 +1937,7 @@ void VRCPlugin::AtlasCommandController::SetPIDStand(
     this->ac.position[index++] =  -0.299681926;  // l_shy || shz
     this->ac.position[index++] =  -1.300665; //l_shx
     this->ac.position[index++] =  1.852762; //l_ely
-    this->ac.position[index++] =  0.492914; //l_elx
+    this->ac.position[index++] =  0.792914; //l_elx
     this->ac.position[index++] =  0.00165999; //l_wry
     this->ac.position[index++] =  -0.00095767089; //l_wrx
 
