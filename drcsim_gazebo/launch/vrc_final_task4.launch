@@ -7,12 +7,14 @@
   <arg name="hand_suffix" default="" />
 
   <!-- initial robot position -->
-  <param name="robot_initial_pose/x"     value="8.78" type="double"/>
-  <param name="robot_initial_pose/y"     value="-4.56" type="double"/>
-  <param name="robot_initial_pose/z"     value="0.90" type="double"/>
-  <param name="robot_initial_pose/roll"  value="0" type="double"/>
-  <param name="robot_initial_pose/pitch" value="0" type="double"/>
-  <param name="robot_initial_pose/yaw"   value="1.35" type="double"/>
+  <group ns="/atlas">
+    <param name="robot_initial_pose/x"     value="8.78" type="double"/>
+    <param name="robot_initial_pose/y"     value="-4.56" type="double"/>
+    <param name="robot_initial_pose/z"     value="0.90" type="double"/>
+    <param name="robot_initial_pose/roll"  value="0" type="double"/>
+    <param name="robot_initial_pose/pitch" value="0" type="double"/>
+    <param name="robot_initial_pose/yaw"   value="1.35" type="double"/>
+  </group>
 
   <!-- start gazebo with the Atlas -->
   <include file="$(find drcsim_gazebo)/launch/vrc_final.launch">
