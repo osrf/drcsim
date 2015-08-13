@@ -176,17 +176,15 @@ void VRCPlugin::UnpinAtlas()
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::SetFeetCollide(const std::string &_mode)
 {
-  physics::LinkPtr l_foot_link = this->atlas.model->GetLink("l_foot");
-  if (!l_foot_link)
+  if (!this->atlas.lFootLink)
     ROS_WARN("Couldn't find l_foot link when setting collide mode");
   else
-    l_foot_link->SetCollideMode(_mode);
+    this->atlas.lFootLink->SetCollideMode(_mode);
 
-  physics::LinkPtr r_foot_link = this->atlas.model->GetLink("r_foot");
-  if (!r_foot_link)
+  if (!this->atlas.rFootLink)
     ROS_WARN("Couldn't find r_foot link when setting collide mode");
   else
-    r_foot_link->SetCollideMode(_mode);
+    this->atlas.rFootLink->SetCollideMode(_mode);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,8 +212,10 @@ void VRCPlugin::SetRobotMode(const std::string &_str)
     this->warpRobotWithCmdVel = false;
 
     this->atlas.model->SetGravityMode(false);
-    this->atlas.model->GetLink("l_foot")->SetGravityMode(true);
-    this->atlas.model->GetLink("r_foot")->SetGravityMode(true);
+    if (!this->atlas.lFootLink)
+      this->atlas.lFootLink->SetGravityMode(true);
+    if (!this->atlas.rFootLink)
+      this->atlas.rFootLink->SetGravityMode(true);
 
     if (this->atlas.pinJoint)
       this->RemoveJoint(this->atlas.pinJoint);
@@ -377,8 +377,8 @@ void VRCPlugin::StepDataToTwist(
   // And where is the foot?
   // I'm pretty sure that 0=left and 1=right, but I can't find
   // documentation on that.
-  physics::LinkPtr foot_link = this->atlas.model->GetLink(
-    (foot_idx == 0) ? "l_foot" : "r_foot");
+  physics::LinkPtr foot_link = (foot_idx == 0) ?
+    this->atlas.lFootLink : this->atlas.rFootLink;
   if (!foot_link)
   {
     ROS_ERROR("Couldn't find Atlas's foot link when faking walking.");
@@ -956,6 +956,25 @@ void VRCPlugin::UpdateStates()
       return;
     }
 
+    this->atlas.lFootLink =
+      this->atlas.model->GetLink(this->atlas.lFootLinkName);
+    this->atlas.rFootLink =
+      this->atlas.model->GetLink(this->atlas.rFootLinkName);
+
+    if (!this->atlas.lFootLink)
+    {
+      ROS_WARN("atlas robot left foot link not found, "
+               "some development aids designed for atlas robot "
+               " in VRCPlugin will not work.");
+    }
+
+    if (!this->atlas.rFootLink)
+    {
+      ROS_WARN("atlas robot right foot link not found, "
+               "some development aids designed for atlas robot "
+               " in VRCPlugin will not work.");
+    }
+
     // Note: hardcoded link by name: @todo: make this a pugin param
     this->atlas.initialPose = this->atlas.pinLink->GetWorldPose();
 
@@ -1137,12 +1156,9 @@ void VRCPlugin::UpdateStates()
     asis.pos_est.velocity.x = cur_vel.x;
     asis.pos_est.velocity.y = cur_vel.y;
     asis.pos_est.velocity.z = cur_vel.z;
-    physics::LinkPtr l_foot_link = this->atlas.model->GetLink("l_foot");
-    if (!l_foot_link)
-      ROS_WARN("Couldn't find l_foot link when publishing fake behavior data.");
-    else
+    if (this->atlas.lFootLink)
     {
-      math::Pose l_foot_pose = l_foot_link->GetWorldPose();
+      math::Pose l_foot_pose = this->atlas.lFootLink->GetWorldPose();
       asis.foot_pos_est[0].position.x = l_foot_pose.pos.x;
       asis.foot_pos_est[0].position.y = l_foot_pose.pos.y;
       asis.foot_pos_est[0].position.z = l_foot_pose.pos.z;
@@ -1151,12 +1167,9 @@ void VRCPlugin::UpdateStates()
       asis.foot_pos_est[0].orientation.y = l_foot_pose.rot.y;
       asis.foot_pos_est[0].orientation.z = l_foot_pose.rot.z;
     }
-    physics::LinkPtr r_foot_link = this->atlas.model->GetLink("r_foot");
-    if (!l_foot_link)
-      ROS_WARN("Couldn't find l_foot link when publishing fake behavior data.");
-    else
+    if (this->atlas.rFootLink)
     {
-      math::Pose r_foot_pose = r_foot_link->GetWorldPose();
+      math::Pose r_foot_pose = this->atlas.rFootLink->GetWorldPose();
       asis.foot_pos_est[1].position.x = r_foot_pose.pos.x;
       asis.foot_pos_est[1].position.y = r_foot_pose.pos.y;
       asis.foot_pos_est[1].position.z = r_foot_pose.pos.z;
@@ -1475,29 +1488,63 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
   // default names, can be changed in SDF
   this->modelName = "atlas";
   this->pinLinkName = "utorso";
+  this->lFootLinkName = "l_foot";
+  this->rFootLinkName = "r_foot";
 
   /// \TODO: undo hardcoding of these ros param names
-  std::string spawnPoseName = "atlas/robot_initial_pose";
-  std::string robotDescriptionName = "atlas/robot_description";
+  std::string spawnPoseName;
+  std::string robotDescriptionName;
 
   // load parameters
   if (_sdf->HasElement("atlas"))
   {
+    // ROS_WARN("Please rename <atlas> blocks to <robot>.");
     sdf::ElementPtr atlasSDF = _sdf->GetElement("atlas");
     if (atlasSDF->HasElement("model_name"))
       this->modelName = atlasSDF->Get<std::string>("model_name");
     else
       ROS_INFO("Can't find <atlas><model_name> blocks. defaults to [atlas].");
 
+    spawnPoseName = this->modelName + "/robot_initial_pose";
+    robotDescriptionName = this->modelName + "/robot_description";
+
     if (atlasSDF->HasElement("pin_link"))
       this->pinLinkName = atlasSDF->Get<std::string>("pin_link");
     else
       ROS_INFO("Can't find <atlas><pin_link> blocks, defaults to [utorso].");
   }
+  else if (_sdf->HasElement("robot"))
+  {
+    sdf::ElementPtr atlasSDF = _sdf->GetElement("robot");
+    if (atlasSDF->HasElement("model_name"))
+      this->modelName = atlasSDF->Get<std::string>("model_name");
+    else
+      ROS_INFO("Can't find <robot><model_name> blocks. defaults to [atlas].");
+
+    spawnPoseName = this->modelName + "/robot_initial_pose";
+    robotDescriptionName = this->modelName + "/robot_description";
+
+    if (atlasSDF->HasElement("pin_link"))
+      this->pinLinkName = atlasSDF->Get<std::string>("pin_link");
+    else
+      ROS_INFO("Can't find <robot><pin_link> blocks, defaults to [utorso].");
+
+    if (atlasSDF->HasElement("l_foot_link"))
+      this->lFootLinkName = atlasSDF->Get<std::string>("l_foot_link");
+    else
+      ROS_INFO("Can't find <robot><l_foot_link> blocks, defaults to [l_foot].");
+
+    if (atlasSDF->HasElement("r_foot_link"))
+      this->lFootLinkName = atlasSDF->Get<std::string>("r_foot_link");
+    else
+      ROS_INFO("Can't find <robot><r_foot_link> blocks, defaults to [r_foot].");
+  }
   else
-    ROS_INFO("Can't find <atlas> blocks. using default: "
-             "looking for model name [atlas], param [robot_description]"
-             "link [utorso], param [robot_initial_pose/[x|y|z|roll|pitch|yaw]");
+    ROS_INFO("Can't find <atlas> or <robot> blocks. using default: "
+             "looking for model name [atlas], param [robot_description] "
+             "pin link [utorso], left foot link [l_foot], "
+             "right foot link [r_foot], "
+             "param [robot_initial_pose/[x|y|z|roll|pitch|yaw]");
 
   // check if model exists already
   this->model = _world->GetModel(this->modelName);
@@ -1533,6 +1580,10 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
     if (rh.getParam(robotDescriptionName, robotStr))
     {
       // put model into gazebo factory queue (non-blocking)
+      /// \TODO: Using InertModelString as compared to using urdf-sdf
+      /// converter has one disadvantage - the mesh uris are still in
+      /// the ros format, so we need to have setup GAZEBO_MODEL_PATHs
+      /// for the new model.
       _world->InsertModelString(robotStr);
       this->startupSequence = Robot::SPAWN_QUEUED;
       ROS_INFO("atlas model pushed into gazebo spawn queue.");

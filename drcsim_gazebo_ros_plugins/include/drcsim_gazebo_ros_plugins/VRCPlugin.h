@@ -255,6 +255,12 @@ namespace gazebo
       private: std::string modelName;
       private: std::string pinLinkName;
 
+      /// keep a pointer to the foot links for development aids
+      private: std::string lFootLinkName;
+      private: std::string rFootLinkName;
+      private: physics::LinkPtr lFootLink;
+      private: physics::LinkPtr rFootLink;
+
       /// \brief keep initial pose of robot to prevent z-drifting when
       /// teleporting the robot.
       private: math::Pose initialPose;
