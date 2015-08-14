@@ -1096,6 +1096,11 @@ void VRCPlugin::UpdateStates()
   {
     // done, do nothing
   }
+  else if (this->atlas.startupSequence == Robot::QUIT)
+  {
+    // stop VRCPlugin
+    event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  }
   else
   {
     // should not be here
@@ -1590,9 +1595,11 @@ void VRCPlugin::Robot::InsertModel(physics::WorldPtr _world,
     }
     else
     {
-      ROS_ERROR("failed to spawn model from rosparam: [%s].",
+      ROS_ERROR("failed to spawn model from rosparam: [%s]. stopping plugin",
         robotDescriptionName.c_str());
-      this->startupSequence = Robot::NONE;
+
+      // No robot, stop this plugin
+      this->startupSequence = Robot::QUIT;
     }
   }
 }
