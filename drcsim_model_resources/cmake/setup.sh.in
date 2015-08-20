@@ -6,9 +6,9 @@
 if [ -z "$DRCSIM_SKIP_ROS_GAZEBO_SETUP" ]; then
   # Step 1: load ROS configuration.  Special case for different shells,
   # to pull in command-line completion.
-  if [ $SHELL = /bin/bash ]; then
+  if [ "$SHELL" = /bin/bash ]; then
     . /opt/ros/@ROS_DISTRO@/setup.bash
-  elif [ $SHELL = /bin/zsh ]; then
+  elif [ "$SHELL" = /bin/zsh ]; then
     . /opt/ros/@ROS_DISTRO@/setup.zsh
   else
     . /opt/ros/@ROS_DISTRO@/setup.sh 
