@@ -19,6 +19,7 @@
 #include <boost/thread/mutex.hpp>
 
 #include <gazebo/gazebo.hh>
+#include <gazebo/gazebo_client.hh>
 #include <gazebo/transport/transport.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/math/gzmath.hh>
@@ -51,7 +52,7 @@ int main(int _argc, char **_argv)
 {
   // Load gazebo
 #if GAZEBO_MAJOR_VERSION > 2
-  gazebo::setupClient(_argc, _argv);
+  gazebo::client::setup(_argc, _argv);
 #else
   gazebo::load(_argc, _argv);
 #endif
@@ -93,7 +94,7 @@ int main(int _argc, char **_argv)
   modelMsg.set_name(name);
   modelMsg.set_id(g_modelMsg.id());
   gazebo::math::Pose pose(x, y, z, 0, 0, 0);
-  gazebo::msgs::Set(modelMsg.mutable_pose(), pose);
+  gazebo::msgs::Set(modelMsg.mutable_pose(), pose.Ign());
 
   // Wait for a subscriber to connect
   modelPub->WaitForConnection();

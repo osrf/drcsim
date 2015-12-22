@@ -749,15 +749,15 @@ void SandiaHandPlugin::FillTactileData(ContactMsgs_L _incomingContacts,
         // Iterate all contact positions
         for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
         {
-          pos = msgs::Convert((*iter)->contact(i).position(j));
+          pos = msgs::ConvertIgn((*iter)->contact(i).position(j));
           if (isBody1)
           {
-            force = msgs::Convert((*iter)->contact(i).wrench(j).
+            force = msgs::ConvertIgn((*iter)->contact(i).wrench(j).
                 body_1_wrench().force());
           }
           else
           {
-            force = msgs::Convert((*iter)->contact(i).wrench(j).
+            force = msgs::ConvertIgn((*iter)->contact(i).wrench(j).
                 body_2_wrench().force());
           }
 
