@@ -122,7 +122,7 @@ namespace gazebo
     private: double updateRate;
 
     // IMU sensor
-    private: boost::shared_ptr<sensors::ImuSensor> ImuSensor;
+    private: sensors::ImuSensorPtr ImuSensor;
     private: common::Time lastImuTime;
     private: std::string ImuLinkName;
     private: physics::LinkPtr ImuLink;

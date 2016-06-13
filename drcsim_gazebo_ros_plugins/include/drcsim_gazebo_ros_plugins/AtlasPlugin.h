@@ -205,7 +205,7 @@ namespace gazebo
     private: void GetAndPublishRobotStates(const common::Time &_curTime);
 
     // IMU sensor
-    private: boost::shared_ptr<sensors::ImuSensor> imuSensor;
+    private: sensors::ImuSensorPtr imuSensor;
     private: std::string imuLinkName;
     // publish separate /atlas/imu topic, to be deprecated
     private: ros::Publisher pubImu;
