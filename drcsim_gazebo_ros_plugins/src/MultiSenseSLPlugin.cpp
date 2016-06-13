@@ -21,6 +21,13 @@
 
 #include "drcsim_gazebo_ros_plugins/MultiSenseSLPlugin.h"
 
+#ifndef GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST
+# if GAZEBO_MAJOR_VERSION >= 7
+#define GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST using std::dynamic_pointer_cast
+# else
+#define GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST using boost::dynamic_pointer_cast
+# endif
+#endif
 
 namespace gazebo
 {
@@ -79,9 +86,10 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->imuLink)
     gzerr << this->imuLinkName << " not found\n";
 
+  GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST;
+
   // Get sensors
-  this->imuSensor =
-    boost::dynamic_pointer_cast<sensors::ImuSensor>
+  this->imuSensor = dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->atlasModel->GetScopedName()
         + "::head::"
@@ -115,15 +123,18 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   //                                  siter != s.end(); ++siter)
   //   gzerr << (*siter)->GetName() << "\n";
 
-  this->multiCameraSensor =
-    boost::dynamic_pointer_cast<sensors::MultiCameraSensor>(
+  GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST;
+  this->multiCameraSensor = dynamic_pointer_cast<sensors::MultiCameraSensor>(
     sensors::SensorManager::Instance()->GetSensor("stereo_camera"));
   if (!this->multiCameraSensor)
     gzerr << "multicamera sensor not found\n";
 
   // get default frame rate
+# if GAZEBO_MAJOR_VERSION >= 7
+  this->multiCameraFrameRate = this->multiCameraSensor->UpdateRate();
+# else
   this->multiCameraFrameRate = this->multiCameraSensor->GetUpdateRate();
-
+# endif
 
   if (!sensors::SensorManager::Instance()->GetSensor("head_hokuyo_sensor"))
     gzerr << "laser sensor not found\n";
@@ -305,7 +316,11 @@ void MultiSenseSL::UpdateStates()
 
     // compute angular rates
     {
+# if GAZEBO_MAJOR_VERSION >= 7
+      math::Vector3 wLocal = this->imuSensor->AngularVelocity();
+# else
       math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
+# endif
       imuMsg.angular_velocity.x = wLocal.x;
       imuMsg.angular_velocity.y = wLocal.y;
       imuMsg.angular_velocity.z = wLocal.z;
@@ -313,7 +328,11 @@ void MultiSenseSL::UpdateStates()
 
     // compute acceleration
     {
+# if GAZEBO_MAJOR_VERSION >= 7
+      math::Vector3 accel = this->imuSensor->LinearAcceleration();
+# else
       math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
+# endif
       imuMsg.linear_acceleration.x = accel.x;
       imuMsg.linear_acceleration.y = accel.y;
       imuMsg.linear_acceleration.z = accel.z;
@@ -322,7 +341,11 @@ void MultiSenseSL::UpdateStates()
     // compute orientation
     {
       math::Quaternion imuRot =
+# if GAZEBO_MAJOR_VERSION >= 7
+        this->imuSensor->Orientation();
+# else
         this->imuSensor->GetOrientation();
+# endif
       imuMsg.orientation.x = imuRot.x;
       imuMsg.orientation.y = imuRot.y;
       imuMsg.orientation.z = imuRot.z;
@@ -528,11 +551,19 @@ void MultiSenseSL::SetMultiCameraResolution(
 
   this->multiCameraSensor->SetUpdateRate(this->multiCameraFrameRate);
 
+# if GAZEBO_MAJOR_VERSION >= 7
+  for (unsigned int i = 0; i < this->multiCameraSensor->CameraCount(); ++i)
+  {
+    this->multiCameraSensor->Camera(i)->SetImageWidth(width);
+    this->multiCameraSensor->Camera(i)->SetImageHeight(height);
+  }
+# else
   for (unsigned int i = 0; i < this->multiCameraSensor->GetCameraCount(); ++i)
   {
     this->multiCameraSensor->GetCamera(i)->SetImageWidth(width);
     this->multiCameraSensor->GetCamera(i)->SetImageHeight(height);
   }
+# endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

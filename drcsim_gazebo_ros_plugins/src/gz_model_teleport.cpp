@@ -24,7 +24,11 @@
 #include <gazebo/math/gzmath.hh>
 
 #include <iostream>
-#include <cstdlib> 
+#include <cstdlib>
+
+# if GAZEBO_MAJOR_VERSION >= 6
+#include <gazebo/gazebo_client.hh>
+# endif
 
 
 boost::mutex g_mutex;
@@ -51,7 +55,11 @@ int main(int _argc, char **_argv)
 {
   // Load gazebo
 #if GAZEBO_MAJOR_VERSION > 2
+# if GAZEBO_MAJOR_VERSION >= 6
+  gazebo::client::setup(_argc, _argv);
+# else
   gazebo::setupClient(_argc, _argv);
+# endif
 #else
   gazebo::load(_argc, _argv);
 #endif
@@ -93,7 +101,11 @@ int main(int _argc, char **_argv)
   modelMsg.set_name(name);
   modelMsg.set_id(g_modelMsg.id());
   gazebo::math::Pose pose(x, y, z, 0, 0, 0);
+# if GAZEBO_MAJOR_VERSION >= 7
+  gazebo::msgs::Set(modelMsg.mutable_pose(), pose.Ign());
+# else
   gazebo::msgs::Set(modelMsg.mutable_pose(), pose);
+# endif
 
   // Wait for a subscriber to connect
   modelPub->WaitForConnection();

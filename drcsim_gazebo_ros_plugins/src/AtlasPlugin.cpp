@@ -32,7 +32,13 @@
 
 #include "drcsim_gazebo_ros_plugins/AtlasPlugin.h"
 
-
+#ifndef GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST
+# if GAZEBO_MAJOR_VERSION >= 7
+#define GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST using std::dynamic_pointer_cast
+# else
+#define GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST using boost::dynamic_pointer_cast
+# endif
+#endif
 
 using std::string;
 
@@ -575,9 +581,10 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->lAnkleJoint)
     gzerr << "left ankle joint (l_leg_akx or l_leg_lax) not found\n";
 
+  GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST;
+
   // Get sensors
-  this->imuSensor =
-    boost::dynamic_pointer_cast<sensors::ImuSensor>
+  this->imuSensor = dynamic_pointer_cast<sensors::ImuSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::pelvis::"
@@ -585,8 +592,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->imuSensor)
     gzerr << "imu_sensor not found\n" << "\n";
 
-  this->rFootContactSensor =
-    boost::dynamic_pointer_cast<sensors::ContactSensor>
+  this->rFootContactSensor = dynamic_pointer_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::r_foot::"
@@ -594,8 +600,7 @@ void AtlasPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   if (!this->rFootContactSensor)
     gzerr << "r_foot_contact_sensor not found\n" << "\n";
 
-  this->lFootContactSensor =
-    boost::dynamic_pointer_cast<sensors::ContactSensor>
+  this->lFootContactSensor = dynamic_pointer_cast<sensors::ContactSensor>
       (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->model->GetScopedName()
         + "::l_foot::"
@@ -1609,7 +1614,11 @@ void AtlasPlugin::OnLContactUpdate()
 {
   // Get all the contacts.
   msgs::Contacts contacts;
+# if GAZEBO_MAJOR_VERSION >= 7
+  contacts = this->lFootContactSensor->Contacts();
+# else
   contacts = this->lFootContactSensor->GetContacts();
+# endif
 
   math::Vector3 fTotal;
   math::Vector3 tTotal;
@@ -1649,7 +1658,11 @@ void AtlasPlugin::OnRContactUpdate()
 {
   // Get all the contacts.
   msgs::Contacts contacts;
+# if GAZEBO_MAJOR_VERSION >= 7
+  contacts = this->rFootContactSensor->Contacts();
+# else
   contacts = this->rFootContactSensor->GetContacts();
+# endif
 
   math::Vector3 fTotal;
   math::Vector3 tTotal;
@@ -2015,7 +2028,11 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 
     // compute angular rates
     {
+# if GAZEBO_MAJOR_VERSION >= 7
+      math::Vector3 wLocal = this->imuSensor->AngularVelocity();
+# else
       math::Vector3 wLocal = this->imuSensor->GetAngularVelocity();
+# endif
       this->atlasState.angular_velocity.x = wLocal.x;
       this->atlasState.angular_velocity.y = wLocal.y;
       this->atlasState.angular_velocity.z = wLocal.z;
@@ -2033,7 +2050,11 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 
     // compute acceleration
     {
+# if GAZEBO_MAJOR_VERSION >= 7
+      math::Vector3 accel = this->imuSensor->LinearAcceleration();
+# else
       math::Vector3 accel = this->imuSensor->GetLinearAcceleration();
+# endif
       this->atlasState.linear_acceleration.x = accel.x;
       this->atlasState.linear_acceleration.y = accel.y;
       this->atlasState.linear_acceleration.z = accel.z;
@@ -2051,7 +2072,11 @@ void AtlasPlugin::GetIMUState(const common::Time &_curTime)
 
     // compute orientation
     {
+# if GAZEBO_MAJOR_VERSION >= 7
+      math::Quaternion imuRot = this->imuSensor->Orientation();
+# else
       math::Quaternion imuRot = this->imuSensor->GetOrientation();
+# endif
       this->atlasState.orientation.x = imuRot.x;
       this->atlasState.orientation.y = imuRot.y;
       this->atlasState.orientation.z = imuRot.z;

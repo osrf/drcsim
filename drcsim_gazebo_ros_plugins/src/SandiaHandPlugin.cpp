@@ -22,6 +22,14 @@
 #include <gazebo/transport/Node.hh>
 #include "drcsim_gazebo_ros_plugins/SandiaHandPlugin.h"
 
+#ifndef GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST
+# if GAZEBO_MAJOR_VERSION >= 7
+#define GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST using std::dynamic_pointer_cast
+# else
+#define GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST using boost::dynamic_pointer_cast
+# endif
+#endif
+
 using std::string;
 
 namespace gazebo
@@ -198,9 +206,10 @@ void SandiaHandPlugin::Load(physics::ModelPtr _parent,
   if (!this->ImuLink)
     gzerr << this->ImuLinkName << " not found\n";
 
+  GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST;
+
   // Get imu sensors
-  this->ImuSensor =
-    boost::dynamic_pointer_cast<sensors::ImuSensor>
+  this->ImuSensor = dynamic_pointer_cast<sensors::ImuSensor>
        (sensors::SensorManager::Instance()->GetSensor(
         this->world->GetName() + "::" + this->ImuLink->GetScopedName()
          + "::imu_sensor"));
@@ -378,8 +387,8 @@ void SandiaHandPlugin::DeferredLoad()
   // ros topic subscriptions
   ros::SubscribeOptions jointCommandsSo =
     ros::SubscribeOptions::create<osrf_msgs::JointCommands>(
-    topic_base+std::string("_hand/joint_commands"), 100, 
-    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1), 
+    topic_base+std::string("_hand/joint_commands"), 100,
+    boost::bind(&SandiaHandPlugin::SetJointCommands, this, _1),
     ros::VoidPtr(), &this->rosQueue);
   this->subJointCommands = this->rosNode->subscribe(jointCommandsSo);
 
@@ -392,7 +401,7 @@ void SandiaHandPlugin::DeferredLoad()
   this->pubTactileQueue = this->pmq->addPub<sandia_hand_msgs::RawTactile>();
   this->pubTactile =
     this->rosNode->advertise<sandia_hand_msgs::RawTactile>(
-    topic_base+std::string("_hand/tactile_raw"), 10, 
+    topic_base+std::string("_hand/tactile_raw"), 10,
     boost::bind(&SandiaHandPlugin::TactileConnect, this),
     boost::bind(&SandiaHandPlugin::TactileDisconnect, this));
 
@@ -492,9 +501,15 @@ void SandiaHandPlugin::UpdateStates()
     {
       if (this->ImuSensor)
       {
+# if GAZEBO_MAJOR_VERSION >= 7
+        math::Vector3 angularVel = this->ImuSensor->AngularVelocity();
+        math::Vector3 linearAcc = this->ImuSensor->LinearAcceleration();
+        math::Quaternion orientation = this->ImuSensor->Orientation();
+# else
         math::Vector3 angularVel = this->ImuSensor->GetAngularVelocity();
         math::Vector3 linearAcc = this->ImuSensor->GetLinearAcceleration();
         math::Quaternion orientation = this->ImuSensor->GetOrientation();
+# endif
 
         sensor_msgs::Imu ImuMsg;
         ImuMsg.header.frame_id = this->ImuLinkName;
@@ -682,7 +697,9 @@ void SandiaHandPlugin::FillTactileData(ContactMsgs_L _incomingContacts,
         physics::Collision *col = NULL;
         if (!this->contactCollisions.count(collision1))
         {
-          col = boost::dynamic_pointer_cast<physics::Collision>(
+          GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST;
+
+          col = dynamic_pointer_cast<physics::Collision>(
               this->world->GetEntity(collision1)).get();
           this->contactCollisions[collision1] = col;
         }
@@ -749,16 +766,30 @@ void SandiaHandPlugin::FillTactileData(ContactMsgs_L _incomingContacts,
         // Iterate all contact positions
         for (int j = 0; j < (*iter)->contact(i).position_size(); ++j)
         {
+# if GAZEBO_MAJOR_VERSION >= 7
+          pos = msgs::ConvertIgn((*iter)->contact(i).position(j));
+# else
           pos = msgs::Convert((*iter)->contact(i).position(j));
+# endif
           if (isBody1)
           {
+# if GAZEBO_MAJOR_VERSION >= 7
+            force = msgs::ConvertIgn((*iter)->contact(i).wrench(j).
+                body_1_wrench().force());
+# else
             force = msgs::Convert((*iter)->contact(i).wrench(j).
                 body_1_wrench().force());
+# endif
           }
           else
           {
+# if GAZEBO_MAJOR_VERSION >= 7
+            force = msgs::ConvertIgn((*iter)->contact(i).wrench(j).
+                body_2_wrench().force());
+# else
             force = msgs::Convert((*iter)->contact(i).wrench(j).
                 body_2_wrench().force());
+# endif
           }
 
           // Scaling formula taken from Gazebo's ContactVisual class
