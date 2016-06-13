@@ -116,7 +116,6 @@ void MultiSenseSL::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   //                                  siter != s.end(); ++siter)
   //   gzerr << (*siter)->GetName() << "\n";
 
-  GAZEBO_DRCSIM_USING_DYNAMIC_POINTER_CAST;
   this->multiCameraSensor = dynamic_pointer_cast<sensors::MultiCameraSensor>(
     sensors::SensorManager::Instance()->GetSensor("stereo_camera"));
   if (!this->multiCameraSensor)
