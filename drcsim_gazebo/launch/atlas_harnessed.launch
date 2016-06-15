@@ -1,4 +1,7 @@
 <launch>
+<!-- This launch file is for demostration of Gazebo's Harness plugin.
+     Do not use this launch file if you intend to do meaningful work
+     with atlas -->
 
   <arg name="gzname" default="gazebo"/>
   <arg name="gzworld" default="atlas.world"/>

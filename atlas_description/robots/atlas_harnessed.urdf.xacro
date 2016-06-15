@@ -1,3 +1,7 @@
+<!-- This  file is for demostration of Gazebo's Harness plugin.
+     Do not use this file if you intend to do meaningful work
+     with atlas -->
+
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="atlas" >
   <xacro:include filename="$(find atlas_description)/urdf/atlas_simple_shapes.urdf" />
   <xacro:include filename="$(find atlas_description)/urdf/atlas.gazebo" />

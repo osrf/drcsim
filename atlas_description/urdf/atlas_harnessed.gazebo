@@ -1,3 +1,7 @@
+<!-- This  file is for demostration of Gazebo's Harness plugin.
+     Do not use this file if you intend to do meaningful work
+     with atlas -->
+
 <robot name="drc_skeleton">
   <gazebo>
     <plugin filename="libgazebo_ros_harness.so" name="harness">
@@ -8,11 +12,14 @@
       -->
       <harness_link_name>harness_link</harness_link_name>
 
+      <!-- Pose of the harness link, in this model's frame -->
+      <harness_link_pose>0 0 2 0 0 0</harness_link_pose>
+
       <joint name="joint1" type="prismatic">
         <pose>0 0 0 0 0 0</pose>
         <!-- This name matches <harness_link_name> above. -->
         <parent>harness_link</parent>
-        <child>pelvis</child>
+        <child>torso</child>
         <axis>
           <xyz>0 0 1</xyz>
           <dynamics>
