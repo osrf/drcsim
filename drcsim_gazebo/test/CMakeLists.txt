@@ -1,10 +1,6 @@
-set (rostests
+set (extra_rostests
   atlas_publishers_hz.test
   atlas_sandia_hands_publishers_hz.test
-  atlas_publishers_hz_gpu.test
-  atlas_sandia_hands_publishers_hz_gpu.test
-  atlas_rosapi.test
-  atlas_sandia_hands_rosapi.test
   vrc_task_1_rosapi.test
   vrc_task_2_rosapi.test
   vrc_task_3_rosapi.test
@@ -28,6 +24,13 @@ set (rostests
   vrc_task_1_dynamic_walking.test
   vrc_task_2_dynamic_walking.test
   vrc_task_3_dynamic_walking.test
+)
+
+set (rostests
+  atlas_publishers_hz_gpu.test
+  atlas_sandia_hands_publishers_hz_gpu.test
+  atlas_rosapi.test
+  atlas_sandia_hands_rosapi.test
   multicamera_connection.test
 )
 
@@ -35,15 +38,19 @@ set (rostests
 # running on a machine that's powerful enough to hit our performance targets.
 # Otherwise, we get periodic failiures from timing issues.
 include (CheckDisplayCapabilities.cmake)
-if(VALID_DRI_DISPLAY)
-  foreach (rostest ${rostests})
-    # We don't set a timeout here because we trust rostest to enforce the
-    # timeout specified in each .test file.
-    add_test(${rostest} rostest ${CMAKE_CURRENT_SOURCE_DIR}/${rostest})
-    # Check for test result file and create one if needed.  rostest can fail to
-    # generate a file if it throws an exception.
-    add_test(check_${rostest} rosrun rosunit check_test_ran.py --rostest ${ROS_PACKAGE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${rostest})
-  endforeach()
+message(STATUS "******************** ${VALID_DRI_DISPLAY} *************")
+if(CATKIN_ENABLE_TESTING)
+  if(VALID_DRI_DISPLAY)
+  find_package(rostest REQUIRED)
+      foreach (rostest ${rostests})
+	# We don't set a timeout here because we trust rostest to enforce the
+	# timeout specified in each .test file.
+	add_rostest(${rostest} rostest ${CMAKE_CURRENT_SOURCE_DIR}/${rostest})
+	# Check for test result file and create one if needed.  rostest can fail to
+	# generate a file if it throws an exception.
+	add_test(check_${rostest} rosrun rosunit check_test_ran.py --rostest ${ROS_PACKAGE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${rostest})
+      endforeach()
+  endif()
 endif()
 
 # Install test files because we'll run tests from the install tree.  We could
@@ -52,6 +59,7 @@ endif()
 # $(find drcsim_gazebo) in rostest files.
 install(FILES
   ${rostests}
+  ${extra_rostests}
   atlas_rosapi.yaml
   multisense_sl_rosapi.yaml
   sandia_hands_rosapi.yaml
