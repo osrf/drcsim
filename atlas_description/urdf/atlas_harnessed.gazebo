@@ -1,0 +1,73 @@
+<!-- This  file is for demostration of Gazebo's Harness plugin.
+     Do not use this file if you intend to do meaningful work
+     with atlas -->
+
+<robot name="drc_skeleton">
+  <gazebo>
+    <plugin filename="libgazebo_ros_harness.so" name="harness">
+    <!--<plugin filename="libHarnessPlugin.so" name="harness"> -->
+
+      <joint name="joint1" type="prismatic">
+        <pose>0 0 0 0 0 0</pose>
+        <parent>world</parent>
+        <child>utorso</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <dynamics>
+            <damping>10</damping>
+          </dynamics>
+          <limit>
+            <lower>-1.5</lower>
+            <upper>1.5</upper>
+            <effort>10000</effort>
+            <velocity>-1</velocity>
+            <stiffness>0</stiffness>
+            <dissipation>0</dissipation>
+          </limit>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <limit>
+              <cfm>0.0</cfm>
+              <erp>0.0</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+
+      <!-- The joint that raises or lowers the harness -->
+      <winch>
+        <!-- This must be a joint specified within
+             the body of this plugin. -->
+        <joint>joint1</joint>
+
+        <!-- PID value for velocity control of the winch. These values
+             are tuned to work with this box model. -->
+        <pos_pid>
+          <p>1000000</p>
+          <i>0</i>
+          <d>0</d>
+          <i_min>0</i_min>
+          <i_max>0</i_max>
+          <cmd_min>-10000</cmd_min>
+          <cmd_max>10000</cmd_max>
+        </pos_pid>
+        <vel_pid>
+          <p>10000</p>
+          <i>0</i>
+          <d>0</d>
+          <i_min>0</i_min>
+          <i_max>0</i_max>
+          <cmd_min>0</cmd_min>
+          <cmd_max>10000</cmd_max>
+        </vel_pid>
+      </winch>
+
+      <!-- Joint to detach. Once the joint is detached, it cannot be
+           reattached. This must be a joint specified within the
+           body of this plugin. -->
+      <detach>joint1</detach>
+    </plugin>
+  </gazebo>
+</robot>
