@@ -1,7 +1,5 @@
 <launch>
 
-  <arg name="gzname" default="gazebo"/>
-  <arg name="gzworld" default="atlas.world"/>
   <arg name="hand_suffix" default=""/>
   <arg name="extra_gazebo_args" default="-q" />
   <arg name="model_args" default="" />
@@ -11,9 +9,7 @@
   <param name="/atlas/startup_mode" type="string" value="bdi_stand"/>
 
   <!-- start gazebo with the Atlas -->
-  <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch">
-    <arg name="gzname" value="$(arg gzname)"/>
-    <arg name="gzworld" value="$(arg gzworld)"/>
+  <include file="$(find drcsim_gazebo)/launch/atlas_no_controllers.launch" pass_all_args="true">
     <arg name="extra_gazebo_args" value="$(arg extra_gazebo_args)"/>
   </include>
 
