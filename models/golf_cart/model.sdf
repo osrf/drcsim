@@ -213,6 +213,13 @@
             <length>0.100000</length>
           </cylinder>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <max_vel>100.0</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <visual name='front_left_wheel_visual'>
         <geometry>
@@ -290,6 +297,13 @@
             <length>0.100000</length>
           </cylinder>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <max_vel>100.0</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <visual name='front_right_wheel_visual'>
         <geometry>
@@ -329,6 +343,13 @@
             <length>0.100000</length>
           </cylinder>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <max_vel>100.0</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <visual name='back_right_wheel_visual'>
         <geometry>
@@ -367,6 +388,13 @@
             <length>0.100000</length>
           </cylinder>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <max_vel>100.0</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <visual name='back_left_wheel_visual'>
         <geometry>

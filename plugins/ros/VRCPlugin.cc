@@ -279,7 +279,7 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
   joint->Attach(_link1, _link2);
   // load adds the joint to a vector of shared pointers kept
   // in parent and child links, preventing joint from being destroyed.
-  joint->Load(_link1, _link2, _anchor);
+  joint->Load(_link1, _link2, math::Pose(_anchor, math::Quaternion()));
   // joint->SetAnchor(0, _anchor);
   joint->SetAxis(0, _axis);
   joint->SetHighStop(0, _upper);
@@ -306,6 +306,12 @@ physics::JointPtr VRCPlugin::AddJoint(physics::WorldPtr _world,
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  // Check if drcVehicle.model is loaded
+  if (!this->drcVehicle.model)
+  {
+    ROS_ERROR("drc_vehicle model not found, cannot enter car.");
+    return;
+  }
   math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
                     _pose->orientation.y, _pose->orientation.z);
   q.Normalize();
@@ -408,6 +414,12 @@ void VRCPlugin::RobotEnterCar(const geometry_msgs::Pose::ConstPtr &_pose)
 ////////////////////////////////////////////////////////////////////////////////
 void VRCPlugin::RobotExitCar(const geometry_msgs::Pose::ConstPtr &_pose)
 {
+  // Check if drcVehicle.model is loaded
+  if (!this->drcVehicle.model)
+  {
+    ROS_ERROR("drc_vehicle model not found, cannot exit car.");
+    return;
+  }
   math::Quaternion q(_pose->orientation.w, _pose->orientation.x,
                     _pose->orientation.y, _pose->orientation.z);
   q.Normalize();
@@ -587,7 +599,7 @@ void VRCPlugin::FireHose::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->fireHoseModel = _world->GetModel(fireHoseModelName);
   if (!this->fireHoseModel)
   {
-    ROS_ERROR("fire_hose_model [%s] not found", fireHoseModelName.c_str());
+    ROS_INFO("fire_hose_model [%s] not found", fireHoseModelName.c_str());
     return;
   }
   this->initialFireHosePose = this->fireHoseModel->GetWorldPose();
@@ -702,7 +714,7 @@ void VRCPlugin::Vehicle::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   if (!this->model)
   {
-    ROS_ERROR("drc vehicle not found.");
+    ROS_INFO("drc vehicle not found.");
     return;
   }
 
