@@ -16,9 +16,9 @@ foreach(model_basename ${model_basenames})
   install(FILES ${model_basename}.urdf.xacro
           DESTINATION ${ROS_PKG_INSTALL_PATH}/robots/)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.urdf
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/gazebo/${model_basename})
+          DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${model_basename}.manifest.xml
-          DESTINATION ${ROS_PKG_INSTALL_PATH}/gazebo/${model_basename}
+          DESTINATION ${GAZEBO_INSTALL_PATH}/${model_basename}
           RENAME manifest.xml)
 endforeach()
 
