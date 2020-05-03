@@ -7,8 +7,8 @@
         <solver>
           <type>quick</type>
           <dt>0.001</dt>
-          <iters>10</iters>
-          <sor>1.0</sor>
+          <iters>50</iters>
+          <sor>1.4</sor>
         </solver>
         <constraints>
           <cfm>0.0</cfm>
@@ -30,7 +30,7 @@
     </include>
 
     <include>
-      <uri>model://low_poly_golf_cart</uri>
+      <uri>model://golf_cart</uri>
       <pose>0 -2 0 0 0 0</pose>
     </include>
 

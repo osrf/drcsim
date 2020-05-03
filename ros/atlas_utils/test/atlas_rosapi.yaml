@@ -1,0 +1,160 @@
+strict: true
+topics:
+
+  ##########################################################
+  # Published topics
+
+  #####################################
+  # System
+  - topic: /clock
+    type: rosgraph_msgs/Clock
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /rosout
+    type: rosgraph_msgs/Log
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /rosout_agg
+    type: rosgraph_msgs/Log
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /tf
+    type: tf/tfMessage
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /tf_static
+    type: tf2_msgs/TFMessage
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /tf2_buffer_server/cancel
+    type: actionlib_msgs/GoalID
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /tf2_buffer_server/feedback
+    type: tf2_msgs/LookupTransformActionFeedback
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /tf2_buffer_server/goal
+    type: tf2_msgs/LookupTransformActionGoal
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /tf2_buffer_server/result
+    type: tf2_msgs/LookupTransformActionResult
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /tf2_buffer_server/status
+    type: actionlib_msgs/GoalStatusArray
+    num_publishers: 1
+    num_subscribers: -1
+
+  #####################################
+  # Atlas
+  - topic: /atlas/controller_statistics
+    type: atlas_msgs/ControllerStatistics
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/force_torque_sensors
+    type: atlas_msgs/ForceTorqueSensors
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/imu
+    type: sensor_msgs/Imu
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/joint_states
+    type: sensor_msgs/JointState
+    num_publishers: 1
+    num_subscribers: -1
+  
+  - topic: /atlas/atlas_state
+    type: atlas_msgs/AtlasState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/atlas_sim_interface_state
+    type: atlas_msgs/AtlasSimInterfaceState
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/synchronization_statistics
+    type: atlas_msgs/SynchronizationStatistics
+    num_publishers: 1
+    num_subscribers: -1    
+
+  ##########################################################
+  # Subscribed topics
+
+  #####################################
+  # Atlas
+  - topic: /atlas/control_mode
+    type: std_msgs/String
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/joint_commands
+    type: osrf_msgs/JointCommands
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/atlas_command
+    type: atlas_msgs/AtlasCommand
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/atlas_sim_interface_command
+    type: atlas_msgs/AtlasSimInterfaceCommand
+    num_publishers: -1
+    num_subscribers: 1
+
+services:
+
+  - service: /atlas/atlas_filters
+    type: atlas_msgs/AtlasFilters
+
+  - service: /atlas/reset_controls
+    type: atlas_msgs/ResetControls
+
+  - service: /atlas_robot_state_publisher/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /atlas_robot_state_publisher/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /gazebo/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /gazebo/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /rosout/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /rosout/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /tf2_buffer_server/get_loggers
+    type: roscpp/GetLoggers
+
+  - service: /tf2_buffer_server/set_logger_level
+    type: roscpp/SetLoggerLevel
+
+  - service: /tf2_buffer_server/tf2_frames
+    type: tf2_msgs/FrameGraph
+
+  - service: /atlas/set_joint_damping
+    type: atlas_msgs/SetJointDamping
+
+  - service: /atlas/get_joint_damping
+    type: atlas_msgs/GetJointDamping

@@ -1,29 +1,19 @@
 /*
- *  Gazebo - Outdoor Multi-Robot Simulator
- *  Copyright (C) 2003
- *     Nate Koenig & Andrew Howard
+ * Copyright 2012 Open Source Robotics Foundation
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- */
-/*
- * Desc: 3D position interface for ground truth.
- * Author: Sachin Chitta and John Hsu
- * Date: 1 June 2008
- * SVN info: $Id$
- */
+*/
 
 #include "DRCBuildingPlugin.hh"
 
@@ -41,7 +31,7 @@ DRCBuildingPlugin::DRCBuildingPlugin()
 // Destructor
 DRCBuildingPlugin::~DRCBuildingPlugin()
 {
-  event::Events::DisconnectWorldUpdateStart(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,14 +72,14 @@ void DRCBuildingPlugin::Load(physics::ModelPtr _parent,
   this->doorJoint->SetHighStop(0, 0);
   this->doorJoint->SetLowStop(0, 0);
 
-  this->doorPID.Init(200, 1, 3, 10, -10, 50, -50);
-  this->handlePID.Init(10, 0.3, 1, 1, -1, 5, -5);
+  this->doorPID.Init(200, 1, 20, 10, -10, 50, -50);
+  this->handlePID.Init(80, 1, 1, 3, -3, 5, -5);
   this->lastTime = this->world->GetSimTime();
 
   // New Mechanism for Updating every World Cycle
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->updateConnection = event::Events::ConnectWorldUpdateStart(
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&DRCBuildingPlugin::UpdateStates, this));
 }
 
@@ -115,12 +105,12 @@ void DRCBuildingPlugin::UpdateStates()
     double handleCmd = this->handlePID.Update(handleError, dt);
     this->handleJoint->SetForce(0, handleCmd);
 
-    // simulate door lock
-    if (math::equal(this->handleState, 0.0) &&
-        math::equal(this->doorState, 0.0))
+    // simulate door latch/lock
+    if ((fabs(this->handleState) < 0.02) && (fabs(this->doorState)   < 0.02))
     {
       this->doorJoint->SetHighStop(0, 0);
       this->doorJoint->SetLowStop(0, 0);
+      this->doorJoint->SetAngle(0, 0);
     }
     else
     {

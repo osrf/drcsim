@@ -14,8 +14,8 @@
         <solver>
           <type>quick</type>
           <dt>0.001</dt>
-          <iters>40</iters>
-          <sor>1.0</sor>
+          <iters>50</iters>
+          <sor>1.4</sor>
         </solver>
         <constraints>
           <cfm>0.0</cfm>
@@ -38,7 +38,7 @@
 
 <!--
     <include>
-      <uri>model://drc_robot</uri>
+      <uri>model://atlas</uri>
       <pose>0 2 0.93 0 0 0</pose>
     </include>
 
