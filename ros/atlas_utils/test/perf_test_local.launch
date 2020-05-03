@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="atlas_utils" type="run_pub_atlas_command.sh" name="$(anon pub_atlas_command)"/>
+  <node pkg="atlas_utils" type="run_gzstats.sh" name="$(anon gzstats)"/>
+  <node pkg="atlas_utils" type="run_rosbag.sh" name="$(anon rosbag)"/>
+</launch>
+

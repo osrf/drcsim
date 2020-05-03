@@ -1,0 +1,36 @@
+neck_ay_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: neck_ay
+  pid: &neck_ay_gains
+    p: 200.0
+    d: 20.0
+    i: 0.0
+    i_clamp: 0.0
+
+back_lbz_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: back_lbz
+  pid: &back_lbz_gains
+    p: 200000.0
+    d: 200.0
+    i: 0.0
+    i_clamp: 0.0
+
+back_mby_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: back_mby
+  pid: &back_mby_gains
+    p: 2000000.0
+    d: 200.0
+    i: 0.0
+    i_clamp: 0.0
+
+back_ubx_position_controller:
+  type: robot_mechanism_controllers/JointPositionController
+  joint: back_ubx
+  pid: &back_ubx_gains
+    p: 2000000.0
+    d: 200.0
+    i: 0.0
+    i_clamp: 0.0
+

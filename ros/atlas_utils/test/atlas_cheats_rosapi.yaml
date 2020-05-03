@@ -1,0 +1,96 @@
+topics:
+
+  ##########################################################
+  # Published topics
+
+  - topic: /atlas/debug/l_foot_contact
+    type: geometry_msgs/WrenchStamped
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /atlas/debug/r_foot_contact
+    type: geometry_msgs/WrenchStamped
+    num_publishers: 1
+    num_subscribers: -1
+
+  - topic: /ground_truth_odom
+    type: nav_msgs/Odometry
+    num_publishers: 1
+    num_subscribers: -1
+
+  ##########################################################
+  # Subscribed topics
+
+  - topic: /atlas/cmd_vel
+    type: geometry_msgs/Twist
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/configuration
+    type: sensor_msgs/JointState
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/set_pose
+    type: geometry_msgs/Pose
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /joint_trajectory
+    type: trajectory_msgs/JointTrajectory
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/mode
+    type: std_msgs/String
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/debug/test
+    type: atlas_msgs/Test
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/debug/sync_delay
+    type: std_msgs/String
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /atlas/apply_pelvis_force
+    type: geometry_msgs/Wrench
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_world/robot_enter_car
+    type: geometry_msgs/Pose
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_world/robot_exit_car
+    type: geometry_msgs/Pose
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_world/robot_grab_link
+    type: geometry_msgs/Pose
+    num_publishers: -1
+    num_subscribers: 1
+
+  - topic: /drc_world/robot_release_link
+    type: geometry_msgs/Pose
+    num_publishers: -1
+    num_subscribers: 1
+
+services:
+
+  - service: /gazebo/pause_physics
+    type: std_srvs/Empty
+
+  - service: /gazebo/unpause_physics
+    type: std_srvs/Empty
+
+  - service: /gazebo/reset_models
+    type: std_srvs/Empty
+
+  - service: /gazebo/reset_simulation
+    type: std_srvs/Empty
